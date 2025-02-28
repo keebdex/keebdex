@@ -64,7 +64,7 @@
         <InputIcon class="pi pi-github" />
         <InputText
           id="feedback_github"
-          value="https://github.com/anhthang/keebdex"
+          value="https://github.com/keebdex/keebdex"
           type="text"
           fluid
           disabled
@@ -72,7 +72,7 @@
         <InputIcon>
           <template #default>
             <NuxtLink
-              to="https://github.com/anhthang/keebdex"
+              to="https://github.com/keebdex/keebdex"
               target="_blank"
               external
             >

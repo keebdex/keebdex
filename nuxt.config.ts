@@ -28,11 +28,10 @@ export default defineNuxtConfig({
     'nuxt-og-image',
   ],
 
-  // just to bypass vercel deployment to use `pg` instead
   content: {
     database: {
       type: 'd1',
-      bindingName: app.name,
+      bindingName: 'KEEBDEX_DB',
     },
   },
 
@@ -77,7 +76,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     // pages generated on demand once until next deployment, cached on CDN
-    '/about': { prerender: true },
-    '/policy': { prerender: true },
+    '/about': { isr: true },
+    '/policy': { isr: true },
   },
 })

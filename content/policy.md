@@ -21,6 +21,6 @@ We use your personal information to:
 
 **Changes to This Privacy Policy**
 
-We may update this Privacy Policy from time to time. You can view the latest changes to our Privacy Policy on our [GitHub repository](https://github.com/anhthang/keebdex).
+We may update this Privacy Policy from time to time. You can view the latest changes to our Privacy Policy on our [GitHub repository](https://github.com/keebdex/keebdex).
 
 **By using Keebdex, you consent to the collection and use of your information as described in this Privacy Policy.**
