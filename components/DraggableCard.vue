@@ -56,6 +56,7 @@
 </template>
 
 <script setup>
+import sortBy from 'lodash.sortby'
 import draggable from 'vuedraggable'
 
 defineEmits(['onRemove'])
@@ -73,13 +74,13 @@ const { data } = defineProps({
 })
 
 onBeforeMount(() => {
-  wishlist.value = data
+  wishlist.value = sortBy(data, 'id')
 })
 
 watch(
   () => data,
   () => {
-    wishlist.value = data
+    wishlist.value = sortBy(data, 'id')
   },
 )
 </script>

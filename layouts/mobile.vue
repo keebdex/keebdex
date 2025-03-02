@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col gap-4">
-    <SpeedInsights />
     <Menubar pt:root:class="!rounded-none	!border-x-0 !border-t-0">
       <template #start>
         <div
@@ -55,8 +54,6 @@
 </template>
 
 <script setup>
-import { SpeedInsights } from '@vercel/speed-insights/nuxt'
-
 const visible = ref(false)
 const toggleDrawer = () => {
   visible.value = !visible.value

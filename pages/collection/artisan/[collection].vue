@@ -203,11 +203,20 @@ const confirm = useConfirm()
 const toast = useToast()
 
 const sort = ref('artisan.maker_sculpt_id|artisan.name')
-const sortItem = ref({ label: 'Sort by Sculpt', icon: 'pi pi-sort-alt' })
+const sortItem = ref({ label: 'Sculpt Name', icon: 'pi pi-sort-alpha-down' })
 const sortOptions = computed(() => [
   {
-    label: 'Sort by Sculpt',
-    icon: 'pi pi-sort-alt',
+    label: 'Oldest First',
+    icon: 'pi pi-sort-numeric-down',
+    class: sort.value === 'id' && activePopMenu,
+    command: ({ item }) => {
+      sort.value = 'id'
+      sortItem.value = item
+    },
+  },
+  {
+    label: 'Sculpt Name',
+    icon: 'pi pi-sort-alpha-down',
     class:
       sort.value === 'artisan.maker_sculpt_id|artisan.name' && activePopMenu,
     command: ({ item }) => {
@@ -216,7 +225,7 @@ const sortOptions = computed(() => [
     },
   },
   {
-    label: 'Sort by Colorway',
+    label: 'Colorway Name',
     icon: 'pi pi-sort-alpha-down',
     class:
       sort.value === 'artisan.name|artisan.maker_sculpt_id' && activePopMenu,
