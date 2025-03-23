@@ -3,23 +3,22 @@
     header="My Collections"
     pt:root:class="!border-0 !bg-transparent"
     pt:title:class="flex items-center gap-4 font-medium text-3xl"
+    pt:header-actions:class="flex gap-2"
   >
     <template #icons>
-      <div class="flex gap-2">
-        <SelectButton
-          v-model="category"
-          :options="categories"
-          option-label="label"
-          option-value="value"
-        />
+      <SelectButton
+        v-model="category"
+        :options="categories"
+        option-label="label"
+        option-value="value"
+      />
 
-        <Button
-          v-if="authenticated"
-          icon="pi pi-folder-plus"
-          label="Add"
-          @click="toggleAddCollection"
-        />
-      </div>
+      <Button
+        v-if="authenticated"
+        icon="pi pi-folder-plus"
+        label="Add"
+        @click="toggleAddCollection"
+      />
     </template>
 
     <Dialog

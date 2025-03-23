@@ -30,9 +30,9 @@
                 pt:image:class="object-contain"
               />
               <Card class="!shadow-none">
-                <template #title>{{
-                  `${keycap.profile.name} ${keycap.name}`
-                }}</template>
+                <template #title>
+                  {{ `${keycap.profile.name} ${keycap.name}` }}
+                </template>
                 <template #content>
                   {{ formatDateRange(keycap.start_date, keycap.end_date) }}
                 </template>

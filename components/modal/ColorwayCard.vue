@@ -3,6 +3,7 @@
     class="!shadow-none colorway-details-card"
     pt:content:class="text-justify"
     pt:subtitle:class="flex items-center"
+    pt:footer:class="flex gap-2"
   >
     <template #header>
       <img
@@ -37,34 +38,32 @@
     </template>
 
     <template v-if="!copying" #footer>
-      <div class="flex gap-2">
-        <Button
-          v-if="editable"
-          size="small"
-          severity="secondary"
-          label="Edit"
-          icon="pi pi-pen-to-square"
-          fluid
-          @click="$emit('editColorway', colorway, true)"
-        />
+      <Button
+        v-if="editable"
+        size="small"
+        severity="secondary"
+        label="Edit"
+        icon="pi pi-pen-to-square"
+        fluid
+        @click="$emit('editColorway', colorway, true)"
+      />
 
-        <Button
-          size="small"
-          severity="secondary"
-          label="Copy Card"
-          icon="pi pi-images"
-          fluid
-          @click="copyColorwayCard"
-        />
+      <Button
+        size="small"
+        severity="secondary"
+        label="Copy Card"
+        icon="pi pi-images"
+        fluid
+        @click="copyColorwayCard"
+      />
 
-        <SaveToCollection
-          v-if="authenticated"
-          :item="colorway"
-          label="Save"
-          :fluid="true"
-          @on-select="onSelectCollection"
-        />
-      </div>
+      <SaveToCollection
+        v-if="authenticated"
+        :item="colorway"
+        label="Save"
+        :fluid="true"
+        @on-select="onSelectCollection"
+      />
     </template>
   </Card>
 </template>

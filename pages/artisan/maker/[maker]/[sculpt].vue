@@ -38,6 +38,7 @@
             body: 'flex-1 items-center',
             caption: 'flex flex-1 items-center',
             title: 'flex flex-grow text-center',
+            footer: 'flex gap-2',
           }"
         >
           <template #header>
@@ -52,42 +53,40 @@
           <template #title>{{ colorway.name || '-' }}</template>
 
           <template v-if="!copying" #footer>
-            <div class="flex gap-2">
-              <Button
-                v-if="editable"
-                v-tooltip.top="'Edit'"
-                text
-                size="small"
-                severity="secondary"
-                icon="pi pi-pen-to-square"
-                @click="toggleEditColorway(colorway)"
-              />
+            <Button
+              v-if="editable"
+              v-tooltip.top="'Edit'"
+              text
+              size="small"
+              severity="secondary"
+              icon="pi pi-pen-to-square"
+              @click="toggleEditColorway(colorway)"
+            />
 
-              <Button
-                v-tooltip.top="'Copy Card'"
-                text
-                size="small"
-                severity="secondary"
-                icon="pi pi-images"
-                @click="copyColorwayCard(idx)"
-              />
+            <Button
+              v-tooltip.top="'Copy Card'"
+              text
+              size="small"
+              severity="secondary"
+              icon="pi pi-images"
+              @click="copyColorwayCard(idx)"
+            />
 
-              <Button
-                v-tooltip.top="'Expand'"
-                text
-                size="small"
-                severity="secondary"
-                icon="pi pi-expand"
-                @click="toggleColorwayCard(colorway)"
-              />
+            <Button
+              v-tooltip.top="'Expand'"
+              text
+              size="small"
+              severity="secondary"
+              icon="pi pi-expand"
+              @click="toggleColorwayCard(colorway)"
+            />
 
-              <SaveToCollection
-                v-if="authenticated"
-                :item="colorway"
-                :text="true"
-                @on-select="saveTo"
-              />
-            </div>
+            <SaveToCollection
+              v-if="authenticated"
+              :item="colorway"
+              :text="true"
+              @on-select="saveTo"
+            />
           </template>
         </Card>
       </div>

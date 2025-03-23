@@ -3,24 +3,23 @@
     header="Artisan Makers"
     pt:root:class="!border-0 !bg-transparent"
     pt:title:class="flex items-center gap-4 font-medium text-3xl"
+    pt:header-actions:class="flex gap-2"
   >
     <template #icons>
-      <div class="flex gap-2">
-        <Button
-          v-if="isAdmin"
-          label="Add"
-          icon="pi pi-user-plus"
-          @click="toggleAddMaker"
-        />
+      <Button
+        v-if="isAdmin"
+        label="Add"
+        icon="pi pi-user-plus"
+        @click="toggleAddMaker"
+      />
 
-        <Button
-          v-if="authenticated"
-          icon="pi pi-sliders-v"
-          label="Pins"
-          severity="secondary"
-          @click="toggleCustomizePins"
-        />
-      </div>
+      <Button
+        v-if="authenticated"
+        icon="pi pi-sliders-v"
+        label="Pins"
+        severity="secondary"
+        @click="toggleCustomizePins"
+      />
     </template>
 
     <div

@@ -4,31 +4,30 @@
     :header="copying ? 'Contact' : 'Preview'"
     pt:root:class="trading-preview"
     pt:header:class="text-xl"
+    pt:header-actions:class="flex gap-2"
   >
     <template v-if="!copying" #icons>
-      <div class="flex gap-2">
-        <Button
-          size="small"
-          severity="secondary"
-          label="Copy Text"
-          icon="pi pi-clipboard"
-          @click="copyToClipboard"
-        />
-        <Button
-          size="small"
-          severity="secondary"
-          label="Copy Image"
-          icon="pi pi-images"
-          @click="screenshot(false)"
-        />
-        <Button
-          size="small"
-          severity="secondary"
-          label="Download"
-          icon="pi pi-download"
-          @click="screenshot(true)"
-        />
-      </div>
+      <Button
+        size="small"
+        severity="secondary"
+        label="Copy Text"
+        icon="pi pi-clipboard"
+        @click="copyToClipboard"
+      />
+      <Button
+        size="small"
+        severity="secondary"
+        label="Copy Image"
+        icon="pi pi-images"
+        @click="screenshot(false)"
+      />
+      <Button
+        size="small"
+        severity="secondary"
+        label="Download"
+        icon="pi pi-download"
+        @click="screenshot(true)"
+      />
     </template>
 
     <div class="flex flex-col gap-6">
