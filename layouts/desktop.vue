@@ -4,9 +4,9 @@
   >
     <LayoutSider />
     <div
-      class="flex flex-col justify-between flex-1 mx-auto max-w-screen-2xl h-full overflow-y-auto pb-0.5"
+      class="flex flex-col justify-between flex-1 h-full overflow-y-auto pb-0.5"
     >
-      <NuxtPage />
+      <NuxtPage class="mx-auto max-w-screen-2xl w-full" />
 
       <LayoutFooter />
     </div>
