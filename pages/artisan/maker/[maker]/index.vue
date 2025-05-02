@@ -138,7 +138,7 @@ const { data: maker, refresh } = await useAsyncData(
   `maker:${route.params.maker}`,
   () => $fetch(`/api/makers/${route.params.maker}`),
   {
-    watch: () => route.params.maker,
+    watch: [() => route.params.maker],
   },
 )
 
