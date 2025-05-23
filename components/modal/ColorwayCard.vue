@@ -17,12 +17,12 @@
         <div class="mt-0 font-semibold text-xl">
           {{ colorway.name }}
         </div>
+
         <Tag
-          v-if="colorway.commissioned"
-          icon="pi pi-palette"
-          value="Commissioned"
+          v-if="Object.keys(specialSales).includes(colorway.sale_type)"
+          :icon="specialSales[colorway.sale_type]"
+          :value="colorway.sale_type"
         />
-        <Tag v-if="colorway.giveaway" icon="pi pi-gift" value="Giveaway" />
       </div>
     </template>
     <template #subtitle>
@@ -70,6 +70,12 @@
 
 <script setup>
 const emit = defineEmits(['editColorway', 'saveTo'])
+
+const specialSales = {
+  Auction: 'pi pi-hammer',
+  Giveaway: 'pi pi-gift',
+  Commission: 'pi pi-palette',
+}
 
 const { authenticated, colorway, editable } = defineProps({
   colorway: {

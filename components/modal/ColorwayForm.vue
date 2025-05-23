@@ -23,6 +23,7 @@
         {{ $form.name.error.message }}
       </Message>
     </div>
+
     <div class="grid grid-cols-4 gap-2">
       <div class="col-span-2 flex flex-col gap-2">
         <label for="colorway_release">Release</label>
@@ -78,31 +79,20 @@
         </Message>
       </div>
     </div>
+
     <div class="grid grid-cols-2 gap-2">
-      <div class="flex items-center gap-2">
-        <Checkbox
-          v-model="colorway.giveaway"
-          name="giveaway"
-          input-id="colorway_giveaway"
-          binary
-        />
-        <label for="colorway_giveaway">Giveaway</label>
-      </div>
-      <div class="flex items-center gap-2">
-        <Checkbox
-          v-model="colorway.commissioned"
-          name="commissioned"
-          input-id="colorway_commission"
-          binary
-        />
-        <label for="colorway_commission">Commission</label>
-      </div>
-    </div>
-    <div
-      v-if="!colorway.giveaway && !colorway.commissioned"
-      class="grid grid-cols-2 gap-2"
-    >
       <div class="flex flex-col gap-2">
+        <label for="colorway_sale_type">Sale Type</label>
+        <Select
+          id="colorway_sale_type"
+          v-model="colorway.sale_type"
+          name="sale_type"
+          option-group-label="label"
+          option-group-children="items"
+          :options="groupedFormats"
+        />
+      </div>
+      <div v-if="colorway.sale_type !== 'Giveaway'" class="flex flex-col gap-2">
         <label for="colorway_price">Price</label>
         <InputGroup>
           <Select
@@ -127,16 +117,8 @@
           </Message>
         </InputGroup>
       </div>
-      <div class="flex flex-col gap-2">
-        <label for="colorway_sale_type">Sale Type</label>
-        <Select
-          id="colorway_sale_type"
-          v-model="colorway.sale_type"
-          name="sale_type"
-          :options="formats"
-        />
-      </div>
     </div>
+
     <div class="flex flex-col gap-2">
       <label for="colorway_desc">Description</label>
       <Textarea
@@ -182,7 +164,19 @@ const { metadata } = defineProps({
 const toast = useToast()
 
 const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
-const formats = ['Raffle', 'FCFS', 'Fulfillment']
+
+const groupedFormats = [
+  {
+    label: 'Standard',
+    items: ['Raffle', 'FCFS', 'Fulfillment'],
+  },
+  {
+    label: 'Special',
+    items: ['Giveaway', 'Commission', 'Auction'],
+  },
+]
+
+const formats = groupedFormats.map((g) => g.items).flat()
 
 const route = useRoute()
 const colorway = ref({
