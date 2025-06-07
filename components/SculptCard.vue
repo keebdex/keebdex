@@ -3,7 +3,7 @@
     <Card
       class="h-full overflow-hidden"
       :pt="{
-        header: 'w-full h-44 md:h-60',
+        header: 'w-full aspect-square overflow-hidden',
         body: 'flex-1',
         caption: 'flex flex-1 items-center',
         title: 'flex flex-grow text-center',
