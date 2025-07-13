@@ -1,24 +1,38 @@
 <template>
-  <Panel
+  <UDashboardPanel
     v-if="content"
-    :header="content.title"
-    pt:root:class="!border-0 !bg-transparent"
-    pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    pt:content:class="max-w-none prose dark:prose-invert leading-tight"
+    :id="content.title"
+    :ui="{ body: 'lg:py-12 max-w-none prose dark:prose-invert leading-tight' }"
   >
-    <ContentRenderer :value="content" />
-  </Panel>
-  <Panel v-else pt:root:class="!border-0 !bg-transparent">
-    <div class="flex flex-col items-center gap-8">
-      <NuxtImg class="w-1/3" src="/svg/404.svg" alt="Not Found" />
+    <template #header>
+      <UDashboardNavbar :title="content.title"> </UDashboardNavbar>
+    </template>
 
-      <div class="text-2xl">Sorry, the page you visited does not exist.</div>
+    <template #body>
+      <ContentRenderer :value="content" />
+    </template>
+  </UDashboardPanel>
+  <UDashboardPanel v-else>
+    <template #header>
+      <UDashboardNavbar title="404"> </UDashboardNavbar>
+    </template>
 
-      <nuxt-link to="/">
-        <Button label="Back Home" icon="pi pi-home" />
-      </nuxt-link>
-    </div>
-  </Panel>
+    <template #body>
+      <UPageHero
+        title="Not Found"
+        description="Sorry, the page you visited does not exist."
+        :links="[
+          {
+            label: 'Back Home',
+            to: '/',
+            icon: 'hugeicons:home-01',
+          },
+        ]"
+      >
+        <!-- <NuxtImg class="w-1/3" src="/svg/404.svg" alt="Not Found" /> -->
+      </UPageHero>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>

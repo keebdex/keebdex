@@ -1,82 +1,44 @@
 <template>
-  <Form
-    v-slot="$form"
-    :initial-values="collection"
-    :resolver
-    class="flex flex-col gap-6"
-    @submit="onSubmit"
-  >
-    <div class="flex flex-col gap-2">
-      <label for="collection_name">Name</label>
-      <IconField>
-        <InputIcon class="pi pi-pencil" />
-        <InputText
-          id="collection_name"
-          v-model.trim="collection.name"
-          name="name"
-          type="text"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.name?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.name.error.message }}
-      </Message>
-    </div>
+  <UForm :schema :state="collection" class="space-y-4" @submit="onSubmit">
+    <UFormField label="Name" name="name">
+      <UInput v-model="collection.name" class="w-full" />
+    </UFormField>
 
-    <div class="flex flex-col gap-2">
-      <label for="collection_category">Category</label>
-      <SelectButton
+    <UFormField label="Category" name="category">
+      <UTabs
         v-model="collection.category"
-        name="category"
-        option-label="label"
-        option-value="value"
-        :options="[
+        size="sm"
+        :items="[
           { label: 'Artisan', value: 'artisan' },
           { label: 'Keycap', value: 'keycap' },
         ]"
       />
-    </div>
+    </UFormField>
 
-    <div class="flex flex-col gap-2">
-      <label for="collection_visibility">Visibility</label>
-      <SelectButton
+    <UFormField
+      label="Visibility"
+      name="visibility"
+      :help="
+        collection.published
+          ? 'Anyone can now discover the treasures you\'ve assembled in this public collection.'
+          : 'Choosing private keeps this collection under lock and key, hidden from prying eyes.'
+      "
+    >
+      <UTabs
         v-model="collection.published"
-        name="published"
-        option-label="label"
-        option-value="value"
-        :options="[
+        size="sm"
+        :items="[
           { label: 'Private', value: false },
           { label: 'Public', value: true },
         ]"
       />
-      <Message
-        v-if="collection.published"
-        severity="warn"
-        size="small"
-        variant="simple"
-      >
-        Anyone can now discover the treasures you've assembled in this public
-        collection.
-      </Message>
-      <Message v-else severity="secondary" size="small" variant="simple">
-        Choosing private keeps this collection under lock and key, hidden from
-        prying eyes.
-      </Message>
-    </div>
+    </UFormField>
 
-    <div class="flex flex-col gap-2">
-      <label for="collection_type">Type</label>
-      <SelectButton
+    <UFormField label="Type" name="type" :help="typeExtras[collection.type]">
+      <UTabs
         v-model="collection.type"
-        name="type"
-        option-label="label"
-        option-value="value"
-        :options="
+        size="sm"
+        :items="
           collection.published
             ? [
                 { label: 'Shareable', value: 'shareable' },
@@ -90,72 +52,34 @@
               ]
         "
       />
-      <Message severity="secondary" size="small" variant="simple">
-        {{ typeExtras[collection.type] }}
-      </Message>
-    </div>
+    </UFormField>
 
-    <div
+    <UFormField
       v-if="collection.published && collection.type !== 'shareable'"
-      class="flex flex-col gap-2"
+      label="Contact"
+      name="contact"
+      help="Please enter your Discord username so that buyer/seller can reach you
+        directly."
     >
-      <label for="collection_contact">Contact</label>
-      <IconField>
-        <InputIcon class="pi pi-discord" />
-        <InputText
-          id="collection_contact"
-          v-model.trim="collection.contact"
-          name="contact"
-          type="text"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.contact?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.contact.error.message }}
-      </Message>
-      <Message v-else severity="secondary" size="small" variant="simple">
-        Please enter your Discord username so that buyer/seller can reach you
-        directly.
-      </Message>
-    </div>
+      <UInput v-model="collection.contact" type="contact" class="w-full" />
+    </UFormField>
 
-    <div
+    <UFormField
       v-if="collection.published && collection.type !== 'shareable'"
-      class="flex flex-col gap-2"
-    >
-      <label for="collection_message">Message</label>
-      <IconField>
-        <InputIcon class="pi pi-comments" />
-        <InputText
-          id="collection_message"
-          v-model.trim="collection.message"
-          name="message"
-          type="text"
-          fluid
-        />
-      </IconField>
-      <Message severity="secondary" size="small" variant="simple">
-        Describe what you're offering and/or help others understand what types
+      label="Message"
+      name="message"
+      help="Describe what you're offering and/or help others understand what types
         of offers you are looking for. Your message should be applicable to many
-        people using the marketplace, not just a specific person.
-      </Message>
-    </div>
+        people using the marketplace, not just a specific person."
+    >
+      <UInput v-model="collection.message" type="contact" class="w-full" />
+    </UFormField>
 
-    <div class="flex flex-col gap-2">
-      <Button label="Save" type="submit" :disabled="!$form.valid" />
-    </div>
-
-    <Toast />
-  </Form>
+    <UButton type="submit"> Save </UButton>
+  </UForm>
 </template>
 
 <script setup>
-import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -223,9 +147,7 @@ const trading = z.object({
   message: z.string().optional(),
 })
 
-const resolver = ref(
-  zodResolver(z.discriminatedUnion('type', [personalOrSharable, trading])),
-)
+const schema = z.discriminatedUnion('type', [personalOrSharable, trading])
 
 const onSubmit = async ({ valid }) => {
   if (!valid) return

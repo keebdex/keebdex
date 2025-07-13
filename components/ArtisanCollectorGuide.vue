@@ -1,63 +1,40 @@
 <template>
-  <Fieldset pt:legend:class="w-auto">
-    <template #legend>
-      <div class="flex items-center gap-2">
-        <span class="pi pi-graduation-cap" />
-        <span class="font-semibold"> ArtisanCollector's Guides </span>
-      </div>
-    </template>
-    <DataView
-      :value="guides"
-      paginator
-      :rows="5"
-      :total-records="guides.length"
-      :always-show-paginator="false"
-    >
-      <template #list="{ items }">
-        <div
-          v-for="(guide, index) in items"
-          :key="index"
-          :class="{
-            'border-t border-zinc-100 dark:border-zinc-700': index !== 0,
-          }"
-        >
-          <nuxt-link :to="guide.url" target="_blank" external>
-            <Card class="!shadow-none" pt:body:class="!px-0">
-              <template #title>{{ guide.title }}</template>
-              <template #content>{{ guide.summary }}</template>
-            </Card>
-          </nuxt-link>
-        </div>
-      </template>
-    </DataView>
-  </Fieldset>
+  <UPageSection title="ArtisanCollector's Guides" :features="features" />
 </template>
 
 <script setup>
-const guides = [
+const features = [
   {
     title: 'Start Here: Collecting Roadmap',
-    summary:
+    description:
       'An overview of the Artisan Collector guides and recommended reading sequence for newcomers',
-    url: 'https://artisancollector.com/guides/start/',
+    to: 'https://artisancollector.com/guides/start/',
+    target: '_blank',
+    icon: 'hugeicons:book-02',
   },
   {
     title: 'What are Artisan Keycaps?',
-    summary:
+    description:
       'The fundamentals of artisan keycaps, the various stems, profiles, types, how they are typically made, and where to learn more',
-    url: 'https://artisancollector.com/guides/what-are-artisan-keycaps/',
+    to: 'https://artisancollector.com/guides/what-are-artisan-keycaps/',
+    target: '_blank',
+    icon: 'hugeicons:maps-location-01',
   },
   {
     title: 'Collecting Artisans: Retail Sales',
-    summary:
+    description:
       'The various artisan sale types, how they work, platforms on which the sales are run, and notification methods that require monitoring.',
-    url: 'https://artisancollector.com/guides/collecting-artisans-retail/',
+    to: 'https://artisancollector.com/guides/collecting-artisans-retail/',
+    target: '_blank',
+    icon: 'hugeicons:tags',
   },
   {
     title: 'The Three Artisan Collector Resources',
-    summary:
+    description:
       'The three main resources that impact your ability to collect artisans, and the relationship between them',
-    url: 'https://artisancollector.com/guides/3-artisan-collecting-resources/',
+    to: 'https://artisancollector.com/guides/3-artisan-collecting-resources/',
+    target: '_blank',
+    icon: 'hugeicons:resources-add',
   },
 ]
 </script>

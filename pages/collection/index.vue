@@ -1,93 +1,49 @@
 <template>
-  <Panel
-    header="My Collections"
-    pt:root:class="!border-0 !bg-transparent"
-    pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    pt:header-actions:class="flex gap-2"
-  >
-    <template #icons>
-      <SelectButton
-        v-model="category"
-        :options="categories"
-        option-label="label"
-        option-value="value"
-      />
+  <UDashboardPanel id="collection" :ui="{ body: 'lg:py-12' }">
+    <template #header>
+      <UDashboardNavbar title="My Collections">
+        <template #right>
+          <UTabs v-model="category" :items="categories" :content="false" />
 
-      <Button
-        v-if="authenticated"
-        icon="pi pi-folder-plus"
-        label="Add"
-        @click="toggleAddCollection"
-      />
+          <UModal v-model:visible="visible" title="Add Collection">
+            <UButton v-if="authenticated" icon="hugeicons:bookmark-add-02">
+              Add
+            </UButton>
+
+            <template #body>
+              <ModalCollectionForm
+                :uid="user.uid"
+                @on-success="toggleAddCollection"
+              />
+            </template>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
     </template>
 
-    <Dialog
-      v-model:visible="visible"
-      modal
-      header="Add Collection"
-      class="w-[36rem]"
-      dismissable-mask
-    >
-      <ModalCollectionForm :uid="user.uid" @on-success="toggleAddCollection" />
-    </Dialog>
-
-    <DataView
-      :value="selectedCollections"
-      layout="grid"
-      paginator
-      :rows="60"
-      :total-records="selectedCollections.length"
-      :always-show-paginator="false"
-      :pt="{
-        content: '!bg-transparent',
-        pcPaginator: {
-          paginatorContainer: '!border-0 pt-4',
-          root: '!bg-transparent',
-        },
-      }"
-    >
-      <template #empty>
-        <div class="flex flex-col items-center gap-8">
-          <NuxtImg class="w-1/3" src="/svg/empty.svg" alt="Empty" />
-
-          <div class="text-2xl">
-            It looks like your selection didn't yield any collections.
-          </div>
-        </div>
-      </template>
-
-      <template #grid="{ items }">
-        <div
-          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4"
-        >
-          <nuxt-link
-            v-for="collection in items"
-            :key="collection.id"
-            :to="`/collection/${collection.category}/${collection.id}`"
-          >
-            <Card
-              class="h-full"
-              pt:title:class="flex items-center justify-between"
-            >
-              <template #title>
-                {{ collection.name }}
-
-                <Message
-                  size="small"
-                  variant="simple"
-                  severity="secondary"
-                  :icon="collection.published ? 'pi pi-globe' : 'pi pi-lock'"
-                />
-              </template>
-              <template v-if="authenticated" #subtitle>
-                {{ collection.total_items }} items
-              </template>
-            </Card>
-          </nuxt-link>
-        </div>
-      </template>
-    </DataView>
-  </Panel>
+    <template #body>
+      <UPageGrid
+        :ui="{
+          root: 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4',
+        }"
+      >
+        <UPageCard
+          v-for="collection in selectedCollections"
+          v-bind="collection"
+          :key="collection.id"
+          :to="`/collection/${collection.category}/${collection.id}`"
+          :title="collection.name"
+          :description="`${collection.total_items} items`"
+          :icon="
+            collection.published
+              ? 'i-hugeicons-global-search'
+              : 'i-hugeicons-square-lock-02'
+          "
+          variant="subtle"
+        />
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>

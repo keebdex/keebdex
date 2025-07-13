@@ -1,31 +1,32 @@
 <template>
-  <div
-    class="flex items-center gap-3 cursor-pointer"
-    :class="{
-      'justify-start px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded':
-        $device.isDesktopOrTablet,
+  <UDropdownMenu
+    :items="items"
+    :content="{ align: 'center', collisionPadding: 12 }"
+    :ui="{
+      content: slim ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
     }"
-    @click="toggleProfileSettings"
   >
-    <Avatar
-      v-if="user.picture"
-      :image="user.picture"
-      size="large"
-      shape="circle"
+    <UButton
+      v-bind="{
+        ...user,
+        avatar: {
+          src: user?.picture,
+          alt: user?.name,
+        },
+        label: slim ? undefined : user?.name || 'Sign In',
+        icon: !authenticated && 'hugeicons:login-03',
+        trailingIcon: slim ? undefined : 'hugeicons:unfold-more',
+      }"
+      color="neutral"
+      variant="ghost"
+      block
+      :square="slim"
+      class="data-[state=open]:bg-elevated"
+      :ui="{
+        trailingIcon: 'text-dimmed',
+      }"
     />
-    <Avatar v-else icon="pi pi-user" size="large" shape="circle" />
-    <div v-if="!slim">
-      <div class="text-xl font-medium">
-        {{ user.name || 'Login' }}
-      </div>
-    </div>
-  </div>
-  <Menu
-    id="overlay_menu"
-    ref="profileSettings"
-    :model="settingsMenu"
-    :popup="true"
-  />
+  </UDropdownMenu>
 
   <Dialog
     v-model:visible="visible"
@@ -47,111 +48,88 @@ const { slim } = defineProps({
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
-const router = useRouter()
 const client = useSupabaseClient()
 const toast = useToast()
 
-const profileSettings = ref()
-const toggleProfileSettings = (event) => {
-  profileSettings.value.toggle(event)
-}
-
 const colorMode = useColorMode()
-const onChangeTheme = (mode) => {
-  colorMode.preference = mode
-}
 
-const settingsMenu = computed(() => {
-  const items = [
+const items = computed(() => {
+  const appearance = [
     {
       label: 'Appearance',
-      items: [
-        {
-          label: 'System',
-          icon: 'pi pi-desktop',
-          command: () => onChangeTheme('system'),
-          class: colorMode.preference === 'system' && activePopMenu,
-        },
+      icon: 'i-lucide-sun-moon',
+      children: [
         {
           label: 'Light',
-          icon: 'pi pi-sun',
-          command: () => onChangeTheme('light'),
-          class: colorMode.preference === 'light' && activePopMenu,
+          icon: 'i-lucide-sun',
+          type: 'checkbox',
+          checked: colorMode.value === 'light',
+          onSelect(e) {
+            e.preventDefault()
+
+            colorMode.preference = 'light'
+          },
         },
         {
           label: 'Dark',
-          icon: 'pi pi-moon',
-          command: () => onChangeTheme('dark'),
-          class: colorMode.preference === 'dark' && activePopMenu,
+          icon: 'i-lucide-moon',
+          type: 'checkbox',
+          checked: colorMode.value === 'dark',
+          onUpdateChecked(checked) {
+            if (checked) {
+              colorMode.preference = 'dark'
+            }
+          },
+          onSelect(e) {
+            e.preventDefault()
+          },
         },
       ],
     },
   ]
 
-  if (authenticated.value) {
-    items.unshift(
-      {
-        label: user.value.name,
-        items: [
+  return authenticated.value
+    ? [
+        [
           {
-            label: user.value.email,
-            disabled: true,
-          },
-        ],
-      },
-      {
-        separator: true,
-      },
-    )
-
-    items.push(
-      {
-        separator: true,
-      },
-      {
-        label: 'Profile',
-        items: [
-          {
-            label: 'Settings',
-            icon: 'pi pi-cog',
-            command: () => {
-              router.push('/account/settings')
+            type: 'label',
+            label: user.value.name,
+            avatar: {
+              src: user.value.picture,
+              alt: user.value.name,
             },
           },
         ],
-      },
-      {
-        separator: true,
-      },
-      {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          logout()
-        },
-      },
-    )
-  } else {
-    items.unshift(
-      {
-        label: 'Welcome',
-        items: [
+        [
           {
-            label: 'Login',
-            icon: 'pi pi-sign-in',
-            command: () => {
+            label: 'Settings',
+            icon: 'hugeicons:settings-02',
+            to: '/account/settings',
+          },
+        ],
+        appearance,
+        [
+          {
+            label: 'Sign Out',
+            icon: 'hugeicons:logout-03',
+            onSelect() {
+              logout()
+            },
+          },
+        ],
+      ]
+    : [
+        [
+          {
+            label: 'Sign In',
+            icon: 'hugeicons:login-03',
+            onSelect() {
               toggleShowLogin()
             },
           },
         ],
-      },
-      {
-        separator: true,
-      },
-    )
-  }
-
-  return items
+        appearance,
+      ]
 })
 
 const visible = ref(false)

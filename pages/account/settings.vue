@@ -1,28 +1,40 @@
 <template>
-  <Panel
-    header="Account Settings"
-    pt:root:class="!border-0 !bg-transparent"
-    pt:title:class="flex items-center gap-4 font-medium text-3xl"
-  >
-    <Tabs value="profile">
-      <TabList>
-        <Tab value="profile" as="div" class="flex items-center gap-2">
-          <Avatar :image="user.picture" shape="circle" />
-          Profile
-        </Tab>
-      </TabList>
-      <TabPanels>
-        <TabPanel value="profile">
-          <AccountProfile />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
-  </Panel>
+  <UDashboardPanel id="settings" :ui="{ body: 'lg:py-12' }">
+    <template #header>
+      <UDashboardNavbar title="Settings"> </UDashboardNavbar>
+
+      <UDashboardToolbar>
+        <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
+      </UDashboardToolbar>
+    </template>
+
+    <template #body>
+      <div
+        class="flex flex-col gap-4 sm:gap-6 lg:gap-12 w-full lg:max-w-2xl mx-auto"
+      >
+        <NuxtPage />
+      </div>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
+
+const links = [
+  {
+    label: 'Profile',
+    icon: 'hugeicons:user-01',
+    to: '/account/settings',
+    avatar: {
+      src: user.value.picture,
+      alt: user.value.name,
+    },
+    exact: true,
+  },
+]
 
 useSeoMeta({
   title: 'Account Settings',

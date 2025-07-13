@@ -1,26 +1,26 @@
 <template>
   <nuxt-link :to="`/artisan/maker/${maker.id}`">
-    <Card
-      class="h-full"
-      :pt="{
-        header:
-          'flex flex-grow items-center mx-auto p-6 aspect-square overflow-hidden',
-        body: 'items-center',
+    <UPageCard
+      :title="maker.name"
+      orientation="vertical"
+      reverse
+      spotlight
+      :ui="{
+        root: 'h-full',
+        wrapper: 'items-center',
+        // wrapper:
+        //   'flex flex-grow items-center mx-auto p-6 aspect-square overflow-hidden',
       }"
     >
-      <template #header>
-        <NuxtImg
-          :class="{
-            invert: maker.invertible_logo && $colorMode.value === 'dark',
-          }"
-          loading="lazy"
-          :alt="maker.name"
-          :src="`/logo/${maker.id}.png`"
-          width="100%"
-        />
-      </template>
-      <template #title>{{ maker.name }}</template>
-    </Card>
+      <NuxtImg
+        loading="lazy"
+        :src="`/logo/${maker.id}.png`"
+        :alt="maker.name"
+        :class="{
+          invert: maker.invertible_logo && $colorMode.value === 'dark',
+        }"
+      />
+    </UPageCard>
   </nuxt-link>
 </template>
 

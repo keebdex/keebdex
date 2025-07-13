@@ -1,68 +1,32 @@
 <template>
-  <Panel
-    :header="`Welcome to ${$config.app.name}`"
-    pt:root:class="!border-0 !bg-transparent"
-    pt:title:class="flex items-center gap-4 font-medium text-3xl"
-  >
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div
-        class="col-span-4 md:col-span-3 flex flex-col gap-4"
-        :class="{
-          'md:col-span-4': !data.makers.length && !data.keycaps.length,
+  <UDashboardPanel id="home">
+    <template #body>
+      <UPageHero
+        :title="`Welcome to ${$config.app.name}`"
+        :description="$config.app.description"
+        :ui="{
+          title:
+            'bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text',
         }"
-      >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Fieldset pt:legend:class="w-auto">
-            <template #legend>
-              <div class="flex items-center gap-2">
-                <span class="pi pi-search" />
-                <span class="font-semibold"> Discover Your Next Gem </span>
-              </div>
-            </template>
-            Explore a vast library of artisan keycaps and keycap sets.
-          </Fieldset>
-          <Fieldset pt:legend:class="w-auto">
-            <template #legend>
-              <div class="flex items-center gap-2">
-                <span class="pi pi-list-check" />
-                <span class="font-semibold"> Organize Your Collection </span>
-              </div>
-            </template>
-            Effortlessly manage your entire collection – from individual artisan
-            keycaps to complete keycap sets.
-          </Fieldset>
-        </div>
+      />
 
-        <ArtisanCollectorGuide
-          :class="{
-            hidden: $device.isMobile,
-          }"
-        />
-      </div>
-
-      <div class="col-span-4 md:col-span-1 flex flex-col gap-4">
-        <LatestArtisans v-if="data.makers.length" :makers="data.makers" />
-        <PreOrderKeycaps v-if="data.keycaps.length" :keycaps="data.keycaps" />
-      </div>
-
-      <div
-        class="col-span-4 md:col-span-4"
-        :class="{ hidden: $device.isDesktopOrTablet }"
-      >
-        <ArtisanCollectorGuide />
-      </div>
-    </div>
-  </Panel>
+      <ArtisanCollectorGuide />
+    </template>
+  </UDashboardPanel>
 </template>
 
-<script setup>
+<!-- <script setup>
 const { data } = await useAsyncData(() => $fetch('/api/statistics'))
-</script>
 
-<style>
-:root {
-  font-family: Dosis, sans-serif;
-  --p-card-body-padding: 1.125rem;
-  --p-card-title-font-size: 1.125rem;
-}
-</style>
+const features = [
+  {
+    title: 'Discover Your Next Gem',
+    description: 'Explore a vast library of artisan keycaps and keycap sets.',
+  },
+  {
+    title: 'Organize Your Collection',
+    description:
+      'Effortlessly manage your entire collection – from individual artisan keycaps to complete keycap sets.',
+  },
+]
+</script> -->

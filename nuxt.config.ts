@@ -14,15 +14,18 @@ export default defineNuxtConfig({
     transpile: [...(isProduction ? ['@babel/runtime'] : [])],
   },
 
+  css: ['~/assets/main.css'],
+
   modules: [
     '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/fonts',
     '@nuxt/image',
+    '@nuxt/ui-pro',
     '@nuxtjs/color-mode',
     '@nuxtjs/device',
     '@nuxtjs/supabase',
-    '@nuxtjs/tailwindcss',
+    // '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
     '@primevue/nuxt-module',
     'nuxt-og-image',
