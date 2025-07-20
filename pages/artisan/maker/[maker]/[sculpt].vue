@@ -1,85 +1,98 @@
 <template>
-  <div>
-    <PanelBreadcrumb :breadcrumbs="breadcrumbs" />
+  <UDashboardPanel
+    :id="`${route.params.maker}-${route.params.sculpt}`"
+    :ui="{ body: 'lg:py-12' }"
+  >
+    <template #header>
+      <UDashboardNavbar :title="sculpt.name">
+        <template #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
 
-    <Panel
-      :header="sculpt.name"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    >
-      <div v-if="sculpt.story" class="mb-4 leading-6 text-muted-color">
-        <p
-          v-for="(line, idx) in sculpt.story.split('\n')"
-          :key="idx"
-          class="mb-2"
-        >
-          {{ line }}
-        </p>
-      </div>
+        <template #right>
+          <UModal
+            v-if="editable"
+            v-model:visible="visible.edit"
+            title="Edit Sculpt"
+          >
+            <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
 
-      <template #icons>
-        <SculptProfileActions
-          :sculpt="sculpt"
-          :editable="editable"
-          @on-edit="toggleEditSculpt"
-          @on-sorting="onChangeSorting"
-        />
-      </template>
+            <template #body>
+              <ModalSculptForm
+                :is-edit="true"
+                :metadata="sculpt"
+                @on-success="toggleEditSculpt"
+              />
+            </template>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-      <div
-        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4"
-      >
-        <Card
-          v-for="(colorway, idx) in sculpt.colorways"
+    <template #body>
+      <SculptPageHeader :sculpt="sculpt" @on-sorting="onChangeSorting" />
+
+      <UPageGrid>
+        <UPageCard
+          v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"
-          class="overflow-hidden colorway-card"
-          :pt="{
-            header: 'w-full aspect-square overflow-hidden',
-            body: 'flex-1 items-center',
-            caption: 'flex flex-1 items-center',
-            title: 'flex flex-grow text-center',
+          :title="colorway.name"
+          orientation="vertical"
+          reverse
+          spotlight
+          :ui="{
+            root: 'h-full overflow-hidden',
+            // wrapper: 'items-center',
+            // wrapper:
+            //   'flex flex-grow items-center mx-auto p-6 aspect-square overflow-hidden',
             footer: 'flex gap-2',
           }"
         >
-          <template #header>
-            <img
-              loading="lazy"
-              :alt="colorway.name"
-              :src="colorway.img"
-              class="w-full h-full object-cover cursor-pointer"
-              @click="toggleColorwayCard(colorway)"
-            />
-          </template>
-          <template #title>{{ colorway.name || '-' }}</template>
+          <NuxtImg
+            loading="lazy"
+            :alt="colorway.name"
+            :src="colorway.img"
+            class="w-full h-full object-cover"
+          />
 
-          <template v-if="!copying" #footer>
-            <Button
-              v-if="editable"
-              v-tooltip.top="'Edit'"
-              text
-              size="small"
-              severity="secondary"
-              icon="pi pi-pen-to-square"
-              @click="toggleEditColorway(colorway)"
-            />
+          <template #footer>
+            <UModal
+              v-model:visible="visible.add"
+              :title="
+                selectedColorway && selectedColorway.name
+                  ? `Edit ${colorwayTitle(selectedColorway)}`
+                  : 'Add Colorway'
+              "
+            >
+              <UButton
+                icon="hugeicons:file-edit"
+                @click="toggleEditColorway(colorway)"
+              />
 
-            <Button
-              v-tooltip.top="'Copy Card'"
-              text
-              size="small"
-              severity="secondary"
-              icon="pi pi-images"
-              @click="copyColorwayCard(idx)"
-            />
+              <template #body>
+                <ModalColorwayForm
+                  :metadata="selectedColorway"
+                  @on-success="toggleAddColorway"
+                />
+              </template>
+            </UModal>
 
-            <Button
-              v-tooltip.top="'Expand'"
-              text
-              size="small"
-              severity="secondary"
-              icon="pi pi-expand"
-              @click="toggleColorwayCard(colorway)"
-            />
+            <UModal v-model:visible="visible.card">
+              <UButton
+                icon="hugeicons:maximize-screen"
+                @click="toggleColorwayCard(colorway)"
+              />
+
+              <template #content>
+                <ModalColorwayCard
+                  :colorway="selectedColorway"
+                  :editable="editable"
+                  :authenticated="authenticated"
+                  @edit-colorway="toggleEditColorway"
+                  @save-to="saveTo"
+                />
+              </template>
+            </UModal>
 
             <SaveToCollection
               v-if="authenticated"
@@ -88,68 +101,10 @@
               @on-select="saveTo"
             />
           </template>
-        </Card>
-      </div>
-
-      <Paginator
-        class="mt-4"
-        :rows="size"
-        :total-records="sculpt.total_colorways"
-        :always-show="false"
-        pt:root:class="!bg-transparent"
-        @page="(e) => (page = e.page + 1)"
-      />
-
-      <Dialog
-        v-model:visible="visible.edit"
-        modal
-        header="Edit Sculpt"
-        dismissable-mask
-        class="w-[36rem]"
-      >
-        <ModalSculptForm
-          :is-edit="true"
-          :metadata="sculpt"
-          @on-success="toggleEditSculpt"
-        />
-      </Dialog>
-
-      <Dialog
-        v-model:visible="visible.add"
-        modal
-        :header="
-          selectedColorway && selectedColorway.name
-            ? `Edit ${colorwayTitle(selectedColorway)}`
-            : 'Add Colorway'
-        "
-        class="w-[36rem]"
-        dismissable-mask
-      >
-        <ModalColorwayForm
-          :metadata="selectedColorway"
-          @on-success="toggleAddColorway"
-        />
-      </Dialog>
-
-      <Dialog
-        v-model:visible="visible.card"
-        modal
-        class="max-w-lg"
-        :closable="false"
-        dismissable-mask
-      >
-        <ModalColorwayCard
-          :colorway="selectedColorway"
-          :editable="editable"
-          :authenticated="authenticated"
-          @edit-colorway="toggleEditColorway"
-          @save-to="saveTo"
-        />
-      </Dialog>
-
-      <Toast />
-    </Panel>
-  </div>
+        </UPageCard>
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>
@@ -195,16 +150,24 @@ const { data: sculpt, refresh } = await useAsyncData(
 const breadcrumbs = computed(() => {
   return [
     {
-      icon: 'pi pi-home',
-      route: '/',
+      icon: 'hugeicons:home-01',
+      to: '/',
     },
     {
       label: 'Makers',
-      route: '/artisan/maker',
+      icon: 'hugeicons:user-group-03',
+      to: '/artisan/maker',
     },
     {
       label: sculpt.value.maker_name,
-      route: `/artisan/maker/${sculpt.value.maker_id}`,
+      to: `/artisan/maker/${sculpt.value.maker_id}`,
+      avatar: {
+        src: `/logo/${sculpt.value.maker_id}.png`,
+        alt: sculpt.value.maker_name,
+      },
+    },
+    {
+      label: sculpt.value.name,
     },
   ]
 })
@@ -326,22 +289,5 @@ const saveTo = (collection, colorway) => {
     .catch((error) => {
       toast.add({ severity: 'error', summary: error.message, life: 3000 })
     })
-}
-
-const copying = ref(false)
-const copyColorwayCard = async (idx) => {
-  copying.value = true
-
-  const card = document.getElementsByClassName('colorway-card')[idx]
-  card.classList.add('p-2')
-
-  try {
-    await copyScreenshot(card, toast)
-  } catch (error) {
-    toast.add({ severity: 'error', summary: error.message, life: 3000 })
-  }
-
-  card.classList.remove('p-2')
-  copying.value = false
 }
 </script>

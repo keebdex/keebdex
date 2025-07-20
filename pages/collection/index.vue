@@ -6,7 +6,11 @@
           <UTabs v-model="category" :items="categories" :content="false" />
 
           <UModal v-model:visible="visible" title="Add Collection">
-            <UButton v-if="authenticated" icon="hugeicons:bookmark-add-02">
+            <UButton
+              v-if="authenticated"
+              color="primary"
+              icon="hugeicons:bookmark-add-02"
+            >
               Add
             </UButton>
 
@@ -22,11 +26,7 @@
     </template>
 
     <template #body>
-      <UPageGrid
-        :ui="{
-          root: 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4',
-        }"
-      >
+      <UPageGrid>
         <UPageCard
           v-for="collection in selectedCollections"
           v-bind="collection"

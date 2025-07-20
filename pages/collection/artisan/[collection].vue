@@ -1,237 +1,174 @@
 <template>
-  <div>
-    <PanelBreadcrumb :breadcrumbs="breadcrumbs" />
+  <UDashboardPanel
+    :id="`collection-${route.params.collection}`"
+    :ui="{ body: 'lg:py-12' }"
+  >
+    <template #header>
+      <UDashboardNavbar title="My Collections">
+        <template #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
 
-    <Panel
-      :header="data?.name || 'Collection'"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    >
-      <template #icons>
-        <div v-if="$device.isDesktopOrTablet" class="flex gap-2">
-          <Button
+        <template #right>
+          <UModal
+            v-if="authenticated"
+            v-model:visible="visible"
+            title="Edit Collection"
+          >
+            <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
+
+            <template #body>
+              <ModalCollectionForm
+                :metadata="data"
+                :uid="user.uid"
+                :is-edit="true"
+                @on-success="toggleShowEdit"
+              />
+            </template>
+          </UModal>
+
+          <UButton
+            v-if="user.email_verified"
+            icon="hugeicons:bookmark-remove-02"
+            color="error"
+            @click="deleteCollection"
+          >
+            Delete
+          </UButton>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <UPageHeader
+        :title="data?.name || 'Collection'"
+        :ui="{
+          root: 'pt-0',
+          description: 'text-md',
+        }"
+      >
+        <template #links>
+          <UButton
             v-if="shareable"
-            icon="pi pi-link"
+            icon="hugeicons:copy-link"
             label="Copy URL"
-            severity="secondary"
             @click="copyShareUrl"
           />
 
-          <SplitButton
-            :icon="sortItem.icon"
-            :label="sortItem.label"
-            severity="secondary"
-            :model="sortOptions"
+          <USelect
+            v-model="sort"
+            :items="sortOptions"
+            :icon="sortIcon"
+            variant="soft"
+            :ui="{ content: 'min-w-fit' }"
           />
+        </template>
+      </UPageHeader>
 
-          <Button
-            v-if="authenticated"
-            icon="pi pi-pen-to-square"
-            label="Edit"
-            severity="secondary"
-            @click="toggleShowEdit"
-          />
-
-          <Button
-            v-if="user.email_verified"
-            icon="pi pi-trash"
-            label="Delete"
-            severity="danger"
-            @click="deleteCollection"
-          />
-        </div>
-        <Button
-          v-else
-          aria-haspopup="true"
-          aria-controls="overlay_menu"
-          icon="pi pi-ellipsis-v"
-          severity="secondary"
-          @click="toggleActions"
-        >
-        </Button>
-        <Menu id="overlay_menu" ref="menu" :model="mobile" :popup="true" />
-      </template>
-
-      <Message
+      <UAlert
         v-if="hasOutdated"
-        class="w-fit mx-auto mb-4"
-        severity="warn"
-        icon="pi pi-exclamation-triangle"
-      >
-        Outdated items found during database sync. Please remove and re-add from
-        the maker page if needed before deletion.
-      </Message>
+        description="Outdated items found during database sync. Please remove and re-add from the maker page if needed before deletion."
+        icon="hugeicons:user-warning-01"
+        color="warning"
+        variant="soft"
+      />
 
-      <DataView
-        :value="sortedCollections"
-        layout="grid"
-        paginator
-        :rows="60"
-        :total-records="sortedCollections.length"
-        :always-show-paginator="false"
-        :pt="{
-          content: '!bg-transparent',
-          pcPaginator: {
-            paginatorContainer: '!border-0 pt-4',
-            root: '!bg-transparent',
-          },
-        }"
-      >
-        <template v-if="!data" #empty>
-          <div class="flex flex-col items-center gap-8">
-            <NuxtImg class="w-1/3" src="/svg/cancel.svg" alt="Unauthorized" />
+      <UPageGrid>
+        <UPageCard
+          v-for="{ id, exchange, artisan } in sortedCollections"
+          :key="id"
+          :title="artisan.name"
+          :description="artisan?.sculpt.name"
+          reverse
+          spotlight
+          :ui="{
+            footer: 'flex gap-2',
+          }"
+        >
+          <NuxtImg
+            loading="lazy"
+            :alt="artisan.name"
+            :src="artisan.img"
+            class="h-full object-cover"
+            :class="{
+              grayscale: artisan.deleted,
+            }"
+          />
 
-            <div class="text-2xl">
-              You are not authorized to view this collection.
-            </div>
-          </div>
-        </template>
+          <template v-if="artisan.deleted" #footer>
+            <UButton color="warning" @click="remove(id, artisan)">
+              Clear Outdated
+            </UButton>
+          </template>
+          <template v-else #footer>
+            <UButton
+              v-if="buying"
+              :icon="
+                exchange
+                  ? 'hugeicons:search-focus'
+                  : 'hugeicons:checkmark-circle-03'
+              "
+              :color="exchange ? 'neutral' : 'success'"
+              @click="changeExchangeStatus({ id, exchange, artisan })"
+            />
+            <UButton
+              v-if="selling"
+              :icon="
+                exchange
+                  ? 'hugeicons:sale-tag-02'
+                  : 'hugeicons:checkmark-circle-03'
+              "
+              :color="exchange ? 'neutral' : 'success'"
+              @click="changeExchangeStatus({ id, exchange, artisan })"
+            />
 
-        <template #grid="{ items }">
-          <div
-            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4"
-          >
-            <Card
-              v-for="{ id, exchange, artisan } in items"
-              :key="id"
-              class="overflow-hidden"
-              :pt="{
-                header: 'w-full aspect-square overflow-hidden',
-                body: 'flex-1 items-center',
-                caption: 'flex flex-1 items-center',
-                title: 'flex flex-grow text-center',
-              }"
-            >
-              <template #header>
-                <img
-                  loading="lazy"
-                  :alt="artisan.name"
-                  :src="artisan.img"
-                  class="h-full object-cover"
-                  :class="{
-                    grayscale: artisan.deleted,
-                  }"
-                />
-              </template>
-              <template #title>{{ artisan.name || '-' }}</template>
-              <template #subtitle>{{ artisan?.sculpt.name }}</template>
+            <SaveToCollection
+              :item="{ id, artisan }"
+              :move="true"
+              icon="hugeicons:square-arrow-move-right-up"
+              @on-select="moveTo"
+            />
 
-              <template #footer>
-                <Button
-                  v-if="artisan.deleted"
-                  size="small"
-                  text
-                  label="Clear Outdated"
-                  severity="warn"
-                  icon="pi pi-eraser"
-                  fluid
-                  @click="remove(id, artisan)"
-                />
-                <div v-else class="flex gap-2">
-                  <Button
-                    v-if="trading"
-                    v-tooltip.top="`Mark as ${changeTo(exchange)}`"
-                    size="small"
-                    text
-                    :severity="exchange ? 'secondary' : 'success'"
-                    :icon="exchange ? 'pi pi-circle' : 'pi pi-check-circle'"
-                    fluid
-                    @click="changeExchangeStatus({ id, exchange, artisan })"
-                  />
-
-                  <SaveToCollection
-                    :item="{ id, artisan }"
-                    :text="true"
-                    :move="true"
-                    @on-select="moveTo"
-                  />
-
-                  <Button
-                    v-tooltip.top="'Remove'"
-                    size="small"
-                    text
-                    severity="danger"
-                    icon="pi pi-trash"
-                    fluid
-                    @click="remove(id, artisan)"
-                  />
-                </div>
-              </template>
-            </Card>
-          </div>
-        </template>
-      </DataView>
-
-      <Dialog
-        v-model:visible="visible"
-        modal
-        header="Edit Collection"
-        dismissable-mask
-        class="w-[36rem]"
-      >
-        <ModalCollectionForm
-          :metadata="data"
-          :uid="user.uid"
-          :is-edit="true"
-          @on-success="toggleShowEdit"
-        />
-      </Dialog>
-    </Panel>
-
-    <ConfirmDialog />
-    <Toast />
-  </div>
+            <UButton icon="hugeicons:delete-02" color="error" />
+          </template>
+        </UPageCard>
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>
 import sortBy from 'lodash.sortby'
 
-const breadcrumbs = computed(() => {
-  return [
-    {
-      icon: 'pi pi-home',
-      route: '/',
-    },
-    {
-      label: 'My Collections',
-      route: `/collection`,
-    },
-  ]
-})
-
 const confirm = useConfirm()
 const toast = useToast()
 
 const sort = ref('artisan.maker_sculpt_id|artisan.name')
-const sortItem = ref({ label: 'Sculpt Name', icon: 'pi pi-sort-alpha-down' })
+const sortIcon = ref('hugeicons:sort-by-down-01')
+
 const sortOptions = computed(() => [
   {
     label: 'Oldest First',
-    icon: 'pi pi-sort-numeric-down',
-    class: sort.value === 'id' && activePopMenu,
-    command: ({ item }) => {
-      sort.value = 'id'
-      sortItem.value = item
+    icon: 'hugeicons:sort-by-up-01',
+    value: 'order|asc',
+    onSelect: () => {
+      sortIcon.value = 'hugeicons:sort-by-up-01'
     },
   },
   {
     label: 'Sculpt Name',
-    icon: 'pi pi-sort-alpha-down',
-    class:
-      sort.value === 'artisan.maker_sculpt_id|artisan.name' && activePopMenu,
-    command: ({ item }) => {
-      sort.value = 'artisan.maker_sculpt_id|artisan.name'
-      sortItem.value = item
+    icon: 'hugeicons:sorting-a-z-02',
+    value: 'artisan.maker_sculpt_id|artisan.name',
+    onSelect: () => {
+      sortIcon.value = 'hugeicons:sorting-a-z-02'
     },
   },
   {
     label: 'Colorway Name',
-    icon: 'pi pi-sort-alpha-down',
-    class:
-      sort.value === 'artisan.name|artisan.maker_sculpt_id' && activePopMenu,
-    command: ({ item }) => {
-      sort.value = 'artisan.name|artisan.maker_sculpt_id'
-      sortItem.value = item
+    icon: 'hugeicons:sorting-a-z-02',
+    value: 'artisan.name|artisan.maker_sculpt_id',
+    onSelect: () => {
+      sortIcon.value = 'hugeicons:sorting-a-z-02'
     },
   },
 ])
@@ -249,12 +186,9 @@ const { data, refresh } = await useAsyncData(() =>
 )
 
 const shareable = data.value?.published && data.value?.type === 'shareable'
-const trading = [
-  'to_buy',
-  'for_sale',
-  'personal_buy',
-  'personal_sell',
-].includes(data.value?.type)
+
+const buying = ['to_buy', 'personal_buy'].includes(data.value?.type)
+const selling = ['for_sale', 'personal_sell'].includes(data.value?.type)
 
 useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
@@ -272,40 +206,19 @@ const sortedCollections = computed(() => {
   ])
 })
 
-const menu = ref()
-const toggleActions = (event) => {
-  menu.value.toggle(event)
-}
-
-const mobile = computed(() => {
+const breadcrumbs = computed(() => {
   return [
     {
-      label: 'Editing',
-      visible: authenticated,
-      items: [
-        {
-          label: 'Copy URL',
-          icon: 'pi pi-link',
-          visible: shareable,
-          command: copyShareUrl,
-        },
-        {
-          label: 'Edit',
-          icon: 'pi pi-pen-to-square',
-          visible: authenticated.value,
-          command: toggleShowEdit,
-        },
-        {
-          label: 'Delete',
-          icon: 'pi pi-trash',
-          visible: user.value.email_verified,
-          command: deleteCollection,
-        },
-      ],
+      icon: 'hugeicons:home-01',
+      to: '/',
     },
     {
-      label: 'Sorting',
-      items: sortOptions.value,
+      label: 'My Collection',
+      icon: 'hugeicons:collections-bookmark',
+      to: '/collection',
+    },
+    {
+      label: data.value?.name,
     },
   ]
 })

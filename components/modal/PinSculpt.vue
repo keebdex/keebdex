@@ -1,44 +1,22 @@
 <template>
-  <Form
-    v-slot="$form"
-    :initial-values="initial"
-    :resolver
-    class="flex flex-col gap-6"
-    @submit="onSubmit"
-  >
-    <Message variant="simple" severity="secondary">
-      Pin up to 6 sculpts to the top for easy access.
-    </Message>
-    <div class="flex flex-col gap-2">
-      <MultiSelect
+  <UForm :schema="schema" :state="initial" class="space-y-4" @submit="onSubmit">
+    <UFormField name="email">
+      <USelectMenu
         v-model="initial.sculpts"
-        name="sculpts"
-        :options="sculpts"
-        option-label="name"
-        option-value="sculpt_id"
-        display="chip"
-        filter
+        multiple
+        label-key="name"
+        value-key="sculpt_id"
+        :items="sculpts"
         class="w-full"
-        pt:label:class="flex flex-wrap"
+        selected-icon="hugeicons:pin"
       />
-      <Message
-        v-if="$form.sculpts?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.sculpts.error.message }}
-      </Message>
-    </div>
+    </UFormField>
 
-    <div class="flex flex-col gap-2">
-      <Button label="Save" type="submit" :disabled="!$form.valid" />
-    </div>
-  </Form>
+    <UButton type="submit"> Save </UButton>
+  </UForm>
 </template>
 
 <script setup>
-import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -59,13 +37,9 @@ const initial = ref({
   sculpts: favorites.value[route.params.maker] || [],
 })
 
-const resolver = ref(
-  zodResolver(
-    z.object({
-      sculpts: z.string().array().max(6),
-    }),
-  ),
-)
+const schema = z.object({
+  sculpts: z.string().array().max(6),
+})
 
 const onSubmit = ({ valid }) => {
   if (!valid) return

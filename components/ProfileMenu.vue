@@ -17,10 +17,10 @@
         icon: !authenticated && 'hugeicons:login-03',
         trailingIcon: slim ? undefined : 'hugeicons:unfold-more',
       }"
-      color="neutral"
       variant="ghost"
       block
       :square="slim"
+      size="xl"
       class="data-[state=open]:bg-elevated"
       :ui="{
         trailingIcon: 'text-dimmed',

@@ -5,7 +5,7 @@
     :ui="{ body: 'lg:py-12 max-w-none prose dark:prose-invert leading-tight' }"
   >
     <template #header>
-      <UDashboardNavbar :title="content.title"> </UDashboardNavbar>
+      <UDashboardNavbar :title="content.title" />
     </template>
 
     <template #body>
@@ -14,23 +14,17 @@
   </UDashboardPanel>
   <UDashboardPanel v-else>
     <template #header>
-      <UDashboardNavbar title="404"> </UDashboardNavbar>
+      <UDashboardNavbar title="404" />
     </template>
 
     <template #body>
-      <UPageHero
-        title="Not Found"
-        description="Sorry, the page you visited does not exist."
-        :links="[
-          {
-            label: 'Back Home',
-            to: '/',
-            icon: 'hugeicons:home-01',
-          },
-        ]"
-      >
-        <!-- <NuxtImg class="w-1/3" src="/svg/404.svg" alt="Not Found" /> -->
-      </UPageHero>
+      <UError
+        :error="{
+          statusCode: 404,
+          statusMessage: 'Not Found',
+          message: 'Sorry, the page you are looking for does not exist.',
+        }"
+      />
     </template>
   </UDashboardPanel>
 </template>

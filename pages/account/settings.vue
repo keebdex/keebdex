@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel id="settings" :ui="{ body: 'lg:py-12' }">
     <template #header>
-      <UDashboardNavbar title="Settings"> </UDashboardNavbar>
+      <UDashboardNavbar title="Settings" />
 
       <UDashboardToolbar>
         <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->

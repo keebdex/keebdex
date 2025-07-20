@@ -1,136 +1,75 @@
 <template>
-  <div>
-    <PanelBreadcrumb :breadcrumbs="breadcrumbs" />
+  <UDashboardPanel
+    v-if="maker"
+    :id="`artisan-maker-${route.params.maker}`"
+    :ui="{ body: 'lg:py-12' }"
+  >
+    <template #header>
+      <UDashboardNavbar :title="maker.name">
+        <template #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
 
-    <Panel v-if="maker" pt:root:class="!border-0 !bg-transparent">
-      <template #header>
-        <div class="flex items-center gap-4 font-medium text-3xl">
-          <Avatar
-            :image="`/logo/${maker.id}.png`"
-            :class="{
-              invert: maker.invertible_logo && $colorMode.value === 'dark',
-            }"
-            size="large"
-            pt:image:class="object-contain"
-          />
-          {{ maker.name }}
-          <i
-            v-if="maker.verified"
-            v-tooltip="'Verified'"
-            class="pi pi-verified text-lg text-[#22c55e] dark:text-[#4ade80]"
-          />
-        </div>
-      </template>
+        <template #right>
+          <UModal
+            v-if="editable"
+            v-model:visible="visible.edit"
+            title="Edit Maker"
+          >
+            <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
 
-      <div v-if="maker.bio" class="mb-4 leading-6 text-muted-color">
-        <p v-for="(line, idx) in maker.bio.split('\n')" :key="idx" class="mb-2">
-          {{ line }}
-        </p>
-      </div>
+            <template #body>
+              <ModalMakerForm
+                :is-edit="true"
+                :metadata="maker"
+                @on-success="toggleEditMaker"
+              />
+            </template>
+          </UModal>
 
-      <template #icons>
-        <MakerProfileActions
-          :maker="maker"
-          @on-edit-maker="toggleEditMaker"
-          @on-add-sale="toggleAddSale"
-          @on-customize-pins="toggleCustomizePins"
-        />
-      </template>
+          <UModal
+            v-if="Object.hasOwn(favorites, maker.id)"
+            v-model:visible="visible.customize_pins"
+            title="Customize Pins"
+            description="Pin up to 6 sculpts to the top for easy access."
+          >
+            <UButton icon="hugeicons:pin" color="secondary"> Pins </UButton>
 
-      <div
-        v-if="authenticated && favoriteSculpts.length"
-        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4"
-      >
+            <template #body>
+              <ModalPinSculpt
+                :sculpts="favoriteSculpts.concat(otherSculpts)"
+                @on-success="toggleCustomizePins"
+              />
+            </template>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <MakerPageHeader :maker="maker" :sculpts="favoriteSculpts" />
+
+      <UPageGrid>
         <SculptCard
-          v-for="sculpt in favoriteSculpts"
+          v-for="sculpt in otherSculpts"
           :key="sculpt.id"
           :sculpt="sculpt"
         />
-      </div>
-
-      <DataView
-        :value="otherSculpts"
-        layout="grid"
-        paginator
-        :rows="authenticated && Object.keys(favSculpts).length ? 54 : 60"
-        :total-records="otherSculpts.length"
-        :always-show-paginator="false"
-        :pt="{
-          header: '!bg-transparent !border-0 text-lg font-medium',
-          content: '!bg-transparent',
-          pcPaginator: {
-            paginatorContainer: '!border-0 pt-4',
-            root: '!bg-transparent',
-          },
-        }"
-      >
-        <template v-if="favSculpts.length" #header> Other Sculpts </template>
-        <template #grid="{ items }">
-          <div
-            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4"
-          >
-            <SculptCard
-              v-for="sculpt in items"
-              :key="sculpt.id"
-              :sculpt="sculpt"
-            />
-          </div>
-        </template>
-      </DataView>
-
-      <Dialog
-        v-model:visible="visible.edit"
-        modal
-        header="Edit Maker"
-        class="w-[36rem]"
-        dismissable-mask
-      >
-        <ModalMakerForm
-          :is-edit="true"
-          :metadata="maker"
-          @on-success="toggleEditMaker"
-        />
-      </Dialog>
-
-      <Dialog
-        v-model:visible="visible.add_sale"
-        modal
-        header="Add Upcoming Sale"
-        class="w-[36rem]"
-        dismissable-mask
-      >
-        <ModalSaleForm
-          :is-edit="true"
-          :metadata="sculptLst"
-          @on-success="toggleAddSale"
-        />
-      </Dialog>
-
-      <Dialog
-        v-model:visible="visible.customize_pins"
-        modal
-        header="Customize Your Pins"
-        class="w-[36rem]"
-        dismissable-mask
-      >
-        <ModalPinSculpt
-          :sculpts="favoriteSculpts.concat(otherSculpts)"
-          @on-success="toggleCustomizePins"
-        />
-      </Dialog>
-    </Panel>
-    <BackToArtisanMakers v-else />
-  </div>
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
+  <BackToArtisanMakers v-else />
 </template>
 
 <script setup>
 const route = useRoute()
 const userStore = useUserStore()
-const { authenticated, favorites } = storeToRefs(userStore)
+const { favorites } = storeToRefs(userStore)
+
+const editable = computed(() => userStore.isEditable(maker.id))
 
 const visible = ref({
   edit: false,
-  add_sale: false,
   customize_pins: false,
 })
 
@@ -154,12 +93,16 @@ const otherSculpts = computed(() => {
 const breadcrumbs = computed(() => {
   return [
     {
-      icon: 'pi pi-home',
-      route: '/',
+      icon: 'hugeicons:home-01',
+      to: '/',
     },
     {
       label: 'Makers',
-      route: '/artisan/maker',
+      icon: 'hugeicons:user-group-03',
+      to: '/artisan/maker',
+    },
+    {
+      label: maker.value.name,
     },
   ]
 })
@@ -183,20 +126,7 @@ const toggleEditMaker = (shouldRefresh) => {
   }
 }
 
-const toggleAddSale = () => {
-  visible.value.add_sale = !visible.value.add_sale
-}
-
 const toggleCustomizePins = () => {
   visible.value.customize_pins = !visible.value.customize_pins
 }
-
-const sculptLst = computed(() => {
-  return maker && maker.value.sculpts
-    ? Object.entries(maker.value.sculpts).reduce((out, [sculptId, sculpt]) => {
-        out[sculptId] = sculpt.name
-        return out
-      }, {})
-    : {}
-})
 </script>

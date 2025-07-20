@@ -1,34 +1,13 @@
 <template>
-  <div class="flex flex-col gap-12">
-    <span
-      class="text-4xl font-bold bg-gradient-to-r from-red-300 via-pink-400 to-violet-600 dark:from-amber-200 dark:to-rose-400 text-transparent bg-clip-text"
-    >
-      Welcome back
-    </span>
-    <div class="flex flex-col gap-4">
-      <Button
-        label="Continue with Google"
-        icon="pi pi-google"
-        class="!bg-[#ea4335] !text-white !border-none"
-        @click="login('google')"
-      />
-      <Button
-        label="Continue with Discord"
-        icon="pi pi-discord"
-        class="!bg-[#5865f2] !text-white !border-none"
-        @click="login('discord')"
-      />
-      <span class="text-center">
-        By clicking continue, you agree to our
-        <nuxt-link href="/policy" target="_blank" class="underline">
-          Privacy Policy
-        </nuxt-link>
-        and Terms of Service.
-      </span>
-    </div>
-
-    <Toast />
-  </div>
+  <UAuthForm
+    title="Welcome back"
+    icon="hugeicons:user-id-verification"
+    :providers="providers"
+    :ui="{
+      title:
+        'text-4xl font-bold bg-gradient-to-r from-red-300 via-pink-400 to-violet-600 dark:from-amber-200 dark:to-rose-400 text-transparent bg-clip-text',
+    }"
+  />
 </template>
 
 <script setup>
@@ -55,4 +34,25 @@ const login = async (provider) => {
     router.back()
   }
 }
+
+const providers = ref([
+  {
+    label: 'Google',
+    icon: 'simple-icons:google',
+    color: 'neutral',
+    variant: 'subtle',
+    onclick: () => {
+      login('google')
+    },
+  },
+  {
+    label: 'Discord',
+    icon: 'simple-icons:discord',
+    color: 'neutral',
+    variant: 'subtle',
+    onclick: () => {
+      login('discord')
+    },
+  },
+])
 </script>

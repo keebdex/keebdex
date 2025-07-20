@@ -1,17 +1,4 @@
 <template>
-  <!-- <div
-    class="bg-zinc-50 dark:bg-zinc-950 w-full h-screen p-6 flex items-start gap-6 overflow-hidden"
-  >
-    <LayoutSider />
-    <div
-      class="flex flex-col justify-between flex-1 h-full overflow-y-auto pb-0.5"
-    >
-      <NuxtPage class="mx-auto max-w-screen-2xl w-full" />
-
-      <LayoutFooter />
-    </div>
-  </div> -->
-
   <UDashboardGroup unit="rem">
     <UDashboardSidebar
       id="default"
@@ -21,9 +8,26 @@
       class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
-      <!-- <template #header="{ collapsed }">
-        <TeamsMenu :collapsed="collapsed" />
-      </template> -->
+      <template #header="{ collapsed }">
+        <NuxtLink to="/" class="flex items-end gap-2">
+          <NuxtImg
+            :alt="$config.app.name"
+            :src="
+              $colorMode.value === 'dark'
+                ? '/logo-outlined.png'
+                : '/logo-filled.png'
+            "
+            class="h-8 w-auto shrink-0"
+          />
+
+          <span
+            v-if="!collapsed"
+            class="text-xl font-bold bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+          >
+            {{ $config.app.name }}
+          </span>
+        </NuxtLink>
+      </template>
 
       <template #default="{ collapsed }">
         <UDashboardSearchButton
@@ -68,11 +72,6 @@ const open = ref(false)
 
 const routes = [
   [
-    {
-      label: 'Home',
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',

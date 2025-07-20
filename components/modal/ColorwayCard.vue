@@ -1,83 +1,56 @@
 <template>
-  <Card
-    class="!shadow-none colorway-details-card"
-    pt:content:class="text-justify"
-    pt:subtitle:class="flex items-center"
-    pt:footer:class="flex gap-2"
+  <UPageCard
+    :title="colorway.name"
+    :description="colorway.description"
+    :icon="
+      Object.keys(specialSales).includes(colorway.sale_type) &&
+      specialSales[colorway.sale_type]
+    "
+    reverse
+    :ui="{
+      footer: 'flex gap-2',
+      leadingIcon:
+        (colorway.sale_type === 'Auction' && 'text-warning') ||
+        (colorway.sale_type === 'Commission' && 'text-success') ||
+        (colorway.sale_type === 'Giveaway' && 'text-info'),
+    }"
   >
-    <template #header>
-      <img
-        :alt="colorway.name"
-        :src="colorway.img"
-        class="h-full object-cover"
-      />
-    </template>
-    <template #title>
-      <div class="flex justify-between items-center">
-        <div class="mt-0 font-semibold text-xl">
-          {{ colorway.name }}
-        </div>
+    <NuxtImg :src="colorway.img" :alt="colorway.name" class="w-full" />
 
-        <Tag
-          v-if="Object.keys(specialSales).includes(colorway.sale_type)"
-          :icon="specialSales[colorway.sale_type]"
-          :value="colorway.sale_type"
-        />
-      </div>
-    </template>
-    <template #subtitle>
-      <template v-for="(extra, idx) in extras" :key="idx">
-        <span class="flex items-center gap-1">
-          <i :class="extra.icon" /> {{ extra.text }}
-        </span>
-        <Divider v-if="idx < extras.length - 1" layout="vertical" />
-      </template>
-    </template>
-    <template #content>
-      {{ colorway.description }}
-    </template>
-
-    <template v-if="!copying" #footer>
-      <Button
+    <template #footer>
+      <!-- This seems not working due to nested modal in Nuxt UI -->
+      <!-- <UButton
         v-if="editable"
-        size="small"
-        severity="secondary"
-        label="Edit"
-        icon="pi pi-pen-to-square"
-        fluid
+        icon="hugeicons:file-edit"
         @click="$emit('editColorway', colorway, true)"
-      />
+      >
+        Edit
+      </UButton> -->
 
-      <Button
-        size="small"
-        severity="secondary"
-        label="Copy Card"
-        icon="pi pi-images"
-        fluid
-        @click="copyColorwayCard"
-      />
+      <UButton icon="hugeicons:copy-02" @click="copyColorwayCard">
+        Copy
+      </UButton>
 
       <SaveToCollection
         v-if="authenticated"
         :item="colorway"
         label="Save"
-        :fluid="true"
         @on-select="onSelectCollection"
       />
     </template>
-  </Card>
+  </UPageCard>
 </template>
 
 <script setup>
 const emit = defineEmits(['editColorway', 'saveTo'])
 
 const specialSales = {
-  Auction: 'pi pi-hammer',
-  Giveaway: 'pi pi-gift',
-  Commission: 'pi pi-palette',
+  Auction: 'hugeicons:auction',
+  Giveaway: 'hugeicons:wellness',
+  Commission: 'hugeicons:save-money-dollar',
 }
 
-const { authenticated, colorway, editable } = defineProps({
+const { authenticated, colorway } = defineProps({
   colorway: {
     type: Object,
     default: () => ({}),
