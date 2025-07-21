@@ -1,29 +1,22 @@
 <template>
-  <Panel
-    header="Marketplace"
-    pt:root:class="!border-0 !bg-transparent"
-    pt:title:class="flex items-center gap-4 font-medium text-3xl"
-  >
-    <Message
-      class="w-fit mx-auto mb-4"
-      severity="info"
-      icon="pi pi-info-circle"
-    >
-      To make your collections available in the marketplace, please publish them
-      by visiting
-      <nuxt-link to="/collection">Collections</nuxt-link>. This will make them
-      visible to potential buyers/sellers.
-    </Message>
+  <UDashboardPanel id="marketplace" :ui="{ body: 'lg:py-12' }">
+    <template #header>
+      <UDashboardNavbar title="Marketplace" />
+    </template>
 
-    <div class="grid grid-cols-4 gap-4">
-      <div class="col-span-4 lg:col-span-1 flex flex-col gap-2">
-        <MarketplaceFilter />
-      </div>
-      <div class="col-span-4 lg:col-span-3 flex flex-col gap-2">
-        <MarketplaceListing />
-      </div>
-    </div>
-  </Panel>
+    <template #body>
+      <UAlert icon="hugeicons:information-circle" variant="soft" color="info">
+        <template #description>
+          To make your collections available in the marketplace, please publish
+          them by visiting
+          <NuxtLink to="/collection" class="underline">Collections</NuxtLink>.
+          This will make them visible to potential buyers/sellers.
+        </template>
+      </UAlert>
+
+      <MarketplaceListing />
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>

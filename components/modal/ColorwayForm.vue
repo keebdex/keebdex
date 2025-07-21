@@ -65,6 +65,16 @@
       <UTextarea v-model.trim="colorway.description" :rows="5" class="w-full" />
     </UFormField>
 
+    <UFormField label="Image" name="img">
+      <UPageCard orientation="horizontal">
+        <NuxtImg
+          :alt="colorway.name"
+          :src="colorway.img"
+          class="w-full h-full object-cover"
+        />
+        <UInput type="file" disabled @change="onFileChange" />
+      </UPageCard>
+    </UFormField>
     <UButton type="submit"> Save </UButton>
   </UForm>
 </template>
@@ -150,6 +160,16 @@ const onSubmit = async ({ valid }) => {
     .catch((error) => {
       toast.add({ severity: 'error', summary: error.message, life: 3000 })
     })
+}
+
+function onFileChange(e) {
+  const input = e.target
+
+  if (!input.files?.length) {
+    return
+  }
+
+  colorway.value.img = URL.createObjectURL(input.files[0])
 }
 
 // const fetching = ref(false)

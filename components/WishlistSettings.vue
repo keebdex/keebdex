@@ -1,133 +1,94 @@
 <template>
-  <Panel header="Settings" pt:header:class="text-xl">
-    <template #icons>
-      <SelectButton
-        v-model="tradingConfig.type"
-        :options="[
-          { label: 'Buying', value: 'buying' },
-          { label: 'Selling', value: 'selling' },
-          { label: 'Trading', value: 'trading' },
-        ]"
-        option-label="label"
-        option-value="value"
+  <UForm :schema="schema" :state="sculpt" class="space-y-4" @submit="onSubmit">
+    <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
+      <UInput
+        v-model.trim="tradingConfig.buying.title"
+        icon="hugeicons:text"
+        :placeholder="
+          tradingConfig.type === 'selling'
+            ? tradingConfig.selling.placeholder
+            : tradingConfig.buying.placeholder
+        "
+        class="w-full"
       />
-    </template>
-    <div class="flex flex-col gap-4">
-      <div class="grid grid-cols-4 gap-2">
-        <div class="col-span-1 flex flex-col gap-2">
-          <label for="trading_title">
-            {{ trading ? 'Want Title' : 'Title' }}
-          </label>
-          <IconField>
-            <InputIcon class="pi pi-pencil" />
-            <InputText
-              id="trading_title"
-              v-model.trim="tradingConfig.buying.title"
-              type="text"
-              :placeholder="
-                tradingConfig.type === 'selling'
-                  ? tradingConfig.selling.placeholder
-                  : tradingConfig.buying.placeholder
-              "
-              fluid
-            />
-          </IconField>
-        </div>
-        <div class="col-span-1 flex flex-col gap-2">
-          <label for="trading_collection">
-            {{ trading ? 'Want Collection' : 'Collection' }}
-          </label>
-          <Select
-            id="trading_collection"
-            v-model="tradingConfig.buying.collection"
-            :options="
-              collections.filter(
-                (c) =>
-                  c.category === 'artisan' &&
-                  typeMap[tradingConfig.type].includes(c.type),
-              )
-            "
-            option-label="name"
-            option-value="id"
-          />
-        </div>
-        <div v-if="trading" class="col-span-1 flex flex-col gap-2">
-          <label for="trading_have">Have Title</label>
-          <IconField>
-            <InputIcon class="pi pi-pencil" />
-            <InputText
-              id="trading_have"
-              v-model.trim="tradingConfig.selling.title"
-              type="text"
-              :placeholder="tradingConfig.selling.placeholder"
-              fluid
-            />
-          </IconField>
-        </div>
-        <div v-if="trading" class="col-span-1 flex flex-col gap-2">
-          <label for="trading_have_collection">Have Collection</label>
-          <Select
-            id="trading_have_collection"
-            v-model="tradingConfig.selling.collection"
-            :options="
-              collections.filter(
-                (c) =>
-                  c.category === 'artisan' && typeMap.selling.includes(c.type),
-              )
-            "
-            option-label="name"
-            option-value="id"
-          />
-        </div>
-      </div>
-      <div class="grid grid-cols-4 gap-2">
-        <div class="col-span-1 flex flex-col gap-2">
-          <label for="trading_discord">Discord</label>
-          <IconField>
-            <InputIcon class="pi pi-discord" />
-            <InputText
-              id="trading_discord"
-              v-model.trim="tradingConfig.social.discord"
-              type="text"
-              placeholder="username#1234"
-              fluid
-            />
-          </IconField>
-        </div>
-        <div class="col-span-1 flex flex-col gap-2">
-          <label for="trading_reddit">Reddit</label>
-          <IconField>
-            <InputIcon class="pi pi-reddit" />
-            <InputText
-              id="trading_reddit"
-              v-model.trim="tradingConfig.social.reddit"
-              type="text"
-              placeholder="u/username"
-              fluid
-            />
-          </IconField>
-        </div>
-        <div class="col-span-1 flex flex-col gap-2">
-          <label for="trading_qq">QQ</label>
-          <IconField>
-            <InputIcon class="pi pi-comment" />
-            <InputText
-              id="trading_qq"
-              v-model.trim="tradingConfig.social.qq"
-              v-keyfilter.num
-              type="text"
-              placeholder="00000000"
-              fluid
-            />
-          </IconField>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <Checkbox v-model="tradingConfig.fnf_only" input-id="fnf_only" binary />
-        <label for="fnf_only">I do not accept PayPal G&S</label>
-      </div>
-    </div>
-  </Panel>
+    </UFormField>
+
+    <UFormField
+      :label="trading ? 'Want Collection' : 'Collection'"
+      name="want_collection"
+    >
+      <USelect
+        v-model="tradingConfig.buying.collection"
+        :items="
+          collections.filter(
+            (c) =>
+              c.category === 'artisan' &&
+              typeMap[tradingConfig.type].includes(c.type),
+          )
+        "
+        label-key="name"
+        value-key="id"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField v-if="trading" label="Have Title" name="have_title">
+      <UInput
+        v-model.trim="tradingConfig.selling.title"
+        icon="hugeicons:text"
+        :placeholder="tradingConfig.selling.placeholder"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField v-if="trading" label="Have Collection" name="have_collection">
+      <USelect
+        v-model="tradingConfig.selling.collection"
+        :items="
+          collections.filter(
+            (c) => c.category === 'artisan' && typeMap.selling.includes(c.type),
+          )
+        "
+        label-key="name"
+        value-key="id"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Discord" name="discord">
+      <UInput
+        v-model.trim="tradingConfig.social.discord"
+        icon="hugeicons:discord"
+        placeholder="username#1234"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Reddit" name="reddit">
+      <UInput
+        v-model.trim="tradingConfig.social.reddit"
+        icon="hugeicons:reddit"
+        placeholder="u/username"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="QQ" name="qq">
+      <UInput
+        v-model.trim="tradingConfig.social.qq"
+        icon="hugeicons:bubble-chat"
+        placeholder="00000000"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField>
+      <UCheckbox
+        v-model="tradingConfig.fnf_only"
+        label="I do not accept PayPal G&S"
+      />
+    </UFormField>
+  </UForm>
 </template>
 
 <script setup>
@@ -140,24 +101,7 @@ const typeMap = {
   trading: ['personal', 'personal_buy', 'shareable', 'to_buy'],
 }
 
-const tradingConfig = useState('trading-config', () => {
-  return {
-    selling: {
-      collection: '',
-      title: '',
-      placeholder: 'For sale',
-    },
-    buying: {
-      collection: '',
-      title: '',
-      placeholder: 'Looking for',
-    },
-    social,
-    type: 'buying',
-    fnf_only: false,
-  }
-})
-
+const tradingConfig = useState('trading-config')
 tradingConfig.value.social = social.value
 
 const trading = computed(() => tradingConfig.value.type === 'trading')

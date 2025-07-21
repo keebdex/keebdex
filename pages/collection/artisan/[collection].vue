@@ -106,7 +106,7 @@
               :icon="
                 exchange
                   ? 'hugeicons:search-focus'
-                  : 'hugeicons:checkmark-circle-03'
+                  : 'hugeicons:shopping-basket-done-03'
               "
               :color="exchange ? 'neutral' : 'success'"
               @click="changeExchangeStatus({ id, exchange, artisan })"
@@ -116,9 +116,9 @@
               :icon="
                 exchange
                   ? 'hugeicons:sale-tag-02'
-                  : 'hugeicons:checkmark-circle-03'
+                  : 'hugeicons:shopping-basket-remove-03'
               "
-              :color="exchange ? 'neutral' : 'success'"
+              :color="exchange ? 'neutral' : 'warning'"
               @click="changeExchangeStatus({ id, exchange, artisan })"
             />
 

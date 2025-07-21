@@ -1,99 +1,45 @@
 <template>
-  <Panel
-    v-if="buyingItems.length || sellingItems.length"
-    :header="copying ? 'Contact' : 'Preview'"
-    pt:root:class="trading-preview"
-    pt:header:class="text-xl"
-    pt:header-actions:class="flex gap-2"
-  >
-    <template v-if="!copying" #icons>
-      <Button
-        size="small"
-        severity="secondary"
-        label="Copy Text"
-        icon="pi pi-clipboard"
-        @click="copyToClipboard"
-      />
-      <Button
-        size="small"
-        severity="secondary"
-        label="Copy Image"
-        icon="pi pi-images"
-        @click="screenshot(false)"
-      />
-      <Button
-        size="small"
-        severity="secondary"
-        label="Download"
-        icon="pi pi-download"
-        @click="screenshot(true)"
-      />
+  <UDashboardPanel id="wishlist-preview">
+    <template #header>
+      <UDashboardNavbar title="Wishlist Preview">
+        <template #right>
+          <UButton icon="hugeicons:clipboard" @click="copyToClipboard">
+            Copy Text
+          </UButton>
+          <UButton icon="hugeicons:album-01" @click="screenshot(false)">
+            Copy Image
+          </UButton>
+          <UButton icon="hugeicons:image-download-02" @click="screenshot(true)">
+            Save
+          </UButton>
+        </template>
+      </UDashboardNavbar>
     </template>
 
-    <div class="flex flex-col gap-6">
-      <div
-        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4"
-      >
-        <Message
-          v-if="tradingCfg.social.discord"
-          size="large"
-          icon="pi pi-discord"
-          severity="info"
-          variant="simple"
-        >
-          {{ tradingCfg.social.discord }}
-        </Message>
-        <Message
-          v-if="tradingCfg.social.reddit"
-          size="large"
-          icon="pi pi-reddit"
-          severity="error"
-          variant="simple"
-        >
-          {{ tradingCfg.social.reddit }}
-        </Message>
-        <Message
-          v-if="tradingCfg.social.qq"
-          size="large"
-          icon="pi pi-comment"
-          severity="warn"
-          variant="simple"
-        >
-          {{ tradingCfg.social.qq }}
-        </Message>
-      </div>
-
-      <Message
-        v-if="buyingItems.length + sellingItems.length >= 24 && !copying"
-        variant="simple"
-        icon="pi pi-info-circle"
-      >
-        For optimal image display, it's <strong>recommended</strong> to keep
-        your wishlist between 16-24 items.
-      </Message>
-
-      <Message
+    <template #body>
+      <UAlert
         v-if="tradingCfg.fnf_only"
-        severity="warn"
-        icon="pi pi-exclamation-triangle"
-        variant="simple"
-      >
-        Please note that the seller does not accept PayPal Goods & Services
-        (G&S). This means that if you choose to proceed with the transaction,
-        you will not have PayPal's buyer protection in place.
-      </Message>
+        icon="hugeicons:alert-02"
+        title="No PayPal Buyer Protection"
+        description="Please note that the seller does not accept PayPal Goods & Services (G&S). This means that if you choose to proceed with the transaction, you will not have PayPal's buyer protection in place."
+        variant="subtle"
+        color="warning"
+      />
 
-      <Message v-if="errorText" class="w-fit mx-auto" severity="error">
-        {{ errorText }}
-      </Message>
+      <UAlert
+        v-if="errorText"
+        :description="errorText"
+        variant="subtle"
+        color="error"
+      />
 
-      <Divider
+      <USeparator
         v-if="buyingItems.length"
-        align="center"
-        class="text-4xl font-bold"
-      >
-        {{ tradingCfg.buying.title }}
-      </Divider>
+        :label="tradingCfg.buying.title"
+        :ui="{
+          label: 'font-bold text-3xl text-info',
+        }"
+      />
 
       <DraggableCard
         :data="buyingItems"
@@ -102,13 +48,13 @@
         @on-remove="remove"
       />
 
-      <Divider
+      <USeparator
         v-if="sellingItems.length && trading"
-        align="center"
-        class="text-4xl font-bold"
-      >
-        {{ tradingCfg.selling.title }}
-      </Divider>
+        :label="tradingCfg.selling.title"
+        :ui="{
+          label: 'font-bold text-3xl text-warning',
+        }"
+      />
 
       <DraggableCard
         v-if="trading"
@@ -117,25 +63,23 @@
         :selling="true"
         @on-remove="remove"
       />
+    </template>
 
-      <Message variant="simple" severity="success">
-        <template #icon>
-          <NuxtImg
-            class="h-8"
-            :alt="$config.app.name"
-            :src="
-              $colorMode.value === 'dark'
-                ? '/logo-outlined.png'
-                : '/logo-filled.png'
-            "
-          />
-        </template>
+    <!-- <template #footer>
+      <UButton
+        :avatar="{
+          alt: $config.app.name,
+          src:
+            $colorMode.value === 'dark'
+              ? '/logo-outlined.png'
+              : '/logo-filled.png',
+        }"
+        color="primary"
+      >
         From {{ $config.app.name }} with love
-      </Message>
-    </div>
-
-    <Toast />
-  </Panel>
+      </UButton>
+    </template> -->
+  </UDashboardPanel>
 </template>
 
 <script setup>
