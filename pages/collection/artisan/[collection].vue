@@ -129,7 +129,11 @@
               @on-select="moveTo"
             />
 
-            <UButton icon="hugeicons:delete-02" color="error" />
+            <UButton
+              icon="hugeicons:delete-02"
+              color="error"
+              @click="remove(id)"
+            />
           </template>
         </UPageCard>
       </UPageGrid>

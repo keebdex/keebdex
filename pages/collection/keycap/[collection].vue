@@ -1,121 +1,73 @@
 <template>
-  <div>
-    <PanelBreadcrumb :breadcrumbs="breadcrumbs" />
-
-    <Panel
-      :header="data?.name || 'Collection'"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    >
-      <template #icons>
-        <div v-if="$device.isDesktopOrTablet" class="flex gap-2">
-          <Button
-            v-if="authenticated"
-            icon="pi pi-pen-to-square"
-            label="Edit"
-            severity="secondary"
-            @click="toggleShowEdit"
-          />
-
-          <Button
-            v-if="user.email_verified"
-            icon="pi pi-trash"
-            label="Delete"
-            severity="danger"
-            @click="deleteCollection"
-          />
-        </div>
-        <Button
-          v-else
-          aria-haspopup="true"
-          aria-controls="overlay_menu"
-          icon="pi pi-ellipsis-v"
-          severity="secondary"
-          @click="toggleActions"
-        >
-        </Button>
-        <Menu id="overlay_menu" ref="menu" :model="mobile" :popup="true" />
-      </template>
-
-      <DataView
-        :value="sortedCollections"
-        layout="grid"
-        paginator
-        :rows="60"
-        :total-records="sortedCollections.length"
-        :always-show-paginator="false"
-        :pt="{
-          content: '!bg-transparent',
-          pcPaginator: {
-            paginatorContainer: '!border-0 pt-4',
-            root: '!bg-transparent',
-          },
-        }"
-      >
-        <template #grid="{ items }">
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          >
-            <Card
-              v-for="{ id, keycap } in items"
-              :key="keycap.id"
-              class="overflow-hidden"
-              pt:header:class="h-48 md:h-60"
-              pt:subtitle:class="flex justify-between"
-            >
-              <template #header>
-                <img
-                  loading="lazy"
-                  :alt="keycap.name"
-                  :src="keycap.img || keycap.render_img"
-                  class="h-full object-cover"
-                />
-              </template>
-              <template #title>
-                {{ `${keycap.profile.name} ${keycap.name}` || '-' }}
-              </template>
-              <template #subtitle>
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-palette" />
-                  {{ keycap.designer }}
-                </span>
-              </template>
-
-              <template #footer>
-                <Button
-                  size="small"
-                  text
-                  label="Remove"
-                  fluid
-                  severity="danger"
-                  icon="pi pi-trash"
-                  @click="remove(id, keycap)"
-                />
-              </template>
-            </Card>
-          </div>
+  <UDashboardPanel
+    :id="`collection-${route.params.collection}`"
+    :ui="{ body: 'lg:py-12' }"
+  >
+    <template #header>
+      <UDashboardNavbar title="My Collections">
+        <template #left>
+          <UBreadcrumb :items="breadcrumbs" />
         </template>
-      </DataView>
 
-      <Dialog
-        v-model:visible="visible"
-        modal
-        header="Edit Collection"
-        dismissable-mask
-        class="w-[36rem]"
-      >
-        <ModalCollectionForm
-          :metadata="data"
-          :uid="user.uid"
-          :is-edit="true"
-          @on-success="toggleShowEdit"
-        />
-      </Dialog>
-    </Panel>
+        <template #right>
+          <UModal
+            v-if="authenticated"
+            v-model:visible="visible"
+            title="Edit Collection"
+          >
+            <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
 
-    <ConfirmDialog />
-    <Toast />
-  </div>
+            <template #body>
+              <ModalCollectionForm
+                :metadata="data"
+                :uid="user.uid"
+                :is-edit="true"
+                @on-success="toggleShowEdit"
+              />
+            </template>
+          </UModal>
+
+          <UButton
+            v-if="user.email_verified"
+            icon="hugeicons:bookmark-remove-02"
+            color="error"
+            @click="deleteCollection"
+          >
+            Delete
+          </UButton>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <UPageColumns>
+        <UPageCard
+          v-for="{ keycap } in sortedCollections"
+          :key="keycap.id"
+          :title="keycap.name"
+          :description="keycap.designer"
+          variant="subtle"
+          reverse
+        >
+          <NuxtImg
+            loading="lazy"
+            :alt="keycap.name"
+            :src="keycap.img || keycap.render_img"
+            class="h-full object-cover"
+          />
+
+          <template #footer>
+            <UButton
+              label="Remove"
+              icon="hugeicons:delete-02"
+              color="error"
+              @click="remove(id, keycap)"
+            />
+          </template>
+        </UPageCard>
+      </UPageColumns>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>
@@ -124,12 +76,16 @@ import sortBy from 'lodash.sortby'
 const breadcrumbs = computed(() => {
   return [
     {
-      icon: 'pi pi-home',
-      route: '/',
+      icon: 'hugeicons:home-01',
+      to: '/',
     },
     {
-      label: 'My Collections',
-      route: `/collection`,
+      label: 'My Collection',
+      icon: 'hugeicons:collections-bookmark',
+      to: '/collection',
+    },
+    {
+      label: data.value?.name,
     },
   ]
 })
@@ -154,34 +110,6 @@ watchEffect(() => route.params.collection, refresh())
 
 const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], ['keycap.name'])
-})
-
-const menu = ref()
-const toggleActions = (event) => {
-  menu.value.toggle(event)
-}
-
-const mobile = computed(() => {
-  return [
-    {
-      label: 'Editing',
-      visible: authenticated,
-      items: [
-        {
-          label: 'Edit',
-          icon: 'pi pi-pen-to-square',
-          visible: authenticated.value,
-          command: toggleShowEdit,
-        },
-        {
-          label: 'Delete',
-          icon: 'pi pi-trash',
-          visible: user.value.email_verified,
-          command: deleteCollection,
-        },
-      ],
-    },
-  ]
 })
 
 const remove = (id, keycap) => {

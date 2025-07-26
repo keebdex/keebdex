@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="sculpt" class="space-y-4" @submit="onSubmit">
+  <UForm class="space-y-4">
     <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
       <UInput
         v-model.trim="tradingConfig.buying.title"

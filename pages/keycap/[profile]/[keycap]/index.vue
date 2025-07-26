@@ -1,162 +1,118 @@
 <template>
-  <div>
-    <PanelBreadcrumb :breadcrumbs="breadcrumbs" />
+  <UDashboardPanel
+    :id="`keycap-${profile}-${keycap}`"
+    :ui="{ body: 'lg:py-12' }"
+  >
+    <template #header>
+      <UDashboardNavbar :title="data.name">
+        <template #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
 
-    <Panel
-      :header="data.name"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    >
-      <template #icons>
-        <div v-if="$device.isDesktopOrTablet" class="flex gap-2">
-          <nuxt-link
-            v-if="editable"
+        <template #right>
+          <UButton
+            label="Manage Kits"
+            icon="hugeicons:dashboard-square-02"
             :to="`/keycap/${data.profile_keycap_id}/kit`"
-          >
-            <Button
-              icon="pi pi-th-large"
-              label="Manage Kits"
-              severity="secondary"
+          />
+
+          <UModal v-if="editable" v-model:visible="visible" title="Edit Keycap">
+            <UButton
+              label="Edit"
+              icon="hugeicons:keyboard"
+              @click="toggleEditKeycap"
             />
-          </nuxt-link>
 
-          <Button
-            v-if="editable"
-            icon="pi pi-file-edit"
-            label="Edit"
-            severity="secondary"
-            @click="toggleEditKeycap"
-          />
-
-          <SplitButton
-            icon="pi pi-external-link"
-            label="Links"
-            severity="secondary"
-            :model="mobile[2].items"
-          />
-        </div>
-        <Button
-          v-else
-          aria-haspopup="true"
-          aria-controls="overlay_menu"
-          icon="pi pi-ellipsis-v"
-          severity="secondary"
-          @click="toggleActions"
-        >
-        </Button>
-        <Menu id="overlay_menu" ref="menu" :model="mobile" :popup="true" />
-      </template>
-
-      <div v-if="data.kits.length" class="grid grid-cols-3 gap-4">
-        <div class="col-span-3 lg:col-span-2">
-          <Carousel
-            :value="data.kits"
-            :num-visible="1"
-            :num-scroll="1"
-            circular
-            :autoplay-interval="3000"
-          >
-            <template #item="{ data: kit }">
-              <div class="mb-4">
-                <div class="relative mx-auto">
-                  <img :src="kit.img" :alt="kit.name" class="w-full rounded" />
-                </div>
-              </div>
-
-              <div class="flex justify-between items-center">
-                <div class="mt-0 font-semibold text-xl">
-                  {{ kit.name }}
-                </div>
-                <div v-if="kit.price" class="mt-0 font-semibold text-xl">
-                  ${{ kit.price }}
-                </div>
-              </div>
-              <div class="mt-4">
-                {{ kit.description }}
-              </div>
+            <template #body>
+              <ModalKeycapForm
+                :is-edit="true"
+                :metadata="data"
+                @on-success="toggleEditKeycap"
+              />
             </template>
-          </Carousel>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <UPageHeader
+        :title="data.name"
+        :description="data.description"
+        :links="links"
+        :ui="{
+          root: 'pt-0',
+          description: 'text-md',
+        }"
+      />
+
+      <div v-if="data.kits.length" class="grid grid-cols-3 gap-6">
+        <div class="col-span-3 lg:col-span-2">
+          <UCarousel
+            v-slot="{ item }"
+            :items="data.kits"
+            loop
+            dots
+            :autoplay="{ delay: 2000 }"
+            class="w-full mx-auto"
+          >
+            <div class="mb-4">
+              <div class="relative mx-auto">
+                <img :src="item.img" :alt="item.name" class="w-full rounded" />
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <div class="mt-0 font-semibold">
+                {{ item.name }}
+              </div>
+              <div v-if="item.price" class="mt-0 font-semibold">
+                ${{ item.price }}
+              </div>
+            </div>
+            <div class="mt-4">
+              {{ item.description }}
+            </div>
+          </UCarousel>
         </div>
 
         <div class="col-span-3 lg:col-span-1">
-          <Accordion :value="activeKey" multiple>
-            <AccordionPanel v-if="data.description" value="description">
-              <AccordionHeader>Description</AccordionHeader>
-              <AccordionContent>
-                <p
-                  v-for="(line, idx) in data.description.split('\n')"
-                  :key="idx"
-                  class="mb-2 text-justify"
-                >
-                  {{ line }}
-                </p>
-              </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel value="specifications">
-              <AccordionHeader>Specifications</AccordionHeader>
-              <AccordionContent>
-                <ul class="list-none p-0 m-0 flex flex-col gap-2">
-                  <li v-if="data.designer">Designer: {{ data.designer }}</li>
-                  <li v-if="data.sculpt">Sculpt: {{ data.sculpt }}</li>
-                  <li v-if="data.status === 'Interest Check'">
-                    IC Date: {{ formatDate(data.ic_date) }}
-                  </li>
-                  <li v-else>
-                    Timeline:
-                    {{ formatDateRange(data.start_date, data.end_date) }}
-                  </li>
-                  <li v-if="data.status">
-                    Status:
-                    <Tag :severity="keycapStatuses[data.status]">
-                      {{ data.status }}
-                    </Tag>
-                  </li>
-                </ul>
-              </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel value="kits">
-              <AccordionHeader>Kits</AccordionHeader>
-              <AccordionContent>
-                <div class="flex flex-wrap gap-2">
-                  <Button
-                    v-for="kit in data.kits"
-                    :key="kit.id"
-                    size="small"
-                    severity="secondary"
-                    :label="kit.name"
+          <UAccordion v-model="activeKey" :items="items" type="multiple">
+            <template #specifications>
+              <ul class="list-none p-0 m-0 flex flex-col gap-2 py-2 text-sm">
+                <li v-if="data.designer">Designer: {{ data.designer }}</li>
+                <li v-if="data.sculpt">Sculpt: {{ data.sculpt }}</li>
+                <li v-if="data.status === 'Interest Check'">
+                  IC Date: {{ formatDate(data.ic_date) }}
+                </li>
+                <li v-else>
+                  Timeline:
+                  {{ formatDateRange(data.start_date, data.end_date) }}
+                </li>
+                <li v-if="data.status">
+                  Status:
+                  <UBadge
+                    :label="data.status"
+                    :color="keycapStatuses[data.status]"
                   />
-                </div>
-              </AccordionContent>
-            </AccordionPanel>
-            <AccordionPanel value="disclaimers">
-              <AccordionHeader>Disclaimers</AccordionHeader>
-              <AccordionContent>
-                <Message variant="simple" severity="warn">
-                  Kindly note that the images are of 3D renders and are for
-                  illustration purposes only. The final colors may differ
-                  slightly.
-                </Message>
-              </AccordionContent>
-            </AccordionPanel>
-          </Accordion>
+                </li>
+              </ul>
+            </template>
+            <template #kits>
+              <div class="flex flex-wrap gap-2 py-2">
+                <UButton
+                  v-for="kit in data.kits"
+                  :key="kit.id"
+                  :label="kit.name"
+                  size="sm"
+                />
+              </div>
+            </template>
+          </UAccordion>
         </div>
       </div>
-
-      <Dialog
-        v-model:visible="visible"
-        modal
-        header="Edit Keycap"
-        dismissable-mask
-        class="w-[36rem]"
-      >
-        <ModalKeycapForm
-          :is-edit="true"
-          :metadata="data"
-          @on-success="toggleEditKeycap"
-        />
-      </Dialog>
-    </Panel>
-  </div>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>
@@ -168,7 +124,7 @@ const userStore = useUserStore()
 const { profile, keycap } = route.params
 const editable = computed(() => userStore.isEditable(`${profile}/${keycap}`))
 
-const activeKey = ref(['description', 'specifications', 'kits', 'disclaimers'])
+const activeKey = ref(['0', '1', '2'])
 
 const { data, refresh } = await useAsyncData(
   `keycap/${profile}/${keycap}`,
@@ -185,15 +141,73 @@ const { data, refresh } = await useAsyncData(
 const breadcrumbs = computed(() => {
   return [
     {
-      icon: 'pi pi-home',
-      route: '/',
+      icon: 'hugeicons:home-01',
+      to: '/',
     },
     {
       label: manufacturers[profile],
-      route: `/keycap/${profile}`,
+      to: `/keycap/${profile}`,
+    },
+    {
+      label: data.value.name,
     },
   ]
 })
+
+const links = []
+if (data.value.url) {
+  links.push({
+    label: 'Thread',
+    icon: 'hugeicons:globe-02',
+    to: data.value.url,
+    target: '_blank',
+  })
+}
+
+if (data.value.order_graph) {
+  links.push({
+    label: 'Order Graph',
+    icon: 'hugeicons:bar-chart-horizontal',
+    to: data.value.order_graph,
+    target: '_blank',
+  })
+}
+
+if (data.value.order_history) {
+  links.push({
+    label: 'Order History',
+    icon: 'hugeicons:chart-line-data-02',
+    to: data.value.order_history,
+    target: '_blank',
+  })
+}
+
+const items = [
+  {
+    label: 'Specifications',
+    icon: 'hugeicons:information-circle',
+    slot: 'specifications',
+  },
+  {
+    label: 'Kits',
+    icon: 'hugeicons:dashboard-square-02',
+    slot: 'kits',
+  },
+  {
+    label: 'Disclaimers',
+    icon: 'hugeicons:justice-scale-01',
+    content:
+      'Kindly note that the images are of 3D renders and are for illustration purposes only. The final colors may differ slightly.',
+  },
+]
+
+const visible = ref(false)
+const toggleEditKeycap = (shouldRefresh) => {
+  visible.value = !visible.value
+  if (shouldRefresh) {
+    refresh()
+  }
+}
 
 useSeoMeta({
   title: data.value
@@ -207,67 +221,4 @@ useSeoMeta({
 defineOgImageComponent('Keycap', {
   manufacturerId: profile,
 })
-
-const menu = ref()
-const toggleActions = (event) => {
-  menu.value.toggle(event)
-}
-
-const mobile = computed(() => {
-  return [
-    {
-      label: 'Editing',
-      visible: editable.value,
-      items: [
-        {
-          label: 'Manage Kits',
-          icon: 'pi pi-th-large',
-        },
-        {
-          label: 'Edit',
-          icon: 'pi pi-file-edit',
-          command: toggleEditKeycap,
-        },
-      ],
-    },
-    {
-      separator: true,
-      visible: editable.value,
-    },
-    {
-      label: 'External Links',
-      items: [
-        {
-          label: 'IC/GB Thread',
-          icon: 'pi pi-external-link',
-          visible: data.value.url,
-          url: data.value.url,
-          target: '_blank',
-        },
-        {
-          label: 'Order Graph',
-          icon: 'pi pi-chart-bar',
-          visible: !!data.value.order_graph,
-          url: data.value.order_graph,
-          target: '_blank',
-        },
-        {
-          label: 'Order History',
-          icon: 'pi pi-chart-line',
-          visible: !!data.value.order_history,
-          url: data.value.order_history,
-          target: '_blank',
-        },
-      ],
-    },
-  ]
-})
-
-const visible = ref(false)
-const toggleEditKeycap = (shouldRefresh) => {
-  visible.value = !visible.value
-  if (shouldRefresh) {
-    refresh()
-  }
-}
 </script>

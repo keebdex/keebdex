@@ -62,7 +62,7 @@ export const keycapProfiles = {
 
 export const keycapStatuses = {
   'Interest Check': 'secondary',
-  Cancelled: 'danger',
+  Cancelled: 'error',
   Live: 'info',
   'In Production': 'info',
   Shipping: 'info',

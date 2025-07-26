@@ -14,7 +14,7 @@
           alt: user?.name,
         },
         label: slim ? undefined : user?.name || 'Sign In',
-        icon: !authenticated && 'hugeicons:login-03',
+        icon: authenticated ? undefined : 'hugeicons:login-03',
         trailingIcon: slim ? undefined : 'hugeicons:unfold-more',
       }"
       variant="ghost"

@@ -1,68 +1,63 @@
 <template>
-  <div>
-    <PanelBreadcrumb :breadcrumbs="breadcrumbs" />
+  <UDashboardPanel
+    :id="`keycap-${profile}-${keycap}`"
+    :ui="{ body: 'lg:py-12' }"
+  >
+    <template #header>
+      <UDashboardNavbar title="Manage Kits">
+        <template #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
 
-    <Panel
-      header="Manage Kits"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:title:class="flex items-center gap-4 font-medium text-3xl"
-    >
-      <template #icons>
-        <Button label="Add" icon="pi pi-file-plus" @click="toggleEditKit()" />
-      </template>
+        <template #right>
+          <UModal v-model:visible="visible" title="Add Kit">
+            <UButton
+              icon="hugeicons:dashboard-square-add"
+              @click="toggleEditKit()"
+            >
+              Add
+            </UButton>
 
-      <DataTable :value="data.kits" striped-rows>
-        <Column field="name" header="Name" />
-        <Column field="price" header="Price" />
-        <Column field="qty" header="Quantity" />
-        <Column field="img" header="Image" />
-        <Column v-if="hasCancelled" field="cancelled" header="Status">
-          <template #body="{ data: kit }">
-            <Tag v-if="kit.cancelled" severity="danger" value="Cancelled" />
-          </template>
-        </Column>
-        <Column class="!text-end" header="Actions">
-          <template #body="{ data: kit }">
-            <div class="flex gap-2">
-              <Button
-                size="small"
-                text
-                label="Edit"
-                icon="pi pi-pen-to-square"
-                severity="secondary"
-                @click="toggleEditKit(kit)"
+            <template #body>
+              <ModalKeycapKitForm
+                :is-edit="!!selectedKit?.id"
+                :metadata="selectedKit"
+                @on-success="toggleEditKit"
               />
+            </template>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-              <Button
-                size="small"
-                text
-                label="Delete"
-                icon="pi pi-trash"
-                severity="danger"
-                @click="confirmDelete(kit)"
-              />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-
-      <ConfirmDialog />
-      <Toast />
-      <Dialog
-        v-model:visible="visible"
-        modal
-        :header="selectedKit?.id ? 'Edit Kit' : 'Add Kit'"
-        dismissable-mask
-        class="w-[36rem]"
-      >
-        <ModalKeycapKitForm
-          :is-edit="!!selectedKit?.id"
-          :metadata="selectedKit"
-          @on-success="toggleEditKit"
-        />
-      </Dialog>
-    </Panel>
-  </div>
+    <template #body>
+      <UTable :data="data.kits" :columns="columns" class="flex-1">
+        <template #status-cell="{ row }">
+          <UBadge
+            :label="row.original.cancelled ? 'Cancelled' : 'Active'"
+            :color="row.original.cancelled ? 'error' : 'success'"
+          />
+        </template>
+        <template #action-cell="{ row }">
+          <div class="flex gap-2">
+            <UButton
+              label="Edit"
+              icon="hugeicons:dashboard-square-edit"
+              size="sm"
+              @click="toggleEditKit(row.original)"
+            />
+            <UButton
+              label="Delete"
+              icon="hugeicons:dashboard-square-remove"
+              size="sm"
+              color="error"
+              @click="confirmDelete(row.original)"
+            />
+          </div>
+        </template>
+      </UTable>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>
@@ -84,21 +79,48 @@ const { data, refresh } = await useAsyncData(
 const breadcrumbs = computed(() => {
   return [
     {
-      icon: 'pi pi-home',
-      route: '/',
+      icon: 'hugeicons:home-01',
+      to: '/',
     },
     {
       label: manufacturers[profile],
-      route: `/keycap/${profile}`,
+      to: `/keycap/${profile}`,
     },
     {
       label: data.value.name,
-      route: `/keycap/${profile}/${keycap}`,
+      to: `/keycap/${profile}/${keycap}`,
+    },
+    {
+      label: 'Kits',
     },
   ]
 })
 
-const hasCancelled = data.value.kits.some((k) => k.cancelled)
+const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+  {
+    accessorKey: 'price',
+    header: 'Price',
+  },
+  {
+    accessorKey: 'qty',
+    header: 'Quantity',
+  },
+  {
+    accessorKey: 'img',
+    header: 'Image',
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+  },
+  {
+    id: 'action',
+  },
+]
 
 useSeoMeta({
   title: data.value

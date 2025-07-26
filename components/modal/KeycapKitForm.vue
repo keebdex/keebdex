@@ -1,130 +1,48 @@
 <template>
-  <Form
-    v-slot="$form"
-    :initial-values="kit"
-    :resolver
-    class="flex flex-col gap-6"
-    @submit="onSubmit"
-  >
-    <div class="flex flex-col gap-2">
-      <label for="kit_name">Name</label>
-      <IconField>
-        <InputIcon class="pi pi-pencil" />
-        <InputText
-          id="kit_name"
-          v-model.trim="kit.name"
-          name="name"
-          type="text"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.name?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.name.error.message }}
-      </Message>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="kit_img">Image</label>
-      <IconField>
-        <InputIcon class="pi pi-image" />
-        <InputText
-          id="kit_img"
-          v-model.trim="kit.img"
-          name="img"
-          type="url"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.img?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.img.error.message }}
-      </Message>
-    </div>
+  <UForm :schema="schema" :state="kit" class="space-y-4" @submit="onSubmit">
+    <UFormField label="Name" name="name">
+      <UInput v-model.trim="kit.name" icon="hugeicons:text" class="w-full" />
+    </UFormField>
+
+    <UFormField label="Image" name="img">
+      <UInput v-model.trim="kit.img" icon="hugeicons:image-02" class="w-full" />
+    </UFormField>
+
     <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-2">
-        <label for="kit_price">Price</label>
-        <IconField>
-          <InputIcon class="pi pi-tag" />
-          <InputNumber
-            v-model="kit.price"
-            v-keyfilter.money
-            input-id="kit_price"
-            name="price"
-            :use-grouping="false"
-            fluid
-          />
-        </IconField>
-        <Message
-          v-if="$form.price?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-        >
-          {{ $form.price.error.message }}
-        </Message>
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="kit_qty">Quantity</label>
-        <IconField>
-          <InputIcon class="pi pi-hashtag" />
-          <InputNumber
-            v-model.number="kit.qty"
-            input-id="kit_qty"
-            name="qty"
-            :use-grouping="false"
-            fluid
-          />
-        </IconField>
-        <Message
-          v-if="$form.qty?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-        >
-          {{ $form.qty.error.message }}
-        </Message>
-      </div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="kit_description">Description</label>
-      <Textarea
-        id="kit_description"
-        v-model.trim="kit.description"
-        name="description"
-        :rows="5"
-        auto-resize
-      />
-      <Message severity="secondary" size="small" variant="simple">
-        Keep it concise and under 400 characters for optimal display.
-      </Message>
-    </div>
-    <div class="flex items-center gap-2">
-      <Checkbox
-        v-model="kit.cancelled"
-        name="cancelled"
-        input-id="kit_cancelled"
-        binary
-      />
-      <label for="kit_cancelled">Cancelled</label>
-    </div>
-    <div class="flex flex-col gap-2">
-      <Button label="Save" type="submit" :disabled="!$form.valid" />
+      <UFormField label="Price" name="price">
+        <UInput
+          v-model.number="kit.price"
+          icon="hugeicons:sale-tag-02"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="Quantity" name="quantity">
+        <UInput
+          v-model.number="kit.qty"
+          icon="hugeicons:text-number-sign"
+          class="w-full"
+        />
+      </UFormField>
     </div>
 
-    <Toast />
-  </Form>
+    <UFormField
+      label="Description"
+      name="description"
+      help="Keep it concise and under 400 characters for optimal display."
+    >
+      <UTextarea v-model.trim="kit.description" :rows="5" class="w-full" />
+    </UFormField>
+
+    <UFormField>
+      <UCheckbox v-model="kit.cancelled" label="Cancelled" />
+    </UFormField>
+
+    <UButton type="submit"> Save </UButton>
+  </UForm>
 </template>
 
 <script setup>
-import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -175,18 +93,14 @@ onBeforeMount(() => {
   Object.assign(kit.value, metadata)
 })
 
-const resolver = ref(
-  zodResolver(
-    z.object({
-      name: z.string().min(1),
-      qty: z.number().nullish(),
-      price: z.number().nullish(),
-      img: z.string().url().nullish().or(z.string().min(0).max(0)),
-      // description: z.string(),
-      cancelled: z.boolean().catch(false),
-    }),
-  ),
-)
+const schema = z.object({
+  name: z.string().min(1),
+  qty: z.number().nullish(),
+  price: z.number().nullish(),
+  img: z.string().url().nullish().or(z.string().min(0).max(0)),
+  // description: z.string(),
+  cancelled: z.boolean().catch(false),
+})
 
 const onSubmit = async ({ valid }) => {
   if (!valid) return

@@ -1,132 +1,137 @@
 <template>
-  <Panel
-    :header="title"
-    pt:root:class="!border-0 !bg-transparent"
-    pt:title:class="flex items-center gap-4 font-medium text-3xl"
+  <!-- <div
+    v-if="data.keycaps.length"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
   >
-    <template #icons>
-      <Button
-        v-if="isAdmin"
-        label="Add"
-        icon="pi pi-file-plus"
-        @click="showAddKeycap"
-      />
+    <nuxt-link
+      v-for="keycap in data.keycaps"
+      :key="keycap.id"
+      :to="`/keycap/${keycap.profile_keycap_id}`"
+    >
+      <Card
+        class="h-full overflow-hidden"
+        pt:header:class="h-48 md:h-60"
+        pt:body:class="flex-1"
+        pt:caption:class="flex-grow"
+        pt:subtitle:class="flex justify-between gap-2"
+      >
+        <template #header>
+          <img
+            loading="lazy"
+            :alt="keycap.name"
+            :src="keycap.img || keycap.render_img"
+            class="w-full h-full object-cover"
+          />
+        </template>
+
+        <template v-if="keycap.profile" #title>
+          {{ keycap.profile.name }} {{ keycap.name }}
+        </template>
+        <template v-else #title>{{ keycap.name }}</template>
+
+        <template #subtitle>
+          <span class="flex items-center gap-1">
+            <i class="pi pi-palette" />
+            {{ keycap.designer }}
+          </span>
+          <span
+            v-if="query.status === 'Interest Check'"
+            class="flex items-center gap-1"
+          >
+            <i class="pi pi-clock" /> {{ formatDate(keycap.ic_date) }}
+          </span>
+          <span
+            v-else-if="query.status === 'Live'"
+            class="flex items-center gap-1"
+          >
+            <i class="pi pi-clock" />
+            {{ formatDateRange(keycap.start_date, keycap.end_date) }}
+          </span>
+          <span v-else class="flex items-center gap-1">
+            <i class="pi pi-clock" />
+            {{ formatDateRange(keycap.start_date, keycap.end_date) }}
+          </span>
+        </template>
+      </Card>
+    </nuxt-link>
+  </div> -->
+
+  <UDashboardPanel id="keycap-tracker" :ui="{ body: 'lg:py-12' }">
+    <template #header>
+      <UDashboardNavbar :title="title">
+        <template #right>
+          <UTabs
+            v-if="!data.profile"
+            v-model="status"
+            :items="
+              selectStatuses.map((item) => ({ label: item, value: item }))
+            "
+            :content="false"
+          />
+
+          <UModal v-model:visible="visible" title="Add Keycap">
+            <UButton v-if="isAdmin" color="primary" icon="hugeicons:keyboard">
+              Add
+            </UButton>
+
+            <template #body>
+              <ModalKeycapForm :metadata="query" @on-success="showAddKeycap" />
+            </template>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
     </template>
 
-    <SelectButton
-      v-if="!data.profile"
-      v-model="status"
-      :options="selectStatuses"
-      class="mb-6"
-    />
+    <template #body>
+      <UPageHeader
+        v-if="data.profile && data.profile.description"
+        :description="data.profile.description"
+        :ui="{
+          root: 'pt-0',
+          description: 'text-md',
+        }"
+      />
 
-    <div
-      v-if="data.profile && data.profile.description"
-      class="mb-6 leading-6 text-muted-color"
-    >
-      <p
-        v-for="(line, idx) in data.profile.description.split('\n')"
-        :key="idx"
-        class="mb-2"
-      >
-        {{ line }}
-      </p>
-    </div>
-
-    <div
-      v-if="data.keycaps.length"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-    >
-      <nuxt-link
-        v-for="keycap in data.keycaps"
-        :key="keycap.id"
-        :to="`/keycap/${keycap.profile_keycap_id}`"
-      >
-        <Card
-          class="h-full overflow-hidden"
-          pt:header:class="h-48 md:h-60"
-          pt:body:class="flex-1"
-          pt:caption:class="flex-grow"
-          pt:subtitle:class="flex justify-between gap-2"
+      <UPageColumns v-if="data.keycaps.length">
+        <UPageCard
+          v-for="keycap in data.keycaps"
+          :key="keycap.id"
+          v-bind="keycap"
+          :to="`/keycap/${keycap.profile_keycap_id}`"
+          :title="keycap.name"
+          variant="subtle"
+          reverse
         >
-          <template #header>
-            <img
-              loading="lazy"
-              :alt="keycap.name"
-              :src="keycap.img || keycap.render_img"
-              class="w-full h-full object-cover"
-            />
-          </template>
+          <NuxtImg
+            loading="lazy"
+            :alt="keycap.name"
+            :src="keycap.img || keycap.render_img"
+            class="w-full h-full object-cover"
+          />
 
-          <template v-if="keycap.profile" #title>
-            {{ keycap.profile.name }} {{ keycap.name }}
-          </template>
-          <template v-else #title>{{ keycap.name }}</template>
-
-          <template #subtitle>
-            <span class="flex items-center gap-1">
-              <i class="pi pi-palette" />
-              {{ keycap.designer }}
-            </span>
-            <span
-              v-if="query.status === 'Interest Check'"
-              class="flex items-center gap-1"
-            >
-              <i class="pi pi-clock" /> {{ formatDate(keycap.ic_date) }}
-            </span>
-            <span
-              v-else-if="query.status === 'Live'"
-              class="flex items-center gap-1"
-            >
-              <i class="pi pi-clock" />
-              {{ formatDateRange(keycap.start_date, keycap.end_date) }}
-            </span>
-            <span v-else class="flex items-center gap-1">
-              <i class="pi pi-clock" />
-              {{ formatDateRange(keycap.start_date, keycap.end_date) }}
-            </span>
-          </template>
-
-          <template v-if="authenticated" #footer>
+          <template #footer>
             <SaveToCollection
+              v-if="authenticated"
               :item="keycap"
               category="keycap"
               label="Save"
-              :fluid="true"
               @on-select="saveTo"
             />
           </template>
-        </Card>
-      </nuxt-link>
-    </div>
-    <div v-else class="flex flex-col h-full items-center gap-8">
-      <NuxtImg class="w-1/3" src="/svg/search.svg" alt="Empty" />
-
-      <div class="text-2xl">
-        Currently, there are no keycaps available. Check back soon for fresh
-        additions!
-      </div>
-    </div>
-
-    <Paginator
-      class="mt-4"
-      :rows="size"
-      :total-records="data.count"
-      :always-show="false"
-      pt:root:class="!bg-transparent"
-      @page="(e) => (page = e.page + 1)"
-    />
-
-    <Dialog
-      v-model:visible="visible"
-      modal
-      header="Add Keycap"
-      dismissable-mask
-      class="w-[36rem]"
-    >
-      <ModalKeycapForm :metadata="query" @on-success="showAddKeycap" />
-    </Dialog>
-  </Panel>
+        </UPageCard>
+      </UPageColumns>
+      <UError
+        v-else
+        :error="{
+          statusCode: 404,
+          statusMessage: 'Not Found',
+          message:
+            'Currently, there are no keycaps available. Check back soon for fresh additions!',
+        }"
+      />
+      <UPagination v-model:page="page" :total="data.count" />
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>

@@ -1,254 +1,147 @@
 <template>
-  <Form
-    v-slot="$form"
-    :initial-values="keycap"
-    :resolver
-    class="flex flex-col gap-6"
-    @submit="onSubmit"
-  >
+  <UForm :schema="schema" :state="keycap" class="space-y-4" @submit="onSubmit">
     <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-2">
-        <label for="keycap_name">Name</label>
-        <IconField>
-          <InputIcon class="pi pi-pencil" />
+      <UFormField label="Name" name="name">
+        <UInput
+          v-model.trim="keycap.name"
+          icon="hugeicons:text"
+          class="w-full"
+        />
+      </UFormField>
 
-          <InputText
-            id="keycap_name"
-            v-model.trim="keycap.name"
-            name="name"
-            type="text"
-            fluid
-          />
-        </IconField>
-        <Message
-          v-if="$form.name?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-        >
-          {{ $form.name.error.message }}
-        </Message>
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="keycap_designer">Designer</label>
-        <IconField>
-          <InputIcon class="pi pi-user" />
-          <InputText
-            id="keycap_designer"
-            v-model.trim="keycap.designer"
-            name="designer"
-            type="text"
-            fluid
-          />
-        </IconField>
-        <Message
-          v-if="$form.designer?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-        >
-          {{ $form.designer.error.message }}
-        </Message>
-      </div>
+      <UFormField label="Designer" name="designer">
+        <UInput
+          v-model.trim="keycap.designer"
+          icon="hugeicons:user-02"
+          class="w-full"
+        />
+      </UFormField>
     </div>
+
     <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-2">
-        <label for="keycap_profile">Profile</label>
-        <Select
-          id="keycap_profile"
-          v-model="keycap.profile_id"
-          name="profile_id"
-          option-label="label"
-          option-value="value"
-          :options="
+      <UFormField label="Profile" name="profile">
+        <USelect
+          v-model="keycap.profile"
+          :items="
             Object.entries(manufacturers).map(([value, label]) => ({
               label,
               value,
             }))
           "
+          class="w-full"
         />
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="keycap_sculpt">Sculpt</label>
-        <IconField>
-          <InputIcon class="pi pi-objects-column" />
-          <InputText
-            id="keycap_sculpt"
-            v-model.trim="keycap.sculpt"
-            name="sculpt"
-            type="text"
-            fluid
-          />
-        </IconField>
-        <Message
-          v-if="$form.sculpt?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-        >
-          {{ $form.sculpt.error.message }}
-        </Message>
-      </div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="keycap_url">URL</label>
-      <IconField>
-        <InputIcon class="pi pi-image" />
-        <InputText
-          id="keycap_url"
-          v-model.trim="keycap.url"
-          name="url"
-          type="url"
-          fluid
+      </UFormField>
+
+      <UFormField label="Sculpt" name="sculpt">
+        <UInput
+          v-model.trim="keycap.sculpt"
+          icon="hugeicons:dashboard-square-02"
+          class="w-full"
         />
-      </IconField>
-      <Message
-        v-if="$form.url?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.url.error.message }}
-      </Message>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="keycap_render">Render</label>
-      <IconField>
-        <InputIcon class="pi pi-image" />
-        <InputText
-          id="keycap_render"
-          v-model.trim="keycap.render_img"
-          name="render_img"
-          type="url"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.render_img?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.render_img.error.message }}
-      </Message>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="keycap_cover">Cover</label>
-      <IconField>
-        <InputIcon class="pi pi-image" />
-        <InputText
-          id="keycap_cover"
-          v-model.trim="keycap.cover_img"
-          name="cover_img"
-          type="url"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.cover_img?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.cover_img.error.message }}
-      </Message>
-    </div>
-    <div class="grid grid-cols-2 gap-2">
-      <div class="flex flex-col gap-2">
-        <label for="keycap_status">Status</label>
-        <Select
-          id="keycap_status"
-          v-model="keycap.status"
-          name="status"
-          :options="Object.keys(keycapStatuses)"
-        />
-      </div>
-      <div class="flex flex-col gap-2">
-        <label for="keycap_ic">IC Date</label>
-        <DatePicker
-          v-model="keycap.ic_date"
-          show-icon
-          icon-display="input"
-          date-format="dd M yy"
-        />
-      </div>
-    </div>
-    <div v-if="!ic" class="flex flex-col gap-2">
-      <label for="keycap_gb">GB Time</label>
-      <DatePicker
-        id="keycap_gb"
-        v-model="keycap.dates"
-        selection-mode="range"
-        show-icon
-        icon-display="input"
-        date-format="dd M yy"
-      />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="keycap_graph">Order Graph</label>
-      <IconField>
-        <InputIcon class="pi pi-chart-bar" />
-        <InputText
-          id="keycap_graph"
-          v-model.trim="keycap.order_graph"
-          name="order_graph"
-          type="url"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.order_graph?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.order_graph.error.message }}
-      </Message>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="keycap_history">Order History</label>
-      <IconField>
-        <InputIcon class="pi pi-chart-line" />
-        <InputText
-          id="keycap_history"
-          v-model.trim="keycap.order_history"
-          name="order_history"
-          type="url"
-          fluid
-        />
-      </IconField>
-      <Message
-        v-if="$form.order_history?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-      >
-        {{ $form.order_history.error.message }}
-      </Message>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="keycap_description">Description</label>
-      <Textarea
-        id="keycap_description"
-        v-model.trim="keycap.description"
-        name="description"
-        :rows="5"
-        auto-resize
-      />
-      <Message severity="secondary" size="small" variant="simple">
-        Keep it concise and under 400 characters for optimal display.
-      </Message>
-    </div>
-    <div class="flex flex-col gap-2">
-      <Button label="Save" type="submit" :disabled="!$form.valid" />
+      </UFormField>
     </div>
 
-    <Toast />
-  </Form>
+    <UFormField label="URL" name="url">
+      <UInput
+        v-model.trim="keycap.url"
+        icon="hugeicons:globe-02"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Render" name="render_img">
+      <UInput
+        v-model.trim="keycap.render_img"
+        icon="hugeicons:image-02"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Cover" name="cover_img">
+      <UInput
+        v-model.trim="keycap.cover_img"
+        icon="hugeicons:image-02"
+        class="w-full"
+      />
+    </UFormField>
+
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Status" name="status">
+        <USelect
+          v-model="keycap.status"
+          :items="Object.keys(keycapStatuses)"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="IC Date" name="ic_date">
+        <UPopover>
+          <UButton
+            icon="hugeicons:calendar-03"
+            variant="outline"
+            class="w-full"
+          >
+            {{ keycap.ic_date ? toISODate(keycap.ic_date) : 'Select a date' }}
+          </UButton>
+
+          <template #content>
+            <UCalendar v-model="keycap.ic_date" />
+          </template>
+        </UPopover>
+      </UFormField>
+    </div>
+
+    <UFormField v-if="!ic" label="GB Time" name="gb_date">
+      <UPopover>
+        <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
+          <template v-if="keycap.start_date">
+            <template v-if="keycap.end_date">
+              {{ toISODate(keycap.dates[0]) }} -
+              {{ toISODate(keycap.dates[1]) }}
+            </template>
+
+            <template v-else>
+              {{ toISODate(keycap.dates[0]) }}
+            </template>
+          </template>
+          <template v-else> Pick a date </template>
+        </UButton>
+
+        <template #content>
+          <UCalendar v-model="keycap" :number-of-months="2" range />
+        </template>
+      </UPopover>
+    </UFormField>
+
+    <UFormField label="Order Graph" name="order_graph">
+      <UInput
+        v-model.trim="keycap.order_graph"
+        icon="hugeicons:bar-chart-horizontal"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Order History" name="order_history">
+      <UInput
+        v-model.trim="keycap.order_history"
+        icon="hugeicons:chart-line-data-02"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField
+      label="Description"
+      name="description"
+      help="Keep it concise and under 400 characters for optimal display."
+    >
+      <UTextarea v-model.trim="keycap.description" :rows="5" class="w-full" />
+    </UFormField>
+
+    <UButton type="submit"> Save </UButton>
+  </UForm>
 </template>
 
 <script setup>
-import { zodResolver } from '@primevue/forms/resolvers/zod'
 import slugify from 'slugify'
 import { z } from 'zod'
 
@@ -269,7 +162,8 @@ const keycap = ref({
   name: '',
   url: '',
   render_img: '',
-  dates: [],
+  start: new Date(),
+  end: new Date(),
 })
 
 onBeforeMount(() => {
@@ -289,26 +183,22 @@ onBeforeMount(() => {
 
 const ic = computed(() => keycap.value.status === 'Interest Check')
 
-const resolver = ref(
-  zodResolver(
-    z.object({
-      name: z.string().min(1),
-      designer: z.string().nullish(),
-      sculpt: z.string().nullish(),
-      profile_id: z.enum(Object.keys(manufacturers)),
-      url: z.string().url().nullish().or(z.string().min(0).max(0)),
-      render_img: z.string().url().nullish().or(z.string().min(0).max(0)),
-      cover_img: z.string().url().nullish().or(z.string().min(0).max(0)),
-      ic_date: z.date(),
-      start_date: z.date(),
-      end_date: z.date(),
-      status: z.enum(Object.keys(keycapStatuses)).nullish(),
-      order_graph: z.string().url().nullish().or(z.string().min(0).max(0)),
-      order_history: z.string().url().nullish().or(z.string().min(0).max(0)),
-      // description: z.string(),
-    }),
-  ),
-)
+const schema = z.object({
+  name: z.string().min(1),
+  designer: z.string().nullish(),
+  sculpt: z.string().nullish(),
+  profile_id: z.enum(Object.keys(manufacturers)),
+  url: z.string().url().nullish().or(z.string().min(0).max(0)),
+  render_img: z.string().url().nullish().or(z.string().min(0).max(0)),
+  cover_img: z.string().url().nullish().or(z.string().min(0).max(0)),
+  ic_date: z.date(),
+  start_date: z.date(),
+  end_date: z.date(),
+  status: z.enum(Object.keys(keycapStatuses)).nullish(),
+  order_graph: z.string().url().nullish().or(z.string().min(0).max(0)),
+  order_history: z.string().url().nullish().or(z.string().min(0).max(0)),
+  // description: z.string(),
+})
 
 const onSubmit = async ({ valid }) => {
   if (!valid) return
