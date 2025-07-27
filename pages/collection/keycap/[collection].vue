@@ -27,14 +27,29 @@
             </template>
           </UModal>
 
-          <UButton
-            v-if="user.email_verified"
-            icon="hugeicons:bookmark-remove-02"
-            color="error"
-            @click="deleteCollection"
+          <UModal
+            v-model:visible="removeCollection"
+            title="Remove Collection"
+            :description="`Are you sure you want to remove ${data?.name}?`"
+            :ui="{ footer: 'justify-end' }"
           >
-            Delete
-          </UButton>
+            <UButton
+              v-if="user.email_verified"
+              label="Delete"
+              icon="hugeicons:bookmark-remove-02"
+              color="error"
+              @click="
+                () => {
+                  removeCollection = true
+                }
+              "
+            />
+
+            <template #footer="{ close }">
+              <UButton label="Cancel" @click="close" />
+              <UButton label="Remove" color="error" @click="deleteCollection" />
+            </template>
+          </UModal>
         </template>
       </UDashboardNavbar>
     </template>
@@ -93,7 +108,6 @@ const breadcrumbs = computed(() => {
 const userStore = useUserStore()
 const { authenticated, collections, user } = storeToRefs(userStore)
 
-const confirm = useConfirm()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -147,43 +161,24 @@ const remove = (id, keycap) => {
 }
 
 const deleteCollection = () => {
-  confirm.require({
-    header: 'Confirm to delete collection',
-    message: 'Are you sure you want to continue? This action cannot be undone.',
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-      label: 'Delete',
-      severity: 'danger',
-    },
-    accept: () => {
-      $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
-        method: 'delete',
-      })
-        .then(() => {
-          collections.value = collections.value.filter(
-            (c) => c.id !== data.value.id,
-          )
-
-          userStore.$patch({ collections: collections.value })
-
-          toast.add({
-            severity: 'success',
-            summary: `Collection [${data.value.name}] was deleted.`,
-            life: 3000,
-          })
-
-          router.go(-1)
-        })
-        .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
-        })
-    },
+  $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
+    method: 'delete',
   })
+    .then(() => {
+      collections.value = collections.value.filter(
+        (c) => c.id !== data.value.id,
+      )
+      userStore.$patch({ collections: collections.value })
+      toast.add({
+        severity: 'success',
+        summary: `Collection [${data.value.name}] was deleted.`,
+        life: 3000,
+      })
+      router.go(-1)
+    })
+    .catch((error) => {
+      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+    })
 }
 
 const visible = ref(false)
@@ -193,4 +188,6 @@ const toggleShowEdit = (shouldRefresh) => {
     refresh()
   }
 }
+
+const removeCollection = ref(false)
 </script>

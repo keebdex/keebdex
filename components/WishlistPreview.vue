@@ -85,7 +85,6 @@
 <script setup>
 import groupBy from 'lodash.groupby'
 
-const confirm = useConfirm()
 const toast = useToast()
 
 const userStore = useUserStore()
@@ -115,25 +114,9 @@ const sellingItems = computed(
 watch(authenticated, () => refresh())
 
 const remove = (item) => {
-  confirm.require({
-    header: 'Confirm to remove artisan',
-    message: 'Are you sure you want to continue?',
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-      label: 'Remove',
-      severity: 'danger',
-    },
-    accept: () => {
-      collections.value[item.collection_id] = collections.value[
-        item.collection_id
-      ].filter((c) => c.id !== item.id)
-    },
-  })
+  collections.value[item.collection_id] = collections.value[
+    item.collection_id
+  ].filter((c) => c.id !== item.id)
 }
 
 const errorText = ref()

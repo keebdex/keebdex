@@ -46,13 +46,34 @@
               size="sm"
               @click="toggleEditKit(row.original)"
             />
-            <UButton
-              label="Delete"
-              icon="hugeicons:dashboard-square-remove"
-              size="sm"
-              color="error"
-              @click="confirmDelete(row.original)"
-            />
+
+            <UModal
+              v-model:visible="deleteKit"
+              title="Remove Kit"
+              description="Are you sure you want to continue? This action cannot be undone."
+              :ui="{ footer: 'justify-end' }"
+            >
+              <UButton
+                label="Delete"
+                icon="hugeicons:dashboard-square-remove"
+                size="sm"
+                color="error"
+                @click="
+                  () => {
+                    deleteKit = true
+                  }
+                "
+              />
+
+              <template #footer="{ close }">
+                <UButton label="Cancel" @click="close" />
+                <UButton
+                  label="Remove"
+                  color="error"
+                  @click="confirmDelete(row.original)"
+                />
+              </template>
+            </UModal>
           </div>
         </template>
       </UTable>
@@ -65,7 +86,6 @@ definePageMeta({
   middleware: 'auth',
 })
 
-const confirm = useConfirm()
 const toast = useToast()
 
 const route = useRoute()
@@ -146,36 +166,21 @@ const toggleEditKit = (kit, shouldRefresh) => {
   }
 }
 
+const deleteKit = ref(false)
 const confirmDelete = (kit) => {
-  confirm.require({
-    header: `Confirm to delete ${kit.name} kit`,
-    message: 'Are you sure you want to continue? This action cannot be undone.',
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-      label: 'Delete',
-      severity: 'danger',
-    },
-    accept: () => {
-      $fetch(`/api/keycaps/${kit.profile_keycap_id}/kits/${kit.id}`, {
-        method: 'delete',
-      })
-        .then(() => {
-          toast.add({
-            severity: 'success',
-            summary: `Kit [${kit.name}] was deleted.`,
-            life: 3000,
-          })
-          refresh()
-        })
-        .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
-        })
-    },
+  $fetch(`/api/keycaps/${kit.profile_keycap_id}/kits/${kit.id}`, {
+    method: 'delete',
   })
+    .then(() => {
+      toast.add({
+        severity: 'success',
+        summary: `Kit [${kit.name}] was deleted.`,
+        life: 3000,
+      })
+      refresh()
+    })
+    .catch((error) => {
+      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+    })
 }
 </script>

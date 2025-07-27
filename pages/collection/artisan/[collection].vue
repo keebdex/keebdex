@@ -27,14 +27,29 @@
             </template>
           </UModal>
 
-          <UButton
-            v-if="user.email_verified"
-            icon="hugeicons:bookmark-remove-02"
-            color="error"
-            @click="deleteCollection"
+          <UModal
+            v-model:visible="removeCollection"
+            title="Remove Collection"
+            :description="`Are you sure you want to remove ${data?.name}?`"
+            :ui="{ footer: 'justify-end' }"
           >
-            Delete
-          </UButton>
+            <UButton
+              v-if="user.email_verified"
+              label="Delete"
+              icon="hugeicons:bookmark-remove-02"
+              color="error"
+              @click="
+                () => {
+                  removeCollection = true
+                }
+              "
+            />
+
+            <template #footer="{ close }">
+              <UButton label="Cancel" @click="close" />
+              <UButton label="Remove" color="error" @click="deleteCollection" />
+            </template>
+          </UModal>
         </template>
       </UDashboardNavbar>
     </template>
@@ -144,7 +159,6 @@
 <script setup>
 import sortBy from 'lodash.sortby'
 
-const confirm = useConfirm()
 const toast = useToast()
 
 const sort = ref('artisan.maker_sculpt_id|artisan.name')
@@ -240,34 +254,21 @@ const changeExchangeStatus = (item) => {
   const title = colorwayTitle(artisan)
   const status = changeTo(exchange)
 
-  confirm.require({
-    header: `Mark ${title} as...`,
-    message: `Are you sure you want to mark this item as ${status}?`,
-    rejectProps: {
-      size: 'small',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-    },
-    accept: () => {
-      $fetch(
-        `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-        { method: 'post', body: { exchange: !exchange } },
-      )
-        .then(() => {
-          refresh()
-          toast.add({
-            severity: 'success',
-            summary: `${title} has been successfully marked as ${status}.`,
-            life: 3000,
-          })
-        })
-        .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
-        })
-    },
-  })
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
+    { method: 'post', body: { exchange: !exchange } },
+  )
+    .then(() => {
+      refresh()
+      toast.add({
+        severity: 'success',
+        summary: `${title} has been successfully marked as ${status}.`,
+        life: 3000,
+      })
+    })
+    .catch((error) => {
+      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+    })
 }
 
 const moveTo = (collection, item) => {

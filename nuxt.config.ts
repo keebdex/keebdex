@@ -1,5 +1,4 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import Aura from '@primevue/themes/aura'
 import { execSync } from 'child_process'
 import app from './package.json'
 
@@ -27,7 +26,6 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     // '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
-    '@primevue/nuxt-module',
     'nuxt-og-image',
   ],
 
@@ -51,17 +49,6 @@ export default defineNuxtConfig({
 
   supabase: {
     redirect: false,
-  },
-
-  primevue: {
-    options: {
-      theme: {
-        preset: Aura,
-        options: {
-          darkModeSelector: '.dark-mode',
-        },
-      },
-    },
   },
 
   buildId: `v${app.version} (${revision})`,

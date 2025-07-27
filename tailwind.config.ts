@@ -1,7 +1,6 @@
 // tailwind.config.ts
 import type { Config } from 'tailwindcss'
 
-import PrimeUI from 'tailwindcss-primeui'
 import typography from '@tailwindcss/typography'
 
 const config: Config = {
@@ -15,7 +14,7 @@ const config: Config = {
   theme: {
     extend: {},
   },
-  plugins: [PrimeUI, typography],
+  plugins: [typography],
 }
 
 export default config

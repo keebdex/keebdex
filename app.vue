@@ -1,12 +1,11 @@
 <template>
-  <NuxtLayout :name="$device.isMobile ? 'mobile' : 'desktop'">
+  <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
 </template>
 
 <script setup>
 import { useUserStore } from './stores/user'
-import 'primeicons/primeicons.css'
 import 'flag-icons/css/flag-icons.min.css'
 
 const config = useRuntimeConfig()

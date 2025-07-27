@@ -137,10 +137,10 @@ const routes = [
 
 const links = [
   [
-    {
-      label: 'Feedback',
-      icon: 'hugeicons:comment-01',
-    },
+    // {
+    //   label: 'Feedback',
+    //   icon: 'hugeicons:comment-01',
+    // },
     {
       label: 'About',
       icon: 'hugeicons:information-diamond',

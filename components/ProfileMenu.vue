@@ -27,17 +27,6 @@
       }"
     />
   </UDropdownMenu>
-
-  <Dialog
-    v-model:visible="visible"
-    modal
-    class="w-[36rem]"
-    :closable="false"
-    dismissable-mask
-  >
-    <ModalLogin />
-  </Dialog>
-  <Toast />
 </template>
 
 <script setup>
