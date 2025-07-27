@@ -23,12 +23,11 @@ const login = async (provider) => {
   })
 
   if (error) {
-    toast.add({ severity: 'error', summary: err.message, life: 3000 })
+    toast.add({ color: 'error', title: err.message })
   } else if (user) {
     toast.add({
-      severity: 'success',
-      summary: `Hello, ${user.name}. You successfully logged into this website.`,
-      life: 3000,
+      color: 'success',
+      title: `Hello, ${user.name}. You successfully logged into this website.`,
     })
 
     router.back()

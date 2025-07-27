@@ -208,13 +208,12 @@ const saveTo = (collection, keycap) => {
   })
     .then(() => {
       toast.add({
-        severity: 'success',
-        summary: `${keycap.name} has been added to [${collection.name}].`,
-        life: 3000,
+        color: 'success',
+        title: `${keycap.name} has been added to [${collection.name}].`,
       })
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 </script>

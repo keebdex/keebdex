@@ -56,9 +56,8 @@ const onSubmit = ({ valid }) => {
     },
   }).then(() => {
     toast.add({
-      severity: 'success',
-      summary: 'Your pins have been updated.',
-      life: 3000,
+      color: 'success',
+      title: 'Your pins have been updated.',
     })
 
     userStore.$patch({ favorites: data })

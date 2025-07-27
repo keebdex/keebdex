@@ -164,9 +164,8 @@ const tradingText = computed(() => {
 const copyToClipboard = () => {
   navigator.clipboard.writeText(tradingText.value)
   toast.add({
-    severity: 'success',
-    summary: 'Copied to clipboard!',
-    life: 3000,
+    color: 'success',
+    title: 'Copied to clipboard!',
   })
 }
 </script>

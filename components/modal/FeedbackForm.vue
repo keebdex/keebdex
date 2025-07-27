@@ -151,16 +151,15 @@ const onSubmit = async ({ valid }) => {
   })
     .then(() => {
       toast.add({
-        severity: 'success',
-        summary: 'Feedback Submitted',
+        color: 'success',
+        title: 'Feedback Submitted',
         detail:
           'Your feedback is valuable to us. We appreciate you taking the time to share it!',
-        life: 3000,
       })
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 </script>

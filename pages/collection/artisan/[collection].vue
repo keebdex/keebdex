@@ -261,13 +261,12 @@ const changeExchangeStatus = (item) => {
     .then(() => {
       refresh()
       toast.add({
-        severity: 'success',
-        summary: `${title} has been successfully marked as ${status}.`,
-        life: 3000,
+        color: 'success',
+        title: `${title} has been successfully marked as ${status}.`,
       })
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 
@@ -300,13 +299,12 @@ const moveTo = (collection, item) => {
         .then(() => {
           refresh()
           toast.add({
-            severity: 'success',
-            summary: `${colorwayTitle(artisan)} was moved to [${collection.name}] collection.`,
-            life: 3000,
+            color: 'success',
+            title: `${colorwayTitle(artisan)} was moved to [${collection.name}] collection.`,
           })
         })
         .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
+          toast.add({ color: 'error', title: error.message })
         })
     },
   })
@@ -334,13 +332,12 @@ const remove = (id, colorway) => {
         .then(() => {
           refresh()
           toast.add({
-            severity: 'success',
-            summary: `${colorwayTitle(colorway)} was removed.`,
-            life: 3000,
+            color: 'success',
+            title: `${colorwayTitle(colorway)} was removed.`,
           })
         })
         .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
+          toast.add({ color: 'error', title: error.message })
         })
     },
   })
@@ -366,15 +363,14 @@ const deleteCollection = () => {
       })
         .then(() => {
           toast.add({
-            severity: 'success',
-            summary: `Collection [${data.value.name}] was deleted.`,
-            life: 3000,
+            color: 'success',
+            title: `Collection [${data.value.name}] was deleted.`,
           })
 
           router.go(-1)
         })
         .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
+          toast.add({ color: 'error', title: error.message })
         })
     },
   })
@@ -383,9 +379,8 @@ const deleteCollection = () => {
 const copyShareUrl = () => {
   navigator.clipboard.writeText(config.app.homepage + route.fullPath)
   toast.add({
-    severity: 'success',
-    summary: 'Copied to clipboard!',
-    life: 3000,
+    color: 'success',
+    title: 'Copied to clipboard!',
   })
 }
 
@@ -396,4 +391,6 @@ const toggleShowEdit = (shouldRefresh) => {
     refresh()
   }
 }
+
+const removeCollection = ref(false)
 </script>

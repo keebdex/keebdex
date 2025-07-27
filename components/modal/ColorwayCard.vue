@@ -97,7 +97,7 @@ const copyColorwayCard = async () => {
   try {
     await copyScreenshot(card, toast)
   } catch (error) {
-    toast.add({ severity: 'error', summary: error.message, life: 3000 })
+    toast.add({ color: 'error', title: error.message })
   }
 
   card.classList.remove('p-5')

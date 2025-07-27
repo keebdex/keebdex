@@ -55,14 +55,13 @@ const onSubmit = () => {
   })
     .then(() => {
       toast.add({
-        severity: 'success',
-        summary: 'Your profile has been updated.',
-        life: 3000,
+        color: 'success',
+        title: 'Your profile has been updated.',
       })
       loading.value = false
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
       loading.value = false
     })
 }

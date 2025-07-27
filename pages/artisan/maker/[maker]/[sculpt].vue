@@ -275,19 +275,17 @@ const saveTo = (collection, colorway) => {
       if (data?.message) {
         toast.add({
           severity: 'info',
-          summary: data.message,
-          life: 3000,
+          title: data.message,
         })
       } else {
         toast.add({
-          severity: 'success',
-          summary: `${colorway.name} has been added to [${collection.name}].`,
-          life: 3000,
+          color: 'success',
+          title: `${colorway.name} has been added to [${collection.name}].`,
         })
       }
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 </script>

@@ -148,13 +148,12 @@ const remove = (id, keycap) => {
         .then(() => {
           refresh()
           toast.add({
-            severity: 'success',
-            summary: `${keycap.name} was removed.`,
-            life: 3000,
+            color: 'success',
+            title: `${keycap.name} was removed.`,
           })
         })
         .catch((error) => {
-          toast.add({ severity: 'error', summary: error.message, life: 3000 })
+          toast.add({ color: 'error', title: error.message })
         })
     },
   })
@@ -170,14 +169,13 @@ const deleteCollection = () => {
       )
       userStore.$patch({ collections: collections.value })
       toast.add({
-        severity: 'success',
-        summary: `Collection [${data.value.name}] was deleted.`,
-        life: 3000,
+        color: 'success',
+        title: `Collection [${data.value.name}] was deleted.`,
       })
       router.go(-1)
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 

@@ -173,14 +173,13 @@ const confirmDelete = (kit) => {
   })
     .then(() => {
       toast.add({
-        severity: 'success',
-        summary: `Kit [${kit.name}] was deleted.`,
-        life: 3000,
+        color: 'success',
+        title: `Kit [${kit.name}] was deleted.`,
       })
       refresh()
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 </script>

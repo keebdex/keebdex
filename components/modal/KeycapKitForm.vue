@@ -112,23 +112,21 @@ const onSubmit = async ({ valid }) => {
     .then(() => {
       if (isEdit) {
         toast.add({
-          severity: 'success',
-          summary: `[${kit.value.name}] kit updated successfully!`,
-          life: 3000,
+          color: 'success',
+          title: `[${kit.value.name}] kit updated successfully!`,
         })
         emit('onSuccess', undefined, true)
       } else {
         toast.add({
-          severity: 'success',
-          summary: `[${kit.value.name}] kit added successfully!`,
-          life: 3000,
+          color: 'success',
+          title: `[${kit.value.name}] kit added successfully!`,
         })
         emit('onSuccess', undefined, true)
       }
     })
     .catch((error) => {
       console.error(error)
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 </script>

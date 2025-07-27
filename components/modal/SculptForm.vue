@@ -105,22 +105,20 @@ const onSubmit = async ({ valid }) => {
     .then(() => {
       if (isEdit) {
         toast.add({
-          severity: 'success',
-          summary: 'Sculpt updated successfully!',
-          life: 3000,
+          color: 'success',
+          title: 'Sculpt updated successfully!',
         })
         emit('onSuccess')
       } else {
         toast.add({
-          severity: 'success',
-          summary: 'New sculpt added successfully!',
-          life: 3000,
+          color: 'success',
+          title: 'New sculpt added successfully!',
         })
         emit('onSuccess')
       }
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 </script>

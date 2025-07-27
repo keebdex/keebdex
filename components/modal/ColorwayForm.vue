@@ -151,14 +151,13 @@ const onSubmit = async ({ valid }) => {
   )
     .then(() => {
       toast.add({
-        severity: 'success',
-        summary: 'Colorway updated successfully!',
-        life: 3000,
+        color: 'success',
+        title: 'Colorway updated successfully!',
       })
       emit('onSuccess', undefined, true)
     })
     .catch((error) => {
-      toast.add({ severity: 'error', summary: error.message, life: 3000 })
+      toast.add({ color: 'error', title: error.message })
     })
 }
 
