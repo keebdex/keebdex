@@ -4,6 +4,9 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+  --breakpoint-3xl: 112rem;
+  --breakpoint-4xl: 128rem;
+
   --font-sans: 'Reddit Sans', sans-serif;
   --font-mono: 'Reddit Mono', monospace;
 

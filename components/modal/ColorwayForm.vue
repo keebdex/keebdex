@@ -44,7 +44,7 @@
         <USelect
           v-model="colorway.sale_type"
           :items="saleFormats"
-          icon="hugeicons:sale-tag-01"
+          icon="hugeicons:sale-tag-02"
           class="w-full"
         />
       </UFormField>
@@ -139,9 +139,7 @@ onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
 })
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   $fetch(
     `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
     {

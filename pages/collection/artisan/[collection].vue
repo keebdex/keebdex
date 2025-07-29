@@ -1,11 +1,8 @@
 <template>
-  <UDashboardPanel
-    :id="`collection-${route.params.collection}`"
-    :ui="{ body: 'lg:py-12' }"
-  >
+  <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar title="My Collections">
-        <template #left>
+      <UDashboardNavbar :title="data.name">
+        <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
@@ -55,13 +52,7 @@
     </template>
 
     <template #body>
-      <UPageHeader
-        :title="data?.name || 'Collection'"
-        :ui="{
-          root: 'pt-0',
-          description: 'text-md',
-        }"
-      >
+      <UPageHeader :title="data?.name || 'Collection'">
         <template #links>
           <UButton
             v-if="shareable"
@@ -97,18 +88,20 @@
           reverse
           spotlight
           :ui="{
-            footer: 'flex gap-2',
+            wrapper: 'flex-1',
           }"
         >
-          <NuxtImg
-            loading="lazy"
-            :alt="artisan.name"
-            :src="artisan.img"
-            class="h-full object-cover"
-            :class="{
-              grayscale: artisan.deleted,
-            }"
-          />
+          <div class="aspect-square overflow-hidden">
+            <NuxtImg
+              loading="lazy"
+              :alt="artisan.name"
+              :src="artisan.img"
+              class="h-full object-cover rounded"
+              :class="{
+                grayscale: artisan.deleted,
+              }"
+            />
+          </div>
 
           <template v-if="artisan.deleted" #footer>
             <UButton color="warning" @click="remove(id, artisan)">
@@ -226,10 +219,6 @@ const sortedCollections = computed(() => {
 
 const breadcrumbs = computed(() => {
   return [
-    {
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',

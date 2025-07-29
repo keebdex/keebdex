@@ -1,11 +1,8 @@
 <template>
-  <UDashboardPanel
-    :id="`keycap-${profile}-${keycap}`"
-    :ui="{ body: 'lg:py-12' }"
-  >
+  <UDashboardPanel :id="`keycap-${profile}-${keycap}`">
     <template #header>
       <UDashboardNavbar title="Manage Kits">
-        <template #left>
+        <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
@@ -31,6 +28,8 @@
     </template>
 
     <template #body>
+      <UPageHeader title="Kits" :headline="data.name" />
+
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #status-cell="{ row }">
           <UBadge
@@ -98,10 +97,6 @@ const { data, refresh } = await useAsyncData(
 
 const breadcrumbs = computed(() => {
   return [
-    {
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: manufacturers[profile],
       to: `/keycap/${profile}`,

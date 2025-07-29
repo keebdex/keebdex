@@ -1,12 +1,9 @@
 <template>
-  <UPageHeader
-    :title="maker.name"
-    :description="maker.bio"
-    :ui="{
-      root: 'pt-0',
-      description: 'text-md',
-    }"
-  >
+  <UPageHeader :title="maker.name">
+    <template v-if="maker.bio" #description>
+      <PageHeaderDescription :description="maker.bio" />
+    </template>
+
     <template #links>
       <UButton
         v-for="link in links"

@@ -95,9 +95,7 @@ const schema = z.object({
   // story: z.string(),
 })
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   $fetch(`/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`, {
     method: 'post',
     body: sculpt.value,

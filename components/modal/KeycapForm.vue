@@ -200,9 +200,7 @@ const schema = z.object({
   // description: z.string(),
 })
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   const slug = isEdit
     ? keycap.value.id
     : slugify(keycap.value.name, { lower: true })

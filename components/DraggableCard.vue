@@ -10,18 +10,18 @@
       spotlight
       :ui="{
         root: 'h-full overflow-hidden',
-        // wrapper: 'items-center',
-        // wrapper:
-        //   'flex flex-grow items-center mx-auto p-6 aspect-square overflow-hidden',
-        footer: 'flex gap-2',
+        wrapper: 'flex-1',
       }"
     >
-      <NuxtImg
-        loading="lazy"
-        :alt="artisan.name"
-        :src="artisan.img"
-        class="w-full h-full object-cover"
-      />
+      <div class="aspect-square overflow-hidden">
+        <NuxtImg
+          loading="lazy"
+          :alt="artisan.name"
+          :src="artisan.img"
+          class="w-full h-full object-cover rounded"
+        />
+      </div>
+
       <UIcon
         v-if="!exchange"
         class="absolute inset-0 !flex items-center justify-center !text-[80px]"

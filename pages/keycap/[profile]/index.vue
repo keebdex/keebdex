@@ -1,67 +1,10 @@
 <template>
-  <!-- <div
-    v-if="data.keycaps.length"
-    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-  >
-    <nuxt-link
-      v-for="keycap in data.keycaps"
-      :key="keycap.id"
-      :to="`/keycap/${keycap.profile_keycap_id}`"
-    >
-      <Card
-        class="h-full overflow-hidden"
-        pt:header:class="h-48 md:h-60"
-        pt:body:class="flex-1"
-        pt:caption:class="flex-grow"
-        pt:subtitle:class="flex justify-between gap-2"
-      >
-        <template #header>
-          <img
-            loading="lazy"
-            :alt="keycap.name"
-            :src="keycap.img || keycap.render_img"
-            class="w-full h-full object-cover"
-          />
-        </template>
-
-        <template v-if="keycap.profile" #title>
-          {{ keycap.profile.name }} {{ keycap.name }}
-        </template>
-        <template v-else #title>{{ keycap.name }}</template>
-
-        <template #subtitle>
-          <span class="flex items-center gap-1">
-            <i class="pi pi-palette" />
-            {{ keycap.designer }}
-          </span>
-          <span
-            v-if="query.status === 'Interest Check'"
-            class="flex items-center gap-1"
-          >
-            <i class="pi pi-clock" /> {{ formatDate(keycap.ic_date) }}
-          </span>
-          <span
-            v-else-if="query.status === 'Live'"
-            class="flex items-center gap-1"
-          >
-            <i class="pi pi-clock" />
-            {{ formatDateRange(keycap.start_date, keycap.end_date) }}
-          </span>
-          <span v-else class="flex items-center gap-1">
-            <i class="pi pi-clock" />
-            {{ formatDateRange(keycap.start_date, keycap.end_date) }}
-          </span>
-        </template>
-      </Card>
-    </nuxt-link>
-  </div> -->
-
-  <UDashboardPanel id="keycap-tracker" :ui="{ body: 'lg:py-12' }">
+  <UDashboardPanel id="keycap-tracker">
     <template #header>
       <UDashboardNavbar :title="title">
         <template #right>
           <UTabs
-            v-if="!data.profile"
+            v-if="!data.profile && $device.isDesktopOrTablet"
             v-model="status"
             :items="
               selectStatuses.map((item) => ({ label: item, value: item }))
@@ -80,17 +23,27 @@
           </UModal>
         </template>
       </UDashboardNavbar>
+
+      <UDashboardToolbar v-if="$device.isMobile">
+        <UTabs
+          v-if="!data.profile"
+          v-model="status"
+          :items="selectStatuses.map((item) => ({ label: item, value: item }))"
+          :content="false"
+          class="w-full"
+        />
+      </UDashboardToolbar>
     </template>
 
     <template #body>
       <UPageHeader
         v-if="data.profile && data.profile.description"
-        :description="data.profile.description"
-        :ui="{
-          root: 'pt-0',
-          description: 'text-md',
-        }"
-      />
+        :title="title"
+      >
+        <template v-if="data.profile.description" #description>
+          <PageHeaderDescription :description="data.profile.description" />
+        </template>
+      </UPageHeader>
 
       <UPageColumns v-if="data.keycaps.length">
         <UPageCard

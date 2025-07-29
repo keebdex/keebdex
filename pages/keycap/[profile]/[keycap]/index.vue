@@ -1,11 +1,8 @@
 <template>
-  <UDashboardPanel
-    :id="`keycap-${profile}-${keycap}`"
-    :ui="{ body: 'lg:py-12' }"
-  >
+  <UDashboardPanel :id="`keycap-${profile}-${keycap}`">
     <template #header>
       <UDashboardNavbar :title="data.name">
-        <template #left>
+        <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
@@ -38,13 +35,23 @@
     <template #body>
       <UPageHeader
         :title="data.name"
-        :description="data.description"
+        :headline="manufacturers[profile]"
         :links="links"
-        :ui="{
-          root: 'pt-0',
-          description: 'text-md',
-        }"
-      />
+      >
+        <template v-if="data.description" #description>
+          <PageHeaderDescription :description="data.description" />
+        </template>
+
+        <template #links>
+          <UButton
+            v-for="link in links"
+            :key="link.label"
+            :target="link.to?.startsWith('http') ? '_blank' : undefined"
+            :disabled="!link.to"
+            v-bind="link"
+          />
+        </template>
+      </UPageHeader>
 
       <div v-if="data.kits.length" class="grid grid-cols-3 gap-6">
         <div class="col-span-3 lg:col-span-2">
@@ -140,10 +147,6 @@ const { data, refresh } = await useAsyncData(
 
 const breadcrumbs = computed(() => {
   return [
-    {
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: manufacturers[profile],
       to: `/keycap/${profile}`,

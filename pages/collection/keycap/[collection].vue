@@ -1,11 +1,8 @@
 <template>
-  <UDashboardPanel
-    :id="`collection-${route.params.collection}`"
-    :ui="{ body: 'lg:py-12' }"
-  >
+  <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar title="My Collections">
-        <template #left>
+      <UDashboardNavbar :title="data.name">
+        <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
@@ -90,10 +87,6 @@ import sortBy from 'lodash.sortby'
 
 const breadcrumbs = computed(() => {
   return [
-    {
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',

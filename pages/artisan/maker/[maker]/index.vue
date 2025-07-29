@@ -1,12 +1,8 @@
 <template>
-  <UDashboardPanel
-    v-if="maker"
-    :id="`artisan-maker-${route.params.maker}`"
-    :ui="{ body: 'lg:py-12' }"
-  >
+  <UDashboardPanel v-if="maker" :id="`artisan-maker-${route.params.maker}`">
     <template #header>
       <UDashboardNavbar :title="maker.name">
-        <template #left>
+        <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
@@ -92,10 +88,6 @@ const otherSculpts = computed(() => {
 
 const breadcrumbs = computed(() => {
   return [
-    {
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: 'Makers',
       icon: 'hugeicons:user-group-03',

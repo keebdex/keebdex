@@ -1,12 +1,9 @@
 <template>
-  <UPageHeader
-    :title="sculpt.name"
-    :description="sculpt.story"
-    :ui="{
-      root: 'pt-0',
-      description: 'text-md',
-    }"
-  >
+  <UPageHeader :title="sculpt.name">
+    <template v-if="sculpt.story" #description>
+      <PageHeaderDescription :description="sculpt.story" />
+    </template>
+
     <template #links>
       <UButton
         v-for="link in links"

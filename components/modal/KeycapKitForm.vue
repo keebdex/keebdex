@@ -102,9 +102,7 @@ const schema = z.object({
   cancelled: z.boolean().catch(false),
 })
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   $fetch(`/api/keycaps/${kit.value.profile_keycap_id}/kits`, {
     method: 'post',
     body: kit.value,

@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="artisan-makers" :ui="{ body: 'lg:py-12' }">
+  <UDashboardPanel id="artisan-makers">
     <template #header>
       <UDashboardNavbar title="Artisan Makers">
         <template #right>
@@ -37,8 +37,7 @@
         v-if="authenticated && favoriteMakers.length"
         headline="Pinned"
         :ui="{
-          root: 'pt-0',
-          headline: 'text-lg text-color',
+          headline: 'text-md',
         }"
       >
         <UPageGrid>

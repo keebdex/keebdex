@@ -2,22 +2,32 @@
   <UPageCard
     :title="colorway.name"
     :description="colorway.description"
-    :icon="
-      Object.keys(specialSales).includes(colorway.sale_type) &&
-      specialSales[colorway.sale_type]
-    "
     reverse
-    :ui="{
-      footer: 'flex gap-2',
-      leadingIcon:
-        (colorway.sale_type === 'Auction' && 'text-warning') ||
-        (colorway.sale_type === 'Commission' && 'text-success') ||
-        (colorway.sale_type === 'Giveaway' && 'text-info'),
-    }"
+    class="colorway-details-card"
   >
-    <NuxtImg :src="colorway.img" :alt="colorway.name" class="w-full" />
+    <NuxtImg :src="colorway.img" :alt="colorway.name" class="w-full rounded" />
 
-    <template #footer>
+    <template #leading>
+      <UBadge
+        v-if="colorway.sale_type === 'Auction'"
+        label="Auction"
+        icon="hugeicons:auction"
+        color="warning"
+      />
+      <UBadge
+        v-if="colorway.sale_type === 'Giveaway'"
+        label="Giveaway"
+        icon="hugeicons:wellness"
+        color="success"
+      />
+      <UBadge
+        v-if="colorway.sale_type === 'Commission'"
+        label="Commission"
+        icon="hugeicons:save-money-dollar"
+        color="info"
+      />
+    </template>
+    <template v-if="!copying" #footer>
       <!-- This seems not working due to nested modal in Nuxt UI -->
       <!-- <UButton
         v-if="editable"
@@ -43,12 +53,6 @@
 
 <script setup>
 const emit = defineEmits(['editColorway', 'saveTo'])
-
-const specialSales = {
-  Auction: 'hugeicons:auction',
-  Giveaway: 'hugeicons:wellness',
-  Commission: 'hugeicons:save-money-dollar',
-}
 
 const { authenticated, colorway } = defineProps({
   colorway: {
@@ -92,7 +96,6 @@ const copyColorwayCard = async () => {
   copying.value = true
 
   const card = document.getElementsByClassName('colorway-details-card')[0]
-  card.classList.add('p-5')
 
   try {
     await copyScreenshot(card, toast)
@@ -100,7 +103,6 @@ const copyColorwayCard = async () => {
     toast.add({ color: 'error', title: error.message })
   }
 
-  card.classList.remove('p-5')
   copying.value = false
 }
 

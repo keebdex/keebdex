@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="collection" :ui="{ body: 'lg:py-12' }">
+  <UDashboardPanel id="collection">
     <template #header>
       <UDashboardNavbar title="My Collections">
         <template #right>

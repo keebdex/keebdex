@@ -142,9 +142,7 @@ const resolver = ref(
   ),
 )
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   await $fetch('/api/feedbacks', {
     method: 'post',
     body: feedback.value,

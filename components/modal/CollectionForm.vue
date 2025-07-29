@@ -149,9 +149,7 @@ const trading = z.object({
 
 const schema = z.discriminatedUnion('type', [personalOrSharable, trading])
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   const { items, ...rest } = collection.value
 
   const url = isEdit

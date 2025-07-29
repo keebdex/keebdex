@@ -1,11 +1,8 @@
 <template>
-  <UDashboardPanel
-    :id="`${route.params.maker}-${route.params.sculpt}`"
-    :ui="{ body: 'lg:py-12' }"
-  >
+  <UDashboardPanel :id="`${route.params.maker}-${route.params.sculpt}`">
     <template #header>
       <UDashboardNavbar :title="sculpt.name">
-        <template #left>
+        <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
@@ -42,18 +39,17 @@
           spotlight
           :ui="{
             root: 'h-full overflow-hidden',
-            // wrapper: 'items-center',
-            // wrapper:
-            //   'flex flex-grow items-center mx-auto p-6 aspect-square overflow-hidden',
-            footer: 'flex gap-2',
+            wrapper: 'flex-1',
           }"
         >
-          <NuxtImg
-            loading="lazy"
-            :alt="colorway.name"
-            :src="colorway.img"
-            class="w-full h-full object-cover"
-          />
+          <div class="aspect-square overflow-hidden">
+            <NuxtImg
+              loading="lazy"
+              :alt="colorway.name"
+              :src="colorway.img"
+              class="w-full h-full object-cover rounded"
+            />
+          </div>
 
           <template #footer>
             <UModal
@@ -79,7 +75,7 @@
 
             <UModal v-model:visible="visible.card">
               <UButton
-                icon="hugeicons:maximize-screen"
+                icon="hugeicons:zoom-in-area"
                 @click="toggleColorwayCard(colorway)"
               />
 
@@ -149,10 +145,6 @@ const { data: sculpt, refresh } = await useAsyncData(
 
 const breadcrumbs = computed(() => {
   return [
-    {
-      icon: 'hugeicons:home-01',
-      to: '/',
-    },
     {
       label: 'Makers',
       icon: 'hugeicons:user-group-03',

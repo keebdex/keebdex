@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="marketplace" :ui="{ body: 'lg:py-12' }">
+  <UDashboardPanel id="marketplace">
     <template #header>
       <UDashboardNavbar title="Marketplace" />
     </template>

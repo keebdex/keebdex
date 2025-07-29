@@ -181,9 +181,7 @@ const removeDocId = (docIdx) => {
   )
 }
 
-const onSubmit = async ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = async () => {
   const { sculpts, ...rest } = maker.value
 
   const makerId = isEdit ? rest.id : slugify(maker.value.name, { lower: true })
