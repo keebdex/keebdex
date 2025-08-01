@@ -28,7 +28,7 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Kits" :headline="data.name" />
+      <UPageHeader title="Kits" />
 
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #status-cell="{ row }">
@@ -50,7 +50,7 @@
               v-model:visible="deleteKit"
               title="Remove Kit"
               description="Are you sure you want to continue? This action cannot be undone."
-              :ui="{ footer: 'justify-end' }"
+              :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UButton
                 label="Delete"

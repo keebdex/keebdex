@@ -25,7 +25,6 @@ export default defineAppConfig({
     pageHeader: {
       slots: {
         root: 'pt-0',
-        title: 'hidden md:block',
         description: 'text-md text-justify',
       },
     },

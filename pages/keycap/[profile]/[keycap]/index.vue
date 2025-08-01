@@ -33,11 +33,7 @@
     </template>
 
     <template #body>
-      <UPageHeader
-        :title="data.name"
-        :headline="manufacturers[profile]"
-        :links="links"
-      >
+      <UPageHeader :title="data.name" :links="links">
         <template v-if="data.description" #description>
           <PageHeaderDescription :description="data.description" />
         </template>

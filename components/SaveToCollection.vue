@@ -5,12 +5,14 @@
         type: 'label',
         label: `${action} to Collection`,
       },
-      ...collections.map((collection) => ({
-        label: collection.name,
-        onSelect: () => {
-          $emit('onSelect', collection, item)
-        },
-      })),
+      ...collections
+        .filter((c) => c.category === category)
+        .map((collection) => ({
+          label: collection.name,
+          onSelect: () => {
+            $emit('onSelect', collection, item)
+          },
+        })),
     ]"
     :ui="{
       content: 'w-48',

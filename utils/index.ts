@@ -1,7 +1,6 @@
 import dayjs from 'dayjs'
 import { domToPng, domToBlob } from 'modern-screenshot'
 import omit from 'lodash.omit'
-// import type { ToastServiceMethods } from 'primevue/toastservice'
 
 export const activeMenu = '!bg-slate-100 dark:!bg-zinc-700 rounded'
 export const activePopMenu = '!bg-slate-100 dark:!bg-zinc-800 rounded'
@@ -82,7 +81,7 @@ export const colorwayTitle = (colorway: any) =>
 
 export const copyScreenshot = async (
   element: HTMLElement,
-  toast: ToastServiceMethods,
+  toast: any,
   openInNewTab: boolean,
 ) => {
   const blob = await domToBlob(element)

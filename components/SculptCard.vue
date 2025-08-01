@@ -7,7 +7,7 @@
     spotlight
     :to="`/artisan/maker/${sculpt.maker_id}/${sculpt.sculpt_id}`"
     :ui="{
-      root: 'h-full overflow-hidden',
+      root: 'h-full',
       wrapper: 'flex-1',
     }"
   >

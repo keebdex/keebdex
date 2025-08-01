@@ -9,7 +9,7 @@
         <template #right>
           <UModal
             v-if="authenticated"
-            v-model:visible="visible"
+            v-model:visible="visible.edit"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
@@ -25,10 +25,10 @@
           </UModal>
 
           <UModal
-            v-model:visible="removeCollection"
-            title="Remove Collection"
-            :description="`Are you sure you want to remove ${data?.name}?`"
-            :ui="{ footer: 'justify-end' }"
+            v-model:visible="visible.delete"
+            title="Delete Collection"
+            :description="`Are you sure you want to delete ${data?.name}?`"
+            :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton
               v-if="user.email_verified"
@@ -37,14 +37,14 @@
               color="error"
               @click="
                 () => {
-                  removeCollection = true
+                  visible.delete = true
                 }
               "
             />
 
             <template #footer="{ close }">
               <UButton label="Cancel" @click="close" />
-              <UButton label="Remove" color="error" @click="deleteCollection" />
+              <UButton label="Delete" color="error" @click="deleteCollection" />
             </template>
           </UModal>
         </template>
@@ -137,11 +137,31 @@
               @on-select="moveTo"
             />
 
-            <UButton
-              icon="hugeicons:delete-02"
-              color="error"
-              @click="remove(id)"
-            />
+            <UModal
+              v-model:visible="visible.remove"
+              title="Remove Artisan"
+              :description="`Are you sure you want to remove ${colorwayTitle(artisan)}?`"
+              :ui="{ footer: 'justify-end', content: 'divide-none' }"
+            >
+              <UButton
+                icon="hugeicons:bookmark-minus-02"
+                color="error"
+                @click="
+                  () => {
+                    visible.remove = true
+                  }
+                "
+              />
+
+              <template #footer="{ close }">
+                <UButton label="Cancel" @click="close" />
+                <UButton
+                  label="Remove"
+                  color="error"
+                  @click="remove(id, artisan)"
+                />
+              </template>
+            </UModal>
           </template>
         </UPageCard>
       </UPageGrid>
@@ -262,107 +282,75 @@ const changeExchangeStatus = (item) => {
 const moveTo = (collection, item) => {
   const { id, artisan } = item
 
-  confirm.require({
-    header: 'Confirm to move artisan',
-    message: `Are you sure you want to move ${colorwayTitle(artisan)} to [${collection.name}] collection?`,
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
+    {
+      method: 'post',
+      body: {
+        collection_id: collection.id,
+        exchange: false,
+      },
     },
-    acceptProps: {
-      size: 'small',
-      label: 'Move',
-    },
-    accept: () => {
-      $fetch(
-        `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-        {
-          method: 'post',
-          body: {
-            collection_id: collection.id,
-            exchange: false,
-          },
-        },
-      )
-        .then(() => {
-          refresh()
-          toast.add({
-            color: 'success',
-            title: `${colorwayTitle(artisan)} was moved to [${collection.name}] collection.`,
-          })
-        })
-        .catch((error) => {
-          toast.add({ color: 'error', title: error.message })
-        })
-    },
-  })
+  )
+    .then(() => {
+      refresh()
+      toast.add({
+        color: 'success',
+        title: `${colorwayTitle(artisan)} was moved to [${collection.name}] collection.`,
+      })
+    })
+    .catch((error) => {
+      toast.add({ color: 'error', title: error.message })
+    })
+
+  // confirm.require({
+  //   header: 'Confirm to move artisan',
+  //   message: `Are you sure you want to move ${colorwayTitle(artisan)} to [${collection.name}] collection?`,
+  //   rejectProps: {
+  //     size: 'small',
+  //     label: 'Cancel',
+  //     severity: 'secondary',
+  //   },
+  //   acceptProps: {
+  //     size: 'small',
+  //     label: 'Move',
+  //   },
+  //   accept: () => {},
+  // })
 }
 
 const remove = (id, colorway) => {
-  confirm.require({
-    header: 'Confirm to remove artisan',
-    message: `Are you sure you want to remove ${colorwayTitle(colorway)}?`,
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-      label: 'Remove',
-      severity: 'danger',
-    },
-    accept: () => {
-      $fetch(
-        `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-        { method: 'delete' },
-      )
-        .then(() => {
-          refresh()
-          toast.add({
-            color: 'success',
-            title: `${colorwayTitle(colorway)} was removed.`,
-          })
-        })
-        .catch((error) => {
-          toast.add({ color: 'error', title: error.message })
-        })
-    },
-  })
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
+    { method: 'delete' },
+  )
+    .then(() => {
+      refresh()
+      toast.add({
+        color: 'success',
+        title: `${colorwayTitle(colorway)} was removed.`,
+      })
+    })
+    .catch((error) => {
+      toast.add({ color: 'error', title: error.message })
+    })
 }
 
 const deleteCollection = () => {
-  confirm.require({
-    header: 'Confirm to delete collection',
-    message: 'Are you sure you want to continue? This action cannot be undone.',
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-      label: 'Delete',
-      severity: 'danger',
-    },
-    accept: () => {
-      $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
-        method: 'delete',
-      })
-        .then(() => {
-          toast.add({
-            color: 'success',
-            title: `Collection [${data.value.name}] was deleted.`,
-          })
-
-          router.go(-1)
-        })
-        .catch((error) => {
-          toast.add({ color: 'error', title: error.message })
-        })
-    },
+  $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
+    method: 'delete',
   })
+    .then(() => {
+      toast.add({
+        color: 'success',
+        title: `Collection [${data.value.name}] was deleted.`,
+      })
+
+      router.go(-1)
+    })
+    .catch((error) => {
+      toast.add({ color: 'error', title: error.message })
+    })
 }
 
 const copyShareUrl = () => {
@@ -373,13 +361,16 @@ const copyShareUrl = () => {
   })
 }
 
-const visible = ref(false)
+const visible = ref({
+  edit: false,
+  delete: false,
+  remove: false,
+})
+
 const toggleShowEdit = (shouldRefresh) => {
-  visible.value = !visible.value
+  visible.value.edit = !visible.value.edit
   if (shouldRefresh) {
     refresh()
   }
 }
-
-const removeCollection = ref(false)
 </script>

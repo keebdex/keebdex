@@ -24,9 +24,8 @@
         </template>
       </UDashboardNavbar>
 
-      <UDashboardToolbar v-if="$device.isMobile">
+      <UDashboardToolbar v-if="$device.isMobile && !data.profile">
         <UTabs
-          v-if="!data.profile"
           v-model="status"
           :items="selectStatuses.map((item) => ({ label: item, value: item }))"
           :content="false"
@@ -52,8 +51,8 @@
           v-bind="keycap"
           :to="`/keycap/${keycap.profile_keycap_id}`"
           :title="keycap.name"
-          variant="subtle"
           reverse
+          spotlight
         >
           <NuxtImg
             loading="lazy"

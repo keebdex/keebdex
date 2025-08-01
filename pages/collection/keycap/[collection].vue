@@ -9,7 +9,7 @@
         <template #right>
           <UModal
             v-if="authenticated"
-            v-model:visible="visible"
+            v-model:visible="visible.edit"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
@@ -25,10 +25,10 @@
           </UModal>
 
           <UModal
-            v-model:visible="removeCollection"
-            title="Remove Collection"
-            :description="`Are you sure you want to remove ${data?.name}?`"
-            :ui="{ footer: 'justify-end' }"
+            v-model:visible="visible.delete"
+            title="Delete Collection"
+            :description="`Are you sure you want to delete ${data?.name}?`"
+            :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton
               v-if="user.email_verified"
@@ -37,14 +37,14 @@
               color="error"
               @click="
                 () => {
-                  removeCollection = true
+                  visible.delete = true
                 }
               "
             />
 
             <template #footer="{ close }">
               <UButton label="Cancel" @click="close" />
-              <UButton label="Remove" color="error" @click="deleteCollection" />
+              <UButton label="Delete" color="error" @click="deleteCollection" />
             </template>
           </UModal>
         </template>
@@ -54,7 +54,7 @@
     <template #body>
       <UPageColumns>
         <UPageCard
-          v-for="{ keycap } in sortedCollections"
+          v-for="{ id, keycap } in sortedCollections"
           :key="keycap.id"
           :title="keycap.name"
           :description="keycap.designer"
@@ -69,12 +69,32 @@
           />
 
           <template #footer>
-            <UButton
-              label="Remove"
-              icon="hugeicons:delete-02"
-              color="error"
-              @click="remove(id, keycap)"
-            />
+            <UModal
+              v-model:visible="visible.remove"
+              title="Remove Keycap"
+              :description="`Are you sure you want to remove ${keycap.name}?`"
+              :ui="{ footer: 'justify-end', content: 'divide-none' }"
+            >
+              <UButton
+                label="Remove"
+                icon="hugeicons:bookmark-minus-02"
+                color="error"
+                @click="
+                  () => {
+                    visible.remove = true
+                  }
+                "
+              />
+
+              <template #footer="{ close }">
+                <UButton label="Cancel" @click="close" />
+                <UButton
+                  label="Delete"
+                  color="error"
+                  @click="remove(id, keycap)"
+                />
+              </template>
+            </UModal>
           </template>
         </UPageCard>
       </UPageColumns>
@@ -120,36 +140,20 @@ const sortedCollections = computed(() => {
 })
 
 const remove = (id, keycap) => {
-  confirm.require({
-    header: 'Confirm to remove keycap',
-    message: `Are you sure you want to remove ${keycap.name}?`,
-    rejectProps: {
-      size: 'small',
-      label: 'Cancel',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      size: 'small',
-      label: 'Remove',
-      severity: 'danger',
-    },
-    accept: () => {
-      $fetch(
-        `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-        { method: 'delete' },
-      )
-        .then(() => {
-          refresh()
-          toast.add({
-            color: 'success',
-            title: `${keycap.name} was removed.`,
-          })
-        })
-        .catch((error) => {
-          toast.add({ color: 'error', title: error.message })
-        })
-    },
-  })
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
+    { method: 'delete' },
+  )
+    .then(() => {
+      refresh()
+      toast.add({
+        color: 'success',
+        title: `${keycap.name} was removed.`,
+      })
+    })
+    .catch((error) => {
+      toast.add({ color: 'error', title: error.message })
+    })
 }
 
 const deleteCollection = () => {
@@ -172,13 +176,16 @@ const deleteCollection = () => {
     })
 }
 
-const visible = ref(false)
+const visible = ref({
+  edit: false,
+  delete: false,
+  remove: false,
+})
+
 const toggleShowEdit = (shouldRefresh) => {
-  visible.value = !visible.value
+  visible.value.edit = !visible.value.edit
   if (shouldRefresh) {
     refresh()
   }
 }
-
-const removeCollection = ref(false)
 </script>

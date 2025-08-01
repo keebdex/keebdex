@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="wishlist-preview">
+  <UDashboardPanel id="wishlist-preview" :ui="{ body: 'trading-preview' }">
     <template #header>
       <UDashboardNavbar title="Wishlist Preview">
         <template #right>
@@ -44,7 +44,7 @@
       <DraggableCard
         :data="buyingItems"
         :copying="copying"
-        :buying="true"
+        :buying="tradingCfg.type !== 'selling'"
         @on-remove="remove"
       />
 

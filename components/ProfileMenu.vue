@@ -49,28 +49,30 @@ const items = computed(() => {
       icon: 'i-lucide-sun-moon',
       children: [
         {
-          label: 'Light',
-          icon: 'i-lucide-sun',
-          type: 'checkbox',
-          checked: colorMode.value === 'light',
+          label: 'System',
+          icon: 'i-lucide-monitor',
+          active: colorMode.preference === 'system',
           onSelect(e) {
             e.preventDefault()
-
+            colorMode.preference = 'system'
+          },
+        },
+        {
+          label: 'Light',
+          icon: 'i-lucide-sun',
+          active: colorMode.preference === 'light',
+          onSelect(e) {
+            e.preventDefault()
             colorMode.preference = 'light'
           },
         },
         {
           label: 'Dark',
           icon: 'i-lucide-moon',
-          type: 'checkbox',
-          checked: colorMode.value === 'dark',
-          onUpdateChecked(checked) {
-            if (checked) {
-              colorMode.preference = 'dark'
-            }
-          },
+          active: colorMode.preference === 'dark',
           onSelect(e) {
             e.preventDefault()
+            colorMode.preference = 'dark'
           },
         },
       ],

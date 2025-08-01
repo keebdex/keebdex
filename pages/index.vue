@@ -1,5 +1,9 @@
 <template>
   <UDashboardPanel id="home">
+    <template #header>
+      <UDashboardNavbar :title="$config.app.name"> </UDashboardNavbar>
+    </template>
+
     <template #body>
       <UPageHero
         :title="`Welcome to ${$config.app.name}`"
