@@ -249,13 +249,13 @@ const onSubmit = async () => {
           color: 'success',
           title: `[${keycap.value.name}] updated successfully!`,
         })
-        emit('onSuccess', true)
+        emit('onSuccess')
       } else {
         toast.add({
           color: 'success',
           title: `[${keycap.value.name}] added successfully!`,
         })
-        emit('onSuccess', true)
+        emit('onSuccess')
       }
     })
     .catch((error) => {

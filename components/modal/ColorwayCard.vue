@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-const emit = defineEmits(['editColorway', 'saveTo'])
+const emit = defineEmits(['saveTo'])
 
 const { authenticated, colorway } = defineProps({
   colorway: {

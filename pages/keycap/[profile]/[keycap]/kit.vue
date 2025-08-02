@@ -8,18 +8,18 @@
 
         <template #right>
           <UModal v-model:visible="visible" title="Add Kit">
-            <UButton
-              icon="hugeicons:dashboard-square-add"
-              @click="toggleEditKit()"
-            >
-              Add
-            </UButton>
+            <UButton icon="hugeicons:dashboard-square-add"> Add </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalKeycapKitForm
                 :is-edit="!!selectedKit?.id"
                 :metadata="selectedKit"
-                @on-success="toggleEditKit"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
               />
             </template>
           </UModal>
@@ -44,14 +44,20 @@
                 label="Edit"
                 icon="hugeicons:dashboard-square-edit"
                 size="sm"
-                @click="toggleEditKit(row.original)"
+                @click="setSelectedKit(row.original)"
               />
 
-              <template #body>
+              <template #body="{ close }">
                 <ModalKeycapKitForm
                   :is-edit="true"
                   :metadata="selectedKit"
-                  @on-success="toggleEditKit"
+                  @on-success="
+                    () => {
+                      close()
+                      setSelectedKit()
+                      refresh()
+                    }
+                  "
                 />
               </template>
             </UModal>
@@ -67,11 +73,6 @@
                 icon="hugeicons:dashboard-square-remove"
                 size="sm"
                 color="error"
-                @click="
-                  () => {
-                    deleteKit = true
-                  }
-                "
               />
 
               <template #footer="{ close }">
@@ -162,13 +163,8 @@ defineOgImageComponent('Keycap', {
 const visible = ref(false)
 const selectedKit = ref({})
 
-const toggleEditKit = (kit, shouldRefresh) => {
-  visible.value = !visible.value
+const setSelectedKit = (kit) => {
   selectedKit.value = kit
-
-  if (shouldRefresh) {
-    refresh()
-  }
 }
 
 const deleteKit = ref(false)

@@ -14,17 +14,18 @@
           />
 
           <UModal v-if="editable" v-model:visible="visible" title="Edit Keycap">
-            <UButton
-              label="Edit"
-              icon="hugeicons:keyboard"
-              @click="toggleEditKeycap"
-            />
+            <UButton label="Edit" icon="hugeicons:keyboard" />
 
             <template #body>
               <ModalKeycapForm
                 :is-edit="true"
                 :metadata="data"
-                @on-success="toggleEditKeycap"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
               />
             </template>
           </UModal>
@@ -201,12 +202,6 @@ const items = [
 ]
 
 const visible = ref(false)
-const toggleEditKeycap = (shouldRefresh) => {
-  visible.value = !visible.value
-  if (shouldRefresh) {
-    refresh()
-  }
-}
 
 useSeoMeta({
   title: data.value

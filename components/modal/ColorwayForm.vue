@@ -152,7 +152,8 @@ const onSubmit = async () => {
         color: 'success',
         title: 'Colorway updated successfully!',
       })
-      emit('onSuccess', undefined, true)
+
+      emit('onSuccess')
     })
     .catch((error) => {
       toast.add({ color: 'error', title: error.message })

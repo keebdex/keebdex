@@ -46,6 +46,7 @@
         :copying="copying"
         :buying="tradingCfg.type !== 'selling'"
         @on-remove="remove"
+        @on-highlight="changePriority"
       />
 
       <USeparator
@@ -112,6 +113,14 @@ const sellingItems = computed(
 )
 
 watch(authenticated, () => refresh())
+
+const changePriority = (itemId) => {
+  buyingItems.value.forEach((item) => {
+    if (item.id === itemId) {
+      item.priority = !item.priority
+    }
+  })
+}
 
 const remove = (item) => {
   collections.value[item.collection_id] = collections.value[

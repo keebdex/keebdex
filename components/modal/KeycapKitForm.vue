@@ -113,13 +113,13 @@ const onSubmit = async () => {
           color: 'success',
           title: `[${kit.value.name}] kit updated successfully!`,
         })
-        emit('onSuccess', undefined, true)
+        emit('onSuccess')
       } else {
         toast.add({
           color: 'success',
           title: `[${kit.value.name}] kit added successfully!`,
         })
-        emit('onSuccess', undefined, true)
+        emit('onSuccess')
       }
     })
     .catch((error) => {

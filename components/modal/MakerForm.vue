@@ -199,13 +199,13 @@ const onSubmit = async () => {
           color: 'success',
           title: `[${rest.name}] updated successfully!`,
         })
-        emit('onSuccess', true)
+        emit('onSuccess')
       } else {
         toast.add({
           color: 'success',
           title: `[${rest.name}] added successfully!`,
         })
-        emit('onSuccess', true)
+        emit('onSuccess')
       }
     })
     .catch((error) => {

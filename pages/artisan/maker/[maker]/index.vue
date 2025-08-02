@@ -14,11 +14,16 @@
           >
             <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalMakerForm
                 :is-edit="true"
                 :metadata="maker"
-                @on-success="toggleEditMaker"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
               />
             </template>
           </UModal>
@@ -31,10 +36,10 @@
           >
             <UButton icon="hugeicons:pin" color="secondary"> Pins </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalPinSculpt
                 :sculpts="favoriteSculpts.concat(otherSculpts)"
-                @on-success="toggleCustomizePins"
+                @on-success="close"
               />
             </template>
           </UModal>
@@ -110,15 +115,4 @@ defineOgImageComponent('Artisan', {
   makerId: maker.value?.id,
   invertible: maker.value?.invertible_logo,
 })
-
-const toggleEditMaker = (shouldRefresh) => {
-  visible.value.edit = !visible.value.edit
-  if (shouldRefresh) {
-    refresh()
-  }
-}
-
-const toggleCustomizePins = () => {
-  visible.value.customize_pins = !visible.value.customize_pins
-}
 </script>

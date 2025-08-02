@@ -14,11 +14,8 @@
               Add
             </UButton>
 
-            <template #body>
-              <ModalCollectionForm
-                :uid="user.uid"
-                @on-success="toggleAddCollection"
-              />
+            <template #body="{ close }">
+              <ModalCollectionForm :uid="user.uid" @on-success="close" />
             </template>
           </UModal>
         </template>
@@ -63,9 +60,6 @@ onBeforeMount(() => {
 })
 
 const visible = ref(false)
-const toggleAddCollection = () => {
-  visible.value = !visible.value
-}
 
 const category = ref('artisan')
 const categories = ref([

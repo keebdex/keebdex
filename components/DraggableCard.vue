@@ -10,6 +10,7 @@
       orientation="vertical"
       reverse
       spotlight
+      :highlight="buying && item.priority"
       :ui="{
         root: 'h-full',
         wrapper: 'flex-1',
@@ -43,8 +44,18 @@
       </div>
 
       <template v-if="!copying" #footer>
-        <!-- <UButton icon="hugeicons:highlighter"> Priority </UButton> -->
-        <UButton color="error" @click="$emit('onRemove', item)">
+        <UButton
+          v-if="buying"
+          icon="hugeicons:shopping-bag-favorite"
+          @click="$emit('onHighlight', item.id)"
+        >
+          Priority
+        </UButton>
+        <UButton
+          icon="hugeicons:shopping-bag-remove"
+          color="error"
+          @click="$emit('onRemove', item)"
+        >
           Remove
         </UButton>
       </template>
@@ -55,7 +66,7 @@
 <script setup>
 import sortBy from 'lodash.sortby'
 
-defineEmits(['onRemove'])
+defineEmits(['onRemove', 'onHighlight'])
 
 const wishlist = ref([])
 

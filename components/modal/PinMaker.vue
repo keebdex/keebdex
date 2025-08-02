@@ -40,9 +40,7 @@ const schema = z.object({
   makers: z.string().array().max(6),
 })
 
-const onSubmit = ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = () => {
   const data = initial.value.makers.reduce((out, id) => {
     out[id] = favorites.value[id] || []
 
@@ -61,7 +59,7 @@ const onSubmit = ({ valid }) => {
     })
 
     userStore.$patch({ favorites: data })
-    emit('onSuccess', true)
+    emit('onSuccess')
   })
 }
 </script>

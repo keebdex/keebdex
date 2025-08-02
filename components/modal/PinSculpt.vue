@@ -41,9 +41,7 @@ const schema = z.object({
   sculpts: z.string().array().max(6),
 })
 
-const onSubmit = ({ valid }) => {
-  if (!valid) return
-
+const onSubmit = () => {
   favorites.value[route.params.maker] = initial.value.sculpts
 
   $fetch(`/api/users/${user.value.uid}`, {
@@ -52,11 +50,12 @@ const onSubmit = ({ valid }) => {
       favorite_makers: favorites.value,
     },
   }).then(() => {
+    emit('onSuccess')
+
     toast.add({
       color: 'success',
       title: 'Your pins have been updated.',
     })
-    emit('onSuccess', true)
   })
 }
 </script>

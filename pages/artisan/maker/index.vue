@@ -8,8 +8,15 @@
               Add
             </UButton>
 
-            <template #body>
-              <ModalMakerForm @on-success="toggleAddMaker" />
+            <template #body="{ close }">
+              <ModalMakerForm
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
+              />
             </template>
           </UModal>
 
@@ -21,10 +28,10 @@
           >
             <UButton icon="hugeicons:pin" color="secondary"> Pins </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalPinMaker
                 :makers="favoriteMakers.concat(otherMakers)"
-                @on-success="toggleCustomizePins"
+                @on-success="close"
               />
             </template>
           </UModal>
@@ -73,17 +80,7 @@ const userStore = useUserStore()
 const { authenticated, isAdmin, favorites } = storeToRefs(userStore)
 
 const visible = ref(false)
-const toggleAddMaker = (shouldRefresh) => {
-  visible.value = !visible.value
-  if (shouldRefresh) {
-    refresh()
-  }
-}
-
 const customize = ref(false)
-const toggleCustomizePins = () => {
-  customize.value = !customize.value
-}
 
 const favoriteMakers = computed(() => {
   return data.value.filter((m) => Object.keys(favorites.value).includes(m.id))

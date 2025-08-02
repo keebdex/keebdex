@@ -14,12 +14,17 @@
           >
             <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalCollectionForm
                 :metadata="data"
                 :uid="user.uid"
                 :is-edit="true"
-                @on-success="toggleShowEdit"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
               />
             </template>
           </UModal>
@@ -35,11 +40,6 @@
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
-              @click="
-                () => {
-                  visible.delete = true
-                }
-              "
             />
 
             <template #footer="{ close }">
@@ -104,7 +104,11 @@
           </div>
 
           <template v-if="artisan.deleted" #footer>
-            <UButton color="warning" @click="remove(id, artisan)">
+            <UButton
+              icon="hugeicons:clean"
+              color="warning"
+              @click="remove(id, artisan)"
+            >
               Clear Outdated
             </UButton>
           </template>
@@ -114,7 +118,7 @@
               :icon="
                 exchange
                   ? 'hugeicons:search-focus'
-                  : 'hugeicons:shopping-basket-done-03'
+                  : 'hugeicons:bookmark-check-02'
               "
               :color="exchange ? 'neutral' : 'success'"
               @click="changeExchangeStatus({ id, exchange, artisan })"
@@ -124,7 +128,7 @@
               :icon="
                 exchange
                   ? 'hugeicons:sale-tag-02'
-                  : 'hugeicons:shopping-basket-remove-03'
+                  : 'hugeicons:bookmark-block-02'
               "
               :color="exchange ? 'neutral' : 'warning'"
               @click="changeExchangeStatus({ id, exchange, artisan })"
@@ -133,7 +137,7 @@
             <SaveToCollection
               :item="{ id, artisan }"
               :move="true"
-              icon="hugeicons:square-arrow-move-right-up"
+              icon="hugeicons:link-forward"
               @on-select="moveTo"
             />
 
@@ -143,15 +147,7 @@
               :description="`Are you sure you want to remove ${colorwayTitle(artisan)}?`"
               :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
-              <UButton
-                icon="hugeicons:bookmark-minus-02"
-                color="error"
-                @click="
-                  () => {
-                    visible.remove = true
-                  }
-                "
-              />
+              <UButton icon="hugeicons:bookmark-minus-02" color="error" />
 
               <template #footer="{ close }">
                 <UButton label="Cancel" @click="close" />
@@ -366,11 +362,4 @@ const visible = ref({
   delete: false,
   remove: false,
 })
-
-const toggleShowEdit = (shouldRefresh) => {
-  visible.value.edit = !visible.value.edit
-  if (shouldRefresh) {
-    refresh()
-  }
-}
 </script>

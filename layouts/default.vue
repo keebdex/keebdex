@@ -2,7 +2,7 @@
   <UDashboardGroup unit="rem">
     <UDashboardSidebar
       id="default"
-      v-model:open="open"
+      v-model:visible="open"
       collapsible
       resizable
       class="bg-elevated/25"

@@ -17,8 +17,16 @@
               Add
             </UButton>
 
-            <template #body>
-              <ModalKeycapForm :metadata="query" @on-success="showAddKeycap" />
+            <template #body="{ close }">
+              <ModalKeycapForm
+                :metadata="query"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
+              />
             </template>
           </UModal>
         </template>
@@ -141,12 +149,6 @@ defineOgImage({
 })
 
 const visible = ref(false)
-const showAddKeycap = (shouldRefresh) => {
-  visible.value = !visible.value
-  if (shouldRefresh) {
-    refresh()
-  }
-}
 
 const saveTo = (collection, keycap) => {
   const item = {

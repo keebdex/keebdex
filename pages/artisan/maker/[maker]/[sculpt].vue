@@ -14,11 +14,16 @@
           >
             <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalSculptForm
                 :is-edit="true"
                 :metadata="sculpt"
-                @on-success="toggleEditSculpt"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
               />
             </template>
           </UModal>
@@ -62,13 +67,19 @@
             >
               <UButton
                 icon="hugeicons:file-edit"
-                @click="toggleEditColorway(colorway)"
+                @click="setSelectedColorway(colorway)"
               />
 
-              <template #body>
+              <template #body="{ close }">
                 <ModalColorwayForm
                   :metadata="selectedColorway"
-                  @on-success="toggleAddColorway"
+                  @on-success="
+                    () => {
+                      close()
+                      refresh()
+                      setSelectedColorway()
+                    }
+                  "
                 />
               </template>
             </UModal>
@@ -76,7 +87,7 @@
             <UModal v-model:visible="visible.card">
               <UButton
                 icon="hugeicons:zoom-in-area"
-                @click="toggleColorwayCard(colorway)"
+                @click="setSelectedColorway(colorway)"
               />
 
               <template #content>
@@ -84,7 +95,6 @@
                   :colorway="selectedColorway"
                   :editable="editable"
                   :authenticated="authenticated"
-                  @edit-colorway="toggleEditColorway"
                   @save-to="saveTo"
                 />
               </template>
@@ -187,7 +197,7 @@ watch(
       (c) => c.colorway_id === route.query.cid,
     )
     if (clw) {
-      toggleColorwayCard(clw)
+      setSelectedColorway(clw)
     }
   },
 )
@@ -197,7 +207,7 @@ onMounted(() => {
     (c) => c.colorway_id === route.query.cid,
   )
   if (clw) {
-    toggleColorwayCard(clw)
+    setSelectedColorway(clw)
   }
 })
 
@@ -212,24 +222,10 @@ const visible = ref({
   card: false,
 })
 
-// edit sculpt
-const toggleEditSculpt = (shouldRefresh) => {
-  visible.value.edit = !visible.value.edit
-  if (shouldRefresh) {
-    refresh()
-  }
-}
-
 /**
  * New colorway submission
  * Currently, just add/update colorway description
  */
-const toggleAddColorway = (clw, shouldRefresh) => {
-  visible.value.add = !visible.value.add
-  if (shouldRefresh) {
-    refresh()
-  }
-}
 
 // show colorway card popup
 const selectedColorway = ref({})
@@ -238,17 +234,6 @@ const setSelectedColorway = (clw) => {
     ...clw,
     sculpt: sculpt.value,
   }
-}
-
-const toggleColorwayCard = (clw) => {
-  setSelectedColorway(clw)
-  visible.value.card = !visible.value.card
-}
-
-// edit colorway
-const toggleEditColorway = (clw, shouldRefresh) => {
-  setSelectedColorway(clw)
-  toggleAddColorway(shouldRefresh)
 }
 
 // add to collection

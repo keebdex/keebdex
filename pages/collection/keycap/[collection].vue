@@ -14,12 +14,17 @@
           >
             <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
 
-            <template #body>
+            <template #body="{ close }">
               <ModalCollectionForm
                 :metadata="data"
                 :uid="user.uid"
                 :is-edit="true"
-                @on-success="toggleShowEdit"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
               />
             </template>
           </UModal>
@@ -35,11 +40,6 @@
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
-              @click="
-                () => {
-                  visible.delete = true
-                }
-              "
             />
 
             <template #footer="{ close }">
@@ -79,11 +79,6 @@
                 label="Remove"
                 icon="hugeicons:bookmark-minus-02"
                 color="error"
-                @click="
-                  () => {
-                    visible.remove = true
-                  }
-                "
               />
 
               <template #footer="{ close }">
@@ -181,11 +176,4 @@ const visible = ref({
   delete: false,
   remove: false,
 })
-
-const toggleShowEdit = (shouldRefresh) => {
-  visible.value.edit = !visible.value.edit
-  if (shouldRefresh) {
-    refresh()
-  }
-}
 </script>
