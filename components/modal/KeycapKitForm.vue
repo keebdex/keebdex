@@ -38,7 +38,7 @@
       <UCheckbox v-model="kit.cancelled" label="Cancelled" />
     </UFormField>
 
-    <UButton type="submit"> Save </UButton>
+    <UButton color="primary" type="submit"> Save </UButton>
   </UForm>
 </template>
 

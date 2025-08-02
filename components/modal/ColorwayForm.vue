@@ -75,7 +75,7 @@
         <UInput type="file" disabled @change="onFileChange" />
       </UPageCard>
     </UFormField>
-    <UButton type="submit"> Save </UButton>
+    <UButton color="primary" type="submit"> Save </UButton>
   </UForm>
 </template>
 

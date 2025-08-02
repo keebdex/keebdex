@@ -39,12 +39,22 @@
         </template>
         <template #action-cell="{ row }">
           <div class="flex gap-2">
-            <UButton
-              label="Edit"
-              icon="hugeicons:dashboard-square-edit"
-              size="sm"
-              @click="toggleEditKit(row.original)"
-            />
+            <UModal v-model:visible="visible" title="Edit Kit">
+              <UButton
+                label="Edit"
+                icon="hugeicons:dashboard-square-edit"
+                size="sm"
+                @click="toggleEditKit(row.original)"
+              />
+
+              <template #body>
+                <ModalKeycapKitForm
+                  :is-edit="true"
+                  :metadata="selectedKit"
+                  @on-success="toggleEditKit"
+                />
+              </template>
+            </UModal>
 
             <UModal
               v-model:visible="deleteKit"

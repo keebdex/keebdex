@@ -21,12 +21,24 @@
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Profile" name="profile">
         <USelect
-          v-model="keycap.profile"
+          v-model="keycap.profile_id"
           :items="
-            Object.entries(manufacturers).map(([value, label]) => ({
-              label,
-              value,
-            }))
+            Object.entries(keycapProfiles)
+              .map(([profile, manufacturers], idx) => {
+                return [
+                  { type: 'label', label: profile },
+                  ...Object.entries(manufacturers).map(([value, label]) => ({
+                    type: 'item',
+                    label,
+                    value,
+                  })),
+                  {
+                    type: 'separator',
+                  },
+                ]
+              })
+              .flat()
+              .slice(0, -1)
           "
           class="w-full"
         />
@@ -96,12 +108,12 @@
         <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
           <template v-if="keycap.start_date">
             <template v-if="keycap.end_date">
-              {{ toISODate(keycap.dates[0]) }} -
-              {{ toISODate(keycap.dates[1]) }}
+              {{ toISODate(keycap.start) }} -
+              {{ toISODate(keycap.end) }}
             </template>
 
             <template v-else>
-              {{ toISODate(keycap.dates[0]) }}
+              {{ toISODate(keycap.start) }}
             </template>
           </template>
           <template v-else> Pick a date </template>
@@ -137,7 +149,7 @@
       <UTextarea v-model.trim="keycap.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton type="submit"> Save </UButton>
+    <UButton color="primary" type="submit"> Save </UButton>
   </UForm>
 </template>
 
@@ -174,10 +186,10 @@ onBeforeMount(() => {
     keycap.value.ic_date = new Date(rest.ic_date)
   }
   if (rest.start_date) {
-    keycap.value.dates[0] = new Date(rest.start_date)
+    keycap.value.start = new Date(rest.start_date)
   }
   if (rest.end_date) {
-    keycap.value.dates[1] = new Date(rest.end_date)
+    keycap.value.end = new Date(rest.end_date)
   }
 })
 
@@ -212,11 +224,11 @@ const onSubmit = async () => {
   if (keycap.value.ic_date) {
     keycap.value.ic_date = toISODate(keycap.value.ic_date)
   }
-  if (keycap.value.dates[0]) {
-    keycap.value.start_date = toISODate(keycap.value.dates[0])
+  if (keycap.value.start) {
+    keycap.value.start_date = toISODate(keycap.value.start)
   }
-  if (keycap.value.dates[1]) {
-    keycap.value.end_date = toISODate(keycap.value.dates[1])
+  if (keycap.value.end) {
+    keycap.value.end_date = toISODate(keycap.value.end)
   }
 
   /**

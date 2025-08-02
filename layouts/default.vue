@@ -67,75 +67,91 @@
 
 <script setup>
 const config = useRuntimeConfig()
+const route = useRoute()
 
 const open = ref(false)
 
-const routes = [
-  [
-    {
-      label: 'My Collection',
-      icon: 'hugeicons:collections-bookmark',
-      to: '/collection',
-    },
-  ],
-  [
-    {
-      label: 'Makers',
-      icon: 'hugeicons:user-group-03',
-      to: '/artisan/maker',
-    },
-    {
-      label: 'Marketplace',
-      icon: 'hugeicons:store-01',
-      defaultOpen: true,
-      type: 'trigger',
-      children: [
-        {
-          label: 'Trading Hub',
-          to: '/artisan/marketplace',
-          exact: true,
-        },
-        {
-          label: 'Wishlist Image',
-          to: '/artisan/wishlist',
-          exact: true,
-        },
-      ],
-    },
-  ],
-  [
-    {
-      label: 'Keycap Tracker',
-      icon: 'hugeicons:calendar-03',
-      to: '/keycap/tracker',
-    },
-    {
-      label: 'Keycap Profile',
-      icon: 'hugeicons:grid-view',
-      defaultOpen: true,
-      children: Object.entries(keycapProfiles)
-        .map(([profile, manufacturers]) => {
-          return [
-            {
-              label: profile,
-              defaultOpen: false,
-              type: 'trigger',
-              children: Object.entries(manufacturers).map(([id, name]) => {
-                return {
-                  label: name,
-                  to: `/keycap/${id}`,
-                  exact: true,
-                }
-              }),
-            },
-          ]
-        })
-        .flat(),
-    },
-  ],
-]
+const routes = computed(() => {
+  return [
+    [
+      {
+        label: 'My Collection',
+        icon: 'hugeicons:collections-bookmark',
+        to: '/collection',
+        active: route.path.startsWith('/collection'),
+      },
+    ],
+    [
+      {
+        label: 'Makers',
+        icon: 'hugeicons:user-group-03',
+        to: '/artisan/maker',
+        active: route.path.startsWith('/artisan/maker'),
+      },
+      {
+        label: 'Marketplace',
+        icon: 'hugeicons:store-01',
+        defaultOpen: true,
+        type: 'trigger',
+        active:
+          route.path === '/artisan/marketplace' ||
+          route.path === '/artisan/wishlist',
+        children: [
+          {
+            label: 'Trading Hub',
+            to: '/artisan/marketplace',
+            active: route.path === '/artisan/marketplace',
+            exact: true,
+          },
+          {
+            label: 'Wishlist Image',
+            to: '/artisan/wishlist',
+            active: route.path === '/artisan/wishlist',
+            exact: true,
+          },
+        ],
+      },
+    ],
+    [
+      {
+        label: 'Keycap Tracker',
+        icon: 'hugeicons:calendar-03',
+        to: '/keycap/tracker',
+        active: route.path === '/keycap/tracker',
+      },
+      {
+        label: 'Keycap Profile',
+        icon: 'hugeicons:grid-view',
+        defaultOpen: true,
+        active:
+          route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
+        children: Object.entries(keycapProfiles)
+          .map(([profile, manufacturers]) => {
+            return [
+              {
+                label: profile,
+                defaultOpen: false,
+                type: 'trigger',
+                active: Object.keys(manufacturers).includes(
+                  route.path.substring(8),
+                ),
+                children: Object.entries(manufacturers).map(([id, name]) => {
+                  return {
+                    label: name,
+                    to: `/keycap/${id}`,
+                    exact: true,
+                  }
+                }),
+              },
+            ]
+          })
+          .flat(),
+      },
+    ],
+  ]
+})
 
-const links = [
+const links = computed(() => [
   [
     // {
     //   label: 'Feedback',
@@ -145,6 +161,7 @@ const links = [
       label: 'About',
       icon: 'hugeicons:information-diamond',
       to: '/about',
+      active: route.path === '/about',
     },
     {
       label: 'Donate',
@@ -153,18 +170,18 @@ const links = [
       target: '_blank',
     },
   ],
-]
+])
 
 const groups = computed(() => [
   {
     id: 'links',
     label: 'Go to',
-    items: routes.flat(),
+    items: routes.value.flat(),
   },
   {
     id: 'help',
     label: 'Links',
-    items: links.flat(),
+    items: links.value.flat(),
   },
 ])
 

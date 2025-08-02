@@ -110,6 +110,7 @@ const query = computed(() => {
 })
 
 const { data, refresh } = await useAsyncData(
+  route.path,
   () => $fetch('/api/keycaps', { query: query.value }),
   {
     watch: [page, size, status],
@@ -122,7 +123,7 @@ const description = computed(() => {
     return 'Discover new keycap sets in various stages: Interest Check, Live, and In Production.'
   }
 
-  return data.value?.profile.description
+  return data.value?.profile?.description
 })
 
 useSeoMeta({

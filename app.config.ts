@@ -9,6 +9,11 @@ export default defineAppConfig({
         variant: 'soft',
       },
     },
+    formField: {
+      slots: {
+        help: 'text-xs',
+      },
+    },
   },
   uiPro: {
     pageCard: {
