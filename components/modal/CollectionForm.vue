@@ -1,6 +1,6 @@
 <template>
   <UForm :schema :state="collection" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Name" name="name">
+    <UFormField label="Name" name="name" required>
       <UInput v-model="collection.name" class="w-full" />
     </UFormField>
 
@@ -9,8 +9,8 @@
         v-model="collection.category"
         size="sm"
         :items="[
-          { label: 'Artisan', value: 'artisan' },
-          { label: 'Keycap', value: 'keycap' },
+          { label: 'Artisan', value: 'artisan', disabled: isEdit },
+          { label: 'Keycap', value: 'keycap', disabled: isEdit },
         ]"
       />
     </UFormField>
@@ -134,8 +134,8 @@ const personalOrSharable = z.object({
   category: z.enum(['artisan', 'keycap']),
   published: z.boolean(),
   type: z.enum(['shareable', 'personal', 'personal_buy', 'personal_sell']),
-  contact: z.string().optional(),
-  message: z.string().optional(),
+  contact: z.string().optional().nullable(),
+  message: z.string().optional().nullable(),
 })
 
 const trading = z.object({
@@ -144,7 +144,7 @@ const trading = z.object({
   published: z.boolean(),
   type: z.enum(['to_buy', 'for_sale']),
   contact: z.string().min(1),
-  message: z.string().optional(),
+  message: z.string().optional().nullable(),
 })
 
 const schema = z.discriminatedUnion('type', [personalOrSharable, trading])

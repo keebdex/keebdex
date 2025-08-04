@@ -1,11 +1,14 @@
 <template>
   <UForm :schema="schema" :state="maker" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Name" name="name">
+    <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="maker.name"
         icon="hugeicons:text"
         :trailing-icon="maker.verified && 'hugeicons:id-verified'"
         class="w-full"
+        :ui="{
+          trailingIcon: 'text-primary',
+        }"
       />
     </UFormField>
 

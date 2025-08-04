@@ -58,6 +58,7 @@
 
           <template #footer>
             <UModal
+              v-if="editable"
               v-model:visible="visible.add"
               :title="
                 selectedColorway && selectedColorway.name

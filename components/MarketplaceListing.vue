@@ -18,12 +18,14 @@
       class="flex items-center justify-between not-last:pb-4 gap-2"
     >
       <UAvatarGroup size="xl" :max="15">
-        <UAvatar
+        <UTooltip
           v-for="{ id, artisan } in trade.items"
           :key="id"
-          :src="artisan.img"
-          :alt="artisan.name"
-        />
+          :delay-duration="0"
+          :text="colorwayTitle(artisan)"
+        >
+          <UAvatar :src="artisan.img" :alt="artisan.name" />
+        </UTooltip>
       </UAvatarGroup>
     </UPageCard>
   </UPageCard>

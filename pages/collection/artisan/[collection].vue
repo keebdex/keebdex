@@ -137,7 +137,7 @@
             <SaveToCollection
               :item="{ id, artisan }"
               :move="true"
-              icon="hugeicons:link-forward"
+              icon="hugeicons:move"
               @on-select="moveTo"
             />
 

@@ -1,6 +1,6 @@
 <template>
   <UForm :schema="schema" :state="kit" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Name" name="name">
+    <UFormField label="Name" name="name" required>
       <UInput v-model.trim="kit.name" icon="hugeicons:text" class="w-full" />
     </UFormField>
 

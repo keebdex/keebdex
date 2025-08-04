@@ -26,6 +26,14 @@
         trailingIcon: 'text-dimmed',
       }"
     />
+
+    <UModal v-model:open="visible">
+      <template #content>
+        <UPageCard>
+          <ModalLogin />
+        </UPageCard>
+      </template>
+    </UModal>
   </UDropdownMenu>
 </template>
 

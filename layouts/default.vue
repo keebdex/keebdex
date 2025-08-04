@@ -62,25 +62,26 @@
     <slot />
 
     <!-- <NotificationsSlideover /> -->
+
+    <UModal v-model:open="visible" title="Share your thoughts!">
+      <template #body>
+        <ModalFeedbackForm />
+      </template>
+    </UModal>
   </UDashboardGroup>
 </template>
 
 <script setup>
 const config = useRuntimeConfig()
 const route = useRoute()
+const userStore = useUserStore()
+
+const { authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
 
 const routes = computed(() => {
-  return [
-    [
-      {
-        label: 'My Collection',
-        icon: 'hugeicons:collections-bookmark',
-        to: '/collection',
-        active: route.path.startsWith('/collection'),
-      },
-    ],
+  const items = [
     [
       {
         label: 'Makers',
@@ -149,14 +150,30 @@ const routes = computed(() => {
       },
     ],
   ]
+
+  if (authenticated.value) {
+    items.unshift([
+      {
+        label: 'My Collection',
+        icon: 'hugeicons:collections-bookmark',
+        to: '/collection',
+        active: route.path.startsWith('/collection'),
+      },
+    ])
+  }
+
+  return items
 })
 
 const links = computed(() => [
   [
-    // {
-    //   label: 'Feedback',
-    //   icon: 'hugeicons:comment-01',
-    // },
+    {
+      label: 'Feedback',
+      icon: 'hugeicons:comment-01',
+      onSelect() {
+        toggleFeedback()
+      },
+    },
     {
       label: 'About',
       icon: 'hugeicons:information-diamond',
@@ -184,6 +201,11 @@ const groups = computed(() => [
     items: links.value.flat(),
   },
 ])
+
+const visible = ref(false)
+const toggleFeedback = () => {
+  visible.value = !visible.value
+}
 
 // onMounted(async () => {
 //   const cookie = useCookie('cookie-consent')

@@ -1,7 +1,7 @@
 <template>
   <UForm :schema="schema" :state="keycap" class="space-y-4" @submit="onSubmit">
     <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Name" name="name">
+      <UFormField label="Name" name="name" required>
         <UInput
           v-model.trim="keycap.name"
           icon="hugeicons:text"

@@ -9,7 +9,6 @@
         v-for="link in links"
         :key="link.label"
         :target="link.to?.startsWith('http') ? '_blank' : undefined"
-        :disabled="!link.to"
         v-bind="link"
       />
 
@@ -39,14 +38,16 @@ const { sculpt } = defineProps({
   },
 })
 
-const links = [
-  {
-    label: 'Website',
-    icon: 'hugeicons:globe-02',
-    to: sculpt.href,
-    target: '_blank',
-  },
-]
+const links = sculpt.href
+  ? [
+      {
+        label: 'Website',
+        icon: 'hugeicons:globe-02',
+        to: sculpt.href,
+        target: '_blank',
+      },
+    ]
+  : []
 
 const sort = ref('order|desc')
 const sortIcon = ref('hugeicons:sort-by-down-01')
