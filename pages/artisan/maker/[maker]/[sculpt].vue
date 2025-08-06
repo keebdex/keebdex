@@ -110,6 +110,17 @@
           </template>
         </UPageCard>
       </UPageGrid>
+
+      <UPagination
+        v-if="sculpt.total_colorways > size"
+        v-model:page="page"
+        :items-per-page="size"
+        :total="sculpt.total_colorways"
+        class="border-t border-default pt-4 mt-auto"
+        :ui="{
+          list: 'justify-center',
+        }"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -118,7 +129,7 @@
 const route = useRoute()
 const toast = useToast()
 
-const size = 60
+const size = 90
 const page = ref(1)
 
 const sortField = ref('order')

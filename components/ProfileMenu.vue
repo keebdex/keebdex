@@ -54,11 +54,11 @@ const items = computed(() => {
   const appearance = [
     {
       label: 'Appearance',
-      icon: 'i-lucide-sun-moon',
+      icon: 'hugeicons:paint-board',
       children: [
         {
           label: 'System',
-          icon: 'i-lucide-monitor',
+          icon: 'hugeicons:computer',
           active: colorMode.preference === 'system',
           onSelect(e) {
             e.preventDefault()
@@ -67,7 +67,7 @@ const items = computed(() => {
         },
         {
           label: 'Light',
-          icon: 'i-lucide-sun',
+          icon: 'hugeicons:sun-02',
           active: colorMode.preference === 'light',
           onSelect(e) {
             e.preventDefault()
@@ -76,7 +76,7 @@ const items = computed(() => {
         },
         {
           label: 'Dark',
-          icon: 'i-lucide-moon',
+          icon: 'hugeicons:moon-02',
           active: colorMode.preference === 'dark',
           onSelect(e) {
             e.preventDefault()

@@ -89,7 +89,17 @@
             'Currently, there are no keycaps available. Check back soon for fresh additions!',
         }"
       />
-      <UPagination v-model:page="page" :total="data.count" />
+
+      <UPagination
+        v-if="data.count > size"
+        v-model:page="page"
+        :items-per-page="size"
+        :total="data.count"
+        class="border-t border-default pt-4 mt-auto"
+        :ui="{
+          list: 'justify-center',
+        }"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -103,7 +113,7 @@ const route = useRoute()
 const { profile } = route.params
 
 const page = ref(1)
-const size = ref(16)
+const size = ref(36)
 
 const selectStatuses = ['Interest Check', 'Live', 'In Production']
 const status = ref(selectStatuses[0])

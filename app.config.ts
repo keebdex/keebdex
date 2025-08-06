@@ -1,5 +1,24 @@
 export default defineAppConfig({
   ui: {
+    icons: {
+      arrowDown: 'hugeicons:arrow-down-02',
+      arrowLeft: 'hugeicons:arrow-left-02',
+      arrowRight: 'hugeicons:arrow-right-02',
+      arrowUp: 'hugeicons:arrow-up-02',
+      check: 'hugeicons:tick-01',
+      chevronDoubleLeft: 'hugeicons:arrow-left-double',
+      chevronDoubleRight: 'hugeicons:arrow-right-double',
+      chevronDown: 'hugeicons:arrow-down-01',
+      chevronLeft: 'hugeicons:arrow-left-01',
+      chevronRight: 'hugeicons:arrow-right-01',
+      chevronUp: 'hugeicons:arrow-up-01',
+      close: 'hugeicons:cancel-01',
+      external: 'hugeicons:arrow-up-right-01',
+      search: 'hugeicons:search-01',
+      system: 'hugeicons:computer',
+      light: 'hugeicons:sun-02',
+      dark: 'hugeicons:moon-02',
+    },
     button: {
       slots: {
         base: 'cursor-pointer',

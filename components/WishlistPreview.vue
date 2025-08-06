@@ -17,14 +17,55 @@
     </template>
 
     <template #body>
-      <UAlert
-        v-if="tradingCfg.fnf_only"
-        icon="hugeicons:alert-02"
-        title="No PayPal Buyer Protection"
-        description="Please note that the seller does not accept PayPal Goods & Services (G&S). This means that if you choose to proceed with the transaction, you will not have PayPal's buyer protection in place."
-        variant="subtle"
-        color="warning"
-      />
+      <UPageHeader
+        title="Information"
+        :ui="{
+          root: 'border-none',
+        }"
+      >
+        <template #description>
+          <UPageGrid
+            class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4"
+          >
+            <UUser
+              v-if="tradingCfg.social.discord"
+              :name="tradingCfg.social.discord"
+              size="2xl"
+              :avatar="{
+                icon: 'hugeicons:discord',
+              }"
+            />
+
+            <UUser
+              v-if="tradingCfg.social.reddit"
+              :name="tradingCfg.social.reddit"
+              size="2xl"
+              :avatar="{
+                icon: 'hugeicons:reddit',
+              }"
+            />
+
+            <UUser
+              v-if="tradingCfg.social.qq"
+              :name="tradingCfg.social.qq"
+              size="2xl"
+              :avatar="{
+                icon: 'hugeicons:bubble-chat',
+              }"
+            />
+          </UPageGrid>
+
+          <UAlert
+            v-if="tradingCfg.fnf_only"
+            icon="hugeicons:alert-02"
+            title="No PayPal Buyer Protection"
+            description="Please note that the seller does not accept PayPal Goods & Services (G&S). This means that if you choose to proceed with the transaction, you will not have PayPal's buyer protection in place."
+            variant="subtle"
+            color="warning"
+            class="mt-4"
+          />
+        </template>
+      </UPageHeader>
 
       <UAlert
         v-if="errorText"
@@ -34,10 +75,10 @@
       />
 
       <USeparator
-        v-if="buyingItems.length"
+        v-if="buyingItems.length && tradingCfg.buying.title"
         :label="tradingCfg.buying.title"
         :ui="{
-          label: 'font-bold text-3xl text-info',
+          label: 'text-3xl sm:text-4xl font-bold text-info',
         }"
       />
 
@@ -53,7 +94,7 @@
         v-if="sellingItems.length && trading"
         :label="tradingCfg.selling.title"
         :ui="{
-          label: 'font-bold text-3xl text-warning',
+          label: 'text-3xl sm:text-4xl font-bold text-warning',
         }"
       />
 
@@ -64,22 +105,24 @@
         :selling="true"
         @on-remove="remove"
       />
-    </template>
 
-    <!-- <template #footer>
-      <UButton
-        :avatar="{
-          alt: $config.app.name,
-          src:
-            $colorMode.value === 'dark'
-              ? '/logo-outlined.png'
-              : '/logo-filled.png',
-        }"
-        color="primary"
-      >
-        From {{ $config.app.name }} with love
-      </UButton>
-    </template> -->
+      <USeparator>
+        <UUser
+          :name="`From ${$config.app.name} with love`"
+          size="3xl"
+          :avatar="{
+            alt: $config.app.name,
+            src:
+              $colorMode.value === 'dark'
+                ? '/logo-outlined.png'
+                : '/logo-filled.png',
+            ui: {
+              root: 'rounded-none bg-transparent',
+            },
+          }"
+        />
+      </USeparator>
+    </template>
   </UDashboardPanel>
 </template>
 
