@@ -12,7 +12,7 @@
       />
     </UFormField>
 
-    <UButton color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit"> Save </UButton>
   </UForm>
 </template>
 

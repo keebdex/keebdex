@@ -65,17 +65,23 @@
       <UTextarea v-model.trim="colorway.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <UFormField label="Image" name="img">
-      <UPageCard orientation="horizontal">
-        <NuxtImg
-          :alt="colorway.name"
-          :src="colorway.img"
-          class="w-full h-full object-cover"
-        />
-        <UInput type="file" disabled @change="onFileChange" />
-      </UPageCard>
+    <UFormField
+      label="Image"
+      name="img"
+      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Avoid excessive background or blurry shots."
+    >
+      <UFileUpload
+        v-model="uploadedFiles"
+        disabled
+        icon="hugeicons:image-upload"
+        layout="list"
+        label="Click to browse or drag & drop an image to upload"
+        :ui="{
+          base: 'min-h-48',
+        }"
+      />
     </UFormField>
-    <UButton color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit"> Save </UButton>
   </UForm>
 </template>
 
@@ -135,9 +141,24 @@ const schema = z.object({
   // img: z.string().url(),
 })
 
+const uploadedFiles = ref([])
+
 onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
 })
+
+onMounted(async () => {
+  const file = await fetchFileFromUrl(colorway.value.img, 'image.jpg')
+  uploadedFiles.value = [file]
+})
+
+async function fetchFileFromUrl(url, filename) {
+  const res = await fetch(url)
+  console.log(res)
+
+  const blob = await res.blob()
+  return new File([blob], filename, { type: blob.type })
+}
 
 const onSubmit = async () => {
   $fetch(
@@ -159,28 +180,4 @@ const onSubmit = async () => {
       toast.add({ color: 'error', title: error.message })
     })
 }
-
-function onFileChange(e) {
-  const input = e.target
-
-  if (!input.files?.length) {
-    return
-  }
-
-  colorway.value.img = URL.createObjectURL(input.files[0])
-}
-
-// const fetching = ref(false)
-// const keycaps = ref([])
-// const fetchkeycaps = (val) => {
-//   fetching.value = true
-//   $fetch(`/api/keycaps?query=${val}`)
-//     .then((data) => {
-//       keycaps.value = data.map((k) => ({ key: k.id, value: k.name }))
-//       fetching.value = false
-//     })
-//     .catch(() => {
-//       fetching.value = false
-//     })
-// }
 </script>

@@ -40,7 +40,7 @@
       <UTextarea v-model.trim="sculpt.story" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit"> Save </UButton>
   </UForm>
 </template>
 
