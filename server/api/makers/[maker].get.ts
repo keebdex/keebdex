@@ -2,7 +2,7 @@ import { serverSupabaseClient } from '#supabase/server'
 import groupBy from 'lodash.groupby'
 import keyBy from 'lodash.keyby'
 import sortBy from 'lodash.sortby'
-import { omitSensitive } from '~/utils'
+import { omitSensitive } from '../../utils'
 
 function sortSculpts(sculpts: any) {
   const revisionMap: Record<string, any> = {}

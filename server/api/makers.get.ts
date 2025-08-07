@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import sortBy from 'lodash.sortby'
-import { omitSensitive } from '~/utils'
+import { omitSensitive } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)

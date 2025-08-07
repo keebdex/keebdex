@@ -1,11 +1,5 @@
 import dayjs from 'dayjs'
 import { domToPng, domToBlob } from 'modern-screenshot'
-import omit from 'lodash.omit'
-
-export const activeMenu = '!bg-slate-100 dark:!bg-zinc-700 rounded'
-export const activePopMenu = '!bg-slate-100 dark:!bg-zinc-800 rounded'
-
-export const omitSensitive = (obj: any) => omit(obj, ['fts'])
 
 export const toISODate = (date: Date) => {
   return date ? dayjs(date).format('YYYY-MM-DD') : ''
