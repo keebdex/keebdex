@@ -61,7 +61,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-vue": "^10.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.4",
+    "lint-staged": "^16.1.5",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "lodash.omit": "^4.5.0",
