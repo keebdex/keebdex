@@ -5,14 +5,16 @@
     </template>
 
     <template #body>
-      <UAlert icon="hugeicons:information-circle" variant="soft" color="info">
-        <template #description>
-          To make your collections available in the marketplace, please publish
-          them by visiting
-          <NuxtLink to="/collection" class="underline">Collections</NuxtLink>.
-          This will make them visible to potential buyers/sellers.
-        </template>
-      </UAlert>
+      <UPage>
+        <UAlert icon="hugeicons:information-circle" variant="soft" color="info">
+          <template #description>
+            To make your collections available in the marketplace, please
+            publish them by visiting
+            <NuxtLink to="/collection" class="underline">Collections</NuxtLink>.
+            This will make them visible to potential buyers/sellers.
+          </template>
+        </UAlert>
+      </UPage>
 
       <MarketplaceListing />
     </template>

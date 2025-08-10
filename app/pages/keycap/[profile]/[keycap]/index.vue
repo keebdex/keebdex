@@ -83,7 +83,7 @@
         <div class="col-span-3 lg:col-span-1">
           <UAccordion v-model="activeKey" :items="items" type="multiple">
             <template #specifications>
-              <ul class="list-none p-0 m-0 flex flex-col gap-2 py-2 text-sm">
+              <!-- <ul class="list-none p-0 m-0 flex flex-col gap-2 py-2 text-sm">
                 <li v-if="data.designer">Designer: {{ data.designer }}</li>
                 <li v-if="data.sculpt">Sculpt: {{ data.sculpt }}</li>
                 <li v-if="data.status === 'Interest Check'">
@@ -100,7 +100,28 @@
                     :color="keycapStatuses[data.status]"
                   />
                 </li>
-              </ul>
+              </ul> -->
+              <DescriptionList
+                :items="[
+                  { term: 'Designer', description: data.designer },
+                  { term: 'Sculpt', description: data.sculpt },
+                  { term: 'IC Date', description: formatDate(data.ic_date) },
+                  {
+                    term: 'Timeline',
+                    description: formatDateRange(
+                      data.start_date,
+                      data.end_date,
+                    ),
+                  },
+                  {
+                    term: 'Status',
+                    badge: {
+                      label: data.status,
+                      color: keycapStatuses[data.status],
+                    },
+                  },
+                ]"
+              />
             </template>
             <template #kits>
               <div class="flex flex-wrap gap-2 py-2">

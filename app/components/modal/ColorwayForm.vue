@@ -49,7 +49,11 @@
         />
       </UFormField>
 
-      <UFormField label="Price" name="price">
+      <UFormField
+        v-if="!specialFormats.includes(colorway.sale_type)"
+        label="Price"
+        name="price"
+      >
         <UButtonGroup>
           <USelect v-model="colorway.currency" :items="currencies" />
           <UInput v-model.number="colorway.price" />
@@ -101,6 +105,7 @@ const toast = useToast()
 
 const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
 
+const specialFormats = ['Giveaway', 'Commission', 'Auction']
 const saleFormats = [
   {
     type: 'label',
@@ -116,9 +121,7 @@ const saleFormats = [
     type: 'label',
     label: 'Special',
   },
-  'Giveaway',
-  'Commission',
-  'Auction',
+  ...specialFormats,
 ]
 
 const formats = saleFormats.filter((f) => !f.type)

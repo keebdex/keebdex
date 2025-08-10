@@ -1,11 +1,42 @@
 <template>
   <UPageCard
     :title="colorway.name"
-    :description="colorway.description"
     reverse
     class="colorway-details-card"
+    :ui="{
+      body: 'w-full',
+      description: 'flex flex-col gap-4',
+    }"
   >
     <NuxtImg :src="colorway.img" :alt="colorway.name" class="w-full rounded" />
+
+    <template #description>
+      <PageHeaderDescription
+        v-if="colorway.description"
+        :description="colorway.description"
+      />
+
+      <DescriptionList
+        :items="
+          [
+            { term: 'Release', description: colorway.release },
+            {
+              term: 'Price',
+              description: colorway.price
+                ? `${colorway.currency} ${colorway.price}`
+                : undefined,
+            },
+            { term: 'Quantity', description: colorway.qty },
+            {
+              term: 'Stem',
+              description: Array.isArray(colorway.stem)
+                ? colorway.stem.join(', ')
+                : undefined,
+            },
+          ].filter((i) => i.description)
+        "
+      />
+    </template>
 
     <template #leading>
       <UBadge
@@ -27,6 +58,7 @@
         color="info"
       />
     </template>
+
     <template v-if="!copying" #footer>
       <!-- This seems not working due to nested modal in Nuxt UI -->
       <!-- <UButton

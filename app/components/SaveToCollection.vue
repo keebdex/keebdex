@@ -18,7 +18,9 @@
       content: 'w-48',
     }"
   >
-    <UButton :label="label" :icon="icon" />
+    <UTooltip :text="move ? 'Move' : 'Save'" :delay-duration="0">
+      <UButton :label="label" :icon="icon" />
+    </UTooltip>
   </UDropdownMenu>
 </template>
 

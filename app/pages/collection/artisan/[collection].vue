@@ -113,26 +113,28 @@
             </UButton>
           </template>
           <template v-else #footer>
-            <UButton
-              v-if="buying"
-              :icon="
-                exchange
-                  ? 'hugeicons:search-focus'
-                  : 'hugeicons:bookmark-check-02'
-              "
-              :color="exchange ? 'neutral' : 'success'"
-              @click="changeExchangeStatus({ id, exchange, artisan })"
-            />
-            <UButton
-              v-if="selling"
-              :icon="
-                exchange
-                  ? 'hugeicons:sale-tag-02'
-                  : 'hugeicons:bookmark-block-02'
-              "
-              :color="exchange ? 'neutral' : 'warning'"
-              @click="changeExchangeStatus({ id, exchange, artisan })"
-            />
+            <UTooltip text="Change Status" :delay-duration="0">
+              <UButton
+                v-if="buying"
+                :icon="
+                  exchange
+                    ? 'hugeicons:search-focus'
+                    : 'hugeicons:bookmark-check-02'
+                "
+                :color="exchange ? 'neutral' : 'success'"
+                @click="changeExchangeStatus({ id, exchange, artisan })"
+              />
+              <UButton
+                v-if="selling"
+                :icon="
+                  exchange
+                    ? 'hugeicons:sale-tag-02'
+                    : 'hugeicons:bookmark-block-02'
+                "
+                :color="exchange ? 'neutral' : 'warning'"
+                @click="changeExchangeStatus({ id, exchange, artisan })"
+              />
+            </UTooltip>
 
             <SaveToCollection
               :item="{ id, artisan }"
@@ -147,7 +149,9 @@
               :description="`Are you sure you want to remove ${colorwayTitle(artisan)}?`"
               :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
-              <UButton icon="hugeicons:bookmark-minus-02" color="error" />
+              <UTooltip text="Remove" :delay-duration="0">
+                <UButton icon="hugeicons:bookmark-minus-02" color="error" />
+              </UTooltip>
 
               <template #footer="{ close }">
                 <UButton label="Cancel" @click="close" />

@@ -66,10 +66,12 @@
                   : 'Add Colorway'
               "
             >
-              <UButton
-                icon="hugeicons:file-edit"
-                @click="setSelectedColorway(colorway)"
-              />
+              <UTooltip text="Edit" :delay-duration="0">
+                <UButton
+                  icon="hugeicons:file-edit"
+                  @click="setSelectedColorway(colorway)"
+                />
+              </UTooltip>
 
               <template #body="{ close }">
                 <ModalColorwayForm
@@ -85,11 +87,18 @@
               </template>
             </UModal>
 
-            <UModal v-model:visible="visible.card">
-              <UButton
-                icon="hugeicons:zoom-in-area"
-                @click="setSelectedColorway(colorway)"
-              />
+            <UModal
+              v-model:visible="visible.card"
+              :ui="{
+                content: 'max-w-xl',
+              }"
+            >
+              <UTooltip text="Expand" :delay-duration="0">
+                <UButton
+                  icon="hugeicons:zoom-in-area"
+                  @click="setSelectedColorway(colorway)"
+                />
+              </UTooltip>
 
               <template #content>
                 <ModalColorwayCard

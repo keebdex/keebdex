@@ -44,20 +44,20 @@
       </div>
 
       <template v-if="!copying" #footer>
-        <UButton
-          v-if="buying"
-          icon="hugeicons:shopping-bag-favorite"
-          @click="$emit('onHighlight', item.id)"
-        >
-          Priority
-        </UButton>
-        <UButton
-          icon="hugeicons:shopping-bag-remove"
-          color="error"
-          @click="$emit('onRemove', item)"
-        >
-          Remove
-        </UButton>
+        <UTooltip text="Priority" :delay-duration="0">
+          <UButton
+            v-if="buying"
+            icon="hugeicons:shopping-bag-favorite"
+            @click="$emit('onHighlight', item.id)"
+          />
+        </UTooltip>
+        <UTooltip text="Remove" :delay-duration="0">
+          <UButton
+            icon="hugeicons:shopping-bag-remove"
+            color="error"
+            @click="$emit('onRemove', item)"
+          />
+        </UTooltip>
       </template>
     </UPageCard>
   </UPageGrid>

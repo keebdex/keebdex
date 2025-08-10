@@ -46,7 +46,7 @@ const sections = ref([
         tiers: {
           keebdex: 'Full editing capabilities via web interface',
           archivist:
-            'Requires submitting GitHub PR or manually editing catalogue files',
+            'Requires submitting GitHub PR or editing files, with slow or no merge activity',
         },
       },
       {
