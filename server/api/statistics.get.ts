@@ -1,14 +1,17 @@
 import { serverSupabaseClient } from '#supabase/server'
-import dayjs from 'dayjs'
+import { getLocalTimeZone, today } from '@internationalized/date'
 import groupBy from 'lodash.groupby'
 import sortBy from 'lodash.sortby'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
+
+  const startOfDay = today(getLocalTimeZone()).toString()
+
   const { data } = await client
     .from('colorways')
     .select('*, maker:makers(name, invertible_logo)')
-    .gte('created_at', dayjs().startOf('day'))
+    .gte('created_at', startOfDay)
 
   const makers = Object.entries(groupBy(data, 'maker.name')).map(
     ([name, keycaps]) => {
@@ -25,8 +28,8 @@ export default defineEventHandler(async (event) => {
     .from('keycaps')
     .select('*, profile:keycap_profiles(name)')
     .eq('status', 'Live')
-  // .lte('start_date', dayjs().startOf('day'))
-  // .gte('end_date', dayjs().startOf('day'))
+  // .lte('start_date', startOfDay)
+  // .gte('end_date', startOfDay)
 
   return {
     makers: sortBy(makers, 'name'),

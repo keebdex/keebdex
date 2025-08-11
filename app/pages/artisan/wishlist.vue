@@ -51,6 +51,7 @@
           :content="false"
           size="xs"
           default-value="buying"
+          @update:model-value="resetTradingState"
         />
       </template>
     </UDashboardNavbar>
@@ -97,6 +98,19 @@ const tradingConfig = useState('trading-config', () => {
     fnf_only: false,
   }
 })
+
+const resetTradingState = () => {
+  tradingConfig.value.buying = {
+    collection: '',
+    title: '',
+    placeholder: 'Looking for',
+  }
+  tradingConfig.value.selling = {
+    collection: '',
+    title: '',
+    placeholder: 'For sale',
+  }
+}
 
 const tabItems = [
   { label: 'Buying', value: 'buying' },

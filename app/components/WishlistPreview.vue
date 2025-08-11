@@ -1,5 +1,8 @@
 <template>
-  <UDashboardPanel id="wishlist-preview" :ui="{ body: 'trading-preview' }">
+  <UDashboardPanel
+    id="wishlist-preview"
+    :ui="{ body: 'trading-preview bg-(--ui-bg)' }"
+  >
     <template #header>
       <UDashboardNavbar title="Wishlist Preview">
         <template #right>

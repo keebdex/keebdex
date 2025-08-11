@@ -1,34 +1,21 @@
-import dayjs from 'dayjs'
+import type { CalendarDate } from '@internationalized/date'
+import { DateFormatter } from '@internationalized/date'
 import { domToPng, domToBlob } from 'modern-screenshot'
 
-export const toISODate = (date: Date) => {
-  return date ? dayjs(date).format('YYYY-MM-DD') : ''
+const df = new DateFormatter('en-US', {
+  dateStyle: 'medium',
+})
+
+export const toISODate = (date: CalendarDate) => {
+  return date.toString()
 }
 
-export const formatDate = (date: Date) => {
-  return date ? dayjs(date).format('DD MMM YYYY') : ''
+export const formatDate = (date: string) => {
+  return date ? df.format(new Date(date)) : ''
 }
 
-export const formatDateTime = (date: Date) => {
-  return date ? dayjs(date).format('DD MMM YYYY HH:mm') : ''
-}
-
-export const formatDateRange = (fromDate: Date, toDate: Date) => {
-  const from = dayjs(fromDate, 'YYYY-MM-DD')
-  const to = dayjs(toDate, 'YYYY-MM-DD')
-
-  if (!from.isValid() || !to.isValid()) return ''
-
-  const isSameYear = from.isSame(to, 'year')
-  const isSameMonth = from.isSame(to, 'month')
-
-  if (isSameYear && isSameMonth) {
-    return `${from.format('DD')} - ${to.format('DD MMM YYYY')}`
-  } else if (isSameYear) {
-    return `${from.format('DD MMM')} - ${to.format('DD MMM YYYY')}`
-  } else {
-    return `${from.format('DD MMM YYYY')} - ${to.format('DD MMM YYYY')}`
-  }
+export const formatDateRange = (fromDate: string, toDate: string) => {
+  return df.formatRange(new Date(fromDate), new Date(toDate))
 }
 
 export const keycapProfiles = {

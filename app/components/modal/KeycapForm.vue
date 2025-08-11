@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="keycap" class="space-y-4" @submit="onSubmit">
+  <UForm :schema="schema" :state="keycap" class="space-y-4">
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Name" name="name" required>
         <UInput
@@ -12,7 +12,7 @@
       <UFormField label="Designer" name="designer">
         <UInput
           v-model.trim="keycap.designer"
-          icon="hugeicons:user-02"
+          icon="hugeicons:user-star-01"
           class="w-full"
         />
       </UFormField>
@@ -93,7 +93,7 @@
             variant="outline"
             class="w-full"
           >
-            {{ keycap.ic_date ? toISODate(keycap.ic_date) : 'Select a date' }}
+            {{ keycap.ic_date ? formatDate(keycap.ic_date) : 'Select a date' }}
           </UButton>
 
           <template #content>
@@ -106,21 +106,20 @@
     <UFormField v-if="!ic" label="GB Time" name="gb_date">
       <UPopover>
         <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
-          <template v-if="keycap.start_date">
-            <template v-if="keycap.end_date">
-              {{ toISODate(keycap.start) }} -
-              {{ toISODate(keycap.end) }}
+          <template v-if="range.start">
+            <template v-if="range.end">
+              {{ formatDateRange(range.start, range.end) }}
             </template>
 
             <template v-else>
-              {{ toISODate(keycap.start) }}
+              {{ formatDate(range.start) }}
             </template>
           </template>
           <template v-else> Pick a date </template>
         </UButton>
 
         <template #content>
-          <UCalendar v-model="keycap" :number-of-months="2" range />
+          <UCalendar v-model="range" :number-of-months="2" range />
         </template>
       </UPopover>
     </UFormField>
@@ -149,11 +148,15 @@
       <UTextarea v-model.trim="keycap.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <!-- FIXME: I don't know why form submit is not working for this form. So I need to did this -->
+    <UButton block color="primary" type="submit" @click="onSubmit">
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
+import { parseDate } from '@internationalized/date'
 import slugify from 'slugify'
 import { z } from 'zod'
 
@@ -174,22 +177,22 @@ const keycap = ref({
   name: '',
   url: '',
   render_img: '',
-  start: new Date(),
-  end: new Date(),
 })
+
+const range = ref({})
 
 onBeforeMount(() => {
   const { page, size, ...rest } = metadata
   Object.assign(keycap.value, rest)
 
   if (rest.ic_date) {
-    keycap.value.ic_date = new Date(rest.ic_date)
+    keycap.value.ic_date = parseDate(rest.ic_date)
   }
   if (rest.start_date) {
-    keycap.value.start = new Date(rest.start_date)
+    range.value.start = parseDate(rest.start_date)
   }
   if (rest.end_date) {
-    keycap.value.end = new Date(rest.end_date)
+    range.value.end = parseDate(rest.end_date)
   }
 })
 
@@ -203,16 +206,16 @@ const schema = z.object({
   url: z.string().url().nullish().or(z.string().min(0).max(0)),
   render_img: z.string().url().nullish().or(z.string().min(0).max(0)),
   cover_img: z.string().url().nullish().or(z.string().min(0).max(0)),
-  ic_date: z.date(),
-  start_date: z.date(),
-  end_date: z.date(),
+  // ic_date: z.date(),
+  // start_date: z.date(),
+  // end_date: z.date(),
   status: z.enum(Object.keys(keycapStatuses)).nullish(),
   order_graph: z.string().url().nullish().or(z.string().min(0).max(0)),
   order_history: z.string().url().nullish().or(z.string().min(0).max(0)),
   // description: z.string(),
 })
 
-const onSubmit = async () => {
+const onSubmit = () => {
   const slug = isEdit
     ? keycap.value.id
     : slugify(keycap.value.name, { lower: true })
@@ -224,11 +227,11 @@ const onSubmit = async () => {
   if (keycap.value.ic_date) {
     keycap.value.ic_date = toISODate(keycap.value.ic_date)
   }
-  if (keycap.value.start) {
-    keycap.value.start_date = toISODate(keycap.value.start)
+  if (range.value.start) {
+    keycap.value.start_date = toISODate(range.value.start)
   }
-  if (keycap.value.end) {
-    keycap.value.end_date = toISODate(keycap.value.end)
+  if (range.value.end) {
+    keycap.value.end_date = toISODate(range.value.end)
   }
 
   /**

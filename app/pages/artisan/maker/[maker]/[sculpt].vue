@@ -251,9 +251,10 @@ const visible = ref({
 // show colorway card popup
 const selectedColorway = ref({})
 const setSelectedColorway = (clw) => {
+  const { colorways, ...rest } = sculpt.value
   selectedColorway.value = {
     ...clw,
-    sculpt: sculpt.value,
+    sculpt: rest,
   }
 }
 
