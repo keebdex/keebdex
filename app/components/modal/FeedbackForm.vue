@@ -4,7 +4,6 @@
       <UInput
         v-model.trim="feedback.name"
         icon="hugeicons:user-circle-02"
-        disabled
         class="w-full"
       />
     </UFormField>

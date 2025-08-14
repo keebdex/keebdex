@@ -6,25 +6,33 @@
       content: slim ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
     }"
   >
-    <UButton
-      v-bind="{
-        ...user,
-        avatar: {
-          src: user?.picture,
-          alt: user?.name,
-        },
-        label: slim ? undefined : user?.name || 'Sign In',
-        icon: authenticated ? undefined : 'hugeicons:login-03',
-        trailingIcon: slim ? undefined : 'hugeicons:unfold-more',
+    <!-- <UButton
+      v-if="authenticated"
+      :label="user.name"
+      :avatar="{
+        src: user.picture,
+        alt: user.name,
       }"
+      trailing-icon="hugeicons:unfold-more"
       variant="ghost"
       block
-      :square="slim"
-      size="xl"
-      class="data-[state=open]:bg-elevated"
-      :ui="{
-        trailingIcon: 'text-dimmed',
+    /> -->
+    <UUser
+      v-if="authenticated"
+      :name="user.name"
+      :avatar="{
+        src: user.picture,
+        alt: user.name,
       }"
+      class="cursor-pointer w-full"
+    />
+    <UButton
+      v-else
+      label="Sign In"
+      icon="hugeicons:login-03"
+      trailing-icon="hugeicons:unfold-more"
+      variant="ghost"
+      block
     />
 
     <UModal v-model:open="visible">

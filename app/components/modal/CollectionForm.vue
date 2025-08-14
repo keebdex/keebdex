@@ -5,13 +5,14 @@
     </UFormField>
 
     <UFormField label="Category" name="category">
-      <UTabs
+      <URadioGroup
         v-model="collection.category"
-        size="sm"
+        orientation="horizontal"
         :items="[
           { label: 'Artisan', value: 'artisan', disabled: isEdit },
           { label: 'Keycap', value: 'keycap', disabled: isEdit },
         ]"
+        :ui="{ fieldset: 'gap-x-4' }"
       />
     </UFormField>
 
@@ -24,20 +25,21 @@
           : 'Choosing private keeps this collection under lock and key, hidden from prying eyes.'
       "
     >
-      <UTabs
+      <URadioGroup
         v-model="collection.published"
-        size="sm"
+        orientation="horizontal"
         :items="[
           { label: 'Private', value: false },
           { label: 'Public', value: true },
         ]"
+        :ui="{ fieldset: 'gap-x-4' }"
       />
     </UFormField>
 
     <UFormField label="Type" name="type" :help="typeExtras[collection.type]">
-      <UTabs
+      <URadioGroup
         v-model="collection.type"
-        size="sm"
+        orientation="horizontal"
         :items="
           collection.published
             ? [
@@ -51,6 +53,7 @@
                 { label: 'Future Sale', value: 'personal_sell' },
               ]
         "
+        :ui="{ fieldset: 'gap-x-4' }"
       />
     </UFormField>
 
@@ -115,19 +118,9 @@ const collection = ref({
 })
 
 onBeforeMount(() => {
-  Object.assign(collection.value, metadata)
+  const { items, ...rest } = metadata
+  Object.assign(collection.value, rest)
 })
-
-watch(
-  () => collection.value.published,
-  () => {
-    if (collection.value.published) {
-      collection.value.type = 'shareable'
-    } else {
-      collection.value.type = 'personal'
-    }
-  },
-)
 
 const personalOrSharable = z.object({
   name: z.string().min(1),

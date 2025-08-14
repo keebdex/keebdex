@@ -36,6 +36,12 @@
               size="2xl"
               :avatar="{
                 icon: 'hugeicons:discord',
+                ui: {
+                  icon: 'text-(--color-discord)',
+                },
+              }"
+              :ui="{
+                name: 'text-(--color-discord)',
               }"
             />
 
@@ -45,6 +51,12 @@
               size="2xl"
               :avatar="{
                 icon: 'hugeicons:reddit',
+                ui: {
+                  icon: 'text-(--color-reddit)',
+                },
+              }"
+              :ui="{
+                name: 'text-(--color-reddit)',
               }"
             />
 
