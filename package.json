@@ -47,7 +47,7 @@
     "@nuxt/content": "^3.6.3",
     "@nuxt/eslint": "^1.8.0",
     "@nuxt/image": "^1.11.0",
-    "@nuxt/ui-pro": "^3.3.0",
+    "@nuxt/ui-pro": "^3.3.2",
     "@nuxtjs/device": "^3.2.4",
     "@nuxtjs/supabase": "1.6.0",
     "@tailwindcss/typography": "^0.5.16",

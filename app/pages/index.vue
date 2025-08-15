@@ -26,19 +26,3 @@
     </template>
   </UDashboardPanel>
 </template>
-
-<!-- <script setup>
-const { data } = await useAsyncData(() => $fetch('/api/statistics'))
-
-const features = [
-  {
-    title: 'Discover Your Next Gem',
-    description: 'Explore a vast library of artisan keycaps and keycap sets.',
-  },
-  {
-    title: 'Organize Your Collection',
-    description:
-      'Effortlessly manage your entire collection – from individual artisan keycaps to complete keycap sets.',
-  },
-]
-</script> -->

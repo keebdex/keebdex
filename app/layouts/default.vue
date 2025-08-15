@@ -35,6 +35,17 @@
           class="bg-transparent ring-default"
         />
 
+        <USlideover
+          title="Latest Drops"
+          description="Welcome to today's drop! Dive into the newest keycap sets now live, and snag our latest artisan creations. Check out what's available for preorder and group buy!"
+        >
+          <UButton label="What's New" icon="hugeicons:party" color="success" />
+
+          <template #body>
+            <WhatsNewSlider :makers="data.makers" :keycaps="data.keycaps" />
+          </template>
+        </USlideover>
+
         <UNavigationMenu
           :collapsed="collapsed"
           :items="routes"
@@ -77,6 +88,8 @@ const route = useRoute()
 const userStore = useUserStore()
 
 const { authenticated } = storeToRefs(userStore)
+
+const { data } = await useAsyncData(() => $fetch('/api/statistics'))
 
 const open = ref(false)
 
