@@ -54,10 +54,10 @@
         label="Price"
         name="price"
       >
-        <UButtonGroup>
+        <UFieldGroup>
           <USelect v-model="colorway.currency" :items="currencies" />
           <UInput v-model.number="colorway.price" />
-        </UButtonGroup>
+        </UFieldGroup>
       </UFormField>
     </div>
 
@@ -90,6 +90,7 @@
 </template>
 
 <script setup>
+import { UFieldGroup } from '#components'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])

@@ -57,8 +57,6 @@ export default defineAppConfig({
         help: 'text-xs',
       },
     },
-  },
-  uiPro: {
     pageCard: {
       slots: {
         footer: 'flex gap-2',

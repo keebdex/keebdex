@@ -19,7 +19,7 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/image',
-    '@nuxt/ui-pro',
+    '@nuxt/ui',
     '@nuxtjs/device',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
