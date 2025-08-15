@@ -88,9 +88,9 @@ const designs = [
 const schema = z.object({
   name: z.string().min(1),
   release: z.string().nullish(),
-  profile: z.enum(profiles).nullish(),
-  cast: z.enum(casts).nullish(),
-  design: z.enum(designs).nullish(),
+  profile: z.enum(profiles.map((p) => p.value)).nullish(),
+  cast: z.enum(casts.map((c) => c.value)).nullish(),
+  design: z.enum(designs.map((d) => d.value)).nullish(),
   href: z.string().url().nullish().or(z.string().min(0).max(0)),
   // story: z.string(),
 })

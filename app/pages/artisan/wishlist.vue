@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/no-multiple-template-root -->
 <template>
   <UDashboardPanel
+    v-if="authenticated"
     id="wishlist"
     :default-size="25"
     :min-size="20"
@@ -32,7 +33,28 @@
     description="Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more."
     icon="hugeicons:creative-market"
     class="mx-auto"
-  />
+  >
+    <template v-if="!authenticated" #links>
+      <UButton
+        icon="hugeicons:login-03"
+        @click="
+          () => {
+            visible = true
+          }
+        "
+      >
+        Sign In to Continue
+      </UButton>
+    </template>
+  </UPageSection>
+
+  <UModal v-model:open="visible">
+    <template #content>
+      <UPageCard>
+        <ModalLogin />
+      </UPageCard>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
@@ -42,8 +64,10 @@ useSeoMeta({
     'Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more.',
 })
 
+const visible = ref(false)
+
 const userStore = useUserStore()
-const { social } = storeToRefs(userStore)
+const { authenticated, social } = storeToRefs(userStore)
 
 const tradingConfig = useState('trading-config', () => {
   return {

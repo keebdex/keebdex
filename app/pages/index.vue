@@ -1,6 +1,6 @@
 <template>
   <UDashboardPanel id="home">
-    <template #header>
+    <template v-if="$device.isMobile" #header>
       <UDashboardNavbar :title="$config.app.name"> </UDashboardNavbar>
     </template>
 

@@ -8,6 +8,7 @@
 
         <template #right>
           <UButton
+            v-if="editable"
             label="Manage Kits"
             icon="hugeicons:dashboard-square-02"
             :to="`/keycap/${data.profile_keycap_id}/kit`"

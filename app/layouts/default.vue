@@ -183,6 +183,7 @@ const links = computed(() => [
     {
       label: 'Feedback',
       icon: 'hugeicons:comment-01',
+      class: 'cursor-pointer',
       onSelect() {
         toggleFeedback()
       },
@@ -228,20 +229,21 @@ const toggleFeedback = () => {
 
 //   toast.add({
 //     title:
-//       'We use first-party cookies to enhance your experience on our website.',
+//       'We use cookies to improve your experience. By using our site, you agree to our use of cookies.',
+//     icon: 'hugeicons:cookie',
 //     duration: 0,
 //     close: false,
 //     actions: [
 //       {
 //         label: 'Accept',
 //         color: 'neutral',
-//         variant: 'outline',
+//         color: 'info',
 //         onClick: () => {
 //           cookie.value = 'accepted'
 //         },
 //       },
 //       {
-//         label: 'Opt out',
+//         label: 'Decline',
 //         color: 'neutral',
 //         variant: 'ghost',
 //       },
