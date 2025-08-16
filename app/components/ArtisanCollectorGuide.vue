@@ -1,5 +1,9 @@
 <template>
-  <UPageSection title="ArtisanCollector's Guides" :features="features" />
+  <UPageSection
+    title="ArtisanCollector's Guides"
+    :features="features"
+    :ui="{ container: 'py-8 sm:py-12 lg:py-16' }"
+  />
 </template>
 
 <script setup>
@@ -10,7 +14,7 @@ const features = [
       'An overview of the Artisan Collector guides and recommended reading sequence for newcomers',
     to: 'https://artisancollector.com/guides/start/',
     target: '_blank',
-    icon: 'hugeicons:book-02',
+    icon: 'solar:book-bookmark-bold-duotone',
   },
   {
     title: 'What are Artisan Keycaps?',
@@ -18,7 +22,7 @@ const features = [
       'The fundamentals of artisan keycaps, the various stems, profiles, types, how they are typically made, and where to learn more',
     to: 'https://artisancollector.com/guides/what-are-artisan-keycaps/',
     target: '_blank',
-    icon: 'hugeicons:maps-location-01',
+    icon: 'solar:map-bold-duotone',
   },
   {
     title: 'Collecting Artisans: Retail Sales',
@@ -26,7 +30,7 @@ const features = [
       'The various artisan sale types, how they work, platforms on which the sales are run, and notification methods that require monitoring.',
     to: 'https://artisancollector.com/guides/collecting-artisans-retail/',
     target: '_blank',
-    icon: 'hugeicons:tags',
+    icon: 'solar:tag-price-bold-duotone',
   },
   {
     title: 'The Three Artisan Collector Resources',
@@ -34,7 +38,7 @@ const features = [
       'The three main resources that impact your ability to collect artisans, and the relationship between them',
     to: 'https://artisancollector.com/guides/3-artisan-collecting-resources/',
     target: '_blank',
-    icon: 'hugeicons:resources-add',
+    icon: 'solar:widget-add-bold-duotone',
   },
 ]
 </script>

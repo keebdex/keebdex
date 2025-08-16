@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.2",
-    "better-sqlite3": "^12.2.0",
     "crc": "4.3.2",
     "flag-icons": "^7.5.0",
     "modern-screenshot": "^4.6.5",
@@ -44,7 +43,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@iconify-json/hugeicons": "^1.2.10",
-    "@nuxt/content": "^3.6.3",
+    "@iconify-json/solar": "^1.2.4",
     "@nuxt/eslint": "^1.8.0",
     "@nuxt/image": "^1.11.0",
     "@nuxt/ui": "4.0.0-alpha.0",

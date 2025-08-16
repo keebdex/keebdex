@@ -16,7 +16,6 @@ export default defineNuxtConfig({
   css: ['~/assets/main.css'],
 
   modules: [
-    '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/ui',
@@ -25,13 +24,6 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'nuxt-og-image',
   ],
-
-  content: {
-    database: {
-      type: 'd1',
-      bindingName: 'KEEBDEX_DB',
-    },
-  },
 
   fonts: {
     families: [{ name: 'Dosis', provider: 'google' }],

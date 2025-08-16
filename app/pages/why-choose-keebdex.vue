@@ -1,17 +1,18 @@
 <template>
   <UDashboardPanel id="keebdex-vs-archivist">
-    <template #header>
+    <template v-if="$device.isMobile" #header>
       <UDashboardNavbar title="Why choose Keebdex" />
     </template>
 
     <template #body>
-      <UPageCard
-        class="max-w-7xl mx-auto"
+      <UPageSection
         title="Why choose Keebdex"
         description="Whether you're a seasoned collector or just starting out, Keebdex offers the best tools for organizing, syncing, and sharing your artisan keycap collection."
       >
-        <UPricingTable :tiers="tiers" :sections="sections" />
-      </UPageCard>
+        <UPageCard>
+          <UPricingTable :tiers="tiers" :sections="sections" />
+        </UPageCard>
+      </UPageSection>
     </template>
   </UDashboardPanel>
 </template>

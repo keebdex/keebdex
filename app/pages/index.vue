@@ -12,11 +12,12 @@
           {
             label: 'Why choose Keebdex',
             to: '/why-choose-keebdex',
-            icon: 'hugeicons:rocket-01',
+            icon: 'solar:rocket-bold-duotone',
             color: 'primary',
           },
         ]"
         :ui="{
+          container: 'py-12 sm:py-16 lg:py-20',
           title:
             'bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text',
         }"

@@ -3,7 +3,12 @@
     <template #header>
       <UDashboardNavbar title="My Collections">
         <template #right>
-          <UTabs v-model="category" :items="categories" :content="false" />
+          <UTabs
+            v-if="$device.isDesktopOrTablet"
+            v-model="category"
+            :items="categories"
+            :content="false"
+          />
 
           <UModal v-model:visible="visible" title="Add Collection">
             <UButton
@@ -20,6 +25,15 @@
           </UModal>
         </template>
       </UDashboardNavbar>
+
+      <UDashboardToolbar v-if="$device.isMobile">
+        <UTabs
+          v-model="category"
+          :items="categories"
+          :content="false"
+          class="w-full"
+        />
+      </UDashboardToolbar>
     </template>
 
     <template #body>
