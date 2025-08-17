@@ -114,7 +114,7 @@
       <UTextarea v-model.trim="maker.bio" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
@@ -189,7 +189,7 @@ const onSubmit = async () => {
 
   const makerId = isEdit ? rest.id : slugify(maker.value.name, { lower: true })
 
-  $fetch(`/api/makers/${makerId}`, {
+  await $fetch(`/api/makers/${makerId}`, {
     method: 'post',
     body: {
       ...rest,

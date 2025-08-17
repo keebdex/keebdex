@@ -78,7 +78,7 @@
       <UInput v-model="collection.message" type="contact" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 

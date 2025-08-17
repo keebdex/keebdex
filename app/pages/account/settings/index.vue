@@ -51,7 +51,7 @@
         />
       </UFormField>
 
-      <UButton block color="primary" type="submit"> Save </UButton>
+      <UButton block color="primary" type="submit" loading-auto> Save </UButton>
     </UForm>
   </UPageCard>
 </template>
@@ -62,10 +62,8 @@ const { user, social } = storeToRefs(userStore)
 
 const toast = useToast()
 
-const loading = ref(false)
-const onSubmit = () => {
-  loading.value = true
-  $fetch(`/api/users/${user.value.uid}`, {
+const onSubmit = async () => {
+  await $fetch(`/api/users/${user.value.uid}`, {
     method: 'post',
     body: social.value,
   })
@@ -74,11 +72,9 @@ const onSubmit = () => {
         color: 'success',
         title: 'Your profile has been updated.',
       })
-      loading.value = false
     })
     .catch((error) => {
       toast.add({ color: 'error', title: error.message })
-      loading.value = false
     })
 }
 

@@ -38,7 +38,7 @@
       <UCheckbox v-model="kit.cancelled" label="Cancelled" />
     </UFormField>
 
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
@@ -103,7 +103,7 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
-  $fetch(`/api/keycaps/${kit.value.profile_keycap_id}/kits`, {
+  await $fetch(`/api/keycaps/${kit.value.profile_keycap_id}/kits`, {
     method: 'post',
     body: kit.value,
   })

@@ -48,7 +48,7 @@ const features = ref([
       'Create unlimited collections, mark items as sold/done, move them between collections, and keep everything organized without limits.',
   },
   {
-    icon: 'solar:share-bold-duotone',
+    icon: 'solar:share-circle-bold-duotone',
     title: 'Shareable Wishlists',
     description:
       'Generate stunning wishlist images to easily share your dream setups with the community.',

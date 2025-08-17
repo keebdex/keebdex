@@ -40,7 +40,7 @@
       <UTextarea v-model.trim="sculpt.story" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
@@ -96,10 +96,13 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
-  $fetch(`/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`, {
-    method: 'post',
-    body: sculpt.value,
-  })
+  await $fetch(
+    `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
+    {
+      method: 'post',
+      body: sculpt.value,
+    },
+  )
     .then(() => {
       if (isEdit) {
         toast.add({

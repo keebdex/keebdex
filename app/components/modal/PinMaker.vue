@@ -12,7 +12,7 @@
       />
     </UFormField>
 
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
@@ -40,14 +40,14 @@ const schema = z.object({
   makers: z.string().array().max(6),
 })
 
-const onSubmit = () => {
+const onSubmit = async () => {
   const data = initial.value.makers.reduce((out, id) => {
     out[id] = favorites.value[id] || []
 
     return out
   }, {})
 
-  $fetch(`/api/users/${user.value.uid}`, {
+  await $fetch(`/api/users/${user.value.uid}`, {
     method: 'post',
     body: {
       favorite_makers: data,

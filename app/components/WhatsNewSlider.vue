@@ -2,6 +2,7 @@
   <UPageList v-if="makers.length">
     <USeparator
       label="Fresh Artisan Drops"
+      type="dashed"
       :ui="{ label: 'font-bold text-md' }"
     />
     <UPageCard
@@ -33,7 +34,11 @@
   </UPageList>
 
   <UPageList v-if="keycaps.length">
-    <USeparator label="Live Keycap Sets" :ui="{ label: 'font-bold text-md' }" />
+    <USeparator
+      label="Live Keycap Sets"
+      type="dashed"
+      :ui="{ label: 'font-bold text-md' }"
+    />
     <UPageCard
       v-for="(keycap, idx) in keycaps"
       :key="idx"

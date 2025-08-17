@@ -38,8 +38,16 @@
         <USlideover
           title="Latest Drops"
           description="Welcome to today's drop! Dive into the newest keycap sets now live, and snag our latest artisan creations. Check out what's available for preorder and group buy!"
+          :ui="{
+            header: 'border-none',
+            body: '!px-0',
+          }"
         >
-          <UButton label="What's New" icon="hugeicons:party" color="success" />
+          <UButton
+            label="What's New"
+            icon="solar:confetti-bold-duotone"
+            color="info"
+          />
 
           <template #body>
             <WhatsNewSlider :makers="data.makers" :keycaps="data.keycaps" />

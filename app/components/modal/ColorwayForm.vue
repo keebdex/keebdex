@@ -85,7 +85,7 @@
         }"
       />
     </UFormField>
-    <UButton block color="primary" type="submit"> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
@@ -165,7 +165,7 @@ async function fetchFileFromUrl(url, filename) {
 }
 
 const onSubmit = async () => {
-  $fetch(
+  await $fetch(
     `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
     {
       method: 'post',
