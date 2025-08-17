@@ -6,16 +6,27 @@
 
     <template #body>
       <UPageSection
-        title="About Keebdex"
-        :description="$config.app.description"
+        title="All-in-one Platform for Collectors"
+        :description="description"
         icon="solar:palette-bold-duotone"
         :features="features"
+        :links="[
+          {
+            label: 'Why choose Keebdex?',
+            to: '/why-choose-keebdex',
+            icon: 'solar:stars-bold-duotone',
+            color: 'primary',
+          },
+        ]"
       />
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
+const description =
+  'Discover features designed to help you track collections, follow makers, and share your wishlist.'
+
 const features = ref([
   {
     icon: 'solar:database-bold-duotone',
@@ -60,4 +71,9 @@ const features = ref([
       'Connect buyers and sellers directly through shared wishlists and dedicated tools designed for the artisan trading community.',
   },
 ])
+
+useSeoMeta({
+  title: 'About',
+  description,
+})
 </script>

@@ -203,6 +203,12 @@ const links = computed(() => [
       active: route.path === '/about',
     },
     {
+      label: 'Updates',
+      icon: 'hugeicons:megaphone-02',
+      to: '/changelog',
+      active: route.path === '/changelog',
+    },
+    {
       label: 'Donate',
       icon: 'hugeicons:paypal',
       to: config.public.donate,

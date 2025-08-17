@@ -10,9 +10,9 @@
         :description="$config.app.description"
         :links="[
           {
-            label: 'Why choose Keebdex',
-            to: '/why-choose-keebdex',
-            icon: 'solar:rocket-bold-duotone',
+            label: 'Learn More',
+            to: '/about',
+            icon: 'solar:telescope-bold-duotone',
             color: 'primary',
           },
         ]"

@@ -56,6 +56,6 @@ export default defineNuxtConfig({
   routeRules: {
     // pages generated on demand once until next deployment, cached on CDN
     '/about': { isr: true },
-    '/policy': { isr: true },
+    '/privacy': { isr: true },
   },
 })

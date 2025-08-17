@@ -74,5 +74,10 @@ export default defineAppConfig({
         description: 'text-md text-justify',
       },
     },
+    pageSection: {
+      slots: {
+        container: 'py-8 sm:py-12 lg:py-16',
+      },
+    },
   },
 })

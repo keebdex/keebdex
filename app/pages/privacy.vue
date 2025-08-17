@@ -1,13 +1,13 @@
 <template>
   <UDashboardPanel id="policy">
     <template v-if="$device.isMobile" #header>
-      <UDashboardNavbar title="Privacy Policy" />
+      <UDashboardNavbar :title="title" />
     </template>
 
     <template #body>
       <UPageSection
-        title="Privacy Policy"
-        icon="solar:shield-keyhole-bold-duotone"
+        :title="title"
+        icon="solar:shield-check-bold-duotone"
         :features="policies"
       >
         <template #description>
@@ -47,4 +47,7 @@ const policies = [
     icon: 'solar:check-circle-bold-duotone',
   },
 ]
+
+const title = 'Privacy Policy'
+useSeoMeta({ title })
 </script>

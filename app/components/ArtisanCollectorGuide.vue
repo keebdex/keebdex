@@ -1,9 +1,5 @@
 <template>
-  <UPageSection
-    title="ArtisanCollector's Guides"
-    :features="features"
-    :ui="{ container: 'py-8 sm:py-12 lg:py-16' }"
-  />
+  <UPageSection title="ArtisanCollector's Guides" :features="features" />
 </template>
 
 <script setup>
