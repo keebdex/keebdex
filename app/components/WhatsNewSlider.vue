@@ -25,7 +25,10 @@
             alt: maker.name,
             ui: {
               root: 'rounded-none bg-transparent',
-              image: $colorMode.value === 'dark' && 'invert',
+              image:
+                maker.invertible_logo &&
+                $colorMode.value === 'dark' &&
+                'invert',
             },
           }"
         />

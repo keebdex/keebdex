@@ -42,7 +42,7 @@
       <UBadge
         v-if="colorway.sale_type === 'Auction'"
         label="Auction"
-        icon="hugeicons:auction"
+        icon="hugeicons:charity"
         color="warning"
       />
       <UBadge

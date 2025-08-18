@@ -50,7 +50,7 @@ const links = sculpt.href
   : []
 
 const sort = ref('order|desc')
-const sortIcon = ref('hugeicons:sort-by-down-01')
+const sortIcon = ref('hugeicons:sorting-1-9')
 
 const sortOptions = computed(() => [
   {
@@ -71,18 +71,18 @@ const sortOptions = computed(() => [
   },
   {
     label: 'Oldest First',
-    icon: 'hugeicons:sort-by-up-01',
+    icon: 'hugeicons:sorting-9-1',
     value: 'order|asc',
     onSelect: () => {
-      sortIcon.value = 'hugeicons:sort-by-up-01'
+      sortIcon.value = 'hugeicons:sorting-9-1'
     },
   },
   {
     label: 'Newest First',
-    icon: 'hugeicons:sort-by-down-01',
+    icon: 'hugeicons:sorting-1-9',
     value: 'order|desc',
     onSelect: () => {
-      sortIcon.value = 'hugeicons:sort-by-down-01'
+      sortIcon.value = 'hugeicons:sorting-1-9'
     },
   },
 ])

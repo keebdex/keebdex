@@ -135,6 +135,7 @@
 </template>
 
 <script setup>
+const colorMode = useColorMode()
 const route = useRoute()
 const toast = useToast()
 
@@ -187,6 +188,12 @@ const breadcrumbs = computed(() => {
       avatar: {
         src: `/logo/${sculpt.value.maker_id}.png`,
         alt: sculpt.value.maker_name,
+        ui: {
+          image:
+            sculpt.value.invertible_logo && colorMode.value === 'dark'
+              ? 'rounded-none invert'
+              : 'rounded-none',
+        },
       },
     },
     {

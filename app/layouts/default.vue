@@ -106,7 +106,7 @@ const routes = computed(() => {
     [
       {
         label: 'Makers',
-        icon: 'hugeicons:user-group',
+        icon: 'hugeicons:user-group-03',
         to: '/artisan/maker',
         active: route.path.startsWith('/artisan/maker'),
       },

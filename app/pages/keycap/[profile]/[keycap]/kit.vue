@@ -42,7 +42,7 @@
             <UModal v-model:visible="visible" title="Edit Kit">
               <UButton
                 label="Edit"
-                icon="hugeicons:node-edit"
+                icon="hugeicons:dashboard-square-edit"
                 size="sm"
                 @click="setSelectedKit(row.original)"
               />
