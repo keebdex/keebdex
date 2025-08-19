@@ -1,88 +1,100 @@
 <template>
-  <UPageList v-if="makers.length">
-    <USeparator
-      label="Fresh Artisan Drops"
-      type="dashed"
-      :ui="{ label: 'font-bold text-md' }"
+  <USlideover
+    title="Latest Drops"
+    description="Welcome to today's drop! Dive into the newest keycap sets now live, and snag our latest artisan creations. Check out what's available for preorder and group buy!"
+    :ui="{
+      header: 'border-none',
+      body: '!px-0',
+    }"
+  >
+    <UButton
+      label="What's New"
+      icon="solar:confetti-bold-duotone"
+      color="info"
     />
-    <UPageCard
-      v-for="(maker, index) in makers"
-      :key="index"
-      variant="ghost"
-      :to="`/artisan/maker/${maker.id}`"
-    >
-      <template #body>
-        <UUser
-          :name="maker.name"
-          :description="
-            maker.additions === 1
-              ? '1 addition'
-              : `${maker.additions} additions`
-          "
-          size="lg"
-          :avatar="{
-            src: `/logo/${maker.id}.png`,
-            alt: maker.name,
-            ui: {
-              root: 'rounded-none bg-transparent',
-              image:
-                maker.invertible_logo &&
-                $colorMode.value === 'dark' &&
-                'invert',
-            },
-          }"
-        />
-      </template>
-    </UPageCard>
-  </UPageList>
 
-  <UPageList v-if="keycaps.length">
-    <USeparator
-      label="Live Keycap Sets"
-      type="dashed"
-      :ui="{ label: 'font-bold text-md' }"
-    />
-    <UPageCard
-      v-for="(keycap, idx) in keycaps"
-      :key="idx"
-      variant="ghost"
-      :to="`/keycap/${keycap.profile_keycap_id}`"
-    >
-      <template #body>
-        <UUser
-          :name="`${keycap.profile.name} ${keycap.name}`"
-          :description="formatDateRange(keycap.start_date, keycap.end_date)"
-          size="lg"
-          :avatar="{
-            src: `/logo/${keycap.profile_id}.png`,
-            alt: `${keycap.profile.name} ${keycap.name}`,
-            ui: {
-              root: 'rounded-none bg-transparent',
-              image: $colorMode.value === 'dark' && 'invert',
-            },
-          }"
+    <template #body>
+      <UPageList v-if="data.makers.length">
+        <USeparator
+          label="Fresh Artisan Drops"
+          type="dashed"
+          :ui="{ label: 'font-bold text-md' }"
         />
-      </template>
-    </UPageCard>
-  </UPageList>
+        <UPageCard
+          v-for="(maker, index) in data.makers"
+          :key="index"
+          variant="ghost"
+          :to="`/artisan/maker/${maker.id}`"
+        >
+          <template #body>
+            <UUser
+              :name="maker.name"
+              :description="
+                maker.additions === 1
+                  ? '1 addition'
+                  : `${maker.additions} additions`
+              "
+              size="lg"
+              :avatar="{
+                src: `/logo/${maker.id}.png`,
+                alt: maker.name,
+                ui: {
+                  root: 'rounded-none bg-transparent',
+                  image:
+                    maker.invertible_logo &&
+                    $colorMode.value === 'dark' &&
+                    'invert',
+                },
+              }"
+            />
+          </template>
+        </UPageCard>
+      </UPageList>
 
-  <UPageSection
-    v-if="!makers.length && !keycaps.length"
-    title="Quiet on the Keycap Front"
-    description="No artisan or set updates today. The next wave of caps is just around the corner — stay tuned."
-    icon="hugeicons:silence"
-  />
+      <UPageList v-if="data.keycaps.length">
+        <USeparator
+          label="Live Keycap Sets"
+          type="dashed"
+          :ui="{ label: 'font-bold text-md' }"
+        />
+        <UPageCard
+          v-for="(keycap, idx) in data.keycaps"
+          :key="idx"
+          variant="ghost"
+          :to="`/keycap/${keycap.profile_keycap_id}`"
+        >
+          <template #body>
+            <UUser
+              :name="`${keycap.profile.name} ${keycap.name}`"
+              :description="formatDateRange(keycap.start_date, keycap.end_date)"
+              size="lg"
+              :avatar="{
+                src: `/logo/${keycap.profile_id}.png`,
+                alt: `${keycap.profile.name} ${keycap.name}`,
+                ui: {
+                  root: 'rounded-none bg-transparent',
+                  image: $colorMode.value === 'dark' && 'invert',
+                },
+              }"
+            />
+          </template>
+        </UPageCard>
+      </UPageList>
+
+      <UPageSection
+        v-if="!total"
+        title="Quiet on the Keycap Front"
+        description="No artisan or set updates today. The next wave of caps is just around the corner — stay tuned."
+        icon="hugeicons:silence"
+      />
+    </template>
+  </USlideover>
 </template>
 
 <script setup>
-const { makers, keycaps } = defineProps({
-  makers: {
-    type: Array,
-    default: () => [],
-  },
-  keycaps: {
-    type: Array,
-    default: () => [],
-  },
-})
+const { data } = await useAsyncData(() => $fetch('/api/statistics'))
+
+const total = computed(
+  () => data.value.makers.length + data.value.keycaps.length,
+)
 </script>

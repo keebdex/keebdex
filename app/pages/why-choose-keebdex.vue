@@ -1,14 +1,11 @@
 <template>
-  <UDashboardPanel id="keebdex-vs-archivist">
+  <UDashboardPanel id="why-choose-keebdex">
     <template v-if="$device.isMobile" #header>
       <UDashboardNavbar :title="title" />
     </template>
 
     <template #body>
-      <UPageSection
-        :title="title"
-        description="Whether you're a seasoned collector or just starting out, Keebdex offers the best tools for organizing, syncing, and sharing your artisan keycap collection."
-      >
+      <UPageSection :title="title" :description="description">
         <UPageCard>
           <UPricingTable
             :tiers="tiers"
@@ -31,7 +28,7 @@ const tiers = ref([
     highlight: true,
     button: {
       label: 'Start Exploring',
-      icon: 'solar:palette-bold-duotone',
+      icon: 'solar:telescope-bold-duotone',
       variant: 'subtle',
       color: 'primary',
       to: '/',
@@ -127,9 +124,11 @@ const sections = ref([
 ])
 
 const title = 'Why choose Keebdex'
+const description =
+  "Whether you're a seasoned collector or just starting out, Keebdex gives you powerful tools to organize, sync, and share your entire keyboard collection."
+
 useSeoMeta({
   title,
-  description:
-    'Explore what makes Keebdex the better choice for keycap collectors.',
+  description,
 })
 </script>

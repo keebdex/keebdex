@@ -175,15 +175,15 @@ import sortBy from 'lodash.sortby'
 const toast = useToast()
 
 const sort = ref('artisan.maker_sculpt_id|artisan.name')
-const sortIcon = ref('hugeicons:sorting-1-9')
+const sortIcon = ref('hugeicons:sorting-a-z-02')
 
 const sortOptions = computed(() => [
   {
     label: 'Oldest First',
-    icon: 'hugeicons:sorting-9-1',
+    icon: 'hugeicons:sorting-1-9',
     value: 'order|asc',
     onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-9-1'
+      sortIcon.value = 'hugeicons:sorting-1-9'
     },
   },
   {

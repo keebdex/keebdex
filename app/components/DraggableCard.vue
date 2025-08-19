@@ -32,12 +32,12 @@
         >
           <UIcon
             v-if="buying"
-            name="hugeicons:shopping-cart-check-02"
+            name="hugeicons:shopping-bag-check"
             class="text-success text-9xl"
           />
           <UIcon
             v-else
-            name="hugeicons:shopping-cart-remove-02"
+            name="hugeicons:unavailable"
             class="text-error text-9xl"
           />
         </span>

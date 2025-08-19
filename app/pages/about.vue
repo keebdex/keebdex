@@ -6,6 +6,7 @@
 
     <template #body>
       <UPageSection
+        headline="Built for collectors, designed for sharing"
         title="All-in-one Platform for Collectors"
         :description="description"
         icon="solar:palette-bold-duotone"
@@ -14,7 +15,7 @@
           {
             label: 'Why choose Keebdex?',
             to: '/why-choose-keebdex',
-            icon: 'solar:stars-bold-duotone',
+            icon: 'solar:star-fall-bold-duotone',
             color: 'primary',
           },
         ]"
@@ -25,7 +26,7 @@
 
 <script setup>
 const description =
-  'Discover features designed to help you track collections, follow makers, and share your wishlist.'
+  'Keebdex makes it easy to manage artisan keycaps, keycap sets, and keyboard gear — with tools for syncing, organizing, and trading.'
 
 const features = ref([
   {
@@ -35,7 +36,7 @@ const features = ref([
       'Say goodbye to the limitations of Google Docs. Our robust database ensures seamless organization and easy access to your keycap collection, with optional legacy sync for makers still using Docs.',
   },
   {
-    icon: 'solar:palette-bold-duotone',
+    icon: 'solar:stars-bold-duotone',
     title: 'Modern UI Design',
     description:
       'Immerse yourself in a sleek, intuitive interface built with the latest tech (Nuxt UI), prioritizing user experience.',
@@ -53,7 +54,7 @@ const features = ref([
       'Keep your data synchronized across devices so your collection is always at your fingertips.',
   },
   {
-    icon: 'solar:folder-favourite-star-bold-duotone',
+    icon: 'solar:bookmark-square-bold-duotone',
     title: 'Rich Collection Features',
     description:
       'Create unlimited collections, mark items as sold/done, move them between collections, and keep everything organized without limits.',

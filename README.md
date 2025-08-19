@@ -1,6 +1,6 @@
 # Keebdex
 
-**Driven by a passion for artisan keycaps and mechanical keyboards, Keebdex is a modern, user-friendly platform designed to revolutionize how enthusiasts manage, discover, and collect everything keyboard-related.**
+**Keebdex is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.**
 
 # Development
 

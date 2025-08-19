@@ -46,11 +46,12 @@
           :title="collection.name"
           :description="`${collection.total_items} items`"
           :icon="
-            collection.published
-              ? 'i-hugeicons-global-search'
-              : 'i-hugeicons-square-lock-02'
+            collection.published ? 'hugeicons:face-id' : 'hugeicons:locked'
           "
           variant="subtle"
+          :ui="{
+            leadingIcon: !collection.published && 'text-dimmed',
+          }"
         />
       </UPageGrid>
     </template>

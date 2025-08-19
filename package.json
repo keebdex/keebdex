@@ -2,7 +2,7 @@
   "name": "keebdex",
   "displayName": "Keebdex",
   "version": "2.1.0",
-  "description": "Driven by a passion for artisan keycaps and mechanical keyboards, Keebdex is a modern, user-friendly platform designed to revolutionize how enthusiasts manage, discover, and collect everything keyboard-related.",
+  "description": "Keebdex is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.",
   "private": true,
   "repository": {
     "type": "git",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@iconify-json/hugeicons": "^1.2.11",
+    "@iconify-json/hugeicons": "^1.2.12",
     "@iconify-json/solar": "^1.2.4",
     "@nuxt/eslint": "^1.9.0",
     "@nuxt/image": "^1.11.0",

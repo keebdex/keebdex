@@ -36,19 +36,15 @@ const login = async (provider) => {
 
 const providers = ref([
   {
-    label: 'Google',
+    label: 'Continue with Google',
     icon: 'simple-icons:google',
-    color: 'neutral',
-    variant: 'subtle',
     onclick: () => {
       login('google')
     },
   },
   {
-    label: 'Discord',
+    label: 'Continue with Discord',
     icon: 'simple-icons:discord',
-    color: 'neutral',
-    variant: 'subtle',
     onclick: () => {
       login('discord')
     },
