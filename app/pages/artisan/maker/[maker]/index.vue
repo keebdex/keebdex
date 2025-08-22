@@ -95,7 +95,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
-      icon: 'hugeicons:user-group',
+      icon: 'hugeicons:user-group-03',
       to: '/artisan/maker',
     },
     {

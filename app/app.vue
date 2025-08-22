@@ -1,5 +1,7 @@
 <template>
   <UApp>
+    <Analytics />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -7,6 +9,7 @@
 </template>
 
 <script setup>
+import { Analytics } from '@vercel/analytics/nuxt'
 import { useUserStore } from './stores/user'
 import 'flag-icons/css/flag-icons.min.css'
 

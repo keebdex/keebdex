@@ -72,12 +72,12 @@ const { authenticated, social } = storeToRefs(userStore)
 const tradingConfig = useState('trading-config', () => {
   return {
     selling: {
-      collection: '',
+      collection: undefined,
       title: '',
       placeholder: 'For sale',
     },
     buying: {
-      collection: '',
+      collection: undefined,
       title: '',
       placeholder: 'Looking for',
     },
@@ -89,12 +89,12 @@ const tradingConfig = useState('trading-config', () => {
 
 const resetTradingState = () => {
   tradingConfig.value.buying = {
-    collection: '',
+    collection: undefined,
     title: '',
     placeholder: 'Looking for',
   }
   tradingConfig.value.selling = {
-    collection: '',
+    collection: undefined,
     title: '',
     placeholder: 'For sale',
   }

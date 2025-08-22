@@ -65,19 +65,20 @@ export const copyScreenshot = async (
   toast: any,
   openInNewTab: boolean,
 ) => {
-  const blob = await domToBlob(element)
+  // capture with full scroll size
+  const blob = await domToBlob(element, {
+    width: element.scrollWidth,
+    height: element.scrollHeight,
+  })
 
   try {
     if (blob) {
       if (openInNewTab) {
         open(URL.createObjectURL(blob))
       } else {
-        const clipItem = new ClipboardItem(
-          Object.defineProperty({}, blob.type, {
-            value: blob,
-            enumerable: true,
-          }),
-        )
+        const clipItem = new ClipboardItem({
+          [blob.type]: blob,
+        })
         await navigator.clipboard.write([clipItem])
 
         toast.add({
@@ -96,7 +97,7 @@ export const copyScreenshot = async (
     console.error('Error while saving image to clipboard', error)
 
     if (blob) {
-      if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+      if (navigator.userAgent.toLowerCase().includes('firefox')) {
         toast.add({
           severity: 'info',
           title: 'Firefox Configuration',
@@ -124,7 +125,12 @@ export const copyScreenshot = async (
 }
 
 export const downloadScreenshot = async (element: HTMLElement) => {
-  const img = await domToPng(element)
+  // capture with full scroll size
+  const img = await domToPng(element, {
+    width: element.scrollWidth,
+    height: element.scrollHeight,
+  })
+
   const link = document.createElement('a')
   link.download = 'trading.png'
   link.href = img

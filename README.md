@@ -1,46 +1,15 @@
 # Keebdex
 
-**Keebdex is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.**
+**Keebdex** is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.
 
-# Development
+**Visit the live site: [keebdex.org](https://keebdex.org)**
 
-Look at the [nuxt 3 documentation](https://nuxt.com/) to learn more.
+## Key Features
 
-## Setup
+- **Discover:** Browse a vast and growing database of artisan keycaps, keycap sets, and other keyboard-related items.
+- **Manage:** Keep track of your keyboard collection, wishlists, and favorite items in one place.
+- **Collect:** Stay up-to-date with the latest releases and never miss a group buy or limited edition item again.
 
-Make sure to install the dependencies:
+## License
 
-```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install --shamefully-hoist
-```
-
-## Development Server
-
-Start the development server on http://localhost:3000
-
-```bash
-npm run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Checkout the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+This project is distributed under the **MIT License**. See the `LICENSE` file for more information.

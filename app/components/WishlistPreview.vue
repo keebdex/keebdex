@@ -71,6 +71,19 @@
           </UPageGrid>
 
           <UAlert
+            v-if="buyingItems.length + sellingItems.length >= 24 && !copying"
+            icon="hugeicons:information-circle"
+            variant="subtle"
+            color="info"
+            class="mt-4"
+          >
+            <template #description>
+              For optimal image display, it's <strong>recommended</strong> to
+              keep your wishlist between 16-24 items.
+            </template>
+          </UAlert>
+
+          <UAlert
             v-if="tradingCfg.fnf_only"
             icon="hugeicons:alert-02"
             title="No PayPal Buyer Protection"
@@ -142,6 +155,7 @@
 </template>
 
 <script setup>
+import { UAlert } from '#components'
 import groupBy from 'lodash.groupby'
 
 const toast = useToast()

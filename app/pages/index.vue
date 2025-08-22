@@ -8,7 +8,6 @@
       <UPageHero
         :title="`Welcome to ${$config.app.name}`"
         :description="$config.app.description"
-        headline="The all-in-one hub for keyboard collectors — from artisan keycaps to full sets and beyond."
         :links="[
           {
             label: 'Discover Keebdex',
