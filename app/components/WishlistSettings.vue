@@ -88,6 +88,19 @@
         label="I do not accept PayPal G&S"
       />
     </UFormField>
+
+    <UButton
+      v-if="$device.isMobile"
+      block
+      icon="hugeicons:sidebar-right"
+      @click="
+        () => {
+          showPreview = true
+        }
+      "
+    >
+      Preview
+    </UButton>
   </UForm>
 </template>
 
@@ -110,4 +123,6 @@ watch(trading, () => {
     tradingConfig.value.selling.placeholder = 'For sale or trade'
   }
 })
+
+const showPreview = useState('wishlist-preview', () => false)
 </script>

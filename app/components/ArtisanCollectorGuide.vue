@@ -10,7 +10,7 @@ const features = [
       'An overview of the Artisan Collector guides and recommended reading sequence for newcomers',
     to: 'https://artisancollector.com/guides/start/',
     target: '_blank',
-    icon: 'solar:book-bookmark-bold-duotone',
+    icon: 'solar:map-bold-duotone',
   },
   {
     title: 'What are Artisan Keycaps?',
@@ -18,7 +18,7 @@ const features = [
       'The fundamentals of artisan keycaps, the various stems, profiles, types, how they are typically made, and where to learn more',
     to: 'https://artisancollector.com/guides/what-are-artisan-keycaps/',
     target: '_blank',
-    icon: 'solar:map-bold-duotone',
+    icon: 'solar:point-on-map-bold-duotone',
   },
   {
     title: 'Collecting Artisans: Retail Sales',

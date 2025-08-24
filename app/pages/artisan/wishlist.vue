@@ -48,6 +48,20 @@
     </template>
   </UPageSection>
 
+  <ClientOnly>
+    <USlideover v-if="$device.isMobile" v-model:open="showPreview">
+      <template #content>
+        <WishlistPreview
+          @close="
+            () => {
+              showPreview = false
+            }
+          "
+        />
+      </template>
+    </USlideover>
+  </ClientOnly>
+
   <UModal v-model:open="visible">
     <template #content>
       <UPageCard>
@@ -86,6 +100,8 @@ const tradingConfig = useState('trading-config', () => {
     fnf_only: false,
   }
 })
+
+const showPreview = useState('wishlist-preview')
 
 const resetTradingState = () => {
   tradingConfig.value.buying = {

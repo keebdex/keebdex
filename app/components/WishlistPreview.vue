@@ -4,8 +4,18 @@
     :ui="{ body: 'trading-preview bg-(--ui-bg)' }"
   >
     <template #header>
-      <UDashboardNavbar title="Wishlist Preview">
-        <template #right>
+      <UDashboardNavbar title="Preview" :toggle="false">
+        <template v-if="$device.isMobile" #leading>
+          <UButton
+            icon="hugeicons:cancel-01"
+            color="neutral"
+            variant="ghost"
+            class="-ms-1.5"
+            @click="emit('close')"
+          />
+        </template>
+
+        <template v-if="!$device.isMobile" #right>
           <UButton icon="hugeicons:clipboard" @click="copyToClipboard">
             Copy Text
           </UButton>
@@ -17,9 +27,34 @@
           </UButton>
         </template>
       </UDashboardNavbar>
+
+      <UDashboardToolbar v-if="$device.isMobile">
+        <UButton block icon="hugeicons:clipboard" @click="copyToClipboard">
+          Copy Text
+        </UButton>
+        <UButton block icon="hugeicons:album-01" @click="screenshot(false)">
+          Copy Image
+        </UButton>
+        <UButton
+          block
+          icon="hugeicons:image-download-02"
+          @click="screenshot(true)"
+        >
+          Save
+        </UButton>
+      </UDashboardToolbar>
     </template>
 
     <template #body>
+      <UPage v-if="$device.isMobile && !copying">
+        <UAlert
+          title="Actions may not work as expected on mobile devices."
+          icon="hugeicons:alert-02"
+          variant="soft"
+          color="warning"
+        />
+      </UPage>
+
       <UPageHeader
         title="Information"
         :ui="{
@@ -155,8 +190,9 @@
 </template>
 
 <script setup>
-import { UAlert } from '#components'
 import groupBy from 'lodash.groupby'
+
+const emit = defineEmits(['close'])
 
 const toast = useToast()
 

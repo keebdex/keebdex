@@ -14,7 +14,7 @@
             <UButton
               v-if="authenticated"
               color="primary"
-              icon="hugeicons:bookmark-add-02"
+              icon="hugeicons:bookmark-add-01"
             >
               Add
             </UButton>

@@ -32,13 +32,14 @@
   "dependencies": {
     "@pinia/nuxt": "^0.11.2",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "crc": "4.3.2",
     "flag-icons": "^7.5.0",
     "modern-screenshot": "^4.6.6",
     "pinia": "^3.0.3",
     "slugify": "^1.6.6",
     "vuedraggable": "^4.1.0",
-    "zod": "^4.0.17"
+    "zod": "^4.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -49,13 +50,13 @@
     "@nuxt/image": "^1.11.0",
     "@nuxt/ui": "4.0.0-alpha.0",
     "@nuxtjs/device": "^3.2.4",
-    "@nuxtjs/supabase": "1.6.0",
+    "@nuxtjs/supabase": "1.6.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
     "@types/lodash.omit": "^4.5.9",
     "@types/lodash.sortby": "^4.7.9",
-    "eslint": "^9.33.0",
+    "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-vue": "^10.4.0",

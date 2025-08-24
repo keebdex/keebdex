@@ -38,7 +38,7 @@
             <UButton
               v-if="user.email_verified"
               label="Delete"
-              icon="hugeicons:bookmark-remove-02"
+              icon="hugeicons:bookmark-remove-01"
               color="error"
             />
 

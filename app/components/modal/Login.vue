@@ -38,6 +38,8 @@ const providers = ref([
   {
     label: 'Continue with Google',
     icon: 'simple-icons:google',
+    variant: 'soft',
+    class: 'dark:hover:bg-google light:hover:text-google',
     onclick: () => {
       login('google')
     },
@@ -45,6 +47,8 @@ const providers = ref([
   {
     label: 'Continue with Discord',
     icon: 'simple-icons:discord',
+    variant: 'soft',
+    class: 'dark:hover:bg-discord light:hover:text-discord',
     onclick: () => {
       login('discord')
     },
