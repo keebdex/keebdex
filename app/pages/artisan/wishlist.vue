@@ -24,51 +24,15 @@
     <WishlistSettings class="p-4" />
   </UDashboardPanel>
 
-  <WishlistPreview
-    v-if="tradingConfig.buying.collection || tradingConfig.selling.collection"
-  />
-  <UPageSection
-    v-else
-    title="Wishlist Image Builder"
-    description="Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more."
-    icon="hugeicons:creative-market"
-    class="mx-auto"
-  >
-    <template v-if="!authenticated" #links>
-      <UButton
-        icon="hugeicons:login-03"
-        @click="
-          () => {
-            visible = true
-          }
-        "
-      >
-        Sign In to Continue
-      </UButton>
-    </template>
-  </UPageSection>
+  <WishlistPreview />
 
   <ClientOnly>
-    <USlideover v-if="$device.isMobile" v-model:open="showPreview">
+    <USlideover v-if="isMobileOrTablet" v-model:open="showPreview">
       <template #content>
-        <WishlistPreview
-          @close="
-            () => {
-              showPreview = false
-            }
-          "
-        />
+        <WishlistPreview @close="showPreview = false" />
       </template>
     </USlideover>
   </ClientOnly>
-
-  <UModal v-model:open="visible">
-    <template #content>
-      <UPageCard>
-        <ModalLogin />
-      </UPageCard>
-    </template>
-  </UModal>
 </template>
 
 <script setup>
@@ -78,8 +42,7 @@ useSeoMeta({
     'Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more.',
 })
 
-const visible = ref(false)
-
+const { isMobileOrTablet } = useDevice()
 const userStore = useUserStore()
 const { authenticated, social } = storeToRefs(userStore)
 

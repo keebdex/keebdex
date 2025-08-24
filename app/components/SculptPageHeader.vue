@@ -18,11 +18,7 @@
         :icon="sortIcon"
         variant="soft"
         :ui="{ content: 'min-w-fit' }"
-        @change="
-          () => {
-            emit('onSorting', sort)
-          }
-        "
+        @change="emit('onSorting', sort)"
       />
     </template>
   </UPageHeader>

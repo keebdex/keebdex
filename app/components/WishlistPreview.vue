@@ -1,11 +1,12 @@
 <template>
   <UDashboardPanel
+    v-if="totalItems"
     id="wishlist-preview"
     :ui="{ body: 'trading-preview bg-(--ui-bg)' }"
   >
     <template #header>
       <UDashboardNavbar title="Preview" :toggle="false">
-        <template v-if="$device.isMobile" #leading>
+        <template v-if="isMobile" #leading>
           <UButton
             icon="hugeicons:cancel-01"
             color="neutral"
@@ -15,7 +16,7 @@
           />
         </template>
 
-        <template v-if="!$device.isMobile" #right>
+        <template v-if="!isMobile" #right>
           <UButton icon="hugeicons:clipboard" @click="copyToClipboard">
             Copy Text
           </UButton>
@@ -28,7 +29,7 @@
         </template>
       </UDashboardNavbar>
 
-      <UDashboardToolbar v-if="$device.isMobile">
+      <UDashboardToolbar v-if="isMobile">
         <UButton block icon="hugeicons:clipboard" @click="copyToClipboard">
           Copy Text
         </UButton>
@@ -46,7 +47,7 @@
     </template>
 
     <template #body>
-      <UPage v-if="$device.isMobile && !copying">
+      <UPage v-if="isMobile && !copying">
         <UAlert
           title="Actions may not work as expected on mobile devices."
           icon="hugeicons:alert-02"
@@ -106,7 +107,7 @@
           </UPageGrid>
 
           <UAlert
-            v-if="buyingItems.length + sellingItems.length >= 24 && !copying"
+            v-if="totalItems >= 24 && !copying"
             icon="hugeicons:information-circle"
             variant="subtle"
             color="info"
@@ -187,6 +188,27 @@
       </USeparator>
     </template>
   </UDashboardPanel>
+  <UPageSection
+    v-else
+    title="Wishlist Image Builder"
+    description="Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more."
+    icon="hugeicons:creative-market"
+    class="mx-auto"
+  >
+    <template v-if="!authenticated" #links>
+      <UButton icon="hugeicons:login-03" @click="visible = true">
+        Sign In to Continue
+      </UButton>
+    </template>
+  </UPageSection>
+
+  <UModal v-model:open="visible">
+    <template #content>
+      <UPageCard>
+        <ModalLogin />
+      </UPageCard>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
@@ -194,15 +216,15 @@ import groupBy from 'lodash.groupby'
 
 const emit = defineEmits(['close'])
 
+const { isDesktop, isMobile } = useDevice()
 const toast = useToast()
-
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const tradingCfg = useState('trading-config')
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
-const { isDesktop } = useDevice()
+const visible = ref(false)
 
 const { data: collections, refresh } = await useAsyncData(
   () => $fetch(`/api/users/${user.value.uid}/collection-items`),
@@ -218,6 +240,10 @@ const buyingItems = computed(
 )
 const sellingItems = computed(
   () => collections.value[tradingCfg.value.selling.collection] || [],
+)
+
+const totalItems = computed(
+  () => buyingItems.value.length + sellingItems.value.length,
 )
 
 watch(authenticated, () => refresh())
@@ -241,6 +267,11 @@ const copying = ref(false)
 
 const screenshot = async (download = false) => {
   copying.value = true
+
+  // wait a sec to hide footer
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
 
   const card = document.getElementsByClassName('trading-preview')[0]
 

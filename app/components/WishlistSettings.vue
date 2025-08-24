@@ -90,14 +90,10 @@
     </UFormField>
 
     <UButton
-      v-if="$device.isMobile"
+      v-if="$device.isMobileOrTablet"
       block
       icon="hugeicons:sidebar-right"
-      @click="
-        () => {
-          showPreview = true
-        }
-      "
+      @click="showPreview = true"
     >
       Preview
     </UButton>

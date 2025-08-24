@@ -188,6 +188,11 @@ const links = computed(() => [
       icon: 'hugeicons:megaphone-02',
       to: '/changelog',
       active: route.path === '/changelog',
+      badge: {
+        label: 'New',
+        variant: 'subtle',
+        color: 'primary',
+      },
     },
     {
       label: 'Donate',
