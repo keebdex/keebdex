@@ -235,12 +235,15 @@ const { data: collections, refresh } = await useAsyncData(
   },
 )
 
-const buyingItems = computed(
-  () => collections.value[tradingCfg.value.buying.collection] || [],
-)
-const sellingItems = computed(
-  () => collections.value[tradingCfg.value.selling.collection] || [],
-)
+const buyingItems = ref([])
+const sellingItems = ref([])
+
+watchEffect(() => {
+  buyingItems.value =
+    collections.value[tradingCfg.value.buying.collection] || []
+  sellingItems.value =
+    collections.value[tradingCfg.value.selling.collection] || []
+})
 
 const totalItems = computed(
   () => buyingItems.value.length + sellingItems.value.length,
@@ -257,9 +260,12 @@ const changePriority = (itemId) => {
 }
 
 const remove = (item) => {
-  collections.value[item.collection_id] = collections.value[
-    item.collection_id
-  ].filter((c) => c.id !== item.id)
+  // Replace array → ensures Vue updates UI
+  if (item.collection_id === tradingCfg.value.buying.collection) {
+    buyingItems.value = buyingItems.value.filter((i) => i.id !== item.id)
+  } else if (item.collection_id === tradingCfg.value.selling.collection) {
+    sellingItems.value = sellingItems.value.filter((i) => i.id !== item.id)
+  }
 }
 
 const errorText = ref()

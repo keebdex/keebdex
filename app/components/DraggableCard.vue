@@ -1,6 +1,6 @@
 <template>
   <draggable
-    :list="wishlist"
+    :list="data"
     item-key="id"
     group="group"
     class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4"
@@ -69,12 +69,9 @@
 </template>
 
 <script setup>
-import sortBy from 'lodash.sortby'
 import draggable from 'vuedraggable'
 
 defineEmits(['onRemove', 'onHighlight'])
-
-const wishlist = ref([])
 
 const { data } = defineProps({
   data: {
@@ -85,15 +82,4 @@ const { data } = defineProps({
   buying: Boolean,
   selling: Boolean,
 })
-
-onBeforeMount(() => {
-  wishlist.value = sortBy(data, 'id')
-})
-
-watch(
-  () => data,
-  () => {
-    wishlist.value = sortBy(data, 'id')
-  },
-)
 </script>
