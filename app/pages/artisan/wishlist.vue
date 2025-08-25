@@ -3,9 +3,9 @@
   <UDashboardPanel
     v-if="authenticated"
     id="wishlist"
-    :default-size="25"
-    :min-size="20"
-    :max-size="30"
+    :default-size="20"
+    :min-size="15"
+    :max-size="25"
     resizable
   >
     <UDashboardNavbar title="Information">
