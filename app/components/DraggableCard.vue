@@ -17,6 +17,7 @@
             root: 'h-full',
             wrapper: 'flex-1',
           }"
+          variant="soft"
         >
           <div class="relative aspect-square overflow-hidden">
             <NuxtImg
@@ -51,6 +52,7 @@
                 v-if="buying"
                 :disabled="!item.exchange"
                 icon="hugeicons:shopping-bag-favorite"
+                :color="item.priority ? 'success' : 'neutral'"
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>

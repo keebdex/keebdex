@@ -61,6 +61,15 @@
         :ui="{
           root: 'border-none',
         }"
+        :links="[
+          {
+            label: 'Priority',
+            icon: 'hugeicons:highlighter',
+            color: 'primary',
+            variant: 'subtle',
+            disabled: true,
+          },
+        ]"
       >
         <template #description>
           <UPageGrid
@@ -170,7 +179,7 @@
         @on-remove="remove"
       />
 
-      <USeparator>
+      <USeparator class="mt-16">
         <UUser
           :name="`From ${$config.app.name} with love`"
           size="3xl"

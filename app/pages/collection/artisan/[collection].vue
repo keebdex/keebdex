@@ -81,8 +81,8 @@
 
       <UPageGrid>
         <UPageCard
-          v-for="{ id, exchange, artisan } in sortedCollections"
-          :key="id"
+          v-for="{ artisan, ...rest } in sortedCollections"
+          :key="rest.id"
           :title="artisan.name"
           :description="artisan?.sculpt.name"
           reverse
@@ -107,37 +107,46 @@
             <UButton
               icon="hugeicons:clean"
               color="warning"
-              @click="remove(id, artisan)"
+              @click="remove(rest.id, artisan)"
             >
               Clear Outdated
             </UButton>
           </template>
           <template v-else #footer>
+            <UTooltip text="Priority" :delay-duration="0">
+              <UButton
+                :disabled="!rest.exchange"
+                icon="hugeicons:shopping-bag-favorite"
+                :color="rest.priority ? 'success' : 'neutral'"
+                @click="changePriority({ ...rest, artisan })"
+              />
+            </UTooltip>
+
             <UTooltip text="Change Status" :delay-duration="0">
               <UButton
                 v-if="buying"
                 :icon="
-                  exchange
+                  rest.exchange
                     ? 'hugeicons:search-focus'
                     : 'hugeicons:bookmark-check-02'
                 "
-                :color="exchange ? 'neutral' : 'success'"
-                @click="changeExchangeStatus({ id, exchange, artisan })"
+                :color="rest.exchange ? 'neutral' : 'success'"
+                @click="changeExchangeStatus({ ...rest, artisan })"
               />
               <UButton
                 v-if="selling"
                 :icon="
-                  exchange
+                  rest.exchange
                     ? 'hugeicons:sale-tag-02'
                     : 'hugeicons:bookmark-block-02'
                 "
-                :color="exchange ? 'neutral' : 'warning'"
-                @click="changeExchangeStatus({ id, exchange, artisan })"
+                :color="rest.exchange ? 'neutral' : 'warning'"
+                @click="changeExchangeStatus({ ...rest, artisan })"
               />
             </UTooltip>
 
             <SaveToCollection
-              :item="{ id, artisan }"
+              :item="{ ...rest, artisan }"
               :move="true"
               icon="hugeicons:move"
               @on-select="moveTo"
@@ -158,7 +167,7 @@
                 <UButton
                   label="Remove"
                   color="error"
-                  @click="remove(id, artisan)"
+                  @click="remove(rest.id, artisan)"
                 />
               </template>
             </UModal>
@@ -258,6 +267,33 @@ const changeTo = (exchange) => {
   return exchange ? 'sold' : 'available'
 }
 
+const changePriority = (item) => {
+  const { id, priority, artisan } = item
+  const title = colorwayTitle(artisan)
+
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
+    { method: 'post', body: { priority: !priority } },
+  )
+    .then(() => {
+      refresh()
+      if (priority) {
+        toast.add({
+          color: 'success',
+          title: `${title} is no longer a priority.`,
+        })
+      } else {
+        toast.add({
+          color: 'success',
+          title: `${title} has been marked as priority!`,
+        })
+      }
+    })
+    .catch((error) => {
+      toast.add({ color: 'error', title: error.message })
+    })
+}
+
 const changeExchangeStatus = (item) => {
   const { id, exchange, artisan } = item
   const title = colorwayTitle(artisan)
@@ -302,21 +338,6 @@ const moveTo = (collection, item) => {
     .catch((error) => {
       toast.add({ color: 'error', title: error.message })
     })
-
-  // confirm.require({
-  //   header: 'Confirm to move artisan',
-  //   message: `Are you sure you want to move ${colorwayTitle(artisan)} to [${collection.name}] collection?`,
-  //   rejectProps: {
-  //     size: 'small',
-  //     label: 'Cancel',
-  //     severity: 'secondary',
-  //   },
-  //   acceptProps: {
-  //     size: 'small',
-  //     label: 'Move',
-  //   },
-  //   accept: () => {},
-  // })
 }
 
 const remove = (id, colorway) => {
