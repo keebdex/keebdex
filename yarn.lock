@@ -5,29 +5,28 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@ai-sdk/gateway@npm:1.0.12":
-  version: 1.0.12
-  resolution: "@ai-sdk/gateway@npm:1.0.12"
+"@ai-sdk/gateway@npm:1.0.13":
+  version: 1.0.13
+  resolution: "@ai-sdk/gateway@npm:1.0.13"
   dependencies:
     "@ai-sdk/provider": "npm:2.0.0"
-    "@ai-sdk/provider-utils": "npm:3.0.5"
+    "@ai-sdk/provider-utils": "npm:3.0.6"
   peerDependencies:
     zod: ^3.25.76 || ^4
-  checksum: 10c0/5a69bd4310987412b24b287a69eea6815bfc4de1c2f5fc2c54376d3bed5ced1f9a721e28446720ea74e5859b600cd0f0d991d2762c3141f525e1f410dece9506
+  checksum: 10c0/cfd655440d68e1e99204cdf3a4c30fcd9d9dd21d2b6851932584fc228617e9f844b0419c5b74e8e8ee9c00256b64e34c9346369cebe43f9c76e6f31203ca4b8c
   languageName: node
   linkType: hard
 
-"@ai-sdk/provider-utils@npm:3.0.5":
-  version: 3.0.5
-  resolution: "@ai-sdk/provider-utils@npm:3.0.5"
+"@ai-sdk/provider-utils@npm:3.0.6":
+  version: 3.0.6
+  resolution: "@ai-sdk/provider-utils@npm:3.0.6"
   dependencies:
     "@ai-sdk/provider": "npm:2.0.0"
     "@standard-schema/spec": "npm:^1.0.0"
     eventsource-parser: "npm:^3.0.3"
-    zod-to-json-schema: "npm:^3.24.1"
   peerDependencies:
     zod: ^3.25.76 || ^4
-  checksum: 10c0/4057810b320bda149a178dc1bfc9cdd592ca88b736c3c22bd0c1f8111c75ef69beec4a523f363e5d0d120348b876942fd66c0bb4965864da4c12c5cfddee15a3
+  checksum: 10c0/00f8d5a4e76f66aad6ebde97d3512b8295c144c6802465ec0d7b38c6eaa0fc97fbcaeb51284f66bb7e42bcf38a92ed0edba95c1ccddf50af3040d2b64227352a
   languageName: node
   linkType: hard
 
@@ -41,18 +40,18 @@ __metadata:
   linkType: hard
 
 "@ai-sdk/vue@npm:^2.0.9":
-  version: 2.0.23
-  resolution: "@ai-sdk/vue@npm:2.0.23"
+  version: 2.0.24
+  resolution: "@ai-sdk/vue@npm:2.0.24"
   dependencies:
-    "@ai-sdk/provider-utils": "npm:3.0.5"
-    ai: "npm:5.0.23"
+    "@ai-sdk/provider-utils": "npm:3.0.6"
+    ai: "npm:5.0.24"
     swrv: "npm:^1.0.4"
   peerDependencies:
     vue: ^3.3.4
   peerDependenciesMeta:
     vue:
       optional: true
-  checksum: 10c0/33c0d6ac78fd5a1ad31e8f53364631324c1be8822b4f801b8a00b0c9d636d43497f65cd16082b3fa715b81901c62196bf247e110dc1ee23670ca48fb5ff879ab
+  checksum: 10c0/62512b5d0f223a539df5392c0226c6e3fed6f55d1a348e2a817d615ebc2b7b66296318bdcb82a927168d2a9c39a3d4cb4e4e3914e75a51479aae56412a8b4662
   languageName: node
   linkType: hard
 
@@ -3523,20 +3522,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/typography@npm:^0.5.16":
-  version: 0.5.16
-  resolution: "@tailwindcss/typography@npm:0.5.16"
-  dependencies:
-    lodash.castarray: "npm:^4.4.0"
-    lodash.isplainobject: "npm:^4.0.6"
-    lodash.merge: "npm:^4.6.2"
-    postcss-selector-parser: "npm:6.0.10"
-  peerDependencies:
-    tailwindcss: "*"
-  checksum: 10c0/35a7387876810c23c270a23848b920517229b707c8ead6a63c8bb7d6720a62f23728c3117f0a93b422a66d1e5ee9c7ad8a6c3f0fbf5255b535c0e4971ffa0158
-  languageName: node
-  linkType: hard
-
 "@tailwindcss/vite@npm:^4.1.12":
   version: 4.1.12
   resolution: "@tailwindcss/vite@npm:4.1.12"
@@ -4697,17 +4682,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ai@npm:5.0.23":
-  version: 5.0.23
-  resolution: "ai@npm:5.0.23"
+"ai@npm:5.0.24":
+  version: 5.0.24
+  resolution: "ai@npm:5.0.24"
   dependencies:
-    "@ai-sdk/gateway": "npm:1.0.12"
+    "@ai-sdk/gateway": "npm:1.0.13"
     "@ai-sdk/provider": "npm:2.0.0"
-    "@ai-sdk/provider-utils": "npm:3.0.5"
+    "@ai-sdk/provider-utils": "npm:3.0.6"
     "@opentelemetry/api": "npm:1.9.0"
   peerDependencies:
     zod: ^3.25.76 || ^4
-  checksum: 10c0/f127aeef40bbd303902a10563b6d8bfdc884b36541685db88e2b290f93ee38fa9a5698991ac109202f32c1b42362a5c023abb80fab60f244d53cbe04be61e94c
+  checksum: 10c0/a5735ee935a9499f1b87fa99d0d2aa87732db0e01dfdfd38ffa233c9e7242572f4442c15fe3f6e441b1ca62491a72ca603ca782f3f0ed7bf42c57fa7d6f2e891
   languageName: node
   linkType: hard
 
@@ -6330,9 +6315,9 @@ __metadata:
   linkType: hard
 
 "devalue@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "devalue@npm:5.1.1"
-  checksum: 10c0/f6717a856fd54216959abd341cb189e47a9b37d72d8419e055ae77567ff4ed0fb683b1ffb6a71067f645adae5991bffabe6468a3e2385937bff49273e71c1f51
+  version: 5.2.0
+  resolution: "devalue@npm:5.2.0"
+  checksum: 10c0/d05047a15abe76ebdebb0bc5278eb5f2f9575dd6425eec2546d4ef6dce9977fc3d89f8ca1401714e3718e9b37b298472d98a9343dc832953d6d888b3008f92a4
   languageName: node
   linkType: hard
 
@@ -8828,7 +8813,6 @@ __metadata:
     "@nuxtjs/device": "npm:^3.2.4"
     "@nuxtjs/supabase": "npm:1.6.1"
     "@pinia/nuxt": "npm:^0.11.2"
-    "@tailwindcss/typography": "npm:^0.5.16"
     "@types/lodash.groupby": "npm:^4.6.9"
     "@types/lodash.keyby": "npm:^4.6.9"
     "@types/lodash.omit": "npm:^4.5.9"
@@ -9206,13 +9190,6 @@ __metadata:
   version: 4.3.0
   resolution: "lodash.camelcase@npm:4.3.0"
   checksum: 10c0/fcba15d21a458076dd309fce6b1b4bf611d84a0ec252cb92447c948c533ac250b95d2e00955801ebc367e5af5ed288b996d75d37d2035260a937008e14eaf432
-  languageName: node
-  linkType: hard
-
-"lodash.castarray@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "lodash.castarray@npm:4.4.0"
-  checksum: 10c0/0bf523ad1596a5bf17869ba047235b4453eee927005013ae152345e2b291b81a02e7f2b7c38f876a1d16f73c34aa3c3241e965193e5b31595035bc8f330c4358
   languageName: node
   linkType: hard
 
@@ -11294,16 +11271,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.4.32
   checksum: 10c0/b379ea1d87ea27f331b472c8a21b4c6bb3c114ea573b66743f6fb4a52cab758c1930cd194df873d347901e347c47035e1353be6cf4250e469ec512f599385957
-  languageName: node
-  linkType: hard
-
-"postcss-selector-parser@npm:6.0.10":
-  version: 6.0.10
-  resolution: "postcss-selector-parser@npm:6.0.10"
-  dependencies:
-    cssesc: "npm:^3.0.0"
-    util-deprecate: "npm:^1.0.2"
-  checksum: 10c0/a0b27c5e3f7604c8dc7cd83f145fdd7b21448e0d86072da99e0d78e536ba27aa9db2d42024c50aa530408ee517c4bdc0260529e1afb56608f9a82e839c207e82
   languageName: node
   linkType: hard
 
@@ -14279,15 +14246,6 @@ __metadata:
     compress-commons: "npm:^6.0.2"
     readable-stream: "npm:^4.0.0"
   checksum: 10c0/50f2fb30327fb9d09879abf7ae2493705313adf403e794b030151aaae00009162419d60d0519e807673ec04d442e140c8879ca14314df0a0192de3b233e8f28b
-  languageName: node
-  linkType: hard
-
-"zod-to-json-schema@npm:^3.24.1":
-  version: 3.24.6
-  resolution: "zod-to-json-schema@npm:3.24.6"
-  peerDependencies:
-    zod: ^3.24.1
-  checksum: 10c0/b907ab6d057100bd25a37e5545bf5f0efa5902cd84d3c3ec05c2e51541431a47bd9bf1e5e151a244273409b45f5986d55b26e5d207f98abc5200702f733eb368
   languageName: node
   linkType: hard
 

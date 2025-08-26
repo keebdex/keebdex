@@ -290,6 +290,9 @@ const screenshot = async (download = false) => {
 
   const card = document.getElementsByClassName('trading-preview')[0]
 
+  // remove 'flex-1' class to eliminate unnecessary spacing
+  card.classList.remove('flex-1')
+
   try {
     if (download) {
       await downloadScreenshot(card)
@@ -299,6 +302,8 @@ const screenshot = async (download = false) => {
   } catch (error) {
     errorText.value = error.message
   }
+
+  card.classList.add('flex-1')
 
   copying.value = false
 }
