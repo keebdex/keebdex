@@ -25,10 +25,6 @@ export default defineNuxtConfig({
     'nuxt-og-image',
   ],
 
-  fonts: {
-    families: [{ name: 'Dosis', provider: 'google' }],
-  },
-
   ogImage: {
     defaults: {
       component: 'Website',
@@ -51,11 +47,5 @@ export default defineNuxtConfig({
     public: {
       donate: app.funding.url,
     },
-  },
-
-  routeRules: {
-    // pages generated on demand once until next deployment, cached on CDN
-    '/about': { isr: true },
-    '/privacy': { isr: true },
   },
 })

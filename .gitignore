@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/node,macos,linux,windows,vue,nuxtjs
-# Edit at https://www.toptal.com/developers/gitignore?templates=node,macos,linux,windows,vue,nuxtjs
+# Created by https://www.toptal.com/developers/gitignore/api/node,macos,linux,windows,vue,nuxtjs,vercel
+# Edit at https://www.toptal.com/developers/gitignore?templates=node,macos,linux,windows,vue,nuxtjs,vercel
 
 ### Linux ###
 *~
@@ -190,11 +190,19 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
-### Nuxtjs ###
-# Nuxt build
-.output/
+### NuxtJS ###
+# Generated dirs
+.nuxt-*
+.output
+.gen
 
-# Nuxt generate
+# Node dependencies
+node_modules
+
+# System files
+
+### Vercel ###
+.vercel
 
 ### Vue ###
 # gitignore template for Vue.js projects
@@ -233,5 +241,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/node,macos,linux,windows,vue,nuxtjs
+# End of https://www.toptal.com/developers/gitignore/api/node,macos,linux,windows,vue,nuxtjs,vercel
 
