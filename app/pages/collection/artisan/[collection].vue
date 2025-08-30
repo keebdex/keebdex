@@ -113,7 +113,7 @@
             </UButton>
           </template>
           <template v-else #footer>
-            <UTooltip text="Priority" :delay-duration="0">
+            <UTooltip v-if="buying" text="Priority" :delay-duration="0">
               <UButton
                 :disabled="!rest.exchange"
                 icon="hugeicons:shopping-bag-favorite"

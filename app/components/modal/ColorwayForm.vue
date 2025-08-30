@@ -90,7 +90,6 @@
 </template>
 
 <script setup>
-import { UFieldGroup } from '#components'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])

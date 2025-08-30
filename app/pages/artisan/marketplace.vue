@@ -10,8 +10,8 @@
           <template #description>
             To make your collections available in the marketplace, please
             publish them by visiting
-            <NuxtLink to="/collection" class="underline">Collections</NuxtLink>.
-            This will make them visible to potential buyers/sellers.
+            <ULink to="/collection" class="underline">Collections</ULink>. This
+            will make them visible to potential buyers/sellers.
           </template>
         </UAlert>
       </UPage>
