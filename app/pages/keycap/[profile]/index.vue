@@ -75,6 +75,7 @@
               :item="keycap"
               category="keycap"
               label="Save"
+              class="z-10"
               @on-select="saveTo"
             />
           </template>
