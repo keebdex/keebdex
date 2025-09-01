@@ -54,30 +54,22 @@
       <div v-if="data.kits.length" class="grid grid-cols-3 gap-6">
         <div class="col-span-3 lg:col-span-2">
           <UCarousel
+            ref="carousel"
             v-slot="{ item }"
             :items="data.kits"
             loop
             dots
-            :autoplay="{ delay: 2000 }"
-            class="w-full mx-auto"
+            :autoplay="{ delay: 3000 }"
+            class="max-w-7xl mx-auto"
           >
-            <div class="mb-4">
-              <div class="relative mx-auto">
-                <img :src="item.img" :alt="item.name" class="w-full rounded" />
-              </div>
-            </div>
-
-            <div class="flex justify-between items-center">
-              <div class="mt-0 font-semibold">
-                {{ item.name }}
-              </div>
-              <div v-if="item.price" class="mt-0 font-semibold">
-                ${{ item.price }}
-              </div>
-            </div>
-            <div class="mt-4">
-              {{ item.description }}
-            </div>
+            <UPageCard
+              :title="item.name"
+              :description="item.description"
+              reverse
+              variant="ghost"
+            >
+              <NuxtImg loading="lazy" :alt="item.name" :src="item.img" />
+            </UPageCard>
           </UCarousel>
         </div>
 
@@ -109,10 +101,11 @@
             <template #kits>
               <div class="flex flex-wrap gap-2 py-2">
                 <UButton
-                  v-for="kit in data.kits"
+                  v-for="(kit, idx) in data.kits"
                   :key="kit.id"
                   :label="kit.name"
                   size="sm"
+                  @click="onSelectKit(idx)"
                 />
               </div>
             </template>
@@ -206,6 +199,14 @@ const items = [
 ]
 
 const visible = ref(false)
+
+const activeIndex = ref(0)
+const carousel = useTemplateRef('carousel')
+
+const onSelectKit = (index) => {
+  activeIndex.value = index
+  carousel.value.emblaApi.scrollTo(index)
+}
 
 useSeoMeta({
   title: data.value
