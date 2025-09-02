@@ -31,6 +31,8 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig()
+
 const description =
   'Updates, improvements, and fixes to Keebdex. We ship continuously — here are the highlights.'
 
@@ -52,6 +54,27 @@ const authors = [
 ]
 
 const versions = [
+  {
+    badge: {
+      label: config.app.buildId,
+      ...badgeProps,
+      color: 'info',
+    },
+    title: 'Nuxt Era',
+    date: '2025-09-02',
+    description:
+      'A complete overhaul of the UI and core architecture, built on Nuxt 4 and Nuxt UI 4 for a faster, more modern, and fully responsive experience.',
+    authors,
+    highlights: [
+      'Complete UI migration to Nuxt UI 4 for a modern, cohesive experience',
+      'Upgraded to Nuxt 4, delivering significant performance improvements and faster load times',
+      'Fully responsive design for a seamless experience on desktop, tablet, and mobile',
+      'Added a "Priority" button to collections and wishlists to highlight key items',
+      'Introduced new "Why Choose Keebdex" and "Changelog" pages',
+      'Major codebase refactor for improved stability and future development',
+    ],
+    to: 'https://github.com/keebdex/keebdex/releases/tag/3.0.0',
+  },
   {
     badge: {
       label: 'v2.1.0',

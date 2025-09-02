@@ -1,7 +1,7 @@
 {
   "name": "keebdex",
   "displayName": "Keebdex",
-  "version": "2.1.0",
+  "version": "3.0.0-beta",
   "description": "Keebdex is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.",
   "private": true,
   "repository": {
@@ -60,7 +60,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-vue": "^10.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
+    "lint-staged": "^16.1.6",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "lodash.omit": "^4.5.0",

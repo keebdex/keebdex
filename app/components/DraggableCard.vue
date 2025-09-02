@@ -35,7 +35,7 @@
             >
               <UIcon
                 v-if="buying"
-                name="hugeicons:shopping-bag-check"
+                name="hugeicons:tick-double-02"
                 class="text-success text-9xl"
               />
               <UIcon

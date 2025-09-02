@@ -17,7 +17,7 @@
           <UModal v-if="editable" v-model:visible="visible" title="Edit Keycap">
             <UButton label="Edit" icon="hugeicons:keyboard" />
 
-            <template #body>
+            <template #body="{ close }">
               <ModalKeycapForm
                 :is-edit="true"
                 :metadata="data"
@@ -104,9 +104,14 @@
                   v-for="(kit, idx) in data.kits"
                   :key="kit.id"
                   :label="kit.name"
-                  size="sm"
                   @click="onSelectKit(idx)"
-                />
+                >
+                  <template v-if="kit.cancelled" #leading>
+                    <UTooltip text="Cancelled">
+                      <UIcon name="hugeicons:unavailable" class="text-error" />
+                    </UTooltip>
+                  </template>
+                </UButton>
               </div>
             </template>
           </UAccordion>
