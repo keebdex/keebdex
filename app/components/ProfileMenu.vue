@@ -3,23 +3,12 @@
     :items="items"
     :content="{ align: 'center', collisionPadding: 12 }"
     :ui="{
-      content: slim ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
+      content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
     }"
   >
-    <!-- <UButton
-      v-if="authenticated"
-      :label="user.name"
-      :avatar="{
-        src: user.picture,
-        alt: user.name,
-      }"
-      trailing-icon="hugeicons:unfold-more"
-      variant="ghost"
-      block
-    /> -->
     <UUser
       v-if="authenticated"
-      :name="user.name"
+      :name="collapsed ? undefined : user.name"
       :avatar="{
         src: user.picture,
         alt: user.name,
@@ -30,7 +19,7 @@
       v-else
       label="Sign In"
       icon="hugeicons:login-03"
-      trailing-icon="hugeicons:unfold-more"
+      :trailing-icon="collapsed ? undefined : 'hugeicons:unfold-more'"
       variant="ghost"
       block
     />
@@ -46,8 +35,8 @@
 </template>
 
 <script setup>
-const { slim } = defineProps({
-  slim: Boolean,
+const { collapsed } = defineProps({
+  collapsed: Boolean,
 })
 
 const userStore = useUserStore()

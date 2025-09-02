@@ -8,9 +8,10 @@
     }"
   >
     <UButton
-      label="What's New"
+      :label="collapsed ? undefined : 'What\'s New'"
       icon="solar:confetti-bold-duotone"
       color="info"
+      block
     />
 
     <template #body>
@@ -92,6 +93,10 @@
 </template>
 
 <script setup>
+defineProps({
+  collapsed: Boolean,
+})
+
 const { data } = await useAsyncData(() => $fetch('/api/statistics'))
 
 const total = computed(

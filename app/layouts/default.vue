@@ -27,15 +27,19 @@
             {{ $config.app.name }}
           </span>
         </NuxtLink>
+
+        <div v-if="!collapsed" class="flex items-center gap-1.5 ms-auto">
+          <UDashboardSidebarCollapse />
+        </div>
       </template>
 
       <template #default="{ collapsed }">
-        <UDashboardSearchButton
-          :collapsed="collapsed"
-          class="bg-transparent ring-default"
-        />
+        <template v-if="collapsed">
+          <UDashboardSearchButton :collapsed="collapsed" />
+          <UDashboardSidebarCollapse />
+        </template>
 
-        <WhatsNewSlider />
+        <WhatsNewSlider :collapsed="collapsed" />
 
         <UNavigationMenu
           :collapsed="collapsed"
@@ -55,7 +59,7 @@
       </template>
 
       <template #footer="{ collapsed }">
-        <ProfileMenu :slim="collapsed" />
+        <ProfileMenu :collapsed="collapsed" />
       </template>
     </UDashboardSidebar>
 
