@@ -2,7 +2,7 @@ import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { artisans, kits, dates, profile, ...rest } = await readBody(event)
+  const { artisans, kits, start, end, profile, ...rest } = await readBody(event)
 
   const { data, error } = await client
     .from('keycaps')

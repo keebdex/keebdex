@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+  --breakpoint-3xl: 112rem;
+  --breakpoint-4xl: 128rem;
+
+  --font-sans: 'Reddit Sans', sans-serif;
+  --font-mono: 'Reddit Mono', monospace;
+
+  --color-discord: #5865f2;
+  --color-google: #ea4335;
+  --color-reddit: #ff4500;
+}
