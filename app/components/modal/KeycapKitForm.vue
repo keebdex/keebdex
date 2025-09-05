@@ -97,7 +97,7 @@ const schema = z.object({
   name: z.string().min(1),
   qty: z.number().nullish(),
   price: z.number().nullish(),
-  img: z.string().url().nullish().or(z.string().min(0).max(0)),
+  img: z.url().nullish().or(z.string().min(0).max(0)),
   // description: z.string(),
   cancelled: z.boolean().catch(false),
 })

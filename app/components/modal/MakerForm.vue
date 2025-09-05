@@ -154,20 +154,18 @@ const schema = z.object({
   nationality: z.string().nullish().or(z.string().min(0).max(0)),
   founded: z.string().nullish().or(z.string().min(0).max(0)),
   document_ids: z.string().array(),
-  website: z.string().url().nullish().or(z.string().min(0).max(0)),
+  website: z.url().nullish().or(z.string().min(0).max(0)),
   instagram: z
-    .string()
     .url()
     .regex(instagramRegex, 'Invalid Instagram profile URL')
     .nullish()
     .or(z.string().min(0).max(0)),
   discord: z
-    .string()
     .url()
     .regex(discordInviteRegex, 'Invalid Discord invite link')
     .nullish()
     .or(z.string().min(0).max(0)),
-  artisancollector: z.string().url().nullish().or(z.string().min(0).max(0)),
+  artisancollector: z.url().nullish().or(z.string().min(0).max(0)),
 })
 
 const addDocId = () => {

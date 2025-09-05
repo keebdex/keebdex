@@ -91,7 +91,7 @@ const schema = z.object({
   profile: z.enum(profiles.map((p) => p.value)).nullish(),
   cast: z.enum(casts.map((c) => c.value)).nullish(),
   design: z.enum(designs.map((d) => d.value)).nullish(),
-  href: z.string().url().nullish().or(z.string().min(0).max(0)),
+  href: z.url().nullish().or(z.string().min(0).max(0)),
   // story: z.string(),
 })
 

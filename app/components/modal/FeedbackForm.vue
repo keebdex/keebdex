@@ -1,5 +1,10 @@
 <template>
-  <UForm :state="schema" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="schema"
+    :state="feedback"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="feedback.name"
@@ -109,7 +114,7 @@ const feedback = ref({
 const schema = z.object({
   name: z.string().min(1),
   message: z.string().min(1),
-  email: z.string().email().nullish().or(z.string().min(0).max(0)), // to allow empty string
+  email: z.email().nullish(),
 })
 
 const onSubmit = async () => {
