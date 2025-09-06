@@ -1,6 +1,6 @@
 <template>
   <UDashboardPanel id="about">
-    <template v-if="$device.isMobile" #header>
+    <template v-if="$device.isMobileOrTablet" #header>
       <UDashboardNavbar title="About Keebdex" />
     </template>
 
