@@ -1,5 +1,6 @@
 <template>
   <USlideover
+    v-model:open="open"
     title="Latest Drops"
     description="Welcome to today's drop! Dive into the newest keycap sets now live, and snag our latest artisan creations. Check out what's available for preorder and group buy!"
     :ui="{
@@ -98,9 +99,17 @@ defineProps({
   collapsed: Boolean,
 })
 
-const { data } = await useAsyncData(() => $fetch('/api/statistics'))
+const { data, refresh } = await useAsyncData(() => $fetch('/api/statistics'))
 
 const total = computed(
   () => data.value.makers.length + data.value.keycaps.length,
 )
+
+const open = ref(false)
+
+watch(open, (val) => {
+  if (val) {
+    refresh()
+  }
+})
 </script>

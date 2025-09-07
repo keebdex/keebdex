@@ -189,6 +189,7 @@ const breadcrumbs = computed(() => {
         src: `/logo/${sculpt.value.maker_id}.png`,
         alt: sculpt.value.maker_name,
         ui: {
+          root: 'bg-transparent',
           image:
             sculpt.value.invertible_logo && colorMode.value === 'dark'
               ? 'rounded-none invert'

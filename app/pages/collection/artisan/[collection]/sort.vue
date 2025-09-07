@@ -116,8 +116,8 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const saveCustomSorting = () => {
-  $fetch(
+const saveCustomSorting = async () => {
+  await $fetch(
     `/api/users/${user.value.uid}/collections/${route.params.collection}/sort`,
     {
       method: 'post',
@@ -138,7 +138,7 @@ const saveCustomSorting = () => {
       toast.add({ color: 'error', title: error.message })
     })
 
-  $fetch(
+  await $fetch(
     `/api/users/${user.value.uid}/collections/${route.params.collection}`,
     {
       method: 'post',
