@@ -70,7 +70,7 @@
           <USelect
             v-model="sort"
             :items="sortOptions"
-            :icon="sortIcon"
+            :icon="sortIconMap[sort]"
             variant="soft"
             :ui="{ content: 'min-w-fit' }"
           />
@@ -189,33 +189,27 @@ import sortBy from 'lodash.sortby'
 
 const toast = useToast()
 
-const sort = ref('artisan.maker_sculpt_id|artisan.name')
-const sortIcon = ref('hugeicons:sorting-a-z-02')
+const sortIconMap = {
+  'artisan.maker_sculpt_id|artisan.name': 'hugeicons:sorting-a-z-02',
+  'artisan.name|artisan.maker_sculpt_id': 'hugeicons:sorting-a-z-02',
+  'order|asc': 'hugeicons:sort-by-down-01',
+}
 
 const sortOptions = computed(() => [
-  {
-    label: 'Custom Order',
-    icon: 'hugeicons:sort-by-down-01',
-    value: 'order|asc',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sort-by-down-01'
-    },
-  },
   {
     label: 'Sculpt Name',
     icon: 'hugeicons:sorting-a-z-02',
     value: 'artisan.maker_sculpt_id|artisan.name',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-a-z-02'
-    },
   },
   {
     label: 'Colorway Name',
     icon: 'hugeicons:sorting-a-z-02',
     value: 'artisan.name|artisan.maker_sculpt_id',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-a-z-02'
-    },
+  },
+  {
+    label: 'Custom Order',
+    icon: 'hugeicons:sort-by-down-01',
+    value: 'order|asc',
   },
 ])
 
@@ -230,6 +224,8 @@ const router = useRouter()
 const { data, refresh } = await useAsyncData(() =>
   $fetch(`/api/collections/${route.params.collection}`),
 )
+
+const sort = ref(data.value.sort_by || 'artisan.maker_sculpt_id|artisan.name')
 
 const shareable = data.value?.published && data.value?.type === 'shareable'
 
@@ -246,10 +242,12 @@ const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),
 )
 const sortedCollections = computed(() => {
-  return sortBy(data.value?.items || [], [
-    'artisan.maker_id',
-    ...sort.value.split('|'),
-  ])
+  const iteratees =
+    data.value?.sort_by === 'order|asc'
+      ? sort.value.split('|')
+      : ['artisan.maker_id', ...sort.value.split('|')]
+
+  return sortBy(data.value?.items || [], iteratees)
 })
 
 const breadcrumbs = computed(() => {

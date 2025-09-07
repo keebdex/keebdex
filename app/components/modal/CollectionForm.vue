@@ -36,6 +36,32 @@
       />
     </UFormField>
 
+    <UFormField label="Sorting" name="sorting">
+      <URadioGroup
+        v-model="collection.sort_by"
+        :items="[
+          {
+            label: 'Sculpt Name',
+            description: 'Sort by sculpt artist name, then by colorway name',
+            icon: 'hugeicons:sorting-a-z-02',
+            value: 'artisan.maker_sculpt_id|artisan.name',
+          },
+          {
+            label: 'Colorway Name',
+            description: 'Sort by colorway name, then by sculpt artist name',
+            icon: 'hugeicons:sorting-a-z-02',
+            value: 'artisan.name|artisan.maker_sculpt_id',
+          },
+          {
+            label: 'Custom Order',
+            description: 'Sort manually using your custom drag-and-drop order',
+            icon: 'hugeicons:sort-by-down-01',
+            value: 'order|asc',
+          },
+        ]"
+      />
+    </UFormField>
+
     <UFormField label="Type" name="type" :help="typeExtras[collection.type]">
       <URadioGroup
         v-model="collection.type"
@@ -113,9 +139,16 @@ const collection = ref({
   name: '',
   category: 'artisan',
   published: false,
+  sort_by: 'artisan.maker_sculpt_id|artisan.name',
   type: 'personal',
   uid,
 })
+
+const sortOptions = [
+  'artisan.maker_sculpt_id|artisan.name',
+  'artisan.name|artisan.maker_sculpt_id',
+  'order|asc',
+]
 
 onBeforeMount(() => {
   const { items, ...rest } = metadata
@@ -126,6 +159,7 @@ const personalOrSharable = z.object({
   name: z.string().min(1),
   category: z.enum(['artisan', 'keycap']),
   published: z.boolean(),
+  sort_by: z.enum(sortOptions),
   type: z.enum(['shareable', 'personal', 'personal_buy', 'personal_sell']),
   contact: z.string().optional().nullable(),
   message: z.string().optional().nullable(),
@@ -135,6 +169,7 @@ const trading = z.object({
   name: z.string().min(1),
   category: z.enum(['artisan', 'keycap']),
   published: z.boolean(),
+  sort_by: z.enum(sortOptions),
   type: z.enum(['to_buy', 'for_sale']),
   contact: z.string().min(1),
   message: z.string().optional().nullable(),

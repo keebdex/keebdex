@@ -15,7 +15,7 @@
       <USelect
         v-model="sort"
         :items="sortOptions"
-        :icon="sortIcon"
+        :icon="sortIconMap[sort]"
         variant="soft"
         :ui="{ content: 'min-w-fit' }"
         @change="emit('onSorting', sort)"
@@ -46,40 +46,33 @@ const links = sculpt.href
   : []
 
 const sort = ref('order|desc')
-const sortIcon = ref('hugeicons:sorting-9-1')
+const sortIconMap = {
+  'name|asc': 'hugeicons:sorting-a-z-02',
+  'name|desc': 'hugeicons:sorting-z-a-01',
+  'order|asc': 'hugeicons:sorting-1-9',
+  'order|desc': 'hugeicons:sorting-9-1',
+}
 
 const sortOptions = computed(() => [
   {
     label: 'Name (A-Z)',
     icon: 'hugeicons:sorting-a-z-02',
     value: 'name|asc',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-a-z-02'
-    },
   },
   {
     label: 'Name (Z-A)',
     icon: 'hugeicons:sorting-z-a-01',
     value: 'name|desc',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-z-a-01'
-    },
   },
   {
     label: 'Oldest First',
     icon: 'hugeicons:sorting-1-9',
     value: 'order|asc',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-1-9'
-    },
   },
   {
     label: 'Newest First',
     icon: 'hugeicons:sorting-9-1',
     value: 'order|desc',
-    onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-9-1'
-    },
   },
 ])
 </script>

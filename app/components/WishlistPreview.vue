@@ -231,6 +231,7 @@
 
 <script setup>
 import groupBy from 'lodash.groupby'
+import sortBy from 'lodash.sortby'
 
 const emit = defineEmits(['close'])
 
@@ -248,7 +249,14 @@ const { data: collections, refresh } = await useAsyncData(
   () => $fetch(`/api/users/${user.value.uid}/collection-items`),
   {
     transform: (data) => {
-      return groupBy(data, 'collection_id')
+      return Object.values(groupBy(data, 'collection_id')).reduce(
+        (out, cur) => {
+          out[cur[0].collection_id] = sortBy(cur, ['order', 'id'])
+
+          return out
+        },
+        {},
+      )
     },
   },
 )

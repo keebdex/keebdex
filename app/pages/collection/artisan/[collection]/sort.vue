@@ -137,5 +137,17 @@ const saveCustomSorting = () => {
     .catch((error) => {
       toast.add({ color: 'error', title: error.message })
     })
+
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}`,
+    {
+      method: 'post',
+      body: {
+        sort_by: 'order|asc',
+      },
+    },
+  ).catch((error) => {
+    toast.add({ color: 'error', title: error.message })
+  })
 }
 </script>
