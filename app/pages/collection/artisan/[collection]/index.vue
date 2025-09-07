@@ -61,6 +61,12 @@
             @click="copyShareUrl"
           />
 
+          <UButton
+            icon="hugeicons:sorting-05"
+            label="Change Sort Order"
+            :to="`/collection/artisan/${route.params.collection}/sort`"
+          />
+
           <USelect
             v-model="sort"
             :items="sortOptions"
@@ -188,11 +194,11 @@ const sortIcon = ref('hugeicons:sorting-a-z-02')
 
 const sortOptions = computed(() => [
   {
-    label: 'Oldest First',
-    icon: 'hugeicons:sorting-1-9',
+    label: 'Custom Order',
+    icon: 'hugeicons:sort-by-down-01',
     value: 'order|asc',
     onSelect: () => {
-      sortIcon.value = 'hugeicons:sorting-1-9'
+      sortIcon.value = 'hugeicons:sort-by-down-01'
     },
   },
   {

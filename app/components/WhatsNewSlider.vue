@@ -14,7 +14,7 @@
       block
     />
 
-    <template #body>
+    <template #body="{ close }">
       <UPageList v-if="data.makers.length">
         <USeparator
           label="Fresh Artisan Drops"
@@ -26,6 +26,7 @@
           :key="index"
           variant="ghost"
           :to="`/artisan/maker/${maker.id}`"
+          @click.capture="close"
         >
           <template #body>
             <UUser

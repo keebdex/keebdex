@@ -116,6 +116,15 @@
           </UPageGrid>
 
           <UAlert
+            v-if="!copying"
+            icon="hugeicons:sorting-05"
+            description="Click and drag cards to change their order."
+            variant="soft"
+            color="info"
+            class="mt-4"
+          />
+
+          <UAlert
             v-if="totalItems >= 24 && !copying"
             icon="hugeicons:information-circle"
             variant="subtle"
