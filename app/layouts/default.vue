@@ -69,17 +69,23 @@
 
     <!-- <NotificationsSlideover /> -->
 
-    <UModal v-model:open="visible" title="Share your thoughts!">
+    <UModal v-model:open="visible.feedback" title="Share your thoughts!">
       <template #body>
         <ModalFeedbackForm />
+      </template>
+    </UModal>
+
+    <UModal v-model:open="visible.donate">
+      <template #content>
+        <ModalDonate />
       </template>
     </UModal>
   </UDashboardGroup>
 </template>
 
 <script setup>
-const config = useRuntimeConfig()
 const route = useRoute()
+const toast = useToast()
 const userStore = useUserStore()
 
 const { authenticated } = storeToRefs(userStore)
@@ -178,7 +184,7 @@ const links = computed(() => [
       icon: 'hugeicons:comment-01',
       class: 'cursor-pointer',
       onSelect() {
-        toggleFeedback()
+        toggle('feedback')
       },
     },
     {
@@ -201,8 +207,10 @@ const links = computed(() => [
     {
       label: 'Donate',
       icon: 'hugeicons:paypal',
-      to: config.public.donate,
-      target: '_blank',
+      class: 'cursor-pointer',
+      onSelect() {
+        toggle('donate')
+      },
     },
   ],
 ])
@@ -220,38 +228,41 @@ const groups = computed(() => [
   },
 ])
 
-const visible = ref(false)
-const toggleFeedback = () => {
-  visible.value = !visible.value
+const visible = ref({
+  feedback: false,
+  donate: false,
+})
+const toggle = (key) => {
+  visible.value[key] = !visible.value[key]
 }
 
-// onMounted(async () => {
-//   const cookie = useCookie('cookie-consent')
-//   if (cookie.value === 'accepted') {
-//     return
-//   }
+onMounted(async () => {
+  const cookie = useCookie('cookie-consent')
+  if (cookie.value === 'accepted') {
+    return
+  }
 
-//   toast.add({
-//     title:
-//       'We use cookies to improve your experience. By using our site, you agree to our use of cookies.',
-//     icon: 'hugeicons:cookie',
-//     duration: 0,
-//     close: false,
-//     actions: [
-//       {
-//         label: 'Accept',
-//         color: 'neutral',
-//         color: 'info',
-//         onClick: () => {
-//           cookie.value = 'accepted'
-//         },
-//       },
-//       {
-//         label: 'Decline',
-//         color: 'neutral',
-//         variant: 'ghost',
-//       },
-//     ],
-//   })
-// })
+  toast.add({
+    title:
+      'We use cookies to improve your experience. By using our site, you agree to our use of cookies.',
+    icon: 'hugeicons:cookie',
+    duration: 0,
+    close: false,
+    actions: [
+      {
+        label: 'Accept',
+        color: 'neutral',
+        color: 'info',
+        onClick: () => {
+          cookie.value = 'accepted'
+        },
+      },
+      {
+        label: 'Decline',
+        color: 'neutral',
+        variant: 'ghost',
+      },
+    ],
+  })
+})
 </script>

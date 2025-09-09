@@ -19,11 +19,19 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/ui',
+    '@nuxt/content',
     '@nuxtjs/device',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     'nuxt-og-image',
   ],
+
+  content: {
+    database: {
+      type: 'd1',
+      bindingName: 'KEEBDEX_DB',
+    },
+  },
 
   ogImage: {
     defaults: {
@@ -43,9 +51,6 @@ export default defineNuxtConfig({
       name: app.displayName,
       description: app.description,
       homepage: app.homepage,
-    },
-    public: {
-      donate: app.funding.url,
     },
   },
 })

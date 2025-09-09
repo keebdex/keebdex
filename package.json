@@ -14,10 +14,16 @@
     "url": "https://anhthang.org"
   },
   "license": "MIT",
-  "funding": {
-    "type": "buymeacoffee",
-    "url": "https://www.buymeacoffee.com/anhthang"
-  },
+  "funding": [
+    {
+      "type": "buymeacoffee",
+      "url": "https://www.buymeacoffee.com/anhthang"
+    },
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/anhthangbui"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/keebdex/keebdex/issues"
   },
@@ -46,15 +52,17 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@iconify-json/hugeicons": "^1.2.14",
     "@iconify-json/solar": "^1.2.4",
+    "@nuxt/content": "^3.6.3",
     "@nuxt/eslint": "^1.9.0",
     "@nuxt/image": "^1.11.0",
     "@nuxt/ui": "^4.0.0-alpha.1",
     "@nuxtjs/device": "^3.2.4",
-    "@nuxtjs/supabase": "1.6.1",
+    "@nuxtjs/supabase": "1.6.2",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
     "@types/lodash.omit": "^4.5.9",
     "@types/lodash.sortby": "^4.7.9",
+    "better-sqlite3": "^12.2.0",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
