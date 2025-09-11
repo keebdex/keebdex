@@ -227,10 +227,10 @@ const { data, refresh } = await useAsyncData(() =>
 
 const sort = ref(data.value.sort_by || 'artisan.maker_sculpt_id|artisan.name')
 
-const shareable = data.value?.published && data.value?.type === 'shareable'
+const shareable = !!data.value?.published
 
-const buying = ['to_buy', 'personal_buy'].includes(data.value?.type)
-const selling = ['for_sale', 'personal_sell'].includes(data.value?.type)
+const buying = data.value?.intent === 'want'
+const selling = data.value?.intent === 'sell'
 
 useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
@@ -264,7 +264,7 @@ const breadcrumbs = computed(() => {
 })
 
 const changeTo = (exchange) => {
-  if (data.value.type === 'to_buy' || data.value.type === 'personal_buy') {
+  if (data.value.intent === 'want') {
     return exchange ? 'found' : 'wanted'
   }
 

@@ -7,12 +7,12 @@
       :title="trade.contact"
       :description="trade.message"
       :icon="
-        trade.type === 'to_buy'
+        trade.intent === 'want'
           ? 'hugeicons:money-bag-02'
           : 'hugeicons:sale-tag-02'
       "
       :ui="{
-        leadingIcon: trade.type === 'to_buy' ? 'text-info' : 'text-warning',
+        leadingIcon: trade.intent === 'want' ? 'text-info' : 'text-warning',
       }"
       orientation="horizontal"
       class="flex items-center justify-between not-last:pb-4 gap-2"

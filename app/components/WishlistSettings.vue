@@ -23,7 +23,7 @@
           collections.filter(
             (c) =>
               c.category === 'artisan' &&
-              typeMap[tradingConfig.type].includes(c.type),
+              intentMap[tradingConfig.type].includes(c.intent),
           )
         "
         label-key="name"
@@ -46,7 +46,8 @@
         v-model="tradingConfig.selling.collection"
         :items="
           collections.filter(
-            (c) => c.category === 'artisan' && typeMap.selling.includes(c.type),
+            (c) =>
+              c.category === 'artisan' && intentMap.selling.includes(c.intent),
           )
         "
         label-key="name"
@@ -104,10 +105,10 @@
 const userStore = useUserStore()
 const { collections, social } = storeToRefs(userStore)
 
-const typeMap = {
-  buying: ['personal', 'personal_buy', 'shareable', 'to_buy'],
-  selling: ['personal', 'personal_sell', 'shareable', 'for_sale'],
-  trading: ['personal', 'personal_buy', 'shareable', 'to_buy'],
+const intentMap = {
+  buying: ['keep', 'want'],
+  selling: ['keep', 'sell'],
+  trading: ['keep', 'want'],
 }
 
 const tradingConfig = useState('trading-config')

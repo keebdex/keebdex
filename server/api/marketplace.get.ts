@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     .select()
     .eq('published', true)
     .eq('category', 'artisan')
-    .in('type', ['to_buy', 'for_sale'])
+    .in('intent', ['want', 'sell'])
     .order('created_at', { ascending: false })
 
   if (collections?.length) {

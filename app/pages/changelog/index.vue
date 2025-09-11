@@ -10,7 +10,7 @@
         :description
         icon="solar:history-bold-duotone"
       >
-        <UChangelogVersions :versions="versions" :indicator="true" />
+        <UChangelogVersions :versions="versions" :indicator="false" />
       </UPageSection>
     </template>
   </UDashboardPanel>
@@ -57,6 +57,7 @@ const { data: versions } = await useAsyncData(
             ...meta,
             authors,
             to,
+            // image: `/changelog/${meta.version}.png`,
           }
         })
         .reverse()
