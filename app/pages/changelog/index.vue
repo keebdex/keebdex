@@ -52,12 +52,12 @@ const { data: versions } = await useAsyncData(
               ...badgeProps,
               color: idx === data.length - 1 ? 'info' : 'primary',
             },
-            title,
+            title: `${meta.emoji} ${title}`,
             description,
             ...meta,
             authors,
             to,
-            // image: `/changelog/${meta.version}.png`,
+            image: `/changelog/${meta.version}.png`,
           }
         })
         .reverse()

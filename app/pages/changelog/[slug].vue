@@ -5,14 +5,15 @@
     </template>
 
     <template #body>
-      <UPageHeader
-        :title="`${page.meta?.version} - ${page.title}`"
-        :description="page.description"
-        :links="page.meta.links"
-      />
-
       <UPage class="max-w-5xl mx-auto">
         <UPageBody>
+          <UPageHeader
+            headline="Releases"
+            :title="`${page.meta?.version} - ${page.title}`"
+            :description="page.description"
+            :links="page.meta.links"
+          />
+
           <ContentRenderer v-if="page.body" :value="page" prose />
 
           <USeparator v-if="surround?.filter(Boolean).length" />

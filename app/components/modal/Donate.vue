@@ -1,7 +1,8 @@
 <template>
-  <UPageCTA
-    title="Keep Keebdex Thriving"
-    description="Keebdex is built for enthusiasts, by enthusiasts — and your donation keeps it thriving."
+  <UPageSection
+    icon="solar:hand-heart-bold-duotone"
+    title="Support Keebdex"
+    description="Built for enthusiasts, by enthusiasts — your support fuels its future."
     :links="[
       {
         label: 'Buy Me a Coffee',
@@ -9,7 +10,7 @@
         block: true,
         to: 'https://www.buymeacoffee.com/anhthang',
         target: '_blank',
-        class: 'hover:bg-[#FFDD00] hover:text-black',
+        class: 'hover:bg-buymeacoffee hover:text-black',
       },
       {
         label: 'PayPal',
@@ -17,8 +18,11 @@
         block: true,
         to: 'https://paypal.me/anhthangbui',
         target: '_blank',
-        class: 'hover:bg-[#003087] hover:text-white',
+        class: 'hover:bg-paypal hover:text-white',
       },
     ]"
+    :ui="{
+      leadingIcon: 'text-donator',
+    }"
   />
 </template>

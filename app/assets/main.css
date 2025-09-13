@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "@nuxt/ui";
+@import 'tailwindcss';
+@import '@nuxt/ui';
 
 @theme {
   --breakpoint-3xl: 112rem;
@@ -11,4 +11,8 @@
   --color-discord: #5865f2;
   --color-google: #ea4335;
   --color-reddit: #ff4500;
+  --color-buymeacoffee: #ffdd00;
+  --color-paypal: #003087;
+
+  --color-donator: #bf3989;
 }
