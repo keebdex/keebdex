@@ -4,6 +4,7 @@
     <SpeedInsights />
 
     <NuxtLayout>
+      <NuxtLoadingIndicator />
       <NuxtPage />
     </NuxtLayout>
   </UApp>

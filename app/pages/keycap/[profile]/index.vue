@@ -116,8 +116,13 @@ const { profile } = route.params
 const page = ref(1)
 const size = ref(36)
 
-const selectStatuses = ['Interest Check', 'Live', 'In Production']
-const status = ref(selectStatuses[0])
+const selectStatuses = computed(() => {
+  return isAdmin.value
+    ? ['Interest Check', 'Scheduled', 'Live', 'In Production', 'Review']
+    : ['Interest Check', 'Scheduled', 'Live', 'In Production']
+})
+
+const status = ref(selectStatuses.value[0])
 
 const query = computed(() => {
   return {

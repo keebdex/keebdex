@@ -139,7 +139,7 @@ const colorMode = useColorMode()
 const route = useRoute()
 const toast = useToast()
 
-const size = 90
+const size = 72
 const page = ref(1)
 
 const sortField = ref('order')

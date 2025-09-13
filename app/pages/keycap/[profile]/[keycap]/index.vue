@@ -83,10 +83,10 @@
                   { term: 'IC Date', description: formatDate(data.ic_date) },
                   {
                     term: 'Timeline',
-                    description: formatDateRange(
-                      data.start_date,
-                      data.end_date,
-                    ),
+                    description:
+                      data.start_date &&
+                      data.end_date &&
+                      formatDateRange(data.start_date, data.end_date),
                   },
                   {
                     term: 'Status',

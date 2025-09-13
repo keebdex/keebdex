@@ -86,22 +86,26 @@
         />
       </UFormField>
 
-      <UFormField label="IC Date" name="ic_date">
-        <UPopover>
-          <UButton
-            icon="hugeicons:calendar-03"
-            variant="outline"
-            class="w-full"
-          >
-            {{ keycap.ic_date ? formatDate(keycap.ic_date) : 'Select a date' }}
-          </UButton>
-
-          <template #content>
-            <UCalendar v-model="keycap.ic_date" />
-          </template>
-        </UPopover>
+      <UFormField label="Review Status" name="review_status">
+        <USelect
+          v-model="keycap.review_status"
+          :items="['Pending', 'Approved', 'Rejected']"
+          class="w-full"
+        />
       </UFormField>
     </div>
+
+    <UFormField label="IC Date" name="ic_date">
+      <UPopover>
+        <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
+          {{ keycap.ic_date ? formatDate(keycap.ic_date) : 'Select a date' }}
+        </UButton>
+
+        <template #content>
+          <UCalendar v-model="keycap.ic_date" />
+        </template>
+      </UPopover>
+    </UFormField>
 
     <UFormField v-if="!ic" label="GB Time" name="gb_date">
       <UPopover>
