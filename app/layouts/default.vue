@@ -3,12 +3,13 @@
     <UDashboardSidebar
       id="default"
       v-model:visible="open"
+      v-model:collapsed="collapsed"
       collapsible
       resizable
       class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
-      <template #header="{ collapsed }">
+      <template #header>
         <NuxtLink to="/" class="flex items-end gap-2">
           <NuxtImg
             :alt="$config.app.name"
@@ -33,7 +34,7 @@
         </div>
       </template>
 
-      <template #default="{ collapsed }">
+      <template #default>
         <template v-if="collapsed">
           <UDashboardSearchButton :collapsed="collapsed" />
           <UDashboardSidebarCollapse />
@@ -58,7 +59,7 @@
         />
       </template>
 
-      <template #footer="{ collapsed }">
+      <template #footer>
         <ProfileMenu :collapsed="collapsed" />
       </template>
     </UDashboardSidebar>
@@ -91,8 +92,70 @@ const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
+const collapsed = ref(false)
 
 const routes = computed(() => {
+  const keycapRoutes = collapsed.value
+    ? [
+        {
+          label: 'Keycap Tracker',
+          icon: 'hugeicons:calendar-03',
+          to: '/keycap/tracker',
+          active: route.path === '/keycap/tracker',
+        },
+        {
+          label: 'Keycap Profile',
+          icon: 'hugeicons:grid-view',
+          defaultOpen: true,
+          active:
+            route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
+          children: Object.values(keycapProfiles)
+            .map((manufacturers) => {
+              return Object.entries(manufacturers).map(([id, name]) => {
+                return {
+                  label: name,
+                  to: `/keycap/${id}`,
+                  exact: true,
+                }
+              })
+            })
+            .flat(),
+        },
+      ]
+    : [
+        {
+          label: 'Keycap Tracker',
+          icon: 'hugeicons:calendar-03',
+          to: '/keycap/tracker',
+          active: route.path === '/keycap/tracker',
+        },
+        {
+          label: 'Keycap Profile',
+          icon: 'hugeicons:grid-view',
+          defaultOpen: true,
+          active:
+            route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
+          children: Object.entries(keycapProfiles)
+            .map(([profile, manufacturers]) => {
+              return [
+                {
+                  label: profile,
+                  type: 'label',
+                },
+                ...Object.entries(manufacturers).map(([id, name]) => {
+                  return {
+                    label: name,
+                    to: `/keycap/${id}`,
+                    exact: true,
+                    active: route.path.includes(`/keycap/${id}`),
+                  }
+                }),
+              ]
+            })
+            .flat(),
+        },
+      ]
+
   const items = [
     [
       {
@@ -125,42 +188,7 @@ const routes = computed(() => {
         ],
       },
     ],
-    [
-      {
-        label: 'Keycap Tracker',
-        icon: 'hugeicons:calendar-03',
-        to: '/keycap/tracker',
-        active: route.path === '/keycap/tracker',
-      },
-      {
-        label: 'Keycap Profile',
-        icon: 'hugeicons:grid-view',
-        defaultOpen: true,
-        active:
-          route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
-        children: Object.entries(keycapProfiles)
-          .map(([profile, manufacturers]) => {
-            return [
-              {
-                label: profile,
-                defaultOpen: false,
-                type: 'trigger',
-                active: Object.keys(manufacturers).includes(
-                  route.path.substring(8),
-                ),
-                children: Object.entries(manufacturers).map(([id, name]) => {
-                  return {
-                    label: name,
-                    to: `/keycap/${id}`,
-                    exact: true,
-                  }
-                }),
-              },
-            ]
-          })
-          .flat(),
-      },
-    ],
+    keycapRoutes,
   ]
 
   if (authenticated.value) {
@@ -232,6 +260,7 @@ const visible = ref({
   feedback: false,
   donate: false,
 })
+
 const toggle = (key) => {
   visible.value[key] = !visible.value[key]
 }
