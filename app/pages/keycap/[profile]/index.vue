@@ -4,12 +4,11 @@
       <UDashboardNavbar :title="title">
         <template #right>
           <UTabs
-            v-if="!data.profile && $device.isDesktopOrTablet"
+            v-if="!data.profile && $device.isDesktop"
             v-model="status"
             :items="
               selectStatuses.map((item) => ({ label: item, value: item }))
             "
-            :content="false"
           />
 
           <UModal v-model:visible="visible" title="Add Keycap">
@@ -33,6 +32,13 @@
       </UDashboardNavbar>
 
       <UDashboardToolbar v-if="$device.isMobile && !data.profile">
+        <USelect
+          v-model="status"
+          :items="selectStatuses.map((item) => ({ label: item, value: item }))"
+          class="w-full"
+        />
+      </UDashboardToolbar>
+      <UDashboardToolbar v-if="$device.isTablet && !data.profile">
         <UTabs
           v-model="status"
           :items="selectStatuses.map((item) => ({ label: item, value: item }))"

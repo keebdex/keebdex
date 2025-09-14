@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     .from('keycaps')
     .select('*, profile:keycap_profiles(name)')
     .eq('status', 'Live')
+    .eq('review_status', 'Approved')
   // .lte('start_date', startOfDay)
   // .gte('end_date', startOfDay)
 

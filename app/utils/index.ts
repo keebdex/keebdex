@@ -15,7 +15,9 @@ export const formatDate = (date: string) => {
 }
 
 export const formatDateRange = (fromDate: string, toDate: string) => {
-  return df.formatRange(new Date(fromDate), new Date(toDate))
+  return fromDate && toDate
+    ? df.formatRange(new Date(fromDate), new Date(toDate))
+    : ''
 }
 
 export const keycapProfiles = {

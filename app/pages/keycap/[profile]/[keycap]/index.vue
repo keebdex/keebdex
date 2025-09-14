@@ -83,10 +83,10 @@
                   { term: 'IC Date', description: formatDate(data.ic_date) },
                   {
                     term: 'Timeline',
-                    description:
-                      data.start_date &&
-                      data.end_date &&
-                      formatDateRange(data.start_date, data.end_date),
+                    description: formatDateRange(
+                      data.start_date,
+                      data.end_date,
+                    ),
                   },
                   {
                     term: 'Status',
@@ -158,12 +158,21 @@ const breadcrumbs = computed(() => {
 
 const links = []
 if (data.value.url) {
-  links.push({
-    label: 'Thread',
-    icon: 'hugeicons:globe-02',
-    to: data.value.url,
-    target: '_blank',
-  })
+  if (data.value.url.includes('geekhack')) {
+    links.push({
+      label: 'Discuss on Geekhack',
+      icon: 'hugeicons:comment-01',
+      to: data.value.url,
+      target: '_blank',
+    })
+  } else {
+    links.push({
+      label: 'Vendor',
+      icon: 'hugeicons:link-forward',
+      to: data.value.url,
+      target: '_blank',
+    })
+  }
 }
 
 if (data.value.order_graph) {
