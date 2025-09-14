@@ -65,6 +65,7 @@
           :key="idx"
           variant="ghost"
           :to="`/keycap/${keycap.profile_keycap_id}`"
+          @click.capture="close"
         >
           <template #body>
             <UUser

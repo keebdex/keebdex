@@ -1,5 +1,6 @@
+<!-- eslint-disable vue/no-multiple-template-root -->
 <template>
-  <UDashboardPanel id="collection">
+  <UDashboardPanel v-if="authenticated" id="collection">
     <template #header>
       <UDashboardNavbar title="My Collections">
         <template #right>
@@ -56,16 +57,36 @@
       </UPageGrid>
     </template>
   </UDashboardPanel>
+  <UPageSection
+    v-else
+    v-bind="meta"
+    icon="hugeicons:collections-bookmark"
+    class="mx-auto"
+  >
+    <template v-if="!authenticated" #links>
+      <UButton icon="hugeicons:login-03" @click="login = true">
+        Sign In to Continue
+      </UButton>
+    </template>
+  </UPageSection>
+
+  <UModal v-model:open="login">
+    <template #content>
+      <UPageCard>
+        <ModalLogin />
+      </UPageCard>
+    </template>
+  </UModal>
 </template>
 
 <script setup>
-useSeoMeta({
-  title: 'My Collections',
-})
+const meta = {
+  title: 'My Collection',
+  description:
+    'Manage and showcase your personal keycap and artisan collection in one place.',
+}
 
-definePageMeta({
-  middleware: 'auth',
-})
+useSeoMeta(meta)
 
 const userStore = useUserStore()
 const { authenticated, user, collections } = storeToRefs(userStore)
@@ -74,6 +95,7 @@ onBeforeMount(() => {
   userStore.fetchUserCollections(user.value.uid)
 })
 
+const login = ref(false)
 const visible = ref(false)
 
 const category = ref('artisan')

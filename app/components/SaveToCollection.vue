@@ -9,6 +9,7 @@
         .filter((c) => c.category === category)
         .map((collection) => ({
           label: collection.name,
+          disabled: $route.path.includes(collection.id),
           onSelect: () => {
             $emit('onSelect', collection, item)
           },

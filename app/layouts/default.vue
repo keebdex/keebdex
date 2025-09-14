@@ -87,9 +87,6 @@
 <script setup>
 const route = useRoute()
 const toast = useToast()
-const userStore = useUserStore()
-
-const { authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -159,6 +156,14 @@ const routes = computed(() => {
   const items = [
     [
       {
+        label: 'My Collection',
+        icon: 'hugeicons:collections-bookmark',
+        to: '/collection',
+        active: route.path.startsWith('/collection'),
+      },
+    ],
+    [
+      {
         label: 'Makers',
         icon: 'hugeicons:user-group-03',
         to: '/artisan/maker',
@@ -190,17 +195,6 @@ const routes = computed(() => {
     ],
     keycapRoutes,
   ]
-
-  if (authenticated.value) {
-    items.unshift([
-      {
-        label: 'My Collection',
-        icon: 'hugeicons:collections-bookmark',
-        to: '/collection',
-        active: route.path.startsWith('/collection'),
-      },
-    ])
-  }
 
   return items
 })
