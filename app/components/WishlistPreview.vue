@@ -1,6 +1,6 @@
 <template>
   <UDashboardPanel
-    v-if="totalItems"
+    v-if="authenticated"
     id="wishlist-preview"
     :ui="{ body: 'trading-preview bg-(--ui-bg)' }"
   >
@@ -46,7 +46,7 @@
       </UDashboardToolbar>
     </template>
 
-    <template #body>
+    <template v-if="totalItems" #body>
       <UPage v-if="isMobile && !copying">
         <UAlert
           title="Actions may not work as expected on mobile devices."
@@ -205,28 +205,21 @@
         />
       </USeparator>
     </template>
+    <template v-else #body>
+      <UPageSection
+        icon="hugeicons:zoom-in-area"
+        title="No Collection Selected"
+        description="Start by choosing a collection to generate your wishlist. Once selected, you can preview, edit, and share it easily."
+        class="mx-auto"
+      />
+    </template>
   </UDashboardPanel>
-  <UPageSection
+  <ProtectedPage
     v-else
+    icon="hugeicons:creative-market"
     title="Wishlist Image Builder"
     description="Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more."
-    icon="hugeicons:creative-market"
-    class="mx-auto"
-  >
-    <template v-if="!authenticated" #links>
-      <UButton icon="hugeicons:login-03" @click="visible = true">
-        Sign In to Continue
-      </UButton>
-    </template>
-  </UPageSection>
-
-  <UModal v-model:open="visible">
-    <template #content>
-      <UPageCard>
-        <ModalLogin />
-      </UPageCard>
-    </template>
-  </UModal>
+  />
 </template>
 
 <script setup>
@@ -242,8 +235,6 @@ const { authenticated, user } = storeToRefs(userStore)
 
 const tradingCfg = useState('trading-config')
 const trading = computed(() => tradingCfg.value.type === 'trading')
-
-const visible = ref(false)
 
 const { data: collections, refresh } = await useAsyncData(
   () => $fetch(`/api/users/${user.value.uid}/collection-items`),

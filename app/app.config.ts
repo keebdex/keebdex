@@ -57,6 +57,12 @@ export default defineAppConfig({
         help: 'text-xs',
       },
     },
+    radioGroup: {
+      slots: {
+        fieldset: 'gap-x-4',
+        description: 'text-xs',
+      },
+    },
     pageCard: {
       slots: {
         footer: 'flex gap-2',

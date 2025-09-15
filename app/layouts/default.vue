@@ -85,6 +85,7 @@
 </template>
 
 <script setup>
+const { isDesktop } = useDevice()
 const route = useRoute()
 const toast = useToast()
 
@@ -129,7 +130,7 @@ const routes = computed(() => {
         {
           label: 'Keycap Profile',
           icon: 'hugeicons:grid-view',
-          defaultOpen: true,
+          defaultOpen: isDesktop,
           active:
             route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
           children: Object.entries(keycapProfiles)

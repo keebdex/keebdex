@@ -50,7 +50,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@iconify-json/hugeicons": "^1.2.15",
+    "@iconify-json/hugeicons": "^1.2.16",
     "@iconify-json/solar": "^1.2.4",
     "@nuxt/content": "^3.7.0",
     "@nuxt/eslint": "^1.9.0",

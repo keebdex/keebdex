@@ -12,7 +12,6 @@
           { label: 'Artisan', value: 'artisan', disabled: isEdit },
           { label: 'Keycap', value: 'keycap', disabled: isEdit },
         ]"
-        :ui="{ fieldset: 'gap-x-4' }"
       />
     </UFormField>
 
@@ -32,7 +31,6 @@
           { label: 'Private', value: false },
           { label: 'Public', value: true },
         ]"
-        :ui="{ fieldset: 'gap-x-4' }"
       />
     </UFormField>
 
@@ -49,7 +47,6 @@
           { label: 'Want', value: 'want' },
           { label: 'Sell/Trade', value: 'sell' },
         ]"
-        :ui="{ fieldset: 'gap-x-4' }"
       />
     </UFormField>
 
