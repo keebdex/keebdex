@@ -132,7 +132,9 @@ const routes = computed(() => {
           icon: 'hugeicons:grid-view',
           defaultOpen: isDesktop,
           active:
-            route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
+            route.path.startsWith('/keycap') &&
+            !route.path.endsWith('tracker') &&
+            !route.path.endsWith('color'),
           children: Object.entries(keycapProfiles)
             .map(([profile, manufacturers]) => {
               return [
@@ -151,6 +153,12 @@ const routes = computed(() => {
               ]
             })
             .flat(),
+        },
+        {
+          label: 'Color Codes',
+          icon: 'hugeicons:colors',
+          to: '/keycap/color',
+          active: route.path === '/keycap/color',
         },
       ]
 
