@@ -7,12 +7,27 @@
         </template>
 
         <template #right>
-          <UButton
+          <UDropdownMenu
             v-if="editable"
-            label="Manage Kits"
-            icon="hugeicons:dashboard-square-setting"
-            :to="`/keycap/${data.profile_keycap_id}/kit`"
-          />
+            :items="[
+              {
+                label: 'Manage Kits',
+                icon: 'hugeicons:cells',
+                to: `/keycap/${data.profile_keycap_id}/kit`,
+              },
+              {
+                label: 'Manage Colors',
+                icon: 'hugeicons:colors',
+                to: `/keycap/${data.profile_keycap_id}/color`,
+              },
+            ]"
+          >
+            <UButton
+              label="Manage"
+              icon="hugeicons:dashboard-square-setting"
+              trailing-icon="hugeicons:arrow-down-01"
+            />
+          </UDropdownMenu>
 
           <UModal v-if="editable" v-model:visible="visible" title="Edit Keycap">
             <UButton label="Edit" icon="hugeicons:keyboard" />
@@ -114,6 +129,15 @@
                 </UButton>
               </div>
             </template>
+            <template #colors>
+              <div class="flex flex-wrap gap-2 py-2">
+                <ColorCard
+                  v-for="color in data.colors"
+                  :key="color.id"
+                  v-bind="color.color"
+                />
+              </div>
+            </template>
           </UAccordion>
         </div>
       </div>
@@ -130,7 +154,7 @@ const userStore = useUserStore()
 const { profile, keycap } = route.params
 const editable = computed(() => userStore.isEditable(`${profile}/${keycap}`))
 
-const activeKey = ref(['0', '1', '2'])
+const activeKey = ref(['0', '1', '2', '3'])
 
 const { data, refresh } = await useAsyncData(
   `keycap/${profile}/${keycap}`,
@@ -201,8 +225,13 @@ const items = [
   },
   {
     label: 'Kits',
-    icon: 'hugeicons:dashboard-square-02',
+    icon: 'hugeicons:cells',
     slot: 'kits',
+  },
+  {
+    label: 'Colors',
+    icon: 'hugeicons:colors',
+    slot: 'colors',
   },
   {
     label: 'Disclaimers',

@@ -1,15 +1,17 @@
 <template>
-  <UDashboardPanel id="keycap-color">
+  <UDashboardPanel :id="`keycap-${profile}-${keycap}-color`">
     <template #header>
-      <UDashboardNavbar title="Color Codes">
+      <UDashboardNavbar title="Manage Colors">
+        <template v-if="$device.isDesktopOrTablet" #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
+
         <template #right>
           <UModal v-model:visible="visible" title="Add Color">
-            <UButton icon="hugeicons:color-picker"> Add </UButton>
+            <UButton icon="hugeicons:dashboard-circle-add"> Add </UButton>
 
             <template #body="{ close }">
-              <ModalColorCodeForm
-                :is-edit="!!selectedColor?.id"
-                :metadata="selectedColor"
+              <ModalKeycapColorForm
                 @on-success="
                   () => {
                     close()
@@ -24,25 +26,18 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Color Codes" />
+      <UPageHeader title="Colors" />
 
-      <UTable :data="data" :columns="columns">
+      <UTable :data="data.colors" :columns="columns" class="flex-1">
         <template #hex-cell="{ row }">
-          <ColorSwatch :color="row.original.hex" />
+          <ColorSwatch :color="row.original.color?.hex" />
         </template>
 
         <template #action-cell="{ row }">
           <div class="flex gap-2">
             <UModal v-model:visible="visible" title="Edit Color">
-              <UButton
-                label="Edit"
-                icon="hugeicons:dashboard-circle-edit"
-                size="sm"
-                @click="setSelectedColor(row.original)"
-              />
-
               <template #body="{ close }">
-                <ModalColorCodeForm
+                <ModalKeycapColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="
@@ -86,23 +81,48 @@
 </template>
 
 <script setup>
-const { data, refresh } = await useAsyncData(() => $fetch('/api/colors'))
+definePageMeta({
+  middleware: 'auth',
+})
+
+const toast = useToast()
+
+const route = useRoute()
+const { profile, keycap } = route.params
+
+const { data, refresh } = await useAsyncData(
+  `keycap/${profile}/${keycap}`,
+  () => $fetch(`/api/keycaps/${profile}/${keycap}`),
+)
+
+const breadcrumbs = computed(() => {
+  return [
+    {
+      label: manufacturers[profile],
+      to: `/keycap/${profile}`,
+    },
+    {
+      label: data.value.name,
+      to: `/keycap/${profile}/${keycap}`,
+    },
+    {
+      label: 'Colors',
+    },
+  ]
+})
 
 const columns = [
   {
-    accessorKey: 'system',
-    header: 'System',
-  },
-  {
-    accessorKey: 'code',
+    accessorKey: 'color.code',
     header: 'Code',
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'color.name',
     header: 'Name',
   },
   {
-    accessorKey: 'hex',
+    id: 'hex',
+    accessorKey: 'color.hex',
     header: 'Hex',
   },
   {
@@ -110,21 +130,34 @@ const columns = [
   },
 ]
 
+useSeoMeta({
+  title: data.value
+    ? `${data.value.profile.name} ${data.value.name} - Manage Colors`
+    : manufacturers[profile],
+})
+
+defineOgImageComponent('Keycap', {
+  title: `${data.value.profile.name} ${data.value.name}`,
+  description: 'Manage and update keycap color details.',
+  manufacturerId: profile,
+})
+
 const visible = ref(false)
 const selectedColor = ref({})
+
 const setSelectedColor = (color) => {
   selectedColor.value = color
 }
 
 const deleteColor = ref(false)
 const confirmDelete = (color) => {
-  $fetch(`/api/colors/${color.id}`, {
+  $fetch(`/api/keycaps/${color.profile_keycap_id}/colors/${color.id}`, {
     method: 'delete',
   })
     .then(() => {
       toast.add({
         color: 'success',
-        title: `Color ${color.code} [${color.name}] was deleted.`,
+        title: `Color [${color.name}] was deleted.`,
       })
       refresh()
     })
