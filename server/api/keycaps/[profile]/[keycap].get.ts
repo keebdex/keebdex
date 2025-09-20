@@ -8,7 +8,9 @@ export default defineEventHandler(async (event) => {
 
   const { data } = await client
     .from('keycaps')
-    .select('*, kits:keycap_kits(*), profile:keycap_profiles(name)')
+    .select(
+      '*, kits:keycap_kits(*), colors:keycap_colors(*, color:colors(*)), profile:keycap_profiles(name)',
+    )
     // .select('*, artisans:colorways(*), kits:keycap_kits(*)')
     .eq('profile_keycap_id', `${params?.profile}/${params?.keycap}`)
     .single()
