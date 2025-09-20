@@ -1,9 +1,14 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { omitSensitive } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const query = getQuery(event)
+  const query: Record<string, any> = getQuery(event)
+  const { page, size } = query
+
+  const from = (page - 1) * size
+  const to = page * size - 1
 
   const fts = query.term
     ?.toString()
@@ -11,9 +16,15 @@ export default defineEventHandler(async (event) => {
     .split(/[\s,\t,\n]+/) // split and remove more than 1 space
     .join(' | ')
 
-  const { data } = Object.hasOwn(query, 'term')
+  const { data, count } = Object.hasOwn(query, 'term')
     ? await client.from('colors').select().textSearch('fts', `${fts}`)
-    : await client.from('colors').select()
+    : await client
+        .from('colors')
+        .select('*', { count: 'exact' })
+        .range(from, to)
 
-  return data
+  return {
+    colors: data?.map(omitSensitive),
+    count,
+  }
 })

@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel id="keycap-color">
     <template #header>
-      <UDashboardNavbar title="Color Codes">
+      <UDashboardNavbar :title="meta.title">
         <template #right>
           <UModal v-model:visible="visible" title="Add Color">
             <UButton icon="hugeicons:color-picker"> Add </UButton>
@@ -24,9 +24,9 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Color Codes" />
+      <!-- <UPageHeader v-bind="meta" /> -->
 
-      <UTable :data="data" :columns="columns">
+      <UTable sticky :data="data.colors" :columns="columns">
         <template #hex-cell="{ row }">
           <ColorSwatch :color="row.original.hex" />
         </template>
@@ -81,12 +81,31 @@
           </div>
         </template>
       </UTable>
+
+      <UPagination
+        v-if="data.count > size"
+        v-model:page="page"
+        :items-per-page="size"
+        :total="data.count"
+        class="border-t border-default pt-4 mt-auto"
+        :ui="{
+          list: 'justify-center',
+        }"
+      />
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
-const { data, refresh } = await useAsyncData(() => $fetch('/api/colors'))
+const page = ref(1)
+const size = ref(20)
+
+const { data, refresh } = await useAsyncData(
+  'colors',
+  () =>
+    $fetch('/api/colors', { query: { page: page.value, size: size.value } }),
+  { watch: [page, size] },
+)
 
 const columns = [
   {
@@ -132,4 +151,13 @@ const confirmDelete = (color) => {
       toast.add({ color: 'error', title: error.message })
     })
 }
+
+const meta = {
+  title: 'Keycap Colors',
+  description:
+    'Browse and explore official keycap color codes used in the mechanical keyboard community.',
+}
+
+useSeoMeta(meta)
+defineOgImageComponent('Keycap', meta)
 </script>

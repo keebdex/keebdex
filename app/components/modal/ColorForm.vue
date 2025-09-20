@@ -22,11 +22,12 @@
           v-model.trim="color.hex"
           icon="hugeicons:paint-board"
           class="w-full"
-          disabled
-        />
+        >
+          <template #trailing>
+            <UAvatar :style="{ backgroundColor: color.hex }" size="xs" />
+          </template>
+        </UInput>
       </UFormField>
-
-      <UColorPicker v-model="color.hex" />
     </div>
 
     <UButton block color="primary" type="submit" loading-auto> Save </UButton>

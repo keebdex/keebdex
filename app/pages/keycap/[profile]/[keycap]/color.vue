@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`keycap-${profile}-${keycap}-color`">
     <template #header>
-      <UDashboardNavbar title="Manage Colors">
+      <UDashboardNavbar title="Manage Keycap Colors">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -26,7 +26,7 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Colors" />
+      <UPageHeader title="Manage Keycap Colors" :description="description" />
 
       <UTable :data="data.colors" :columns="columns" class="flex-1">
         <template #hex-cell="{ row }">
@@ -130,15 +130,18 @@ const columns = [
   },
 ]
 
+const description =
+  'Easily manage and connect official color codes to keycap sets on Keebdex.'
 useSeoMeta({
   title: data.value
-    ? `${data.value.profile.name} ${data.value.name} - Manage Colors`
+    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Colors`
     : manufacturers[profile],
+  description,
 })
 
 defineOgImageComponent('Keycap', {
   title: `${data.value.profile.name} ${data.value.name}`,
-  description: 'Manage and update keycap color details.',
+  description,
   manufacturerId: profile,
 })
 

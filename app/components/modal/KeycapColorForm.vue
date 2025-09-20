@@ -5,7 +5,7 @@
         v-model="selectedColors"
         v-model:search-term="term"
         multiple
-        :items="colors"
+        :items="data.colors"
         :loading="status === 'pending'"
         ignore-filter
         icon="hugeicons:paint-board"
@@ -38,7 +38,7 @@ const query = computed(() => {
   }
 })
 
-const { data: colors, status } = await useAsyncData(
+const { data, status } = await useAsyncData(
   route.path,
   () =>
     $fetch('/api/colors', {

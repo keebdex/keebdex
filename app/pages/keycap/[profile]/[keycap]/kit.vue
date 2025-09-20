@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`keycap-${profile}-${keycap}`">
     <template #header>
-      <UDashboardNavbar title="Manage Kits">
+      <UDashboardNavbar title="Manage Keycap Kits">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -28,7 +28,7 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Kits" />
+      <UPageHeader title="Manage Keycap Kits" :description="description" />
 
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #status-cell="{ row }">
@@ -148,15 +148,19 @@ const columns = [
   },
 ]
 
+const description =
+  'Organize and edit keycap kits with ease. Add, update, or remove kits to keep your collection accurate and up to date.'
+
 useSeoMeta({
   title: data.value
-    ? `${data.value.profile.name} ${data.value.name} - Manage Kits`
+    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Kits`
     : manufacturers[profile],
+  description,
 })
 
 defineOgImageComponent('Keycap', {
   title: `${data.value.profile.name} ${data.value.name}`,
-  description: 'Manage and update keycap kit details.',
+  description: description,
   manufacturerId: profile,
 })
 
