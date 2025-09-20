@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   const { data, error } = await client
-    .from('color_codes')
+    .from('colors')
     .upsert(body)
     .eq('id', body.id)
 

@@ -7,7 +7,7 @@
             <UButton icon="hugeicons:color-picker"> Add </UButton>
 
             <template #body="{ close }">
-              <ModalColorCodeForm
+              <ModalColorForm
                 :is-edit="!!selectedColor?.id"
                 :metadata="selectedColor"
                 @on-success="
@@ -42,7 +42,7 @@
               />
 
               <template #body="{ close }">
-                <ModalColorCodeForm
+                <ModalColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="

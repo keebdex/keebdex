@@ -113,6 +113,7 @@
                 ]"
               />
             </template>
+
             <template #kits>
               <div class="flex flex-wrap gap-2 py-2">
                 <UButton
@@ -129,7 +130,8 @@
                 </UButton>
               </div>
             </template>
-            <template #colors>
+
+            <template v-if="data.colors?.length" #colors>
               <div class="flex flex-wrap gap-2 py-2">
                 <ColorCard
                   v-for="color in data.colors"
@@ -184,7 +186,7 @@ const links = []
 if (data.value.url) {
   if (data.value.url.includes('geekhack')) {
     links.push({
-      label: 'Discuss on Geekhack',
+      label: 'Geekhack',
       icon: 'hugeicons:comment-01',
       to: data.value.url,
       target: '_blank',
@@ -232,6 +234,7 @@ const items = [
     label: 'Colors',
     icon: 'hugeicons:colors',
     slot: 'colors',
+    content: 'No color codes have been added yet. Check back soon!',
   },
   {
     label: 'Disclaimers',

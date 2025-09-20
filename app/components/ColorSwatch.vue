@@ -1,13 +1,17 @@
 <template>
   <UUser
+    :name="name"
     :description="color"
     :avatar="{
       style: {
         backgroundColor: color,
       },
+      ui: {
+        fallback: 'hidden',
+      },
     }"
     :ui="{
-      description: 'text-sm',
+      description: !name && 'text-sm',
     }"
   />
 </template>
@@ -17,6 +21,10 @@ defineProps({
   color: {
     type: String,
     required: true,
+  },
+  name: {
+    type: String,
+    required: false,
   },
 })
 </script>

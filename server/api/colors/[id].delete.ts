@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
   const { data } = await client
-    .from('color_codes')
+    .from('colors')
     .delete()
     .eq('id', event.context.params?.id)
 
