@@ -67,7 +67,8 @@ export const useUserStore = defineStore('user', {
       return (
         isAdmin ||
         (role === 'editor' && (!assignments || assignments?.includes(page))) ||
-        (role === 'maker' && assignments?.includes(page))
+        (role === 'maker' && assignments?.includes(page)) ||
+        role === 'designer'
       )
     },
   },

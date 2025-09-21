@@ -95,13 +95,13 @@ const routes = computed(() => {
   const keycapRoutes = collapsed.value
     ? [
         {
-          label: 'Keycap Tracker',
+          label: 'Sets by Status',
           icon: 'hugeicons:calendar-03',
           to: '/keycap/tracker',
           active: route.path === '/keycap/tracker',
         },
         {
-          label: 'Keycap Profile',
+          label: 'Sets by Profile',
           icon: 'hugeicons:grid-view',
           defaultOpen: true,
           active:
@@ -121,13 +121,13 @@ const routes = computed(() => {
       ]
     : [
         {
-          label: 'Keycap Tracker',
+          label: 'Sets by Status',
           icon: 'hugeicons:calendar-03',
           to: '/keycap/tracker',
           active: route.path === '/keycap/tracker',
         },
         {
-          label: 'Keycap Profile',
+          label: 'Sets by Profile',
           icon: 'hugeicons:grid-view',
           defaultOpen: false,
           active:
@@ -154,7 +154,7 @@ const routes = computed(() => {
             .flat(),
         },
         {
-          label: 'Color Codes',
+          label: 'Color Swatches',
           icon: 'hugeicons:colors',
           to: '/keycap/color',
           active: route.path === '/keycap/color',

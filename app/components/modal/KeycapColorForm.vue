@@ -44,7 +44,16 @@ const { data, status } = await useAsyncData(
     $fetch('/api/colors', {
       query: query.value,
     }),
-  { watch: [term] },
+  {
+    transform: (data) => {
+      data.colors.forEach((c) => {
+        c.name = c.name || c.hex
+      })
+
+      return data
+    },
+    watch: [term],
+  },
 )
 
 const selectedColors = ref([])

@@ -3,7 +3,7 @@
     <template #header>
       <UDashboardNavbar :title="meta.title">
         <template #right>
-          <UModal v-model:visible="visible" title="Add Color">
+          <UModal v-if="editable" v-model:visible="visible" title="Add Color">
             <UButton icon="hugeicons:color-picker"> Add </UButton>
 
             <template #body="{ close }">
@@ -24,14 +24,27 @@
     </template>
 
     <template #body>
-      <!-- <UPageHeader v-bind="meta" /> -->
+      <UPageHeader v-bind="meta" />
 
-      <UTable sticky :data="data.colors" :columns="columns">
+      <div class="flex px-4 py-3.5 border-b border-accented">
+        <UInput
+          v-model="term"
+          icon="hugeicons:filter"
+          placeholder="What's your hue?"
+        />
+      </div>
+
+      <UTable
+        sticky
+        :loading="status === 'pending'"
+        :data="data.colors"
+        :columns="columns"
+      >
         <template #hex-cell="{ row }">
           <ColorSwatch :color="row.original.hex" />
         </template>
 
-        <template #action-cell="{ row }">
+        <template v-if="editable" #action-cell="{ row }">
           <div class="flex gap-2">
             <UModal v-model:visible="visible" title="Edit Color">
               <UButton
@@ -57,6 +70,7 @@
             </UModal>
 
             <UModal
+              v-if="isAdmin"
               v-model:visible="deleteColor"
               title="Remove Color"
               description="Are you sure you want to continue? This action cannot be undone."
@@ -97,14 +111,24 @@
 </template>
 
 <script setup>
+const userStore = useUserStore()
+const { isAdmin } = storeToRefs(userStore)
+const editable = computed(() => userStore.isEditable())
+
 const page = ref(1)
 const size = ref(20)
 
-const { data, refresh } = await useAsyncData(
+const term = ref('')
+const query = computed(() => {
+  return term.value
+    ? { term: term.value }
+    : { page: page.value, size: size.value }
+})
+
+const { data, status, refresh } = await useAsyncData(
   'colors',
-  () =>
-    $fetch('/api/colors', { query: { page: page.value, size: size.value } }),
-  { watch: [page, size] },
+  () => $fetch('/api/colors', { query: query.value }),
+  { watch: [page, size, term] },
 )
 
 const columns = [
@@ -122,7 +146,7 @@ const columns = [
   },
   {
     accessorKey: 'hex',
-    header: 'Hex',
+    header: 'Color',
   },
   {
     id: 'action',

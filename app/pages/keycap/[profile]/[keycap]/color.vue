@@ -123,7 +123,7 @@ const columns = [
   {
     id: 'hex',
     accessorKey: 'color.hex',
-    header: 'Hex',
+    header: 'Color',
   },
   {
     id: 'action',
