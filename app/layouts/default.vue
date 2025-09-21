@@ -92,74 +92,28 @@ const open = ref(false)
 const collapsed = ref(false)
 
 const routes = computed(() => {
-  const keycapRoutes = collapsed.value
-    ? [
+  let profiles = Object.entries(keycapProfiles)
+    .map(([profile, manufacturers]) => {
+      return [
         {
-          label: 'Sets by Status',
-          icon: 'hugeicons:calendar-03',
-          to: '/keycap/tracker',
-          active: route.path === '/keycap/tracker',
+          label: profile,
+          type: 'label',
         },
-        {
-          label: 'Sets by Profile',
-          icon: 'hugeicons:grid-view',
-          defaultOpen: true,
-          active:
-            route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
-          children: Object.values(keycapProfiles)
-            .map((manufacturers) => {
-              return Object.entries(manufacturers).map(([id, name]) => {
-                return {
-                  label: name,
-                  to: `/keycap/${id}`,
-                  exact: true,
-                }
-              })
-            })
-            .flat(),
-        },
+        ...Object.entries(manufacturers).map(([id, name]) => {
+          return {
+            label: name,
+            to: `/keycap/${id}`,
+            exact: true,
+            active: route.path.includes(`/keycap/${id}`),
+          }
+        }),
       ]
-    : [
-        {
-          label: 'Sets by Status',
-          icon: 'hugeicons:calendar-03',
-          to: '/keycap/tracker',
-          active: route.path === '/keycap/tracker',
-        },
-        {
-          label: 'Sets by Profile',
-          icon: 'hugeicons:grid-view',
-          defaultOpen: false,
-          active:
-            route.path.startsWith('/keycap') &&
-            !route.path.endsWith('tracker') &&
-            !route.path.endsWith('color'),
-          children: Object.entries(keycapProfiles)
-            .map(([profile, manufacturers]) => {
-              return [
-                {
-                  label: profile,
-                  type: 'label',
-                },
-                ...Object.entries(manufacturers).map(([id, name]) => {
-                  return {
-                    label: name,
-                    to: `/keycap/${id}`,
-                    exact: true,
-                    active: route.path.includes(`/keycap/${id}`),
-                  }
-                }),
-              ]
-            })
-            .flat(),
-        },
-        {
-          label: 'Color Swatches',
-          icon: 'hugeicons:colors',
-          to: '/keycap/color',
-          active: route.path === '/keycap/color',
-        },
-      ]
+    })
+    .flat()
+
+  if (collapsed.value) {
+    profiles = profiles.filter((p) => p.type !== 'label')
+  }
 
   const items = [
     [
@@ -201,7 +155,30 @@ const routes = computed(() => {
         ],
       },
     ],
-    keycapRoutes,
+    [
+      {
+        label: 'Sets by Status',
+        icon: 'hugeicons:calendar-03',
+        to: '/keycap/tracker',
+        active: route.path === '/keycap/tracker',
+      },
+      {
+        label: 'Sets by Profile',
+        icon: 'hugeicons:grid-view',
+        defaultOpen: false,
+        active:
+          route.path.startsWith('/keycap') &&
+          !route.path.endsWith('tracker') &&
+          !route.path.endsWith('color'),
+        children: profiles,
+      },
+      {
+        label: 'Color Swatches',
+        icon: 'hugeicons:colors',
+        to: '/keycap/color',
+        active: route.path === '/keycap/color',
+      },
+    ],
   ]
 
   return items
