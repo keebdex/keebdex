@@ -85,7 +85,6 @@
 </template>
 
 <script setup>
-const { isDesktop } = useDevice()
 const route = useRoute()
 const toast = useToast()
 
@@ -96,13 +95,13 @@ const routes = computed(() => {
   const keycapRoutes = collapsed.value
     ? [
         {
-          label: 'Keycap Tracker',
+          label: 'Sets by Status',
           icon: 'hugeicons:calendar-03',
           to: '/keycap/tracker',
           active: route.path === '/keycap/tracker',
         },
         {
-          label: 'Keycap Profile',
+          label: 'Sets by Profile',
           icon: 'hugeicons:grid-view',
           defaultOpen: true,
           active:
@@ -122,17 +121,19 @@ const routes = computed(() => {
       ]
     : [
         {
-          label: 'Keycap Tracker',
+          label: 'Sets by Status',
           icon: 'hugeicons:calendar-03',
           to: '/keycap/tracker',
           active: route.path === '/keycap/tracker',
         },
         {
-          label: 'Keycap Profile',
+          label: 'Sets by Profile',
           icon: 'hugeicons:grid-view',
-          defaultOpen: isDesktop,
+          defaultOpen: false,
           active:
-            route.path.startsWith('/keycap') && !route.path.endsWith('tracker'),
+            route.path.startsWith('/keycap') &&
+            !route.path.endsWith('tracker') &&
+            !route.path.endsWith('color'),
           children: Object.entries(keycapProfiles)
             .map(([profile, manufacturers]) => {
               return [
@@ -151,6 +152,12 @@ const routes = computed(() => {
               ]
             })
             .flat(),
+        },
+        {
+          label: 'Color Swatches',
+          icon: 'hugeicons:colors',
+          to: '/keycap/color',
+          active: route.path === '/keycap/color',
         },
       ]
 

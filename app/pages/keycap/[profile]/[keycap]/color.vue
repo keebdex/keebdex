@@ -1,19 +1,17 @@
 <template>
-  <UDashboardPanel :id="`keycap-${profile}-${keycap}`">
+  <UDashboardPanel :id="`keycap-${profile}-${keycap}-color`">
     <template #header>
-      <UDashboardNavbar title="Manage Keycap Kits">
+      <UDashboardNavbar title="Manage Keycap Colors">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
         <template #right>
-          <UModal v-model:visible="visible" title="Add Kit">
-            <UButton icon="hugeicons:dashboard-square-add"> Add </UButton>
+          <UModal v-model:visible="visible" title="Add Color">
+            <UButton icon="hugeicons:dashboard-circle-add"> Add </UButton>
 
             <template #body="{ close }">
-              <ModalKeycapKitForm
-                :is-edit="!!selectedKit?.id"
-                :metadata="selectedKit"
+              <ModalKeycapColorForm
                 @on-success="
                   () => {
                     close()
@@ -28,33 +26,24 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Manage Keycap Kits" :description="description" />
+      <UPageHeader title="Manage Keycap Colors" :description="description" />
 
-      <UTable :data="data.kits" :columns="columns" class="flex-1">
-        <template #status-cell="{ row }">
-          <UBadge
-            :label="row.original.cancelled ? 'Cancelled' : 'Active'"
-            :color="row.original.cancelled ? 'error' : 'success'"
-          />
+      <UTable :data="data.colors" :columns="columns" class="flex-1">
+        <template #hex-cell="{ row }">
+          <ColorSwatch :color="row.original.color?.hex" />
         </template>
+
         <template #action-cell="{ row }">
           <div class="flex gap-2">
-            <UModal v-model:visible="visible" title="Edit Kit">
-              <UButton
-                label="Edit"
-                icon="hugeicons:dashboard-square-edit"
-                size="sm"
-                @click="setSelectedKit(row.original)"
-              />
-
+            <UModal v-model:visible="visible" title="Edit Color">
               <template #body="{ close }">
-                <ModalKeycapKitForm
+                <ModalKeycapColorForm
                   :is-edit="true"
-                  :metadata="selectedKit"
+                  :metadata="selectedColor"
                   @on-success="
                     () => {
                       close()
-                      setSelectedKit()
+                      setSelectedColor()
                       refresh()
                     }
                   "
@@ -63,14 +52,14 @@
             </UModal>
 
             <UModal
-              v-model:visible="deleteKit"
-              title="Remove Kit"
+              v-model:visible="deleteColor"
+              title="Remove Color"
               description="Are you sure you want to continue? This action cannot be undone."
               :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UButton
                 label="Delete"
-                icon="hugeicons:dashboard-square-remove"
+                icon="hugeicons:dashboard-circle-remove"
                 size="sm"
                 color="error"
               />
@@ -117,31 +106,24 @@ const breadcrumbs = computed(() => {
       to: `/keycap/${profile}/${keycap}`,
     },
     {
-      label: 'Kits',
+      label: 'Colors',
     },
   ]
 })
 
 const columns = [
   {
-    accessorKey: 'name',
+    accessorKey: 'color.code',
+    header: 'Code',
+  },
+  {
+    accessorKey: 'color.name',
     header: 'Name',
   },
   {
-    accessorKey: 'price',
-    header: 'Price',
-  },
-  {
-    accessorKey: 'qty',
-    header: 'Quantity',
-  },
-  {
-    accessorKey: 'img',
-    header: 'Image',
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
+    id: 'hex',
+    accessorKey: 'color.hex',
+    header: 'Color',
   },
   {
     id: 'action',
@@ -149,37 +131,36 @@ const columns = [
 ]
 
 const description =
-  'Organize and edit keycap kits with ease. Add, update, or remove kits to keep your collection accurate and up to date.'
-
+  'Easily manage and connect official color codes to keycap sets on Keebdex.'
 useSeoMeta({
   title: data.value
-    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Kits`
+    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Colors`
     : manufacturers[profile],
   description,
 })
 
 defineOgImageComponent('Keycap', {
   title: `${data.value.profile.name} ${data.value.name}`,
-  description: description,
+  description,
   manufacturerId: profile,
 })
 
 const visible = ref(false)
-const selectedKit = ref({})
+const selectedColor = ref({})
 
-const setSelectedKit = (kit) => {
-  selectedKit.value = kit
+const setSelectedColor = (color) => {
+  selectedColor.value = color
 }
 
-const deleteKit = ref(false)
-const confirmDelete = (kit) => {
-  $fetch(`/api/keycaps/${kit.profile_keycap_id}/kits/${kit.id}`, {
+const deleteColor = ref(false)
+const confirmDelete = (color) => {
+  $fetch(`/api/keycaps/${color.profile_keycap_id}/colors/${color.id}`, {
     method: 'delete',
   })
     .then(() => {
       toast.add({
         color: 'success',
-        title: `Kit [${kit.name}] was deleted.`,
+        title: `Color [${color.name}] was deleted.`,
       })
       refresh()
     })

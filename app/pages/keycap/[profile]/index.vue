@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="keycap-tracker">
+  <UDashboardPanel id="keycap-sets">
     <template #header>
       <UDashboardNavbar :title="title">
         <template #right>
@@ -147,7 +147,7 @@ const { data, refresh } = await useAsyncData(
   },
 )
 
-const title = manufacturers[profile] ? manufacturers[profile] : 'Keycap Tracker'
+const title = manufacturers[profile] ? manufacturers[profile] : 'Sets by Status'
 const description = computed(() => {
   if (route.path === '/keycap/tracker') {
     return 'Discover new keycap sets in various stages: Interest Check, Live, and In Production.'

@@ -26,6 +26,7 @@ export const keycapProfiles = {
     gmk: 'GMK CYL',
     jtk: 'JTK',
     keykobo: 'Key Kobo',
+    mw: 'MW',
     pbtfans: 'PBTfans',
   },
   SA: {

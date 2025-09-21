@@ -85,5 +85,10 @@ export default defineAppConfig({
         container: 'py-8 sm:py-12 lg:py-16',
       },
     },
+    select: {
+      slots: {
+        content: 'min-w-fit',
+      },
+    },
   },
 })

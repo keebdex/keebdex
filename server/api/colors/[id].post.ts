@@ -2,13 +2,12 @@ import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { artisans, kits, colors, start, end, profile, ...rest } =
-    await readBody(event)
+  const body = await readBody(event)
 
   const { data, error } = await client
-    .from('keycaps')
-    .upsert(rest)
-    .eq('profile_keycap_id', rest.profile_keycap_id)
+    .from('colors')
+    .upsert(body)
+    .eq('id', body.id)
 
   if (error) {
     return error
