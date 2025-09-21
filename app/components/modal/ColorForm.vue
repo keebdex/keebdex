@@ -16,19 +16,24 @@
       <UInput v-model.trim="color.name" icon="hugeicons:text" class="w-full" />
     </UFormField>
 
-    <div class="flex flex-col gap-4">
-      <UFormField label="Hex" name="hex" required>
-        <UInput
-          v-model.trim="color.hex"
-          icon="hugeicons:paint-board"
-          class="w-full"
-        >
-          <template #trailing>
-            <UAvatar :style="{ backgroundColor: color.hex }" size="xs" />
-          </template>
-        </UInput>
-      </UFormField>
-    </div>
+    <UFormField
+      label="Hex"
+      name="hex"
+      required
+      help="Enter a valid hex color starting with # — use 3 or 6 hex digits (0-9, A-F)"
+    >
+      <UInput
+        v-model.trim="color.hex"
+        icon="hugeicons:paint-board"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UCard
+      v-if="color.hex"
+      class="h-32"
+      :style="{ backgroundColor: color.hex }"
+    />
 
     <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
