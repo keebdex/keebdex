@@ -177,13 +177,17 @@ const onSubmit = async () => {
     .then(() => {
       toast.add({
         color: 'success',
-        title: `Collection [${rest.name}] ${isEdit ? 'updated' : 'added'} successfully!`,
+        title: `Collection [${rest.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
       })
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 
   await userStore.fetchUserCollections(uid)

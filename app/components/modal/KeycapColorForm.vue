@@ -78,13 +78,18 @@ const onSubmit = async () => {
     .then(() => {
       toast.add({
         color: 'success',
-        title: 'Keycap colors added successfully!',
+        title: 'Colors has been added successfully.',
       })
+
       emit('onSuccess')
     })
     .catch((error) => {
       console.error(error)
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

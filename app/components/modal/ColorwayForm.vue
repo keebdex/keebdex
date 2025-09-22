@@ -174,13 +174,17 @@ const onSubmit = async () => {
     .then(() => {
       toast.add({
         color: 'success',
-        title: 'Colorway updated successfully!',
+        title: `Colorway [${colorway.value.name}] has been updated successfully.`,
       })
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

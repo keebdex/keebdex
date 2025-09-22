@@ -103,7 +103,7 @@ export const copyScreenshot = async (
     if (blob) {
       if (navigator.userAgent.toLowerCase().includes('firefox')) {
         toast.add({
-          severity: 'info',
+          color: 'info',
           title: 'Firefox Configuration',
           detail:
             'On Firefox you can enable the asyncClipboard.clipboardItem permission in about:config to enable copying straight to the clipboard',
@@ -111,7 +111,7 @@ export const copyScreenshot = async (
       }
 
       toast.add({
-        severity: 'info',
+        color: 'info',
         title: 'Clipboard Access Denied',
         detail:
           'Could not save image to clipboard. Opening in new tab instead (make sure popups are allowed)',

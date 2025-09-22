@@ -79,14 +79,17 @@ const onSubmit = async () => {
     .then(() => {
       toast.add({
         color: 'success',
-        title: `Color [${color.value.name}] ${isEdit ? 'updated' : 'added'} successfully!`,
+        title: `Color [${color.value.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
       })
 
       emit('onSuccess')
     })
     .catch((error) => {
-      console.error(error)
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

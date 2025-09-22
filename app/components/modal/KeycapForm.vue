@@ -254,19 +254,29 @@ const onSubmit = () => {
       if (isEdit) {
         toast.add({
           color: 'success',
-          title: `[${keycap.value.name}] updated successfully!`,
+          title: `Keycap **${keycap.value.name}** has been updated successfully.`,
         })
-        emit('onSuccess')
       } else {
         toast.add({
           color: 'success',
-          title: `[${keycap.value.name}] added successfully!`,
+          title: `Keycap [${keycap.value.name}] has been created successfully.`,
+          actions: [
+            {
+              label: 'View',
+              to: `/keycap/${keycap.value.profile_keycap_id}`,
+            },
+          ],
         })
-        emit('onSuccess')
       }
+
+      emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

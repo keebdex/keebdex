@@ -132,7 +132,11 @@ const onSubmit = async () => {
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

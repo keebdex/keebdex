@@ -195,22 +195,19 @@ const onSubmit = async () => {
     },
   })
     .then(() => {
-      if (isEdit) {
-        toast.add({
-          color: 'success',
-          title: `[${rest.name}] updated successfully!`,
-        })
-        emit('onSuccess')
-      } else {
-        toast.add({
-          color: 'success',
-          title: `[${rest.name}] added successfully!`,
-        })
-        emit('onSuccess')
-      }
+      toast.add({
+        color: 'success',
+        title: `Maker [${rest.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
+      })
+
+      emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

@@ -136,7 +136,11 @@ const toggleShowLogin = () => {
 const logout = async () => {
   const { error } = await client.auth.signOut()
   if (error) {
-    toast.add({ color: 'error', title: error.message })
+    toast.add({
+      color: 'error',
+      title: 'Oops! Something went wrong',
+      description: error.message,
+    })
   } else {
     userStore.$reset()
     toast.add({

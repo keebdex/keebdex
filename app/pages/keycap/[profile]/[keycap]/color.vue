@@ -160,12 +160,16 @@ const confirmDelete = (color) => {
     .then(() => {
       toast.add({
         color: 'success',
-        title: `Color [${color.name}] was deleted.`,
+        title: `Color [${color.name}] has been deleted.`,
       })
       refresh()
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

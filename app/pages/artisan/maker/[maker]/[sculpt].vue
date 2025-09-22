@@ -281,7 +281,7 @@ const saveTo = (collection, colorway) => {
     .then((data) => {
       if (data?.message) {
         toast.add({
-          severity: 'info',
+          color: 'info',
           title: data.message,
         })
       } else {
@@ -292,7 +292,11 @@ const saveTo = (collection, colorway) => {
       }
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

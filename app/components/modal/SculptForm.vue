@@ -104,22 +104,19 @@ const onSubmit = async () => {
     },
   )
     .then(() => {
-      if (isEdit) {
-        toast.add({
-          color: 'success',
-          title: 'Sculpt updated successfully!',
-        })
-        emit('onSuccess')
-      } else {
-        toast.add({
-          color: 'success',
-          title: 'New sculpt added successfully!',
-        })
-        emit('onSuccess')
-      }
+      toast.add({
+        color: 'success',
+        title: `Sculpt [${sculpt.value.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
+      })
+
+      emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 </script>

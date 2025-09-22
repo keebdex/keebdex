@@ -55,7 +55,7 @@ const onSubmit = async () => {
   }).then(() => {
     toast.add({
       color: 'success',
-      title: 'Your pins have been updated.',
+      title: 'Your pins has been updated successfully.',
     })
 
     userStore.$patch({ favorites: data })

@@ -147,7 +147,11 @@ const remove = (id, keycap) => {
       })
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 
@@ -162,12 +166,16 @@ const deleteCollection = () => {
       userStore.$patch({ collections: collections.value })
       toast.add({
         color: 'success',
-        title: `Collection [${data.value.name}] was deleted.`,
+        title: `Collection [${data.value.name}] has been deleted.`,
       })
       router.go(-1)
     })
     .catch((error) => {
-      toast.add({ color: 'error', title: error.message })
+      toast.add({
+        color: 'error',
+        title: 'Oops! Something went wrong',
+        description: error.message,
+      })
     })
 }
 
