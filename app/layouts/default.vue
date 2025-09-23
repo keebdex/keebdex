@@ -159,17 +159,23 @@ const routes = computed(() => {
       {
         label: 'Sets by Status',
         icon: 'hugeicons:calendar-03',
-        to: '/keycap/tracker',
-        active: route.path === '/keycap/tracker',
+        defaultOpen: true,
+        active: route.path === '/keycap',
+        children: Object.entries(keycapStatusMap).map(([status, meta]) => {
+          return {
+            label: meta.title,
+            to: `/keycap?status=${status}`,
+            active: route.path === '/keycap' && route.query.status === status,
+            exact: true,
+          }
+        }),
       },
       {
         label: 'Sets by Profile',
         icon: 'hugeicons:grid-view',
         defaultOpen: false,
         active:
-          route.path.startsWith('/keycap') &&
-          !route.path.endsWith('tracker') &&
-          !route.path.endsWith('color'),
+          route.path.startsWith('/keycap/') && !route.path.endsWith('color'),
         children: profiles,
       },
       {

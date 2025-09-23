@@ -1,6 +1,13 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { omitSensitive } from '../utils'
 
+const statusMap: Record<string, string[]> = {
+  ic: ['Interest Check'],
+  live: ['Live', 'Scheduled'],
+  ended: ['In Production', 'Shipping'],
+  pending: ['Pending Review'],
+}
+
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
@@ -12,18 +19,18 @@ export default defineEventHandler(async (event) => {
 
   let query
 
-  if (status === 'Review') {
+  if (status === 'pending') {
     query = client
       .from('keycaps')
       .select('*, profile:keycap_profiles(name)', { count: 'exact' })
       .in('review_status', ['Pending'])
       .range(from, to)
   } else {
-    query = status
+    query = statusMap[status]
       ? client
           .from('keycaps')
           .select('*, profile:keycap_profiles(name)', { count: 'exact' })
-          .eq('status', status)
+          .in('status', statusMap[status])
           .neq('review_status', 'Pending')
           .neq('review_status', 'Rejected')
           .order('ic_date', { ascending: false })
@@ -32,7 +39,7 @@ export default defineEventHandler(async (event) => {
           .from('keycaps')
           .select('*', { count: 'exact' })
           .eq('profile_id', profile_id)
-          .neq('status', status)
+          .neq('status', '')
           .neq('review_status', 'Pending')
           .neq('review_status', 'Rejected')
           .order('profile_keycap_id')

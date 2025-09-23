@@ -107,7 +107,7 @@
                     term: 'Status',
                     badge: {
                       label: data.status,
-                      color: keycapStatuses[data.status],
+                      color: keycapStatusColors[data.status],
                     },
                   },
                 ]"

@@ -81,7 +81,7 @@
       <UFormField label="Status" name="status">
         <USelect
           v-model="keycap.status"
-          :items="Object.keys(keycapStatuses)"
+          :items="Object.keys(keycapStatusColors)"
           class="w-full"
         />
       </UFormField>
@@ -213,7 +213,7 @@ const schema = z.object({
   // ic_date: z.date(),
   // start_date: z.date(),
   // end_date: z.date(),
-  status: z.enum(Object.keys(keycapStatuses)).nullish(),
+  status: z.enum(Object.keys(keycapStatusColors)).nullish(),
   order_graph: z.url().nullish().or(z.string().min(0).max(0)),
   order_history: z.url().nullish().or(z.string().min(0).max(0)),
   // description: z.string(),
@@ -254,7 +254,7 @@ const onSubmit = () => {
       if (isEdit) {
         toast.add({
           color: 'success',
-          title: `Keycap **${keycap.value.name}** has been updated successfully.`,
+          title: `Keycap [${keycap.value.name}] has been updated successfully.`,
         })
       } else {
         toast.add({

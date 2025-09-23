@@ -43,7 +43,7 @@ export const keycapProfiles = {
   },
 }
 
-export const keycapStatuses = {
+export const keycapStatusColors = {
   'Interest Check': 'secondary',
   Cancelled: 'error',
   Scheduled: 'info',
@@ -51,6 +51,29 @@ export const keycapStatuses = {
   'In Production': 'info',
   Shipping: 'info',
   Complete: 'success',
+}
+
+export const keycapStatusMap = {
+  ic: {
+    title: 'Interest Check',
+    description:
+      'Sets currently in the interest check stage where designers gather community feedback.',
+  },
+  live: {
+    title: 'Group Buy Live',
+    description:
+      'Sets that are either live in group buy or scheduled to start soon.',
+  },
+  ended: {
+    title: 'Group Buy Ended',
+    description:
+      'Sets with group buys already ended and awaiting production or delivery.',
+  },
+  pending: {
+    title: 'Pending Review',
+    description:
+      'Awaiting admin or moderator review before being visible to users.',
+  },
 }
 
 export const manufacturers = Object.values(keycapProfiles).reduce(
