@@ -142,12 +142,14 @@ const routes = computed(() => {
         children: [
           {
             label: 'Trading Hub',
+            icon: 'hugeicons:store-01',
             to: '/artisan/marketplace',
             active: route.path === '/artisan/marketplace',
             exact: true,
           },
           {
             label: 'Wishlist Image',
+            icon: 'hugeicons:ai-image',
             to: '/artisan/wishlist',
             active: route.path === '/artisan/wishlist',
             exact: true,
@@ -164,6 +166,7 @@ const routes = computed(() => {
         children: Object.entries(keycapStatusMap).map(([status, meta]) => {
           return {
             label: meta.title,
+            icon: meta.icon,
             to: `/keycap?status=${status}`,
             active: route.path === '/keycap' && route.query.status === status,
             exact: true,

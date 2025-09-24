@@ -25,11 +25,11 @@
     </template>
 
     <template #body>
-      <UPageHeader :title="title">
+      <!-- <UPageHeader :title="title">
         <template #description>
           <PageHeaderDescription :description="description" />
         </template>
-      </UPageHeader>
+      </UPageHeader> -->
 
       <UPageColumns v-if="keycaps.length">
         <UPageCard
@@ -37,7 +37,11 @@
           :key="keycap.id"
           v-bind="keycap"
           :to="`/keycap/${keycap.profile_keycap_id}`"
-          :title="keycap.name"
+          :title="
+            keycap.profile
+              ? `${keycap.profile?.name} ${keycap.name}`
+              : keycap.name
+          "
           reverse
           spotlight
         >
@@ -117,7 +121,7 @@ const saveTo = (collection, keycap) => {
     .then(() => {
       toast.add({
         color: 'success',
-        title: `${keycap.name} has been added to [${collection.name}].`,
+        title: `${keycap.name} has been added to ${collection.name}.`,
       })
     })
     .catch((error) => {

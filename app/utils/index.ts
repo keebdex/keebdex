@@ -58,21 +58,25 @@ export const keycapStatusMap = {
     title: 'Interest Check',
     description:
       'Sets currently in the interest check stage where designers gather community feedback.',
+    icon: 'hugeicons:idea-01',
   },
   live: {
     title: 'Group Buy Live',
     description:
       'Sets that are either live in group buy or scheduled to start soon.',
+    icon: 'hugeicons:live-streaming-02',
   },
   ended: {
     title: 'Group Buy Ended',
     description:
       'Sets with group buys already ended and awaiting production or delivery.',
+    icon: 'hugeicons:archive-02',
   },
   pending: {
     title: 'Pending Review',
     description:
       'Awaiting admin or moderator review before being visible to users.',
+    icon: 'hugeicons:edit-01',
   },
 }
 

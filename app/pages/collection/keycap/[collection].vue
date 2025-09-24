@@ -143,7 +143,7 @@ const remove = (id, keycap) => {
       refresh()
       toast.add({
         color: 'success',
-        title: `${keycap.name} was removed.`,
+        title: `${keycap.name} has been removed.`,
       })
     })
     .catch((error) => {

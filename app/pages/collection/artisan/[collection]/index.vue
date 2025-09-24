@@ -344,7 +344,7 @@ const moveTo = (collection, item) => {
       refresh()
       toast.add({
         color: 'success',
-        title: `${colorwayTitle(artisan)} was moved to [${collection.name}] collection.`,
+        title: `${colorwayTitle(artisan)} has been moved to ${collection.name}.`,
       })
     })
     .catch((error) => {
@@ -365,7 +365,7 @@ const remove = (id, colorway) => {
       refresh()
       toast.add({
         color: 'success',
-        title: `${colorwayTitle(colorway)} was removed.`,
+        title: `${colorwayTitle(colorway)} has been removed.`,
       })
     })
     .catch((error) => {
