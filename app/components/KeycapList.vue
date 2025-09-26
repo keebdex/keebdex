@@ -31,25 +31,39 @@
         </template>
       </UPageHeader> -->
 
-      <UPageColumns v-if="keycaps.length">
+      <UPageGrid
+        v-if="keycaps.length"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4"
+      >
         <UPageCard
           v-for="keycap in keycaps"
           :key="keycap.id"
-          v-bind="keycap"
           :to="`/keycap/${keycap.profile_keycap_id}`"
           :title="
             keycap.profile
               ? `${keycap.profile?.name} ${keycap.name}`
               : keycap.name
           "
+          :description="
+            keycap.profile
+              ? formatDateRange(keycap.start_date, keycap.end_date)
+              : keycap.description || '\u00A0'
+          "
           reverse
           spotlight
+          :ui="{
+            /**
+             * applied to card descriptions to normalize card height
+             * and ensure titles align across grid items
+             */
+            description: !keycap.profile && 'line-clamp-4 min-h-[5rem]',
+          }"
         >
           <NuxtImg
             loading="lazy"
             :alt="keycap.name"
             :src="keycap.img || keycap.render_img"
-            class="w-full h-full object-cover"
+            class="aspect-[16/9] w-full object-cover"
           />
 
           <template #footer>
@@ -63,7 +77,7 @@
             />
           </template>
         </UPageCard>
-      </UPageColumns>
+      </UPageGrid>
       <UError
         v-else
         :error="{
