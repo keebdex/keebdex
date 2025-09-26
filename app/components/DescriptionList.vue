@@ -1,11 +1,11 @@
 <template>
   <dl class="space-y-1 mb-1">
     <template v-for="(item, index) in items" :key="index">
-      <div class="sm:grid sm:grid-cols-4 sm:gap-2 sm:px-0 items-center">
-        <dt class="text-sm font-medium text-color">
+      <div class="grid grid-cols-4 gap-2 px-0 items-center">
+        <dt class="text-sm font-medium text-color col-span-1">
           {{ item.term }}
         </dt>
-        <dd class="mt-0.5 text-sm sm:col-span-3">
+        <dd class="mt-0.5 text-sm col-span-3">
           <template v-if="item.badge">
             <UBadge v-bind="item.badge" />
           </template>

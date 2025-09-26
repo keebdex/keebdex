@@ -45,8 +45,9 @@
       </UFormField>
 
       <UFormField label="Sculpt" name="sculpt">
-        <UInput
+        <UInputMenu
           v-model.trim="keycap.sculpt"
+          :items="sculpts"
           icon="hugeicons:dashboard-square-02"
           class="w-full"
         />
@@ -202,10 +203,26 @@ onBeforeMount(() => {
 
 const ic = computed(() => keycap.value.status === 'Interest Check')
 
+const sculpts = [
+  {
+    type: 'label',
+    label: 'Sculpted',
+  },
+  '1-1-2-3-4-4',
+  '1-1-2-3-4-3',
+  '1-1-2-3-4-5',
+  '0-1-2-3-4-5',
+  {
+    type: 'label',
+    label: 'Uniform',
+  },
+  'Uniform R3',
+]
+
 const schema = z.object({
   name: z.string().min(1),
   designer: z.string().nullish(),
-  sculpt: z.string().nullish(),
+  sculpt: z.enum(sculpts.filter((s) => typeof s === 'string')).nullish(),
   profile_id: z.enum(Object.keys(manufacturers)),
   url: z.url().nullish().or(z.string().min(0).max(0)),
   render_img: z.url().nullish().or(z.string().min(0).max(0)),

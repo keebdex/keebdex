@@ -87,6 +87,9 @@
 <script setup>
 const route = useRoute()
 const toast = useToast()
+const userStore = useUserStore()
+
+const { isAdmin } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -113,6 +116,20 @@ const routes = computed(() => {
 
   if (collapsed.value) {
     profiles = profiles.filter((p) => p.type !== 'label')
+  }
+
+  const statuses = Object.entries(keycapStatusMap).map(([status, meta]) => {
+    return {
+      label: meta.title,
+      icon: meta.icon,
+      to: `/keycap?status=${status}`,
+      active: route.path === '/keycap' && route.query.status === status,
+      exact: true,
+    }
+  })
+
+  if (!isAdmin.value) {
+    statuses.pop()
   }
 
   const items = [
@@ -163,15 +180,7 @@ const routes = computed(() => {
         icon: 'hugeicons:calendar-03',
         defaultOpen: true,
         active: route.path === '/keycap',
-        children: Object.entries(keycapStatusMap).map(([status, meta]) => {
-          return {
-            label: meta.title,
-            icon: meta.icon,
-            to: `/keycap?status=${status}`,
-            active: route.path === '/keycap' && route.query.status === status,
-            exact: true,
-          }
-        }),
+        children: statuses,
       },
       {
         label: 'Sets by Profile',
