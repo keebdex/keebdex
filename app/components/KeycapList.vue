@@ -49,9 +49,11 @@
               ? formatDateRange(keycap.start_date, keycap.end_date)
               : keycap.description || '\u00A0'
           "
+          :icon="statusIconMap[keycap.status]"
           reverse
           spotlight
           :ui="{
+            leadingIcon: 'text-info',
             /**
              * applied to card descriptions to normalize card height
              * and ensure titles align across grid items
@@ -118,6 +120,13 @@ defineEmits(['update:page', 'update:keycaps'])
 const userStore = useUserStore()
 const { authenticated, isAdmin, user } = storeToRefs(userStore)
 const toast = useToast()
+
+const statusIconMap = {
+  Live: 'hugeicons:live-streaming-01',
+  Scheduled: 'hugeicons:appointment-01',
+  'In Production': 'hugeicons:product-loading',
+  Shipping: 'hugeicons:shipping-truck-01',
+}
 
 const visible = ref(false)
 
