@@ -45,6 +45,7 @@ const { authenticated, user } = storeToRefs(userStore)
 const client = useSupabaseClient()
 const toast = useToast()
 
+const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
 const items = computed(() => {
@@ -55,7 +56,7 @@ const items = computed(() => {
       children: [
         {
           label: 'System',
-          icon: 'hugeicons:computer',
+          icon: appConfig.ui.icons.system,
           active: colorMode.preference === 'system',
           onSelect(e) {
             e.preventDefault()
@@ -64,7 +65,7 @@ const items = computed(() => {
         },
         {
           label: 'Light',
-          icon: 'hugeicons:sun-02',
+          icon: appConfig.ui.icons.light,
           active: colorMode.preference === 'light',
           onSelect(e) {
             e.preventDefault()
@@ -73,7 +74,7 @@ const items = computed(() => {
         },
         {
           label: 'Dark',
-          icon: 'hugeicons:moon-02',
+          icon: appConfig.ui.icons.dark,
           active: colorMode.preference === 'dark',
           onSelect(e) {
             e.preventDefault()
