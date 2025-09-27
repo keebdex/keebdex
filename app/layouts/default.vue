@@ -35,7 +35,7 @@
       </template>
 
       <template #default>
-        <KeebSearch :collapsed="collapsed" :routes="groups" />
+        <UDashboardSearchButton :collapsed="collapsed" />
 
         <template v-if="collapsed">
           <UDashboardSidebarCollapse />
@@ -64,6 +64,8 @@
         <ProfileMenu :collapsed="collapsed" />
       </template>
     </UDashboardSidebar>
+
+    <KeebSearch :routes="groups" />
 
     <slot />
 
