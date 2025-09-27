@@ -3,6 +3,8 @@
     <template #header>
       <UDashboardNavbar title="Artisan Makers">
         <template #right>
+          <KeebSearch />
+
           <UModal v-if="isAdmin" v-model:visible="visible" title="Add Maker">
             <UButton color="primary" icon="hugeicons:user-add-02">
               Add
