@@ -37,6 +37,8 @@
       <template #default>
         <UDashboardSearchButton :collapsed="collapsed" />
 
+        <KeebSearch />
+
         <template v-if="collapsed">
           <UDashboardSidebarCollapse />
         </template>
@@ -263,33 +265,32 @@ const toggle = (key) => {
   visible.value[key] = !visible.value[key]
 }
 
-onMounted(async () => {
+onMounted(() => {
   const cookie = useCookie('cookie-consent')
-  if (cookie.value === 'accepted') {
-    return
-  }
 
-  toast.add({
-    title:
-      'We use cookies to improve your experience. By using our site, you agree to our use of cookies.',
-    icon: 'hugeicons:cookie',
-    duration: 0,
-    close: false,
-    actions: [
-      {
-        label: 'Accept',
-        color: 'neutral',
-        color: 'info',
-        onClick: () => {
-          cookie.value = 'accepted'
+  // Show cookie consent if not accepted
+  if (cookie.value !== 'accepted') {
+    toast.add({
+      title:
+        'We use cookies to improve your experience. By using our site, you agree to our use of cookies.',
+      icon: 'hugeicons:cookie',
+      duration: 0,
+      close: false,
+      actions: [
+        {
+          label: 'Accept',
+          color: 'info',
+          onClick: () => {
+            cookie.value = 'accepted'
+          },
         },
-      },
-      {
-        label: 'Decline',
-        color: 'neutral',
-        variant: 'ghost',
-      },
-    ],
-  })
+        {
+          label: 'Decline',
+          color: 'neutral',
+          variant: 'ghost',
+        },
+      ],
+    })
+  }
 })
 </script>

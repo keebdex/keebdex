@@ -18,19 +18,22 @@ export default defineEventHandler(async (event) => {
     .from('makers')
     .select()
     .textSearch('fts', `${fts}`)
+    .order('id')
     .limit(10)
 
   const sculptSearch = client
     .from('sculpts')
     .select('*, maker:makers(name)')
     .textSearch('fts', `${fts}`)
+    .order('maker_sculpt_id')
     .limit(20)
 
   const colorwaySearch = client
     .from('colorways')
     .select('*, maker:makers(name), sculpt:sculpts(name)')
     .textSearch('fts', `${fts}`)
-    .limit(100)
+    .order('maker_sculpt_id')
+    .limit(200)
 
   const keycapSearch = client
     .from('keycaps')
@@ -48,7 +51,7 @@ export default defineEventHandler(async (event) => {
 
   return [
     {
-      id: 'makers',
+      id: 'artisan-maker',
       label: 'Makers',
       items: makers.data?.map((m: any) => ({
         id: m.id,
@@ -64,7 +67,7 @@ export default defineEventHandler(async (event) => {
       })),
     },
     {
-      id: 'sculpts',
+      id: 'artisan-sculpt',
       label: 'Sculpts',
       items: sculpts.data?.map((s: any) => ({
         id: s.id,
@@ -81,7 +84,7 @@ export default defineEventHandler(async (event) => {
       })),
     },
     {
-      id: 'colorways',
+      id: 'artisan-colorway',
       label: 'Colorways',
       ignoreFilter: true,
       items: Object.entries(groupBy(colorways.data || [], 'maker.name')).map(
@@ -89,6 +92,13 @@ export default defineEventHandler(async (event) => {
           return {
             id: maker.toLowerCase(),
             label: maker,
+            avatar: {
+              src: `/logo/${items[0].maker_id}.png`,
+              alt: items[0].maker.name,
+              ui: {
+                root: 'bg-transparent rounded-none',
+              },
+            },
             children: items.map((c) => ({
               id: c.id,
               label: c.sculpt.name,
@@ -100,12 +110,19 @@ export default defineEventHandler(async (event) => {
       ),
     },
     {
-      id: 'keycaps',
-      label: 'Keycaps',
+      id: 'keycap-set',
+      label: 'Keycap Sets',
       items: keycaps.data?.map((kc: any) => ({
         id: kc.id,
         label: `${kc.profile.name} ${kc.name}`,
         to: `/keycap/${kc.profile_keycap_id}`,
+        avatar: {
+          src: `/logo/${kc.profile_id}.png`,
+          alt: kc.profile.name,
+          ui: {
+            root: 'bg-transparent rounded-none',
+          },
+        },
       })),
     },
   ].filter((c) => c.items?.length)

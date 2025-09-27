@@ -1,13 +1,5 @@
 <template>
   <UModal v-model:open="open">
-    <UButton icon="hugeicons:search-01" label="Search...">
-      <template #trailing>
-        <UKbd value="meta" />
-        <UKbd value="shift" />
-        <UKbd value="F" />
-      </template>
-    </UButton>
-
     <template #content>
       <UCommandPalette
         v-model:search-term="term"
