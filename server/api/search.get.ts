@@ -1,10 +1,17 @@
 import { serverSupabaseClient } from '#supabase/server'
 import groupBy from 'lodash.groupby'
 
+const avatarUi = (invertible: boolean, theme: string | undefined) => {
+  return {
+    root: 'bg-transparent rounded-none',
+    image: invertible && theme === 'dark' && 'invert',
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const { query } = getQuery(event)
+  const { query, theme } = getQuery(event)
 
   if (!query) return []
 
@@ -23,14 +30,14 @@ export default defineEventHandler(async (event) => {
 
   const sculptSearch = client
     .from('sculpts')
-    .select('*, maker:makers(name)')
+    .select('*, maker:makers(name, invertible_logo)')
     .textSearch('fts', `${fts}`)
     .order('maker_sculpt_id')
     .limit(20)
 
   const colorwaySearch = client
     .from('colorways')
-    .select('*, maker:makers(name), sculpt:sculpts(name)')
+    .select('*, maker:makers(name, invertible_logo), sculpt:sculpts(name)')
     .textSearch('fts', `${fts}`)
     .order('maker_sculpt_id')
     .limit(200)
@@ -53,6 +60,7 @@ export default defineEventHandler(async (event) => {
     {
       id: 'artisan-maker',
       label: 'Makers',
+      ignoreFilter: true,
       items: makers.data?.map((m: any) => ({
         id: m.id,
         label: m.name,
@@ -60,15 +68,14 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${m.id}.png`,
           alt: m.name,
-          ui: {
-            root: 'bg-transparent rounded-none',
-          },
+          ui: avatarUi(m.invertible_logo, theme?.toString()),
         },
       })),
     },
     {
       id: 'artisan-sculpt',
       label: 'Sculpts',
+      ignoreFilter: true,
       items: sculpts.data?.map((s: any) => ({
         id: s.id,
         label: s.maker.name,
@@ -77,9 +84,7 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${s.maker_id}.png`,
           alt: s.maker.name,
-          ui: {
-            root: 'bg-transparent rounded-none',
-          },
+          ui: avatarUi(s.maker.invertible_logo, theme?.toString()),
         },
       })),
     },
@@ -88,16 +93,16 @@ export default defineEventHandler(async (event) => {
       label: 'Colorways',
       ignoreFilter: true,
       items: Object.entries(groupBy(colorways.data || [], 'maker.name')).map(
-        ([maker, items]) => {
+        ([name, items]) => {
+          const [item] = items
+
           return {
-            id: maker.toLowerCase(),
-            label: maker,
+            id: name.toLowerCase(),
+            label: name,
             avatar: {
-              src: `/logo/${items[0].maker_id}.png`,
-              alt: items[0].maker.name,
-              ui: {
-                root: 'bg-transparent rounded-none',
-              },
+              src: `/logo/${item.maker_id}.png`,
+              alt: item.maker.name,
+              ui: avatarUi(item.maker.invertible_logo, theme?.toString()),
             },
             children: items.map((c) => ({
               id: c.id,
@@ -112,6 +117,7 @@ export default defineEventHandler(async (event) => {
     {
       id: 'keycap-set',
       label: 'Keycap Sets',
+      ignoreFilter: true,
       items: keycaps.data?.map((kc: any) => ({
         id: kc.id,
         label: `${kc.profile.name} ${kc.name}`,
@@ -121,6 +127,7 @@ export default defineEventHandler(async (event) => {
           alt: kc.profile.name,
           ui: {
             root: 'bg-transparent rounded-none',
+            image: theme === 'dark' && 'invert',
           },
         },
       })),
