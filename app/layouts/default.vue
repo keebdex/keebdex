@@ -35,8 +35,9 @@
       </template>
 
       <template #default>
+        <UDashboardSearchButton :collapsed="collapsed" />
+
         <template v-if="collapsed">
-          <UDashboardSearchButton :collapsed="collapsed" />
           <UDashboardSidebarCollapse />
         </template>
 

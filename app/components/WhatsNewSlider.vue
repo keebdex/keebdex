@@ -1,7 +1,7 @@
 <template>
   <USlideover
     v-model:open="open"
-    title="Latest Drops"
+    title="Latest Additions"
     description="Welcome to today's drop! Dive into the newest keycap sets now live, and snag our latest artisan creations. Check out what's available for preorder and group buy!"
     :ui="{
       header: 'border-none',
@@ -9,7 +9,7 @@
     }"
   >
     <UButton
-      :label="collapsed ? undefined : 'What\'s New'"
+      :label="collapsed ? undefined : 'Latest Additions'"
       icon="solar:confetti-bold-duotone"
       color="info"
       block
