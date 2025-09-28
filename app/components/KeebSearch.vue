@@ -3,6 +3,9 @@
     v-model:search-term="term"
     :groups="groups"
     :loading="status === 'pending'"
+    :fuse="{
+      resultLimit: 48,
+    }"
   />
 </template>
 

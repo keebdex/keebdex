@@ -13,9 +13,11 @@ type Item = {
   [key: string]: any
 }
 
+const limit = 24
+
 function chunkLabel(makers: { maker: Maker }[]) {
-  const first = makers[0]?.maker.name.charAt(0).toUpperCase()
-  const last = makers[makers.length - 1]?.maker.name.charAt(0).toUpperCase()
+  const first = makers[0]!.maker.name.charAt(0).toUpperCase()
+  const last = makers[makers.length - 1]!.maker.name.charAt(0).toUpperCase()
 
   return { first, last }
 }
@@ -29,9 +31,9 @@ function groupByMakerWithChunks(items: Item[]) {
 
   for (const [maker, its] of Object.entries(makers)) {
     if (/^[0-9]/.test(maker)) {
-      numericMakers.push({ maker: its[0]?.maker, items: its })
+      numericMakers.push({ maker: its[0]!.maker, items: its })
     } else {
-      alphaMakers.push({ maker: its[0]?.maker, items: its })
+      alphaMakers.push({ maker: its[0]!.maker, items: its })
     }
   }
 
@@ -42,11 +44,8 @@ function groupByMakerWithChunks(items: Item[]) {
 
   // sort letters and makers inside each letter
   const sortedLetters = Object.keys(makerGroups).sort()
-  for (const letter of sortedLetters) {
-    makerGroups[letter].sort((a, b) => a.maker.name.localeCompare(b.maker.name))
-  }
 
-  // build chunks: ≤12 makers, but keep same letter together
+  // build chunks, but keep same letter together
   const chunks = []
 
   // numeric always first
@@ -61,9 +60,9 @@ function groupByMakerWithChunks(items: Item[]) {
   let currentChunk = []
 
   for (const letter of sortedLetters) {
-    const group = makerGroups[letter]
+    const group = makerGroups[letter] || []
 
-    if (currentChunk.length + group.length > 12 && currentChunk.length > 0) {
+    if (currentChunk.length + group.length > limit && currentChunk.length > 0) {
       chunks.push({
         ...chunkLabel(currentChunk),
         makers: currentChunk,

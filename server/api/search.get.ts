@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
   return [
     {
       id: 'artisan-maker',
-      label: 'Makers',
+      label: 'Artisan Makers',
       ignoreFilter: true,
       items: makers.data?.map((m: any) => ({
         id: m.id,
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
     },
     {
       id: 'artisan-sculpt',
-      label: 'Sculpts',
+      label: 'Artisan Sculpts',
       ignoreFilter: true,
       items: sculpts.data?.map((s: any) => ({
         id: s.id,
@@ -90,35 +90,38 @@ export default defineEventHandler(async (event) => {
     },
     {
       id: 'artisan-colorway',
-      label: 'Colorways',
+      label: 'Artisan Colorways',
       ignoreFilter: true,
-      items: groupByMakerWithChunks(colorways.data || []).map(
-        ({ first, last, makers }) => {
-          const label = `${first}-${last}`
+      items: groupByMakerWithChunks(colorways.data || []).map((group, idx) => {
+        const { first, last, makers } = group
+        const label = `${typeof first === 'number' ? 'Numeric Makers' : 'Alphabet Makers'}: ${first}-${last}`
 
-          return {
-            id: label.toLowerCase(),
-            label: `Colorways by makers: ${first}-${last}`,
-            children: makers.map(({ maker, items }) => {
-              return {
-                id: maker.id,
-                label: maker.name,
-                avatar: {
-                  src: `/logo/${maker.id}.png`,
-                  alt: maker.name,
-                  ui: avatarUi(maker.invertible_logo, theme?.toString()),
-                },
-                children: items.map((c: any) => ({
-                  id: c.id,
-                  label: c.sculpt.name,
-                  suffix: c.name,
-                  to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
-                })),
-              }
-            }),
-          }
-        },
-      ),
+        return {
+          id: `artisan-colorway-${idx}`,
+          label,
+          icon:
+            typeof first === 'number'
+              ? 'hugeicons:zero-square'
+              : 'hugeicons:text-square',
+          children: makers.map(({ maker, items }) => {
+            return {
+              id: maker.id,
+              label: maker.name,
+              avatar: {
+                src: `/logo/${maker.id}.png`,
+                alt: maker.name,
+                ui: avatarUi(maker.invertible_logo, theme?.toString()),
+              },
+              children: items.map((c: any) => ({
+                id: c.id,
+                label: c.sculpt.name,
+                suffix: c.name,
+                to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
+              })),
+            }
+          }),
+        }
+      }),
     },
     {
       id: 'keycap-set',
