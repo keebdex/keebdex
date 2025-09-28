@@ -1,9 +1,19 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { groupByMakerWithChunks } from '../utils/group'
+
+const avatarUi = (invertible: boolean, theme: string | undefined) => {
+  return {
+    root: 'bg-transparent rounded-none',
+    image: invertible && theme === 'dark' && 'invert',
+  }
+}
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const { query } = getQuery(event)
+  const { query, theme } = getQuery(event)
+
+  if (!query) return []
 
   const fts = query
     ?.toString()
@@ -15,19 +25,22 @@ export default defineEventHandler(async (event) => {
     .from('makers')
     .select()
     .textSearch('fts', `${fts}`)
+    .order('id')
     .limit(10)
 
   const sculptSearch = client
     .from('sculpts')
-    .select('*, maker:makers(name)')
+    .select('*, maker:makers(name, invertible_logo)')
     .textSearch('fts', `${fts}`)
-    .limit(10)
+    .order('maker_sculpt_id')
+    .limit(20)
 
   const colorwaySearch = client
     .from('colorways')
-    .select('*, maker:makers(name), sculpt:sculpts(name)')
+    .select('*, maker:makers(id, name, invertible_logo), sculpt:sculpts(name)')
     .textSearch('fts', `${fts}`)
-    .limit(10)
+    .order('maker_sculpt_id')
+    .limit(200)
 
   const keycapSearch = client
     .from('keycaps')
@@ -43,48 +56,90 @@ export default defineEventHandler(async (event) => {
     keycapSearch,
   ])
 
-  return {
-    data: [
-      {
-        title: 'Makers',
-        options: makers.data?.map((m: any) => ({
-          title: m.name,
-          value: `/artisan/maker/${m.id}`,
-          maker_id: m.id,
-          maker_name: m.name,
-        })),
-      },
-      {
-        title: 'Sculpts',
-        options: sculpts.data?.map((s: any) => ({
-          title: `${s.maker.name} > ${s.name}`,
-          value: `/artisan/maker/${s.maker_id}/${s.sculpt_id}`,
-          maker_id: s.maker_id,
-          maker_name: s.maker.name,
-          sculpt_id: s.sculpt_id,
-          sculpt_name: s.name,
-        })),
-      },
-      {
-        title: 'Colorways',
-        options: colorways.data?.map((c: any) => ({
-          title: `${c.maker.name} > ${c.sculpt.name} > ${c.name}`,
-          value: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
-          maker_id: c.maker_id,
-          maker_name: c.maker.name,
-          sculpt_id: c.sculpt_id,
-          sculpt_name: c.sculpt.name,
-          colorway_id: c.colorway_id,
-          colorway_name: c.name,
-        })),
-      },
-      {
-        title: 'Keycaps',
-        options: keycaps.data?.map((kc: any) => ({
-          title: `${kc.profile.name} ${kc.name}`,
-          value: `/keycap/${kc.profile_keycap_id}`,
-        })),
-      },
-    ].filter((c) => c.options?.length),
-  }
+  return [
+    {
+      id: 'artisan-maker',
+      label: 'Artisan Makers',
+      ignoreFilter: true,
+      items: makers.data?.map((m: any) => ({
+        id: m.id,
+        label: m.name,
+        to: `/artisan/maker/${m.id}`,
+        avatar: {
+          src: `/logo/${m.id}.png`,
+          alt: m.name,
+          ui: avatarUi(m.invertible_logo, theme?.toString()),
+        },
+      })),
+    },
+    {
+      id: 'artisan-sculpt',
+      label: 'Artisan Sculpts',
+      ignoreFilter: true,
+      items: sculpts.data?.map((s: any) => ({
+        id: s.id,
+        label: s.maker.name,
+        suffix: s.name,
+        to: `/artisan/maker/${s.maker_id}/${s.sculpt_id}`,
+        avatar: {
+          src: `/logo/${s.maker_id}.png`,
+          alt: s.maker.name,
+          ui: avatarUi(s.maker.invertible_logo, theme?.toString()),
+        },
+      })),
+    },
+    {
+      id: 'artisan-colorway',
+      label: 'Artisan Colorways',
+      ignoreFilter: true,
+      items: groupByMakerWithChunks(colorways.data || []).map((group, idx) => {
+        const { first, last, makers } = group
+        const label = `${typeof first === 'number' ? 'Numeric Makers' : 'Alphabet Makers'}: ${first}-${last}`
+
+        return {
+          id: `artisan-colorway-${idx}`,
+          label,
+          icon:
+            typeof first === 'number'
+              ? 'hugeicons:zero-square'
+              : 'hugeicons:text-square',
+          children: makers.map(({ maker, items }) => {
+            return {
+              id: maker.id,
+              label: maker.name,
+              avatar: {
+                src: `/logo/${maker.id}.png`,
+                alt: maker.name,
+                ui: avatarUi(maker.invertible_logo, theme?.toString()),
+              },
+              children: items.map((c: any) => ({
+                id: c.id,
+                label: c.sculpt.name,
+                suffix: c.name,
+                to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
+              })),
+            }
+          }),
+        }
+      }),
+    },
+    {
+      id: 'keycap-set',
+      label: 'Keycap Sets',
+      ignoreFilter: true,
+      items: keycaps.data?.map((kc: any) => ({
+        id: kc.id,
+        label: `${kc.profile.name} ${kc.name}`,
+        to: `/keycap/${kc.profile_keycap_id}`,
+        avatar: {
+          src: `/logo/${kc.profile_id}.png`,
+          alt: kc.profile.name,
+          ui: {
+            root: 'bg-transparent rounded-none',
+            image: theme === 'dark' && 'invert',
+          },
+        },
+      })),
+    },
+  ].filter((c) => c.items?.length)
 })
