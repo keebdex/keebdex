@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import groupBy from 'lodash.groupby'
+import { groupByMakerWithChunks } from '../utils/group'
 
 const avatarUi = (invertible: boolean, theme: string | undefined) => {
   return {
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
   const colorwaySearch = client
     .from('colorways')
-    .select('*, maker:makers(name, invertible_logo), sculpt:sculpts(name)')
+    .select('*, maker:makers(id, name, invertible_logo), sculpt:sculpts(name)')
     .textSearch('fts', `${fts}`)
     .order('maker_sculpt_id')
     .limit(200)
@@ -92,24 +92,30 @@ export default defineEventHandler(async (event) => {
       id: 'artisan-colorway',
       label: 'Colorways',
       ignoreFilter: true,
-      items: Object.entries(groupBy(colorways.data || [], 'maker.name')).map(
-        ([name, items]) => {
-          const [item] = items
+      items: groupByMakerWithChunks(colorways.data || []).map(
+        ({ first, last, makers }) => {
+          const label = `${first}-${last}`
 
           return {
-            id: name.toLowerCase(),
-            label: name,
-            avatar: {
-              src: `/logo/${item.maker_id}.png`,
-              alt: item.maker.name,
-              ui: avatarUi(item.maker.invertible_logo, theme?.toString()),
-            },
-            children: items.map((c) => ({
-              id: c.id,
-              label: c.sculpt.name,
-              suffix: c.name,
-              to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
-            })),
+            id: label.toLowerCase(),
+            label: `Colorways by makers: ${first}-${last}`,
+            children: makers.map(({ maker, items }) => {
+              return {
+                id: maker.id,
+                label: maker.name,
+                avatar: {
+                  src: `/logo/${maker.id}.png`,
+                  alt: maker.name,
+                  ui: avatarUi(maker.invertible_logo, theme?.toString()),
+                },
+                children: items.map((c: any) => ({
+                  id: c.id,
+                  label: c.sculpt.name,
+                  suffix: c.name,
+                  to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
+                })),
+              }
+            }),
           }
         },
       ),
