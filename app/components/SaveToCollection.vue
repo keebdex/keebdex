@@ -20,7 +20,11 @@
     }"
   >
     <UTooltip :text="move ? 'Move' : 'Save'" :delay-duration="0">
-      <UButton :label="label" :icon="icon" />
+      <UButton
+        :id="`${item.colorway_id}-save-to`"
+        :label="label"
+        :icon="icon"
+      />
     </UTooltip>
   </UDropdownMenu>
 </template>

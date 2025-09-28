@@ -157,7 +157,6 @@ onMounted(async () => {
 
 async function fetchFileFromUrl(url, filename) {
   const res = await fetch(url)
-  console.log(res)
 
   const blob = await res.blob()
   return new File([blob], filename, { type: blob.type })

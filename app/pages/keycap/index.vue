@@ -37,7 +37,7 @@ const { data, refresh } = await useAsyncData(
       query: { page: page.value, size, status: status.value },
     }),
   {
-    watch: [page, size, status],
+    watch: [page, status],
   },
 )
 

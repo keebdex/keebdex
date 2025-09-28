@@ -30,7 +30,7 @@
         </NuxtLink>
 
         <div v-if="!collapsed" class="flex items-center gap-1.5 ms-auto">
-          <UDashboardSidebarCollapse />
+          <UDashboardSidebarCollapse class="text-dimmed" />
         </div>
       </template>
 
@@ -38,7 +38,7 @@
         <UDashboardSearchButton :collapsed="collapsed" />
 
         <template v-if="collapsed">
-          <UDashboardSidebarCollapse />
+          <UDashboardSidebarCollapse class="text-dimmed" />
         </template>
 
         <WhatsNewSlider :collapsed="collapsed" />
@@ -233,7 +233,10 @@ const links = computed(() => [
     {
       label: 'Donate',
       icon: 'hugeicons:paypal',
-      class: 'cursor-pointer',
+      class: 'cursor-pointer text-donator hover:text-donator',
+      ui: {
+        linkLeadingIcon: 'text-donator group-hover:text-donator',
+      },
       onSelect() {
         toggle('donate')
       },

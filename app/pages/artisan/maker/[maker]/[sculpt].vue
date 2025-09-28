@@ -219,27 +219,6 @@ defineOgImageComponent('Artisan', {
   invertible: sculpt.value?.invertible_logo,
 })
 
-watch(
-  () => route.query.cid,
-  () => {
-    const clw = sculpt.value.colorways.find(
-      (c) => c.colorway_id === route.query.cid,
-    )
-    if (clw) {
-      setSelectedColorway(clw)
-    }
-  },
-)
-
-onMounted(() => {
-  const clw = sculpt.value.colorways.find(
-    (c) => c.colorway_id === route.query.cid,
-  )
-  if (clw) {
-    setSelectedColorway(clw)
-  }
-})
-
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
@@ -265,6 +244,24 @@ const setSelectedColorway = (clw) => {
     sculpt: rest,
   }
 }
+
+const toogleColorwayCard = () => {
+  const clw = sculpt.value.colorways.find(
+    (c) => c.colorway_id === route.query.cid,
+  )
+  if (clw) {
+    setSelectedColorway(clw)
+    visible.value.card = !visible.value.card
+  }
+}
+
+watch(
+  () => route.query.cid,
+  () => {
+    toogleColorwayCard()
+  },
+  { immediate: true },
+)
 
 // add to collection
 const saveTo = (collection, colorway) => {

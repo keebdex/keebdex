@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="code" class="space-y-4" @submit="onSubmit">
+  <UForm :schema="schema" :state="color" class="space-y-4" @submit="onSubmit">
     <UFormField label="System" name="system" required>
       <USelect v-model="color.system" :items="colorSystems" class="w-full" />
     </UFormField>
