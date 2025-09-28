@@ -73,7 +73,7 @@
               :description="formatDateRange(keycap.start_date, keycap.end_date)"
               size="lg"
               :avatar="{
-                src: `/logo/${keycap.profile_id}.png`,
+                src: `/logo/${keycap.profile.manufacturer_id}.png`,
                 alt: `${keycap.profile.name} ${keycap.name}`,
                 ui: {
                   root: 'rounded-none bg-transparent',

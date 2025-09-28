@@ -285,11 +285,6 @@ onMounted(() => {
             cookie.value = 'accepted'
           },
         },
-        {
-          label: 'Decline',
-          color: 'neutral',
-          variant: 'ghost',
-        },
       ],
     })
   }

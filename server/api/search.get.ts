@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   const keycapSearch = client
     .from('keycaps')
-    .select('*, profile:keycap_profiles(name)')
+    .select('*, profile:keycap_profiles(name, manufacturer_id)')
     .textSearch('fts', `${fts}`)
     .order('profile_keycap_id')
     .limit(10)
@@ -132,7 +132,7 @@ export default defineEventHandler(async (event) => {
         label: `${kc.profile.name} ${kc.name}`,
         to: `/keycap/${kc.profile_keycap_id}`,
         avatar: {
-          src: `/logo/${kc.profile_id}.png`,
+          src: `/logo/${kc.profile.manufacturer_id}.png`,
           alt: kc.profile.name,
           ui: {
             root: 'bg-transparent rounded-none',
