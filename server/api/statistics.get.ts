@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: keycaps } = await client
     .from('keycaps')
-    .select('*, profile:keycap_profiles(name)')
+    .select('*, profile:keycap_profiles(name, manufacturer_id)')
     .eq('status', 'Live')
     .eq('review_status', 'Approved')
   // .lte('start_date', startOfDay)

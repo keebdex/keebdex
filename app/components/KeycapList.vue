@@ -46,14 +46,14 @@
           "
           :description="
             keycap.profile
-              ? formatDateRange(keycap.start_date, keycap.end_date)
+              ? formatDateRange(keycap.start_date, keycap.end_date) || '\u00A0'
               : keycap.description || '\u00A0'
           "
           :icon="statusIconMap[keycap.status]"
           reverse
           spotlight
           :ui="{
-            leadingIcon: 'text-info',
+            leadingIcon: `text-${keycapStatusColors[keycap.status]}`,
             /**
              * applied to card descriptions to normalize card height
              * and ensure titles align across grid items
@@ -126,6 +126,7 @@ const statusIconMap = {
   Scheduled: 'hugeicons:appointment-01',
   'In Production': 'hugeicons:product-loading',
   Shipping: 'hugeicons:shipping-truck-01',
+  Cancelled: 'hugeicons:unavailable',
 }
 
 const visible = ref(false)

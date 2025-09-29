@@ -47,8 +47,8 @@ export const keycapStatusColors = {
   'Interest Check': 'secondary',
   Cancelled: 'error',
   Scheduled: 'info',
-  Live: 'info',
-  'In Production': 'info',
+  Live: 'primary',
+  'In Production': 'warning',
   Shipping: 'info',
   Complete: 'success',
 }

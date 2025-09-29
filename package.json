@@ -58,7 +58,7 @@
     "@nuxt/image": "^1.11.0",
     "@nuxt/ui": "^4.0.0",
     "@nuxtjs/device": "^3.2.4",
-    "@nuxtjs/supabase": "1.6.2",
+    "@nuxtjs/supabase": "2.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
