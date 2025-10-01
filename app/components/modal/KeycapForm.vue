@@ -237,13 +237,9 @@ const schema = z.object({
 })
 
 const onSubmit = () => {
-  const slug = isEdit
-    ? keycap.value.id
-    : slugify(keycap.value.name, { lower: true })
+  const slug = slugify(keycap.value.name, { lower: true })
 
-  if (!isEdit) {
-    keycap.value.profile_keycap_id = `${keycap.value.profile_id}/${slug}`
-  }
+  keycap.value.profile_keycap_id = `${keycap.value.profile_id}/${slug}`
 
   if (keycap.value.ic_date) {
     keycap.value.ic_date = toISODate(keycap.value.ic_date)
@@ -257,26 +253,33 @@ const onSubmit = () => {
 
   /**
    * FIXME: maybe we need to change this
-   * this is workaroundto handle updating render_img and refresh cdn image
+   * this is workaround to handle updating render_img and refresh cdn image
    */
   if (metadata.render_img && metadata.render_img !== keycap.value.render_img) {
     keycap.value.img = ''
   }
 
-  $fetch(`/api/keycaps/${route.params.profile}/${slug}`, {
-    method: 'post',
-    body: keycap.value,
-  })
+  $fetch(
+    `/api/keycaps/${route.params.profile}/${route.params.keycap || slug}`,
+    {
+      method: 'post',
+      body: keycap.value,
+    },
+  )
     .then(() => {
       if (isEdit) {
         toast.add({
           color: 'success',
           title: `Keycap [${keycap.value.name}] has been updated successfully.`,
         })
+
+        if (route.params.keycap !== slug) {
+          navigateTo(`/keycap/${keycap.value.profile_keycap_id}`)
+        }
       } else {
         toast.add({
           color: 'success',
-          title: `Keycap [${keycap.value.name}] has been created successfully.`,
+          title: `Keycap [${keycap.value.name}] has been added successfully.`,
           actions: [
             {
               label: 'View',

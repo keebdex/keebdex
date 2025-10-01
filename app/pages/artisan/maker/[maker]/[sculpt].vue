@@ -245,7 +245,7 @@ const setSelectedColorway = (clw) => {
   }
 }
 
-const toogleColorwayCard = () => {
+const toggleColorwayCard = () => {
   const clw = sculpt.value.colorways.find(
     (c) => c.colorway_id === route.query.cid,
   )
@@ -258,7 +258,7 @@ const toogleColorwayCard = () => {
 watch(
   () => route.query.cid,
   () => {
-    toogleColorwayCard()
+    toggleColorwayCard()
   },
   { immediate: true },
 )
