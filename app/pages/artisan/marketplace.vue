@@ -14,9 +14,9 @@
             will make them visible to potential buyers/sellers.
           </template>
         </UAlert>
-      </UPage>
 
-      <MarketplaceListing />
+        <MarketplaceListing class="mt-6"/>
+      </UPage>
     </template>
   </UDashboardPanel>
 </template>

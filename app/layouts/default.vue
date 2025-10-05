@@ -67,7 +67,10 @@
 
     <KeebSearch :routes="groups" />
 
-    <slot />
+    <div class="flex flex-col w-full">
+      <Banner />
+      <slot />
+    </div>
 
     <!-- <NotificationsSlideover /> -->
 

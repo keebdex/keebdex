@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
       )
       .eq('exchange', true)
       .match(query)
+      .order('order', { ascending: true })
 
     const group = groupBy(items, 'collection_id')
     collections.forEach((collection: any) => {

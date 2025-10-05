@@ -1,5 +1,5 @@
 <template>
-  <UPageCard variant="outline" :ui="{ container: 'divide-y divide-default' }">
+  <UPageList divide>
     <USlideover
       v-for="trade in trades"
       :key="trade.id"
@@ -7,7 +7,7 @@
       description="All items listed are available and ready for your trade proposal."
     >
       <UPageCard
-        variant="naked"
+        variant="ghost"
         :title="trade.contact"
         :description="trade.message"
         :icon="
@@ -43,12 +43,13 @@
 
         <UPageGrid class="grid !grid-cols-2 gap-4 mt-4">
           <UPageCard
-            v-for="{ id, artisan } in trade.items"
+            v-for="{ id, priority, artisan } in trade.items"
             :key="id"
             :title="artisan.name"
             :description="artisan?.sculpt.name"
             orientation="vertical"
             reverse
+            :highlight="!!priority"
             :ui="{
               root: 'h-full',
               wrapper: 'flex-1',
@@ -77,7 +78,7 @@
         />
       </template>
     </USlideover>
-  </UPageCard>
+  </UPageList>
 </template>
 
 <script setup>
