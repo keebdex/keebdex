@@ -39,7 +39,6 @@
     "@pinia/nuxt": "^0.11.2",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
-    "better-sqlite3": "^12.4.1",
     "crc": "4.3.2",
     "flag-icons": "^7.5.0",
     "modern-screenshot": "^4.6.6",
@@ -65,6 +64,7 @@
     "@types/lodash.keyby": "^4.6.9",
     "@types/lodash.omit": "^4.5.9",
     "@types/lodash.sortby": "^4.7.9",
+    "better-sqlite3": "^12.4.1",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -79,11 +79,5 @@
     "nuxt-og-image": "^5.1.11",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
-  },
-  "trustedDependencies": [
-    "@parcel/watcher",
-    "@tailwindcss/oxide",
-    "@vercel/speed-insights",
-    "unrs-resolver"
-  ]
+  }
 }
