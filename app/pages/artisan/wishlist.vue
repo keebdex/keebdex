@@ -1,38 +1,39 @@
-<!-- eslint-disable vue/no-multiple-template-root -->
 <template>
-  <UDashboardPanel
-    v-if="authenticated"
-    id="wishlist"
-    :default-size="20"
-    :min-size="15"
-    :max-size="25"
-    resizable
-  >
-    <UDashboardNavbar title="Information">
-      <template #right>
-        <UTabs
-          v-model="tradingConfig.type"
-          :items="tabItems"
-          :content="false"
-          size="xs"
-          default-value="buying"
-          @update:model-value="resetTradingState"
-        />
-      </template>
-    </UDashboardNavbar>
+  <UDashboardPanel :ui="{ root: 'flex-row' }">
+    <UDashboardPanel
+      v-if="authenticated"
+      id="wishlist"
+      :default-size="20"
+      :min-size="15"
+      :max-size="25"
+      resizable
+    >
+      <UDashboardNavbar title="Information">
+        <template #right>
+          <UTabs
+            v-model="tradingConfig.type"
+            :items="tabItems"
+            :content="false"
+            size="xs"
+            default-value="buying"
+            @update:model-value="resetTradingState"
+          />
+        </template>
+      </UDashboardNavbar>
 
-    <WishlistSettings class="p-4" />
+      <WishlistSettings class="p-4" />
+    </UDashboardPanel>
+
+    <WishlistPreview />
+
+    <ClientOnly>
+      <USlideover v-if="isMobileOrTablet" v-model:open="showPreview">
+        <template #content>
+          <WishlistPreview @close="showPreview = false" />
+        </template>
+      </USlideover>
+    </ClientOnly>
   </UDashboardPanel>
-
-  <WishlistPreview />
-
-  <ClientOnly>
-    <USlideover v-if="isMobileOrTablet" v-model:open="showPreview">
-      <template #content>
-        <WishlistPreview @close="showPreview = false" />
-      </template>
-    </USlideover>
-  </ClientOnly>
 </template>
 
 <script setup>
