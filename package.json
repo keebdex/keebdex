@@ -45,20 +45,20 @@
     "pinia": "^3.0.3",
     "slugify": "^1.6.6",
     "vuedraggable": "^4.1.0",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@iconify-json/hugeicons": "^1.2.17",
-    "@iconify-json/simple-icons": "^1.2.53",
+    "@iconify-json/simple-icons": "^1.2.54",
     "@iconify-json/solar": "^1.2.4",
     "@nuxt/content": "^3.7.1",
     "@nuxt/eslint": "^1.9.0",
     "@nuxt/image": "^1.11.0",
     "@nuxt/ui": "^4.0.1",
     "@nuxtjs/device": "^3.2.4",
-    "@nuxtjs/supabase": "2.0.0",
+    "@nuxtjs/supabase": "2.0.1",
     "@tailwindcss/typography": "^0.5.19",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
@@ -68,17 +68,16 @@
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-vue": "^10.5.0",
+    "eslint-plugin-vue": "^10.5.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.3",
+    "lint-staged": "^16.2.4",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "lodash.omit": "^4.5.0",
     "lodash.sortby": "^4.7.0",
-    "nuxt": "^4.1.2",
-    "nuxt-og-image": "^5.1.11",
+    "nuxt": "^4.1.3",
+    "nuxt-og-image": "^5.1.12",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
-  },
-  "packageManager": "yarn@4.10.3"
+  }
 }
