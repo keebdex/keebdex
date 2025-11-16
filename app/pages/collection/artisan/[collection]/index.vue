@@ -93,6 +93,7 @@
           :description="artisan?.sculpt.name"
           reverse
           spotlight
+          :highlight="rest.priority"
           :ui="{
             wrapper: 'flex-1',
           }"
@@ -104,7 +105,7 @@
               :src="artisan.img"
               class="h-full object-cover rounded"
               :class="{
-                grayscale: artisan.deleted,
+                grayscale: !rest.exchange || artisan.deleted,
               }"
             />
           </div>
@@ -120,17 +121,19 @@
           </template>
           <template v-else #footer>
             <UModal
-              v-if="authenticated && selling"
+              v-if="authenticated"
               v-model:visible="visible.edit_item"
-              :title="`Edit ${colorwayTitle(artisan)}`"
+              :title="`Edit ${colorwayTitle(artisan)} Details`"
             >
-              <UTooltip text="Asking Price" :delay-duration="0">
+              <UTooltip text="Edit Listing" :delay-duration="0">
                 <UButton icon="hugeicons:pencil-edit-02" />
               </UTooltip>
 
               <template #body="{ close }">
                 <ModalCollectionItemForm
                   :metadata="rest"
+                  :buying="buying"
+                  :selling="selling"
                   @on-success="
                     () => {
                       close()
@@ -140,38 +143,6 @@
                 />
               </template>
             </UModal>
-
-            <UTooltip v-if="buying" text="Priority" :delay-duration="0">
-              <UButton
-                :disabled="!rest.exchange"
-                icon="hugeicons:shopping-bag-favorite"
-                :color="rest.priority ? 'success' : 'neutral'"
-                @click="changePriority({ ...rest, artisan })"
-              />
-            </UTooltip>
-
-            <UTooltip text="Change Status" :delay-duration="0">
-              <UButton
-                v-if="buying"
-                :icon="
-                  rest.exchange
-                    ? 'hugeicons:search-focus'
-                    : 'hugeicons:bookmark-check-02'
-                "
-                :color="rest.exchange ? 'neutral' : 'success'"
-                @click="changeExchangeStatus({ ...rest, artisan })"
-              />
-              <UButton
-                v-if="selling"
-                :icon="
-                  rest.exchange
-                    ? 'hugeicons:sale-tag-02'
-                    : 'hugeicons:bookmark-block-02'
-                "
-                :color="rest.exchange ? 'neutral' : 'warning'"
-                @click="changeExchangeStatus({ ...rest, artisan })"
-              />
-            </UTooltip>
 
             <SaveToCollection
               :item="{ ...rest, artisan }"
@@ -284,70 +255,6 @@ const breadcrumbs = computed(() => {
     },
   ]
 })
-
-const changeTo = (exchange) => {
-  if (data.value.intent === 'want') {
-    return exchange ? 'found' : 'wanted'
-  }
-
-  return exchange ? 'sold' : 'available'
-}
-
-const changePriority = (item) => {
-  const { id, priority, artisan } = item
-  const title = colorwayTitle(artisan)
-
-  $fetch(
-    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-    { method: 'post', body: { priority: !priority } },
-  )
-    .then(() => {
-      refresh()
-      if (priority) {
-        toast.add({
-          color: 'success',
-          title: `${title} is no longer a priority.`,
-        })
-      } else {
-        toast.add({
-          color: 'success',
-          title: `${title} has been marked as priority!`,
-        })
-      }
-    })
-    .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
-    })
-}
-
-const changeExchangeStatus = (item) => {
-  const { id, exchange, artisan } = item
-  const title = colorwayTitle(artisan)
-  const status = changeTo(exchange)
-
-  $fetch(
-    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-    { method: 'post', body: { exchange: !exchange } },
-  )
-    .then(() => {
-      refresh()
-      toast.add({
-        color: 'success',
-        title: `${title} has been successfully marked as ${status}.`,
-      })
-    })
-    .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
-    })
-}
 
 const moveTo = (collection, item) => {
   const { id, artisan } = item

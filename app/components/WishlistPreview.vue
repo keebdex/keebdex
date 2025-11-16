@@ -117,12 +117,17 @@
 
           <UAlert
             v-if="!copying"
-            icon="hugeicons:sorting-05"
-            description="Click and drag cards to change their order."
+            icon="hugeicons:information-circle"
             variant="soft"
             color="info"
             class="mt-4"
-          />
+          >
+            <template #description>
+              Click and drag cards to change their order. You can update asking
+              prices in the
+              <ULink to="/artisan/collection">Manage Collection</ULink> page.
+            </template>
+          </UAlert>
 
           <UAlert
             v-if="totalItems >= 24 && !copying"
