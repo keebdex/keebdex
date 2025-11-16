@@ -10,7 +10,7 @@
         ignore-filter
         icon="hugeicons:paint-board"
         placeholder="Which color are you looking for?"
-        label-key="name"
+        label-key="code"
         class="w-full"
       >
         <template #item-leading="{ item }">
@@ -45,13 +45,6 @@ const { data, status } = await useAsyncData(
       query: query.value,
     }),
   {
-    transform: (data) => {
-      data.colors.forEach((c) => {
-        c.name = c.name || c.hex
-      })
-
-      return data
-    },
     watch: [term],
   },
 )

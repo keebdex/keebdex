@@ -119,6 +119,28 @@
             </UButton>
           </template>
           <template v-else #footer>
+            <UModal
+              v-if="authenticated && selling"
+              v-model:visible="visible.edit_item"
+              :title="`Edit ${colorwayTitle(artisan)}`"
+            >
+              <UTooltip text="Asking Price" :delay-duration="0">
+                <UButton icon="hugeicons:pencil-edit-02" />
+              </UTooltip>
+
+              <template #body="{ close }">
+                <ModalCollectionItemForm
+                  :metadata="rest"
+                  @on-success="
+                    () => {
+                      close()
+                      refresh()
+                    }
+                  "
+                />
+              </template>
+            </UModal>
+
             <UTooltip v-if="buying" text="Priority" :delay-duration="0">
               <UButton
                 :disabled="!rest.exchange"
@@ -410,5 +432,6 @@ const visible = ref({
   edit: false,
   delete: false,
   remove: false,
+  edit_item: false,
 })
 </script>

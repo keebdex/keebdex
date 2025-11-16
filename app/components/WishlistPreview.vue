@@ -316,10 +316,14 @@ const screenshot = async (download = false) => {
   copying.value = false
 }
 
-const tradingItemText = ({ artisan, exchange }) => {
-  return exchange
-    ? `- ${colorwayTitle(artisan)}`
-    : `- ~~${colorwayTitle(artisan)}~~`
+const tradingItemText = ({ artisan, exchange, asking_price }) => {
+  if (exchange) {
+    return asking_price
+      ? `- ${colorwayTitle(artisan)} - $${asking_price}`
+      : `- ${colorwayTitle(artisan)}`
+  }
+
+  return `- ~~${colorwayTitle(artisan)}~~`
 }
 
 const tradingText = computed(() => {

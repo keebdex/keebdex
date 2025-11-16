@@ -14,7 +14,7 @@
           <UAlert
             icon="hugeicons:sorting-05"
             title="Click and drag any card to rearrange them in your preferred order."
-            description="Don’t forget to save your custom sort before leaving the page — changes won’t be saved automatically!"
+            description="Don't forget to save your custom sort before leaving the page — changes won't be saved automatically!"
             variant="soft"
             color="info"
           />

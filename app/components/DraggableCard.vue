@@ -16,6 +16,7 @@
           :ui="{
             root: 'h-full',
             wrapper: 'flex-1',
+            body: 'flex gap-2 w-full',
           }"
           variant="soft"
         >
@@ -46,11 +47,25 @@
             </span>
           </div>
 
+          <template #body>
+            <UUser
+              :name="item.artisan.name"
+              :description="item.artisan?.sculpt.name"
+              size="xl"
+              class="flex-1"
+            />
+            <span
+              v-if="item.exchange && item.asking_price"
+              class="text-xl sm:text-xl font-semibold"
+            >
+              ${{ item.asking_price }}
+            </span>
+          </template>
+
           <template v-if="!copying" #footer>
             <UTooltip text="Priority" :delay-duration="0">
               <UButton
-                v-if="buying"
-                :disabled="!item.exchange"
+                v-if="buying && item.exchange"
                 icon="hugeicons:shopping-bag-favorite"
                 :color="item.priority ? 'success' : 'neutral'"
                 @click="$emit('onHighlight', item.id)"
