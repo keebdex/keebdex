@@ -125,7 +125,12 @@
             <template #description>
               Click and drag cards to change their order. You can update asking
               prices in the
-              <ULink to="/artisan/collection">Manage Collection</ULink> page.
+              <ULink
+                :to="`/collection/artisan/${tradingCfg.selling.collection || tradingCfg.buying.collection}`"
+              >
+                Manage Collection
+              </ULink>
+              page.
             </template>
           </UAlert>
 

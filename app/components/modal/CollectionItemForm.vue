@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="item" class="space-y-4" @submit="onSubmit">
+  <UForm :schema="schema" :state="item" class="space-y-4">
     <UFormField
       v-if="selling"
       label="Asking / Offer Price (USD)"
@@ -28,7 +28,9 @@
       <USwitch v-model="item.exchange" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto @click="onSubmit">
+      Save
+    </UButton>
   </UForm>
 </template>
 
