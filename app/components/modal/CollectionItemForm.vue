@@ -68,9 +68,11 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
+  const { priority, exchange, asking_price } = item.value
+
   await $fetch(
     `/api/users/${item.value.uid}/collections/${route.params.collection}/items/${item.value.id}`,
-    { method: 'post', body: item.value },
+    { method: 'post', body: { asking_price, exchange, priority } },
   )
     .then(() => {
       toast.add({
