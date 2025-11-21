@@ -3,7 +3,11 @@
     :list="data"
     item-key="id"
     group="group"
-    class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4"
+    :class="
+      flex
+        ? 'flex flex-wrap gap-4 justify-center max-w-7xl mx-auto'
+        : 'grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4'
+    "
   >
     <template #item="{ element: item }">
       <div class="cursor-move">
@@ -17,6 +21,7 @@
             root: 'h-full',
             wrapper: 'flex-1',
             body: 'flex gap-2 w-full',
+            container: flex && 'max-w-2xs',
           }"
           variant="soft"
         >
@@ -91,6 +96,7 @@ import draggable from 'vuedraggable'
 defineEmits(['onRemove', 'onHighlight'])
 
 const { data } = defineProps({
+  flex: Boolean,
   data: {
     type: Array,
     default: () => [],

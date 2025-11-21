@@ -2,7 +2,11 @@
   <UDashboardPanel
     v-if="authenticated"
     id="wishlist-preview"
-    :ui="{ body: 'trading-preview bg-(--ui-bg)' }"
+    :ui="{
+      body: maxWidth
+        ? `trading-preview bg-(--ui-bg) ${maxWidth}`
+        : 'trading-preview bg-(--ui-bg)',
+    }"
   >
     <template #header>
       <UDashboardNavbar title="Preview" :toggle="false">
@@ -175,6 +179,7 @@
       />
 
       <DraggableCard
+        :flex="flex"
         :data="buyingItems"
         :copying="copying"
         :buying="tradingCfg.type !== 'selling'"
@@ -192,6 +197,7 @@
 
       <DraggableCard
         v-if="trading"
+        :flex="flex"
         :data="sellingItems"
         :copying="copying"
         :selling="true"
@@ -272,9 +278,29 @@ watchEffect(() => {
     collections.value[tradingCfg.value.selling.collection] || []
 })
 
+const flex = computed(() => {
+  return (
+    (buyingItems.value.length > 0 && buyingItems.value.length < 4) ||
+    (sellingItems.value.length > 0 && sellingItems.value.length < 4)
+  )
+})
+
 const totalItems = computed(
   () => buyingItems.value.length + sellingItems.value.length,
 )
+
+const maxWidth = computed(() => {
+  switch (totalItems.value) {
+    case 1:
+      return 'max-w-xl'
+    case 2:
+      return 'max-w-2xl'
+    case 3:
+      return 'max-w-5xl'
+    default:
+      return ''
+  }
+})
 
 watch(authenticated, () => refresh())
 
