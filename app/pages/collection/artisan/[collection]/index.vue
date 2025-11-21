@@ -98,7 +98,7 @@
             wrapper: 'flex-1',
           }"
         >
-          <div class="aspect-square overflow-hidden">
+          <div class="relative aspect-square overflow-hidden">
             <NuxtImg
               loading="lazy"
               :alt="artisan.name"
@@ -108,6 +108,21 @@
                 grayscale: !rest.exchange || artisan.deleted,
               }"
             />
+            <span
+              v-if="!rest.exchange"
+              class="absolute inset-0 flex items-center justify-center"
+            >
+              <UIcon
+                v-if="buying"
+                name="hugeicons:tick-double-02"
+                class="text-success text-9xl"
+              />
+              <UIcon
+                v-else
+                name="hugeicons:unavailable"
+                class="text-error text-9xl"
+              />
+            </span>
           </div>
 
           <template v-if="artisan.deleted" #footer>
@@ -265,7 +280,7 @@ const moveTo = (collection, item) => {
       method: 'post',
       body: {
         collection_id: collection.id,
-        exchange: false,
+        exchange: true,
       },
     },
   )

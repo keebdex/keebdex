@@ -16,15 +16,19 @@
     <UFormField
       v-if="buying"
       label="Priority"
-      help="Turn on to highlight this item in your collection."
+      help="Mark as priority to highlight it in your wishlist image."
     >
-      <USwitch v-model="item.priority" />
+      <USwitch v-model="item.priority" :disabled="!item.exchange" />
     </UFormField>
 
     <UFormField
-      label="Available"
-      help="Turn on if this item is available for sale or you're looking to buy."
+      v-if="buying"
+      label="Wanted"
+      help="Items you're looking to buy."
     >
+      <USwitch v-model="item.exchange" />
+    </UFormField>
+    <UFormField v-else label="Available" help="Items you're offering for sale.">
       <USwitch v-model="item.exchange" />
     </UFormField>
 
