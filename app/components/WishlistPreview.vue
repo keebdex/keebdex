@@ -77,7 +77,11 @@
       >
         <template #description>
           <UPageGrid
-            class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4"
+            :class="
+              flex
+                ? `grid grid-cols-2!`
+                : 'grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4'
+            "
           >
             <UUser
               v-if="tradingCfg.social.discord"
@@ -278,29 +282,22 @@ watchEffect(() => {
     collections.value[tradingCfg.value.selling.collection] || []
 })
 
-const flex = computed(() => {
-  return (
-    (buyingItems.value.length > 0 && buyingItems.value.length < 4) ||
-    (sellingItems.value.length > 0 && sellingItems.value.length < 4)
-  )
+const group = computed(() =>
+  Math.max(buyingItems.value.length, sellingItems.value.length),
+)
+
+const maxWidth = computed(() => {
+  if (group.value <= 1) return 'max-w-xl'
+  if (group.value <= 2) return 'max-w-2xl'
+  if (group.value <= 3) return 'max-w-5xl'
+  return undefined
 })
+
+const flex = computed(() => group.value <= 3)
 
 const totalItems = computed(
   () => buyingItems.value.length + sellingItems.value.length,
 )
-
-const maxWidth = computed(() => {
-  switch (totalItems.value) {
-    case 1:
-      return 'max-w-xl'
-    case 2:
-      return 'max-w-2xl'
-    case 3:
-      return 'max-w-5xl'
-    default:
-      return ''
-  }
-})
 
 watch(authenticated, () => refresh())
 

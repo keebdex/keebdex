@@ -5,7 +5,7 @@
     group="group"
     :class="
       flex
-        ? 'flex flex-wrap gap-4 justify-center max-w-7xl mx-auto'
+        ? 'flex flex-wrap gap-4 justify-between max-w-7xl'
         : 'grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4'
     "
   >
