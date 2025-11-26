@@ -287,9 +287,9 @@ const group = computed(() =>
 )
 
 const maxWidth = computed(() => {
-  if (group.value <= 1) return 'max-w-xl'
-  if (group.value <= 2) return 'max-w-2xl'
-  if (group.value <= 3) return 'max-w-5xl'
+  if (group.value === 1) return 'max-w-xl'
+  if (group.value === 2) return 'max-w-2xl'
+  if (group.value === 3) return 'max-w-5xl'
   return undefined
 })
 
