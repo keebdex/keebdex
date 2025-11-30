@@ -68,7 +68,7 @@
     <KeebSearch :routes="groups" />
 
     <div class="flex flex-col w-full">
-      <Banner />
+      <AppBanner />
       <slot />
     </div>
 
