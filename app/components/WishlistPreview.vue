@@ -259,6 +259,7 @@ const trading = computed(() => tradingCfg.value.type === 'trading')
 const { data: collections, refresh } = await useAsyncData(
   () => $fetch(`/api/users/${user.value.uid}/collection-items`),
   {
+    watch: [user],
     transform: (data) => {
       return Object.values(groupBy(data, 'collection_id')).reduce(
         (out, cur) => {

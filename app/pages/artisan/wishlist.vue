@@ -52,12 +52,12 @@ const tradingConfig = useState('trading-config', () => {
     selling: {
       collection: undefined,
       title: '',
-      placeholder: 'For sale',
+      placeholder: 'WTS/WTT',
     },
     buying: {
       collection: undefined,
       title: '',
-      placeholder: 'Looking for',
+      placeholder: 'WTB/WTTF',
     },
     social,
     type: 'buying',
@@ -71,12 +71,12 @@ const resetTradingState = () => {
   tradingConfig.value.buying = {
     collection: undefined,
     title: '',
-    placeholder: 'Looking for',
+    placeholder: 'WTB/WTTF',
   }
   tradingConfig.value.selling = {
     collection: undefined,
     title: '',
-    placeholder: 'For sale',
+    placeholder: 'WTS/WTT',
   }
 }
 
