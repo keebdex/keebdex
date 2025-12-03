@@ -66,6 +66,7 @@ export default defineAppConfig({
     pageCard: {
       slots: {
         footer: 'flex gap-2',
+        container: 'p-3 sm:p-4',
       },
     },
     pageColumns: {

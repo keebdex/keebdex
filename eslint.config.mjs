@@ -1,4 +1,4 @@
-import withNuxt from './.nuxt/eslint.config.mjs'
+import withNuxt from '@nuxt/eslint-config'
 import eslintPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default withNuxt(
