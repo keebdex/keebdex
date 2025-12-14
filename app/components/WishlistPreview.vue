@@ -362,7 +362,7 @@ const tradingItemText = ({ artisan, exchange, asking_price }) => {
 
 const tradingText = computed(() => {
   let text =
-    `**${tradingCfg.value.buying.title || tradingCfg.value.buying.placeholder}**\n` +
+    `**${tradingCfg.value.buying.title || (tradingCfg.value.type === 'selling' ? tradingCfg.value.selling.placeholder : tradingCfg.value.buying.placeholder)}**\n` +
     `${buyingItems.value.map(tradingItemText).join('\n')}`
 
   if (trading.value) {
