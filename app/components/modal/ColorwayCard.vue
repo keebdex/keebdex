@@ -1,6 +1,6 @@
 <template>
   <UPageCard
-    :title="colorway.name"
+    :title="colorwayTitle(colorway)"
     reverse
     class="colorway-details-card"
     :ui="{
@@ -8,7 +8,11 @@
       description: 'flex flex-col gap-4',
     }"
   >
-    <NuxtImg :src="colorway.img" :alt="colorway.name" class="w-full rounded" />
+    <NuxtImg
+      :src="colorway.img"
+      :alt="colorwayTitle(colorway)"
+      class="w-full rounded"
+    />
 
     <template #description>
       <PageHeaderDescription
