@@ -45,18 +45,18 @@
     "pinia": "^3.0.4",
     "slugify": "^1.6.6",
     "vuedraggable": "^4.1.0",
-    "zod": "^4.1.13"
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
-    "@iconify-json/hugeicons": "^1.2.20",
-    "@iconify-json/simple-icons": "^1.2.63",
+    "@iconify-json/hugeicons": "^1.2.22",
+    "@iconify-json/simple-icons": "^1.2.64",
     "@iconify-json/solar": "^1.2.5",
-    "@nuxt/content": "^3.9.0",
+    "@nuxt/content": "^3.10.0",
     "@nuxt/eslint": "^1.12.1",
     "@nuxt/image": "^2.0.0",
-    "@nuxt/ui": "^4.2.1",
+    "@nuxt/ui": "^4.3.0",
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/supabase": "2.0.3",
     "@tailwindcss/typography": "^0.5.19",

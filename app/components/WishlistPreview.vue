@@ -126,7 +126,7 @@
           <UAlert
             v-if="!copying"
             icon="hugeicons:information-circle"
-            variant="soft"
+            variant="subtle"
             color="info"
             class="mt-4"
           >
@@ -143,7 +143,7 @@
           </UAlert>
 
           <UAlert
-            v-if="totalItems >= 24 && !copying"
+            v-if="totalItems > 24 && !copying"
             icon="hugeicons:information-circle"
             variant="subtle"
             color="info"
@@ -175,8 +175,13 @@
       />
 
       <USeparator
-        v-if="buyingItems.length && tradingCfg.buying.title"
-        :label="tradingCfg.buying.title"
+        v-if="buyingItems.length"
+        :label="
+          tradingCfg.buying.title ||
+          (tradingCfg.type === 'selling'
+            ? tradingCfg.selling.placeholder
+            : tradingCfg.buying.placeholder)
+        "
         :ui="{
           label: 'text-3xl sm:text-4xl font-bold text-info',
         }"
@@ -193,7 +198,7 @@
 
       <USeparator
         v-if="sellingItems.length && trading"
-        :label="tradingCfg.selling.title"
+        :label="tradingCfg.selling.title || tradingCfg.selling.placeholder"
         :ui="{
           label: 'text-3xl sm:text-4xl font-bold text-warning',
         }"
