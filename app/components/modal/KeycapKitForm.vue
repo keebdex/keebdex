@@ -1,6 +1,17 @@
 <template>
   <UForm :schema="schema" :state="kit" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Name" name="name" required>
+    <UFormField label="Kit" name="kit_id" required>
+      <UInputMenu
+        v-model.trim="kit.kit_id"
+        :items="predefinedKits"
+        label-key="name"
+        value-key="id"
+        icon="hugeicons:text"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Name" name="name" help="Leave empty for standard kits">
       <UInput v-model.trim="kit.name" icon="hugeicons:text" class="w-full" />
     </UFormField>
 
@@ -55,34 +66,33 @@ const { metadata, isEdit } = defineProps({
   isEdit: Boolean,
 })
 
-// const predefinedKits = [
-//   'Base',
-//   'Novelties',
-//   'Spacebars',
-//   'Alphas',
-//   'Modifiers',
-//   '40s',
-//   'Numpad',
-//   'Extension',
-//   'Addons',
-//   'Accents',
-//   'Hiragana',
-//   'Katakana',
-//   'Hangul',
-//   'Cyrillic',
-//   'NorDe',
-//   'NorDeUK',
-//   'Forties',
-//   'ISO',
-//   'Colevrak',
-//   '40s/Ortho',
-//   'International',
-// ]
+const predefinedKits = [
+  { id: 'base', name: 'Base' },
+  { id: 'alphas', name: 'Alphas' },
+  { id: 'mods', name: 'Modifiers' },
+  { id: 'numpad', name: 'Numpad' },
+  { id: 'spacebars', name: 'Spacebars' },
+  { id: 'novelties', name: 'Novelties' },
+  { id: 'forties', name: '40s' },
+  { id: 'ortho', name: 'Ortho' },
+  { id: 'ergo', name: 'Ergo' },
+  { id: 'iso', name: 'ISO' },
+  { id: 'norde', name: 'NorDe' },
+  { id: 'uk', name: 'UK' },
+  { id: 'international', name: 'International' },
+  { id: 'accent', name: 'Accents' },
+  { id: 'extras', name: 'Extras' },
+  { id: 'addons', name: 'Add' },
+  { id: 'arrows', name: 'Arrows' },
+  { id: 'relegendables', name: 'Relegendables' },
+  { id: 'other', name: 'Other' },
+]
 
 const route = useRoute()
 const toast = useToast()
 
 const kit = ref({
+  kit_id: 'base',
   name: '',
   img: '',
   profile_keycap_id: `${route.params.profile}/${route.params.keycap}`,
@@ -94,7 +104,8 @@ onBeforeMount(() => {
 })
 
 const schema = z.object({
-  name: z.string().min(1),
+  kit_id: z.string(),
+  name: z.string().optional(),
   qty: z.number().nullish(),
   price: z.number().nullish(),
   img: z.url().nullish().or(z.string().min(0).max(0)),

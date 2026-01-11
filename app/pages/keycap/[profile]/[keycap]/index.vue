@@ -119,7 +119,7 @@
                 <UButton
                   v-for="(kit, idx) in data.kits"
                   :key="kit.id"
-                  :label="kit.name"
+                  :label="kit.name || kit.category?.name"
                   @click="onSelectKit(idx)"
                 >
                   <template v-if="kit.cancelled" #leading>

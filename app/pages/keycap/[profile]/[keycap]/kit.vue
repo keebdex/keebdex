@@ -31,6 +31,9 @@
       <UPageHeader title="Manage Keycap Kits" :description="description" />
 
       <UTable :data="data.kits" :columns="columns" class="flex-1">
+        <template #name-cell="{ row }">
+          {{ row.original.name || row.original.category?.name }}
+        </template>
         <template #status-cell="{ row }">
           <UBadge
             :label="row.original.cancelled ? 'Cancelled' : 'Active'"
@@ -123,6 +126,14 @@ const breadcrumbs = computed(() => {
 })
 
 const columns = [
+  {
+    accessorKey: 'kit_id',
+    header: 'Kit',
+    cell: ({ row }) => {
+      // FIXME: remove if all kits have categories
+      return row.original.category?.name || ''
+    },
+  },
   {
     accessorKey: 'name',
     header: 'Name',
