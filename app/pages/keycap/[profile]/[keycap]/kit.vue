@@ -127,14 +127,6 @@ const breadcrumbs = computed(() => {
 
 const columns = [
   {
-    accessorKey: 'kit_id',
-    header: 'Kit',
-    cell: ({ row }) => {
-      // FIXME: remove if all kits have categories
-      return row.original.category?.name || ''
-    },
-  },
-  {
     accessorKey: 'name',
     header: 'Name',
   },

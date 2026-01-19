@@ -78,7 +78,7 @@
             class="max-w-7xl mx-auto"
           >
             <UPageCard
-              :title="item.name"
+              :title="item.name || item.category?.name"
               :description="item.description"
               reverse
               variant="ghost"
