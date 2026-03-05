@@ -75,29 +75,64 @@
       :required="!isEditMode"
       help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Avoid excessive background or blurry shots."
     >
-      <UFileUpload
-        v-model="uploadedFile"
-        accept="image/*"
-        icon="hugeicons:image-upload"
-        layout="list"
-        label="Click to browse or drag & drop an image to upload"
-        :description="
-          isEditMode
-            ? 'Leave empty to keep the current image.'
-            : 'Image is required for a new colorway.'
-        "
-        :ui="{
-          base: 'min-h-48',
-        }"
-      />
-
-      <div v-if="isEditMode && colorway.img && !uploadedFile" class="mt-3">
-        <p class="text-xs text-toned mb-2">Current Image</p>
+      <div v-if="isEditMode && colorway.img && !replaceMode" class="space-y-3">
         <NuxtImg
           :src="colorway.img"
           :alt="`${colorway.name || 'Colorway'} Image`"
-          class="w-full max-h-60 object-cover rounded"
+          class="w-full max-h-60 object-contain rounded"
         />
+        <UButton
+          block
+          icon="hugeicons:image-upload"
+          @click="replaceMode = true"
+        >
+          Change Image
+        </UButton>
+      </div>
+
+      <div v-else class="space-y-2">
+        <UFileUpload
+          v-model="uploadedFile"
+          accept="image/*"
+          icon="hugeicons:image-upload"
+          layout="list"
+          label="Click to browse or drag & drop an image to upload"
+          :description="
+            isEditMode
+              ? 'Select a new image to replace the current one.'
+              : 'Image is required for a new colorway.'
+          "
+          :ui="{
+            base: 'min-h-48',
+          }"
+        />
+        <div class="flex gap-2">
+          <UButton
+            v-if="isEditMode && replaceMode"
+            icon="hugeicons:link-backward"
+            block
+            @click="
+              () => {
+                uploadedFile = null
+                replaceMode = false
+              }
+            "
+          >
+            Use Current Image
+          </UButton>
+          <UButton
+            v-if="isEditMode && uploadedFile"
+            icon="hugeicons:clean"
+            block
+            @click="
+              () => {
+                uploadedFile = null
+              }
+            "
+          >
+            Clear Selection
+          </UButton>
+        </div>
       </div>
     </UFormField>
 
@@ -169,6 +204,7 @@ const schema = z.object({
 const isEditMode = computed(() => Boolean(colorway.value.id))
 const uploading = ref(false)
 const uploadedFile = ref(null)
+const replaceMode = ref(false)
 
 onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
@@ -219,6 +255,7 @@ const onSubmit = async () => {
       title: `Colorway [${payload.name}] has been ${isEditMode.value ? 'updated' : 'added'} successfully.`,
     })
 
+    replaceMode.value = false
     emit('onSuccess')
   } catch (error) {
     toast.add({
