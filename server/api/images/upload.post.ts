@@ -23,7 +23,15 @@ function isAuthorizedEditor(
     return true
   }
 
-  return !profile.assignments || profile.assignments.includes(makerId)
+  if (profile.role === 'editor') {
+    return !profile.assignments || profile.assignments.includes(makerId)
+  }
+
+  if (profile.role === 'maker') {
+    return !!profile.assignments && profile.assignments.includes(makerId)
+  }
+
+  return false
 }
 
 export default defineEventHandler(async (event) => {
