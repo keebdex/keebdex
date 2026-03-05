@@ -342,6 +342,7 @@ export type Database = {
           bio: string | null
           contributors: Json[] | null
           deleted: boolean
+          disable_google_sync: boolean | null
           discord: string | null
           document_ids: Json[] | null
           founded: string | null
@@ -360,6 +361,7 @@ export type Database = {
           bio?: string | null
           contributors?: Json[] | null
           deleted?: boolean
+          disable_google_sync?: boolean | null
           discord?: string | null
           document_ids?: Json[] | null
           founded?: string | null
@@ -378,6 +380,7 @@ export type Database = {
           bio?: string | null
           contributors?: Json[] | null
           deleted?: boolean
+          disable_google_sync?: boolean | null
           discord?: string | null
           document_ids?: Json[] | null
           founded?: string | null

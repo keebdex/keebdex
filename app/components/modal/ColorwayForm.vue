@@ -72,20 +72,73 @@
     <UFormField
       label="Image"
       name="img"
-      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Avoid excessive background or blurry shots."
+      :required="!isEditMode"
+      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 5MB."
     >
-      <UFileUpload
-        v-model="uploadedFiles"
-        disabled
-        icon="hugeicons:image-upload"
-        layout="list"
-        label="Click to browse or drag & drop an image to upload"
-        :ui="{
-          base: 'min-h-48',
-        }"
-      />
+      <div v-if="isEditMode && colorway.img && !replaceMode" class="space-y-3">
+        <NuxtImg
+          :src="colorway.img"
+          :alt="`${colorway.name || 'Colorway'} Image`"
+          class="w-full max-h-60 object-contain rounded"
+        />
+        <UButton
+          block
+          icon="hugeicons:image-upload"
+          @click="replaceMode = true"
+        >
+          Change Image
+        </UButton>
+      </div>
+
+      <div v-else class="space-y-2">
+        <UFileUpload
+          v-model="uploadedFile"
+          accept="image/*"
+          icon="hugeicons:image-upload"
+          layout="list"
+          label="Click to browse or drag & drop an image to upload"
+          :description="
+            isEditMode
+              ? 'Select a new image to replace the current one.'
+              : 'Image is required for a new colorway.'
+          "
+          :ui="{
+            base: 'min-h-48',
+          }"
+        />
+        <div class="flex gap-2">
+          <UButton
+            v-if="isEditMode && replaceMode"
+            icon="hugeicons:link-backward"
+            block
+            @click="
+              () => {
+                uploadedFile = null
+                replaceMode = false
+              }
+            "
+          >
+            Use Current Image
+          </UButton>
+          <UButton
+            v-if="isEditMode && uploadedFile"
+            icon="hugeicons:clean"
+            block
+            @click="
+              () => {
+                uploadedFile = null
+              }
+            "
+          >
+            Clear Selection
+          </UButton>
+        </div>
+      </div>
     </UFormField>
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+
+    <UButton block color="primary" type="submit" :loading="uploading">
+      Save
+    </UButton>
   </UForm>
 </template>
 
@@ -102,6 +155,7 @@ const { metadata } = defineProps({
 })
 
 const toast = useToast()
+const route = useRoute()
 
 const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
 
@@ -124,66 +178,98 @@ const saleFormats = [
   ...specialFormats,
 ]
 
-const formats = saleFormats.filter((f) => !f.type)
+const formats = saleFormats.filter((format) => typeof format === 'string')
 
-const route = useRoute()
 const colorway = ref({
   name: '',
   img: '',
+  maker_id: String(route.params.maker || ''),
+  sculpt_id: String(route.params.sculpt || ''),
+  maker_sculpt_id: `${String(route.params.maker || '')}/${String(route.params.sculpt || '')}`,
+  order: 0,
+  currency: 'USD',
+  sale_type: 'Raffle',
 })
 
 const schema = z.object({
   name: z.string().nullish(),
   release: z.string().nullish(),
   qty: z.number().nullish(),
-  order: z.number(),
+  order: z.number().nullish(),
   currency: z.enum(currencies).nullish(),
   price: z.number().nullish(),
   sale_type: z.enum(formats).nullish(),
-  // description: z.string().nullish(),
-  // img: z.string().url(),
 })
 
-const uploadedFiles = ref([])
+const isEditMode = computed(() => Boolean(colorway.value.id))
+const uploading = ref(false)
+const uploadedFile = ref(null)
+const replaceMode = ref(false)
 
 onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
 })
 
-onMounted(async () => {
-  const file = await fetchFileFromUrl(colorway.value.img, 'image.jpg')
-  uploadedFiles.value = [file]
-})
+async function uploadColorwayImage(file) {
+  const formData = new FormData()
+  formData.append('file', file, file.name)
+  formData.append(
+    'maker_id',
+    String(colorway.value.maker_id || route.params.maker || ''),
+  )
 
-async function fetchFileFromUrl(url, filename) {
-  const res = await fetch(url)
+  const result = await $fetch('/api/images/upload', {
+    method: 'post',
+    body: formData,
+  })
 
-  const blob = await res.blob()
-  return new File([blob], filename, { type: blob.type })
+  return result.url
 }
 
 const onSubmit = async () => {
-  await $fetch(
-    `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
-    {
-      method: 'post',
-      body: colorway.value,
-    },
-  )
-    .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Colorway [${colorway.value.name}] has been updated successfully.`,
-      })
+  try {
+    uploading.value = true
 
-      emit('onSuccess')
+    const payload = {
+      ...colorway.value,
+    }
+
+    if (uploadedFile.value) {
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (uploadedFile.value.size > maxSize) {
+        throw new Error('Image file size must be less than 5MB')
+      }
+      payload.img = await uploadColorwayImage(uploadedFile.value)
+    }
+
+    if (!payload.img) {
+      throw new Error('Please upload an image before saving this colorway.')
+    }
+
+    await $fetch(
+      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
+      {
+        method: 'post',
+        body: payload,
+      },
+    )
+
+    toast.add({
+      color: 'success',
+      title: `Colorway [${payload.name}] has been ${isEditMode.value ? 'updated' : 'added'} successfully.`,
     })
-    .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+
+    replaceMode.value = false
+    emit('onSuccess')
+  } catch (error) {
+    toast.add({
+      color: 'error',
+      title: 'Oops! Something went wrong',
+      description: error.message,
     })
+  } finally {
+    uploading.value = false
+  }
 }
 </script>

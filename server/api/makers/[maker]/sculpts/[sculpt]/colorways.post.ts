@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { keycap, sculpt, ...rest } = await readBody(event)
 
-  if (selfMakers.includes(rest.maker_id)) {
+  if (!rest.colorway_id || selfMakers.includes(rest.maker_id)) {
     const slug = slugify(rest.name, { lower: true })
     rest.colorway_id = crc32(
       `${rest.maker_id}-${rest.sculpt_id}-${slug}-${rest.order}`,
