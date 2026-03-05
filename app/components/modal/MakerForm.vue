@@ -16,6 +16,18 @@
       <UCheckbox v-model="maker.verified" label="Verified" />
     </UFormField>
 
+    <UFormField
+      help="Stop syncing from Google Docs and manage uploads here instead."
+      :ui="{
+        help: 'text-info',
+      }"
+    >
+      <UCheckbox
+        v-model="maker.disable_google_sync"
+        label="Disable Google Sync"
+      />
+    </UFormField>
+
     <UFormField label="Nationality" name="nationality">
       <USelectMenu
         v-model="maker.nationality"
@@ -41,6 +53,7 @@
     </UFormField>
 
     <UFormField
+      v-if="!maker.disable_google_sync"
       label="Document ID"
       name="document_ids"
       :ui="{
