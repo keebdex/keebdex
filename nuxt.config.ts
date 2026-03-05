@@ -47,6 +47,12 @@ export default defineNuxtConfig({
   buildId: `v${app.version} (${revision})`,
 
   runtimeConfig: {
+    cloudflare: {
+      accountId: process.env.CF_IMAGES_ACCOUNT_ID,
+      imagesApiToken: process.env.CF_IMAGES_API_KEY,
+      imagesDeliveryBaseUrl: process.env.CF_IMAGES_DELIVERY_URL,
+      imagesDefaultVariant: process.env.CF_IMAGES_VARIANT || 'public',
+    },
     app: {
       name: app.displayName,
       description: app.description,

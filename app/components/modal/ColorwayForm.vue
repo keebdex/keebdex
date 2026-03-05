@@ -72,20 +72,38 @@
     <UFormField
       label="Image"
       name="img"
+      :required="!isEditMode"
       help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Avoid excessive background or blurry shots."
     >
       <UFileUpload
-        v-model="uploadedFiles"
-        disabled
+        v-model="uploadedFile"
+        accept="image/*"
         icon="hugeicons:image-upload"
         layout="list"
         label="Click to browse or drag & drop an image to upload"
+        :description="
+          isEditMode
+            ? 'Leave empty to keep the current image.'
+            : 'Image is required for a new colorway.'
+        "
         :ui="{
           base: 'min-h-48',
         }"
       />
+
+      <div v-if="isEditMode && colorway.img && !uploadedFile" class="mt-3">
+        <p class="text-xs text-toned mb-2">Current Image</p>
+        <NuxtImg
+          :src="colorway.img"
+          :alt="`${colorway.name || 'Colorway'} Image`"
+          class="w-full max-h-60 object-cover rounded"
+        />
+      </div>
     </UFormField>
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+
+    <UButton block color="primary" type="submit" :loading="uploading">
+      Save
+    </UButton>
   </UForm>
 </template>
 
@@ -102,6 +120,7 @@ const { metadata } = defineProps({
 })
 
 const toast = useToast()
+const route = useRoute()
 
 const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
 
@@ -124,66 +143,91 @@ const saleFormats = [
   ...specialFormats,
 ]
 
-const formats = saleFormats.filter((f) => !f.type)
+const formats = saleFormats.filter((format) => typeof format === 'string')
 
-const route = useRoute()
 const colorway = ref({
   name: '',
   img: '',
+  maker_id: String(route.params.maker || ''),
+  sculpt_id: String(route.params.sculpt || ''),
+  maker_sculpt_id: `${String(route.params.maker || '')}/${String(route.params.sculpt || '')}`,
+  order: 0,
+  currency: 'USD',
+  sale_type: 'Raffle',
 })
 
 const schema = z.object({
   name: z.string().nullish(),
   release: z.string().nullish(),
   qty: z.number().nullish(),
-  order: z.number(),
+  order: z.number().nullish(),
   currency: z.enum(currencies).nullish(),
   price: z.number().nullish(),
   sale_type: z.enum(formats).nullish(),
-  // description: z.string().nullish(),
-  // img: z.string().url(),
 })
 
-const uploadedFiles = ref([])
+const isEditMode = computed(() => Boolean(colorway.value.id))
+const uploading = ref(false)
+const uploadedFile = ref(null)
 
 onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
 })
 
-onMounted(async () => {
-  const file = await fetchFileFromUrl(colorway.value.img, 'image.jpg')
-  uploadedFiles.value = [file]
-})
+async function uploadColorwayImage(file) {
+  const formData = new FormData()
+  formData.append('file', file, file.name)
+  formData.append(
+    'maker_id',
+    String(colorway.value.maker_id || route.params.maker || ''),
+  )
 
-async function fetchFileFromUrl(url, filename) {
-  const res = await fetch(url)
+  const result = await $fetch('/api/images/upload', {
+    method: 'post',
+    body: formData,
+  })
 
-  const blob = await res.blob()
-  return new File([blob], filename, { type: blob.type })
+  return result.url
 }
 
 const onSubmit = async () => {
-  await $fetch(
-    `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
-    {
-      method: 'post',
-      body: colorway.value,
-    },
-  )
-    .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Colorway [${colorway.value.name}] has been updated successfully.`,
-      })
+  try {
+    uploading.value = true
 
-      emit('onSuccess')
+    const payload = {
+      ...colorway.value,
+    }
+
+    if (uploadedFile.value) {
+      payload.img = await uploadColorwayImage(uploadedFile.value)
+    }
+
+    if (!payload.img) {
+      throw new Error('Please upload an image before saving this colorway.')
+    }
+
+    await $fetch(
+      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
+      {
+        method: 'post',
+        body: payload,
+      },
+    )
+
+    toast.add({
+      color: 'success',
+      title: `Colorway [${payload.name}] has been ${isEditMode.value ? 'updated' : 'added'} successfully.`,
     })
-    .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+
+    emit('onSuccess')
+  } catch (error) {
+    toast.add({
+      color: 'error',
+      title: 'Oops! Something went wrong',
+      description: error.message,
     })
+  } finally {
+    uploading.value = false
+  }
 }
 </script>

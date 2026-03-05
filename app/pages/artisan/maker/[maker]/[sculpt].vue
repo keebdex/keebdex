@@ -7,26 +7,42 @@
         </template>
 
         <template #right>
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.edit"
-            title="Edit Sculpt"
-          >
-            <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
+          <div v-if="editable" class="flex items-center gap-2">
+            <UModal v-model:visible="visible.create" title="Submit Colorway">
+              <UButton icon="hugeicons:image-add-01" color="primary">
+                Submit Colorway
+              </UButton>
 
-            <template #body="{ close }">
-              <ModalSculptForm
-                :is-edit="true"
-                :metadata="sculpt"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
+              <template #body="{ close }">
+                <ModalColorwayForm
+                  :metadata="newColorwayMetadata"
+                  @on-success="
+                    () => {
+                      close()
+                      refresh()
+                    }
+                  "
+                />
+              </template>
+            </UModal>
+
+            <UModal v-model:visible="visible.edit" title="Edit Sculpt">
+              <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
+
+              <template #body="{ close }">
+                <ModalSculptForm
+                  :is-edit="true"
+                  :metadata="sculpt"
+                  @on-success="
+                    () => {
+                      close()
+                      refresh()
+                    }
+                  "
+                />
+              </template>
+            </UModal>
+          </div>
         </template>
       </UDashboardNavbar>
     </template>
@@ -80,7 +96,7 @@
                     () => {
                       close()
                       refresh()
-                      setSelectedColorway()
+                      clearSelectedColorway()
                     }
                   "
                 />
@@ -226,6 +242,7 @@ const editable = computed(() => userStore.isEditable(sculpt.value.maker_id))
 
 const visible = ref({
   edit: false,
+  create: false,
   add: false,
   card: false,
 })
@@ -235,8 +252,20 @@ const visible = ref({
  * Currently, just add/update colorway description
  */
 
+const newColorwayMetadata = computed(() => ({
+  maker_id: sculpt.value.maker_id,
+  sculpt_id: sculpt.value.sculpt_id,
+  maker_sculpt_id: sculpt.value.maker_sculpt_id,
+  currency: 'USD',
+  sale_type: 'Raffle',
+  order: (sculpt.value.total_colorways || 0) + 1,
+}))
+
 // show colorway card popup
 const selectedColorway = ref({})
+const clearSelectedColorway = () => {
+  selectedColorway.value = {}
+}
 const setSelectedColorway = (clw) => {
   const { colorways, ...rest } = sculpt.value
   selectedColorway.value = {
