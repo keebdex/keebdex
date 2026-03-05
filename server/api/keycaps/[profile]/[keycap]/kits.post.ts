@@ -8,7 +8,14 @@ export default defineEventHandler(async (event) => {
     ? client.from('keycap_kits').update(kit).eq('id', kit.id)
     : client.from('keycap_kits').insert(kit)
 
-  const { data } = await query
+  const { data, error } = await query
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return data
 })

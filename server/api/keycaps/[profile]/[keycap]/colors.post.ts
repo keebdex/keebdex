@@ -11,7 +11,14 @@ export default defineEventHandler(async (event) => {
 
   const query = client.from('keycap_colors').insert(rows)
 
-  const { data } = await query
+  const { data, error } = await query
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return data
 })

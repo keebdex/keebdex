@@ -4,7 +4,14 @@ import { omitSensitive } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { data } = await client.from('makers').select()
+  const { data, error } = await client.from('makers').select()
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return sortBy(data?.map(omitSensitive), 'id')
 })

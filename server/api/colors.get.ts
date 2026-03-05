@@ -16,12 +16,19 @@ export default defineEventHandler(async (event) => {
     .split(/[\s,\t,\n]+/) // split and remove more than 1 space
     .join(' | ')
 
-  const { data, count } = Object.hasOwn(query, 'term')
+  const { data, count, error } = Object.hasOwn(query, 'term')
     ? await client.from('colors').select().textSearch('fts', `${fts}`)
     : await client
         .from('colors')
         .select('*', { count: 'exact' })
         .range(from, to)
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return {
     colors: data?.map(omitSensitive),

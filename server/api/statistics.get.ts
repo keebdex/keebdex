@@ -8,10 +8,17 @@ export default defineEventHandler(async (event) => {
 
   const startOfDay = today(getLocalTimeZone()).toString()
 
-  const { data } = await client
+  const { data, error } = await client
     .from('colorways')
     .select('*, maker:makers(name, invertible_logo)')
     .gte('created_at', startOfDay)
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   const makers = Object.entries(groupBy(data, 'maker.name')).map(
     ([name, keycaps]) => {
@@ -24,13 +31,20 @@ export default defineEventHandler(async (event) => {
     },
   )
 
-  const { data: keycaps } = await client
+  const { data: keycaps, error: keycapsError } = await client
     .from('keycaps')
     .select('*, profile:keycap_profiles(name, manufacturer_id)')
     .eq('status', 'Live')
     .eq('review_status', 'Approved')
   // .lte('start_date', startOfDay)
   // .gte('end_date', startOfDay)
+
+  if (keycapsError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: keycapsError.message,
+    })
+  }
 
   return {
     makers: sortBy(makers, 'name'),

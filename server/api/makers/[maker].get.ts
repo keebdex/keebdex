@@ -46,16 +46,23 @@ export default defineEventHandler(async (event) => {
   const query: Record<string, any> = getQuery(event)
 
   const client = await serverSupabaseClient(event)
-  const { data: profile } = await client
+  const { data: profile, error: profileError } = await client
     .from('makers')
     .select('*, sculpts (*, total_colorways:colorways(count))')
     .eq('id', makerId)
     .single()
 
+  if (profileError) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: profileError.message,
+    })
+  }
+
   /**
    * Using database filters for pagination with large datasets
    */
-  const { data: colorways } = await client
+  const { data: colorways, error: colorwaysError } = await client
     .from('colorways')
     .select()
     // .select('*, keycap:keycaps(*)')
@@ -63,6 +70,13 @@ export default defineEventHandler(async (event) => {
     .eq('sculpt_id', query.sculpt)
     .order(query.order_by, { ascending: query.sort === 'asc' })
     .range(query.from, query.to)
+
+  if (colorwaysError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: colorwaysError.message,
+    })
+  }
 
   const colorwayMap = groupBy(colorways?.map(omitSensitive), 'sculpt_id')
 

@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
         .eq('profile_keycap_id', rest.profile_keycap_id)
 
   if (error) {
-    return error
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
   }
 
   return data

@@ -27,7 +27,10 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await sqlQuery
 
   if (error) {
-    throw error
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
   }
 
   return data

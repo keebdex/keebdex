@@ -61,13 +61,33 @@ export default defineEventHandler(async (event) => {
       break
   }
 
-  const { data, count } = await query
+  const { data, count, error } = await query
 
-  const { data: profile } = await client
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
+
+  const { data: profile, error: profileError } = await client
     .from('keycap_profiles')
     .select()
     .eq('id', profile_id)
     .single()
+
+  if (
+    profileError &&
+    status !== 'pending' &&
+    status !== 'ic' &&
+    status !== 'live' &&
+    status !== 'ended'
+  ) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: profileError.message,
+    })
+  }
 
   return {
     keycaps: data?.map(omitSensitive),

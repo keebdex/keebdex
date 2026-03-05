@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const query = getQuery(event)
 
-  const { data: collections } = await client
+  const { data: collections, error: collectionsError } = await client
     .from('user_collections')
     .select()
     .eq('published', true)
@@ -14,8 +14,15 @@ export default defineEventHandler(async (event) => {
     .in('intent', ['want', 'sell'])
     .order('created_at', { ascending: false })
 
+  if (collectionsError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: collectionsError.message,
+    })
+  }
+
   if (collections?.length) {
-    const { data: items } = await client
+    const { data: items, error: itemsError } = await client
       .from('user_collection_items')
       .select('*, artisan:colorways(*, sculpt:sculpts(name))')
       .in(
@@ -25,6 +32,13 @@ export default defineEventHandler(async (event) => {
       .eq('exchange', true)
       .match(query)
       .order('order', { ascending: true })
+
+    if (itemsError) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: itemsError.message,
+      })
+    }
 
     const group = groupBy(items, 'collection_id')
     collections.forEach((collection: any) => {

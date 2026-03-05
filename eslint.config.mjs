@@ -2,6 +2,7 @@ import withNuxt from '@nuxt/eslint-config'
 import eslintPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default withNuxt(
+  eslintPrettierRecommended,
   {
     languageOptions: {
       globals: {
@@ -16,5 +17,4 @@ export default withNuxt(
       ],
     },
   },
-  eslintPrettierRecommended,
 )
