@@ -260,11 +260,7 @@ const visible = ref({
   card: false,
 })
 
-/**
- * New colorway submission
- * Currently, just add/update colorway description
- */
-
+// colorway submission
 const newColorwayMetadata = computed(() => ({
   maker_id: sculpt.value.maker_id,
   sculpt_id: sculpt.value.sculpt_id,

@@ -73,7 +73,7 @@
       label="Image"
       name="img"
       :required="!isEditMode"
-      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Avoid excessive background or blurry shots."
+      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 5MB."
     >
       <div v-if="isEditMode && colorway.img && !replaceMode" class="space-y-3">
         <NuxtImg
@@ -235,6 +235,11 @@ const onSubmit = async () => {
     }
 
     if (uploadedFile.value) {
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (uploadedFile.value.size > maxSize) {
+        throw new Error('Image file size must be less than 5MB')
+      }
       payload.img = await uploadColorwayImage(uploadedFile.value)
     }
 

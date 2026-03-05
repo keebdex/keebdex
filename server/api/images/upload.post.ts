@@ -1,7 +1,6 @@
-// import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
-// const ALLOWED_ROLES = new Set(['admin', 'editor', 'maker'])
+const ALLOWED_ROLES = new Set(['admin', 'editor', 'maker'])
 
 interface CloudflareImageUploadResponse {
   success: boolean
@@ -12,17 +11,20 @@ interface CloudflareImageUploadResponse {
   }
 }
 
-// function isAuthorizedEditor(profile: { role?: string | null; assignments?: string[] | null }, makerId: string) {
-//   if (!profile.role || !ALLOWED_ROLES.has(profile.role)) {
-//     return false
-//   }
+function isAuthorizedEditor(
+  profile: { role?: string | null; assignments?: string[] | null },
+  makerId: string,
+) {
+  if (!profile.role || !ALLOWED_ROLES.has(profile.role)) {
+    return false
+  }
 
-//   if (profile.role === 'admin') {
-//     return true
-//   }
+  if (profile.role === 'admin') {
+    return true
+  }
 
-//   return !profile.assignments || profile.assignments.includes(makerId)
-// }
+  return !profile.assignments || profile.assignments.includes(makerId)
+}
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -51,16 +53,28 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // const client = await serverSupabaseClient(event)
-  // const { data: profile } = await client
-  //   .from('users')
-  //   .select('role, assignments')
-  //   .eq('id', user.id)
-  //   .single()
+  // Validate file size (max 5MB)
+  const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+  if (file.size > maxSize) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Image file size must be less than 5MB',
+    })
+  }
 
-  // if (!profile || !isAuthorizedEditor(profile, makerId)) {
-  //   throw createError({ statusCode: 403, statusMessage: 'Insufficient permissions' })
-  // }
+  const client = await serverSupabaseClient(event)
+  const { data: profile } = await client
+    .from('users')
+    .select('role, assignments')
+    .eq('id', user.sub)
+    .single()
+
+  if (!profile || !isAuthorizedEditor(profile, makerId)) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Insufficient permissions',
+    })
+  }
 
   const config = useRuntimeConfig(event)
   const accountId = config.cloudflare?.accountId
