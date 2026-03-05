@@ -73,15 +73,7 @@
           </div>
 
           <template #footer>
-            <UModal
-              v-if="editable"
-              v-model:visible="visible.add"
-              :title="
-                selectedColorway && selectedColorway.name
-                  ? `Edit ${colorwayTitle(selectedColorway)}`
-                  : 'Add Colorway'
-              "
-            >
+            <UModal v-if="editable" title="Edit Colorway">
               <UTooltip text="Edit" :delay-duration="0">
                 <UButton
                   icon="hugeicons:file-edit"
@@ -132,6 +124,28 @@
               :text="true"
               @on-select="saveTo"
             />
+
+            <UModal
+              v-if="editable"
+              title="Delete"
+              :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
+              :ui="{ footer: 'justify-end', content: 'divide-none' }"
+            >
+              <UButton
+                v-if="user.email_verified"
+                icon="hugeicons:file-remove"
+                color="error"
+              />
+
+              <template #footer="{ close }">
+                <UButton label="Cancel" @click="close" />
+                <UButton
+                  label="Delete"
+                  color="error"
+                  @click="deleteColorway(colorway, close)"
+                />
+              </template>
+            </UModal>
           </template>
         </UPageCard>
       </UPageGrid>
@@ -243,7 +257,6 @@ const editable = computed(() => userStore.isEditable(sculpt.value.maker_id))
 const visible = ref({
   edit: false,
   create: false,
-  add: false,
   card: false,
 })
 
@@ -291,6 +304,30 @@ watch(
   },
   { immediate: true },
 )
+
+// delete colorway
+const deleteColorway = async (colorway, closeModal) => {
+  try {
+    await $fetch(
+      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
+      { method: 'delete' },
+    )
+
+    toast.add({
+      color: 'success',
+      title: `${colorway.name} has been deleted successfully.`,
+    })
+
+    closeModal()
+    refresh()
+  } catch (error) {
+    toast.add({
+      color: 'error',
+      title: 'Oops! Something went wrong',
+      description: error.message,
+    })
+  }
+}
 
 // add to collection
 const saveTo = (collection, colorway) => {
