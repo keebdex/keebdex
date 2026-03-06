@@ -52,10 +52,7 @@ const onSubmit = async () => {
   }).then(() => {
     emit('onSuccess')
 
-    toast.add({
-      color: 'success',
-      title: 'Your pins has been updated successfully.',
-    })
+    toast.add(handleNotice('pin'))
   })
 }
 </script>

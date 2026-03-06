@@ -268,10 +268,7 @@ const onSubmit = () => {
   )
     .then(() => {
       if (isEdit) {
-        toast.add({
-          color: 'success',
-          title: `Keycap [${keycap.value.name}] has been updated successfully.`,
-        })
+        toast.add(handleSuccess('update', keycap.value.name, 'Keycap'))
 
         if (route.params.keycap !== slug) {
           navigateTo(`/keycap/${keycap.value.profile_keycap_id}`)

@@ -69,10 +69,7 @@ const onSubmit = async () => {
     body: color.value,
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: 'Colors has been added successfully.',
-      })
+      toast.add(handleSuccess('save', 'Colors'))
 
       emit('onSuccess')
     })

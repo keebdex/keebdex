@@ -175,10 +175,7 @@ const onSubmit = async () => {
 
   await $fetch(url, { method: 'post', body: rest })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Collection [${rest.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
-      })
+      toast.add(handleSuccess(isEdit ? 'update' : 'add', rest.name, 'Collection'))
 
       emit('onSuccess')
     })

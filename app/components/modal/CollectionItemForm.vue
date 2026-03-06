@@ -79,10 +79,7 @@ const onSubmit = async () => {
     { method: 'post', body: { asking_price, exchange, priority } },
   )
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: 'Your changes have been saved.',
-      })
+      toast.add(handleSuccess('save', 'Changes'))
 
       emit('onSuccess')
     })

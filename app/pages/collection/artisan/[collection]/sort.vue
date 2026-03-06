@@ -129,10 +129,7 @@ const saveCustomSorting = async () => {
   )
     .then(() => {
       refresh()
-      toast.add({
-        color: 'success',
-        title: 'Custom order saved successfully!',
-      })
+      toast.add(handleSuccess('order_save', data.value.name))
     })
     .catch((error) => {
       toast.add(handleError(error))

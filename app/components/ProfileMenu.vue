@@ -140,10 +140,7 @@ const logout = async () => {
     toast.add(handleError(error))
   } else {
     userStore.$reset()
-    toast.add({
-      color: 'success',
-      title: 'You have been logged out successfully.',
-    })
+    toast.add(handleNotice('logout'))
 
     navigateTo('/')
   }

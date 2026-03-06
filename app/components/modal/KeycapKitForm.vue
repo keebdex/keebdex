@@ -119,10 +119,7 @@ const onSubmit = async () => {
     body: kit.value,
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Kit [${kit.value.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
-      })
+      toast.add(handleSuccess(isEdit ? 'update' : 'add', kit.value.name, 'Kit'))
 
       emit('onSuccess')
     })

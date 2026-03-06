@@ -68,10 +68,7 @@ const onSubmit = async () => {
     body: social.value,
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: 'Your profile has been updated.',
-      })
+      toast.add(handleSuccess('save', 'Profile'))
     })
     .catch((error) => {
       toast.add(handleError(error))
