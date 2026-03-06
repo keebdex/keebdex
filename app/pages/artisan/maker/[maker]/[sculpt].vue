@@ -317,11 +317,7 @@ const deleteColorway = async (colorway, closeModal) => {
     closeModal()
     refresh()
   } catch (error) {
-    toast.add({
-      color: 'error',
-      title: 'Oops! Something went wrong',
-      description: error.message,
-    })
+    toast.add(handleError(error))
   }
 }
 
@@ -351,11 +347,7 @@ const saveTo = (collection, colorway) => {
       }
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

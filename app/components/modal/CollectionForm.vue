@@ -183,11 +183,7 @@ const onSubmit = async () => {
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 
   await userStore.fetchUserCollections(uid)

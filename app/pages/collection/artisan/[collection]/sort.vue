@@ -135,11 +135,7 @@ const saveCustomSorting = async () => {
       })
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 
   await $fetch(
@@ -151,11 +147,7 @@ const saveCustomSorting = async () => {
       },
     },
   ).catch((error) => {
-    toast.add({
-      color: 'error',
-      title: 'Oops! Something went wrong',
-      description: error.message,
-    })
+    toast.add(handleError(error))
   })
 }
 </script>

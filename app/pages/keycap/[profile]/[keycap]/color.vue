@@ -165,11 +165,7 @@ const confirmDelete = (color) => {
       refresh()
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

@@ -189,8 +189,7 @@ const confirmDelete = (kit) => {
     .catch((error) => {
       toast.add({
         color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
+        ...handleError(error, 'delete'),
       })
     })
 }

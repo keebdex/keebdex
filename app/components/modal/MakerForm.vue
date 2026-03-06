@@ -38,7 +38,7 @@
         class="w-full"
       >
         <template #item-leading="{ item }">
-          <span :class="`fi fi-${item.code}`"></span>
+          <span :class="`fi fi-${item.code}`"/>
         </template>
       </USelectMenu>
     </UFormField>
@@ -216,11 +216,7 @@ const onSubmit = async () => {
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>
