@@ -62,14 +62,21 @@ export default defineEventHandler(async (event) => {
   /**
    * Using database filters for pagination with large datasets
    */
-  const { data: colorways, error: colorwaysError } = await client
-    .from('colorways')
-    .select()
-    // .select('*, keycap:keycaps(*)')
-    .eq('maker_id', makerId)
-    .eq('sculpt_id', query.sculpt)
-    .order(query.order_by, { ascending: query.sort === 'asc' })
-    .range(query.from, query.to)
+  let request = client.from('colorways').select().eq('maker_id', makerId)
+
+  if (query.sculpt) {
+    request = request.eq('sculpt_id', query.sculpt)
+  }
+
+  if (query.order_by) {
+    request = request.order(query.order_by, { ascending: query.sort === 'asc' })
+  }
+
+  if (query.from !== undefined && query.to !== undefined) {
+    request = request.range(query.from, query.to)
+  }
+
+  const { data: colorways, error: colorwaysError } = await request
 
   if (colorwaysError) {
     throw createError({
