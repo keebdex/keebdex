@@ -53,7 +53,7 @@ const onSubmit = async () => {
       favorite_makers: data,
     },
   }).then(() => {
-    toast.add(handleNotice('pin'))
+    toast.add(handleNotice('pin_update'))
 
     userStore.$patch({ favorites: data })
     emit('onSuccess')

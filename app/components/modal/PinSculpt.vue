@@ -52,7 +52,7 @@ const onSubmit = async () => {
   }).then(() => {
     emit('onSuccess')
 
-    toast.add(handleNotice('pin'))
+    toast.add(handleNotice('pin_update'))
   })
 }
 </script>

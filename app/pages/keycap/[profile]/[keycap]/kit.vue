@@ -185,10 +185,7 @@ const confirmDelete = (kit) => {
       refresh()
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        ...handleError(error, 'delete'),
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

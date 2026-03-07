@@ -38,15 +38,25 @@ interface ToastMessage {
  * @returns {ToastMessage} Ready-to-use toast configuration
  */
 export function handleError(error: any): ToastMessage {
-  // 1. Log the full technical error for internal debugging
-  console.error(`[Internal Error]`, {
-    message: error?.message,
-    status: error?.status || error?.statusCode || error?.response?.status,
-    data: error?.data || error?.response?.data,
-    stack: error?.stack,
-  })
-
   const status = error?.status || error?.statusCode || error?.response?.status
+
+  // 1. Log the technical error for internal debugging
+  const isDev = process.env.NODE_ENV === 'development'
+  if (isDev) {
+    // In development, log full details including response data and stack trace
+    console.error(`[Internal Error]`, {
+      message: error?.message,
+      status,
+      data: error?.data || error?.response?.data,
+      stack: error?.stack,
+    })
+  } else {
+    // In non-development environments, log only a minimal, non-sensitive subset
+    console.error(`[Internal Error]`, {
+      message: error?.message,
+      status,
+    })
+  }
 
   // 2. Handle specific HTTP status codes for smarter feedback
   if (status === 401 || status === 403) {
@@ -162,7 +172,7 @@ export function handleSuccess(
  */
 export function handleNotice(
   action: SystemAction,
-  payload: string,
+  payload?: string,
 ): ToastMessage {
   switch (action) {
     case 'copy':
@@ -182,12 +192,12 @@ export function handleNotice(
       }
     case 'pin_update':
       return {
-        title: 'Your pins has been updated successfully.',
+        title: 'Your pins have been updated successfully.',
         color: 'success',
       }
     case 'order_save':
       return {
-        title: 'Sorting order saved successfully!',
+        title: 'Sorting order saved successfully.',
         color: 'success',
       }
     default:

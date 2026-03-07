@@ -275,8 +275,7 @@ const onSubmit = () => {
         }
       } else {
         toast.add({
-          color: 'success',
-          title: `Keycap [${keycap.value.name}] has been added successfully.`,
+          ...handleSuccess('add', keycap.value.name, 'Keycap'),
           actions: [
             {
               label: 'View',

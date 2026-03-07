@@ -129,7 +129,7 @@ const saveCustomSorting = async () => {
   )
     .then(() => {
       refresh()
-      toast.add(handleSuccess('order_save', data.value.name))
+      toast.add(handleNotice('order_save'))
     })
     .catch((error) => {
       toast.add(handleError(error))
