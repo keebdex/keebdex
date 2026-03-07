@@ -26,13 +26,6 @@ export default defineNuxtConfig({
     'nuxt-og-image',
   ],
 
-  content: {
-    database: {
-      type: 'd1',
-      bindingName: 'KEEBDEX_DB',
-    },
-  },
-
   ogImage: {
     defaults: {
       component: 'Website',
