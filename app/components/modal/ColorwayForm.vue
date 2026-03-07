@@ -255,19 +255,18 @@ const onSubmit = async () => {
       },
     )
 
-    toast.add({
-      color: 'success',
-      title: `Colorway [${payload.name}] has been ${isEditMode.value ? 'updated' : 'added'} successfully.`,
-    })
+    toast.add(
+      handleSuccess(
+        isEditMode.value ? 'update' : 'add',
+        payload.name,
+        'Colorway',
+      ),
+    )
 
     replaceMode.value = false
     emit('onSuccess')
   } catch (error) {
-    toast.add({
-      color: 'error',
-      title: 'Oops! Something went wrong',
-      description: error.message,
-    })
+    toast.add(handleError(error))
   } finally {
     uploading.value = false
   }

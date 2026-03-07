@@ -109,9 +109,6 @@ const trades = computed(() => {
 
 const copyToClipboard = (discord) => {
   navigator.clipboard.writeText(discord)
-  toast.add({
-    color: 'success',
-    title: 'Copied to clipboard!',
-  })
+  toast.add(handleNotice('copy'))
 }
 </script>

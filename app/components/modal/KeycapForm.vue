@@ -268,18 +268,14 @@ const onSubmit = () => {
   )
     .then(() => {
       if (isEdit) {
-        toast.add({
-          color: 'success',
-          title: `Keycap [${keycap.value.name}] has been updated successfully.`,
-        })
+        toast.add(handleSuccess('update', keycap.value.name, 'Keycap'))
 
         if (route.params.keycap !== slug) {
           navigateTo(`/keycap/${keycap.value.profile_keycap_id}`)
         }
       } else {
         toast.add({
-          color: 'success',
-          title: `Keycap [${keycap.value.name}] has been added successfully.`,
+          ...handleSuccess('add', keycap.value.name, 'Keycap'),
           actions: [
             {
               label: 'View',
@@ -292,11 +288,7 @@ const onSubmit = () => {
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

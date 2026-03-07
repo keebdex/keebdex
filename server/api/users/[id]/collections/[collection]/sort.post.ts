@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
       .eq('id', id)
 
     if (error) {
-      throw error
+      throw createError({
+        statusCode: 500,
+        statusMessage: error.message,
+      })
     }
   })
 

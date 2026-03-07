@@ -9,7 +9,7 @@
       container: 'p-2 sm:p-2',
     }"
   >
-    <div :style="{ backgroundColor: hex }" class="h-16 rounded"></div>
+    <div :style="{ backgroundColor: hex }" class="h-16 rounded" />
   </UPageCard>
 </template>
 

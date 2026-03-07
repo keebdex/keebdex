@@ -77,19 +77,14 @@ const onSubmit = async () => {
     body: color.value,
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Color [${color.value.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
-      })
+      toast.add(
+        handleSuccess(isEdit ? 'update' : 'add', color.value.name, 'Color'),
+      )
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

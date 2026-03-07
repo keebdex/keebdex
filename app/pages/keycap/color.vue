@@ -165,18 +165,12 @@ const confirmDelete = (color) => {
     method: 'delete',
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Color [${color.code}] has been deleted.`,
-      })
+      toast.add(handleSuccess('delete', color.name))
+
       refresh()
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 

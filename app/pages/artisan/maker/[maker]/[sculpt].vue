@@ -309,19 +309,12 @@ const deleteColorway = async (colorway, closeModal) => {
       { method: 'delete' },
     )
 
-    toast.add({
-      color: 'success',
-      title: `${colorway.name} has been deleted successfully.`,
-    })
+    toast.add(handleSuccess('delete', colorway.name))
 
     closeModal()
     refresh()
   } catch (error) {
-    toast.add({
-      color: 'error',
-      title: 'Oops! Something went wrong',
-      description: error.message,
-    })
+    toast.add(handleError(error))
   }
 }
 
@@ -344,18 +337,13 @@ const saveTo = (collection, colorway) => {
           title: data.message,
         })
       } else {
-        toast.add({
-          color: 'success',
-          title: `${colorway.name} has been added to [${collection.name}].`,
-        })
+        toast.add(
+          handleSuccess('add', colorway.name, undefined, collection.name),
+        )
       }
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

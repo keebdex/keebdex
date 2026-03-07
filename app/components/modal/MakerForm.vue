@@ -38,7 +38,7 @@
         class="w-full"
       >
         <template #item-leading="{ item }">
-          <span :class="`fi fi-${item.code}`"></span>
+          <span :class="`fi fi-${item.code}`" />
         </template>
       </USelectMenu>
     </UFormField>
@@ -208,19 +208,12 @@ const onSubmit = async () => {
     },
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Maker [${rest.name}] has been ${isEdit ? 'updated' : 'added'} successfully.`,
-      })
+      toast.add(handleSuccess(isEdit ? 'update' : 'add', rest.name, 'Maker'))
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

@@ -10,7 +10,10 @@ export default defineEventHandler(async (event) => {
     .eq('id', event.context.params?.maker)
 
   if (error) {
-    return error
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
   }
 
   return data

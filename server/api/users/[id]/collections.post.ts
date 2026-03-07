@@ -5,7 +5,14 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  const { data } = await client.from('user_collections').insert(body)
+  const { data, error } = await client.from('user_collections').insert(body)
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return data
 })

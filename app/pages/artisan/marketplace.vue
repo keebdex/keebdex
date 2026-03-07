@@ -15,7 +15,7 @@
           </template>
         </UAlert>
 
-        <MarketplaceListing class="mt-6"/>
+        <MarketplaceListing class="mt-6" />
       </UPage>
     </template>
   </UDashboardPanel>

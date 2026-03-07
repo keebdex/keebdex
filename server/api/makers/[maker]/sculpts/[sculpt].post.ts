@@ -19,7 +19,10 @@ export default defineEventHandler(async (event) => {
     .eq('sculpt_id', body.sculpt_id)
 
   if (error) {
-    return error
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
   }
 
   return data

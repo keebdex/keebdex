@@ -143,17 +143,10 @@ const saveTo = (collection, keycap) => {
     body: item,
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `${keycap.name} has been added to ${collection.name}.`,
-      })
+      toast.add(handleSuccess('add', keycap.name, undefined, collection.name))
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

@@ -286,17 +286,17 @@ const moveTo = (collection, item) => {
   )
     .then(() => {
       refresh()
-      toast.add({
-        color: 'success',
-        title: `${colorwayTitle(artisan)} has been moved to ${collection.name}.`,
-      })
+      toast.add(
+        handleSuccess(
+          'move',
+          colorwayTitle(artisan),
+          undefined,
+          collection.name,
+        ),
+      )
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 
@@ -307,17 +307,10 @@ const remove = (id, colorway) => {
   )
     .then(() => {
       refresh()
-      toast.add({
-        color: 'success',
-        title: `${colorwayTitle(colorway)} has been removed.`,
-      })
+      toast.add(handleSuccess('delete', colorwayTitle(colorway)))
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 
@@ -326,28 +319,18 @@ const deleteCollection = () => {
     method: 'delete',
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Collection [${data.value.name}] has been deleted.`,
-      })
+      toast.add(handleSuccess('delete', data.value.name))
 
       router.go(-1)
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 
 const copyShareUrl = () => {
   navigator.clipboard.writeText(config.app.homepage + route.fullPath)
-  toast.add({
-    color: 'success',
-    title: 'Copied to clipboard!',
-  })
+  toast.add(handleNotice('copy'))
 }
 
 const visible = ref({

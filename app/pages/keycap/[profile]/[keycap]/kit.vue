@@ -180,18 +180,12 @@ const confirmDelete = (kit) => {
     method: 'delete',
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: `Kit [${kit.name}] has been deleted.`,
-      })
+      toast.add(handleSuccess('delete', kit.name))
+
       refresh()
     })
     .catch((error) => {
-      toast.add({
-        color: 'error',
-        title: 'Oops! Something went wrong',
-        description: error.message,
-      })
+      toast.add(handleError(error))
     })
 }
 </script>

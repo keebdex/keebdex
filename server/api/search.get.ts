@@ -56,6 +56,34 @@ export default defineEventHandler(async (event) => {
     keycapSearch,
   ])
 
+  if (makers.error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: makers.error.message,
+    })
+  }
+
+  if (sculpts.error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: sculpts.error.message,
+    })
+  }
+
+  if (colorways.error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: colorways.error.message,
+    })
+  }
+
+  if (keycaps.error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: keycaps.error.message,
+    })
+  }
+
   return [
     {
       id: 'artisan-maker',
