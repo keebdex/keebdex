@@ -337,7 +337,9 @@ const saveTo = (collection, colorway) => {
           title: data.message,
         })
       } else {
-        toast.add(handleSuccess('add', colorway.name, undefined,collection.name))
+        toast.add(
+          handleSuccess('add', colorway.name, undefined, collection.name),
+        )
       }
     })
     .catch((error) => {

@@ -286,7 +286,14 @@ const moveTo = (collection, item) => {
   )
     .then(() => {
       refresh()
-      toast.add(handleSuccess('move', colorwayTitle(artisan), undefined, collection.name))
+      toast.add(
+        handleSuccess(
+          'move',
+          colorwayTitle(artisan),
+          undefined,
+          collection.name,
+        ),
+      )
     })
     .catch((error) => {
       toast.add(handleError(error))

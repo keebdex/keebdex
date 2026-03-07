@@ -175,7 +175,9 @@ const onSubmit = async () => {
 
   await $fetch(url, { method: 'post', body: rest })
     .then(() => {
-      toast.add(handleSuccess(isEdit ? 'update' : 'add', rest.name, 'Collection'))
+      toast.add(
+        handleSuccess(isEdit ? 'update' : 'add', rest.name, 'Collection'),
+      )
 
       emit('onSuccess')
     })

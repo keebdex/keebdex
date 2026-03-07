@@ -255,7 +255,13 @@ const onSubmit = async () => {
       },
     )
 
-    toast.add(handleSuccess(isEditMode.value ? 'update' : 'add', payload.name, 'Colorway'))
+    toast.add(
+      handleSuccess(
+        isEditMode.value ? 'update' : 'add',
+        payload.name,
+        'Colorway',
+      ),
+    )
 
     replaceMode.value = false
     emit('onSuccess')

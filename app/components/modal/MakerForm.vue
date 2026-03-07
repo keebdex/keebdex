@@ -38,7 +38,7 @@
         class="w-full"
       >
         <template #item-leading="{ item }">
-          <span :class="`fi fi-${item.code}`"/>
+          <span :class="`fi fi-${item.code}`" />
         </template>
       </USelectMenu>
     </UFormField>
