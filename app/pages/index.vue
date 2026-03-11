@@ -1,13 +1,13 @@
 <template>
   <UDashboardPanel id="home">
     <template v-if="$device.isMobileOrTablet" #header>
-      <UDashboardNavbar :title="$config.app.name" />
+      <UDashboardNavbar :title="$config.public.site.name" />
     </template>
 
     <template #body>
       <UPageHero
-        :title="`Welcome to ${$config.app.name}`"
-        :description="$config.app.description"
+        :title="`Welcome to ${$config.public.site.name}`"
+        :description="$config.public.site.description"
         :links="[
           {
             label: 'Discover Keebdex',

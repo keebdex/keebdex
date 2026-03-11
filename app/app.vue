@@ -30,7 +30,7 @@ client.auth.getUser().then(({ data }) => {
   }
 })
 
-const { name, description, homepage } = config.app
+const { name, description, homepage } = config.public.site
 
 useHead({
   htmlAttrs: {

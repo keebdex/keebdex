@@ -44,7 +44,7 @@
 
     <div class="w-[720px] pl-[120px]">
       <div class="flex items-center gap-4">
-        <img :src="`/logo-filled.png`" height="50" />
+        <img :src="`/logo-filled.png`" height="50" >
         <h1 class="text-[36px] text-[#FEC476] font-semibold text-left">
           {{ headline }}
         </h1>
@@ -53,7 +53,7 @@
         {{ title }}
       </h1>
       <p class="text-[24px] text-[#E4E4E7] font-medium leading-tight">
-        {{ description || $config.app.description }}
+        {{ description || $config.public.site.description }}
       </p>
     </div>
 
@@ -64,7 +64,7 @@
       :src="`/logo/${makerId}.png`"
       width="240"
       :style="{ filter: invertible && 'invert()' }"
-    />
+    >
   </div>
 </template>
 
@@ -91,5 +91,5 @@ const { title, makerName } = defineProps({
 
 const config = useRuntimeConfig()
 
-const headline = makerName ? `/ ${makerName}` : config.app.name
+const headline = makerName ? `/ ${makerName}` : config.public.site.name
 </script>

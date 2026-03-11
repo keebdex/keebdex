@@ -44,7 +44,7 @@
 
     <div class="w-[720px] pl-[120px]">
       <div class="flex items-center gap-4">
-        <img :src="`/logo-filled.png`" height="50" />
+        <img :src="`/logo-filled.png`" height="50" >
         <h1 class="text-[36px] text-[#FEC476] font-semibold text-left">
           {{ headline }}
         </h1>
@@ -64,7 +64,7 @@
       :src="`/logo/${manufacturerId}.png`"
       width="240"
       style="filter: invert()"
-    />
+    >
   </div>
 </template>
 
@@ -90,5 +90,5 @@ const { title, manufacturerName } = defineProps({
 
 const config = useRuntimeConfig()
 
-const headline = manufacturerName ? `/ ${manufacturerName}` : config.app.name
+const headline = manufacturerName ? `/ ${manufacturerName}` : config.public.site.name
 </script>

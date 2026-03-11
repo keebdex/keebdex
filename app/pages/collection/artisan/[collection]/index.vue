@@ -329,7 +329,7 @@ const deleteCollection = () => {
 }
 
 const copyShareUrl = () => {
-  navigator.clipboard.writeText(config.app.homepage + route.fullPath)
+  navigator.clipboard.writeText(config.public.site.homepage + route.fullPath)
   toast.add(handleNotice('copy'))
 }
 

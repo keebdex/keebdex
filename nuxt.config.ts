@@ -46,10 +46,12 @@ export default defineNuxtConfig({
       imagesDeliveryBaseUrl: process.env.CF_IMAGES_DELIVERY_URL,
       imagesDefaultVariant: process.env.CF_IMAGES_VARIANT || 'public',
     },
-    app: {
-      name: app.displayName,
-      description: app.description,
-      homepage: app.homepage,
+    public: {
+      site: {
+        name: app.displayName,
+        description: app.description,
+        homepage: app.homepage,
+      },
     },
   },
 })

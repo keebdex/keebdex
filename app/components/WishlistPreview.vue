@@ -215,10 +215,10 @@
 
       <USeparator class="mt-16">
         <UUser
-          :name="`From ${$config.app.name} with love`"
+          :name="`From ${$config.public.site.name} with love`"
           size="3xl"
           :avatar="{
-            alt: $config.app.name,
+            alt: $config.public.site.name,
             src:
               $colorMode.value === 'dark'
                 ? '/logo-outlined.png'

@@ -32,7 +32,7 @@
 
     <USeparator>
       <template #default>
-        <b>Help us make {{ $config.app.name }} amazing!</b>
+        <b>Help us make {{ $config.public.site.name }} amazing!</b>
       </template>
     </USeparator>
 

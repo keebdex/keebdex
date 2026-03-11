@@ -12,7 +12,7 @@
       <template #header>
         <NuxtLink to="/" class="flex items-end gap-2">
           <NuxtImg
-            :alt="$config.app.name"
+            :alt="$config.public.site.name"
             :src="
               $colorMode.value === 'dark'
                 ? '/logo-outlined.png'
@@ -25,7 +25,7 @@
             v-if="!collapsed"
             class="text-xl font-bold bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
           >
-            {{ $config.app.name }}
+            {{ $config.public.site.name }}
           </span>
         </NuxtLink>
 
