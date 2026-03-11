@@ -9,6 +9,27 @@
         <template #right>
           <UModal
             v-if="editable"
+            v-model:visible="visible.create"
+            title="Add Sculpt"
+          >
+            <UButton color="primary" icon="hugeicons:user-add-02">
+              Add Sculpt
+            </UButton>
+
+            <template #body="{ close }">
+              <ModalSculptForm
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
+              />
+            </template>
+          </UModal>
+
+          <UModal
+            v-if="editable"
             v-model:visible="visible.edit"
             title="Edit Maker"
           >
@@ -67,9 +88,10 @@ const route = useRoute()
 const userStore = useUserStore()
 const { favorites } = storeToRefs(userStore)
 
-const editable = computed(() => userStore.isEditable(maker.id))
+const editable = computed(() => userStore.isEditable(maker.value?.id))
 
 const visible = ref({
+  create: false,
   edit: false,
   customize_pins: false,
 })
@@ -82,13 +104,13 @@ const { data: maker, refresh } = await useAsyncData(
   },
 )
 
-const sculpts = Object.values(maker.value.sculpts)
+const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])
 const favoriteSculpts = computed(() => {
-  return sculpts.filter((s) => favSculpts.value.includes(s.sculpt_id))
+  return sculpts.value.filter((s) => favSculpts.value.includes(s.sculpt_id))
 })
 const otherSculpts = computed(() => {
-  return sculpts.filter((s) => !favSculpts.value.includes(s.sculpt_id))
+  return sculpts.value.filter((s) => !favSculpts.value.includes(s.sculpt_id))
 })
 
 const breadcrumbs = computed(() => {

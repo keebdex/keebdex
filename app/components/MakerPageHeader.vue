@@ -75,7 +75,11 @@ if (maker.artisancollector) {
 }
 
 const documents = []
-if (Array.isArray(maker.document_ids) && maker.document_ids.length) {
+if (
+  !maker.disable_google_sync &&
+  Array.isArray(maker.document_ids) &&
+  maker.document_ids.length
+) {
   if (maker.document_ids.length > 1) {
     maker.document_ids.forEach((docId, idx) => {
       documents.push({

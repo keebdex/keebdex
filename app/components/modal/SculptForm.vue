@@ -46,6 +46,7 @@
 
 <script setup>
 import { z } from 'zod'
+import slugify from 'slugify'
 
 const emit = defineEmits(['onSuccess'])
 
@@ -96,13 +97,19 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
-  await $fetch(
-    `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
-    {
-      method: 'post',
-      body: sculpt.value,
+  const makerId = String(sculpt.value.maker_id || route.params.maker || '')
+  const sculptId = isEdit
+    ? String(sculpt.value.sculpt_id || route.params.sculpt || '')
+    : slugify(sculpt.value.name, { lower: true })
+
+  await $fetch(`/api/makers/${makerId}/sculpts/${sculptId}`, {
+    method: 'post',
+    body: {
+      ...sculpt.value,
+      maker_id: makerId,
+      sculpt_id: sculptId,
     },
-  )
+  })
     .then(() => {
       toast.add(handleSuccess(isEdit ? 'update' : 'add', sculpt.value.name, 'Sculpt'))
       emit('onSuccess')
