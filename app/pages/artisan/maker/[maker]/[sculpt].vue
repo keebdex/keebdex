@@ -42,6 +42,23 @@
                 />
               </template>
             </UModal>
+
+            <UModal
+              title="Delete Sculpt"
+              :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
+              :ui="{ footer: 'justify-end', content: 'divide-none' }"
+            >
+              <UButton icon="hugeicons:delete-02" label="Delete" color="error" />
+
+              <template #footer="{ close }">
+                <UButton label="Cancel" @click="close" />
+                <UButton
+                  label="Delete"
+                  color="error"
+                  @click="deleteSculpt(close)"
+                />
+              </template>
+            </UModal>
           </div>
         </template>
       </UDashboardNavbar>
@@ -300,6 +317,23 @@ watch(
   },
   { immediate: true },
 )
+
+// delete sculpt
+const deleteSculpt = async (closeModal) => {
+  try {
+    await $fetch(
+      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
+      { method: 'delete' },
+    )
+
+    toast.add(handleSuccess('delete', sculpt.value.name, 'Sculpt'))
+
+    closeModal()
+    navigateTo(`/artisan/maker/${route.params.maker}`)
+  } catch (error) {
+    toast.add(handleError(error))
+  }
+}
 
 // delete colorway
 const deleteColorway = async (colorway, closeModal) => {

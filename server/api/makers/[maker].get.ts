@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
     .from('makers')
     .select('*, sculpts (*, total_colorways:colorways(count))')
     .eq('id', makerId)
+    .eq('sculpts.deleted', false)
     .single()
 
   if (profileError) {
