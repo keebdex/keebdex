@@ -46,6 +46,7 @@ export default defineAppConfig({
     button: {
       slots: {
         base: 'cursor-pointer',
+        label: 'hidden md:block',
       },
       defaultVariants: {
         color: 'neutral',
