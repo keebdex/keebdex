@@ -56,4 +56,18 @@ export default defineNuxtConfig({
       },
     },
   },
+
+  // pre-bundling to avoid page reloads
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'lodash.sortby', // CJS
+        'zod',
+        '@internationalized/date',
+        'modern-screenshot',
+      ]
+    }
+  },
 })
