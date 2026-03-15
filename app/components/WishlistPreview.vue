@@ -262,7 +262,7 @@ const tradingCfg = useState('trading-config')
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
 const { data: collections, refresh } = await useAsyncData(
-  () => $fetch(`/api/users/${user.value.uid}/collection-items`),
+  () => $fetch(`/api/users/${user.value.uid}/collection-items`).catch(() => []),
   {
     watch: [user],
     transform: (data) => {
