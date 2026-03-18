@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
+      <UDashboardNavbar :title="data?.name">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -233,7 +233,7 @@ const { data, refresh } = await useAsyncData(() =>
   $fetch(`/api/collections/${route.params.collection}`),
 )
 
-const sort = ref(data.value.sort_by || 'artisan.maker_sculpt_id|artisan.name')
+const sort = ref(data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name')
 
 const shareable = !!data.value?.published
 
