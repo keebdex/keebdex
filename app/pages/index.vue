@@ -10,9 +10,18 @@
         :description="$config.public.site.description"
         :links="[
           {
-            label: 'Discover Keebdex',
-            to: '/about',
+            label: 'Meet the Makers',
+            to: '/artisan/maker',
             icon: 'solar:palette-bold-duotone',
+            color: 'primary',
+            ui: {
+              label: 'block',
+            },
+          },
+          {
+            label: 'Explore Keysets',
+            to: '/keycap?status=live',
+            icon: 'solar:layers-bold-duotone',
             color: 'primary',
             ui: {
               label: 'block',
