@@ -67,6 +67,8 @@ export default defineNuxtConfig({
         'zod',
         '@internationalized/date',
         'modern-screenshot',
+        'lodash.groupby', // CJS
+        'vuedraggable', // CJS
       ]
     }
   },

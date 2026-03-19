@@ -17,6 +17,9 @@
             to: '/why-choose-keebdex',
             icon: 'solar:star-fall-bold-duotone',
             color: 'primary',
+            ui: {
+              label: 'block',
+            },
           },
         ]"
       />

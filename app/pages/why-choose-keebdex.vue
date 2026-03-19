@@ -32,6 +32,9 @@ const tiers = ref([
       variant: 'subtle',
       color: 'primary',
       to: '/',
+      ui: {
+        label: 'block',
+      },
     },
   },
   {
@@ -43,6 +46,9 @@ const tiers = ref([
       variant: 'soft',
       to: 'https://keycap-archivist.com',
       target: '_blank',
+      ui: {
+        label: 'block',
+      },
     },
   },
 ])

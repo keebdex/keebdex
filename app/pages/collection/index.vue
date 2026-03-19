@@ -15,9 +15,8 @@
               v-if="authenticated"
               color="primary"
               icon="hugeicons:bookmark-add-01"
-            >
-              Add
-            </UButton>
+              label="Add"
+            />
 
             <template #body="{ close }">
               <ModalCollectionForm :uid="user.uid" @on-success="close" />

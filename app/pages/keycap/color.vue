@@ -4,7 +4,7 @@
       <UDashboardNavbar :title="meta.title">
         <template #right>
           <UModal v-if="editable" v-model:visible="visible" title="Add Color">
-            <UButton icon="hugeicons:color-picker"> Add </UButton>
+            <UButton icon="hugeicons:color-picker" label="Add" />
 
             <template #body="{ close }">
               <ModalColorForm

@@ -14,6 +14,9 @@
             to: '/about',
             icon: 'solar:palette-bold-duotone',
             color: 'primary',
+            ui: {
+              label: 'block',
+            },
           },
         ]"
         :ui="{

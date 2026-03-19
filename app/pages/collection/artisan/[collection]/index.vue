@@ -12,7 +12,7 @@
             v-model:visible="visible.edit"
             title="Edit Collection"
           >
-            <UButton icon="hugeicons:bookmark-03"> Edit </UButton>
+            <UButton icon="hugeicons:bookmark-03" label="Edit" />
 
             <template #body="{ close }">
               <ModalCollectionForm

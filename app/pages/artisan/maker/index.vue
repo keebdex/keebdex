@@ -4,9 +4,7 @@
       <UDashboardNavbar title="Artisan Makers">
         <template #right>
           <UModal v-if="isAdmin" v-model:visible="visible" title="Add Maker">
-            <UButton color="primary" icon="hugeicons:user-add-02">
-              Add
-            </UButton>
+            <UButton color="primary" icon="hugeicons:user-add-02" label="Add" />
 
             <template #body="{ close }">
               <ModalMakerForm
@@ -26,7 +24,7 @@
             title="Customize Pins"
             description="Pin up to 6 makers to the top for easy access."
           >
-            <UButton icon="hugeicons:pin" color="secondary"> Pins </UButton>
+            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
 
             <template #body="{ close }">
               <ModalPinMaker

@@ -4,9 +4,12 @@
       <UDashboardNavbar :title="title">
         <template #right>
           <UModal v-model:visible="visible" title="Add Keycap">
-            <UButton v-if="isAdmin" color="primary" icon="hugeicons:keyboard">
-              Add
-            </UButton>
+            <UButton
+              v-if="isAdmin"
+              color="primary"
+              icon="hugeicons:keyboard"
+              label="Add"
+            />
 
             <template #body="{ close }">
               <ModalKeycapForm

@@ -12,9 +12,11 @@
             v-model:visible="visible.create"
             title="Add Sculpt"
           >
-            <UButton color="primary" icon="hugeicons:user-add-02">
-              Add Sculpt
-            </UButton>
+            <UButton
+              color="primary"
+              icon="hugeicons:user-add-02"
+              label="Add Sculpt"
+            />
 
             <template #body="{ close }">
               <ModalSculptForm
@@ -33,7 +35,7 @@
             v-model:visible="visible.edit"
             title="Edit Maker"
           >
-            <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
+            <UButton icon="hugeicons:user-edit-01" label="Edit" />
 
             <template #body="{ close }">
               <ModalMakerForm
@@ -55,7 +57,7 @@
             title="Customize Pins"
             description="Pin up to 6 sculpts to the top for easy access."
           >
-            <UButton icon="hugeicons:pin" color="secondary"> Pins </UButton>
+            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
 
             <template #body="{ close }">
               <ModalPinSculpt

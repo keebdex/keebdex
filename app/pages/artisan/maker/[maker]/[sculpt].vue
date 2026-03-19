@@ -9,9 +9,11 @@
         <template #right>
           <div v-if="editable" class="flex items-center gap-2">
             <UModal v-model:visible="visible.create" title="Submit Colorway">
-              <UButton icon="hugeicons:image-add-01" color="primary">
-                Submit Colorway
-              </UButton>
+              <UButton
+                icon="hugeicons:image-add-01"
+                color="primary"
+                label="Submit Colorway"
+              />
 
               <template #body="{ close }">
                 <ModalColorwayForm
@@ -27,7 +29,7 @@
             </UModal>
 
             <UModal v-model:visible="visible.edit" title="Edit Sculpt">
-              <UButton icon="hugeicons:user-edit-01"> Edit </UButton>
+              <UButton icon="hugeicons:user-edit-01" label="Edit" />
 
               <template #body="{ close }">
                 <ModalSculptForm
@@ -48,7 +50,11 @@
               :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
               :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
-              <UButton icon="hugeicons:delete-02" label="Delete" color="error" />
+              <UButton
+                icon="hugeicons:delete-02"
+                label="Delete"
+                color="error"
+              />
 
               <template #footer="{ close }">
                 <UButton label="Cancel" @click="close" />

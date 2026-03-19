@@ -8,7 +8,7 @@
 
         <template #right>
           <UModal v-model:visible="visible" title="Add Kit">
-            <UButton icon="hugeicons:dashboard-square-add"> Add </UButton>
+            <UButton icon="hugeicons:dashboard-square-add" label="Add" />
 
             <template #body="{ close }">
               <ModalKeycapKitForm

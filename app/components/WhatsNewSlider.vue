@@ -13,6 +13,9 @@
       icon="solar:confetti-bold-duotone"
       color="info"
       block
+      :ui="{
+        label: 'block',
+      }"
     />
 
     <template #body="{ close }">
