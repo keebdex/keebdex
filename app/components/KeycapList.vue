@@ -110,12 +110,30 @@
 
 <script setup>
 defineProps({
-  title: String,
-  description: String,
-  page: Number,
-  size: Number,
-  total: Number,
-  keycaps: Array,
+  title: {
+    type: String,
+    default: 'Keycaps',
+  },
+  description: {
+    type: String,
+    default: '',
+  },
+  page: {
+    type: Number,
+    default: 1,
+  },
+  size: {
+    type: Number,
+    default: 10,
+  },
+  total: {
+    type: Number,
+    default: 0,
+  },
+  keycaps: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 defineEmits(['update:page', 'update:keycaps'])

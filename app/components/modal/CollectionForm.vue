@@ -106,7 +106,10 @@ const emit = defineEmits(['onSuccess'])
 const { metadata, uid, isEdit } = defineProps({
   metadata: { type: Object, default: () => ({}) },
   isEdit: Boolean,
-  uid: String,
+  uid: {
+    type: String,
+    required: true,
+  },
 })
 
 const userStore = useUserStore()

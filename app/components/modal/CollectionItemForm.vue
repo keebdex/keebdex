@@ -1,6 +1,17 @@
 <template>
   <UForm :schema="schema" :state="item" class="space-y-4">
     <UFormField
+      v-if="buying"
+      label="Wanted"
+      help="Items you're looking to buy."
+    >
+      <USwitch v-model="item.exchange" />
+    </UFormField>
+    <UFormField v-else label="Available" help="Items you're offering for sale.">
+      <USwitch v-model="item.exchange" />
+    </UFormField>
+
+    <UFormField
       v-if="selling"
       label="Asking / Offer Price (USD)"
       name="asking_price"
@@ -19,17 +30,6 @@
       help="Mark as priority to highlight it in your wishlist image."
     >
       <USwitch v-model="item.priority" :disabled="!item.exchange" />
-    </UFormField>
-
-    <UFormField
-      v-if="buying"
-      label="Wanted"
-      help="Items you're looking to buy."
-    >
-      <USwitch v-model="item.exchange" />
-    </UFormField>
-    <UFormField v-else label="Available" help="Items you're offering for sale.">
-      <USwitch v-model="item.exchange" />
     </UFormField>
 
     <UButton block color="primary" type="submit" loading-auto @click="onSubmit">
@@ -60,6 +60,15 @@ const item = ref({
   priority: false,
   exchange: true,
 })
+
+watch(
+  () => item.value.exchange,
+  (newValue) => {
+    if (!newValue) {
+      item.value.priority = false
+    }
+  },
+)
 
 onBeforeMount(() => {
   Object.assign(item.value, metadata)
