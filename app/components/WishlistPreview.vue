@@ -342,7 +342,7 @@ const screenshot = async (download = false) => {
 
   try {
     if (download) {
-      await downloadScreenshot(card)
+      await downloadScreenshot(card, tradingCfg.value.type)
     } else {
       await copyScreenshot(card, toast, !isDesktop)
     }

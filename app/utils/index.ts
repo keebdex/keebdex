@@ -155,7 +155,7 @@ export const copyScreenshot = async (
   }
 }
 
-export const downloadScreenshot = async (element: HTMLElement) => {
+export const downloadScreenshot = async (element: HTMLElement, filename: string) => {
   // capture with full scroll size
   const img = await domToPng(element, {
     width: element.scrollWidth,
@@ -163,7 +163,7 @@ export const downloadScreenshot = async (element: HTMLElement) => {
   })
 
   const link = document.createElement('a')
-  link.download = 'trading.png'
+  link.download = `${filename}.png`
   link.href = img
   link.click()
 }
