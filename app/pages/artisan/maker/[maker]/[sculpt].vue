@@ -175,13 +175,14 @@
 
       <UPagination
         v-if="sculpt.total_colorways > size"
-        v-model:page="page"
+        :page="page"
         :items-per-page="size"
         :total="sculpt.total_colorways"
         class="border-t border-default pt-4 mt-auto"
         :ui="{
           list: 'justify-center',
         }"
+        @update:page="updatePage"
       />
     </template>
   </UDashboardPanel>
@@ -190,10 +191,11 @@
 <script setup>
 const colorMode = useColorMode()
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 
 const size = 72
-const page = ref(1)
+const page = computed(() => Number(route.query.page) || 1)
 
 const sortField = ref('order')
 const sortOrder = ref('desc')
@@ -237,7 +239,7 @@ const breadcrumbs = computed(() => {
     },
     {
       label: sculpt.value.maker_name,
-      to: `/artisan/maker/${sculpt.value.maker_id}`,
+      to: `/artisan/maker/${sculpt.value.maker_id}?page=${page.value}`,
       avatar: {
         src: `/logo/${sculpt.value.maker_id}.png`,
         alt: sculpt.value.maker_name,
@@ -323,6 +325,13 @@ watch(
   },
   { immediate: true },
 )
+
+const updatePage = (newPage) => {
+  router.push({
+    path: route.path,
+    query: { ...route.query, page: newPage },
+  })
+}
 
 // delete sculpt
 const deleteSculpt = async (closeModal) => {

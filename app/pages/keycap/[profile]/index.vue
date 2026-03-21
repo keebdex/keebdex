@@ -2,9 +2,9 @@
   <KeycapList
     :title="title"
     :description="description"
-    :keycaps="data.keycaps"
-    :total="data.count"
-    :profile="data.profile"
+    :keycaps="data?.keycaps"
+    :total="data?.count"
+    :profile="data?.profile"
     :page="page"
     :size="size"
     @update:page="updatePage"
@@ -40,7 +40,7 @@ const { data, refresh } = await useAsyncData(
 const title = manufacturers[profile]
 const description = data.value?.profile?.description
 
-function updatePage(newPage) {
+const updatePage = (newPage) => {
   router.push({
     path: `/keycap/${profile}`,
     query: { page: newPage },

@@ -12,7 +12,7 @@
     </UFormField>
 
     <UFormField
-      v-if="selling"
+      v-if="selling && item.exchange"
       label="Asking / Offer Price (USD)"
       name="asking_price"
     >
