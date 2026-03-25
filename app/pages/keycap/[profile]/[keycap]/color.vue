@@ -139,7 +139,7 @@ useSeoMeta({
   description,
 })
 
-defineOgImageComponent('Keycap', {
+defineOgImage('Keycap', {
   title: `${data.value.profile.name} ${data.value.name}`,
   description,
   manufacturerId: profile,

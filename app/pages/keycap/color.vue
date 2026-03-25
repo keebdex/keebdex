@@ -181,5 +181,5 @@ const meta = {
 }
 
 useSeoMeta(meta)
-defineOgImageComponent('Keycap', meta)
+defineOgImage('Keycap', meta)
 </script>

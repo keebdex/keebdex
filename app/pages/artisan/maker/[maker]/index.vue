@@ -135,7 +135,7 @@ useSeoMeta({
   twitterDescription: maker.value?.bio,
 })
 
-defineOgImageComponent('Artisan', {
+defineOgImage('Artisan', {
   makerId: maker.value?.id,
   invertible: maker.value?.invertible_logo,
 })

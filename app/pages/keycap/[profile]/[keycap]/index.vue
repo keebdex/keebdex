@@ -263,7 +263,7 @@ useSeoMeta({
   twitterDescription: data.value?.description,
 })
 
-defineOgImageComponent('Keycap', {
+defineOgImage('Keycap', {
   manufacturerId: profile,
 })
 </script>

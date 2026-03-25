@@ -267,7 +267,7 @@ useSeoMeta({
   twitterDescription: sculpt.value?.story,
 })
 
-defineOgImageComponent('Artisan', {
+defineOgImage('Artisan', {
   title: sculpt.value?.name,
   makerId: sculpt.value?.maker_id,
   makerName: sculpt.value?.maker_name,
