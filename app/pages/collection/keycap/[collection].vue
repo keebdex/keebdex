@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
+      <UDashboardNavbar :title="data?.name">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -52,7 +52,10 @@
     </template>
 
     <template #body>
-      <UPageColumns>
+      <UPageGrid
+        v-if="sortedCollections.length"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
+      >
         <UPageCard
           v-for="{ id, keycap } in sortedCollections"
           :key="keycap.id"
@@ -65,7 +68,7 @@
             loading="lazy"
             :alt="keycap.name"
             :src="keycap.img || keycap.render_img"
-            class="h-full object-cover"
+            class="aspect-[16/9] w-full object-cover"
           />
 
           <template #footer>
@@ -92,7 +95,7 @@
             </UModal>
           </template>
         </UPageCard>
-      </UPageColumns>
+      </UPageGrid>
     </template>
   </UDashboardPanel>
 </template>
@@ -141,7 +144,7 @@ const remove = (id, keycap) => {
   )
     .then(() => {
       refresh()
-      toast.add(handleSuccess('delete', keycap.name))
+      toast.add(handleSuccess('delete', keycap?.name))
     })
     .catch((error) => {
       toast.add(handleError(error))
@@ -157,7 +160,7 @@ const deleteCollection = () => {
         (c) => c.id !== data.value.id,
       )
       userStore.$patch({ collections: collections.value })
-      toast.add(handleSuccess('delete', data.value.name, 'Collection'))
+      toast.add(handleSuccess('delete', data.value?.name, 'Collection'))
       router.go(-1)
     })
     .catch((error) => {
