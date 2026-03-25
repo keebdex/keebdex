@@ -37,6 +37,8 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",
+    "@resvg/resvg-js": "^2.6.2",
+    "@takumi-rs/core": "^0.73.1",
     "@vercel/analytics": "2.0.1",
     "@vercel/speed-insights": "2.0.0",
     "crc": "4.3.2",
@@ -51,12 +53,12 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@iconify-json/hugeicons": "^1.2.24",
-    "@iconify-json/simple-icons": "^1.2.74",
+    "@iconify-json/simple-icons": "^1.2.75",
     "@iconify-json/solar": "^1.2.5",
     "@nuxt/content": "^3.12.0",
     "@nuxt/eslint": "^1.15.2",
     "@nuxt/image": "^2.0.0",
-    "@nuxt/ui": "^4.5.1",
+    "@nuxt/ui": "^4.6.0",
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/supabase": "2.0.4",
     "@tailwindcss/typography": "^0.5.19",
@@ -65,7 +67,7 @@
     "@types/lodash.omit": "^4.5.9",
     "@types/lodash.sortby": "^4.7.9",
     "better-sqlite3": "^12.8.0",
-    "eslint": "^10.0.3",
+    "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-vue": "^10.8.0",
@@ -76,8 +78,8 @@
     "lodash.omit": "^4.5.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "^4.4.2",
-    "nuxt-og-image": "^5.1.13",
+    "nuxt-og-image": "^6.2.0",
     "prettier": "^3.8.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   }
 }

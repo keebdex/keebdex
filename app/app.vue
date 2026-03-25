@@ -33,7 +33,7 @@ useHead({
   link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
 })
 
-defineOgImage()
+defineOgImage('Website.takumi')
 
 useSeoMeta({
   titleTemplate: (chunk) => {

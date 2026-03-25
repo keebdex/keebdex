@@ -28,13 +28,6 @@ export default defineNuxtConfig({
     'nuxt-og-image',
   ],
 
-  ogImage: {
-    defaults: {
-      component: 'Website',
-    },
-    fonts: ['Dosis:500', 'Dosis:600'],
-  },
-
   supabase: {
     redirect: false,
   },
