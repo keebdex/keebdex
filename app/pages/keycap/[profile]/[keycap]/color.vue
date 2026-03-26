@@ -139,10 +139,9 @@ useSeoMeta({
   description,
 })
 
-defineOgImage('Keycap', {
+defineOgImage('Website', {
   title: `${data.value.profile.name} ${data.value.name}`,
   description,
-  manufacturerId: profile,
 })
 
 const visible = ref(false)

@@ -254,16 +254,24 @@ const onSelectKit = (index) => {
   carousel.value.emblaApi.scrollTo(index)
 }
 
-useSeoMeta({
-  title: data.value
-    ? `${data.value.profile.name} ${data.value.name}`
-    : manufacturers[profile],
-  description: data.value?.description,
-  ogDescription: data.value?.description,
-  twitterDescription: data.value?.description,
+const meta = computed(() => {
+  return {
+    title: data.value
+      ? `${data.value.profile.name} ${data.value.name}`
+      : manufacturers[profile],
+    description: data.value?.description,
+  }
 })
 
-defineOgImage('Keycap', {
-  manufacturerId: profile,
+useSeoMeta({
+  title: meta.value.title,
+  description: meta.value.description,
+  ogDescription: meta.value.description,
+  twitterDescription: meta.value.description,
+})
+
+defineOgImage('Website', {
+  title: meta.value.title,
+  description: meta.value.description,
 })
 </script>

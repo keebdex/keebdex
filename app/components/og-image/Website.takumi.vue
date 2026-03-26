@@ -7,9 +7,9 @@
     <div class="absolute inset-0" :style="bgBottomRight" />
     <div class="absolute inset-0" :style="bgTopLeft" />
 
-    <!-- MAIN -->
+    <!-- Main -->
     <div class="relative w-full flex items-center justify-center">
-      <!-- ✅ CASE 1: WITH TITLE LOGO (unchanged) -->
+      <!-- ✅ CASE 1: TITLE LOGO -->
       <div
         v-if="titleLogo"
         class="flex items-center justify-center gap-16 w-full max-w-[1200px]"
@@ -104,22 +104,15 @@ const { title, colorMode, titleLogo } = defineProps({
   titleLogo: { type: String, default: '' },
 })
 
-/**
- * Text sizes
- */
-const bigTextClass = 'font-bold leading-tight text-[48px] lg:text-[72px]'
-const smallTextClass = 'font-bold leading-tight text-[36px] lg:text-[56px]'
+const bigTextClass =
+  'font-bold leading-tight text-[48px] lg:text-[72px] text-cyan-500 dark:text-cyan-300'
+const smallTextClass =
+  'font-bold leading-tight text-[36px] lg:text-[56px] text-cyan-500 dark:text-cyan-300'
 
-/**
- * Theme color
- */
 const themeColor = computed(() =>
   colorMode === 'dark' ? '124, 58, 237' : '34, 197, 94',
 )
 
-/**
- * Background
- */
 const bgBottomRight = computed(() => ({
   backgroundImage: `radial-gradient(circle at 100% 100%, rgba(${themeColor.value}, 0.15), transparent)`,
 }))
@@ -128,9 +121,6 @@ const bgTopLeft = computed(() => ({
   backgroundImage: `radial-gradient(circle at 0% 0%, rgba(${themeColor.value}, 0.1), transparent)`,
 }))
 
-/**
- * Divider
- */
 const dividerStyle = computed(() => {
   const color =
     colorMode === 'dark' ? 'rgba(115,115,115,0.6)' : 'rgba(163,163,163,0.6)'

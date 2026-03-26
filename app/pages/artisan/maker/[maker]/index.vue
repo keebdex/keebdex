@@ -137,6 +137,7 @@ useSeoMeta({
 
 defineOgImage('Website', {
   title: maker.value?.name,
+  description: maker.value?.bio,
   titleLogo: `/logo/${maker.value?.id}.png`,
 })
 </script>
