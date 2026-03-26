@@ -45,7 +45,12 @@
             alt="title logo"
             class="h-[96px] lg:h-[120px] object-contain"
           >
-          <h1 :class="bigTextClass">{{ title }}</h1>
+          <h1
+            :class="bigTextClass"
+            class="font-bold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+          >
+            {{ title }}
+          </h1>
         </div>
       </div>
 
@@ -100,14 +105,12 @@
 <script setup>
 const { title, colorMode, titleLogo } = defineProps({
   colorMode: { type: String, default: 'light' },
-  title: String,
+  title: { type: String, default: '' },
   titleLogo: { type: String, default: '' },
 })
 
-const bigTextClass =
-  'font-bold leading-tight text-[48px] lg:text-[72px] text-cyan-500 dark:text-cyan-300'
-const smallTextClass =
-  'font-bold leading-tight text-[36px] lg:text-[56px] text-cyan-500 dark:text-cyan-300'
+const bigTextClass = 'font-bold leading-tight text-[48px] lg:text-[72px]'
+const smallTextClass = 'font-bold leading-tight text-[36px] lg:text-[56px]'
 
 const themeColor = computed(() =>
   colorMode === 'dark' ? '124, 58, 237' : '34, 197, 94',

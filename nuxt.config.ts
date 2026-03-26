@@ -30,8 +30,8 @@ export default defineNuxtConfig({
 
   fonts: {
     families: [
-      { name: 'Reddit Sans', provider: 'google', global: true },
-      { name: 'Reddit Mono', provider: 'google', global: true },
+      { name: 'Reddit Sans', global: true },
+      { name: 'Reddit Mono', global: true },
     ],
   },
 

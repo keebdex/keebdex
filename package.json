@@ -77,7 +77,7 @@
     "lodash.omit": "^4.5.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "^4.4.2",
-    "nuxt-og-image": "^6.2.0",
+    "nuxt-og-image": "^6.2.4",
     "prettier": "^3.8.1",
     "typescript": "^6.0.2"
   }
