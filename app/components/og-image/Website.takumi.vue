@@ -1,82 +1,73 @@
 <template>
-  <div class="w-full h-full flex flex-col justify-center bg-[#212121]">
-    <svg
-      class="absolute top-0 right-0"
-      width="1200"
-      height="675"
-      viewBox="0 0 1200 675"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g
-        style="mix-blend-mode: overlay"
-        opacity="0.7"
-        filter="url(#filter0_f_448_25)"
-      >
-        <circle cx="901.5" cy="45.5" r="199.5" fill="#FFA7A7" />
-        <circle cx="600.5" cy="216.5" r="199.5" fill="#FFCC49" />
-        <circle cx="179.5" cy="317.5" r="199.5" fill="#FFA149" />
-      </g>
-      <defs>
-        <filter
-          id="filter0_f_448_25"
-          x="-240"
-          y="-374"
-          width="1561"
-          height="1111"
-          filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+  <div
+    class="w-full h-full flex flex-col justify-center items-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50"
+    style="font-family: 'Reddit Sans', sans-serif"
+  >
+    <!-- Gradient background -->
+    <div
+      class="absolute top-0 left-0 right-0 bottom-0"
+      :style="{
+        backgroundImage: `radial-gradient(at 100% 100%, rgba(${themeColor}, 0.15), transparent)`,
+      }"
+    />
+    <div
+      class="absolute top-0 left-0 right-0 bottom-0"
+      :style="{
+        backgroundImage: `radial-gradient(at 0% 0%, rgba(${themeColor}, 0.1), transparent)`,
+      }"
+    />
+
+    <div class="relative flex flex-col items-center text-center gap-5 lg:gap-8">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <img
+          loading="lazy"
+          :alt="$config.public.site.name"
+          :src="`/logo-filled.png`"
+          width="64"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="BackgroundImageFix"
-            result="shape"
-          />
-          <feGaussianBlur
-            stdDeviation="110"
-            result="effect1_foregroundBlur_448_25"
-          />
-        </filter>
-      </defs>
-    </svg>
 
-    <div class="w-[720px] pl-[120px]">
-      <h1
-        v-if="title"
-        class="text-[36px] text-[#FEC476] font-semibold text-left"
+        <span
+          class="text-[32px] lg:text-[42px] font-bold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+        >
+          {{ $config.public.site.name }}
+        </span>
+      </div>
+
+      <div v-if="title" class="items-center justify-center w-full">
+        <!-- Title -->
+        <h1
+          class="text-[48px] lg:text-[80px] font-bold m-0 leading-tight max-w-[700px] lg:max-w-[1000px]"
+          style="
+            display: block;
+            line-clamp: 3;
+            text-overflow: ellipsis;
+            text-wrap: balance;
+          "
+        >
+          {{ title }}
+        </h1>
+      </div>
+
+      <!-- Description -->
+      <p
+        v-if="description"
+        class="text-[24px] lg:text-[32px] opacity-70 max-w-[650px] lg:max-w-[900px] leading-relaxed"
       >
-        {{ $config.public.site.name }}
-      </h1>
-
-      <h1 class="w-[600px] m-0 text-[72px] font-semibold text-white">
-        {{ title || $config.public.site.name }}
-      </h1>
-      <p class="text-[24px] text-[#E4E4E7] font-medium leading-tight">
         {{ description }}
       </p>
     </div>
-
-    <img
-      class="absolute my-auto right-[120px]"
-      loading="lazy"
-      :alt="$config.public.site.name"
-      :src="`/logo-filled.png`"
-      width="240"
-    >
   </div>
 </template>
 
 <script setup>
-defineProps({
-  title: {
-    type: String,
-    default: '',
-  },
-  description: {
-    type: String,
-    default: '',
-  },
+const { title, description, colorMode } = defineProps({
+  colorMode: { type: String, required: false, default: 'light' },
+  title: { type: String, required: false },
+  description: { type: String, required: false },
 })
+
+const themeColor = computed(() =>
+  colorMode === 'dark' ? '124, 58, 237' : '34, 197, 94',
+)
 </script>

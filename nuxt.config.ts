@@ -28,6 +28,13 @@ export default defineNuxtConfig({
     'nuxt-og-image',
   ],
 
+  fonts: {
+    families: [
+      { name: 'Reddit Sans', provider: 'google', global: true },
+      { name: 'Reddit Mono', provider: 'google', global: true },
+    ],
+  },
+
   supabase: {
     redirect: false,
   },

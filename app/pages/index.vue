@@ -1,7 +1,3 @@
-<script setup>
-defineOgImage('OgImage', { title: 'Hello' })
-</script>
-
 <template>
   <UDashboardPanel id="home">
     <template v-if="$device.isMobileOrTablet" #header>
