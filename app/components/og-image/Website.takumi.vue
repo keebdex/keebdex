@@ -1,7 +1,6 @@
 <template>
   <div
-    class="w-full h-full flex items-center justify-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50"
-    style="font-family: 'Reddit Sans', sans-serif"
+    class="w-full h-full flex items-center justify-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50 font-sans"
   >
     <!-- Background -->
     <div class="absolute inset-0" :style="bgBottomRight" />

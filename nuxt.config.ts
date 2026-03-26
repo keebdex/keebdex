@@ -16,10 +16,11 @@ export default defineNuxtConfig({
   css: ['~/assets/main.css'],
 
   modules: [
-    '@nuxt/eslint',
-    '@nuxt/image',
     '@nuxt/ui',
+    '@nuxt/image',
     '@nuxt/content',
+    '@nuxt/eslint',
+    '@nuxt/fonts', // for rendering fonts in og images
     '@nuxtjs/device',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
