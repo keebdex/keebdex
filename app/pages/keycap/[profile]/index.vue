@@ -53,11 +53,4 @@ useSeoMeta({
   ogDescription: description,
   twitterDescription: description,
 })
-
-defineOgImage({
-  component: 'Keycap',
-  props: {
-    manufacturerId: profile,
-  },
-})
 </script>
