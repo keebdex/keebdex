@@ -23,8 +23,8 @@
             class="h-[96px] lg:h-[120px] object-contain"
           >
           <span
-            :class="bigTextClass"
-            class="font-bold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+            :class="titleClass"
+            class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
           >
             {{ $config.public.site.name }}
           </span>
@@ -45,8 +45,8 @@
             class="h-[96px] lg:h-[120px] object-contain"
           >
           <h1
-            :class="bigTextClass"
-            class="font-bold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+            :class="titleClass"
+            class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
           >
             {{ title }}
           </h1>
@@ -54,33 +54,32 @@
       </div>
 
       <!-- ✅ CASE 2: NO TITLE LOGO -->
-      <div v-else-if="title" class="flex items-center justify-center gap-10">
-        <!-- SITE -->
-        <div class="flex flex-col items-center gap-4 text-center">
+      <div
+        v-else-if="title"
+        class="flex flex-col items-center justify-center gap-8 text-center"
+      >
+        <!-- SITE HEADLINE -->
+        <div class="flex items-center gap-4">
           <img
             src="/logo-filled.png"
             :alt="$config.public.site.name"
-            class="h-[64px] lg:h-[80px] object-contain"
+            class="h-[36px] lg:h-[48px] object-contain"
           >
           <span
-            :class="smallTextClass"
-            class="font-bold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+            :class="headlineClass"
+            class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
           >
             {{ $config.public.site.name }}
           </span>
         </div>
 
-        <!-- DIVIDER (between, not centered) -->
-        <div class="flex items-center">
-          <div class="w-px h-[100px]" :style="dividerStyle" />
-        </div>
-
         <!-- TITLE -->
-        <div class="flex flex-col items-center gap-4 text-center max-w-[600px]">
-          <h1 :class="smallTextClass">
-            {{ title }}
-          </h1>
-        </div>
+        <h1
+          :class="titleClass"
+          class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+        >
+          {{ title }}
+        </h1>
       </div>
 
       <!-- ✅ CASE 3: ONLY SITE -->
@@ -91,8 +90,8 @@
           class="h-[72px] lg:h-[96px] object-contain"
         >
         <span
-          :class="smallTextClass"
-          class="font-bold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+          :class="titleClass"
+          class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
         >
           {{ $config.public.site.name }}
         </span>
@@ -108,8 +107,8 @@ const { title, colorMode, titleLogo } = defineProps({
   titleLogo: { type: String, default: '' },
 })
 
-const bigTextClass = 'font-bold leading-tight text-[48px] lg:text-[72px]'
-const smallTextClass = 'font-bold leading-tight text-[36px] lg:text-[56px]'
+const titleClass = 'font-extrabold leading-tight text-[48px] lg:text-[72px]'
+const headlineClass = 'font-extrabold leading-tight text-[24px] lg:text-[32px]'
 
 const themeColor = computed(() =>
   colorMode === 'dark' ? '124, 58, 237' : '34, 197, 94',

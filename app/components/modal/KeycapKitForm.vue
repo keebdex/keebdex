@@ -105,7 +105,7 @@ onBeforeMount(() => {
 
 const schema = z.object({
   kit_id: z.string(),
-  name: z.string().optional(),
+  name: z.string().nullish(),
   qty: z.number().nullish(),
   price: z.number().nullish(),
   img: z.url().nullish().or(z.string().min(0).max(0)),
