@@ -1,7 +1,11 @@
 <template>
   <UDashboardPanel id="home">
     <template v-if="$device.isMobileOrTablet" #header>
-      <UDashboardNavbar :title="$config.public.site.name" />
+      <UDashboardNavbar :title="$config.public.site.name">
+        <template #right>
+          <ProfileMenu :collapsed="true" />
+        </template>
+      </UDashboardNavbar>
     </template>
 
     <template #body>

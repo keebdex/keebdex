@@ -40,6 +40,9 @@ const providers = ref([
     onclick: () => {
       login('google')
     },
+    ui: {
+      label: 'block',
+    },
   },
   {
     label: 'Continue with Discord',
@@ -48,6 +51,9 @@ const providers = ref([
     class: 'dark:hover:bg-discord light:hover:text-discord',
     onclick: () => {
       login('discord')
+    },
+    ui: {
+      label: 'block',
     },
   },
 ])
