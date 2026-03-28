@@ -33,7 +33,7 @@ useHead({
   link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
 })
 
-defineOgImage('Website', { description })
+defineOgImage('Base', { description })
 
 useSeoMeta({
   titleTemplate: (chunk) => {

@@ -135,7 +135,7 @@ useSeoMeta({
   twitterDescription: maker.value?.bio,
 })
 
-defineOgImage('Website', {
+defineOgImage('BaseArtisan', {
   title: maker.value?.name,
   description: maker.value?.bio,
   titleLogo: `/logo/${maker.value?.id}.png`,

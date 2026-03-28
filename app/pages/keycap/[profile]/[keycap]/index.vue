@@ -270,7 +270,7 @@ useSeoMeta({
   twitterDescription: meta.value.description,
 })
 
-defineOgImage('Website', {
+defineOgImage('Base', {
   title: meta.value.title,
   description: meta.value.description,
 })

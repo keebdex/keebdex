@@ -139,7 +139,7 @@ useSeoMeta({
   description,
 })
 
-defineOgImage('Website', {
+defineOgImage('Base', {
   title: `${data.value.profile.name} ${data.value.name}`,
   description,
 })

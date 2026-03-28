@@ -267,10 +267,11 @@ useSeoMeta({
   twitterDescription: sculpt.value?.story,
 })
 
-defineOgImage('Website', {
+defineOgImage('BaseArtisan', {
   title: sculpt.value?.name,
   description: sculpt.value?.story,
-  titleLogo: `/logo/${sculpt.value?.maker_id}.png`,
+  headline: sculpt.value?.maker_name,
+  headlineLogo: `/logo/${sculpt.value?.maker_id}.png`,
 })
 
 const userStore = useUserStore()
