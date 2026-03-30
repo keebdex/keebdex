@@ -61,46 +61,45 @@ const sections = ref([
         title: 'Data Management',
         tiers: {
           keebdex:
-            'Fully managed database with optional Google Docs sync for legacy makers',
-          archivist: 'Relies entirely on manually maintained Google Docs',
+            'Purpose-built database with optional Google Docs sync for legacy makers',
+          archivist:
+            'Document-based, manually maintained across shared Google Docs',
         },
       },
       {
         title: 'Editing Access',
         tiers: {
-          keebdex: 'Full editing capabilities via web interface',
-          archivist:
-            'Requires submitting GitHub PR or editing files, with slow or no merge activity',
+          keebdex: 'Edit instantly through an intuitive web interface',
+          archivist: 'Requires GitHub PRs with unpredictable approval times',
         },
       },
       {
         title: 'User Interface',
         tiers: {
-          keebdex: 'Sleek, modern UI built with Nuxt UI',
-          archivist: 'Simple static site built with Gatsby',
+          keebdex: 'Modern, responsive design optimized for collectors',
+          archivist: 'Static site with minimal interaction',
         },
       },
       {
-        title: 'Image Quantity',
+        title: 'Image Support',
         tiers: {
-          keebdex: 'Supports larger and more comprehensive image sets per item',
-          archivist: 'Basic image previews only',
+          keebdex: 'Rich, high-quality images to showcase your keycaps',
+          archivist: 'Limited preview images only',
         },
       },
       {
-        title: 'Rich Collection Features',
+        title: 'Collection Management',
         tiers: {
           keebdex:
-            'Unlimited collections, cross-device sync, and advanced tools to manage and organize items',
-          archivist:
-            'No sync; lacks tools for organizing or updating item status',
+            'Unlimited collections, instant sync across devices, organize and track status effortlessly',
+          archivist: 'No sync or organization tools; view-only experience',
         },
       },
       {
-        title: 'Login Options',
+        title: 'Login Methods',
         tiers: {
-          keebdex: 'Supports Google, Discord, and more',
-          archivist: 'Supports Discord login only',
+          keebdex: 'Google, Discord, and other options for flexibility',
+          archivist: 'Discord login only',
         },
       },
     ],
@@ -111,17 +110,15 @@ const sections = ref([
       {
         title: 'Wishlist Sharing',
         tiers: {
-          keebdex:
-            'Web-based interface with sharable wishlist images and pre-filled text',
-          archivist:
-            'Static wishlist image generated server-side (mobile-friendly)',
+          keebdex: 'Create and share beautiful wishlist images instantly',
+          archivist: 'Static images generated server-side',
         },
       },
       {
-        title: 'Trading Features',
+        title: 'Trading Community',
         tiers: {
           keebdex:
-            'Built-in Trading Hub to help buyers and sellers connect via shared wishlists',
+            'Dedicated trading hub to connect buyers and sellers directly',
           archivist: false,
         },
       },
@@ -129,9 +126,9 @@ const sections = ref([
   },
 ])
 
-const title = 'Why choose Keebdex'
+const title = 'Why Choose Keebdex?'
 const description =
-  "Whether you're a seasoned collector or just starting out, Keebdex gives you powerful tools to organize, sync, and share your entire keyboard collection."
+  'A modern platform built for collectors. See how Keebdex outpaces alternatives with better data management, intuitive editing, and powerful tools designed specifically for your collection.'
 
 useSeoMeta({
   title,

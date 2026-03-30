@@ -12,8 +12,8 @@
       >
         <template #description>
           Your privacy matters. At <strong>Keebdex</strong>, we are committed to
-          protecting your personal information. This policy explains what we
-          collect, how we use it, and your rights.
+          protecting your personal information. This policy outlines how we
+          collect, use, and safeguard your data when you use our services.
         </template>
       </UPageSection>
     </template>
@@ -25,29 +25,32 @@ const policies = [
   {
     title: 'Information We Collect',
     description:
-      'We collect personal details like your name and email from login providers, along with basic usage data to understand how you interact with Keebdex.',
+      'We collect information you provide when creating an account, such as your name, email address, and profile details. We also collect data on how you use our services to improve your experience.',
     icon: 'solar:user-bold-duotone',
   },
   {
     title: 'How We Use Your Information',
     description:
-      'Your information is used to provide and improve our services, sync collections across devices, and ensure your account remains secure.',
+      'We use your information to provide and improve our services, communicate with you, and ensure the security of our platform. We do not sell your information to third parties.',
     icon: 'solar:settings-bold-duotone',
   },
   {
     title: 'Changes to This Policy',
     description:
-      'Our Privacy Policy may be updated periodically, and the latest version will always be published on this page and in our GitHub repository.',
+      'We may update this policy from time to time. We will notify you of any changes by posting the new policy on this page. You are advised to review this policy periodically for any changes.',
     icon: 'solar:document-text-bold-duotone',
   },
   {
     title: 'Your Consent',
     description:
-      'By continuing to use Keebdex, you acknowledge and agree to the collection, processing, and use of your information as described in this policy.',
+      'By using our services, you consent to our privacy policy. If you do not agree with this policy, please do not use our services.',
     icon: 'solar:check-circle-bold-duotone',
   },
 ]
 
 const title = 'Privacy Policy'
-useSeoMeta({ title })
+const description =
+  'Your privacy matters. This policy outlines how we collect, use, and protect your information when you use Keebdex.'
+
+useSeoMeta({ title, description })
 </script>

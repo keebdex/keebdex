@@ -18,6 +18,7 @@
             to: '/artisan/maker',
             icon: 'solar:palette-bold-duotone',
             color: 'primary',
+            block: $device.isMobile,
             ui: {
               label: 'block',
             },
@@ -27,6 +28,7 @@
             to: '/keycap?status=live',
             icon: 'solar:layers-bold-duotone',
             color: 'primary',
+            block: $device.isMobile,
             ui: {
               label: 'block',
             },

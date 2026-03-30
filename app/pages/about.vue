@@ -29,50 +29,50 @@
 
 <script setup>
 const description =
-  'Keebdex makes it easy to manage artisan keycaps, keycap sets, and keyboard gear — with tools for syncing, organizing, and trading.'
+  'Keebdex is the ultimate platform for keyboard collectors to curate, sync, and showcase their collections. Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.'
 
 const features = ref([
   {
     icon: 'solar:database-bold-duotone',
     title: 'Fully Managed Artisan Database',
     description:
-      'Say goodbye to the limitations of Google Docs. Our robust database ensures seamless organization and easy access to your keycap collection, with optional legacy sync for makers still using Docs.',
+      'Move beyond document-based systems. Our powerful database replaces shared Google Docs with a robust, purpose-built platform for your keycap collection, with optional sync for makers migrating from legacy tools.',
   },
   {
     icon: 'solar:stars-bold-duotone',
-    title: 'Modern UI Design',
+    title: 'Beautiful, Intuitive Design',
     description:
-      'Immerse yourself in a sleek, intuitive interface built with the latest tech (Nuxt UI), prioritizing user experience.',
+      'Experience a sleek, modern interface built with cutting-edge technology. Every interaction is thoughtfully designed for collectors.',
   },
   {
     icon: 'solar:login-2-bold-duotone',
-    title: 'Effortless Access',
+    title: 'Quick, Secure Login',
     description:
-      'Log in with Google, Discord, or more — for quick, secure, and convenient access.',
+      'Sign in instantly with Google, Discord, or your preferred method. Your data is always protected.',
   },
   {
     icon: 'solar:devices-bold-duotone',
-    title: 'Cross-Device Sync',
+    title: 'Seamless Cross-Device Sync',
     description:
-      'Keep your data synchronized across devices so your collection is always at your fingertips.',
+      'Access your collection anywhere. Changes sync instantly across all your devices.',
   },
   {
     icon: 'solar:bookmark-square-bold-duotone',
-    title: 'Rich Collection Features',
+    title: 'Powerful Collection Tools',
     description:
-      'Create unlimited collections, mark items as sold/done, move them between collections, and keep everything organized without limits.',
+      'Create unlimited collections, track status (sold, completed, active), reorganize freely, and never hit a limit.',
   },
   {
     icon: 'solar:share-circle-bold-duotone',
-    title: 'Shareable Wishlists',
+    title: 'Share Your Passion',
     description:
-      'Generate stunning wishlist images to easily share your dream setups with the community.',
+      'Generate eye-catching wishlist images and share your dream builds with the community in seconds.',
   },
   {
     icon: 'solar:cart-large-2-bold-duotone',
-    title: 'Trading Hub',
+    title: 'Built-In Trading Community',
     description:
-      'Connect buyers and sellers directly through shared wishlists and dedicated tools designed for the artisan trading community.',
+      'Connect directly with buyers and sellers through wishlists and tools designed specifically for artisan enthusiasts.',
   },
 ])
 
