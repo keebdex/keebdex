@@ -1,18 +1,19 @@
 <template>
   <UBanner
-    id="asking-price-banner"
-    icon="hugeicons:hot-price"
+    id="how-to-use-collection"
+    title="How to Use the Collection"
+    icon="hugeicons:collections-bookmark"
+    color="info"
     :actions="[
       {
-        label: 'Start Managing',
-        to: '/collection',
+        label: 'Watch Video',
+        to: 'https://www.loom.com/share/660fe9bd026640788b2d0d8a6fe9b6b8',
         trailingIcon: 'hugeicons:arrow-right-02',
+        ui: {
+          label: 'block',
+        },
       },
     ]"
     close
-  >
-    <template #title>
-      You can now add asking prices to your selling items.
-    </template>
-  </UBanner>
+  />
 </template>

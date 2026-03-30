@@ -51,11 +51,11 @@
 
       <!-- Site Footer -->
       <div class="flex items-center gap-4">
-        <img
+        <!-- <img
           src="/logo-filled.png"
           :alt="$config.public.site.name"
           class="h-[36px] lg:h-[48px] object-contain"
-        >
+        > -->
         <span
           :class="headlineClass"
           class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"

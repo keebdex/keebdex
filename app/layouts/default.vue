@@ -287,6 +287,9 @@ onMounted(() => {
           onClick: () => {
             cookie.value = 'accepted'
           },
+          ui: {
+            label: 'block',
+          },
         },
       ],
     })
