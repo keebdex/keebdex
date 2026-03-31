@@ -1,15 +1,15 @@
 <template>
   <USlideover
     v-model:open="open"
-    title="Latest Additions"
-    description="Welcome to today's drop! Dive into the newest keycap sets now live, and snag our latest artisan creations. Check out what's available for preorder and group buy!"
+    title="Fresh Releases"
+    description="Fresh artisan drops and keycap sets available now."
     :ui="{
       header: 'border-none',
       body: '!px-0',
     }"
   >
     <UButton
-      :label="collapsed ? undefined : 'Latest Additions'"
+      :label="collapsed ? undefined : 'Fresh Releases'"
       icon="solar:confetti-bold-duotone"
       color="info"
       block
@@ -90,8 +90,8 @@
 
       <UPageSection
         v-if="!total"
-        title="Quiet on the Keycap Front"
-        description="No artisan or set updates today. The next wave of caps is just around the corner — stay tuned."
+        title="Nothing New Yet"
+        description="Check back soon — fresh artisan drops and keycap sets are always coming."
         icon="hugeicons:silence"
       />
     </template>

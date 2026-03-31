@@ -1,18 +1,18 @@
 # Keebdex
 
-**Keebdex** is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.
+**Keebdex** is the ultimate platform for keyboard collectors to curate, sync, and showcase their collections. Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.
 
 **Visit the live site: [keebdex.org](https://keebdex.org)**
 
 ## Key Features
 
-- **Fully Managed Artisan Database**: Say _goodbye_ to the limitations of Google Docs. Our robust database ensures seamless organization and easy access to your keycap collection, with optional legacy sync for makers still using Docs.
-- **Modern UI Design**: Immerse yourself in a sleek, intuitive interface built with the latest tech (Nuxt UI), prioritizing user experience.
-- **Effortless Access**: Log in with Google, Discord, or more — for quick, secure, and convenient access.
-- **Cross-Device Sync**: Keep your data synchronized across devices so your collection is always at your fingertips.
-- **Rich Collection Features**: Create unlimited collections, mark items as sold/done, move them between collections, and keep everything organized without limits.
-- **Shareable Wishlists**: Generate stunning wishlist images to easily share your dream setups with the community.
-- **Trading Hub**: Connect buyers and sellers directly through shared wishlists and dedicated tools designed for the artisan trading community.
+- **Fully Managed Artisan Database**: Move beyond document-based systems. Our powerful database replaces shared Google Docs with a robust, purpose-built platform for your keycap collection, with optional sync for makers migrating from legacy tools.
+- **Beautiful, Intuitive Design**: Experience a sleek, modern interface built with cutting-edge technology. Every interaction is thoughtfully designed for collectors.
+- **Quick, Secure Login**: Sign in instantly with Google, Discord, or your preferred method. Your data is always protected.
+- **Seamless Cross-Device Sync**: Access your collection anywhere. Changes sync instantly across all your devices.
+- **Powerful Collection Tools**: Create unlimited collections, track status (sold, completed, active), reorganize freely, and never hit a limit.
+- **Share Your Passion**: Generate eye-catching wishlist images and share your dream builds with the community in seconds.
+- **Built-In Trading Community**: Connect directly with buyers and sellers through wishlists and tools designed specifically for artisan enthusiasts.
 
 ## License
 

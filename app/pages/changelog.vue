@@ -6,7 +6,7 @@
 
     <template #body>
       <UPageSection
-        title="Changelog"
+        title="What's New"
         :description
         icon="solar:history-bold-duotone"
       >
@@ -44,7 +44,7 @@
 
 <script setup>
 const description =
-  'Updates, improvements, and fixes to Keebdex. We ship continuously — here are the highlights.'
+  'See every update and improvement we ship. Built with your feedback, designed for collectors.'
 
 const { data: versions } = await useFetch(
   computed(() => `https://ungh.cc/repos/keebdex/keebdex/releases`),

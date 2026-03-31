@@ -29,7 +29,7 @@
 
 <script setup>
 const description =
-  'Keebdex is the ultimate platform for keyboard collectors to curate, sync, and showcase their collections. Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.'
+  'Learn how Keebdex empowers collectors with a purpose-built platform designed to organize, sync, and share keyboard collections with ease and confidence.'
 
 const features = ref([
   {

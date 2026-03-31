@@ -2,7 +2,7 @@
   "name": "keebdex",
   "displayName": "Keebdex",
   "version": "3.0.0",
-  "description": "Keebdex is a modern, user-friendly platform built for keyboard enthusiasts to discover, manage, and collect everything keyboard-related — from artisan keycaps to full keycap sets and beyond.",
+  "description": "Keebdex is the ultimate platform for keyboard collectors to curate, sync, and showcase their collections. Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.",
   "private": true,
   "repository": {
     "type": "git",
