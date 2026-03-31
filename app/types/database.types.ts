@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '12.0.2 (a4e00ff)'
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -18,7 +18,7 @@ export type Database = {
         Row: {
           code: string
           created_at: string
-          fts: unknown | null
+          fts: unknown
           hex: string
           id: number
           name: string | null
@@ -27,7 +27,7 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string
-          fts?: unknown | null
+          fts?: unknown
           hex: string
           id?: number
           name?: string | null
@@ -36,7 +36,7 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
-          fts?: unknown | null
+          fts?: unknown
           hex?: string
           id?: number
           name?: string | null
@@ -51,7 +51,7 @@ export type Database = {
           currency: string | null
           deleted: boolean | null
           description: string | null
-          fts: unknown | null
+          fts: unknown
           id: number
           img: string | null
           maker_id: string
@@ -72,7 +72,7 @@ export type Database = {
           currency?: string | null
           deleted?: boolean | null
           description?: string | null
-          fts?: unknown | null
+          fts?: unknown
           id?: number
           img?: string | null
           maker_id: string
@@ -93,7 +93,7 @@ export type Database = {
           currency?: string | null
           deleted?: boolean | null
           description?: string | null
-          fts?: unknown | null
+          fts?: unknown
           id?: number
           img?: string | null
           maker_id?: string
@@ -110,18 +110,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'colorways_maker_id_fkey'
-            columns: ['maker_id']
+            foreignKeyName: "colorways_maker_id_fkey"
+            columns: ["maker_id"]
             isOneToOne: false
-            referencedRelation: 'makers'
-            referencedColumns: ['id']
+            referencedRelation: "makers"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'colorways_maker_sculpt_id_fkey'
-            columns: ['maker_sculpt_id']
+            foreignKeyName: "colorways_maker_sculpt_id_fkey"
+            columns: ["maker_sculpt_id"]
             isOneToOne: false
-            referencedRelation: 'sculpts'
-            referencedColumns: ['maker_sculpt_id']
+            referencedRelation: "sculpts"
+            referencedColumns: ["maker_sculpt_id"]
           },
         ]
       }
@@ -173,18 +173,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'keycap_colors_color_id_fkey'
-            columns: ['color_id']
+            foreignKeyName: "keycap_colors_color_id_fkey"
+            columns: ["color_id"]
             isOneToOne: false
-            referencedRelation: 'colors'
-            referencedColumns: ['id']
+            referencedRelation: "colors"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'keycap_colors_profile_keycap_id_fkey'
-            columns: ['profile_keycap_id']
+            foreignKeyName: "keycap_colors_profile_keycap_id_fkey"
+            columns: ["profile_keycap_id"]
             isOneToOne: false
-            referencedRelation: 'keycaps'
-            referencedColumns: ['profile_keycap_id']
+            referencedRelation: "keycaps"
+            referencedColumns: ["profile_keycap_id"]
           },
         ]
       }
@@ -195,7 +195,8 @@ export type Database = {
           description: string | null
           id: number
           img: string
-          name: string
+          kit_id: string | null
+          name: string | null
           price: number | null
           profile_keycap_id: string
           qty: number | null
@@ -206,7 +207,8 @@ export type Database = {
           description?: string | null
           id?: number
           img: string
-          name: string
+          kit_id?: string | null
+          name?: string | null
           price?: number | null
           profile_keycap_id: string
           qty?: number | null
@@ -217,18 +219,26 @@ export type Database = {
           description?: string | null
           id?: number
           img?: string
-          name?: string
+          kit_id?: string | null
+          name?: string | null
           price?: number | null
           profile_keycap_id?: string
           qty?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: 'keycap_kits_profile_keycap_id_fkey'
-            columns: ['profile_keycap_id']
+            foreignKeyName: "keycap_kits_kit_id_fkey"
+            columns: ["kit_id"]
             isOneToOne: false
-            referencedRelation: 'keycaps'
-            referencedColumns: ['profile_keycap_id']
+            referencedRelation: "kit_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keycap_kits_profile_keycap_id_fkey"
+            columns: ["profile_keycap_id"]
+            isOneToOne: false
+            referencedRelation: "keycaps"
+            referencedColumns: ["profile_keycap_id"]
           },
         ]
       }
@@ -239,7 +249,7 @@ export type Database = {
           manufacturer: string | null
           manufacturer_id: string | null
           name: string
-          profile: Database['public']['Enums']['KeycapProfile'] | null
+          profile: Database["public"]["Enums"]["KeycapProfile"] | null
         }
         Insert: {
           description?: string | null
@@ -247,7 +257,7 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name: string
-          profile?: Database['public']['Enums']['KeycapProfile'] | null
+          profile?: Database["public"]["Enums"]["KeycapProfile"] | null
         }
         Update: {
           description?: string | null
@@ -255,18 +265,17 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name?: string
-          profile?: Database['public']['Enums']['KeycapProfile'] | null
+          profile?: Database["public"]["Enums"]["KeycapProfile"] | null
         }
         Relationships: []
       }
       keycaps: {
         Row: {
-          cover_img: string | null
           created_at: string
           description: string | null
           designer: string | null
           end_date: string | null
-          fts: unknown | null
+          fts: unknown
           ic_date: string | null
           id: number
           img: string | null
@@ -276,19 +285,18 @@ export type Database = {
           profile_id: string
           profile_keycap_id: string
           render_img: string | null
-          review_status: Database['public']['Enums']['ReviewStatus'] | null
+          review_status: Database["public"]["Enums"]["ReviewStatus"] | null
           sculpt: string | null
           start_date: string | null
           status: string | null
           url: string | null
         }
         Insert: {
-          cover_img?: string | null
           created_at?: string
           description?: string | null
           designer?: string | null
           end_date?: string | null
-          fts?: unknown | null
+          fts?: unknown
           ic_date?: string | null
           id?: number
           img?: string | null
@@ -298,19 +306,18 @@ export type Database = {
           profile_id: string
           profile_keycap_id: string
           render_img?: string | null
-          review_status?: Database['public']['Enums']['ReviewStatus'] | null
+          review_status?: Database["public"]["Enums"]["ReviewStatus"] | null
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
           url?: string | null
         }
         Update: {
-          cover_img?: string | null
           created_at?: string
           description?: string | null
           designer?: string | null
           end_date?: string | null
-          fts?: unknown | null
+          fts?: unknown
           ic_date?: string | null
           id?: number
           img?: string | null
@@ -320,7 +327,7 @@ export type Database = {
           profile_id?: string
           profile_keycap_id?: string
           render_img?: string | null
-          review_status?: Database['public']['Enums']['ReviewStatus'] | null
+          review_status?: Database["public"]["Enums"]["ReviewStatus"] | null
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
@@ -328,13 +335,34 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'keycaps_profile_id_fkey'
-            columns: ['profile_id']
+            foreignKeyName: "keycaps_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: 'keycap_profiles'
-            referencedColumns: ['id']
+            referencedRelation: "keycap_profiles"
+            referencedColumns: ["id"]
           },
         ]
+      }
+      kit_categories: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          description?: string | null
+          id: string
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number | null
+        }
+        Relationships: []
       }
       makers: {
         Row: {
@@ -342,11 +370,11 @@ export type Database = {
           bio: string | null
           contributors: Json[] | null
           deleted: boolean
-          disable_google_sync: boolean | null
+          disable_google_sync: boolean
           discord: string | null
           document_ids: Json[] | null
           founded: string | null
-          fts: unknown | null
+          fts: unknown
           id: string
           instagram: string | null
           invertible_logo: boolean | null
@@ -361,11 +389,11 @@ export type Database = {
           bio?: string | null
           contributors?: Json[] | null
           deleted?: boolean
-          disable_google_sync?: boolean | null
+          disable_google_sync?: boolean
           discord?: string | null
           document_ids?: Json[] | null
           founded?: string | null
-          fts?: unknown | null
+          fts?: unknown
           id: string
           instagram?: string | null
           invertible_logo?: boolean | null
@@ -380,11 +408,11 @@ export type Database = {
           bio?: string | null
           contributors?: Json[] | null
           deleted?: boolean
-          disable_google_sync?: boolean | null
+          disable_google_sync?: boolean
           discord?: string | null
           document_ids?: Json[] | null
           founded?: string | null
-          fts?: unknown | null
+          fts?: unknown
           id?: string
           instagram?: string | null
           invertible_logo?: boolean | null
@@ -399,7 +427,7 @@ export type Database = {
       sales: {
         Row: {
           date: string
-          fts: unknown | null
+          fts: unknown
           id: number
           maker_id: string
           sculpt_id: string
@@ -408,7 +436,7 @@ export type Database = {
         }
         Insert: {
           date: string
-          fts?: unknown | null
+          fts?: unknown
           id?: number
           maker_id: string
           sculpt_id: string
@@ -417,7 +445,7 @@ export type Database = {
         }
         Update: {
           date?: string
-          fts?: unknown | null
+          fts?: unknown
           id?: number
           maker_id?: string
           sculpt_id?: string
@@ -426,11 +454,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'sales_maker_id_fkey'
-            columns: ['maker_id']
+            foreignKeyName: "sales_maker_id_fkey"
+            columns: ["maker_id"]
             isOneToOne: false
-            referencedRelation: 'makers'
-            referencedColumns: ['id']
+            referencedRelation: "makers"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -439,8 +467,9 @@ export type Database = {
           cast: string | null
           collection: string | null
           created_at: string
+          deleted: boolean
           design: string | null
-          fts: unknown | null
+          fts: unknown
           href: string | null
           id: number
           img: string | null
@@ -457,8 +486,9 @@ export type Database = {
           cast?: string | null
           collection?: string | null
           created_at?: string
+          deleted?: boolean
           design?: string | null
-          fts?: unknown | null
+          fts?: unknown
           href?: string | null
           id?: number
           img?: string | null
@@ -475,8 +505,9 @@ export type Database = {
           cast?: string | null
           collection?: string | null
           created_at?: string
+          deleted?: boolean
           design?: string | null
-          fts?: unknown | null
+          fts?: unknown
           href?: string | null
           id?: number
           img?: string | null
@@ -491,24 +522,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'sculpts_is_revision_of_fkey'
-            columns: ['is_revision_of']
+            foreignKeyName: "sculpts_is_revision_of_fkey"
+            columns: ["is_revision_of"]
             isOneToOne: false
-            referencedRelation: 'sculpts'
-            referencedColumns: ['maker_sculpt_id']
+            referencedRelation: "sculpts"
+            referencedColumns: ["maker_sculpt_id"]
           },
           {
-            foreignKeyName: 'sculpts_maker_id_fkey'
-            columns: ['maker_id']
+            foreignKeyName: "sculpts_maker_id_fkey"
+            columns: ["maker_id"]
             isOneToOne: false
-            referencedRelation: 'makers'
-            referencedColumns: ['id']
+            referencedRelation: "makers"
+            referencedColumns: ["id"]
           },
         ]
       }
       user_collection_items: {
         Row: {
           artisan_item_id: number | null
+          asking_price: number | null
           collection_id: string
           exchange: boolean
           id: number
@@ -519,6 +551,7 @@ export type Database = {
         }
         Insert: {
           artisan_item_id?: number | null
+          asking_price?: number | null
           collection_id: string
           exchange?: boolean
           id?: number
@@ -529,6 +562,7 @@ export type Database = {
         }
         Update: {
           artisan_item_id?: number | null
+          asking_price?: number | null
           collection_id?: string
           exchange?: boolean
           id?: number
@@ -539,32 +573,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'user_collection_items_artisan_item_id_fkey'
-            columns: ['artisan_item_id']
+            foreignKeyName: "user_collection_items_artisan_item_id_fkey"
+            columns: ["artisan_item_id"]
             isOneToOne: false
-            referencedRelation: 'colorways'
-            referencedColumns: ['id']
+            referencedRelation: "colorways"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'user_collection_items_collection_id_fkey'
-            columns: ['collection_id']
+            foreignKeyName: "user_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
             isOneToOne: false
-            referencedRelation: 'user_collections'
-            referencedColumns: ['id']
+            referencedRelation: "user_collections"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'user_collection_items_keycap_item_id_fkey'
-            columns: ['keycap_item_id']
+            foreignKeyName: "user_collection_items_keycap_item_id_fkey"
+            columns: ["keycap_item_id"]
             isOneToOne: false
-            referencedRelation: 'keycaps'
-            referencedColumns: ['profile_keycap_id']
+            referencedRelation: "keycaps"
+            referencedColumns: ["profile_keycap_id"]
           },
           {
-            foreignKeyName: 'user_collection_items_uid_fkey'
-            columns: ['uid']
+            foreignKeyName: "user_collection_items_uid_fkey"
+            columns: ["uid"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -578,7 +612,7 @@ export type Database = {
           message: string | null
           name: string
           published: boolean
-          sort_by: string | null
+          sort_by: string
           uid: string
         }
         Insert: {
@@ -590,7 +624,7 @@ export type Database = {
           message?: string | null
           name: string
           published?: boolean
-          sort_by?: string | null
+          sort_by?: string
           uid: string
         }
         Update: {
@@ -602,16 +636,16 @@ export type Database = {
           message?: string | null
           name?: string
           published?: boolean
-          sort_by?: string | null
+          sort_by?: string
           uid?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'user_collections_uid_fkey'
-            columns: ['uid']
+            foreignKeyName: "user_collections_uid_fkey"
+            columns: ["uid"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -620,7 +654,7 @@ export type Database = {
           assignments: string[] | null
           discord: string | null
           email: string
-          favorite_makers: Json | null
+          favorite_makers: Json
           id: string
           qq: string | null
           reddit: string | null
@@ -630,7 +664,7 @@ export type Database = {
           assignments?: string[] | null
           discord?: string | null
           email: string
-          favorite_makers?: Json | null
+          favorite_makers?: Json
           id: string
           qq?: string | null
           reddit?: string | null
@@ -640,7 +674,7 @@ export type Database = {
           assignments?: string[] | null
           discord?: string | null
           email?: string
-          favorite_makers?: Json | null
+          favorite_makers?: Json
           id?: string
           qq?: string | null
           reddit?: string | null
@@ -657,26 +691,26 @@ export type Database = {
     }
     Enums: {
       KeycapProfile:
-        | 'Cherry'
-        | 'SA'
-        | 'MT3'
-        | 'MTNU'
-        | 'KAT'
-        | 'DCS'
-        | 'DSS'
-        | 'DSA'
-        | 'XDA'
-        | 'KAM'
-      ReviewStatus: 'Pending' | 'Approved' | 'Rejected'
-      Role: 'admin' | 'editor' | 'maker' | 'designer' | 'donator'
+        | "Cherry"
+        | "SA"
+        | "MT3"
+        | "MTNU"
+        | "KAT"
+        | "DCS"
+        | "DSS"
+        | "DSA"
+        | "XDA"
+        | "KAM"
+      ReviewStatus: "Pending" | "Approved" | "Rejected"
+      Role: "admin" | "editor" | "maker" | "designer" | "donator"
       Status:
-        | 'Interest Check'
-        | 'Scheduled'
-        | 'Live'
-        | 'In Production'
-        | 'Shipping'
-        | 'Complete'
-        | 'Cancelled'
+        | "Interest Check"
+        | "Scheduled"
+        | "Live"
+        | "In Production"
+        | "Shipping"
+        | "Complete"
+        | "Cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -684,33 +718,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -719,23 +753,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -744,23 +778,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -769,63 +803,63 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
     Enums: {
       KeycapProfile: [
-        'Cherry',
-        'SA',
-        'MT3',
-        'MTNU',
-        'KAT',
-        'DCS',
-        'DSS',
-        'DSA',
-        'XDA',
-        'KAM',
+        "Cherry",
+        "SA",
+        "MT3",
+        "MTNU",
+        "KAT",
+        "DCS",
+        "DSS",
+        "DSA",
+        "XDA",
+        "KAM",
       ],
-      ReviewStatus: ['Pending', 'Approved', 'Rejected'],
-      Role: ['admin', 'editor', 'maker', 'designer', 'donator'],
+      ReviewStatus: ["Pending", "Approved", "Rejected"],
+      Role: ["admin", "editor", "maker", "designer", "donator"],
       Status: [
-        'Interest Check',
-        'Scheduled',
-        'Live',
-        'In Production',
-        'Shipping',
-        'Complete',
-        'Cancelled',
+        "Interest Check",
+        "Scheduled",
+        "Live",
+        "In Production",
+        "Shipping",
+        "Complete",
+        "Cancelled",
       ],
     },
   },

@@ -6,8 +6,8 @@
 
     <template #body>
       <UPageSection
-        headline="Built for collectors, designed for sharing"
-        title="All-in-one Platform for Collectors"
+        headline="Collect smarter, share proudly"
+        title="Your Collection Belongs Here"
         :description="description"
         icon="solar:palette-bold-duotone"
         :features="features"

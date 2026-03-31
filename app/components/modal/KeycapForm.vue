@@ -70,14 +70,6 @@
       />
     </UFormField>
 
-    <UFormField label="Cover" name="cover_img">
-      <UInput
-        v-model.trim="keycap.cover_img"
-        icon="hugeicons:image-02"
-        class="w-full"
-      />
-    </UFormField>
-
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Status" name="status">
         <USelect
@@ -226,7 +218,6 @@ const schema = z.object({
   profile_id: z.enum(Object.keys(manufacturers)),
   url: z.url().nullish().or(z.string().min(0).max(0)),
   render_img: z.url().nullish().or(z.string().min(0).max(0)),
-  cover_img: z.url().nullish().or(z.string().min(0).max(0)),
   // ic_date: z.date(),
   // start_date: z.date(),
   // end_date: z.date(),
