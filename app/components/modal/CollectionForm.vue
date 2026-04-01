@@ -57,19 +57,19 @@
           {
             label: 'Sculpt Name',
             description: 'Sort by sculpt artist name, then by colorway name',
-            icon: 'hugeicons:sorting-a-z-02',
+            icon: appConfig.ui.icons.sortAlphaAsc,
             value: 'artisan.maker_sculpt_id|artisan.name',
           },
           {
             label: 'Colorway Name',
             description: 'Sort by colorway name, then by sculpt artist name',
-            icon: 'hugeicons:sorting-a-z-02',
+            icon: appConfig.ui.icons.sortAlphaDesc,
             value: 'artisan.name|artisan.maker_sculpt_id',
           },
           {
             label: 'Custom Order',
             description: 'Sort manually using drag-and-drop',
-            icon: 'hugeicons:sort-by-down-01',
+            icon: appConfig.ui.icons.sortNumberAsc,
             value: 'order|asc',
           },
         ]"
@@ -100,6 +100,8 @@
 
 <script setup>
 import { z } from 'zod'
+
+const appConfig = useAppConfig()
 
 const emit = defineEmits(['onSuccess'])
 

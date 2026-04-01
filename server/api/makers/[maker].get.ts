@@ -97,7 +97,21 @@ export default defineEventHandler(async (event) => {
     return omitSensitive(sculpt)
   })
 
-  profile.sculpts = keyBy(sortSculpts(sculpts), 'sculpt_id')
+    profile.sculpts = keyBy(sortSculpts(sculpts), 'sculpt_id')
+
+    // Fallback for makers with disabled Google sync: use the highest-order colorway image as sculpt image.
+    if (profile.disable_google_sync) {
+      Object.values(profile.sculpts).forEach((sculpt: any) => {
+        if (sculpt.colorways && sculpt.colorways.length > 0) {
+          const latestColorway = sculpt.colorways.reduce((latest: any, current: any) => {
+            const latestOrder = latest.order ?? -Infinity
+            const currentOrder = current.order ?? -Infinity
+            return currentOrder > latestOrder ? current : latest
+          })
+          sculpt.img = latestColorway.img
+        }
+      })
+    }
 
   return omitSensitive(profile)
 })

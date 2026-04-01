@@ -12,7 +12,7 @@
       <UPageHeader :title="`Sorting - ${data?.name}`">
         <template #description>
           <UAlert
-            icon="hugeicons:sorting-05"
+            :icon="appConfig.ui.icons.sortManual"
             title="Click and drag any card to rearrange them in your preferred order."
             description="Don't forget to save your custom sort before leaving the page — changes won't be saved automatically!"
             variant="soft"
@@ -71,6 +71,7 @@
 import sortBy from 'lodash.sortby'
 import draggable from 'vuedraggable'
 
+const appConfig = useAppConfig()
 const toast = useToast()
 
 const userStore = useUserStore()

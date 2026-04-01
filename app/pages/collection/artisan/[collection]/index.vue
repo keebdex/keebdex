@@ -12,7 +12,7 @@
             v-model:visible="visible.edit"
             title="Edit Collection"
           >
-            <UButton icon="hugeicons:bookmark-03" label="Edit" />
+            <UButton icon="hugeicons:bookmark-02" label="Edit" />
 
             <template #body="{ close }">
               <ModalCollectionForm
@@ -38,7 +38,7 @@
             <UButton
               v-if="user.email_verified"
               label="Delete"
-              icon="hugeicons:bookmark-remove-01"
+              icon="hugeicons:bookmark-remove-02"
               color="error"
             />
 
@@ -62,7 +62,7 @@
           />
 
           <UButton
-            icon="hugeicons:sorting-05"
+            :icon="appConfig.ui.icons.sortManual"
             label="Change Sort Order"
             :to="`/collection/artisan/${route.params.collection}/sort`"
           />
@@ -195,28 +195,29 @@
 <script setup>
 import sortBy from 'lodash.sortby'
 
+const appConfig = useAppConfig()
 const toast = useToast()
 
 const sortIconMap = {
-  'artisan.maker_sculpt_id|artisan.name': 'hugeicons:sorting-a-z-02',
-  'artisan.name|artisan.maker_sculpt_id': 'hugeicons:sorting-a-z-02',
-  'order|asc': 'hugeicons:sort-by-down-01',
+  'artisan.maker_sculpt_id|artisan.name': appConfig.ui.icons.sortAlphaAsc,
+  'artisan.name|artisan.maker_sculpt_id': appConfig.ui.icons.sortAlphaDesc,
+  'order|asc': appConfig.ui.icons.sortNumberAsc,
 }
 
 const sortOptions = computed(() => [
   {
     label: 'Sculpt Name',
-    icon: 'hugeicons:sorting-a-z-02',
+    icon: appConfig.ui.icons.sortAlphaAsc,
     value: 'artisan.maker_sculpt_id|artisan.name',
   },
   {
     label: 'Colorway Name',
-    icon: 'hugeicons:sorting-a-z-02',
+    icon: appConfig.ui.icons.sortAlphaDesc,
     value: 'artisan.name|artisan.maker_sculpt_id',
   },
   {
     label: 'Custom Order',
-    icon: 'hugeicons:sort-by-down-01',
+    icon: appConfig.ui.icons.sortNumberAsc,
     value: 'order|asc',
   },
 ])

@@ -204,7 +204,7 @@ if (data.value.url) {
 if (data.value.order_graph) {
   links.push({
     label: 'Order Graph',
-    icon: 'hugeicons:bar-chart-horizontal',
+    icon: 'hugeicons:chart-bar-big',
     to: data.value.order_graph,
     target: '_blank',
   })

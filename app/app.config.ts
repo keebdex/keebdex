@@ -42,6 +42,11 @@ export default defineAppConfig({
       success: 'hugeicons:checkmark-circle-02',
       tip: 'hugeicons:idea-01',
       warning: 'hugeicons:alert-02',
+      sortNumberAsc: 'hugeicons:sorting-1-9',
+      sortNumberDesc: 'hugeicons:sorting-9-1',
+      sortAlphaAsc: 'hugeicons:sorting-a-z-02',
+      sortAlphaDesc: 'hugeicons:sorting-z-a-01',
+      sortManual: 'hugeicons:move',
     },
     button: {
       slots: {

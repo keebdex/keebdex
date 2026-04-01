@@ -12,7 +12,7 @@
             v-model:visible="visible.edit"
             title="Edit Collection"
           >
-            <UButton icon="hugeicons:bookmark-03" label="Edit" />
+            <UButton icon="hugeicons:bookmark-02" label="Edit" />
 
             <template #body="{ close }">
               <ModalCollectionForm
@@ -38,7 +38,7 @@
             <UButton
               v-if="user.email_verified"
               label="Delete"
-              icon="hugeicons:bookmark-remove-01"
+              icon="hugeicons:bookmark-remove-02"
               color="error"
             />
 

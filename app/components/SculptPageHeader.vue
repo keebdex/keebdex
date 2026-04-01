@@ -27,6 +27,8 @@
 <script setup>
 const emit = defineEmits(['onSorting'])
 
+const appConfig = useAppConfig()
+
 const { sculpt } = defineProps({
   sculpt: {
     type: Object,
@@ -47,31 +49,31 @@ const links = sculpt.href
 
 const sort = ref('order|desc')
 const sortIconMap = {
-  'name|asc': 'hugeicons:sorting-a-z-02',
-  'name|desc': 'hugeicons:sorting-z-a-01',
-  'order|asc': 'hugeicons:sorting-1-9',
-  'order|desc': 'hugeicons:sorting-9-1',
+  'name|asc': appConfig.ui.icons.sortAlphaAsc,
+  'name|desc': appConfig.ui.icons.sortAlphaDesc,
+  'order|asc': appConfig.ui.icons.sortNumberAsc,
+  'order|desc': appConfig.ui.icons.sortNumberDesc,
 }
 
 const sortOptions = computed(() => [
   {
     label: 'Name (A-Z)',
-    icon: 'hugeicons:sorting-a-z-02',
+    icon: appConfig.ui.icons.sortAlphaAsc,
     value: 'name|asc',
   },
   {
     label: 'Name (Z-A)',
-    icon: 'hugeicons:sorting-z-a-01',
+    icon: appConfig.ui.icons.sortAlphaDesc,
     value: 'name|desc',
   },
   {
     label: 'Oldest First',
-    icon: 'hugeicons:sorting-1-9',
+    icon: appConfig.ui.icons.sortNumberAsc,
     value: 'order|asc',
   },
   {
     label: 'Newest First',
-    icon: 'hugeicons:sorting-9-1',
+    icon: appConfig.ui.icons.sortNumberDesc,
     value: 'order|desc',
   },
 ])
