@@ -4,7 +4,7 @@
       <UFormField label="Name" name="name" required>
         <UInput
           v-model.trim="keycap.name"
-          icon="hugeicons:text"
+          icon="hugeicons:text-font"
           class="w-full"
         />
       </UFormField>

@@ -3,7 +3,7 @@
     <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
       <UInput
         v-model.trim="tradingConfig.buying.title"
-        icon="hugeicons:text"
+        icon="hugeicons:text-font"
         :placeholder="
           tradingConfig.type === 'selling'
             ? tradingConfig.selling.placeholder
@@ -35,7 +35,7 @@
     <UFormField v-if="trading" label="Have Title" name="have_title">
       <UInput
         v-model.trim="tradingConfig.selling.title"
-        icon="hugeicons:text"
+        icon="hugeicons:text-font"
         :placeholder="tradingConfig.selling.placeholder"
         class="w-full"
       />

@@ -141,7 +141,7 @@
               :title="`Edit ${colorwayTitle(artisan)} Details`"
             >
               <UTooltip text="Edit Listing" :delay-duration="0">
-                <UButton icon="hugeicons:pencil-edit-02" />
+                <UButton icon="hugeicons:file-edit" />
               </UTooltip>
 
               <template #body="{ close }">

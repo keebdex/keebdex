@@ -3,7 +3,7 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="maker.name"
-        icon="hugeicons:text"
+        icon="hugeicons:text-font"
         :trailing-icon="maker.verified && 'hugeicons:id-verified'"
         class="w-full"
         :ui="{

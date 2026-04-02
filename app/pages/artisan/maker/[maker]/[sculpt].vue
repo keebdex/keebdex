@@ -29,7 +29,7 @@
             </UModal>
 
             <UModal v-model:visible="visible.edit" title="Edit Sculpt">
-              <UButton icon="hugeicons:user-edit-01" label="Edit" />
+              <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
 
               <template #body="{ close }">
                 <ModalSculptForm

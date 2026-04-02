@@ -8,7 +8,7 @@
     <UFormField label="Name" name="name">
       <UInput
         v-model.trim="colorway.name"
-        icon="hugeicons:text"
+        icon="hugeicons:text-font"
         class="w-full"
       />
     </UFormField>

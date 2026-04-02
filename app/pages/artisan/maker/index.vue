@@ -4,7 +4,7 @@
       <UDashboardNavbar title="Artisan Makers">
         <template #right>
           <UModal v-if="isAdmin" v-model:visible="visible" title="Add Maker">
-            <UButton color="primary" icon="hugeicons:user-add-02" label="Add" />
+            <UButton color="primary" icon="hugeicons:add-team" label="Add" />
 
             <template #body="{ close }">
               <ModalMakerForm

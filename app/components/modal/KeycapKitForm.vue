@@ -6,13 +6,17 @@
         :items="predefinedKits"
         label-key="name"
         value-key="id"
-        icon="hugeicons:text"
+        icon="hugeicons:text-font"
         class="w-full"
       />
     </UFormField>
 
     <UFormField label="Name" name="name" help="Leave empty for standard kits">
-      <UInput v-model.trim="kit.name" icon="hugeicons:text" class="w-full" />
+      <UInput
+        v-model.trim="kit.name"
+        icon="hugeicons:text-font"
+        class="w-full"
+      />
     </UFormField>
 
     <UFormField label="Image" name="img">

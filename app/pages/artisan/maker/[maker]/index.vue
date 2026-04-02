@@ -14,7 +14,7 @@
           >
             <UButton
               color="primary"
-              icon="hugeicons:user-add-02"
+              icon="hugeicons:dashboard-square-add"
               label="Add Sculpt"
             />
 

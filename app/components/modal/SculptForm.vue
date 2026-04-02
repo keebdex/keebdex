@@ -1,7 +1,11 @@
 <template>
   <UForm :schema="schema" :state="sculpt" class="space-y-4" @submit="onSubmit">
     <UFormField label="Name" name="name" required>
-      <UInput v-model.trim="sculpt.name" icon="hugeicons:text" class="w-full" />
+      <UInput
+        v-model.trim="sculpt.name"
+        icon="hugeicons:text-font"
+        class="w-full"
+      />
     </UFormField>
 
     <UFormField label="Release" name="release">
@@ -111,7 +115,9 @@ const onSubmit = async () => {
     },
   })
     .then(() => {
-      toast.add(handleSuccess(isEdit ? 'update' : 'add', sculpt.value.name, 'Sculpt'))
+      toast.add(
+        handleSuccess(isEdit ? 'update' : 'add', sculpt.value.name, 'Sculpt'),
+      )
       emit('onSuccess')
     })
     .catch((error) => {

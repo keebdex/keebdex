@@ -13,7 +13,11 @@
     </UFormField>
 
     <UFormField label="Name" name="name" required>
-      <UInput v-model.trim="color.name" icon="hugeicons:text" class="w-full" />
+      <UInput
+        v-model.trim="color.name"
+        icon="hugeicons:text-font"
+        class="w-full"
+      />
     </UFormField>
 
     <UFormField

@@ -52,7 +52,7 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@iconify-json/hugeicons": "^1.2.24",
-    "@iconify-json/simple-icons": "^1.2.75",
+    "@iconify-json/simple-icons": "^1.2.76",
     "@iconify-json/solar": "^1.2.5",
     "@nuxt/content": "^3.12.0",
     "@nuxt/eslint": "^1.15.2",
@@ -74,10 +74,10 @@
     "lint-staged": "^16.4.0",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
-    "lodash.omit": "^4.5.0",
+    "lodash.omit": "^4.18.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "^4.4.2",
-    "nuxt-og-image": "^6.3.1",
+    "nuxt-og-image": "^6.3.2",
     "prettier": "^3.8.1",
     "typescript": "^6.0.2"
   }
