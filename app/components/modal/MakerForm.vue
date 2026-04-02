@@ -12,6 +12,20 @@
       />
     </UFormField>
 
+    <UFormField
+      v-if="!isEdit"
+      label="Slug"
+      name="id"
+      help="Used in URL, e.g. my-maker. Leave empty to auto-generate from name."
+    >
+      <UInput
+        v-model.trim="maker.id"
+        icon="hugeicons:text-font"
+        class="w-full"
+        placeholder="my-maker"
+      />
+    </UFormField>
+
     <UFormField>
       <UCheckbox v-model="maker.verified" label="Verified" />
     </UFormField>
@@ -164,6 +178,14 @@ const instagramRegex = /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
 
 const schema = z.object({
   name: z.string().min(1),
+  id: z
+    .string()
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      'Use lowercase letters, numbers, and hyphens only',
+    )
+    .nullish()
+    .or(z.string().min(0).max(0)),
   nationality: z.string().nullish().or(z.string().min(0).max(0)),
   founded: z.string().nullish().or(z.string().min(0).max(0)),
   document_ids: z.string().array(),
@@ -197,8 +219,10 @@ const removeDocId = (docIdx) => {
 
 const onSubmit = async () => {
   const { sculpts, ...rest } = maker.value
+  const normalizedMakerId = String(rest.id || '').trim()
 
-  const makerId = isEdit ? rest.id : slugify(maker.value.name, { lower: true })
+  const makerId =
+    normalizedMakerId || slugify(maker.value.name, { lower: true })
 
   await $fetch(`/api/makers/${makerId}`, {
     method: 'post',
