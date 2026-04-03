@@ -17,13 +17,12 @@
     />
     <UButton
       v-else
+      :label="collapsed ? undefined : 'Sign In'"
       icon="hugeicons:login-03"
       :trailing-icon="collapsed ? undefined : 'hugeicons:unfold-more'"
       variant="ghost"
       block
-    >
-      Sign In
-    </UButton>
+    />
 
     <UModal v-model:open="visible">
       <template #content>
