@@ -41,6 +41,8 @@
         }"
       />
 
+      <FreshReleasesMarquee />
+
       <ArtisanCollectorGuide />
     </template>
   </UDashboardPanel>

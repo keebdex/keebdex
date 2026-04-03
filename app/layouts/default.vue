@@ -41,8 +41,6 @@
           <UDashboardSidebarCollapse class="text-dimmed" />
         </template>
 
-        <WhatsNewSlider :collapsed="collapsed" />
-
         <UNavigationMenu
           :collapsed="collapsed"
           :items="routes"
@@ -96,7 +94,7 @@ const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
 
 const open = ref(false)
-const collapsed = ref(false)
+const collapsed = ref(true)
 
 const routes = computed(() => {
   let profiles = Object.entries(keycapProfiles)
