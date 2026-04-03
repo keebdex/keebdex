@@ -2,4 +2,5 @@
 
 ## [Unreleased]
 
-- Added a dedicated fresh releases marquee section and removed the legacy What's New sidebar flow.
+- Added dedicated **Fresh Releases** and removed the legacy _What's New_ sidebar flow.
+- Added **Testimonials** section on the homepage.

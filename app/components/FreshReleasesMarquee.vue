@@ -34,7 +34,11 @@
         ]"
       />
 
-      <UMarquee pause-on-hover :repeat="$device.isMobile ? 2 : 4" class="py-4">
+      <UMarquee
+        pause-on-hover
+        :repeat="$device.isMobile ? 2 : 4"
+        class="py-3 [--duration:28s] [--gap:--spacing(8)]"
+      >
         <UPageCard
           v-for="maker in artisanDrops"
           :key="maker.id"
@@ -91,7 +95,7 @@
         pause-on-hover
         reverse
         :repeat="$device.isMobile ? 2 : 4"
-        class="py-4"
+        class="py-3 [--duration:28s] [--gap:--spacing(8)]"
       >
         <UPageCard
           v-for="keycap in liveKeycaps"

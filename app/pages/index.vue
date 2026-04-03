@@ -43,6 +43,8 @@
       <FreshReleasesMarquee />
 
       <ArtisanCollectorGuide />
+
+      <TestimonialsMarquee />
     </template>
   </UDashboardPanel>
 </template>
