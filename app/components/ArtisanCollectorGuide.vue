@@ -1,17 +1,28 @@
 <template>
-  <UPageSection title="ArtisanCollector's Guides" :features="features" />
+  <UPageSection
+    title="ArtisanCollector's Guides"
+    description="An overview of the Artisan Collector guides and recommended reading sequence for newcomers"
+    orientation="horizontal"
+    :features="features"
+  >
+    <NuxtImg
+      src="https://artisancollector.com/wp-content/uploads/GuideFeature_Roadmap.png"
+      alt="Artisan Collector's Guides"
+      class="rounded-lg object-cover w-full"
+    />
+  </UPageSection>
 </template>
 
 <script setup>
 const features = [
-  {
-    title: 'Start Here: Collecting Roadmap',
-    description:
-      'An overview of the Artisan Collector guides and recommended reading sequence for newcomers',
-    to: 'https://artisancollector.com/guides/start/',
-    target: '_blank',
-    icon: 'solar:map-bold-duotone',
-  },
+  // {
+  //   title: 'Start Here: Collecting Roadmap',
+  //   description:
+  //     'An overview of the Artisan Collector guides and recommended reading sequence for newcomers',
+  //   to: 'https://artisancollector.com/guides/start/',
+  //   target: '_blank',
+  //   icon: 'solar:map-bold-duotone',
+  // },
   {
     title: 'What are Artisan Keycaps?',
     description:

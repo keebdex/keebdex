@@ -35,8 +35,8 @@ export default defineAppConfig({
       hash: 'hugeicons:grid',
       info: 'hugeicons:information-circle',
       menu: 'hugeicons:menu-01',
-      panelClose: 'hugeicons:sidebar-left-01',
-      panelOpen: 'hugeicons:sidebar-right-01',
+      panelClose: 'hugeicons:panel-left-open',
+      panelOpen: 'hugeicons:panel-left-close',
       reload: 'hugeicons:rotate-clockwise',
       stop: 'hugeicons:square',
       success: 'hugeicons:checkmark-circle-02',
@@ -91,6 +91,11 @@ export default defineAppConfig({
       slots: {
         container: 'py-8 sm:py-12 lg:py-16',
       },
+    },
+    marquee: {
+      slots: {
+        root: 'max-w-(--ui-container)',
+      }
     },
     select: {
       slots: {

@@ -14,21 +14,20 @@
         :description="$config.public.site.description"
         :links="[
           {
-            label: 'Meet the Makers',
-            to: '/artisan/maker',
-            icon: 'solar:palette-bold-duotone',
+            label: 'About Keebdex',
+            to: '/about',
+            icon: 'solar:telescope-bold-duotone',
             color: 'primary',
-            block: $device.isMobile,
             ui: {
               label: 'block',
             },
           },
           {
-            label: 'Explore Keysets',
-            to: '/keycap?status=live',
-            icon: 'solar:layers-bold-duotone',
-            color: 'primary',
-            block: $device.isMobile,
+            label: 'Why choose Keebdex?',
+            to: '/why-choose-keebdex',
+            icon: 'solar:star-fall-bold-duotone',
+            color: 'neutral',
+            variant: 'ghost',
             ui: {
               label: 'block',
             },

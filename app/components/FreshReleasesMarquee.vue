@@ -2,35 +2,39 @@
   <UPageSection
     v-if="totalFreshReleases"
     :ui="{
-      container:
-        'rounded-2xl border border-default bg-elevated/30 p-3 sm:p-4 overflow-hidden !py-8 !gap-6',
+      root: 'rounded-2xl border border-default bg-elevated/30 p-3 sm:p-4',
+      container: '!py-8 !gap-6',
     }"
   >
-    <div class="mb-4 px-2 sm:px-3">
-      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-dimmed">
-        Happening now
-      </p>
-    </div>
+    <UPageHeader
+      title="Happening Now"
+      :ui="{
+        root: 'pb-4',
+        title:
+          'text-base sm:text-md font-semibold uppercase tracking-[0.24em] text-dimmed',
+      }"
+    />
 
-    <div v-if="artisanDrops.length" class="space-y-3">
-      <UUser
-        :avatar="{
-          icon: 'hugeicons:paint-board',
-          ui: {
-            root: 'bg-transparent',
-            icon: 'text-primary',
-          },
+    <div v-if="artisanDrops.length">
+      <UPageHeader
+        title="Artisan Makers with New Releases"
+        :ui="{
+          root: 'border-none py-4',
+          title: 'text-sm sm:text-md text-muted',
         }"
-        name="Fresh artisan drops"
-        description="Makers with new additions added today."
-        size="xl"
+        :links="[
+          {
+            label: 'Meet the Makers',
+            to: '/artisan/maker',
+            icon: 'solar:palette-bold-duotone',
+            color: 'primary',
+            variant: 'ghost',
+            ui: { label: 'block' },
+          },
+        ]"
       />
 
-      <UMarquee
-        pause-on-hover
-        :repeat="$device.isMobile ? 2 : 4"
-        class="py-3 max-w-(--ui-container)"
-      >
+      <UMarquee pause-on-hover :repeat="$device.isMobile ? 2 : 4" class="py-4">
         <UPageCard
           v-for="maker in artisanDrops"
           :key="maker.id"
@@ -64,25 +68,30 @@
       </UMarquee>
     </div>
 
-    <div v-if="liveKeycaps.length" class="mt-5 space-y-3">
-      <UUser
-        :avatar="{
-          icon: 'hugeicons:live-streaming-01',
-          ui: {
-            root: 'bg-transparent',
-            icon: 'text-primary',
-          },
+    <div v-if="liveKeycaps.length">
+      <UPageHeader
+        title="Keycap Sets Open for Group Buys & Launches"
+        :ui="{
+          root: 'border-none py-4',
+          title: 'text-sm sm:text-md text-muted',
         }"
-        name="Live keycap sets"
-        description="Group buys and launches currently open."
-        size="xl"
+        :links="[
+          {
+            label: 'Explore Keysets',
+            to: '/keycap?status=live',
+            icon: 'solar:layers-bold-duotone',
+            color: 'primary',
+            variant: 'ghost',
+            ui: { label: 'block' },
+          },
+        ]"
       />
 
       <UMarquee
         pause-on-hover
         reverse
         :repeat="$device.isMobile ? 2 : 4"
-        class="py-3 max-w-(--ui-container)"
+        class="py-4"
       >
         <UPageCard
           v-for="keycap in liveKeycaps"
@@ -100,12 +109,12 @@
             class="aspect-[16/9] w-full rounded-lg object-cover"
           />
 
-          <template #footer>
+          <template #body>
             <UUser
               :name="`${keycap.profile.name} ${keycap.name}`"
               :description="
                 formatDateRange(keycap.start_date, keycap.end_date) ||
-                'Live now'
+                'Live Now'
               "
               size="lg"
               :avatar="{
@@ -113,10 +122,7 @@
                 alt: keycap.profile.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
-                  image:
-                    keycap.profile.invertible_logo &&
-                    $colorMode.value === 'dark' &&
-                    'invert',
+                  image: $colorMode.value === 'dark' && 'invert',
                 },
               }"
             />
