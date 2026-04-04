@@ -19,7 +19,7 @@
             />
 
             <template #body="{ close }">
-              <ModalSculptForm
+              <ArtisanModalSculptForm
                 @on-success="
                   () => {
                     close()
@@ -38,7 +38,7 @@
             <UButton icon="hugeicons:user-edit-01" label="Edit" />
 
             <template #body="{ close }">
-              <ModalMakerForm
+              <ArtisanModalMakerForm
                 :is-edit="true"
                 :metadata="maker"
                 @on-success="
@@ -60,7 +60,7 @@
             <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
 
             <template #body="{ close }">
-              <ModalPinSculpt
+              <ArtisanModalPinSculpt
                 :sculpts="favoriteSculpts.concat(otherSculpts)"
                 @on-success="close"
               />

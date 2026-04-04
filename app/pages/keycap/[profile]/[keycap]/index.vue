@@ -33,7 +33,7 @@
             <UButton label="Edit" icon="hugeicons:keyboard" />
 
             <template #body="{ close }">
-              <ModalKeycapForm
+              <KeycapModalKeycapForm
                 :is-edit="true"
                 :metadata="data"
                 @on-success="

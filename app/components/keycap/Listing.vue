@@ -12,7 +12,7 @@
             />
 
             <template #body="{ close }">
-              <ModalKeycapForm
+              <KeycapModalKeycapForm
                 :metadata="query"
                 @on-success="
                   () => {

@@ -11,7 +11,7 @@
             <UButton icon="hugeicons:dashboard-circle-add" label="Add" />
 
             <template #body="{ close }">
-              <ModalKeycapColorForm
+              <KeycapModalKeycapColorForm
                 @on-success="
                   () => {
                     close()
@@ -37,7 +37,7 @@
           <div class="flex gap-2">
             <UModal v-model:visible="visible" title="Edit Color">
               <template #body="{ close }">
-                <ModalKeycapColorForm
+                <KeycapModalKeycapColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="

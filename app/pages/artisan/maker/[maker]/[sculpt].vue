@@ -16,7 +16,7 @@
               />
 
               <template #body="{ close }">
-                <ModalColorwayForm
+                <ArtisanModalColorwayForm
                   :metadata="newColorwayMetadata"
                   @on-success="
                     () => {
@@ -32,7 +32,7 @@
               <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
 
               <template #body="{ close }">
-                <ModalSculptForm
+                <ArtisanModalSculptForm
                   :is-edit="true"
                   :metadata="sculpt"
                   @on-success="
@@ -105,7 +105,7 @@
               </UTooltip>
 
               <template #body="{ close }">
-                <ModalColorwayForm
+                <ArtisanModalColorwayForm
                   :metadata="selectedColorway"
                   @on-success="
                     () => {
@@ -132,7 +132,7 @@
               </UTooltip>
 
               <template #content>
-                <ModalColorwayCard
+                <ArtisanColorwayCard
                   :colorway="selectedColorway"
                   :editable="editable"
                   :authenticated="authenticated"

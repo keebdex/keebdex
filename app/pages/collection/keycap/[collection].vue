@@ -15,7 +15,7 @@
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
 
             <template #body="{ close }">
-              <ModalCollectionForm
+              <CollectionModalCollectionForm
                 :metadata="data"
                 :uid="user.uid"
                 :is-edit="true"

@@ -7,7 +7,7 @@
             <UButton color="primary" icon="hugeicons:add-team" label="Add" />
 
             <template #body="{ close }">
-              <ModalMakerForm
+              <ArtisanModalMakerForm
                 @on-success="
                   () => {
                     close()
@@ -27,7 +27,7 @@
             <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
 
             <template #body="{ close }">
-              <ModalPinMaker
+              <ArtisanModalPinMaker
                 :makers="favoriteMakers.concat(otherMakers)"
                 @on-success="close"
               />

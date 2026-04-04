@@ -7,7 +7,7 @@
             <UButton icon="hugeicons:color-picker" label="Add" />
 
             <template #body="{ close }">
-              <ModalColorForm
+              <KeycapModalColorForm
                 :is-edit="!!selectedColor?.id"
                 :metadata="selectedColor"
                 @on-success="
@@ -55,7 +55,7 @@
               />
 
               <template #body="{ close }">
-                <ModalColorForm
+                <KeycapModalColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="

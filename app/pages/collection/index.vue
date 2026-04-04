@@ -19,7 +19,10 @@
             />
 
             <template #body="{ close }">
-              <ModalCollectionForm :uid="user.uid" @on-success="close" />
+              <CollectionModalCollectionForm
+                :uid="user.uid"
+                @on-success="close"
+              />
             </template>
           </UModal>
         </template>

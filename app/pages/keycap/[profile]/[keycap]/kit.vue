@@ -11,7 +11,7 @@
             <UButton icon="hugeicons:dashboard-square-add" label="Add" />
 
             <template #body="{ close }">
-              <ModalKeycapKitForm
+              <KeycapModalKeycapKitForm
                 :is-edit="!!selectedKit?.id"
                 :metadata="selectedKit"
                 @on-success="
@@ -51,7 +51,7 @@
               />
 
               <template #body="{ close }">
-                <ModalKeycapKitForm
+                <KeycapModalKeycapKitForm
                   :is-edit="true"
                   :metadata="selectedKit"
                   @on-success="
