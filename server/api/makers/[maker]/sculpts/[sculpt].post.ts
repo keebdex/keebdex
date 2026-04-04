@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   ])
 
   const { data, error } = await client
-    .from('sculpts')
+    .from('artisan_sculpts')
     .upsert(body)
     .eq('maker_id', body.maker_id)
     .eq('sculpt_id', body.sculpt_id)

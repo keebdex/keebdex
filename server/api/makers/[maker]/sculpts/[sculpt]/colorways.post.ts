@@ -16,9 +16,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const sqlQuery = rest.id
-    ? client.from('colorways').update(rest).eq('id', rest.id)
+    ? client.from('artisan_colorways').update(rest).eq('id', rest.id)
     : client
-        .from('colorways')
+      .from('artisan_colorways')
         .upsert(rest)
         .eq('colorway_id', rest.colorway_id)
         .eq('maker_id', rest.maker_id)

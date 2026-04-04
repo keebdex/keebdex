@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   const { data, error } = await client
-    .from('makers')
+    .from('artisan_makers')
     .upsert(body)
     .eq('id', event.context.params?.maker)
 

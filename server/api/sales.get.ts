@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await client
     .from('sales')
-    .select('*, maker:makers(*)')
+    .select('*, maker:artisan_makers(*)')
     .gte('date', start)
     .lte('date', end)
 
