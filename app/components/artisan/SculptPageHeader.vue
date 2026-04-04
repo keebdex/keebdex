@@ -1,7 +1,7 @@
 <template>
   <UPageHeader :title="sculpt.name">
     <template v-if="sculpt.story" #description>
-      <PageHeaderDescription :description="sculpt.story" />
+      <SharedPageHeaderDescription :description="sculpt.story" />
     </template>
 
     <template #links>

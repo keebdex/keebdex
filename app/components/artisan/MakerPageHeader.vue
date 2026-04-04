@@ -1,7 +1,7 @@
 <template>
   <UPageHeader :title="maker.name">
     <template v-if="maker.bio" #description>
-      <PageHeaderDescription :description="maker.bio" />
+      <SharedPageHeaderDescription :description="maker.bio" />
     </template>
 
     <template #links>
@@ -23,7 +23,11 @@
     </template>
 
     <UPageGrid v-if="sculpts.length" class="mt-8">
-      <SculptCard v-for="sculpt in sculpts" :key="sculpt.id" :sculpt="sculpt" />
+      <ArtisanSculptCard
+        v-for="sculpt in sculpts"
+        :key="sculpt.id"
+        :sculpt="sculpt"
+      />
     </UPageGrid>
   </UPageHeader>
 </template>

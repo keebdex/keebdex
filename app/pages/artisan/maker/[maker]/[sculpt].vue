@@ -71,7 +71,7 @@
     </template>
 
     <template #body>
-      <SculptPageHeader :sculpt="sculpt" @on-sorting="onChangeSorting" />
+      <ArtisanSculptPageHeader :sculpt="sculpt" @on-sorting="onChangeSorting" />
 
       <UPageGrid>
         <UPageCard
@@ -141,7 +141,7 @@
               </template>
             </UModal>
 
-            <SaveToCollection
+            <SharedSaveToCollection
               v-if="authenticated"
               :item="colorway"
               :text="true"

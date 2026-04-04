@@ -4,7 +4,7 @@ import { omitSensitive } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { data, error } = await client.from('makers').select()
+  const { data, error } = await client.from('artisan_makers').select()
 
   if (error) {
     throw createError({

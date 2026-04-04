@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     .select(
       '*, kits:keycap_kits(*, category:kit_categories(name)), colors:keycap_colors(*, color:colors(*)), profile:keycap_profiles(name)',
     )
-    // .select('*, artisans:colorways(*), kits:keycap_kits(*)')
+    // .select('*, artisans:artisan_colorways(*), kits:keycap_kits(*)')
     .eq('profile_keycap_id', `${params?.profile}/${params?.keycap}`)
     .single()
 
@@ -30,12 +30,12 @@ export default defineEventHandler(async (event) => {
   // const makerIds = [...new Set(data.artisans.map((a) => a.maker_id))]
 
   // const { data: makers } = await client
-  //     .from('makers')
+  //     .from('artisan_makers')
   //     .select()
   //     .in('id', makerIds)
 
   // const { data: sculpts } = await client
-  //     .from('sculpts')
+  //     .from('artisan_sculpts')
   //     .select()
   //     .in('maker_id', makerIds)
 

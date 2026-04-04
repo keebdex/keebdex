@@ -55,7 +55,7 @@
       </UPageGrid>
     </template>
   </UDashboardPanel>
-  <ProtectedPage
+  <SharedProtectedPage
     v-else
     icon="hugeicons:collections-bookmark"
     :title="meta.title"

@@ -22,22 +22,22 @@ export default defineEventHandler(async (event) => {
     .join(' | ')
 
   const makerSearch = client
-    .from('makers')
+    .from('artisan_makers')
     .select()
     .textSearch('fts', `${fts}`)
     .order('id')
     .limit(10)
 
   const sculptSearch = client
-    .from('sculpts')
-    .select('*, maker:makers(name, invertible_logo)')
+    .from('artisan_sculpts')
+    .select('*, maker:artisan_makers(name, invertible_logo)')
     .textSearch('fts', `${fts}`)
     .order('maker_sculpt_id')
     .limit(20)
 
   const colorwaySearch = client
-    .from('colorways')
-    .select('*, maker:makers(id, name, invertible_logo), sculpt:sculpts(name)')
+    .from('artisan_colorways')
+    .select('*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)')
     .textSearch('fts', `${fts}`)
     .order('maker_sculpt_id')
     .limit(200)

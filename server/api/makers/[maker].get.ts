@@ -47,8 +47,8 @@ export default defineEventHandler(async (event) => {
 
   const client = await serverSupabaseClient(event)
   const { data: profile, error: profileError } = await client
-    .from('makers')
-    .select('*, sculpts (*, total_colorways:colorways(count))')
+    .from('artisan_makers')
+    .select('*, sculpts:artisan_sculpts (*, total_colorways:artisan_colorways(count))')
     .eq('id', makerId)
     .eq('sculpts.deleted', false)
     .single()
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
   /**
    * Using database filters for pagination with large datasets
    */
-  let request = client.from('colorways').select().eq('maker_id', makerId)
+  let request = client.from('artisan_colorways').select().eq('maker_id', makerId)
 
   if (query.sculpt) {
     request = request.eq('sculpt_id', query.sculpt)

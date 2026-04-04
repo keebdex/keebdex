@@ -52,7 +52,7 @@
     <template #body>
       <UPageHeader :title="data.name" :links="links">
         <template v-if="data.description" #description>
-          <PageHeaderDescription :description="data.description" />
+          <SharedPageHeaderDescription :description="data.description" />
         </template>
 
         <template #links>
@@ -91,7 +91,7 @@
         <div class="col-span-3 lg:col-span-1">
           <UAccordion v-model="activeKey" :items="items" type="multiple">
             <template #specifications>
-              <DescriptionList
+              <SharedDescriptionList
                 :items="[
                   { term: 'Designer', description: data.designer },
                   { term: 'Sculpt', description: data.sculpt },
@@ -133,7 +133,7 @@
 
             <template v-if="data.colors?.length" #colors>
               <div class="flex flex-wrap gap-2 py-2">
-                <ColorCard
+                <KeycapColorCard
                   v-for="color in data.colors"
                   :key="color.id"
                   v-bind="color.color"

@@ -30,7 +30,7 @@
 
       <UTable :data="data.colors" :columns="columns" class="flex-1">
         <template #hex-cell="{ row }">
-          <ColorSwatch :color="row.original.color?.hex" />
+          <KeycapColorSwatch :color="row.original.color?.hex" />
         </template>
 
         <template #action-cell="{ row }">

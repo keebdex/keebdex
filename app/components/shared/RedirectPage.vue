@@ -1,6 +1,6 @@
 <template>
   <UError
-    redirect="/artisan/maker"
+    :redirect="to"
     :error="{
       statusCode: 404,
       statusMessage: 'Not Found',
@@ -8,3 +8,12 @@
     }"
   />
 </template>
+
+<script setup>
+defineProps({
+  to: {
+    type: String,
+    required: true,
+  },
+})
+</script>

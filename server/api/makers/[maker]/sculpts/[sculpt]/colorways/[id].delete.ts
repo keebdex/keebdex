@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const { error } = await client
-    .from('colorways')
+    .from('artisan_colorways')
     .delete()
     .eq('id', id)
     .eq('maker_id', maker)

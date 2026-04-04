@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const { maker, sculpt } = event.context.params || {}
 
   const { error } = await client
-    .from('sculpts')
+    .from('artisan_sculpts')
     .update({ deleted: true })
     .eq('maker_id', maker)
     .eq('sculpt_id', sculpt)

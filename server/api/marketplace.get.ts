@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   if (collections?.length) {
     const { data: items, error: itemsError } = await client
       .from('user_collection_items')
-      .select('*, artisan:colorways(*, sculpt:sculpts(name))')
+      .select('*, artisan:artisan_colorways(*, sculpt:artisan_sculpts(name))')
       .in(
         'collection_id',
         collections.map((c: any) => c.id),

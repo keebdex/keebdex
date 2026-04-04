@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
   const startOfDay = today(getLocalTimeZone()).toString()
 
   const { data, error } = await client
-    .from('colorways')
-    .select('*, maker:makers(name, invertible_logo)')
+    .from('artisan_colorways')
+    .select('*, maker:artisan_makers(name, invertible_logo)')
     .gte('created_at', startOfDay)
 
   if (error) {

@@ -187,7 +187,7 @@
         }"
       />
 
-      <DraggableCard
+      <ArtisanWishlistDraggableCard
         :flex="flex"
         :data="buyingItems"
         :copying="copying"
@@ -204,7 +204,7 @@
         }"
       />
 
-      <DraggableCard
+      <ArtisanWishlistDraggableCard
         v-if="trading"
         :flex="flex"
         :data="sellingItems"
@@ -239,7 +239,7 @@
       />
     </template>
   </UDashboardPanel>
-  <ProtectedPage
+  <SharedProtectedPage
     v-else
     icon="hugeicons:creative-market"
     title="Wishlist Image Builder"

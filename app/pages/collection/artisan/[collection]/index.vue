@@ -159,7 +159,7 @@
               </template>
             </UModal>
 
-            <SaveToCollection
+            <SharedSaveToCollection
               :item="{ ...rest, artisan }"
               :move="true"
               icon="hugeicons:move"
