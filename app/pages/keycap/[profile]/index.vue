@@ -1,5 +1,5 @@
 <template>
-  <KeycapList
+  <KeycapListing
     :title="title"
     :description="description"
     :keycaps="data?.keycaps"

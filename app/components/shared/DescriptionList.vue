@@ -24,7 +24,6 @@
 defineProps({
   items: {
     type: Array,
-    required: true,
     default: () => [],
   },
 })

@@ -21,15 +21,15 @@
         </template>
       </UDashboardNavbar>
 
-      <WishlistSettings class="p-4" />
+      <ArtisanWishlistSettings class="p-4" />
     </UDashboardPanel>
 
-    <WishlistPreview />
+    <ArtisanWishlistPreview />
 
     <ClientOnly>
       <USlideover v-if="isMobileOrTablet" v-model:open="showPreview">
         <template #content>
-          <WishlistPreview @close="showPreview = false" />
+          <ArtisanWishlistPreview @close="showPreview = false" />
         </template>
       </USlideover>
     </ClientOnly>

@@ -30,7 +30,7 @@
     <template #body>
       <!-- <UPageHeader :title="title">
         <template #description>
-          <PageHeaderDescription :description="description" />
+          <SharedPageHeaderDescription :description="description" />
         </template>
       </UPageHeader> -->
 
@@ -72,7 +72,7 @@
           />
 
           <template #footer>
-            <SaveToCollection
+            <SharedSaveToCollection
               v-if="authenticated"
               :item="keycap"
               category="keycap"

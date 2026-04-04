@@ -41,7 +41,7 @@
         :columns="columns"
       >
         <template #hex-cell="{ row }">
-          <ColorSwatch :color="row.original.hex" />
+          <KeycapColorSwatch :color="row.original.hex" />
         </template>
 
         <template v-if="editable" #action-cell="{ row }">

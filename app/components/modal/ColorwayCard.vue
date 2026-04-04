@@ -15,12 +15,12 @@
     />
 
     <template #description>
-      <PageHeaderDescription
+      <SharedPageHeaderDescription
         v-if="colorway.description"
         :description="colorway.description"
       />
 
-      <DescriptionList
+      <SharedDescriptionList
         :items="
           [
             { term: 'Release', description: colorway.release },
@@ -77,7 +77,7 @@
         Copy
       </UButton>
 
-      <SaveToCollection
+      <SharedSaveToCollection
         v-if="authenticated"
         :item="colorway"
         label="Save"

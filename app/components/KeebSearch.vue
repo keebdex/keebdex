@@ -11,7 +11,10 @@
 
 <script setup>
 const { routes } = defineProps({
-  routes: Array,
+  routes: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const colorMode = useColorMode()

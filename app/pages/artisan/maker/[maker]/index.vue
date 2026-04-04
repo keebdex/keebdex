@@ -71,10 +71,10 @@
     </template>
 
     <template #body>
-      <MakerPageHeader :maker="maker" :sculpts="favoriteSculpts" />
+      <ArtisanMakerPageHeader :maker="maker" :sculpts="favoriteSculpts" />
 
       <UPageGrid>
-        <SculptCard
+        <ArtisanSculptCard
           v-for="sculpt in otherSculpts"
           :key="sculpt.id"
           :sculpt="sculpt"
@@ -82,7 +82,7 @@
       </UPageGrid>
     </template>
   </UDashboardPanel>
-  <BackToArtisanMakers v-else />
+  <SharedRedirectPage v-else to="/artisan/maker" />
 </template>
 
 <script setup>

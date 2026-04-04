@@ -46,7 +46,7 @@
         }"
       >
         <UPageGrid>
-          <MakerCard
+          <ArtisanMakerCard
             v-for="maker in favoriteMakers"
             :key="maker.id"
             :maker="maker"
@@ -55,7 +55,7 @@
       </UPageHeader>
 
       <UPageGrid>
-        <MakerCard
+        <ArtisanMakerCard
           v-for="maker in otherMakers"
           :key="maker.id"
           :maker="maker"
