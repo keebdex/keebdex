@@ -178,6 +178,25 @@ const routes = computed(() => {
     ],
     [
       {
+        label: 'Keyboards',
+        icon: 'hugeicons:keyboard',
+        defaultOpen: true,
+        active: route.path.startsWith('/keyboard'),
+        children: [
+          {
+            label: 'Brands',
+            icon: 'hugeicons:user-group-03',
+            to: '/keyboard/brand',
+            active:
+              route.path === '/keyboard' ||
+              route.path.startsWith('/keyboard/brand'),
+            exact: false,
+          },
+        ],
+      },
+    ],
+    [
+      {
         label: 'Sets by Status',
         icon: 'hugeicons:calendar-03',
         defaultOpen: true,
