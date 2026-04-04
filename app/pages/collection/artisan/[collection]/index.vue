@@ -198,13 +198,7 @@ import sortBy from 'lodash.sortby'
 const appConfig = useAppConfig()
 const toast = useToast()
 
-const sortIconMap = {
-  'artisan.maker_sculpt_id|artisan.name': appConfig.ui.icons.sortAlphaAsc,
-  'artisan.name|artisan.maker_sculpt_id': appConfig.ui.icons.sortAlphaDesc,
-  'order|asc': appConfig.ui.icons.sortNumberAsc,
-}
-
-const sortOptions = computed(() => [
+const sortOptions = [
   {
     label: 'Sculpt Name',
     icon: appConfig.ui.icons.sortAlphaAsc,
@@ -212,15 +206,20 @@ const sortOptions = computed(() => [
   },
   {
     label: 'Colorway Name',
-    icon: appConfig.ui.icons.sortAlphaDesc,
+    icon: appConfig.ui.icons.sortAlphaAsc,
     value: 'artisan.name|artisan.maker_sculpt_id',
   },
   {
     label: 'Custom Order',
-    icon: appConfig.ui.icons.sortNumberAsc,
+    icon: appConfig.ui.icons.sortManual,
     value: 'order|asc',
   },
-])
+]
+
+const sortIconMap = sortOptions.reduce((acc, option) => {
+  acc[option.value] = option.icon
+  return acc
+}, {})
 
 const config = useRuntimeConfig()
 

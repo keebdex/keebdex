@@ -48,14 +48,8 @@ const links = sculpt.href
   : []
 
 const sort = ref('order|desc')
-const sortIconMap = {
-  'name|asc': appConfig.ui.icons.sortAlphaAsc,
-  'name|desc': appConfig.ui.icons.sortAlphaDesc,
-  'order|asc': appConfig.ui.icons.sortNumberAsc,
-  'order|desc': appConfig.ui.icons.sortNumberDesc,
-}
 
-const sortOptions = computed(() => [
+const sortOptions = [
   {
     label: 'Name (A-Z)',
     icon: appConfig.ui.icons.sortAlphaAsc,
@@ -76,5 +70,10 @@ const sortOptions = computed(() => [
     icon: appConfig.ui.icons.sortNumberDesc,
     value: 'order|desc',
   },
-])
+]
+
+const sortIconMap = sortOptions.reduce((acc, option) => {
+  acc[option.value] = option.icon
+  return acc
+}, {})
 </script>

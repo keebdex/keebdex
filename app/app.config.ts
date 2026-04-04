@@ -46,7 +46,7 @@ export default defineAppConfig({
       sortNumberDesc: 'hugeicons:sorting-9-1',
       sortAlphaAsc: 'hugeicons:sorting-a-z-02',
       sortAlphaDesc: 'hugeicons:sorting-z-a-01',
-      sortManual: 'hugeicons:move',
+      sortManual: 'hugeicons:arrange',
     },
     button: {
       slots: {

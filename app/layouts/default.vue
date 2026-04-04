@@ -94,7 +94,7 @@ const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
 
 const open = ref(false)
-const collapsed = ref(true)
+const collapsed = ref(false)
 
 const routes = computed(() => {
   let profiles = Object.entries(keycapProfiles)
