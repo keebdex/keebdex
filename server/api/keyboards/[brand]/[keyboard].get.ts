@@ -37,8 +37,7 @@ export default defineEventHandler(async (event) => {
     .from('keyboard_releases')
     .select('*')
     .eq('brand_keyboard_slug', brandKeyboardSlug)
-    .order('release_year', { ascending: false })
-    .order('id', { ascending: false })
+    .order('order', { ascending: false })
 
   if (releasesError) {
     throw createError({
@@ -69,7 +68,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const variantsByRelease = groupBy(variants, 'release_id')
-  const coverImage = variants.find((variant: any) => variant.image_url)?.image_url
+  const coverImage = variants.find(
+    (variant: any) => variant.image_url,
+  )?.image_url
 
   return {
     brand,

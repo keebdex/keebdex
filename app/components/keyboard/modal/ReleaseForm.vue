@@ -9,6 +9,15 @@
       />
     </UFormField>
 
+    <UFormField label="Order" name="order">
+      <UInput
+        v-model.number="release.order"
+        type="number"
+        icon="hugeicons:hashtag"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField label="Release Year" name="release_year">
       <UInput
         v-model.number="release.release_year"
@@ -58,7 +67,16 @@
       />
     </UFormField>
 
-    <UFormField label="Case Material" name="case_materials">
+    <UFormField label="Plate Materials" name="plate_materials">
+      <USelectMenu
+        v-model="release.plate_materials"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Case Materials" name="case_materials">
       <USelectMenu
         v-model="release.case_materials"
         :items="Constants.public.Enums.keyboard_material"
@@ -94,7 +112,7 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit, keyboard } = defineProps({
+const { metadata, isEdit, keyboard, releases } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -104,6 +122,10 @@ const { metadata, isEdit, keyboard } = defineProps({
     type: Object,
     default: () => ({}),
   },
+  releases: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const toast = useToast()
@@ -112,6 +134,7 @@ const currencies = Constants.public.Enums.currency
 const release = ref({
   label: '',
   description: '',
+  order: null,
   release_year: null,
   mount_style: null,
   pcb_types: [],
@@ -119,11 +142,13 @@ const release = ref({
   currency: 'USD',
   msrp_price: null,
   case_materials: [],
+  plate_materials: [],
   weight_materials: [],
 })
 
 const schema = z.object({
   label: z.string().nullish().or(z.string().min(0).max(0)),
+  order: z.coerce.number().nullish(),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
@@ -131,6 +156,9 @@ const schema = z.object({
   msrp_price: z.coerce.number().min(0).nullish(),
   pcb_types: z
     .array(z.enum(Constants.public.Enums.keyboard_pcb_type))
+    .nullish(),
+  plate_materials: z
+    .array(z.enum(Constants.public.Enums.keyboard_material))
     .nullish(),
   case_materials: z
     .array(z.enum(Constants.public.Enums.keyboard_material))
@@ -153,6 +181,12 @@ onBeforeMount(() => {
       : []
   }
 
+  if (!Array.isArray(release.value.plate_materials)) {
+    release.value.plate_materials = release.value.plate_materials
+      ? [release.value.plate_materials]
+      : []
+  }
+
   if (!Array.isArray(release.value.weight_materials)) {
     release.value.weight_materials = release.value.weight_materials
       ? [release.value.weight_materials]
@@ -161,6 +195,11 @@ onBeforeMount(() => {
 
   if (!isEdit && release.value.typing_angle === null) {
     release.value.typing_angle = keyboard?.typing_angle ?? null
+  }
+
+  // Auto-calculate order for new releases
+  if (!isEdit && release.value.order === null) {
+    release.value.order = (releases?.length ?? 0) + 1
   }
 })
 

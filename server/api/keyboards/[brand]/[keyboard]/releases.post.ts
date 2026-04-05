@@ -28,6 +28,10 @@ export default defineEventHandler(async (event) => {
       Array.isArray(body.case_materials) && body.case_materials.length
         ? body.case_materials
         : null,
+    plate_materials:
+      Array.isArray(body.plate_materials) && body.plate_materials.length
+        ? body.plate_materials
+        : null,
     weight_materials:
       Array.isArray(body.weight_materials) && body.weight_materials.length
         ? body.weight_materials

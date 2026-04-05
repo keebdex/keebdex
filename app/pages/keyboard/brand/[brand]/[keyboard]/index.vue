@@ -21,6 +21,7 @@
             <template #body="{ close }">
               <KeyboardModalReleaseForm
                 :keyboard="data.keyboard"
+                :releases="data.releases"
                 @on-success="
                   () => {
                     close()
@@ -87,11 +88,12 @@
         :keyboard="data.keyboard"
         :releases="data.releases"
         :total-variants="totalVariants"
+        @on-sorting="sort = $event"
       />
 
-      <UPageList v-if="data.releases?.length" divide>
+      <UPageList v-if="data.releases?.length" divide class="mt-4">
         <UPageCard
-          v-for="release in data.releases"
+          v-for="release in sortedReleases"
           :key="release.id"
           :title="release.label || 'R1'"
           :description="release.description"
@@ -100,21 +102,10 @@
             root: 'cursor-pointer',
           }"
         >
-          <template #leading>
-            <div class="flex flex-wrap items-center gap-2">
-              <UBadge
-                v-if="release.release_year"
-                :label="String(release.release_year)"
-              />
-              <UBadge v-if="release.mount_style" :label="release.mount_style" />
-              <UBadge
-                v-if="release.msrp_price"
-                color="primary"
-                :label="formatPrice(release.msrp_price, release.currency)"
-              />
-              <UBadge :label="`${release.variants?.length || 0} variants`" />
-            </div>
-          </template>
+          <div v-if="getReleaseSpecs(release).length" class="mb-4">
+            <SharedDescriptionList :items="getReleaseSpecs(release)" />
+          </div>
+
           <template v-if="editable" #footer>
             <UModal title="Edit Release">
               <UButton
@@ -129,6 +120,7 @@
                   :is-edit="true"
                   :metadata="selectedRelease"
                   :keyboard="data.keyboard"
+                  :releases="data.releases"
                   @on-success="
                     () => {
                       close()
@@ -229,6 +221,8 @@ const visible = ref({
 const selectedRelease = ref({})
 const selectedVariant = ref({})
 
+const sort = ref('order|desc')
+
 const { data, refresh } = await useAsyncData(
   () => `keyboard:${brand.value}/${keyboard.value}`,
   () => $fetch(`/api/keyboards/${brand.value}/${keyboard.value}`),
@@ -270,6 +264,26 @@ const totalVariants = computed(() => {
   )
 })
 
+const sortedReleases = computed(() => {
+  const releases = data.value?.releases || []
+  const [sortField, sortDir] = sort.value.split('|')
+
+  const sorted = [...releases].sort((a, b) => {
+    const aVal = a[sortField] ?? 0
+    const bVal = b[sortField] ?? 0
+
+    if (typeof aVal === 'string') {
+      return sortDir === 'asc'
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal)
+    }
+
+    return sortDir === 'asc' ? aVal - bVal : bVal - aVal
+  })
+
+  return sorted
+})
+
 const clearSelectedRelease = () => {
   selectedRelease.value = {}
 }
@@ -299,6 +313,61 @@ const formatPrice = (amount, currency = 'USD') => {
     currency,
     maximumFractionDigits: 2,
   }).format(amount)
+}
+
+const getReleaseSpecs = (release) => {
+  const items = []
+
+  if (release?.release_year) {
+    items.push({
+      term: 'Release Year',
+      description: String(release.release_year),
+    })
+  }
+
+  if (release?.msrp_price) {
+    items.push({
+      term: 'Pricing',
+      description: formatPrice(release.msrp_price, release.currency),
+    })
+  }
+
+  if (release?.mount_style) {
+    items.push({
+      term: 'Mount',
+      description: release.mount_style,
+    })
+  }
+
+  if (release?.pcb_types?.length) {
+    items.push({
+      term: 'PCB Type',
+      description: release.pcb_types.join(', '),
+    })
+  }
+
+  if (release?.plate_materials?.length) {
+    items.push({
+      term: 'Plate Material',
+      description: release.plate_materials.join(', '),
+    })
+  }
+
+  if (release?.weight_materials?.length) {
+    items.push({
+      term: 'Weight',
+      description: release.weight_materials.join(', '),
+    })
+  }
+
+  if (release?.case_materials?.length) {
+    items.push({
+      term: 'Case Materials',
+      description: release.case_materials.join(', '),
+    })
+  }
+
+  return items
 }
 
 const description = data.value?.keyboard?.description
