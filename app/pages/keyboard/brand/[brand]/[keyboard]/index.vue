@@ -156,13 +156,31 @@
                     variant="soft"
                     :label="formatPrice(variant.msrp_price, variant.currency)"
                   />
-                  <UButton
-                    v-if="editable"
-                    size="xs"
-                    variant="ghost"
-                    icon="hugeicons:edit-01"
-                    @click="editVariant(variant)"
-                  />
+                  <UModal v-if="editable" title="Edit Variant">
+                    <UButton
+                      size="xs"
+                      variant="ghost"
+                      icon="hugeicons:edit-01"
+                      @click="setSelectedVariant(variant)"
+                    />
+
+                    <template #body="{ close }">
+                      <KeyboardModalVariantForm
+                        :is-edit="true"
+                        :metadata="selectedVariant"
+                        :releases="data.releases"
+                        :brand-slug="brand"
+                        :keyboard-slug="keyboard"
+                        @on-success="
+                          () => {
+                            close()
+                            refresh()
+                            clearSelectedVariant()
+                          }
+                        "
+                      />
+                    </template>
+                  </UModal>
                 </div>
               </template>
             </UPageCard>
@@ -195,24 +213,6 @@
           />
         </template>
       </UModal>
-
-      <UModal v-model:visible="visible.editVariant" title="Edit Variant">
-        <template #body="{ close }">
-          <KeyboardModalVariantForm
-            :is-edit="true"
-            :metadata="selectedVariant"
-            :releases="data.releases"
-            :brand-slug="brand"
-            :keyboard-slug="keyboard"
-            @on-success="
-              () => {
-                close()
-                refresh()
-              }
-            "
-          />
-        </template>
-      </UModal>
     </template>
   </UDashboardPanel>
   <SharedRedirectPage v-else :to="`/keyboard/brand/${brand}`" />
@@ -234,7 +234,6 @@ const visible = ref({
   addVariant: false,
   editKeyboard: false,
   editRelease: false,
-  editVariant: false,
 })
 
 const selectedRelease = ref({})
@@ -291,9 +290,12 @@ const totalVariants = computed(() => {
 //   visible.value.addVariant = true
 // }
 
-const editVariant = (variant) => {
+const clearSelectedVariant = () => {
+  selectedVariant.value = {}
+}
+
+const setSelectedVariant = (variant) => {
   selectedVariant.value = { ...variant }
-  visible.value.editVariant = true
 }
 
 const formatPrice = (amount, currency = 'USD') => {

@@ -26,22 +26,16 @@
       />
     </UFormField>
 
-    <UFormField label="Currency" name="currency">
-      <UInput
-        v-model.trim="variant.currency"
-        icon="hugeicons:currency-dollar"
-        class="w-full"
-      />
-    </UFormField>
-
     <UFormField label="MSRP" name="msrp_price">
-      <UInput
-        v-model.number="variant.msrp_price"
-        type="number"
-        step="0.01"
-        icon="hugeicons:invoice-03"
-        class="w-full"
-      />
+      <UFieldGroup>
+        <USelect v-model="variant.currency" :items="currencies" />
+        <UInput
+          v-model.number="variant.msrp_price"
+          type="number"
+          step="0.01"
+          placeholder="0.00"
+        />
+      </UFieldGroup>
     </UFormField>
 
     <UFormField label="Weight Material" name="default_weight_material">
@@ -108,6 +102,7 @@ const { metadata, isEdit, brandSlug, keyboardSlug, releases } = defineProps({
 })
 
 const toast = useToast()
+const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
 
 const variant = ref({
   release_id: null,
@@ -125,7 +120,7 @@ const schema = z.object({
   release_id: z.coerce.number().min(1),
   variant_name: z.string().min(1),
   finish_type: z.enum(Constants.public.Enums.keyboard_finish_type),
-  currency: z.string().length(3).nullish().or(z.string().min(0).max(0)),
+  currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
   msrp_price: z.coerce.number().min(0).nullish(),
   default_weight_material: z
     .enum(Constants.public.Enums.keyboard_material)

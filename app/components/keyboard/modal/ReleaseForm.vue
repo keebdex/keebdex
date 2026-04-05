@@ -31,7 +31,7 @@
         v-model.number="release.typing_angle"
         type="number"
         step="0.1"
-        icon="hugeicons:curve-point"
+        icon="hugeicons:angle-01"
         class="w-full"
       />
     </UFormField>
@@ -48,7 +48,7 @@
     <UFormField label="Case Material" name="case_material">
       <UInput
         v-model.trim="release.case_material"
-        icon="hugeicons:cube"
+        icon="hugeicons:material-and-texture"
         class="w-full"
       />
     </UFormField>
