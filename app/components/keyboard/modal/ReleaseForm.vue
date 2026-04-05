@@ -36,6 +36,19 @@
       />
     </UFormField>
 
+    <UFormField label="MSRP" name="msrp_price">
+      <UFieldGroup class="w-full">
+        <USelect v-model="release.currency" :items="currencies" />
+        <UInput
+          v-model.number="release.msrp_price"
+          type="number"
+          step="0.01"
+          placeholder="0.00"
+          class="w-full"
+        />
+      </UFieldGroup>
+    </UFormField>
+
     <UFormField label="PCB Types" name="pcb_types">
       <USelectMenu
         v-model="release.pcb_types"
@@ -45,10 +58,20 @@
       />
     </UFormField>
 
-    <UFormField label="Case Material" name="case_material">
-      <USelect
-        v-model="release.case_material"
+    <UFormField label="Case Material" name="case_materials">
+      <USelectMenu
+        v-model="release.case_materials"
         :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Weight Materials" name="weight_materials">
+      <USelectMenu
+        v-model="release.weight_materials"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
         class="w-full"
       />
     </UFormField>
@@ -84,6 +107,7 @@ const { metadata, isEdit, keyboard } = defineProps({
 })
 
 const toast = useToast()
+const currencies = Constants.public.Enums.currency
 
 const release = ref({
   label: '',
@@ -92,7 +116,10 @@ const release = ref({
   mount_style: null,
   pcb_types: [],
   typing_angle: null,
-  case_material: null,
+  currency: 'USD',
+  msrp_price: null,
+  case_materials: [],
+  weight_materials: [],
 })
 
 const schema = z.object({
@@ -100,10 +127,17 @@ const schema = z.object({
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
+  currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
+  msrp_price: z.coerce.number().min(0).nullish(),
   pcb_types: z
     .array(z.enum(Constants.public.Enums.keyboard_pcb_type))
     .nullish(),
-  case_material: z.enum(Constants.public.Enums.keyboard_material).nullish(),
+  case_materials: z
+    .array(z.enum(Constants.public.Enums.keyboard_material))
+    .nullish(),
+  weight_materials: z
+    .array(z.enum(Constants.public.Enums.keyboard_material))
+    .nullish(),
   description: z.string().max(400).nullish().or(z.string().min(0).max(0)),
 })
 
@@ -112,6 +146,18 @@ onBeforeMount(() => {
     brand_slug: keyboard.brand_slug,
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
+
+  if (!Array.isArray(release.value.case_materials)) {
+    release.value.case_materials = release.value.case_materials
+      ? [release.value.case_materials]
+      : []
+  }
+
+  if (!Array.isArray(release.value.weight_materials)) {
+    release.value.weight_materials = release.value.weight_materials
+      ? [release.value.weight_materials]
+      : []
+  }
 
   if (!isEdit && release.value.typing_angle === null) {
     release.value.typing_angle = keyboard?.typing_angle ?? null

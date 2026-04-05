@@ -16,6 +16,7 @@
       size="7xl"
       :ui="{
         root: 'bg-transparent rounded-none p-6 aspect-video',
+        image: 'h-full w-auto object-contain',
       }"
       :class="{
         invert: brand.invertible_logo && $colorMode.value === 'dark',

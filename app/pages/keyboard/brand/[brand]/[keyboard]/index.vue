@@ -95,8 +95,10 @@
           :key="release.id"
           :title="release.label || 'R1'"
           :description="release.description"
-          spotlight
-          class="not-last:pb-4"
+          variant="ghost"
+          :ui="{
+            root: 'cursor-pointer',
+          }"
         >
           <template #leading>
             <div class="flex flex-wrap items-center gap-2">
@@ -105,6 +107,11 @@
                 :label="String(release.release_year)"
               />
               <UBadge v-if="release.mount_style" :label="release.mount_style" />
+              <UBadge
+                v-if="release.msrp_price"
+                color="primary"
+                :label="formatPrice(release.msrp_price, release.currency)"
+              />
               <UBadge :label="`${release.variants?.length || 0} variants`" />
             </div>
           </template>
@@ -142,12 +149,9 @@
               v-for="variant in release.variants"
               :key="variant.id"
               :title="variant.variant_name"
-              :description="
-                variant.default_weight_material
-                  ? `${variant.finish_type} • ${variant.default_weight_material}`
-                  : variant.finish_type
-              "
+              :description="variant.finish_type"
               reverse
+              spotlight
               :ui="{
                 root: 'h-full',
               }"
@@ -157,16 +161,11 @@
                 loading="lazy"
                 :alt="variant.variant_name"
                 :src="variant.image_url"
-                class="aspect-[16/9] w-full object-cover"
+                class="aspect-video w-full object-cover"
               />
 
               <template #footer>
                 <div class="flex items-center justify-between gap-2">
-                  <UBadge
-                    v-if="variant.msrp_price"
-                    color="primary"
-                    :label="formatPrice(variant.msrp_price, variant.currency)"
-                  />
                   <UModal v-if="editable" title="Edit Variant">
                     <UButton
                       icon="hugeicons:edit-01"

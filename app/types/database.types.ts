@@ -323,13 +323,16 @@ export type Database = {
       keyboard_releases: {
         Row: {
           brand_keyboard_slug: string
-          case_material: string | null
+          brand_slug: string
+          case_materials: string[] | null
+          currency: string | null
           description: string | null
           id: number
           label: string | null
           mount_style:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
             | null
+          msrp_price: number | null
           pcb_types: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials:
             | Database["public"]["Enums"]["keyboard_material"][]
@@ -342,13 +345,16 @@ export type Database = {
         }
         Insert: {
           brand_keyboard_slug: string
-          case_material?: string | null
+          brand_slug: string
+          case_materials?: string[] | null
+          currency?: string | null
           description?: string | null
           id?: number
           label?: string | null
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
             | null
+          msrp_price?: number | null
           pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
@@ -361,13 +367,16 @@ export type Database = {
         }
         Update: {
           brand_keyboard_slug?: string
-          case_material?: string | null
+          brand_slug?: string
+          case_materials?: string[] | null
+          currency?: string | null
           description?: string | null
           id?: number
           label?: string | null
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
             | null
+          msrp_price?: number | null
           pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
@@ -386,52 +395,51 @@ export type Database = {
             referencedRelation: "keyboards"
             referencedColumns: ["brand_keyboard_slug"]
           },
+          {
+            foreignKeyName: "keyboard_releases_brand_slug_fkey"
+            columns: ["brand_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
+          },
         ]
       }
       keyboard_variants: {
         Row: {
-          currency: string
-          default_weight_material:
-            | Database["public"]["Enums"]["keyboard_material"]
-            | null
+          brand_slug: string
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           id: number
           image_url: string | null
-          msrp_price: number | null
           release_id: number | null
           units_produced: number | null
           variant_name: string
-          weight_finish: string | null
         }
         Insert: {
-          currency?: string
-          default_weight_material?:
-            | Database["public"]["Enums"]["keyboard_material"]
-            | null
+          brand_slug: string
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           id?: never
           image_url?: string | null
-          msrp_price?: number | null
           release_id?: number | null
           units_produced?: number | null
           variant_name: string
-          weight_finish?: string | null
         }
         Update: {
-          currency?: string
-          default_weight_material?:
-            | Database["public"]["Enums"]["keyboard_material"]
-            | null
+          brand_slug?: string
           finish_type?: Database["public"]["Enums"]["keyboard_finish_type"]
           id?: never
           image_url?: string | null
-          msrp_price?: number | null
           release_id?: number | null
           units_produced?: number | null
           variant_name?: string
-          weight_finish?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "keyboard_variants_brand_slug_fkey"
+            columns: ["brand_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
+          },
           {
             foreignKeyName: "keyboard_variants_release_id_fkey"
             columns: ["release_id"]
@@ -918,6 +926,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      currency:
+        | "USD"
+        | "EUR"
+        | "SGD"
+        | "AUD"
+        | "MYR"
+        | "VND"
+        | "CNY"
+        | "KRW"
+        | "JPY"
+        | "GBP"
+        | "CAD"
       keyboard_finish_type:
         | "Anodized"
         | "E-Coat"
@@ -1116,6 +1136,19 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      currency: [
+        "USD",
+        "EUR",
+        "SGD",
+        "AUD",
+        "MYR",
+        "VND",
+        "CNY",
+        "KRW",
+        "JPY",
+        "GBP",
+        "CAD",
+      ],
       keyboard_finish_type: [
         "Anodized",
         "E-Coat",

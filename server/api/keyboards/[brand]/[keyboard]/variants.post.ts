@@ -33,18 +33,11 @@ export default defineEventHandler(async (event) => {
     release_id: Number(body.release_id),
     variant_name: body.variant_name,
     finish_type: body.finish_type,
-    currency: body.currency || null,
-    msrp_price:
-      body.msrp_price === '' || body.msrp_price === null
-        ? null
-        : Number(body.msrp_price),
-    default_weight_material: body.default_weight_material || null,
     units_produced:
       body.units_produced === '' || body.units_produced === null
         ? null
         : Number(body.units_produced),
     image_url: body.image_url || null,
-    weight_finish: body.weight_finish || null,
     brand_slug: brandSlug,
   }
 

@@ -83,8 +83,8 @@
           <NuxtImg
             loading="lazy"
             :alt="keyboard.name"
-            :src="keyboard.cover_image || '/logo-filled.png'"
-            class="aspect-[16/9] w-full object-cover rounded-md border border-default bg-muted/30"
+            :src="keyboard.cover_image || '/keyboard.png'"
+            class="aspect-video w-full object-cover"
           />
         </UPageCard>
       </UPageGrid>
