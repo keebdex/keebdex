@@ -20,15 +20,19 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const finalKeyboardSlug = body.slug || keyboardSlug
+  const brandKeyboardSlug = `${brandSlug}/${finalKeyboardSlug}`
+
   const payload = {
     ...body,
-    slug: body.slug || keyboardSlug,
+    slug: finalKeyboardSlug,
     brand_slug: brandSlug,
+    brand_keyboard_slug: brandKeyboardSlug,
   }
 
   const { data, error } = await client
     .from('keyboards')
-    .upsert(payload, { onConflict: 'slug' })
+    .upsert(payload, { onConflict: 'brand_keyboard_slug' })
     .select()
     .single()
 

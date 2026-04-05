@@ -84,138 +84,91 @@
     </template>
 
     <template #body>
-      <UPageHeader :title="data.keyboard.name" :description="headerDescription">
-        <template #links>
-          <UBadge
-            color="neutral"
-            variant="soft"
-            :label="data.keyboard.layout"
-          />
-          <UBadge
-            color="neutral"
-            variant="soft"
-            :label="`${data.releases.length} releases`"
-          />
-          <UBadge
-            color="neutral"
-            variant="soft"
-            :label="`${totalVariants} variants`"
-          />
-        </template>
-      </UPageHeader>
-
-      <NuxtImg
-        v-if="data.keyboard.cover_image"
-        loading="lazy"
-        :alt="data.keyboard.name"
-        :src="data.keyboard.cover_image"
-        class="mb-6 w-full max-h-80 rounded-lg border border-default object-cover"
+      <KeyboardPageHeader
+        :brand="data.brand"
+        :keyboard="data.keyboard"
+        :releases="data.releases"
+        :total-variants="totalVariants"
       />
 
-      <UPageGrid
-        v-if="data.releases?.length"
-        class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-      >
+      <UPageList v-if="data.releases?.length" divide>
         <UPageCard
           v-for="release in data.releases"
           :key="release.id"
-          :title="release.label || `Release #${release.id}`"
-          :description="
-            release.description ||
-            `${release.release_year || 'Year TBD'} • ${release.mount_style || 'Mount TBD'}`
-          "
-          icon="hugeicons:delivery-view-01"
+          :title="release.label || 'R1'"
+          :description="release.description"
           spotlight
+          class="not-last:pb-4"
         >
           <template #footer>
-            <div class="space-y-2">
-              <div class="flex flex-wrap items-center gap-2 text-xs">
-                <UBadge
-                  v-if="release.release_year"
-                  color="neutral"
-                  variant="soft"
-                  :label="String(release.release_year)"
-                />
-                <UBadge
-                  v-if="release.mount_style"
-                  color="neutral"
-                  variant="soft"
-                  :label="release.mount_style"
-                />
-                <UBadge
-                  color="neutral"
-                  variant="soft"
-                  :label="`${release.variants?.length || 0} variants`"
-                />
-              </div>
-
-              <div v-if="editable" class="flex gap-2">
-                <UButton
-                  size="xs"
-                  variant="soft"
-                  icon="hugeicons:edit-01"
-                  label="Edit Release"
-                  @click="editRelease(release)"
-                />
-                <UButton
-                  size="xs"
-                  variant="soft"
-                  icon="hugeicons:add-square"
-                  label="Add Variant"
-                  @click="createVariant(release.id)"
-                />
-              </div>
-
-              <div v-if="release.variants?.length" class="space-y-2 pt-1">
-                <div
-                  v-for="variant in release.variants"
-                  :key="variant.id"
-                  class="border border-default rounded-md p-2"
-                >
-                  <div class="flex items-start justify-between gap-2">
-                    <div>
-                      <p class="text-sm font-medium">
-                        {{ variant.variant_name }}
-                      </p>
-                      <p class="text-xs text-muted">
-                        {{ variant.finish_type }}
-                        <template v-if="variant.default_weight_material">
-                          • {{ variant.default_weight_material }}
-                        </template>
-                      </p>
-                    </div>
-
-                    <div class="flex items-center gap-1">
-                      <UBadge
-                        v-if="variant.msrp_price"
-                        color="primary"
-                        variant="soft"
-                        :label="
-                          formatPrice(variant.msrp_price, variant.currency)
-                        "
-                      />
-                      <UButton
-                        v-if="editable"
-                        size="xs"
-                        variant="ghost"
-                        icon="hugeicons:edit-01"
-                        @click="editVariant(variant)"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <UAlert
-                v-else
-                title="No variants"
-                icon="hugeicons:information-circle"
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <UBadge
+                v-if="release.release_year"
                 color="neutral"
                 variant="soft"
+                :label="String(release.release_year)"
+              />
+              <UBadge
+                v-if="release.mount_style"
+                color="neutral"
+                variant="soft"
+                :label="release.mount_style"
+              />
+              <UBadge
+                color="neutral"
+                variant="soft"
+                :label="`${release.variants?.length || 0} variants`"
               />
             </div>
           </template>
+
+          <UPageGrid
+            v-if="release.variants?.length"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
+          >
+            <UPageCard
+              v-for="variant in release.variants"
+              :key="variant.id"
+              :title="variant.variant_name"
+              :description="
+                variant.default_weight_material
+                  ? `${variant.finish_type} • ${variant.default_weight_material}`
+                  : variant.finish_type
+              "
+              reverse
+              :ui="{
+                root: 'h-full',
+              }"
+            >
+              <NuxtImg
+                v-if="variant.image_url"
+                loading="lazy"
+                :alt="variant.variant_name"
+                :src="variant.image_url"
+                class="aspect-[16/9] w-full object-cover"
+              />
+
+              <template #footer>
+                <div class="flex items-center justify-between gap-2">
+                  <UBadge
+                    v-if="variant.msrp_price"
+                    color="primary"
+                    variant="soft"
+                    :label="formatPrice(variant.msrp_price, variant.currency)"
+                  />
+                  <UButton
+                    v-if="editable"
+                    size="xs"
+                    variant="ghost"
+                    icon="hugeicons:edit-01"
+                    @click="editVariant(variant)"
+                  />
+                </div>
+              </template>
+            </UPageCard>
+          </UPageGrid>
         </UPageCard>
-      </UPageGrid>
+      </UPageList>
 
       <UAlert
         v-else
@@ -266,6 +219,7 @@
 </template>
 
 <script setup>
+const colorMode = useColorMode()
 const route = useRoute()
 const userStore = useUserStore()
 const brand = computed(() => String(route.params.brand || ''))
@@ -304,6 +258,15 @@ const breadcrumbs = computed(() => {
     {
       label: data.value?.brand?.name,
       to: `/keyboard/brand/${brand.value}`,
+      avatar: {
+        src: `/logo/${data.value?.brand?.slug}.png`,
+        alt: data.value?.brand?.name,
+        ui: {
+          root: 'bg-transparent',
+          image:
+            colorMode.value === 'dark' ? 'rounded-none invert' : 'rounded-none',
+        },
+      },
     },
     {
       label: data.value?.keyboard?.name,
@@ -318,21 +281,15 @@ const totalVariants = computed(() => {
   )
 })
 
-const headerDescription = computed(() => {
-  if (!data.value?.keyboard) return ''
+// const editRelease = (release) => {
+//   selectedRelease.value = { ...release }
+//   visible.value.editRelease = true
+// }
 
-  return `${data.value.brand?.name || ''} • ${data.value.keyboard.layout} layout • ${data.value.releases?.length || 0} releases`
-})
-
-const editRelease = (release) => {
-  selectedRelease.value = { ...release }
-  visible.value.editRelease = true
-}
-
-const createVariant = (releaseId) => {
-  selectedVariant.value = { release_id: releaseId }
-  visible.value.addVariant = true
-}
+// const createVariant = (releaseId) => {
+//   selectedVariant.value = { release_id: releaseId }
+//   visible.value.addVariant = true
+// }
 
 const editVariant = (variant) => {
   selectedVariant.value = { ...variant }
@@ -340,7 +297,7 @@ const editVariant = (variant) => {
 }
 
 const formatPrice = (amount, currency = 'USD') => {
-  if (amount === null || amount === undefined || amount === '') return ''
+  if (!amount || isNaN(amount)) return ''
 
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -349,10 +306,12 @@ const formatPrice = (amount, currency = 'USD') => {
   }).format(amount)
 }
 
+const description = data.value?.keyboard?.description
+
 useSeoMeta({
   title: computed(() => data.value?.keyboard?.name || 'Keyboard'),
-  description: headerDescription,
-  ogDescription: headerDescription,
-  twitterDescription: headerDescription,
+  description,
+  ogDescription: description,
+  twitterDescription: description,
 })
 </script>

@@ -1,17 +1,5 @@
 <template>
   <UPageHeader :title="brand.name" :description="description">
-    <template #headline>
-      <NuxtImg
-        loading="lazy"
-        :alt="brand.name"
-        :src="`/logo/${brand.slug}.png`"
-        class="h-6 w-auto object-contain"
-        :class="{
-          invert: brand.invertible_logo && $colorMode.value === 'dark',
-        }"
-      />
-    </template>
-
     <template #links>
       <UButton
         v-for="link in links"

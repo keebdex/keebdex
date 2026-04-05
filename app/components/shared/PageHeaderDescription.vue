@@ -8,7 +8,7 @@
 defineProps({
   description: {
     type: String,
-    default: () => '',
+    default: '',
   },
 })
 </script>

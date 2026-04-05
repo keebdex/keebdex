@@ -319,10 +319,10 @@ export type Database = {
       }
       keyboard_releases: {
         Row: {
+          brand_keyboard_slug: string
           case_material: string | null
           description: string | null
           id: number
-          keyboard_slug: string | null
           label: string | null
           mount_style:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
@@ -338,10 +338,10 @@ export type Database = {
             | null
         }
         Insert: {
+          brand_keyboard_slug: string
           case_material?: string | null
           description?: string | null
           id?: number
-          keyboard_slug?: string | null
           label?: string | null
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
@@ -357,10 +357,10 @@ export type Database = {
             | null
         }
         Update: {
+          brand_keyboard_slug?: string
           case_material?: string | null
           description?: string | null
           id?: number
-          keyboard_slug?: string | null
           label?: string | null
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
@@ -377,11 +377,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "keyboard_releases_keyboard_slug_fkey"
-            columns: ["keyboard_slug"]
+            foreignKeyName: "keyboard_releases_brand_keyboard_slug_fkey"
+            columns: ["brand_keyboard_slug"]
             isOneToOne: false
             referencedRelation: "keyboards"
-            referencedColumns: ["slug"]
+            referencedColumns: ["brand_keyboard_slug"]
           },
         ]
       }
@@ -440,21 +440,27 @@ export type Database = {
       }
       keyboards: {
         Row: {
+          brand_keyboard_slug: string
           brand_slug: string | null
+          description: string | null
           id: number
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
         }
         Insert: {
+          brand_keyboard_slug: string
           brand_slug?: string | null
+          description?: string | null
           id?: never
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
         }
         Update: {
+          brand_keyboard_slug?: string
           brand_slug?: string | null
+          description?: string | null
           id?: never
           layout?: Database["public"]["Enums"]["keyboard_layout"]
           name?: string

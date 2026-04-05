@@ -1,7 +1,9 @@
 import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  const brandSlug = event.context.params?.brand
   const keyboardSlug = event.context.params?.keyboard
+  const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
   const body = await readBody(event)
   const client = await serverSupabaseClient(event)
 
@@ -16,7 +18,7 @@ export default defineEventHandler(async (event) => {
     .from('keyboard_releases')
     .select('id')
     .eq('id', body.release_id)
-    .eq('keyboard_slug', keyboardSlug)
+    .eq('brand_keyboard_slug', brandKeyboardSlug)
     .single()
 
   if (releaseError) {

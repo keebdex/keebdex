@@ -67,7 +67,10 @@
           :key="keyboard.slug"
           :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
           :title="keyboard.name"
-          :description="`${keyboard.layout} • ${keyboard.release_count} releases • ${keyboard.variant_count} variants`"
+          :description="
+            keyboard.description ||
+            `${keyboard.layout} • ${keyboard.release_count} releases • ${keyboard.variant_count} variants`
+          "
           icon="hugeicons:keyboard"
           reverse
           spotlight
@@ -78,17 +81,6 @@
             :src="keyboard.cover_image || '/logo-filled.png'"
             class="aspect-[16/9] w-full object-cover rounded-md border border-default bg-muted/30"
           />
-
-          <template #footer>
-            <div class="flex items-center gap-2 text-xs text-muted">
-              <UBadge color="neutral" variant="soft" :label="keyboard.layout" />
-              <UBadge
-                color="neutral"
-                variant="soft"
-                :label="`${keyboard.release_count} releases`"
-              />
-            </div>
-          </template>
         </UPageCard>
       </UPageGrid>
 

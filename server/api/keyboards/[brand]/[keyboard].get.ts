@@ -4,13 +4,13 @@ import groupBy from 'lodash.groupby'
 export default defineEventHandler(async (event) => {
   const brandSlug = event.context.params?.brand
   const keyboardSlug = event.context.params?.keyboard
+  const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
   const client = await serverSupabaseClient(event)
 
   const { data: keyboard, error: keyboardError } = await client
     .from('keyboards')
     .select('*')
-    .eq('brand_slug', brandSlug)
-    .eq('slug', keyboardSlug)
+    .eq('brand_keyboard_slug', brandKeyboardSlug)
     .single()
 
   if (keyboardError) {
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   const { data: releases, error: releasesError } = await client
     .from('keyboard_releases')
     .select('*')
-    .eq('keyboard_slug', keyboardSlug)
+    .eq('brand_keyboard_slug', brandKeyboardSlug)
     .order('release_year', { ascending: false })
     .order('id', { ascending: false })
 
