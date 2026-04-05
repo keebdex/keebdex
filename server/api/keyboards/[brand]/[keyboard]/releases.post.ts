@@ -1,11 +1,12 @@
 import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  const client = await serverSupabaseClient(event)
+  const { variants, ...body } = await readBody(event)
+
   const brandSlug = event.context.params?.brand
   const keyboardSlug = event.context.params?.keyboard
   const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
-  const body = await readBody(event)
-  const client = await serverSupabaseClient(event)
 
   const payload = {
     ...body,

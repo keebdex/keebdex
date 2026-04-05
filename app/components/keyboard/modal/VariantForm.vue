@@ -128,7 +128,9 @@ const schema = z.object({
 })
 
 onBeforeMount(() => {
-  Object.assign(variant.value, metadata || {})
+  Object.assign(variant.value, metadata || {}, {
+    brand_slug: keyboard.brand_slug,
+  })
 })
 
 const releaseOptions = computed(() => {

@@ -1,11 +1,12 @@
 import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  const client = await serverSupabaseClient(event)
+  const body = await readBody(event)
+
   const brandSlug = event.context.params?.brand
   const keyboardSlug = event.context.params?.keyboard
   const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
-  const body = await readBody(event)
-  const client = await serverSupabaseClient(event)
 
   if (!body?.release_id) {
     throw createError({
@@ -29,17 +30,22 @@ export default defineEventHandler(async (event) => {
   }
 
   const payload = {
-    ...body,
     release_id: Number(body.release_id),
+    variant_name: body.variant_name,
+    finish_type: body.finish_type,
+    currency: body.currency || null,
     msrp_price:
       body.msrp_price === '' || body.msrp_price === null
         ? null
         : Number(body.msrp_price),
+    default_weight_material: body.default_weight_material || null,
     units_produced:
       body.units_produced === '' || body.units_produced === null
         ? null
         : Number(body.units_produced),
-    currency: body.currency || 'USD',
+    image_url: body.image_url || null,
+    weight_finish: body.weight_finish || null,
+    brand_slug: brandSlug,
   }
 
   let result

@@ -55,7 +55,6 @@
         <UAlert
           title="Actions may not work as expected on mobile devices."
           icon="hugeicons:alert-02"
-          variant="soft"
           color="warning"
         />
       </UPage>

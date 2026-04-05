@@ -48,6 +48,11 @@ export default defineAppConfig({
       sortAlphaDesc: 'hugeicons:sorting-z-a-01',
       sortManual: 'hugeicons:arrange',
     },
+    alert: {
+      defaultVariants: {
+        variant: 'soft',
+      },
+    },
     badge: {
       defaultVariants: {
         color: 'neutral',
@@ -101,7 +106,7 @@ export default defineAppConfig({
     marquee: {
       slots: {
         root: 'max-w-(--ui-container)',
-      }
+      },
     },
     select: {
       slots: {

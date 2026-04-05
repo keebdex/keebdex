@@ -203,6 +203,7 @@
         title="No releases yet"
         description="Add the first release to start cataloging this keyboard."
         icon="hugeicons:information-circle"
+        color="info"
       />
     </template>
   </UDashboardPanel>

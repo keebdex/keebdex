@@ -1,10 +1,11 @@
 import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  const client = await serverSupabaseClient(event)
+  const { id, cover_image, ...body } = await readBody(event)
+
   const brandSlug = event.context.params?.brand
   const keyboardSlug = event.context.params?.keyboard
-  const body = await readBody(event)
-  const client = await serverSupabaseClient(event)
 
   if (!body?.name) {
     throw createError({

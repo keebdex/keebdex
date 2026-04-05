@@ -46,9 +46,9 @@
     </UFormField>
 
     <UFormField label="Case Material" name="case_material">
-      <UInput
-        v-model.trim="release.case_material"
-        icon="hugeicons:material-and-texture"
+      <USelect
+        v-model="release.case_material"
+        :items="Constants.public.Enums.keyboard_material"
         class="w-full"
       />
     </UFormField>
@@ -92,7 +92,7 @@ const release = ref({
   mount_style: null,
   pcb_types: [],
   typing_angle: null,
-  case_material: '',
+  case_material: null,
 })
 
 const schema = z.object({
@@ -103,12 +103,15 @@ const schema = z.object({
   pcb_types: z
     .array(z.enum(Constants.public.Enums.keyboard_pcb_type))
     .nullish(),
-  case_material: z.string().nullish().or(z.string().min(0).max(0)),
+  case_material: z.enum(Constants.public.Enums.keyboard_material).nullish(),
   description: z.string().max(400).nullish().or(z.string().min(0).max(0)),
 })
 
 onBeforeMount(() => {
-  Object.assign(release.value, metadata || {})
+  Object.assign(release.value, metadata || {}, {
+    brand_slug: keyboard.brand_slug,
+    brand_keyboard_slug: keyboard.brand_keyboard_slug,
+  })
 
   if (!isEdit && release.value.typing_angle === null) {
     release.value.typing_angle = keyboard?.typing_angle ?? null

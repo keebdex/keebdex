@@ -95,7 +95,6 @@
         description="Start by adding the first keyboard for this brand."
         icon="hugeicons:information-circle"
         color="info"
-        variant="soft"
       />
     </template>
   </UDashboardPanel>
