@@ -56,7 +56,7 @@
     </template>
 
     <template #body>
-      <KeyboardBrandPageHeader :brand="data" :description="headerDescription" />
+      <KeyboardBrandPageHeader :brand="data" />
 
       <UPageGrid
         v-if="data.keyboards?.length"
@@ -67,14 +67,19 @@
           :key="keyboard.slug"
           :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
           :title="keyboard.name"
-          :description="
-            keyboard.description ||
-            `${keyboard.layout} • ${keyboard.release_count} releases • ${keyboard.variant_count} variants`
-          "
+          :description="keyboard.description"
           icon="hugeicons:keyboard"
           reverse
           spotlight
         >
+          <template #leading>
+            <UBadge
+              v-if="keyboard.layout"
+              :label="keyboard.layout"
+              icon="hugeicons:keyboard"
+            />
+          </template>
+
           <NuxtImg
             loading="lazy"
             :alt="keyboard.name"
@@ -130,16 +135,10 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const headerDescription = computed(() => {
-  if (!data.value) return ''
-
-  return `${data.value.country_origin || 'Origin unknown'} • ${data.value.keyboards?.length || 0} keyboards tracked`
-})
-
 useSeoMeta({
   title: computed(() => data.value?.name || 'Keyboard Brands'),
-  description: headerDescription,
-  ogDescription: headerDescription,
-  twitterDescription: headerDescription,
+  description: data.value?.bio,
+  ogDescription: data.value?.bio,
+  twitterDescription: data.value?.bio,
 })
 </script>

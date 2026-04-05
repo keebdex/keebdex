@@ -61,6 +61,14 @@
       />
     </UFormField>
 
+    <UFormField
+      label="Bio"
+      name="bio"
+      help="Keep it concise and under 400 characters for optimal display."
+    >
+      <UTextarea v-model.trim="brand.bio" :rows="5" class="w-full" />
+    </UFormField>
+
     <UButton block color="primary" type="submit" loading-auto>Save</UButton>
   </UForm>
 </template>

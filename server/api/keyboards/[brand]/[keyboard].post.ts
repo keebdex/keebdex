@@ -28,6 +28,10 @@ export default defineEventHandler(async (event) => {
     slug: finalKeyboardSlug,
     brand_slug: brandSlug,
     brand_keyboard_slug: brandKeyboardSlug,
+    typing_angle:
+      body.typing_angle === '' || body.typing_angle === null
+        ? null
+        : Number(body.typing_angle),
   }
 
   const { data, error } = await client

@@ -35,6 +35,24 @@
       />
     </UFormField>
 
+    <UFormField label="Typing Angle" name="typing_angle">
+      <UInput
+        v-model.number="keyboard.typing_angle"
+        type="number"
+        step="0.1"
+        icon="hugeicons:angle-01"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField
+      label="Description"
+      name="description"
+      help="Keep it concise and under 400 characters for optimal display."
+    >
+      <UTextarea v-model.trim="keyboard.description" :rows="5" class="w-full" />
+    </UFormField>
+
     <UButton block color="primary" type="submit" loading-auto>Save</UButton>
   </UForm>
 </template>
@@ -64,6 +82,7 @@ const keyboard = ref({
   name: '',
   slug: '',
   layout: Constants.public.Enums.keyboard_layout[0],
+  typing_angle: null,
 })
 
 const schema = z.object({
@@ -77,6 +96,7 @@ const schema = z.object({
     .nullish()
     .or(z.string().min(0).max(0)),
   layout: z.enum(Constants.public.Enums.keyboard_layout),
+  typing_angle: z.coerce.number().min(0).max(30).nullish(),
 })
 
 onBeforeMount(() => {

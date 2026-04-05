@@ -48,6 +48,12 @@ export default defineAppConfig({
       sortAlphaDesc: 'hugeicons:sorting-z-a-01',
       sortManual: 'hugeicons:arrange',
     },
+    badge: {
+      defaultVariants: {
+        color: 'neutral',
+        variant: 'soft',
+      },
+    },
     button: {
       slots: {
         base: 'cursor-pointer',

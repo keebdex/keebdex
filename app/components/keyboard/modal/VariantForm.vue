@@ -27,13 +27,14 @@
     </UFormField>
 
     <UFormField label="MSRP" name="msrp_price">
-      <UFieldGroup>
+      <UFieldGroup class="w-full">
         <USelect v-model="variant.currency" :items="currencies" />
         <UInput
           v-model.number="variant.msrp_price"
           type="number"
           step="0.01"
           placeholder="0.00"
+          class="w-full"
         />
       </UFieldGroup>
     </UFormField>
@@ -81,19 +82,15 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit, brandSlug, keyboardSlug, releases } = defineProps({
+const { metadata, isEdit, keyboard, releases } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
   isEdit: Boolean,
-  brandSlug: {
-    type: String,
-    required: true,
-  },
-  keyboardSlug: {
-    type: String,
-    required: true,
+  keyboard: {
+    type: Object,
+    default: () => ({}),
   },
   releases: {
     type: Array,
@@ -142,7 +139,17 @@ const releaseOptions = computed(() => {
 })
 
 const onSubmit = async () => {
-  await $fetch(`/api/keyboards/${brandSlug}/${keyboardSlug}/variants`, {
+  if (!keyboard.brand_keyboard_slug) {
+    toast.add(
+      handleError({
+        statusMessage:
+          'Please save the keyboard details before adding a variant.',
+      }),
+    )
+    return
+  }
+
+  await $fetch(`/api/keyboards/${keyboard.brand_keyboard_slug}/variants`, {
     method: 'post',
     body: variant.value,
   })

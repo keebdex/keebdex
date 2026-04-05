@@ -20,8 +20,7 @@
 
             <template #body="{ close }">
               <KeyboardModalReleaseForm
-                :brand-slug="brand"
-                :keyboard-slug="keyboard"
+                :keyboard="data.keyboard"
                 @on-success="
                   () => {
                     close()
@@ -45,8 +44,7 @@
 
             <template #body="{ close }">
               <KeyboardModalVariantForm
-                :brand-slug="brand"
-                :keyboard-slug="keyboard"
+                :keyboard="data.keyboard"
                 :releases="data.releases"
                 @on-success="
                   () => {
@@ -100,26 +98,40 @@
           spotlight
           class="not-last:pb-4"
         >
-          <template #footer>
-            <div class="flex flex-wrap items-center gap-2 text-xs">
+          <template #leading>
+            <div class="flex flex-wrap items-center gap-2">
               <UBadge
                 v-if="release.release_year"
-                color="neutral"
-                variant="soft"
                 :label="String(release.release_year)"
               />
-              <UBadge
-                v-if="release.mount_style"
-                color="neutral"
-                variant="soft"
-                :label="release.mount_style"
-              />
-              <UBadge
-                color="neutral"
-                variant="soft"
-                :label="`${release.variants?.length || 0} variants`"
-              />
+              <UBadge v-if="release.mount_style" :label="release.mount_style" />
+              <UBadge :label="`${release.variants?.length || 0} variants`" />
             </div>
+          </template>
+          <template v-if="editable" #footer>
+            <UModal title="Edit Release">
+              <UButton
+                size="xs"
+                icon="hugeicons:edit-01"
+                label="Edit Release"
+                @click="setSelectedRelease(release)"
+              />
+
+              <template #body="{ close }">
+                <KeyboardModalReleaseForm
+                  :is-edit="true"
+                  :metadata="selectedRelease"
+                  :keyboard="data.keyboard"
+                  @on-success="
+                    () => {
+                      close()
+                      refresh()
+                      clearSelectedRelease()
+                    }
+                  "
+                />
+              </template>
+            </UModal>
           </template>
 
           <UPageGrid
@@ -153,14 +165,13 @@
                   <UBadge
                     v-if="variant.msrp_price"
                     color="primary"
-                    variant="soft"
                     :label="formatPrice(variant.msrp_price, variant.currency)"
                   />
                   <UModal v-if="editable" title="Edit Variant">
                     <UButton
-                      size="xs"
-                      variant="ghost"
                       icon="hugeicons:edit-01"
+                      label="Edit Variant"
+                      size="xs"
                       @click="setSelectedVariant(variant)"
                     />
 
@@ -169,8 +180,7 @@
                         :is-edit="true"
                         :metadata="selectedVariant"
                         :releases="data.releases"
-                        :brand-slug="brand"
-                        :keyboard-slug="keyboard"
+                        :keyboard="data.keyboard"
                         @on-success="
                           () => {
                             close()
@@ -193,26 +203,7 @@
         title="No releases yet"
         description="Add the first release to start cataloging this keyboard."
         icon="hugeicons:information-circle"
-        color="info"
-        variant="soft"
       />
-
-      <UModal v-model:visible="visible.editRelease" title="Edit Release">
-        <template #body="{ close }">
-          <KeyboardModalReleaseForm
-            :is-edit="true"
-            :metadata="selectedRelease"
-            :brand-slug="brand"
-            :keyboard-slug="keyboard"
-            @on-success="
-              () => {
-                close()
-                refresh()
-              }
-            "
-          />
-        </template>
-      </UModal>
     </template>
   </UDashboardPanel>
   <SharedRedirectPage v-else :to="`/keyboard/brand/${brand}`" />
@@ -233,7 +224,6 @@ const visible = ref({
   addRelease: false,
   addVariant: false,
   editKeyboard: false,
-  editRelease: false,
 })
 
 const selectedRelease = ref({})
@@ -280,10 +270,13 @@ const totalVariants = computed(() => {
   )
 })
 
-// const editRelease = (release) => {
-//   selectedRelease.value = { ...release }
-//   visible.value.editRelease = true
-// }
+const clearSelectedRelease = () => {
+  selectedRelease.value = {}
+}
+
+const setSelectedRelease = (release) => {
+  selectedRelease.value = { ...release }
+}
 
 // const createVariant = (releaseId) => {
 //   selectedVariant.value = { release_id: releaseId }

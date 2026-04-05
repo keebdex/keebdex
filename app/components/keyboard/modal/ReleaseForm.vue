@@ -71,19 +71,15 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit, brandSlug, keyboardSlug } = defineProps({
+const { metadata, isEdit, keyboard } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
   isEdit: Boolean,
-  brandSlug: {
-    type: String,
-    required: true,
-  },
-  keyboardSlug: {
-    type: String,
-    required: true,
+  keyboard: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
@@ -113,10 +109,24 @@ const schema = z.object({
 
 onBeforeMount(() => {
   Object.assign(release.value, metadata || {})
+
+  if (!isEdit && release.value.typing_angle === null) {
+    release.value.typing_angle = keyboard?.typing_angle ?? null
+  }
 })
 
 const onSubmit = async () => {
-  await $fetch(`/api/keyboards/${brandSlug}/${keyboardSlug}/releases`, {
+  if (!keyboard.brand_keyboard_slug) {
+    toast.add(
+      handleError({
+        statusMessage:
+          'Please save the keyboard details before adding a release.',
+      }),
+    )
+    return
+  }
+
+  await $fetch(`/api/keyboards/${keyboard.brand_keyboard_slug}/releases`, {
     method: 'post',
     body: release.value,
   })

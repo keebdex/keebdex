@@ -289,6 +289,7 @@ export type Database = {
       }
       keyboard_brands: {
         Row: {
+          bio: string | null
           country_origin: string | null
           discord: string | null
           id: number
@@ -298,6 +299,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          bio?: string | null
           country_origin?: string | null
           discord?: string | null
           id?: number
@@ -307,6 +309,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          bio?: string | null
           country_origin?: string | null
           discord?: string | null
           id?: number
@@ -447,6 +450,7 @@ export type Database = {
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
+          typing_angle: number | null
         }
         Insert: {
           brand_keyboard_slug: string
@@ -456,6 +460,7 @@ export type Database = {
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
+          typing_angle?: number | null
         }
         Update: {
           brand_keyboard_slug?: string
@@ -465,6 +470,7 @@ export type Database = {
           layout?: Database["public"]["Enums"]["keyboard_layout"]
           name?: string
           slug?: string
+          typing_angle?: number | null
         }
         Relationships: [
           {

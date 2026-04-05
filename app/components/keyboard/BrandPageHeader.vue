@@ -1,5 +1,9 @@
 <template>
-  <UPageHeader :title="brand.name" :description="description">
+  <UPageHeader :title="brand.name">
+    <template v-if="brand.bio" #description>
+      <SharedPageHeaderDescription :description="brand.bio" />
+    </template>
+
     <template #links>
       <UButton
         v-for="link in links"
@@ -17,10 +21,6 @@ const props = defineProps({
   brand: {
     type: Object,
     default: () => ({}),
-  },
-  description: {
-    type: String,
-    default: '',
   },
 })
 
