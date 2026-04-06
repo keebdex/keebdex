@@ -1,6 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
-const ALLOWED_ROLES = new Set(['admin', 'editor', 'maker'])
+const ALLOWED_ROLES = new Set(['admin', 'editor', 'maker', 'designer'])
 
 interface CloudflareImageUploadResponse {
   success: boolean
@@ -11,9 +11,9 @@ interface CloudflareImageUploadResponse {
   }
 }
 
-function isAuthorizedEditor(
+function isAuthorizedUploader(
   profile: { role?: string | null; assignments?: string[] | null },
-  makerId: string,
+  assignment: string,
 ) {
   if (!profile.role || !ALLOWED_ROLES.has(profile.role)) {
     return false
@@ -24,11 +24,15 @@ function isAuthorizedEditor(
   }
 
   if (profile.role === 'editor') {
-    return !profile.assignments || profile.assignments.includes(makerId)
+    return !profile.assignments || profile.assignments.includes(assignment)
   }
 
   if (profile.role === 'maker') {
-    return !!profile.assignments && profile.assignments.includes(makerId)
+    return !!profile.assignments && profile.assignments.includes(assignment)
+  }
+
+  if (profile.role === 'designer') {
+    return true
   }
 
   return false
@@ -44,14 +48,19 @@ export default defineEventHandler(async (event) => {
   const formData = await readFormData(event)
 
   const file = formData.get('file')
-  const makerId = String(formData.get('maker_id') || '')
+  const assignment = String(
+    formData.get('assignment') || formData.get('maker_id') || '',
+  ).trim()
 
   if (!(file instanceof File)) {
     throw createError({ statusCode: 400, statusMessage: 'Missing image file' })
   }
 
-  if (!makerId) {
-    throw createError({ statusCode: 400, statusMessage: 'Missing maker id' })
+  if (!assignment) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Missing upload assignment',
+    })
   }
 
   if (!file.type?.startsWith('image/')) {
@@ -77,7 +86,7 @@ export default defineEventHandler(async (event) => {
     .eq('id', user.sub)
     .single()
 
-  if (!profile || !isAuthorizedEditor(profile, makerId)) {
+  if (!profile || !isAuthorizedUploader(profile, assignment)) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Insufficient permissions',

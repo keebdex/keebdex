@@ -63,14 +63,45 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
+
+      <p class="mt-2 text-xs text-muted">
+        Or drag and drop an image below to upload to Cloudflare and auto-fill
+        this field.
+      </p>
+
+      <div class="mt-2 space-y-2">
+        <UFileUpload
+          v-model="uploadedFile"
+          accept="image/*"
+          icon="hugeicons:image-upload"
+          layout="list"
+          label="Click to browse or drag & drop an image to upload"
+          description="Maximum file size: 5MB"
+          :ui="{
+            base: 'min-h-40',
+          }"
+        />
+
+        <UButton
+          v-if="uploadedFile"
+          icon="hugeicons:clean"
+          block
+          @click="uploadedFile = null"
+        >
+          Clear Selection
+        </UButton>
+      </div>
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto>Save</UButton>
+    <UButton block color="primary" type="submit" :loading="uploading">
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
 import { Constants } from '~/types/database.types'
+import { uploadImageToCloudflare } from '~/utils/image-upload'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -119,6 +150,9 @@ const variant = ref({
   release_year: null,
   image_url: '',
 })
+
+const uploading = ref(false)
+const uploadedFile = ref(null)
 
 const schema = z.object({
   release_id: z.coerce.number().min(1),
@@ -180,22 +214,41 @@ const onSubmit = async () => {
     return
   }
 
-  await $fetch(`/api/keyboards/${keyboard.brand_keyboard_slug}/variants`, {
-    method: 'post',
-    body: variant.value,
-  })
-    .then((data) => {
-      toast.add(
-        handleSuccess(
-          isEdit ? 'update' : 'add',
-          variant.value.variant_name,
-          'Variant',
-        ),
-      )
-      emit('onSuccess', data)
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
+  try {
+    uploading.value = true
+
+    const payload = {
+      ...variant.value,
+    }
+
+    if (uploadedFile.value) {
+      payload.image_url = await uploadImageToCloudflare({
+        file: uploadedFile.value,
+        assignment: String(keyboard.brand_keyboard_slug || ''),
+      })
+    }
+
+    const data = await $fetch(
+      `/api/keyboards/${keyboard.brand_keyboard_slug}/variants`,
+      {
+        method: 'post',
+        body: payload,
+      },
+    )
+
+    toast.add(
+      handleSuccess(
+        isEdit ? 'update' : 'add',
+        variant.value.variant_name,
+        'Variant',
+      ),
+    )
+    uploadedFile.value = null
+    emit('onSuccess', data)
+  } catch (error) {
+    toast.add(handleError(error))
+  } finally {
+    uploading.value = false
+  }
 }
 </script>
