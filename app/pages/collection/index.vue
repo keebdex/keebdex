@@ -3,13 +3,6 @@
     <template #header>
       <UDashboardNavbar title="My Collection">
         <template #right>
-          <USelect
-            v-model="category"
-            :items="categories"
-            value-key="value"
-            class="w-40"
-          />
-
           <UModal v-model:visible="visible" title="Add Collection">
             <UButton
               v-if="authenticated"
@@ -30,23 +23,44 @@
     </template>
 
     <template #body>
-      <UPageGrid>
+      <UPageList divide>
         <UPageCard
-          v-for="collection in selectedCollections"
-          v-bind="collection"
-          :key="collection.id"
-          :to="`/collection/${collection.category}/${collection.id}`"
-          :title="collection.name"
-          :description="`${collection.total_items} items`"
-          :icon="
-            collection.published ? 'hugeicons:face-id' : 'hugeicons:locked'
-          "
-          variant="subtle"
+          v-for="(group, idx) in groupedCollections"
+          :key="group.value"
+          :title="group.label"
+          variant="ghost"
           :ui="{
-            leadingIcon: !collection.published && 'text-dimmed',
+            container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
           }"
-        />
-      </UPageGrid>
+        >
+          <UPageGrid v-if="group.items.length">
+            <UPageCard
+              v-for="collection in group.items"
+              v-bind="collection"
+              :key="collection.id"
+              :to="`/collection/${collection.category}/${collection.id}`"
+              :title="collection.name"
+              :description="`${collection.total_items} items`"
+              :icon="
+                collection.published ? 'hugeicons:face-id' : 'hugeicons:locked'
+              "
+              variant="subtle"
+              :ui="{
+                leadingIcon: !collection.published && 'text-dimmed',
+              }"
+            />
+          </UPageGrid>
+
+          <UAlert
+            v-else
+            title="No collections yet"
+            description="Create one to start tracking this category."
+            icon="hugeicons:information-circle"
+            color="neutral"
+            variant="soft"
+          />
+        </UPageCard>
+      </UPageList>
     </template>
   </UDashboardPanel>
   <SharedProtectedPage
@@ -77,15 +91,17 @@ onBeforeMount(() => {
 
 const visible = ref(false)
 
-const category = ref('artisan')
-const categories = ref(
-  Constants.public.Enums.module.map((module) => ({
-    label: module,
-    value: module.toLowerCase(),
-  })),
-)
+const modules = Constants.public.Enums.module.map((module) => ({
+  label: module,
+  value: module.toLowerCase(),
+}))
 
-const selectedCollections = computed(() =>
-  collections.value.filter((c) => c.category === category.value),
+const groupedCollections = computed(() =>
+  modules
+    .map((module) => ({
+      ...module,
+      items: collections.value.filter((c) => c.category === module.value),
+    }))
+    .filter((module) => module.items.length),
 )
 </script>
