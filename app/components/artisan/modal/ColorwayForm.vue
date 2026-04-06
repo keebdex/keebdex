@@ -143,6 +143,7 @@
 </template>
 
 <script setup>
+import { Constants } from '~/types/database.types'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -157,7 +158,8 @@ const { metadata } = defineProps({
 const toast = useToast()
 const route = useRoute()
 
-const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
+const currencies = Constants.public.Enums.currency
+const saleFormatEnums = Constants.public.Enums.sale_format
 
 const specialFormats = ['Giveaway', 'Commission', 'Auction']
 const saleFormats = [
@@ -165,9 +167,7 @@ const saleFormats = [
     type: 'label',
     label: 'Standard',
   },
-  'Raffle',
-  'FCFS',
-  'Fulfillment',
+  ...saleFormatEnums.filter((format) => !specialFormats.includes(format)),
   {
     type: 'separator',
   },
@@ -175,7 +175,7 @@ const saleFormats = [
     type: 'label',
     label: 'Special',
   },
-  ...specialFormats,
+  ...saleFormatEnums.filter((format) => specialFormats.includes(format)),
 ]
 
 const formats = saleFormats.filter((format) => typeof format === 'string')

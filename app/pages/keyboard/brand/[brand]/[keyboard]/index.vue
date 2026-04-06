@@ -74,7 +74,6 @@
           :description="release.description"
           variant="ghost"
           :ui="{
-            root: 'cursor-pointer',
             container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
           }"
         >

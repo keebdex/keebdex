@@ -32,7 +32,7 @@ export type Database = {
           price: number | null
           qty: number | null
           release: string | null
-          sale_type: string | null
+          sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           stem: string[] | null
         }
@@ -53,7 +53,7 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
-          sale_type?: string | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           stem?: string[] | null
         }
@@ -74,7 +74,7 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
-          sale_type?: string | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
           stem?: string[] | null
         }
@@ -421,6 +421,8 @@ export type Database = {
           id: number
           image_url: string | null
           release_id: number | null
+          release_year: number | null
+          sale_type: Database["public"]["Enums"]["sale_format"] | null
           units_produced: number | null
           variant_name: string
         }
@@ -431,6 +433,8 @@ export type Database = {
           id?: never
           image_url?: string | null
           release_id?: number | null
+          release_year?: number | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           units_produced?: number | null
           variant_name: string
         }
@@ -441,6 +445,8 @@ export type Database = {
           id?: never
           image_url?: string | null
           release_id?: number | null
+          release_year?: number | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           units_produced?: number | null
           variant_name?: string
         }
@@ -1034,6 +1040,13 @@ export type Database = {
         | "Cancelled"
       module: "Artisan" | "Keycap" | "Keyboard"
       review_status: "Pending" | "Approved" | "Rejected"
+      sale_format:
+        | "Raffle"
+        | "FCFS"
+        | "Fulfillment"
+        | "Giveaway"
+        | "Commission"
+        | "Auction"
       user_role: "admin" | "editor" | "maker" | "designer" | "donator"
     }
     CompositeTypes: {
@@ -1253,6 +1266,14 @@ export const Constants = {
       ],
       module: ["Artisan", "Keycap", "Keyboard"],
       review_status: ["Pending", "Approved", "Rejected"],
+      sale_format: [
+        "Raffle",
+        "FCFS",
+        "Fulfillment",
+        "Giveaway",
+        "Commission",
+        "Auction",
+      ],
       user_role: ["admin", "editor", "maker", "designer", "donator"],
     },
   },

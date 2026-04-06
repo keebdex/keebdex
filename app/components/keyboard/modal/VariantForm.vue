@@ -35,6 +35,24 @@
       />
     </UFormField>
 
+    <UFormField label="Sale Type" name="sale_type">
+      <USelect
+        v-model="variant.sale_type"
+        :items="saleFormats"
+        icon="hugeicons:sale-tag-02"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Release Year" name="release_year">
+      <UInput
+        v-model.number="variant.release_year"
+        type="number"
+        icon="hugeicons:calendar-03"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField label="Image URL" name="image_url">
       <UInput
         v-model.trim="variant.image_url"
@@ -70,12 +88,31 @@ const { metadata, isEdit, keyboard, releases } = defineProps({
 })
 
 const toast = useToast()
+const saleFormatEnums = Constants.public.Enums.sale_format
+const specialFormats = ['Giveaway', 'Commission', 'Auction']
+const saleFormats = [
+  {
+    type: 'label',
+    label: 'Standard',
+  },
+  ...saleFormatEnums.filter((format) => !specialFormats.includes(format)),
+  {
+    type: 'separator',
+  },
+  {
+    type: 'label',
+    label: 'Special',
+  },
+  ...saleFormatEnums.filter((format) => specialFormats.includes(format)),
+]
 
 const variant = ref({
   release_id: null,
   variant_name: '',
   finish_type: Constants.public.Enums.keyboard_finish_type[0],
   units_produced: null,
+  sale_type: saleFormatEnums[0],
+  release_year: null,
   image_url: '',
 })
 
@@ -84,14 +121,42 @@ const schema = z.object({
   variant_name: z.string().min(1),
   finish_type: z.enum(Constants.public.Enums.keyboard_finish_type),
   units_produced: z.coerce.number().min(0).nullish(),
+  sale_type: z.enum(saleFormatEnums).nullish().or(z.string().min(0).max(0)),
+  release_year: z.coerce.number().min(1900).max(2100).nullish(),
   image_url: z.url().nullish().or(z.string().min(0).max(0)),
 })
+
+const setDefaultReleaseYear = () => {
+  if (isEdit) return
+
+  const selectedRelease = (releases || []).find(
+    (release) => Number(release.id) === Number(variant.value.release_id),
+  )
+
+  if (!selectedRelease) return
+
+  if (
+    variant.value.release_year === null ||
+    variant.value.release_year === undefined
+  ) {
+    variant.value.release_year = selectedRelease.release_year ?? null
+  }
+}
 
 onBeforeMount(() => {
   Object.assign(variant.value, metadata || {}, {
     brand_slug: keyboard.brand_slug,
   })
+
+  setDefaultReleaseYear()
 })
+
+watch(
+  () => variant.value.release_id,
+  () => {
+    setDefaultReleaseYear()
+  },
+)
 
 const releaseOptions = computed(() => {
   return releases.map((release) => ({

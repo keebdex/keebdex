@@ -28,9 +28,14 @@ export default defineEventHandler(async (event) => {
     variant_name: body.variant_name,
     finish_type: body.finish_type,
     units_produced:
-      body.units_produced === '' || body.units_produced === null
-        ? null
-        : Number(body.units_produced),
+      body.units_produced && !isNaN(body.units_produced)
+        ? Number(body.units_produced)
+        : null,
+    release_year:
+      body.release_year && !isNaN(body.release_year)
+        ? Number(body.release_year)
+        : null,
+    sale_type: body.sale_type || null,
     image_url: body.image_url || null,
     brand_slug: brandSlug,
   }
