@@ -27,23 +27,25 @@
       />
     </UFormField>
 
-    <UFormField label="Layout" name="layout" required>
-      <USelect
-        v-model="keyboard.layout"
-        :items="Constants.public.Enums.keyboard_layout"
-        class="w-full"
-      />
-    </UFormField>
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Layout" name="layout" required>
+        <USelect
+          v-model="keyboard.layout"
+          :items="Constants.public.Enums.keyboard_layout"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Typing Angle" name="typing_angle">
-      <UInput
-        v-model.number="keyboard.typing_angle"
-        type="number"
-        step="0.1"
-        icon="hugeicons:angle-01"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Typing Angle" name="typing_angle">
+        <UInput
+          v-model.number="keyboard.typing_angle"
+          type="number"
+          step="0.1"
+          icon="hugeicons:angle-01"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
     <UFormField
       label="Description"

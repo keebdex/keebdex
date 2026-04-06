@@ -18,40 +18,44 @@
       />
     </UFormField>
 
-    <UFormField label="Finish Type" name="finish_type" required>
-      <USelect
-        v-model="variant.finish_type"
-        :items="Constants.public.Enums.keyboard_finish_type"
-        class="w-full"
-      />
-    </UFormField>
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Release Year" name="release_year">
+        <UInput
+          v-model.number="variant.release_year"
+          type="number"
+          icon="hugeicons:calendar-03"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Units Produced" name="units_produced">
-      <UInput
-        v-model.number="variant.units_produced"
-        type="number"
-        icon="hugeicons:package"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Units Produced" name="units_produced">
+        <UInput
+          v-model.number="variant.units_produced"
+          type="number"
+          icon="hugeicons:package"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
-    <UFormField label="Sale Type" name="sale_type">
-      <USelect
-        v-model="variant.sale_type"
-        :items="saleFormats"
-        icon="hugeicons:sale-tag-02"
-        class="w-full"
-      />
-    </UFormField>
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Finish Type" name="finish_type" required>
+        <USelect
+          v-model="variant.finish_type"
+          :items="Constants.public.Enums.keyboard_finish_type"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Release Year" name="release_year">
-      <UInput
-        v-model.number="variant.release_year"
-        type="number"
-        icon="hugeicons:calendar-03"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Sale Type" name="sale_type">
+        <USelect
+          v-model="variant.sale_type"
+          :items="saleFormats"
+          icon="hugeicons:sale-tag-02"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
     <UFormField label="Image URL" name="image_url">
       <UInput

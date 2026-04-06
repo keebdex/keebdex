@@ -19,7 +19,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Profile" name="profile">
+      <UFormField label="Profile" name="profile" required>
         <USelect
           v-model="keycap.profile_id"
           :items="

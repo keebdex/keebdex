@@ -9,41 +9,45 @@
       />
     </UFormField>
 
-    <UFormField label="Order" name="order">
-      <UInput
-        v-model.number="release.order"
-        type="number"
-        icon="hugeicons:hashtag"
-        class="w-full"
-      />
-    </UFormField>
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Release Year" name="release_year">
+        <UInput
+          v-model.number="release.release_year"
+          type="number"
+          icon="hugeicons:calendar-03"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Release Year" name="release_year">
-      <UInput
-        v-model.number="release.release_year"
-        type="number"
-        icon="hugeicons:calendar-03"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Order" name="order">
+        <UInput
+          v-model.number="release.order"
+          type="number"
+          icon="hugeicons:hashtag"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
-    <UFormField label="Mount Style" name="mount_style">
-      <USelect
-        v-model="release.mount_style"
-        :items="Constants.public.Enums.keyboard_mounting_style"
-        class="w-full"
-      />
-    </UFormField>
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Mount Style" name="mount_style">
+        <USelect
+          v-model="release.mount_style"
+          :items="Constants.public.Enums.keyboard_mounting_style"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Typing Angle" name="typing_angle">
-      <UInput
-        v-model.number="release.typing_angle"
-        type="number"
-        step="0.1"
-        icon="hugeicons:angle-01"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Typing Angle" name="typing_angle">
+        <UInput
+          v-model.number="release.typing_angle"
+          type="number"
+          step="0.1"
+          icon="hugeicons:angle-01"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
     <UFormField label="MSRP" name="msrp_price">
       <UFieldGroup class="w-full">
@@ -58,6 +62,15 @@
       </UFieldGroup>
     </UFormField>
 
+    <UFormField label="Case" name="case_materials">
+      <USelectMenu
+        v-model="release.case_materials"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField label="PCB" name="pcb_types">
       <USelectMenu
         v-model="release.pcb_types"
@@ -70,15 +83,6 @@
     <UFormField label="Plate" name="plate_materials">
       <USelectMenu
         v-model="release.plate_materials"
-        :items="Constants.public.Enums.keyboard_material"
-        multiple
-        class="w-full"
-      />
-    </UFormField>
-
-    <UFormField label="Case" name="case_materials">
-      <USelectMenu
-        v-model="release.case_materials"
         :items="Constants.public.Enums.keyboard_material"
         multiple
         class="w-full"
