@@ -5,12 +5,25 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
+  const itemKey = [
+    'artisan_item_id',
+    'keycap_item_id',
+    'keyboard_item_id',
+  ].find((key) => body?.[key] !== undefined && body?.[key] !== null)
+
+  if (!itemKey) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Collection item reference is required',
+    })
+  }
+
   const { data: exist, error: checkError } = await client
     .from('user_collection_items')
     .select('*')
     .eq('uid', body.uid)
     .eq('collection_id', body.collection_id)
-    .eq('artisan_item_id', body.artisan_item_id)
+    .eq(itemKey, body[itemKey])
 
   if (checkError) {
     throw createError({

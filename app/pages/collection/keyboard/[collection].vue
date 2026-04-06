@@ -52,16 +52,70 @@
     </template>
 
     <template #body>
+      <UPageGrid
+        v-if="sortedCollections.length"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
+      >
+        <UPageCard
+          v-for="{ id, keyboard } in sortedCollections"
+          :key="id"
+          :title="keyboard.variant_name"
+          :description="
+            formatKeyboardDescription([
+              keyboard?.brand?.name,
+              keyboard?.release?.keyboard?.name,
+              keyboard?.release?.name,
+            ])
+          "
+          variant="subtle"
+          reverse
+        >
+          <NuxtImg
+            loading="lazy"
+            :alt="keyboard.variant_name"
+            :src="keyboard.image_url || '/keyboard.png'"
+            class="aspect-[16/9] w-full object-cover"
+          />
+
+          <template #footer>
+            <UModal
+              v-model:visible="visible.remove"
+              title="Remove Keyboard"
+              :description="`Are you sure you want to remove ${formatKeyboardDescription([keyboard?.brand?.name, keyboard?.release?.keyboard?.name, keyboard?.release?.name, keyboard?.variant_name])}?`"
+              :ui="{ footer: 'justify-end', content: 'divide-none' }"
+            >
+              <UButton
+                label="Remove"
+                icon="hugeicons:bookmark-minus-02"
+                color="error"
+              />
+
+              <template #footer="{ close }">
+                <UButton label="Cancel" @click="close" />
+                <UButton
+                  label="Remove"
+                  color="error"
+                  @click="remove(id, keyboard)"
+                />
+              </template>
+            </UModal>
+          </template>
+        </UPageCard>
+      </UPageGrid>
+
       <UAlert
-        title="Keyboard Collection"
+        v-else
+        title="No keyboard variants yet"
         icon="hugeicons:keyboard"
-        description="Keyboard collections are enabled. Item-level keyboard saving will appear here once keyboard collection items are available."
+        description="Save variants from keyboard pages to start building this collection."
       />
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
+import sortBy from 'lodash.sortby'
+
 const breadcrumbs = computed(() => {
   return [
     {
@@ -95,6 +149,31 @@ watch(
   () => refresh(),
 )
 
+const sortedCollections = computed(() => {
+  return sortBy(data.value?.items || [], ['keyboard.variant_name'])
+})
+
+const remove = (id, keyboard) => {
+  $fetch(
+    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
+    { method: 'delete' },
+  )
+    .then(() => {
+      refresh()
+      const contextName = formatKeyboardDescription([
+        keyboard?.brand?.name,
+        keyboard?.release?.keyboard?.name,
+        keyboard?.release?.name,
+        keyboard?.variant_name,
+      ])
+
+      toast.add(handleSuccess('delete', contextName, 'Keyboard'))
+    })
+    .catch((error) => {
+      toast.add(handleError(error))
+    })
+}
+
 const deleteCollection = () => {
   $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
     method: 'delete',
@@ -115,5 +194,6 @@ const deleteCollection = () => {
 const visible = ref({
   edit: false,
   delete: false,
+  remove: false,
 })
 </script>

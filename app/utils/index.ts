@@ -91,6 +91,10 @@ export const manufacturers = Object.values(keycapProfiles).reduce(
 export const colorwayTitle = (colorway: any) =>
   `${colorway.name} ${colorway?.sculpt.name}`
 
+export const formatKeyboardDescription = (names: Array<string | undefined>) => {
+  return names.filter(Boolean).join(' ')
+}
+
 export const copyScreenshot = async (
   element: HTMLElement,
   toast: any,
@@ -155,7 +159,10 @@ export const copyScreenshot = async (
   }
 }
 
-export const downloadScreenshot = async (element: HTMLElement, filename: string) => {
+export const downloadScreenshot = async (
+  element: HTMLElement,
+  filename: string,
+) => {
   // capture with full scroll size
   const img = await domToPng(element, {
     width: element.scrollWidth,

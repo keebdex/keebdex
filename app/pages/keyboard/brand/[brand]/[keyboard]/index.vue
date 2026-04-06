@@ -68,14 +68,14 @@
 
       <UPageList v-if="data.releases?.length" divide class="mt-4">
         <UPageCard
-          v-for="release in sortedReleases"
+          v-for="(release, idx) in sortedReleases"
           :key="release.id"
           :title="release.name"
           :description="release.description"
           variant="ghost"
           :ui="{
             root: 'cursor-pointer',
-            container: '!px-0',
+            container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
           }"
         >
           <div v-if="getReleaseSpecs(release).length" class="mb-4">
@@ -86,7 +86,6 @@
             <div class="flex items-center gap-2">
               <UModal title="Edit Release">
                 <UButton
-                  size="sm"
                   icon="hugeicons:edit-01"
                   label="Edit Release"
                   @click="setSelectedRelease(release)"
@@ -110,11 +109,7 @@
               </UModal>
 
               <UModal title="Add Variant">
-                <UButton
-                  size="sm"
-                  icon="hugeicons:add-square"
-                  label="Add Variant"
-                />
+                <UButton icon="hugeicons:add-square" label="Add Variant" />
 
                 <template #body="{ close }">
                   <KeyboardModalVariantForm
@@ -157,11 +152,18 @@
 
               <template #footer>
                 <div class="flex items-center justify-between gap-2">
+                  <SharedSaveToCollection
+                    v-if="authenticated"
+                    :item="{ ...variant, release_name: release.name }"
+                    category="keyboard"
+                    label="Save"
+                    @on-select="saveToCollection"
+                  />
+
                   <UModal v-if="editable" title="Edit Variant">
                     <UButton
                       icon="hugeicons:edit-01"
-                      label="Edit Variant"
-                      size="sm"
+                      label="Edit"
                       @click="setSelectedVariant(variant)"
                     />
 
@@ -204,6 +206,8 @@
 const colorMode = useColorMode()
 const route = useRoute()
 const userStore = useUserStore()
+const { authenticated, user } = storeToRefs(userStore)
+const toast = useToast()
 const brand = computed(() => String(route.params.brand || ''))
 const keyboard = computed(() => String(route.params.keyboard || ''))
 
@@ -301,6 +305,40 @@ const clearSelectedVariant = () => {
 
 const setSelectedVariant = (variant) => {
   selectedVariant.value = { ...variant }
+}
+
+const saveToCollection = (collection, variant) => {
+  const item = {
+    uid: user.value.uid,
+    collection_id: collection.id,
+    keyboard_item_id: variant.id,
+  }
+
+  $fetch(`/api/users/${user.value.uid}/collections/${collection.id}/items`, {
+    method: 'post',
+    body: item,
+  })
+    .then((result) => {
+      if (result?.message) {
+        toast.add({
+          color: 'info',
+          title: result.message,
+        })
+      } else {
+        const contextName = formatKeyboardDescription([
+          data.value?.keyboard?.name,
+          variant.release_name,
+          variant.variant_name,
+        ])
+
+        toast.add(
+          handleSuccess('add', contextName, 'Keyboard', collection.name),
+        )
+      }
+    })
+    .catch((error) => {
+      toast.add(handleError(error))
+    })
 }
 
 const formatPrice = (amount, currency = 'USD') => {

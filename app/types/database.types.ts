@@ -783,6 +783,7 @@ export type Database = {
           collection_id: string
           exchange: boolean
           id: number
+          keyboard_item_id: number | null
           keycap_item_id: string | null
           order: number | null
           priority: boolean
@@ -794,6 +795,7 @@ export type Database = {
           collection_id: string
           exchange?: boolean
           id?: number
+          keyboard_item_id?: number | null
           keycap_item_id?: string | null
           order?: number | null
           priority?: boolean
@@ -805,6 +807,7 @@ export type Database = {
           collection_id?: string
           exchange?: boolean
           id?: number
+          keyboard_item_id?: number | null
           keycap_item_id?: string | null
           order?: number | null
           priority?: boolean
@@ -823,6 +826,13 @@ export type Database = {
             columns: ["collection_id"]
             isOneToOne: false
             referencedRelation: "user_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_collection_items_keyboard_item_id_fkey"
+            columns: ["keyboard_item_id"]
+            isOneToOne: false
+            referencedRelation: "keyboard_variants"
             referencedColumns: ["id"]
           },
           {
