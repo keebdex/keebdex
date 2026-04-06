@@ -420,6 +420,7 @@ export type Database = {
           fts: unknown
           id: number
           image_url: string | null
+          photo_credit: string | null
           release_id: number | null
           release_year: number | null
           sale_type: Database["public"]["Enums"]["sale_format"] | null
@@ -432,6 +433,7 @@ export type Database = {
           fts?: unknown
           id?: never
           image_url?: string | null
+          photo_credit?: string | null
           release_id?: number | null
           release_year?: number | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
@@ -444,6 +446,7 @@ export type Database = {
           fts?: unknown
           id?: never
           image_url?: string | null
+          photo_credit?: string | null
           release_id?: number | null
           release_year?: number | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null

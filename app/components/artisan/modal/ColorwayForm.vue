@@ -73,7 +73,7 @@
       label="Image"
       name="img"
       :required="!isEditMode"
-      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 5MB."
+      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 10MB."
     >
       <div v-if="isEditMode && colorway.img && !replaceMode" class="space-y-3">
         <NuxtImg

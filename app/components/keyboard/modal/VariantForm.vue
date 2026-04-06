@@ -65,8 +65,7 @@
       />
 
       <p class="mt-2 text-xs text-muted">
-        Or drag and drop an image below to upload to Cloudflare and auto-fill
-        this field.
+        Or drag and drop an image below to upload and auto-fill this field.
       </p>
 
       <div class="mt-2 space-y-2">
@@ -76,7 +75,7 @@
           icon="hugeicons:image-upload"
           layout="list"
           label="Click to browse or drag & drop an image to upload"
-          description="Maximum file size: 5MB"
+          description="Maximum file size: 10MB"
           :ui="{
             base: 'min-h-40',
           }"
@@ -91,6 +90,14 @@
           Clear Selection
         </UButton>
       </div>
+    </UFormField>
+
+    <UFormField label="Photo Credit" name="photo_credit">
+      <UInput
+        v-model.trim="variant.photo_credit"
+        icon="hugeicons:camera-add-02"
+        class="w-full"
+      />
     </UFormField>
 
     <UButton block color="primary" type="submit" :loading="uploading">
@@ -149,6 +156,7 @@ const variant = ref({
   sale_type: saleFormatEnums[0],
   release_year: null,
   image_url: '',
+  photo_credit: '',
 })
 
 const uploading = ref(false)
@@ -162,6 +170,7 @@ const schema = z.object({
   sale_type: z.enum(saleFormatEnums).nullish().or(z.string().min(0).max(0)),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   image_url: z.url().nullish().or(z.string().min(0).max(0)),
+  photo_credit: z.string().max(255).nullish().or(z.string().min(0).max(0)),
 })
 
 const setDefaultReleaseYear = () => {

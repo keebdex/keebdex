@@ -70,12 +70,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Validate file size (max 5MB)
-  const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+  // Validate file size (max 10MB)
+  const maxSize = 10 * 1024 * 1024 // 10MB in bytes
   if (file.size > maxSize) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Image file size must be less than 5MB',
+      statusMessage: 'Image file size must be less than 10MB',
     })
   }
 

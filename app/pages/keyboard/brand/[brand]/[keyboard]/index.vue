@@ -149,6 +149,14 @@
                 class="aspect-video w-full object-cover"
               />
 
+              <template v-if="variant.photo_credit" #leading>
+                <UBadge
+                  :label="variant.photo_credit"
+                  icon="hugeicons:camera-add-02"
+                  color="info"
+                />
+              </template>
+
               <template #footer>
                 <div class="flex items-center justify-between gap-2">
                   <SharedSaveToCollection

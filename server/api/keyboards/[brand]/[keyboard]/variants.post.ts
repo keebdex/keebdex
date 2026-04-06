@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
         : null,
     sale_type: body.sale_type || null,
     image_url: body.image_url || null,
+    photo_credit: body.photo_credit || null,
     brand_slug: brandSlug,
   }
 

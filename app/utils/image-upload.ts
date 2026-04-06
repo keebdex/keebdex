@@ -1,4 +1,4 @@
-const MAX_IMAGE_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024
+const MAX_IMAGE_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
 
 type UploadableFile = File | File[] | null | undefined
 
@@ -14,7 +14,7 @@ function validateImageFile(file: File) {
   }
 
   if (file.size > MAX_IMAGE_UPLOAD_SIZE_BYTES) {
-    throw new Error('Image file size must be less than 5MB')
+    throw new Error('Image file size must be less than 10MB')
   }
 }
 
