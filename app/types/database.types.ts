@@ -1010,6 +1010,7 @@ export type Database = {
         | "Shipping"
         | "Complete"
         | "Cancelled"
+      module: "Artisan" | "Keycap" | "Keyboard"
       review_status: "Pending" | "Approved" | "Rejected"
       user_role: "admin" | "editor" | "maker" | "designer" | "donator"
     }
@@ -1228,6 +1229,7 @@ export const Constants = {
         "Complete",
         "Cancelled",
       ],
+      module: ["Artisan", "Keycap", "Keyboard"],
       review_status: ["Pending", "Approved", "Rejected"],
       user_role: ["admin", "editor", "maker", "designer", "donator"],
     },

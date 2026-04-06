@@ -3,11 +3,11 @@
     <template #header>
       <UDashboardNavbar title="My Collection">
         <template #right>
-          <UTabs
-            v-if="$device.isDesktopOrTablet"
+          <USelect
             v-model="category"
             :items="categories"
-            :content="false"
+            value-key="value"
+            class="w-40"
           />
 
           <UModal v-model:visible="visible" title="Add Collection">
@@ -27,15 +27,6 @@
           </UModal>
         </template>
       </UDashboardNavbar>
-
-      <UDashboardToolbar v-if="$device.isMobile">
-        <UTabs
-          v-model="category"
-          :items="categories"
-          :content="false"
-          class="w-full"
-        />
-      </UDashboardToolbar>
     </template>
 
     <template #body>
@@ -67,10 +58,12 @@
 </template>
 
 <script setup>
+import { Constants } from '~/types/database.types'
+
 const meta = {
   title: 'My Collection',
   description:
-    'Manage and showcase your personal keycap and artisan collection in one place.',
+    'Manage and showcase your personal artisan, keycap, and keyboard collections in one place.',
 }
 
 useSeoMeta(meta)
@@ -85,10 +78,12 @@ onBeforeMount(() => {
 const visible = ref(false)
 
 const category = ref('artisan')
-const categories = ref([
-  { label: 'Artisan', value: 'artisan' },
-  { label: 'Keycap', value: 'keycap' },
-])
+const categories = ref(
+  Constants.public.Enums.module.map((module) => ({
+    label: module,
+    value: module.toLowerCase(),
+  })),
+)
 
 const selectedCollections = computed(() =>
   collections.value.filter((c) => c.category === category.value),

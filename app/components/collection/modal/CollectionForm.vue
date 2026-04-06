@@ -5,13 +5,11 @@
     </UFormField>
 
     <UFormField label="Category" name="category">
-      <URadioGroup
+      <USelect
         v-model="collection.category"
-        orientation="horizontal"
-        :items="[
-          { label: 'Artisan', value: 'artisan', disabled: isEdit },
-          { label: 'Keycap', value: 'keycap', disabled: isEdit },
-        ]"
+        :items="categoryItems"
+        value-key="value"
+        class="w-full"
       />
     </UFormField>
 
@@ -35,6 +33,7 @@
     </UFormField>
 
     <UFormField
+      v-if="collection.category === 'artisan'"
       label="Intent"
       name="intent"
       :help="intentExtras[collection.intent]"
@@ -50,7 +49,11 @@
       />
     </UFormField>
 
-    <UFormField label="Sorting" name="sorting">
+    <UFormField
+      v-if="collection.category === 'artisan'"
+      label="Sorting"
+      name="sorting"
+    >
       <URadioGroup
         v-model="collection.sort_by"
         :items="[
@@ -99,6 +102,7 @@
 </template>
 
 <script setup>
+import { Constants } from '~/types/database.types'
 import { z } from 'zod'
 
 const appConfig = useAppConfig()
@@ -123,6 +127,12 @@ const intentExtras = {
   sell: 'Open to offers — but it needs to be the right fit.',
 }
 
+const categoryItems = Constants.public.Enums.module.map((value) => ({
+  label: value,
+  value: value.toLowerCase(),
+  disabled: isEdit,
+}))
+
 const sortOptions = [
   'artisan.maker_sculpt_id|artisan.name',
   'artisan.name|artisan.maker_sculpt_id',
@@ -145,10 +155,21 @@ onBeforeMount(() => {
   Object.assign(collection.value, rest)
 })
 
+watch(
+  () => collection.value.category,
+  (category) => {
+    if (category !== 'artisan') {
+      collection.value.intent = 'keep'
+      collection.value.sort_by = 'order|asc'
+    }
+  },
+  { immediate: true },
+)
+
 const schema = z
   .object({
     name: z.string().min(1),
-    category: z.enum(['artisan', 'keycap']),
+    category: z.enum(categoryItems.map((item) => item.value)),
     published: z.boolean(),
     sort_by: z.enum(sortOptions),
     intent: z.enum(['keep', 'want', 'sell']),
