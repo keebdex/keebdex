@@ -1,4 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const brandSlug = event.context.params?.brand
@@ -23,5 +24,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return data
+  return omitSensitive(data)
 })

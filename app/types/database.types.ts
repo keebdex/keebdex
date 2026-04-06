@@ -292,6 +292,7 @@ export type Database = {
           bio: string | null
           country_origin: string | null
           discord: string | null
+          fts: unknown
           id: number
           instagram: string | null
           name: string
@@ -302,6 +303,7 @@ export type Database = {
           bio?: string | null
           country_origin?: string | null
           discord?: string | null
+          fts?: unknown
           id?: number
           instagram?: string | null
           name: string
@@ -312,6 +314,7 @@ export type Database = {
           bio?: string | null
           country_origin?: string | null
           discord?: string | null
+          fts?: unknown
           id?: number
           instagram?: string | null
           name?: string
@@ -327,6 +330,7 @@ export type Database = {
           case_materials: string[] | null
           currency: string | null
           description: string | null
+          fts: unknown
           id: number
           mount_style:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
@@ -350,6 +354,7 @@ export type Database = {
           case_materials?: string[] | null
           currency?: string | null
           description?: string | null
+          fts?: unknown
           id?: number
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
@@ -373,6 +378,7 @@ export type Database = {
           case_materials?: string[] | null
           currency?: string | null
           description?: string | null
+          fts?: unknown
           id?: number
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
@@ -411,6 +417,7 @@ export type Database = {
         Row: {
           brand_slug: string
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
+          fts: unknown
           id: number
           image_url: string | null
           release_id: number | null
@@ -420,6 +427,7 @@ export type Database = {
         Insert: {
           brand_slug: string
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
+          fts?: unknown
           id?: never
           image_url?: string | null
           release_id?: number | null
@@ -429,6 +437,7 @@ export type Database = {
         Update: {
           brand_slug?: string
           finish_type?: Database["public"]["Enums"]["keyboard_finish_type"]
+          fts?: unknown
           id?: never
           image_url?: string | null
           release_id?: number | null
@@ -457,6 +466,7 @@ export type Database = {
           brand_keyboard_slug: string
           brand_slug: string | null
           description: string | null
+          fts: unknown
           id: number
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
@@ -467,6 +477,7 @@ export type Database = {
           brand_keyboard_slug: string
           brand_slug?: string | null
           description?: string | null
+          fts?: unknown
           id?: never
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
@@ -477,6 +488,7 @@ export type Database = {
           brand_keyboard_slug?: string
           brand_slug?: string | null
           description?: string | null
+          fts?: unknown
           id?: never
           layout?: Database["public"]["Enums"]["keyboard_layout"]
           name?: string

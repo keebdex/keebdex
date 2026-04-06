@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import groupBy from 'lodash.groupby'
+import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const brandSlug = event.context.params?.brand
@@ -73,14 +74,16 @@ export default defineEventHandler(async (event) => {
   )?.image_url
 
   return {
-    brand,
+    brand: omitSensitive(brand),
     keyboard: {
-      ...keyboard,
+      ...omitSensitive(keyboard),
       cover_image: coverImage || null,
     },
     releases: (releases || []).map((release: any) => ({
-      ...release,
-      variants: variantsByRelease[release.id] || [],
+      ...omitSensitive(release),
+      variants: (variantsByRelease[release.id] || []).map((variant: any) =>
+        omitSensitive(variant),
+      ),
     })),
   }
 })

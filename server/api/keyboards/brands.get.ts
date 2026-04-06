@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import sortBy from 'lodash.sortby'
+import { omitSensitive } from '../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -18,12 +19,12 @@ export default defineEventHandler(async (event) => {
   return sortBy(
     (data || []).map((brand: any) => {
       const keyboards = brand.keyboards || []
-      const releases = keyboards.flatMap((keyboard: any) =>
-        keyboard.keyboard_releases || [],
+      const releases = keyboards.flatMap(
+        (keyboard: any) => keyboard.keyboard_releases || [],
       )
 
       return {
-        ...brand,
+        ...omitSensitive(brand),
         keyboard_count: keyboards.length,
         release_count: releases.length,
       }

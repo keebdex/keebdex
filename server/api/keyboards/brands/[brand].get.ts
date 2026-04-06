@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import sortBy from 'lodash.sortby'
+import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const brandSlug = event.context.params?.brand
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    ...brand,
+    ...omitSensitive(brand),
     keyboards: sortBy(
       (keyboards || []).map((keyboard: any) => {
         const releases = keyboard.keyboard_releases || []
@@ -48,7 +49,7 @@ export default defineEventHandler(async (event) => {
         )?.image_url
 
         return {
-          ...keyboard,
+          ...omitSensitive(keyboard),
           release_count: releases.length,
           variant_count: variantCount,
           cover_image: coverImage || null,

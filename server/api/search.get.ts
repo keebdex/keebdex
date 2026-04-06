@@ -141,53 +141,80 @@ export default defineEventHandler(async (event) => {
       .limit(10),
   })
 
-  // Keyboard module: currently using ILIKE (no FTS column available yet).
-  const keyboardBrandSearch = client
-    .from('keyboard_brands')
-    .select('*')
-    .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
-    .order('slug')
-    .limit(10)
+  // Keyboard module: combine FTS + ILIKE for brands, keyboards, releases, and variants.
+  const mergedKeyboardBrands = await runCombinedSearch({
+    label: 'Keyboard brands',
+    ftsQuery: client
+      .from('keyboard_brands')
+      .select('*')
+      .textSearch('fts', `${fts}`)
+      .order('slug')
+      .limit(10),
+    likeQuery: client
+      .from('keyboard_brands')
+      .select('*')
+      .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
+      .order('slug')
+      .limit(10),
+  })
 
-  const keyboardSearch = client
-    .from('keyboards')
-    .select('*, brand:keyboard_brands(name, slug)')
-    .or(
-      `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
-    )
-    .order('brand_keyboard_slug')
-    .limit(20)
+  const mergedKeyboards = await runCombinedSearch({
+    label: 'Keyboards',
+    ftsQuery: client
+      .from('keyboards')
+      .select('*, brand:keyboard_brands(name, slug)')
+      .textSearch('fts', `${fts}`)
+      .order('brand_keyboard_slug')
+      .limit(20),
+    likeQuery: client
+      .from('keyboards')
+      .select('*, brand:keyboard_brands(name, slug)')
+      .or(
+        `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
+      )
+      .order('brand_keyboard_slug')
+      .limit(20),
+  })
 
-  const keyboardReleaseSearch = client
-    .from('keyboard_releases')
-    .select(
-      '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
-    )
-    .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
-    .order('brand_keyboard_slug')
-    .limit(20)
+  const mergedKeyboardReleases = await runCombinedSearch({
+    label: 'Keyboard releases',
+    ftsQuery: client
+      .from('keyboard_releases')
+      .select(
+        '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
+      )
+      .textSearch('fts', `${fts}`)
+      .order('brand_keyboard_slug')
+      .limit(20),
+    likeQuery: client
+      .from('keyboard_releases')
+      .select(
+        '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
+      )
+      .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
+      .order('brand_keyboard_slug')
+      .limit(20),
+  })
 
-  const keyboardVariantSearch = client
-    .from('keyboard_variants')
-    .select(
-      '*, release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
-    )
-    .ilike('variant_name', `%${queryText}%`)
-    .order('release_id')
-    .limit(20)
-
-  const [keyboardBrands, keyboards, keyboardReleases, keyboardVariants] =
-    await Promise.all([
-      keyboardBrandSearch,
-      keyboardSearch,
-      keyboardReleaseSearch,
-      keyboardVariantSearch,
-    ])
-
-  throwIfError(keyboardBrands, 'Keyboard Brands')
-  throwIfError(keyboards, 'Keyboards')
-  throwIfError(keyboardReleases, 'Keyboard Releases')
-  throwIfError(keyboardVariants, 'Keyboard Variants')
+  const mergedKeyboardVariants = await runCombinedSearch({
+    label: 'Keyboard variants',
+    ftsQuery: client
+      .from('keyboard_variants')
+      .select(
+        '*, release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
+      )
+      .textSearch('fts', `${fts}`)
+      .order('release_id')
+      .limit(20),
+    likeQuery: client
+      .from('keyboard_variants')
+      .select(
+        '*, release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
+      )
+      .ilike('variant_name', `%${queryText}%`)
+      .order('release_id')
+      .limit(20),
+  })
 
   return [
     {
@@ -275,7 +302,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-brand',
       label: 'Keyboard Brands',
       ignoreFilter: true,
-      items: keyboardBrands.data?.map((brand: any) => ({
+      items: mergedKeyboardBrands.map((brand: any) => ({
         id: brand.id,
         label: brand.name,
         to: `/keyboard/brand/${brand.slug}`,
@@ -290,7 +317,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-board',
       label: 'Keyboards',
       ignoreFilter: true,
-      items: keyboards.data?.map((kb: any) => {
+      items: mergedKeyboards.map((kb: any) => {
         const brandSlug =
           kb.brand_slug ||
           kb.brand?.slug ||
@@ -313,7 +340,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-release',
       label: 'Keyboard Releases',
       ignoreFilter: true,
-      items: keyboardReleases.data?.map((release: any) => {
+      items: mergedKeyboardReleases.map((release: any) => {
         const [brandSlug, keyboardSlug] = String(
           release.brand_keyboard_slug || '',
         ).split('/')
@@ -335,7 +362,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-variant',
       label: 'Keyboard Variants',
       ignoreFilter: true,
-      items: keyboardVariants.data?.map((variant: any) => {
+      items: mergedKeyboardVariants.map((variant: any) => {
         const [brandSlug, keyboardSlug] = String(
           variant.release?.brand_keyboard_slug || '',
         ).split('/')
