@@ -8,13 +8,6 @@ export default defineEventHandler(async (event) => {
   const keyboardSlug = event.context.params?.keyboard
   const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
 
-  if (!body?.release_id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Release is required',
-    })
-  }
-
   const { error: releaseError } = await client
     .from('keyboard_releases')
     .select('id')

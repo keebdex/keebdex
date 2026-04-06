@@ -95,7 +95,7 @@ onBeforeMount(() => {
 
 const releaseOptions = computed(() => {
   return releases.map((release) => ({
-    label: release.label || `Release #${release.id}`,
+    label: release.name,
     value: release.id,
   }))
 })

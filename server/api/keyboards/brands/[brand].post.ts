@@ -5,13 +5,6 @@ export default defineEventHandler(async (event) => {
   const { keyboards, ...body } = await readBody(event)
   const client = await serverSupabaseClient(event)
 
-  if (!body?.name) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Brand name is required',
-    })
-  }
-
   const payload = {
     ...body,
     slug: brandSlug,

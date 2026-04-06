@@ -34,31 +34,6 @@
 
           <UModal
             v-if="editable"
-            v-model:visible="visible.addVariant"
-            title="Add Variant"
-          >
-            <UButton
-              color="secondary"
-              icon="hugeicons:ai-image"
-              label="Add Variant"
-            />
-
-            <template #body="{ close }">
-              <KeyboardModalVariantForm
-                :keyboard="data.keyboard"
-                :releases="data.releases"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UModal
-            v-if="editable"
             v-model:visible="visible.editKeyboard"
             title="Edit Keyboard"
           >
@@ -95,11 +70,12 @@
         <UPageCard
           v-for="release in sortedReleases"
           :key="release.id"
-          :title="release.label || 'R1'"
+          :title="release.name"
           :description="release.description"
           variant="ghost"
           :ui="{
             root: 'cursor-pointer',
+            container: '!px-0',
           }"
         >
           <div v-if="getReleaseSpecs(release).length" class="mb-4">
@@ -107,30 +83,54 @@
           </div>
 
           <template v-if="editable" #footer>
-            <UModal title="Edit Release">
-              <UButton
-                size="xs"
-                icon="hugeicons:edit-01"
-                label="Edit Release"
-                @click="setSelectedRelease(release)"
-              />
-
-              <template #body="{ close }">
-                <KeyboardModalReleaseForm
-                  :is-edit="true"
-                  :metadata="selectedRelease"
-                  :keyboard="data.keyboard"
-                  :releases="data.releases"
-                  @on-success="
-                    () => {
-                      close()
-                      refresh()
-                      clearSelectedRelease()
-                    }
-                  "
+            <div class="flex items-center gap-2">
+              <UModal title="Edit Release">
+                <UButton
+                  size="sm"
+                  icon="hugeicons:edit-01"
+                  label="Edit Release"
+                  @click="setSelectedRelease(release)"
                 />
-              </template>
-            </UModal>
+
+                <template #body="{ close }">
+                  <KeyboardModalReleaseForm
+                    :is-edit="true"
+                    :metadata="selectedRelease"
+                    :keyboard="data.keyboard"
+                    :releases="data.releases"
+                    @on-success="
+                      () => {
+                        close()
+                        refresh()
+                        clearSelectedRelease()
+                      }
+                    "
+                  />
+                </template>
+              </UModal>
+
+              <UModal title="Add Variant">
+                <UButton
+                  size="sm"
+                  icon="hugeicons:add-square"
+                  label="Add Variant"
+                />
+
+                <template #body="{ close }">
+                  <KeyboardModalVariantForm
+                    :metadata="{ release_id: release.id }"
+                    :keyboard="data.keyboard"
+                    :releases="data.releases"
+                    @on-success="
+                      () => {
+                        close()
+                        refresh()
+                      }
+                    "
+                  />
+                </template>
+              </UModal>
+            </div>
           </template>
 
           <UPageGrid
@@ -149,10 +149,9 @@
               }"
             >
               <NuxtImg
-                v-if="variant.image_url"
                 loading="lazy"
                 :alt="variant.variant_name"
-                :src="variant.image_url"
+                :src="variant.image_url || '/keyboard.png'"
                 class="aspect-video w-full object-cover"
               />
 
@@ -162,7 +161,7 @@
                     <UButton
                       icon="hugeicons:edit-01"
                       label="Edit Variant"
-                      size="xs"
+                      size="sm"
                       @click="setSelectedVariant(variant)"
                     />
 
@@ -214,7 +213,6 @@ const editable = computed(() =>
 
 const visible = ref({
   addRelease: false,
-  addVariant: false,
   editKeyboard: false,
 })
 
@@ -341,14 +339,21 @@ const getReleaseSpecs = (release) => {
 
   if (release?.pcb_types?.length) {
     items.push({
-      term: 'PCB Type',
+      term: 'PCB',
       description: release.pcb_types.join(', '),
+    })
+  }
+
+  if (release?.case_materials?.length) {
+    items.push({
+      term: 'Case',
+      description: release.case_materials.join(', '),
     })
   }
 
   if (release?.plate_materials?.length) {
     items.push({
-      term: 'Plate Material',
+      term: 'Plate',
       description: release.plate_materials.join(', '),
     })
   }
@@ -357,13 +362,6 @@ const getReleaseSpecs = (release) => {
     items.push({
       term: 'Weight',
       description: release.weight_materials.join(', '),
-    })
-  }
-
-  if (release?.case_materials?.length) {
-    items.push({
-      term: 'Case Materials',
-      description: release.case_materials.join(', '),
     })
   }
 

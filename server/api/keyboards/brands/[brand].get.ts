@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: keyboards, error: keyboardsError } = await client
     .from('keyboards')
-    .select('*, keyboard_releases(id, label, release_year, keyboard_variants(id, image_url))')
+    .select('*, keyboard_releases(*, keyboard_variants(id, image_url))')
     .eq('brand_slug', brandSlug)
 
   if (keyboardsError) {
@@ -43,8 +43,9 @@ export default defineEventHandler(async (event) => {
             sum + (release.keyboard_variants || []).length,
           0,
         )
-        const coverImage = variants.find((variant: any) => variant.image_url)
-          ?.image_url
+        const coverImage = variants.find(
+          (variant: any) => variant.image_url,
+        )?.image_url
 
         return {
           ...keyboard,

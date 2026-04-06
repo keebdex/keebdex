@@ -7,20 +7,6 @@ export default defineEventHandler(async (event) => {
   const brandSlug = event.context.params?.brand
   const keyboardSlug = event.context.params?.keyboard
 
-  if (!body?.name) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Keyboard name is required',
-    })
-  }
-
-  if (!body?.layout) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Keyboard layout is required',
-    })
-  }
-
   const finalKeyboardSlug = body.slug || keyboardSlug
   const brandKeyboardSlug = `${brandSlug}/${finalKeyboardSlug}`
 

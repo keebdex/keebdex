@@ -328,11 +328,11 @@ export type Database = {
           currency: string | null
           description: string | null
           id: number
-          label: string | null
           mount_style:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
             | null
           msrp_price: number | null
+          name: string
           order: number
           pcb_types: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials:
@@ -351,11 +351,11 @@ export type Database = {
           currency?: string | null
           description?: string | null
           id?: number
-          label?: string | null
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
             | null
           msrp_price?: number | null
+          name: string
           order?: number
           pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials?:
@@ -374,11 +374,11 @@ export type Database = {
           currency?: string | null
           description?: string | null
           id?: number
-          label?: string | null
           mount_style?:
             | Database["public"]["Enums"]["keyboard_mounting_style"]
             | null
           msrp_price?: number | null
+          name?: string
           order?: number
           pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials?:

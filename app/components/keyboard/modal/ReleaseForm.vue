@@ -1,8 +1,8 @@
 <template>
   <UForm :schema="schema" :state="release" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Label" name="label">
+    <UFormField label="Release Name" name="name" required>
       <UInput
-        v-model.trim="release.label"
+        v-model.trim="release.name"
         icon="hugeicons:tag-01"
         placeholder="e.g. Round 1"
         class="w-full"
@@ -58,7 +58,7 @@
       </UFieldGroup>
     </UFormField>
 
-    <UFormField label="PCB Types" name="pcb_types">
+    <UFormField label="PCB" name="pcb_types">
       <USelectMenu
         v-model="release.pcb_types"
         :items="Constants.public.Enums.keyboard_pcb_type"
@@ -67,7 +67,7 @@
       />
     </UFormField>
 
-    <UFormField label="Plate Materials" name="plate_materials">
+    <UFormField label="Plate" name="plate_materials">
       <USelectMenu
         v-model="release.plate_materials"
         :items="Constants.public.Enums.keyboard_material"
@@ -76,7 +76,7 @@
       />
     </UFormField>
 
-    <UFormField label="Case Materials" name="case_materials">
+    <UFormField label="Case" name="case_materials">
       <USelectMenu
         v-model="release.case_materials"
         :items="Constants.public.Enums.keyboard_material"
@@ -85,7 +85,7 @@
       />
     </UFormField>
 
-    <UFormField label="Weight Materials" name="weight_materials">
+    <UFormField label="Weight" name="weight_materials">
       <USelectMenu
         v-model="release.weight_materials"
         :items="Constants.public.Enums.keyboard_material"
@@ -132,7 +132,7 @@ const toast = useToast()
 const currencies = Constants.public.Enums.currency
 
 const release = ref({
-  label: '',
+  name: '',
   description: '',
   order: null,
   release_year: null,
@@ -147,7 +147,28 @@ const release = ref({
 })
 
 const schema = z.object({
-  label: z.string().nullish().or(z.string().min(0).max(0)),
+  name: z
+    .string()
+    .min(1)
+    .refine(
+      (value) => {
+        const normalized = value.trim().toLowerCase()
+
+        return !(releases || []).some((release) => {
+          const sameId = isEdit && metadata?.id && release.id === metadata.id
+          if (sameId) return false
+
+          return (
+            String(release.name || '')
+              .trim()
+              .toLowerCase() === normalized
+          )
+        })
+      },
+      {
+        message: 'Release name must be unique for this keyboard',
+      },
+    ),
   order: z.coerce.number().nullish(),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
@@ -220,11 +241,7 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        handleSuccess(
-          isEdit ? 'update' : 'add',
-          release.value.label || 'Release',
-          'Release',
-        ),
+        handleSuccess(isEdit ? 'update' : 'add', release.value.name, 'Release'),
       )
       emit('onSuccess', data)
     })
