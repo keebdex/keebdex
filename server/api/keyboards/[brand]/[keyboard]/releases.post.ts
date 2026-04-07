@@ -13,15 +13,15 @@ export default defineEventHandler(async (event) => {
     ...body,
     brand_keyboard_slug: brandKeyboardSlug,
     release_year:
-      body.release_year === '' || body.release_year === null
+      !body.release_year || isNaN(body.release_year)
         ? null
         : Number(body.release_year),
     typing_angle:
-      body.typing_angle === '' || body.typing_angle === null
+      !body.typing_angle || isNaN(body.typing_angle)
         ? null
         : Number(body.typing_angle),
     msrp_price:
-      body.msrp_price === '' || body.msrp_price === null
+      !body.msrp_price || isNaN(body.msrp_price)
         ? null
         : Number(body.msrp_price),
     currency: body.currency || null,

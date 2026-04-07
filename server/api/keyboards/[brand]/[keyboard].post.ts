@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     brand_slug: brandSlug,
     brand_keyboard_slug: brandKeyboardSlug,
     typing_angle:
-      body.typing_angle === '' || body.typing_angle === null
+      !body.typing_angle || isNaN(body.typing_angle)
         ? null
         : Number(body.typing_angle),
   }

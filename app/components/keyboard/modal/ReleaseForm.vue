@@ -218,12 +218,12 @@ onBeforeMount(() => {
       : []
   }
 
-  if (!isEdit && release.value.typing_angle === null) {
+  if (!isEdit && !release.value.typing_angle) {
     release.value.typing_angle = keyboard?.typing_angle ?? null
   }
 
   // Auto-calculate order for new releases
-  if (!isEdit && release.value.order === null) {
+  if (!isEdit && !release.value.order) {
     release.value.order = (releases?.length ?? 0) + 1
   }
 })
