@@ -1,6 +1,6 @@
 <template>
   <UForm :schema="schema" :state="initial" class="space-y-4" @submit="onSubmit">
-    <UFormField name="email">
+    <UFormField name="sculpts" required>
       <USelectMenu
         v-model="initial.sculpts"
         multiple

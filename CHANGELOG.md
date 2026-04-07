@@ -2,12 +2,20 @@
 
 ## [Unreleased]
 
-### What's New
+### ✨ What's New
 
-- Introduced a dedicated **Fresh Releases** section, replacing the previous _What’s New_ sidebar experience.
-- Added a new **Testimonials** section to the homepage to highlight user feedback.
-- Reorganized component structure into feature-based domains (`artisan`, `keycap`, `keyboard`) to improve maintainability, clarity, and scalability.
+- Introduced a new **Keyboard** module to support **Brands**, **Keyboards**, **Releases**, and **Variants**, featuring built-in design lineage tracking and standardized technical hardware specifications.
+- Enabled **collection management** support for Keyboards, allowing users to track and catalog their personal hardware and builds.
 
-### Breaking Changes
+### 🐛 Bug Fixes
 
-- Standardized artisan-related table names using the `artisan_*` prefix for more consistent and predictable schema design.
+- None
+
+### ⚠️ Breaking Changes
+
+<!-- - Standardized artisan-related table names using the `artisan_*` prefix for more consistent and predictable schema design. -->
+
+### 🚀 Improvements
+
+- Combined full-text search with partial matching to better handle incomplete queries (e.g. searching "gundam" now finds "GUNDAMHAKU").
+- Migrated application-level enums to native **PostgreSQL types** to ensure 100% data accuracy and eliminate mismatches between the code and database.

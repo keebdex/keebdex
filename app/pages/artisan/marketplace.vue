@@ -6,7 +6,7 @@
 
     <template #body>
       <UPage>
-        <UAlert icon="hugeicons:information-circle" variant="soft" color="info">
+        <UAlert icon="hugeicons:information-circle" color="info">
           <template #description>
             To make your collections available in the marketplace, please
             publish them by visiting

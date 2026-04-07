@@ -19,7 +19,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Profile" name="profile">
+      <UFormField label="Profile" name="profile" required>
         <USelect
           v-model="keycap.profile_id"
           :items="
@@ -74,7 +74,7 @@
       <UFormField label="Status" name="status">
         <USelect
           v-model="keycap.status"
-          :items="Object.keys(keycapStatusColors)"
+          :items="Constants.public.Enums.keycap_status"
           class="w-full"
         />
       </UFormField>
@@ -82,7 +82,7 @@
       <UFormField label="Review Status" name="review_status">
         <USelect
           v-model="keycap.review_status"
-          :items="['Pending', 'Approved', 'Rejected']"
+          :items="Constants.public.Enums.review_status"
           class="w-full"
         />
       </UFormField>
@@ -156,6 +156,7 @@
 import { parseDate } from '@internationalized/date'
 import slugify from 'slugify'
 import { z } from 'zod'
+import { Constants } from '~/types/database.types'
 
 const emit = defineEmits(['onSuccess'])
 
@@ -221,7 +222,8 @@ const schema = z.object({
   // ic_date: z.date(),
   // start_date: z.date(),
   // end_date: z.date(),
-  status: z.enum(Object.keys(keycapStatusColors)).nullish(),
+  status: z.enum(Constants.public.Enums.keycap_status).nullish(),
+  review_status: z.enum(Constants.public.Enums.review_status).nullish(),
   order_graph: z.url().nullish().or(z.string().min(0).max(0)),
   order_history: z.url().nullish().or(z.string().min(0).max(0)),
   // description: z.string(),

@@ -42,6 +42,7 @@
         </template>
 
         <UNavigationMenu
+          :key="`routes-${routesMenuKey}`"
           :collapsed="collapsed"
           :items="routes"
           orientation="vertical"
@@ -95,8 +96,33 @@ const { isAdmin } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
+const routesMenuKey = ref(0)
+
+const wrapSection = ({
+  collapsed,
+  label,
+  icon,
+  active,
+  children,
+  defaultOpen = true,
+}) => {
+  if (collapsed) return children
+
+  return [
+    {
+      label,
+      icon,
+      type: 'trigger',
+      defaultOpen,
+      active,
+      children,
+    },
+  ]
+}
 
 const routes = computed(() => {
+  const isCollapsed = collapsed.value
+
   let profiles = Object.entries(keycapProfiles)
     .map(([profile, manufacturers]) => {
       return [
@@ -104,37 +130,104 @@ const routes = computed(() => {
           label: profile,
           type: 'label',
         },
-        ...Object.entries(manufacturers).map(([id, name]) => {
-          return {
-            label: name,
-            to: `/keycap/${id}`,
-            exact: true,
-            active: route.path.includes(`/keycap/${id}`),
-          }
-        }),
+        ...Object.entries(manufacturers).map(([id, name]) => ({
+          label: name,
+          to: `/keycap/${id}`,
+          exact: true,
+          active: route.path.includes(`/keycap/${id}`),
+        })),
       ]
     })
     .flat()
 
-  if (collapsed.value) {
+  if (isCollapsed) {
     profiles = profiles.filter((p) => p.type !== 'label')
   }
 
-  const statuses = Object.entries(keycapStatusMap).map(([status, meta]) => {
-    return {
-      label: meta.title,
-      icon: meta.icon,
-      to: `/keycap?status=${status}`,
-      active: route.path === '/keycap' && route.query.status === status,
-      exact: true,
-    }
-  })
+  const statuses = Object.entries(keycapStatusMap).map(([status, meta]) => ({
+    label: meta.title,
+    icon: meta.icon,
+    to: `/keycap?status=${status}`,
+    active: route.path === '/keycap' && route.query.status === status,
+    exact: true,
+  }))
 
   if (!isAdmin.value) {
     statuses.pop()
   }
 
-  const items = [
+  const artisanChildren = [
+    {
+      label: 'Makers',
+      icon: 'hugeicons:user-group-03',
+      to: '/artisan/maker',
+      active: route.path.startsWith('/artisan/maker'),
+    },
+    {
+      label: 'Marketplace',
+      icon: 'hugeicons:store-01',
+      defaultOpen: true,
+      type: 'trigger',
+      active:
+        route.path === '/artisan/marketplace' ||
+        route.path === '/artisan/wishlist',
+      children: [
+        {
+          label: 'Trading Hub',
+          icon: 'hugeicons:store-01',
+          to: '/artisan/marketplace',
+          active: route.path === '/artisan/marketplace',
+          exact: true,
+        },
+        {
+          label: 'Wishlist Image',
+          icon: 'hugeicons:ai-image',
+          to: '/artisan/wishlist',
+          active: route.path === '/artisan/wishlist',
+          exact: true,
+        },
+      ],
+    },
+  ]
+
+  const keyboardChildren = [
+    {
+      label: 'Brands',
+      icon: 'hugeicons:user-group-03',
+      to: '/keyboard/brand',
+      active:
+        route.path === '/keyboard' || route.path.startsWith('/keyboard/brand'),
+      exact: false,
+    },
+  ]
+
+  const keycapChildren = [
+    {
+      label: 'Sets by Status',
+      icon: 'hugeicons:calendar-03',
+      ...(isCollapsed ? {} : { type: 'trigger' }),
+      defaultOpen: true,
+      active: route.path === '/keycap',
+      children: statuses,
+    },
+    {
+      label: 'Sets by Profile',
+      icon: 'hugeicons:grid-view',
+      ...(isCollapsed ? {} : { type: 'trigger' }),
+      defaultOpen: false,
+      active:
+        route.path.startsWith('/keycap/') && !route.path.endsWith('color'),
+      children: profiles,
+    },
+    {
+      label: 'Color Swatches',
+      icon: 'hugeicons:colors',
+      to: '/keycap/color',
+      active: route.path === '/keycap/color',
+    },
+  ]
+
+  return [
     [
       {
         label: 'My Collection',
@@ -143,65 +236,28 @@ const routes = computed(() => {
         active: route.path.startsWith('/collection'),
       },
     ],
-    [
-      {
-        label: 'Makers',
-        icon: 'hugeicons:user-group-03',
-        to: '/artisan/maker',
-        active: route.path.startsWith('/artisan/maker'),
-      },
-      {
-        label: 'Marketplace',
-        icon: 'hugeicons:store-01',
-        defaultOpen: true,
-        type: 'trigger',
-        active:
-          route.path === '/artisan/marketplace' ||
-          route.path === '/artisan/wishlist',
-        children: [
-          {
-            label: 'Trading Hub',
-            icon: 'hugeicons:store-01',
-            to: '/artisan/marketplace',
-            active: route.path === '/artisan/marketplace',
-            exact: true,
-          },
-          {
-            label: 'Wishlist Image',
-            icon: 'hugeicons:ai-image',
-            to: '/artisan/wishlist',
-            active: route.path === '/artisan/wishlist',
-            exact: true,
-          },
-        ],
-      },
-    ],
-    [
-      {
-        label: 'Sets by Status',
-        icon: 'hugeicons:calendar-03',
-        defaultOpen: true,
-        active: route.path === '/keycap',
-        children: statuses,
-      },
-      {
-        label: 'Sets by Profile',
-        icon: 'hugeicons:grid-view',
-        defaultOpen: false,
-        active:
-          route.path.startsWith('/keycap/') && !route.path.endsWith('color'),
-        children: profiles,
-      },
-      {
-        label: 'Color Swatches',
-        icon: 'hugeicons:colors',
-        to: '/keycap/color',
-        active: route.path === '/keycap/color',
-      },
-    ],
+    wrapSection({
+      collapsed: isCollapsed,
+      label: 'Artisans',
+      icon: 'hugeicons:ai-image',
+      active: route.path.startsWith('/artisan'),
+      children: artisanChildren,
+    }),
+    wrapSection({
+      collapsed: isCollapsed,
+      label: 'Keyboards',
+      icon: 'hugeicons:keyboard',
+      active: route.path.startsWith('/keyboard'),
+      children: keyboardChildren,
+    }),
+    wrapSection({
+      collapsed: isCollapsed,
+      label: 'Keycaps',
+      icon: 'hugeicons:grid-view',
+      active: route.path.startsWith('/keycap'),
+      children: keycapChildren,
+    }),
   ]
-
-  return items
 })
 
 const links = computed(() => [
@@ -261,6 +317,12 @@ const visible = ref({
 const toggle = (key) => {
   visible.value[key] = !visible.value[key]
 }
+
+watch(collapsed, (isCollapsed, wasCollapsed) => {
+  if (wasCollapsed && !isCollapsed) {
+    routesMenuKey.value += 1
+  }
+})
 
 onMounted(() => {
   const cookie = useCookie('cookie-consent')

@@ -82,7 +82,6 @@
         description="Outdated items found during database sync. Please remove and re-add from the maker page if needed before deletion."
         icon="hugeicons:user-warning-01"
         color="warning"
-        variant="soft"
       />
 
       <UPageGrid>

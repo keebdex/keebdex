@@ -70,7 +70,7 @@ export default defineNuxtConfig({
         'modern-screenshot',
         'lodash.groupby', // CJS
         'vuedraggable', // CJS
-      ]
-    }
+      ],
+    },
   },
 })

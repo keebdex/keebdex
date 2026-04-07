@@ -14,6 +14,222 @@ export type Database = {
   }
   public: {
     Tables: {
+      artisan_colorways: {
+        Row: {
+          colorway_id: string
+          created_at: string
+          currency: string | null
+          deleted: boolean | null
+          description: string | null
+          fts: unknown
+          id: number
+          img: string | null
+          maker_id: string
+          maker_sculpt_id: string
+          name: string
+          order: number | null
+          photo_credit: string | null
+          price: number | null
+          qty: number | null
+          release: string | null
+          sale_type: Database["public"]["Enums"]["sale_format"] | null
+          sculpt_id: string
+          stem: string[] | null
+        }
+        Insert: {
+          colorway_id: string
+          created_at?: string
+          currency?: string | null
+          deleted?: boolean | null
+          description?: string | null
+          fts?: unknown
+          id?: number
+          img?: string | null
+          maker_id: string
+          maker_sculpt_id: string
+          name: string
+          order?: number | null
+          photo_credit?: string | null
+          price?: number | null
+          qty?: number | null
+          release?: string | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
+          sculpt_id: string
+          stem?: string[] | null
+        }
+        Update: {
+          colorway_id?: string
+          created_at?: string
+          currency?: string | null
+          deleted?: boolean | null
+          description?: string | null
+          fts?: unknown
+          id?: number
+          img?: string | null
+          maker_id?: string
+          maker_sculpt_id?: string
+          name?: string
+          order?: number | null
+          photo_credit?: string | null
+          price?: number | null
+          qty?: number | null
+          release?: string | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
+          sculpt_id?: string
+          stem?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "colorways_maker_id_fkey"
+            columns: ["maker_id"]
+            isOneToOne: false
+            referencedRelation: "artisan_makers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "colorways_maker_sculpt_id_fkey"
+            columns: ["maker_sculpt_id"]
+            isOneToOne: false
+            referencedRelation: "artisan_sculpts"
+            referencedColumns: ["maker_sculpt_id"]
+          },
+        ]
+      }
+      artisan_makers: {
+        Row: {
+          artisancollector: string | null
+          bio: string | null
+          contributors: Json[] | null
+          deleted: boolean
+          disable_google_sync: boolean
+          discord: string | null
+          document_ids: Json[] | null
+          founded: string | null
+          fts: unknown
+          id: string
+          instagram: string | null
+          invertible_logo: boolean | null
+          name: string
+          nationality: string | null
+          updated_at: string | null
+          verified: boolean
+          website: string | null
+        }
+        Insert: {
+          artisancollector?: string | null
+          bio?: string | null
+          contributors?: Json[] | null
+          deleted?: boolean
+          disable_google_sync?: boolean
+          discord?: string | null
+          document_ids?: Json[] | null
+          founded?: string | null
+          fts?: unknown
+          id: string
+          instagram?: string | null
+          invertible_logo?: boolean | null
+          name: string
+          nationality?: string | null
+          updated_at?: string | null
+          verified?: boolean
+          website?: string | null
+        }
+        Update: {
+          artisancollector?: string | null
+          bio?: string | null
+          contributors?: Json[] | null
+          deleted?: boolean
+          disable_google_sync?: boolean
+          discord?: string | null
+          document_ids?: Json[] | null
+          founded?: string | null
+          fts?: unknown
+          id?: string
+          instagram?: string | null
+          invertible_logo?: boolean | null
+          name?: string
+          nationality?: string | null
+          updated_at?: string | null
+          verified?: boolean
+          website?: string | null
+        }
+        Relationships: []
+      }
+      artisan_sculpts: {
+        Row: {
+          cast: string | null
+          collection: string | null
+          created_at: string
+          deleted: boolean
+          design: string | null
+          fts: unknown
+          href: string | null
+          id: number
+          img: string | null
+          is_revision_of: string | null
+          maker_id: string
+          maker_sculpt_id: string
+          name: string
+          profile: string | null
+          release: string | null
+          sculpt_id: string
+          story: string | null
+        }
+        Insert: {
+          cast?: string | null
+          collection?: string | null
+          created_at?: string
+          deleted?: boolean
+          design?: string | null
+          fts?: unknown
+          href?: string | null
+          id?: number
+          img?: string | null
+          is_revision_of?: string | null
+          maker_id: string
+          maker_sculpt_id: string
+          name: string
+          profile?: string | null
+          release?: string | null
+          sculpt_id: string
+          story?: string | null
+        }
+        Update: {
+          cast?: string | null
+          collection?: string | null
+          created_at?: string
+          deleted?: boolean
+          design?: string | null
+          fts?: unknown
+          href?: string | null
+          id?: number
+          img?: string | null
+          is_revision_of?: string | null
+          maker_id?: string
+          maker_sculpt_id?: string
+          name?: string
+          profile?: string | null
+          release?: string | null
+          sculpt_id?: string
+          story?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sculpts_is_revision_of_fkey"
+            columns: ["is_revision_of"]
+            isOneToOne: false
+            referencedRelation: "artisan_sculpts"
+            referencedColumns: ["maker_sculpt_id"]
+          },
+          {
+            foreignKeyName: "sculpts_maker_id_fkey"
+            columns: ["maker_id"]
+            isOneToOne: false
+            referencedRelation: "artisan_makers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       colors: {
         Row: {
           code: string
@@ -44,87 +260,6 @@ export type Database = {
         }
         Relationships: []
       }
-      colorways: {
-        Row: {
-          colorway_id: string
-          created_at: string
-          currency: string | null
-          deleted: boolean | null
-          description: string | null
-          fts: unknown
-          id: number
-          img: string | null
-          maker_id: string
-          maker_sculpt_id: string
-          name: string
-          order: number | null
-          photo_credit: string | null
-          price: number | null
-          qty: number | null
-          release: string | null
-          sale_type: string | null
-          sculpt_id: string
-          stem: string[] | null
-        }
-        Insert: {
-          colorway_id: string
-          created_at?: string
-          currency?: string | null
-          deleted?: boolean | null
-          description?: string | null
-          fts?: unknown
-          id?: number
-          img?: string | null
-          maker_id: string
-          maker_sculpt_id: string
-          name: string
-          order?: number | null
-          photo_credit?: string | null
-          price?: number | null
-          qty?: number | null
-          release?: string | null
-          sale_type?: string | null
-          sculpt_id: string
-          stem?: string[] | null
-        }
-        Update: {
-          colorway_id?: string
-          created_at?: string
-          currency?: string | null
-          deleted?: boolean | null
-          description?: string | null
-          fts?: unknown
-          id?: number
-          img?: string | null
-          maker_id?: string
-          maker_sculpt_id?: string
-          name?: string
-          order?: number | null
-          photo_credit?: string | null
-          price?: number | null
-          qty?: number | null
-          release?: string | null
-          sale_type?: string | null
-          sculpt_id?: string
-          stem?: string[] | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "colorways_maker_id_fkey"
-            columns: ["maker_id"]
-            isOneToOne: false
-            referencedRelation: "makers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "colorways_maker_sculpt_id_fkey"
-            columns: ["maker_sculpt_id"]
-            isOneToOne: false
-            referencedRelation: "sculpts"
-            referencedColumns: ["maker_sculpt_id"]
-          },
-        ]
-      }
       feedbacks: {
         Row: {
           created_at: string
@@ -151,6 +286,256 @@ export type Database = {
           resolved?: boolean | null
         }
         Relationships: []
+      }
+      keyboard_brands: {
+        Row: {
+          bio: string | null
+          country_origin: string | null
+          discord: string | null
+          fts: unknown
+          id: number
+          instagram: string | null
+          invertible_logo: boolean
+          name: string
+          slug: string
+          website: string | null
+        }
+        Insert: {
+          bio?: string | null
+          country_origin?: string | null
+          discord?: string | null
+          fts?: unknown
+          id?: number
+          instagram?: string | null
+          invertible_logo?: boolean
+          name: string
+          slug: string
+          website?: string | null
+        }
+        Update: {
+          bio?: string | null
+          country_origin?: string | null
+          discord?: string | null
+          fts?: unknown
+          id?: number
+          instagram?: string | null
+          invertible_logo?: boolean
+          name?: string
+          slug?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      keyboard_releases: {
+        Row: {
+          brand_keyboard_slug: string
+          brand_slug: string
+          case_materials: string[] | null
+          currency: string | null
+          description: string | null
+          fts: unknown
+          id: number
+          mount_style:
+            | Database["public"]["Enums"]["keyboard_mounting_style"]
+            | null
+          msrp_price: number | null
+          name: string
+          order: number
+          pcb_types: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
+          plate_materials:
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
+          release_year: number | null
+          typing_angle: number | null
+          weight_materials:
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
+        }
+        Insert: {
+          brand_keyboard_slug: string
+          brand_slug: string
+          case_materials?: string[] | null
+          currency?: string | null
+          description?: string | null
+          fts?: unknown
+          id?: number
+          mount_style?:
+            | Database["public"]["Enums"]["keyboard_mounting_style"]
+            | null
+          msrp_price?: number | null
+          name: string
+          order?: number
+          pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
+          plate_materials?:
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
+          release_year?: number | null
+          typing_angle?: number | null
+          weight_materials?:
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
+        }
+        Update: {
+          brand_keyboard_slug?: string
+          brand_slug?: string
+          case_materials?: string[] | null
+          currency?: string | null
+          description?: string | null
+          fts?: unknown
+          id?: number
+          mount_style?:
+            | Database["public"]["Enums"]["keyboard_mounting_style"]
+            | null
+          msrp_price?: number | null
+          name?: string
+          order?: number
+          pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
+          plate_materials?:
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
+          release_year?: number | null
+          typing_angle?: number | null
+          weight_materials?:
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyboard_releases_brand_keyboard_slug_fkey"
+            columns: ["brand_keyboard_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboards"
+            referencedColumns: ["brand_keyboard_slug"]
+          },
+          {
+            foreignKeyName: "keyboard_releases_brand_slug_fkey"
+            columns: ["brand_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      keyboard_variants: {
+        Row: {
+          brand_keyboard_slug: string
+          brand_slug: string
+          finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
+          fts: unknown
+          id: number
+          image_url: string | null
+          photo_credit: string | null
+          release_id: number | null
+          release_year: number | null
+          sale_type: Database["public"]["Enums"]["sale_format"] | null
+          units_produced: number | null
+          variant_name: string
+        }
+        Insert: {
+          brand_keyboard_slug: string
+          brand_slug: string
+          finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
+          fts?: unknown
+          id?: never
+          image_url?: string | null
+          photo_credit?: string | null
+          release_id?: number | null
+          release_year?: number | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
+          units_produced?: number | null
+          variant_name: string
+        }
+        Update: {
+          brand_keyboard_slug?: string
+          brand_slug?: string
+          finish_type?: Database["public"]["Enums"]["keyboard_finish_type"]
+          fts?: unknown
+          id?: never
+          image_url?: string | null
+          photo_credit?: string | null
+          release_id?: number | null
+          release_year?: number | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
+          units_produced?: number | null
+          variant_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyboard_variants_brand_keyboard_slug_fkey"
+            columns: ["brand_keyboard_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboards"
+            referencedColumns: ["brand_keyboard_slug"]
+          },
+          {
+            foreignKeyName: "keyboard_variants_brand_slug_fkey"
+            columns: ["brand_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "keyboard_variants_release_id_fkey"
+            columns: ["release_id"]
+            isOneToOne: false
+            referencedRelation: "keyboard_releases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keyboards: {
+        Row: {
+          brand_keyboard_slug: string
+          brand_slug: string | null
+          description: string | null
+          fts: unknown
+          id: number
+          layout: Database["public"]["Enums"]["keyboard_layout"]
+          name: string
+          parent_slug: string | null
+          slug: string
+          typing_angle: number | null
+        }
+        Insert: {
+          brand_keyboard_slug: string
+          brand_slug?: string | null
+          description?: string | null
+          fts?: unknown
+          id?: never
+          layout: Database["public"]["Enums"]["keyboard_layout"]
+          name: string
+          parent_slug?: string | null
+          slug: string
+          typing_angle?: number | null
+        }
+        Update: {
+          brand_keyboard_slug?: string
+          brand_slug?: string | null
+          description?: string | null
+          fts?: unknown
+          id?: never
+          layout?: Database["public"]["Enums"]["keyboard_layout"]
+          name?: string
+          parent_slug?: string | null
+          slug?: string
+          typing_angle?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keyboards_brand_slug_fkey"
+            columns: ["brand_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "keyboards_parent_slug_fkey"
+            columns: ["parent_slug"]
+            isOneToOne: false
+            referencedRelation: "keyboards"
+            referencedColumns: ["brand_keyboard_slug"]
+          },
+        ]
       }
       keycap_colors: {
         Row: {
@@ -249,7 +634,7 @@ export type Database = {
           manufacturer: string | null
           manufacturer_id: string | null
           name: string
-          profile: Database["public"]["Enums"]["KeycapProfile"] | null
+          profile: Database["public"]["Enums"]["keycap_profile"] | null
         }
         Insert: {
           description?: string | null
@@ -257,7 +642,7 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name: string
-          profile?: Database["public"]["Enums"]["KeycapProfile"] | null
+          profile?: Database["public"]["Enums"]["keycap_profile"] | null
         }
         Update: {
           description?: string | null
@@ -265,7 +650,7 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name?: string
-          profile?: Database["public"]["Enums"]["KeycapProfile"] | null
+          profile?: Database["public"]["Enums"]["keycap_profile"] | null
         }
         Relationships: []
       }
@@ -285,7 +670,7 @@ export type Database = {
           profile_id: string
           profile_keycap_id: string
           render_img: string | null
-          review_status: Database["public"]["Enums"]["ReviewStatus"] | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
           sculpt: string | null
           start_date: string | null
           status: string | null
@@ -306,7 +691,7 @@ export type Database = {
           profile_id: string
           profile_keycap_id: string
           render_img?: string | null
-          review_status?: Database["public"]["Enums"]["ReviewStatus"] | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
@@ -327,7 +712,7 @@ export type Database = {
           profile_id?: string
           profile_keycap_id?: string
           render_img?: string | null
-          review_status?: Database["public"]["Enums"]["ReviewStatus"] | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
@@ -364,66 +749,6 @@ export type Database = {
         }
         Relationships: []
       }
-      makers: {
-        Row: {
-          artisancollector: string | null
-          bio: string | null
-          contributors: Json[] | null
-          deleted: boolean
-          disable_google_sync: boolean
-          discord: string | null
-          document_ids: Json[] | null
-          founded: string | null
-          fts: unknown
-          id: string
-          instagram: string | null
-          invertible_logo: boolean | null
-          name: string
-          nationality: string | null
-          updated_at: string | null
-          verified: boolean
-          website: string | null
-        }
-        Insert: {
-          artisancollector?: string | null
-          bio?: string | null
-          contributors?: Json[] | null
-          deleted?: boolean
-          disable_google_sync?: boolean
-          discord?: string | null
-          document_ids?: Json[] | null
-          founded?: string | null
-          fts?: unknown
-          id: string
-          instagram?: string | null
-          invertible_logo?: boolean | null
-          name: string
-          nationality?: string | null
-          updated_at?: string | null
-          verified?: boolean
-          website?: string | null
-        }
-        Update: {
-          artisancollector?: string | null
-          bio?: string | null
-          contributors?: Json[] | null
-          deleted?: boolean
-          disable_google_sync?: boolean
-          discord?: string | null
-          document_ids?: Json[] | null
-          founded?: string | null
-          fts?: unknown
-          id?: string
-          instagram?: string | null
-          invertible_logo?: boolean | null
-          name?: string
-          nationality?: string | null
-          updated_at?: string | null
-          verified?: boolean
-          website?: string | null
-        }
-        Relationships: []
-      }
       sales: {
         Row: {
           date: string
@@ -457,85 +782,43 @@ export type Database = {
             foreignKeyName: "sales_maker_id_fkey"
             columns: ["maker_id"]
             isOneToOne: false
-            referencedRelation: "makers"
+            referencedRelation: "artisan_makers"
             referencedColumns: ["id"]
           },
         ]
       }
-      sculpts: {
+      testimonials: {
         Row: {
-          cast: string | null
-          collection: string | null
+          avatar_url: string | null
+          content: string
           created_at: string
-          deleted: boolean
-          design: string | null
-          fts: unknown
-          href: string | null
+          featured: boolean
           id: number
-          img: string | null
-          is_revision_of: string | null
-          maker_id: string
-          maker_sculpt_id: string
           name: string
-          profile: string | null
-          release: string | null
-          sculpt_id: string
-          story: string | null
+          role: string | null
+          status: Database["public"]["Enums"]["review_status"]
         }
         Insert: {
-          cast?: string | null
-          collection?: string | null
+          avatar_url?: string | null
+          content: string
           created_at?: string
-          deleted?: boolean
-          design?: string | null
-          fts?: unknown
-          href?: string | null
+          featured?: boolean
           id?: number
-          img?: string | null
-          is_revision_of?: string | null
-          maker_id: string
-          maker_sculpt_id: string
           name: string
-          profile?: string | null
-          release?: string | null
-          sculpt_id: string
-          story?: string | null
+          role?: string | null
+          status: Database["public"]["Enums"]["review_status"]
         }
         Update: {
-          cast?: string | null
-          collection?: string | null
+          avatar_url?: string | null
+          content?: string
           created_at?: string
-          deleted?: boolean
-          design?: string | null
-          fts?: unknown
-          href?: string | null
+          featured?: boolean
           id?: number
-          img?: string | null
-          is_revision_of?: string | null
-          maker_id?: string
-          maker_sculpt_id?: string
           name?: string
-          profile?: string | null
-          release?: string | null
-          sculpt_id?: string
-          story?: string | null
+          role?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
         }
-        Relationships: [
-          {
-            foreignKeyName: "sculpts_is_revision_of_fkey"
-            columns: ["is_revision_of"]
-            isOneToOne: false
-            referencedRelation: "sculpts"
-            referencedColumns: ["maker_sculpt_id"]
-          },
-          {
-            foreignKeyName: "sculpts_maker_id_fkey"
-            columns: ["maker_id"]
-            isOneToOne: false
-            referencedRelation: "makers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_collection_items: {
         Row: {
@@ -544,6 +827,7 @@ export type Database = {
           collection_id: string
           exchange: boolean
           id: number
+          keyboard_item_id: number | null
           keycap_item_id: string | null
           order: number | null
           priority: boolean
@@ -555,6 +839,7 @@ export type Database = {
           collection_id: string
           exchange?: boolean
           id?: number
+          keyboard_item_id?: number | null
           keycap_item_id?: string | null
           order?: number | null
           priority?: boolean
@@ -566,6 +851,7 @@ export type Database = {
           collection_id?: string
           exchange?: boolean
           id?: number
+          keyboard_item_id?: number | null
           keycap_item_id?: string | null
           order?: number | null
           priority?: boolean
@@ -576,7 +862,7 @@ export type Database = {
             foreignKeyName: "user_collection_items_artisan_item_id_fkey"
             columns: ["artisan_item_id"]
             isOneToOne: false
-            referencedRelation: "colorways"
+            referencedRelation: "artisan_colorways"
             referencedColumns: ["id"]
           },
           {
@@ -584,6 +870,13 @@ export type Database = {
             columns: ["collection_id"]
             isOneToOne: false
             referencedRelation: "user_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_collection_items_keyboard_item_id_fkey"
+            columns: ["keyboard_item_id"]
+            isOneToOne: false
+            referencedRelation: "keyboard_variants"
             referencedColumns: ["id"]
           },
           {
@@ -690,7 +983,69 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      KeycapProfile:
+      currency:
+        | "USD"
+        | "EUR"
+        | "SGD"
+        | "AUD"
+        | "MYR"
+        | "VND"
+        | "CNY"
+        | "KRW"
+        | "JPY"
+        | "GBP"
+        | "CAD"
+      keyboard_finish_type:
+        | "Anodized"
+        | "E-Coat"
+        | "Cerakote"
+        | "Polycarbonate"
+        | "Powder Coat"
+        | "Raw"
+        | "PVD"
+        | "Mirror"
+      keyboard_layout:
+        | "40%"
+        | "60%"
+        | "65%"
+        | "70%"
+        | "75%"
+        | "TKL"
+        | "Full-size"
+        | "1800"
+        | "96%"
+        | "Alice"
+        | "Arisu"
+        | "HHKB"
+        | "WKL"
+      keyboard_material:
+        | "Aluminum"
+        | "Brass"
+        | "Stainless Steel"
+        | "Copper"
+        | "FR4"
+        | "Polycarbonate"
+        | "POM"
+        | "Carbon Fiber"
+        | "Wood"
+      keyboard_mounting_style:
+        | "Tray"
+        | "Top"
+        | "Gasket"
+        | "Sandwich"
+        | "Bottom"
+        | "Integrated"
+        | "O-ring"
+        | "Plate"
+      keyboard_pcb_type:
+        | "Solder"
+        | "Hotswap"
+        | "Wireless"
+        | "Solder + RGB"
+        | "Hotswap + RGB"
+        | "Bluetooth"
+        | "Wired"
+      keycap_profile:
         | "Cherry"
         | "SA"
         | "MT3"
@@ -701,9 +1056,7 @@ export type Database = {
         | "DSA"
         | "XDA"
         | "KAM"
-      ReviewStatus: "Pending" | "Approved" | "Rejected"
-      Role: "admin" | "editor" | "maker" | "designer" | "donator"
-      Status:
+      keycap_status:
         | "Interest Check"
         | "Scheduled"
         | "Live"
@@ -711,6 +1064,16 @@ export type Database = {
         | "Shipping"
         | "Complete"
         | "Cancelled"
+      module: "Artisan" | "Keycap" | "Keyboard"
+      review_status: "Pending" | "Approved" | "Rejected"
+      sale_format:
+        | "Raffle"
+        | "FCFS"
+        | "Fulfillment"
+        | "Giveaway"
+        | "Commission"
+        | "Auction"
+      user_role: "admin" | "editor" | "maker" | "designer" | "donator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -838,7 +1201,75 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      KeycapProfile: [
+      currency: [
+        "USD",
+        "EUR",
+        "SGD",
+        "AUD",
+        "MYR",
+        "VND",
+        "CNY",
+        "KRW",
+        "JPY",
+        "GBP",
+        "CAD",
+      ],
+      keyboard_finish_type: [
+        "Anodized",
+        "E-Coat",
+        "Cerakote",
+        "Polycarbonate",
+        "Powder Coat",
+        "Raw",
+        "PVD",
+        "Mirror",
+      ],
+      keyboard_layout: [
+        "40%",
+        "60%",
+        "65%",
+        "70%",
+        "75%",
+        "TKL",
+        "Full-size",
+        "1800",
+        "96%",
+        "Alice",
+        "Arisu",
+        "HHKB",
+        "WKL",
+      ],
+      keyboard_material: [
+        "Aluminum",
+        "Brass",
+        "Stainless Steel",
+        "Copper",
+        "FR4",
+        "Polycarbonate",
+        "POM",
+        "Carbon Fiber",
+        "Wood",
+      ],
+      keyboard_mounting_style: [
+        "Tray",
+        "Top",
+        "Gasket",
+        "Sandwich",
+        "Bottom",
+        "Integrated",
+        "O-ring",
+        "Plate",
+      ],
+      keyboard_pcb_type: [
+        "Solder",
+        "Hotswap",
+        "Wireless",
+        "Solder + RGB",
+        "Hotswap + RGB",
+        "Bluetooth",
+        "Wired",
+      ],
+      keycap_profile: [
         "Cherry",
         "SA",
         "MT3",
@@ -850,9 +1281,7 @@ export const Constants = {
         "XDA",
         "KAM",
       ],
-      ReviewStatus: ["Pending", "Approved", "Rejected"],
-      Role: ["admin", "editor", "maker", "designer", "donator"],
-      Status: [
+      keycap_status: [
         "Interest Check",
         "Scheduled",
         "Live",
@@ -861,6 +1290,17 @@ export const Constants = {
         "Complete",
         "Cancelled",
       ],
+      module: ["Artisan", "Keycap", "Keyboard"],
+      review_status: ["Pending", "Approved", "Rejected"],
+      sale_format: [
+        "Raffle",
+        "FCFS",
+        "Fulfillment",
+        "Giveaway",
+        "Commission",
+        "Auction",
+      ],
+      user_role: ["admin", "editor", "maker", "designer", "donator"],
     },
   },
 } as const

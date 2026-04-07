@@ -73,7 +73,7 @@
       label="Image"
       name="img"
       :required="!isEditMode"
-      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 5MB."
+      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 10MB."
     >
       <div v-if="isEditMode && colorway.img && !replaceMode" class="space-y-3">
         <NuxtImg
@@ -143,6 +143,7 @@
 </template>
 
 <script setup>
+import { Constants } from '~/types/database.types'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -157,7 +158,8 @@ const { metadata } = defineProps({
 const toast = useToast()
 const route = useRoute()
 
-const currencies = ['USD', 'EUR', 'CAD', 'SGD', 'MYR', 'CNY', 'VND']
+const currencies = Constants.public.Enums.currency
+const saleFormatEnums = Constants.public.Enums.sale_format
 
 const specialFormats = ['Giveaway', 'Commission', 'Auction']
 const saleFormats = [
@@ -165,9 +167,7 @@ const saleFormats = [
     type: 'label',
     label: 'Standard',
   },
-  'Raffle',
-  'FCFS',
-  'Fulfillment',
+  ...saleFormatEnums.filter((format) => !specialFormats.includes(format)),
   {
     type: 'separator',
   },
@@ -175,7 +175,7 @@ const saleFormats = [
     type: 'label',
     label: 'Special',
   },
-  ...specialFormats,
+  ...saleFormatEnums.filter((format) => specialFormats.includes(format)),
 ]
 
 const formats = saleFormats.filter((format) => typeof format === 'string')
@@ -210,22 +210,6 @@ onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
 })
 
-async function uploadColorwayImage(file) {
-  const formData = new FormData()
-  formData.append('file', file, file.name)
-  formData.append(
-    'maker_id',
-    String(colorway.value.maker_id || route.params.maker || ''),
-  )
-
-  const result = await $fetch('/api/images/upload', {
-    method: 'post',
-    body: formData,
-  })
-
-  return result.url
-}
-
 const onSubmit = async () => {
   try {
     uploading.value = true
@@ -235,12 +219,10 @@ const onSubmit = async () => {
     }
 
     if (uploadedFile.value) {
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
-      if (uploadedFile.value.size > maxSize) {
-        throw new Error('Image file size must be less than 5MB')
-      }
-      payload.img = await uploadColorwayImage(uploadedFile.value)
+      payload.img = await uploadImageToCloudflare({
+        file: uploadedFile.value,
+        assignment: String(colorway.value.maker_id || route.params.maker || ''),
+      })
     }
 
     if (!payload.img) {

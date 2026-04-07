@@ -3,13 +3,6 @@
     <template #header>
       <UDashboardNavbar title="My Collection">
         <template #right>
-          <UTabs
-            v-if="$device.isDesktopOrTablet"
-            v-model="category"
-            :items="categories"
-            :content="false"
-          />
-
           <UModal v-model:visible="visible" title="Add Collection">
             <UButton
               v-if="authenticated"
@@ -27,35 +20,46 @@
           </UModal>
         </template>
       </UDashboardNavbar>
-
-      <UDashboardToolbar v-if="$device.isMobile">
-        <UTabs
-          v-model="category"
-          :items="categories"
-          :content="false"
-          class="w-full"
-        />
-      </UDashboardToolbar>
     </template>
 
     <template #body>
-      <UPageGrid>
+      <UPageList v-if="groupedCollections.length" divide>
         <UPageCard
-          v-for="collection in selectedCollections"
-          v-bind="collection"
-          :key="collection.id"
-          :to="`/collection/${collection.category}/${collection.id}`"
-          :title="collection.name"
-          :description="`${collection.total_items} items`"
-          :icon="
-            collection.published ? 'hugeicons:face-id' : 'hugeicons:locked'
-          "
-          variant="subtle"
+          v-for="(group, idx) in groupedCollections"
+          :key="group.value"
+          :title="group.label"
+          variant="ghost"
           :ui="{
-            leadingIcon: !collection.published && 'text-dimmed',
+            container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
           }"
-        />
-      </UPageGrid>
+        >
+          <UPageGrid>
+            <UPageCard
+              v-for="collection in group.items"
+              v-bind="collection"
+              :key="collection.id"
+              :to="`/collection/${collection.category}/${collection.id}`"
+              :title="collection.name"
+              :description="`${collection.total_items} items`"
+              :icon="
+                collection.published ? 'hugeicons:face-id' : 'hugeicons:locked'
+              "
+              variant="subtle"
+              :ui="{
+                leadingIcon: !collection.published && 'text-dimmed',
+              }"
+            />
+          </UPageGrid>
+        </UPageCard>
+      </UPageList>
+      <UAlert
+        v-else
+        title="No collections yet"
+        description="Create a collection to organize and showcase your items."
+        icon="hugeicons:information-circle"
+        color="neutral"
+        variant="soft"
+      />
     </template>
   </UDashboardPanel>
   <SharedProtectedPage
@@ -67,10 +71,12 @@
 </template>
 
 <script setup>
+import { Constants } from '~/types/database.types'
+
 const meta = {
   title: 'My Collection',
   description:
-    'Manage and showcase your personal keycap and artisan collection in one place.',
+    'Manage and showcase your personal artisan, keycap, and keyboard collections in one place.',
 }
 
 useSeoMeta(meta)
@@ -84,13 +90,17 @@ onBeforeMount(() => {
 
 const visible = ref(false)
 
-const category = ref('artisan')
-const categories = ref([
-  { label: 'Artisan', value: 'artisan' },
-  { label: 'Keycap', value: 'keycap' },
-])
+const modules = Constants.public.Enums.module.map((module) => ({
+  label: module,
+  value: module.toLowerCase(),
+}))
 
-const selectedCollections = computed(() =>
-  collections.value.filter((c) => c.category === category.value),
+const groupedCollections = computed(() =>
+  modules
+    .map((module) => ({
+      ...module,
+      items: collections.value.filter((c) => c.category === module.value),
+    }))
+    .filter((module) => module.items.length),
 )
 </script>
