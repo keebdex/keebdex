@@ -181,7 +181,7 @@ const setDefaultReleaseYear = () => {
 
   if (!selectedRelease) return
 
-  if (variant.value.release_year) {
+  if (!variant.value.release_year) {
     variant.value.release_year = selectedRelease.release_year ?? null
   }
 }
