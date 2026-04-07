@@ -5,17 +5,12 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { id, cover_image, ...body } = await readBody(event)
 
-  const brandSlug = event.context.params?.brand
-  const keyboardSlug = event.context.params?.keyboard
-
-  const finalKeyboardSlug = body.slug || keyboardSlug
-  const brandKeyboardSlug = `${brandSlug}/${finalKeyboardSlug}`
+  const { brand: brand_slug } = event.context.params || {}
 
   const payload = {
     ...body,
-    slug: finalKeyboardSlug,
-    brand_slug: brandSlug,
-    brand_keyboard_slug: brandKeyboardSlug,
+    brand_slug,
+    brand_keyboard_slug: `${brand_slug}/${body.slug}`,
     typing_angle:
       !body.typing_angle || isNaN(body.typing_angle)
         ? null

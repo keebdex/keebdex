@@ -16,19 +16,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return sortBy(
-    (data || []).map((brand: any) => {
-      const keyboards = brand.keyboards || []
-      const releases = keyboards.flatMap(
-        (keyboard: any) => keyboard.keyboard_releases || [],
-      )
-
-      return {
-        ...omitSensitive(brand),
-        keyboard_count: keyboards.length,
-        release_count: releases.length,
-      }
-    }),
-    'name',
-  )
+  return sortBy(data.map(omitSensitive), 'name')
 })

@@ -5,13 +5,9 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { id, variants, ...body } = await readBody(event)
 
-  const brandSlug = event.context.params?.brand
-  const keyboardSlug = event.context.params?.keyboard
-  const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
-
+  // FIXME: we can do validation here and remove below checks
   const payload = {
     ...body,
-    brand_keyboard_slug: brandKeyboardSlug,
     release_year:
       !body.release_year || isNaN(body.release_year)
         ? null
@@ -46,7 +42,7 @@ export default defineEventHandler(async (event) => {
       .from('keyboard_releases')
       .update(payload)
       .eq('id', id)
-      .eq('brand_keyboard_slug', brandKeyboardSlug)
+      .eq('brand_keyboard_slug', body.brand_keyboard_slug)
       .select()
       .single()
   } else {

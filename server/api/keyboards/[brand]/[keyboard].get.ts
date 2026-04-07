@@ -3,10 +3,11 @@ import groupBy from 'lodash.groupby'
 import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
-  const brandSlug = event.context.params?.brand
-  const keyboardSlug = event.context.params?.keyboard
-  const brandKeyboardSlug = `${brandSlug}/${keyboardSlug}`
   const client = await serverSupabaseClient(event)
+
+  const { brand: brand_slug, keyboard: keyboard_slug } =
+    event.context.params || {}
+  const brandKeyboardSlug = `${brand_slug}/${keyboard_slug}`
 
   const { data: keyboard, error: keyboardError } = await client
     .from('keyboards')
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
   const { data: brand, error: brandError } = await client
     .from('keyboard_brands')
     .select('*')
-    .eq('slug', brandSlug)
+    .eq('slug', brand_slug)
     .single()
 
   if (brandError) {

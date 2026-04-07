@@ -3,13 +3,13 @@ import sortBy from 'lodash.sortby'
 import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
-  const brandSlug = event.context.params?.brand
+  const { brand_slug } = event.context.params || {}
   const client = await serverSupabaseClient(event)
 
   const { data: brand, error: brandError } = await client
     .from('keyboard_brands')
     .select('*')
-    .eq('slug', brandSlug)
+    .eq('slug', brand_slug)
     .single()
 
   if (brandError) {
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   const { data: keyboards, error: keyboardsError } = await client
     .from('keyboards')
     .select('*, keyboard_releases(*, keyboard_variants(id, image_url))')
-    .eq('brand_slug', brandSlug)
+    .eq('brand_slug', brand_slug)
 
   if (keyboardsError) {
     throw createError({
@@ -39,19 +39,13 @@ export default defineEventHandler(async (event) => {
         const variants = releases.flatMap(
           (release: any) => release.keyboard_variants || [],
         )
-        const variantCount = releases.reduce(
-          (sum: number, release: any) =>
-            sum + (release.keyboard_variants || []).length,
-          0,
-        )
+
         const coverImage = variants.find(
           (variant: any) => variant.image_url,
         )?.image_url
 
         return {
           ...omitSensitive(keyboard),
-          release_count: releases.length,
-          variant_count: variantCount,
           cover_image: coverImage || null,
         }
       }),
