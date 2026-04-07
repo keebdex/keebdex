@@ -133,10 +133,24 @@ const breadcrumbs = computed(() => {
   ]
 })
 
+const description = computed(() => {
+  if (data.value?.bio) {
+    return data.value.bio
+  }
+
+  return `Explore keyboards from ${data.value?.name} and discover their unique features, designs, and innovations in the world of mechanical keyboards.`
+})
+
 useSeoMeta({
   title: computed(() => data.value?.name || 'Keyboard Brands'),
-  description: data.value?.bio,
-  ogDescription: data.value?.bio,
-  twitterDescription: data.value?.bio,
+  description: description.value,
+  ogDescription: description.value,
+  twitterDescription: description.value,
+})
+
+defineOgImage('Module', {
+  title: data.value?.name,
+  description: description.value,
+  titleLogo: `/logo/${data.value?.slug}.png`,
 })
 </script>

@@ -413,12 +413,29 @@ const getReleaseSpecs = (release) => {
   return items
 }
 
-const description = data.value?.keyboard?.description
+const title = computed(() => {
+  return `${data.value?.brand?.name} ${data.value?.keyboard?.name}`
+})
+
+const description = computed(() => {
+  if (data.value?.description) {
+    return data.value.description
+  }
+
+  return `Explore ${data.value?.keyboard?.name} from ${data.value?.brand?.name} and discover its unique features, designs, and innovations in the world of mechanical keyboards.`
+})
 
 useSeoMeta({
-  title: computed(() => data.value?.keyboard?.name || 'Keyboard'),
-  description,
-  ogDescription: description,
-  twitterDescription: description,
+  title: title.value,
+  description: description.value,
+  ogDescription: description.value,
+  twitterDescription: description.value,
+})
+
+defineOgImage('Module', {
+  title: data.value?.keyboard?.name,
+  description: description.value,
+  headline: data.value?.brand?.name,
+  headlineLogo: `/logo/${data.value?.brand?.slug}.png`,
 })
 </script>
