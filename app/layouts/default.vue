@@ -42,6 +42,7 @@
         </template>
 
         <UNavigationMenu
+          :key="`routes-${routesMenuKey}`"
           :collapsed="collapsed"
           :items="routes"
           orientation="vertical"
@@ -95,6 +96,7 @@ const { isAdmin } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
+const routesMenuKey = ref(0)
 
 const wrapSection = ({
   collapsed,
@@ -315,6 +317,12 @@ const visible = ref({
 const toggle = (key) => {
   visible.value[key] = !visible.value[key]
 }
+
+watch(collapsed, (isCollapsed, wasCollapsed) => {
+  if (wasCollapsed && !isCollapsed) {
+    routesMenuKey.value += 1
+  }
+})
 
 onMounted(() => {
   const cookie = useCookie('cookie-consent')

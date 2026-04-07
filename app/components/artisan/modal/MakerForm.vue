@@ -149,6 +149,7 @@
 import { z } from 'zod'
 import country from 'flag-icons/country.json'
 import slugify from 'slugify'
+import { discordInviteRegex, instagramProfileRegex } from '~/utils'
 
 const emit = defineEmits(['onSuccess'])
 
@@ -173,9 +174,6 @@ onBeforeMount(() => {
   }
 })
 
-const discordInviteRegex = /discord\.gg\/[a-zA-Z0-9]+/
-const instagramRegex = /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
-
 const schema = z.object({
   name: z.string().min(1),
   id: z
@@ -192,7 +190,7 @@ const schema = z.object({
   website: z.url().nullish().or(z.string().min(0).max(0)),
   instagram: z
     .url()
-    .regex(instagramRegex, 'Invalid Instagram profile URL')
+    .regex(instagramProfileRegex, 'Invalid Instagram profile URL')
     .nullish()
     .or(z.string().min(0).max(0)),
   discord: z

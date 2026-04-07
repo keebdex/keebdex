@@ -54,7 +54,7 @@
           <UAlert
             v-else
             title="No collections yet"
-            description="Create one to start tracking this category."
+            description="Create a collection to organize and showcase your items."
             icon="hugeicons:information-circle"
             color="neutral"
             variant="soft"

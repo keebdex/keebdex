@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
   if (!assignment) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing upload assignment',
+      statusMessage: 'Missing assignment identifier (e.g. maker_id)',
     })
   }
 

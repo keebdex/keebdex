@@ -1,6 +1,5 @@
 import type { CalendarDate } from '@internationalized/date'
 import { DateFormatter } from '@internationalized/date'
-import { domToPng, domToBlob } from 'modern-screenshot'
 
 const df = new DateFormatter('en-US', {
   dateStyle: 'medium',
@@ -92,85 +91,9 @@ export const colorwayTitle = (colorway: any) =>
   `${colorway.name} ${colorway?.sculpt.name}`
 
 export const formatKeyboardDescription = (names: Array<string | undefined>) => {
-  return names.filter(Boolean).join(' ')
+  return names.filter((n) => !!n).join(' ')
 }
 
-export const copyScreenshot = async (
-  element: HTMLElement,
-  toast: any,
-  openInNewTab: boolean,
-) => {
-  // capture with full scroll size
-  const blob = await domToBlob(element, {
-    width: element.scrollWidth,
-    height: element.scrollHeight,
-  })
-
-  try {
-    if (blob) {
-      if (openInNewTab) {
-        open(URL.createObjectURL(blob))
-      } else {
-        const clipItem = new ClipboardItem({
-          [blob.type]: blob,
-        })
-        await navigator.clipboard.write([clipItem])
-
-        toast.add({
-          color: 'success',
-          title: 'Image copied to clipboard!',
-        })
-      }
-    } else {
-      toast.add({
-        color: 'error',
-        title: 'Image Save Failed',
-        detail: 'Could not create image, blob is null',
-      })
-    }
-  } catch (error) {
-    console.error('Error while saving image to clipboard', error)
-
-    if (blob) {
-      if (navigator.userAgent.toLowerCase().includes('firefox')) {
-        toast.add({
-          color: 'info',
-          title: 'Firefox Configuration',
-          detail:
-            'On Firefox you can enable the asyncClipboard.clipboardItem permission in about:config to enable copying straight to the clipboard',
-        })
-      }
-
-      toast.add({
-        color: 'info',
-        title: 'Clipboard Access Denied',
-        detail:
-          'Could not save image to clipboard. Opening in new tab instead (make sure popups are allowed)',
-      })
-
-      open(URL.createObjectURL(blob))
-    } else {
-      toast.add({
-        color: 'error',
-        title: 'Image Save Failed',
-        detail: 'Error while saving image to clipboard',
-      })
-    }
-  }
-}
-
-export const downloadScreenshot = async (
-  element: HTMLElement,
-  filename: string,
-) => {
-  // capture with full scroll size
-  const img = await domToPng(element, {
-    width: element.scrollWidth,
-    height: element.scrollHeight,
-  })
-
-  const link = document.createElement('a')
-  link.download = `${filename}.png`
-  link.href = img
-  link.click()
-}
+export const discordInviteRegex = /discord\.gg\/[a-zA-Z0-9]+/
+export const instagramProfileRegex =
+  /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
