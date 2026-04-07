@@ -193,6 +193,7 @@ const setDefaultReleaseYear = () => {
 onBeforeMount(() => {
   Object.assign(variant.value, metadata || {}, {
     brand_slug: keyboard.brand_slug,
+    brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
 
   setDefaultReleaseYear()

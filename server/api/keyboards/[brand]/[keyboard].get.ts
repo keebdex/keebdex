@@ -73,11 +73,29 @@ export default defineEventHandler(async (event) => {
     (variant: any) => variant.image_url,
   )?.image_url
 
+  let parent: any = null
+
+  if (keyboard?.parent_slug) {
+    const { data: parentKeyboard } = await client
+      .from('keyboards')
+      .select('name, slug, brand_slug, brand:keyboard_brands(name, slug)')
+      .eq('brand_keyboard_slug', keyboard.parent_slug)
+      .maybeSingle()
+
+    if (parentKeyboard) {
+      parent = {
+        ...omitSensitive(parentKeyboard),
+        brand_keyboard_slug: keyboard.parent_slug,
+      }
+    }
+  }
+
   return {
     brand: omitSensitive(brand),
     keyboard: {
       ...omitSensitive(keyboard),
       cover_image: coverImage || null,
+      parent,
     },
     releases: (releases || []).map((release: any) => ({
       ...omitSensitive(release),

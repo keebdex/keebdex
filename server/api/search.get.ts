@@ -53,9 +53,22 @@ const runCombinedSearch = async ({
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const { query, theme } = getQuery(event)
+  const { query, theme, module } = getQuery(event)
 
   if (!query) return []
+
+  const modules = String(module || '')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+
+  const isIncluded = (targetModule: string) => {
+    if (modules.length) {
+      return modules.includes(targetModule)
+    }
+
+    return true
+  }
 
   const fts = query
     ?.toString()
@@ -66,155 +79,171 @@ export default defineEventHandler(async (event) => {
   const queryText = query.toString().trim()
 
   // Artisan module: combine FTS + ILIKE for makers, sculpts, and colorways.
-  const mergedMakers = await runCombinedSearch({
-    label: 'Artisan makers',
-    ftsQuery: client
-      .from('artisan_makers')
-      .select()
-      .textSearch('fts', `${fts}`)
-      .order('id')
-      .limit(10),
-    likeQuery: client
-      .from('artisan_makers')
-      .select()
-      .or(`name.ilike.%${queryText}%,id.ilike.%${queryText}%`)
-      .order('id')
-      .limit(10),
-  })
+  const mergedMakers = isIncluded('artisan')
+    ? await runCombinedSearch({
+        label: 'Artisan makers',
+        ftsQuery: client
+          .from('artisan_makers')
+          .select()
+          .textSearch('fts', `${fts}`)
+          .order('id')
+          .limit(10),
+        likeQuery: client
+          .from('artisan_makers')
+          .select()
+          .or(`name.ilike.%${queryText}%,id.ilike.%${queryText}%`)
+          .order('id')
+          .limit(10),
+      })
+    : []
 
-  const mergedSculpts = await runCombinedSearch({
-    label: 'Artisan sculpts',
-    ftsQuery: client
-      .from('artisan_sculpts')
-      .select('*, maker:artisan_makers(name, invertible_logo)')
-      .textSearch('fts', `${fts}`)
-      .order('maker_sculpt_id')
-      .limit(20),
-    likeQuery: client
-      .from('artisan_sculpts')
-      .select('*, maker:artisan_makers(name, invertible_logo)')
-      .or(
-        `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%`,
-      )
-      .order('maker_sculpt_id')
-      .limit(20),
-  })
+  const mergedSculpts = isIncluded('artisan')
+    ? await runCombinedSearch({
+        label: 'Artisan sculpts',
+        ftsQuery: client
+          .from('artisan_sculpts')
+          .select('*, maker:artisan_makers(name, invertible_logo)')
+          .textSearch('fts', `${fts}`)
+          .order('maker_sculpt_id')
+          .limit(20),
+        likeQuery: client
+          .from('artisan_sculpts')
+          .select('*, maker:artisan_makers(name, invertible_logo)')
+          .or(
+            `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%`,
+          )
+          .order('maker_sculpt_id')
+          .limit(20),
+      })
+    : []
 
-  const mergedColorways = await runCombinedSearch({
-    label: 'Artisan colorways',
-    ftsQuery: client
-      .from('artisan_colorways')
-      .select(
-        '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)',
-      )
-      .textSearch('fts', `${fts}`)
-      .order('maker_sculpt_id')
-      .limit(200),
-    likeQuery: client
-      .from('artisan_colorways')
-      .select(
-        '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)',
-      )
-      .or(
-        `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%,colorway_id.ilike.%${queryText}%`,
-      )
-      .order('maker_sculpt_id')
-      .limit(200),
-  })
+  const mergedColorways = isIncluded('artisan')
+    ? await runCombinedSearch({
+        label: 'Artisan colorways',
+        ftsQuery: client
+          .from('artisan_colorways')
+          .select(
+            '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)',
+          )
+          .textSearch('fts', `${fts}`)
+          .order('maker_sculpt_id')
+          .limit(200),
+        likeQuery: client
+          .from('artisan_colorways')
+          .select(
+            '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)',
+          )
+          .or(
+            `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%,colorway_id.ilike.%${queryText}%`,
+          )
+          .order('maker_sculpt_id')
+          .limit(200),
+      })
+    : []
 
   // Keycap module: combine FTS + ILIKE for keycap sets.
-  const mergedKeycaps = await runCombinedSearch({
-    label: 'Keycap sets',
-    ftsQuery: client
-      .from('keycaps')
-      .select('*, profile:keycap_profiles(name, manufacturer_id)')
-      .textSearch('fts', `${fts}`)
-      .order('profile_keycap_id')
-      .limit(10),
-    likeQuery: client
-      .from('keycaps')
-      .select('*, profile:keycap_profiles(name, manufacturer_id)')
-      .or(
-        `name.ilike.%${queryText}%,profile_keycap_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
-      )
-      .order('profile_keycap_id')
-      .limit(10),
-  })
+  const mergedKeycaps = isIncluded('keycap')
+    ? await runCombinedSearch({
+        label: 'Keycap sets',
+        ftsQuery: client
+          .from('keycaps')
+          .select('*, profile:keycap_profiles(name, manufacturer_id)')
+          .textSearch('fts', `${fts}`)
+          .order('profile_keycap_id')
+          .limit(10),
+        likeQuery: client
+          .from('keycaps')
+          .select('*, profile:keycap_profiles(name, manufacturer_id)')
+          .or(
+            `name.ilike.%${queryText}%,profile_keycap_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
+          )
+          .order('profile_keycap_id')
+          .limit(10),
+      })
+    : []
 
   // Keyboard module: combine FTS + ILIKE for brands, keyboards, releases, and variants.
-  const mergedKeyboardBrands = await runCombinedSearch({
-    label: 'Keyboard brands',
-    ftsQuery: client
-      .from('keyboard_brands')
-      .select('*')
-      .textSearch('fts', `${fts}`)
-      .order('slug')
-      .limit(10),
-    likeQuery: client
-      .from('keyboard_brands')
-      .select('*')
-      .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
-      .order('slug')
-      .limit(10),
-  })
+  const mergedKeyboardBrands = isIncluded('keyboard')
+    ? await runCombinedSearch({
+        label: 'Keyboard brands',
+        ftsQuery: client
+          .from('keyboard_brands')
+          .select('*')
+          .textSearch('fts', `${fts}`)
+          .order('slug')
+          .limit(10),
+        likeQuery: client
+          .from('keyboard_brands')
+          .select('*')
+          .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
+          .order('slug')
+          .limit(10),
+      })
+    : []
 
-  const mergedKeyboards = await runCombinedSearch({
-    label: 'Keyboards',
-    ftsQuery: client
-      .from('keyboards')
-      .select('*, brand:keyboard_brands(name, slug)')
-      .textSearch('fts', `${fts}`)
-      .order('brand_keyboard_slug')
-      .limit(20),
-    likeQuery: client
-      .from('keyboards')
-      .select('*, brand:keyboard_brands(name, slug)')
-      .or(
-        `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
-      )
-      .order('brand_keyboard_slug')
-      .limit(20),
-  })
+  const mergedKeyboards = isIncluded('keyboard')
+    ? await runCombinedSearch({
+        label: 'Keyboards',
+        ftsQuery: client
+          .from('keyboards')
+          .select('*, brand:keyboard_brands(name, slug)')
+          .textSearch('fts', `${fts}`)
+          .order('brand_keyboard_slug')
+          .limit(20),
+        likeQuery: client
+          .from('keyboards')
+          .select('*, brand:keyboard_brands(name, slug)')
+          .or(
+            `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
+          )
+          .order('brand_keyboard_slug')
+          .limit(20),
+      })
+    : []
 
-  const mergedKeyboardReleases = await runCombinedSearch({
-    label: 'Keyboard releases',
-    ftsQuery: client
-      .from('keyboard_releases')
-      .select(
-        '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
-      )
-      .textSearch('fts', `${fts}`)
-      .order('brand_keyboard_slug')
-      .limit(20),
-    likeQuery: client
-      .from('keyboard_releases')
-      .select(
-        '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
-      )
-      .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
-      .order('brand_keyboard_slug')
-      .limit(20),
-  })
+  const mergedKeyboardReleases = isIncluded('keyboard')
+    ? await runCombinedSearch({
+        label: 'Keyboard releases',
+        ftsQuery: client
+          .from('keyboard_releases')
+          .select(
+            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
+          )
+          .textSearch('fts', `${fts}`)
+          .order('brand_keyboard_slug')
+          .limit(20),
+        likeQuery: client
+          .from('keyboard_releases')
+          .select(
+            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
+          )
+          .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
+          .order('brand_keyboard_slug')
+          .limit(20),
+      })
+    : []
 
-  const mergedKeyboardVariants = await runCombinedSearch({
-    label: 'Keyboard variants',
-    ftsQuery: client
-      .from('keyboard_variants')
-      .select(
-        '*, release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
-      )
-      .textSearch('fts', `${fts}`)
-      .order('release_id')
-      .limit(20),
-    likeQuery: client
-      .from('keyboard_variants')
-      .select(
-        '*, release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
-      )
-      .ilike('variant_name', `%${queryText}%`)
-      .order('release_id')
-      .limit(20),
-  })
+  const mergedKeyboardVariants = isIncluded('keyboard')
+    ? await runCombinedSearch({
+        label: 'Keyboard variants',
+        ftsQuery: client
+          .from('keyboard_variants')
+          .select(
+            '*, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
+          )
+          .textSearch('fts', `${fts}`)
+          .order('release_id')
+          .limit(20),
+        likeQuery: client
+          .from('keyboard_variants')
+          .select(
+            '*, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
+          )
+          .ilike('variant_name', `%${queryText}%`)
+          .order('release_id')
+          .limit(20),
+      })
+    : []
 
   return [
     {
@@ -318,19 +347,14 @@ export default defineEventHandler(async (event) => {
       label: 'Keyboards',
       ignoreFilter: true,
       items: mergedKeyboards.map((kb: any) => {
-        const brandSlug =
-          kb.brand_slug ||
-          kb.brand?.slug ||
-          String(kb.brand_keyboard_slug || '').split('/')[0]
-
         return {
           id: kb.id,
-          label: kb.brand?.name || brandSlug,
+          label: kb.brand.name,
           suffix: kb.name,
-          to: `/keyboard/brand/${brandSlug}/${kb.slug}`,
+          to: `/keyboard/brand/${kb.brand_keyboard_slug}`,
           avatar: {
-            src: `/logo/${brandSlug}.png`,
-            alt: kb.brand?.name || brandSlug,
+            src: `/logo/${kb.brand_slug}.png`,
+            alt: kb.brand.name,
             ui: avatarUi(true, theme?.toString()),
           },
         }
@@ -341,18 +365,14 @@ export default defineEventHandler(async (event) => {
       label: 'Keyboard Releases',
       ignoreFilter: true,
       items: mergedKeyboardReleases.map((release: any) => {
-        const [brandSlug, keyboardSlug] = String(
-          release.brand_keyboard_slug || '',
-        ).split('/')
-
         return {
           id: release.id,
-          label: release.keyboard?.name || keyboardSlug,
+          label: release.keyboard.name,
           suffix: release.name,
-          to: `/keyboard/brand/${brandSlug}/${keyboardSlug}`,
+          to: `/keyboard/brand/${release.brand_keyboard_slug}`,
           avatar: {
-            src: `/logo/${brandSlug}.png`,
-            alt: release.brand?.name || brandSlug,
+            src: `/logo/${release.brand_slug}.png`,
+            alt: release.brand.name,
             ui: avatarUi(true, theme?.toString()),
           },
         }
@@ -363,18 +383,14 @@ export default defineEventHandler(async (event) => {
       label: 'Keyboard Variants',
       ignoreFilter: true,
       items: mergedKeyboardVariants.map((variant: any) => {
-        const [brandSlug, keyboardSlug] = String(
-          variant.release?.brand_keyboard_slug || '',
-        ).split('/')
-
         return {
           id: variant.id,
-          label: variant.release?.name || keyboardSlug,
+          label: `${variant.keyboard.name} ${variant.release.name}`,
           suffix: variant.variant_name,
-          to: `/keyboard/brand/${brandSlug}/${keyboardSlug}`,
+          to: `/keyboard/brand/${variant.brand_keyboard_slug}`,
           avatar: {
-            src: `/logo/${brandSlug}.png`,
-            alt: variant.brand?.name || brandSlug,
+            src: `/logo/${variant.brand_slug}.png`,
+            alt: variant.brand.name,
             ui: avatarUi(true, theme?.toString()),
           },
         }

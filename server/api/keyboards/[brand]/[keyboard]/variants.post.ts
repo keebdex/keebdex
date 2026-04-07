@@ -39,6 +39,7 @@ export default defineEventHandler(async (event) => {
     image_url: body.image_url || null,
     photo_credit: body.photo_credit || null,
     brand_slug: brandSlug,
+    brand_keyboard_slug: brandKeyboardSlug,
   }
 
   let result

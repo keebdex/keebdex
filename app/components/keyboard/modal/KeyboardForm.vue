@@ -48,6 +48,24 @@
     </div>
 
     <UFormField
+      label="Original Design"
+      name="parent_slug"
+      help="Optional. Pick the keyboard this design is based on."
+    >
+      <USelectMenu
+        v-model="selectedParentKeyboard"
+        v-model:search-term="parentKeyboardSearch"
+        :items="parentKeyboardOptions"
+        label-key="label"
+        :loading="parentKeyboardStatus === 'pending'"
+        ignore-filter
+        icon="hugeicons:keyboard"
+        placeholder="Type at least 2 characters to search..."
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField
       label="Description"
       name="description"
       help="Keep it concise and under 400 characters for optimal display."
@@ -79,13 +97,60 @@ const { metadata, isEdit, brandSlug } = defineProps({
 })
 
 const toast = useToast()
+const colorMode = useColorMode()
 
 const keyboard = ref({
   name: '',
   slug: '',
   layout: Constants.public.Enums.keyboard_layout[0],
   typing_angle: null,
+  parent_slug: null,
 })
+
+const selectedParentKeyboard = ref(null)
+const parentKeyboardSearch = ref('')
+const parentKeyboardStatus = ref('idle')
+const parentKeyboardOptions = ref([])
+
+let parentSearchTimer = null
+
+const fetchParentKeyboardOptions = async () => {
+  const term = parentKeyboardSearch.value.trim()
+
+  if (term.length < 2) {
+    parentKeyboardOptions.value = []
+    parentKeyboardStatus.value = 'idle'
+    return
+  }
+
+  parentKeyboardStatus.value = 'pending'
+
+  await $fetch('/api/search', {
+    query: {
+      query: term,
+      theme: colorMode.value,
+      module: 'keyboard',
+    },
+  })
+    .then((groups) => {
+      const options = groups
+        .filter((group) => group.id === 'keyboard-board')
+        .flatMap((group) => group.items || [])
+        .map((item) => ({
+          value: item.to.replace('/keyboard/brand/', ''),
+          label: formatKeyboardDescription([item.label, item.suffix]),
+          avatar: item.avatar,
+        }))
+
+      parentKeyboardOptions.value = options
+      parentKeyboardStatus.value = 'success'
+    })
+    .catch((error) => {
+      parentKeyboardOptions.value = []
+      parentKeyboardStatus.value = 'error'
+      toast.add(handleError(error))
+    })
+}
 
 const schema = z.object({
   name: z.string().min(1),
@@ -99,10 +164,62 @@ const schema = z.object({
     .or(z.string().min(0).max(0)),
   layout: z.enum(Constants.public.Enums.keyboard_layout),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
+  parent_slug: z
+    .string()
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      'Expected format: brand-slug/keyboard-slug',
+    )
+    .nullish()
+    .or(z.string().min(0).max(0)),
 })
 
 onBeforeMount(() => {
   Object.assign(keyboard.value, metadata || {})
+
+  if (keyboard.value.parent_slug) {
+    selectedParentKeyboard.value = {
+      value: metadata.parent_slug,
+      label: formatKeyboardDescription([
+        metadata?.parent?.brand?.name,
+        metadata?.parent?.name,
+      ]),
+      avatar: {
+        src: `/logo/${metadata?.parent?.brand_slug}.png`,
+        alt: metadata?.parent?.brand?.name,
+        ui: {
+          root: 'bg-transparent rounded-none',
+          image:
+            metadata?.parent?.brand?.invertible_logo &&
+            colorMode.value === 'dark' &&
+            'invert',
+        },
+      },
+    }
+
+    parentKeyboardOptions.value = [selectedParentKeyboard.value]
+    parentKeyboardStatus.value = 'success'
+  }
+})
+
+watch(parentKeyboardSearch, () => {
+  if (parentSearchTimer) {
+    clearTimeout(parentSearchTimer)
+  }
+
+  parentSearchTimer = setTimeout(() => {
+    fetchParentKeyboardOptions()
+  }, 250)
+})
+
+onBeforeUnmount(() => {
+  if (parentSearchTimer) {
+    clearTimeout(parentSearchTimer)
+  }
+})
+
+watch(selectedParentKeyboard, (value) => {
+  keyboard.value.parent_slug = value?.value || null
 })
 
 const onSubmit = async () => {
@@ -117,6 +234,7 @@ const onSubmit = async () => {
       ...keyboard.value,
       slug,
       brand_slug: brandSlug,
+      parent_slug: keyboard.value.parent_slug || null,
     },
   })
     .then((data) => {

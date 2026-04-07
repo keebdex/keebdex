@@ -67,7 +67,6 @@
           :key="keyboard.slug"
           :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
           :title="keyboard.name"
-          :description="keyboard.description"
           icon="hugeicons:keyboard"
           reverse
           spotlight
