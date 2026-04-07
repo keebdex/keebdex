@@ -3,7 +3,7 @@ import sortBy from 'lodash.sortby'
 import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
-  const { brand_slug } = event.context.params || {}
+  const { brand: brand_slug } = event.context.params || {}
   const client = await serverSupabaseClient(event)
 
   const { data: brand, error: brandError } = await client

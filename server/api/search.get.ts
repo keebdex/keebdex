@@ -78,10 +78,13 @@ export default defineEventHandler(async (event) => {
 
   const queryText = query.toString().trim()
 
-  // Artisan module: combine FTS + ILIKE for makers, sculpts, and colorways.
-  const mergedMakers = isIncluded('artisan')
-    ? await runCombinedSearch({
-        label: 'Artisan makers',
+  const searchTasks: Array<{ key: string; search: Promise<any[]> }> = []
+
+  if (isIncluded('artisan')) {
+    searchTasks.push({
+      key: 'artisanMakers',
+      search: runCombinedSearch({
+        label: 'Artisan Makers',
         ftsQuery: client
           .from('artisan_makers')
           .select()
@@ -94,12 +97,13 @@ export default defineEventHandler(async (event) => {
           .or(`name.ilike.%${queryText}%,id.ilike.%${queryText}%`)
           .order('id')
           .limit(10),
-      })
-    : []
+      }),
+    })
 
-  const mergedSculpts = isIncluded('artisan')
-    ? await runCombinedSearch({
-        label: 'Artisan sculpts',
+    searchTasks.push({
+      key: 'artisanSculpts',
+      search: runCombinedSearch({
+        label: 'Artisan Sculpts',
         ftsQuery: client
           .from('artisan_sculpts')
           .select('*, maker:artisan_makers(name, invertible_logo)')
@@ -114,12 +118,13 @@ export default defineEventHandler(async (event) => {
           )
           .order('maker_sculpt_id')
           .limit(20),
-      })
-    : []
+      }),
+    })
 
-  const mergedColorways = isIncluded('artisan')
-    ? await runCombinedSearch({
-        label: 'Artisan colorways',
+    searchTasks.push({
+      key: 'artisanColorways',
+      search: runCombinedSearch({
+        label: 'Artisan Colorways',
         ftsQuery: client
           .from('artisan_colorways')
           .select(
@@ -138,13 +143,15 @@ export default defineEventHandler(async (event) => {
           )
           .order('maker_sculpt_id')
           .limit(200),
-      })
-    : []
+      }),
+    })
+  }
 
-  // Keycap module: combine FTS + ILIKE for keycap sets.
-  const mergedKeycaps = isIncluded('keycap')
-    ? await runCombinedSearch({
-        label: 'Keycap sets',
+  if (isIncluded('keycap')) {
+    searchTasks.push({
+      key: 'keycaps',
+      search: runCombinedSearch({
+        label: 'Keycap Sets',
         ftsQuery: client
           .from('keycaps')
           .select('*, profile:keycap_profiles(name, manufacturer_id)')
@@ -159,13 +166,15 @@ export default defineEventHandler(async (event) => {
           )
           .order('profile_keycap_id')
           .limit(10),
-      })
-    : []
+      }),
+    })
+  }
 
-  // Keyboard module: combine FTS + ILIKE for brands, keyboards, releases, and variants.
-  const mergedKeyboardBrands = isIncluded('keyboard')
-    ? await runCombinedSearch({
-        label: 'Keyboard brands',
+  if (isIncluded('keyboard')) {
+    searchTasks.push({
+      key: 'keyboardBrands',
+      search: runCombinedSearch({
+        label: 'Keyboard Brands',
         ftsQuery: client
           .from('keyboard_brands')
           .select('*')
@@ -178,11 +187,12 @@ export default defineEventHandler(async (event) => {
           .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
           .order('slug')
           .limit(10),
-      })
-    : []
+      }),
+    })
 
-  const mergedKeyboards = isIncluded('keyboard')
-    ? await runCombinedSearch({
+    searchTasks.push({
+      key: 'keyboards',
+      search: runCombinedSearch({
         label: 'Keyboards',
         ftsQuery: client
           .from('keyboards')
@@ -198,12 +208,13 @@ export default defineEventHandler(async (event) => {
           )
           .order('brand_keyboard_slug')
           .limit(20),
-      })
-    : []
+      }),
+    })
 
-  const mergedKeyboardReleases = isIncluded('keyboard')
-    ? await runCombinedSearch({
-        label: 'Keyboard releases',
+    searchTasks.push({
+      key: 'keyboardReleases',
+      search: runCombinedSearch({
+        label: 'Keyboard Releases',
         ftsQuery: client
           .from('keyboard_releases')
           .select(
@@ -220,12 +231,13 @@ export default defineEventHandler(async (event) => {
           .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
           .order('brand_keyboard_slug')
           .limit(20),
-      })
-    : []
+      }),
+    })
 
-  const mergedKeyboardVariants = isIncluded('keyboard')
-    ? await runCombinedSearch({
-        label: 'Keyboard variants',
+    searchTasks.push({
+      key: 'keyboardVariants',
+      search: runCombinedSearch({
+        label: 'Keyboard Variants',
         ftsQuery: client
           .from('keyboard_variants')
           .select(
@@ -242,15 +254,39 @@ export default defineEventHandler(async (event) => {
           .ilike('variant_name', `%${queryText}%`)
           .order('release_id')
           .limit(20),
-      })
-    : []
+      }),
+    })
+  }
+
+  const resolvedSearches = await Promise.all(
+    searchTasks.map(({ search }) => search),
+  )
+
+  const searchResults = searchTasks.reduce(
+    (acc, task, index) => {
+      acc[task.key] = resolvedSearches[index] || []
+      return acc
+    },
+    {} as Record<string, any[]>,
+  )
+
+  const {
+    artisanMakers = [],
+    artisanSculpts = [],
+    artisanColorways = [],
+    keycaps = [],
+    keyboardBrands = [],
+    keyboards = [],
+    keyboardReleases = [],
+    keyboardVariants = [],
+  } = searchResults
 
   return [
     {
       id: 'artisan-maker',
       label: 'Artisan Makers',
       ignoreFilter: true,
-      items: mergedMakers.map((m: any) => ({
+      items: artisanMakers.map((m: any) => ({
         id: m.id,
         label: m.name,
         to: `/artisan/maker/${m.id}`,
@@ -265,7 +301,7 @@ export default defineEventHandler(async (event) => {
       id: 'artisan-sculpt',
       label: 'Artisan Sculpts',
       ignoreFilter: true,
-      items: mergedSculpts.map((s: any) => ({
+      items: artisanSculpts.map((s: any) => ({
         id: s.id,
         label: s.maker.name,
         suffix: s.name,
@@ -281,7 +317,7 @@ export default defineEventHandler(async (event) => {
       id: 'artisan-colorway',
       label: 'Artisan Colorways',
       ignoreFilter: true,
-      items: groupByMakerWithChunks(mergedColorways).map((group, idx) => {
+      items: groupByMakerWithChunks(artisanColorways).map((group, idx) => {
         const { first, last, makers } = group
         const label = `${typeof first === 'number' ? 'Numeric Makers' : 'Alphabet Makers'}: ${first}-${last}`
 
@@ -316,7 +352,7 @@ export default defineEventHandler(async (event) => {
       id: 'keycap-set',
       label: 'Keycap Sets',
       ignoreFilter: true,
-      items: mergedKeycaps.map((kc: any) => ({
+      items: keycaps.map((kc: any) => ({
         id: kc.id,
         label: `${kc.profile.name} ${kc.name}`,
         to: `/keycap/${kc.profile_keycap_id}`,
@@ -331,7 +367,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-brand',
       label: 'Keyboard Brands',
       ignoreFilter: true,
-      items: mergedKeyboardBrands.map((brand: any) => ({
+      items: keyboardBrands.map((brand: any) => ({
         id: brand.id,
         label: brand.name,
         to: `/keyboard/brand/${brand.slug}`,
@@ -346,7 +382,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-board',
       label: 'Keyboards',
       ignoreFilter: true,
-      items: mergedKeyboards.map((kb: any) => {
+      items: keyboards.map((kb: any) => {
         return {
           id: kb.id,
           label: kb.brand.name,
@@ -364,7 +400,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-release',
       label: 'Keyboard Releases',
       ignoreFilter: true,
-      items: mergedKeyboardReleases.map((release: any) => {
+      items: keyboardReleases.map((release: any) => {
         return {
           id: release.id,
           label: release.keyboard.name,
@@ -382,7 +418,7 @@ export default defineEventHandler(async (event) => {
       id: 'keyboard-variant',
       label: 'Keyboard Variants',
       ignoreFilter: true,
-      items: mergedKeyboardVariants.map((variant: any) => {
+      items: keyboardVariants.map((variant: any) => {
         return {
           id: variant.id,
           label: `${variant.keyboard.name} ${variant.release.name}`,
