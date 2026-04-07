@@ -49,6 +49,7 @@ export default defineEventHandler(async (event) => {
       .from('keyboard_variants')
       .update(payload)
       .eq('id', body.id)
+      .eq('brand_keyboard_slug', brandKeyboardSlug)
       .select()
       .single()
   } else {

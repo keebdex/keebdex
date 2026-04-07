@@ -23,7 +23,7 @@
     </template>
 
     <template #body>
-      <UPageList divide>
+      <UPageList v-if="groupedCollections.length" divide>
         <UPageCard
           v-for="(group, idx) in groupedCollections"
           :key="group.value"
@@ -33,7 +33,7 @@
             container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
           }"
         >
-          <UPageGrid v-if="group.items.length">
+          <UPageGrid>
             <UPageCard
               v-for="collection in group.items"
               v-bind="collection"
@@ -50,17 +50,16 @@
               }"
             />
           </UPageGrid>
-
-          <UAlert
-            v-else
-            title="No collections yet"
-            description="Create a collection to organize and showcase your items."
-            icon="hugeicons:information-circle"
-            color="neutral"
-            variant="soft"
-          />
         </UPageCard>
       </UPageList>
+      <UAlert
+        v-else
+        title="No collections yet"
+        description="Create a collection to organize and showcase your items."
+        icon="hugeicons:information-circle"
+        color="neutral"
+        variant="soft"
+      />
     </template>
   </UDashboardPanel>
   <SharedProtectedPage

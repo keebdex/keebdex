@@ -144,7 +144,6 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
-import { uploadImageToCloudflare } from '~/utils/image-upload'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])

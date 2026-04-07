@@ -5,14 +5,23 @@
     </template>
 
     <template #links>
-      <USelect
-        v-model="sort"
-        :items="sortOptions"
-        :icon="sortIconMap[sort]"
-        variant="soft"
-        :ui="{ content: 'min-w-fit' }"
-        @change="emit('onSorting', sort)"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          v-if="keyboard.parent_slug"
+          :to="`/keyboard/brand/${keyboard.parent_slug}`"
+          :label="`${keyboard.parent.brand.name} ${keyboard.parent.name}`"
+          icon="hugeicons:share-knowledge"
+        />
+
+        <USelect
+          v-model="sort"
+          :items="sortOptions"
+          :icon="sortIconMap[sort]"
+          variant="soft"
+          :ui="{ content: 'min-w-fit' }"
+          @change="emit('onSorting', sort)"
+        />
+      </div>
     </template>
   </UPageHeader>
 </template>

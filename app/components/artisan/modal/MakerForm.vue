@@ -149,7 +149,6 @@
 import { z } from 'zod'
 import country from 'flag-icons/country.json'
 import slugify from 'slugify'
-import { discordInviteRegex, instagramProfileRegex } from '~/utils'
 
 const emit = defineEmits(['onSuccess'])
 
