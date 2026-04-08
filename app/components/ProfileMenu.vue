@@ -6,15 +6,26 @@
       content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
     }"
   >
-    <UUser
+    <div
       v-if="authenticated"
-      :name="collapsed ? undefined : user.name"
-      :avatar="{
-        src: user.picture,
-        alt: user.name,
-      }"
-      class="cursor-pointer w-full"
-    />
+      class="cursor-pointer w-full flex flex-row items-center justify-between"
+    >
+      <UUser
+        :name="collapsed ? undefined : user.name"
+        :description="collapsed ? undefined : roleMap[role]?.label"
+        :avatar="{
+          src: user.picture,
+          alt: user.name,
+        }"
+      />
+
+      <UIcon
+        v-if="role"
+        :name="roleMap[role].icon"
+        class="text-xl"
+        :class="roleMap[role]?.class"
+      />
+    </div>
     <UButton
       v-else
       :label="collapsed ? undefined : 'Sign In'"
@@ -40,7 +51,7 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user } = storeToRefs(userStore)
+const { authenticated, user, role } = storeToRefs(userStore)
 
 const client = useSupabaseClient()
 const toast = useToast()

@@ -97,3 +97,31 @@ export const formatKeyboardDescription = (names: Array<string | undefined>) => {
 export const discordInviteRegex = /discord\.gg\/[a-zA-Z0-9]+/
 export const instagramProfileRegex =
   /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
+
+export const roleMap = {
+  admin: {
+    label: 'Administrator',
+    icon: 'hugeicons:shield-user',
+    class: 'text-error',
+  },
+  editor: {
+    label: 'Editor',
+    icon: 'hugeicons:user-edit-01',
+    class: 'text-warning',
+  },
+  maker: {
+    label: 'Maker',
+    icon: 'hugeicons:user-star-01',
+    class: 'text-info',
+  },
+  designer: {
+    label: 'Designer',
+    icon: 'hugeicons:user-star-01',
+    class: 'text-info',
+  },
+  donator: {
+    label: 'Donator',
+    icon: 'hugeicons:user-love-01',
+    class: 'text-donator',
+  },
+}

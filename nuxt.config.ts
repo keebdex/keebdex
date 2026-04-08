@@ -62,14 +62,14 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
+        '@internationalized/date',
         '@vue/devtools-core',
         '@vue/devtools-kit',
-        'lodash.sortby', // CJS
-        'zod',
-        '@internationalized/date',
-        'modern-screenshot',
         'lodash.groupby', // CJS
+        'lodash.sortby', // CJS
+        'modern-screenshot',
         'vuedraggable', // CJS
+        'zod',
       ],
     },
   },

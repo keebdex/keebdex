@@ -36,7 +36,7 @@ const features = ref([
     icon: 'solar:database-bold-duotone',
     title: 'Unified Trinity Database',
     description:
-      'Move beyond document-based systems. Keebdex replaces shared Google Docs with a robust platform that manages keyboards, keysets, and artisans in one place, with optional sync for makers migrating from legacy tools.',
+      'Move beyond document-based systems. Google Docs handled artisan data only; Keebdex now manages keyboards, keysets, and artisans in one platform, with optional maker sync from legacy tools.',
   },
   {
     icon: 'solar:stars-bold-duotone',
