@@ -54,6 +54,22 @@
             </template>
           </UModal>
 
+          <USelect
+            v-if="$device.isDesktopOrTablet"
+            v-model="sort"
+            :items="sortOptions"
+            :icon="sortIconMap[sort]"
+            variant="soft"
+            :ui="{ content: 'min-w-fit' }"
+          />
+
+          <UButton
+            v-if="data.keyboard.parent_slug"
+            :to="`/keyboard/brand/${data.keyboard.parent_slug}`"
+            :label="`${data.keyboard.parent.brand.name} ${data.keyboard.parent.name}`"
+            icon="hugeicons:share-knowledge"
+          />
+
           <SharedProfileDrawer
             :title="data.keyboard.name"
             :description="data.keyboard.description"
@@ -61,17 +77,8 @@
           />
         </template>
       </UDashboardNavbar>
-    </template>
 
-    <template #body>
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <UButton
-          v-if="data.keyboard.parent_slug"
-          :to="`/keyboard/brand/${data.keyboard.parent_slug}`"
-          :label="`${data.keyboard.parent.brand.name} ${data.keyboard.parent.name}`"
-          icon="hugeicons:share-knowledge"
-        />
-
+      <UDashboardToolbar v-if="$device.isMobile">
         <USelect
           v-model="sort"
           :items="sortOptions"
@@ -79,8 +86,10 @@
           variant="soft"
           :ui="{ content: 'min-w-fit' }"
         />
-      </div>
+      </UDashboardToolbar>
+    </template>
 
+    <template #body>
       <UPageList v-if="data.releases?.length" divide class="mt-4">
         <UPageCard
           v-for="(release, idx) in sortedReleases"

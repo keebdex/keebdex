@@ -11,6 +11,19 @@
           footer: 'flex-wrap gap-2 justify-start',
         }"
       >
+        <UAvatar
+          v-if="slug"
+          :src="`/logo/${slug}.png`"
+          :alt="title"
+          size="4xl"
+          :ui="{
+            root: 'bg-transparent rounded-none p-6 aspect-square w-2/5 mx-auto',
+          }"
+          :class="{
+            invert: $colorMode.value === 'dark',
+          }"
+        />
+
         <template v-if="description" #description>
           <SharedPageHeaderDescription :description="description" />
         </template>
@@ -26,10 +39,6 @@
         </template>
       </UPageCard>
     </template>
-
-    <!-- <template #footer="{ close }">
-      <UButton label="Close" color="secondary" @click="close" />
-    </template> -->
   </USlideover>
 </template>
 
@@ -37,7 +46,11 @@
 defineProps({
   title: {
     type: String,
-    default: 'Information',
+    required: true,
+  },
+  slug: {
+    type: String,
+    default: '',
   },
   description: {
     type: String,

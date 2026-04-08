@@ -36,7 +36,7 @@
             v-model:visible="visible.editBrand"
             title="Edit Brand"
           >
-            <UButton icon="hugeicons:user-edit-01" label="Edit" />
+            <UButton icon="hugeicons:edit-01" label="Edit" />
 
             <template #body="{ close }">
               <KeyboardModalBrandForm
@@ -54,6 +54,7 @@
 
           <SharedProfileDrawer
             :title="data.name"
+            :slug="data.slug"
             :description="data.bio"
             :links="brandLinks"
           />

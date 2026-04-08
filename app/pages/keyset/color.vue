@@ -24,8 +24,6 @@
     </template>
 
     <template #body>
-      <UPageHeader v-bind="meta" />
-
       <div class="flex px-4 py-3.5 border-b border-accented">
         <UInput
           v-model="term"

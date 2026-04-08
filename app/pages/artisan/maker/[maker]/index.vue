@@ -51,7 +51,7 @@
             v-model:visible="visible.edit"
             title="Edit Maker"
           >
-            <UButton icon="hugeicons:user-edit-01" label="Edit" />
+            <UButton icon="hugeicons:edit-01" label="Edit" />
 
             <template #body="{ close }">
               <ArtisanModalMakerForm
@@ -69,6 +69,7 @@
 
           <SharedProfileDrawer
             :title="maker.name"
+            :slug="maker.id"
             :description="maker.bio"
             :links="makerLinks"
           />
@@ -77,13 +78,21 @@
     </template>
 
     <template #body>
-      <UPageGrid v-if="favoriteSculpts.length" class="mb-6">
-        <ArtisanSculptCard
-          v-for="sculpt in favoriteSculpts"
-          :key="sculpt.id"
-          :sculpt="sculpt"
-        />
-      </UPageGrid>
+      <UPageHeader
+        v-if="favoriteSculpts.length"
+        headline="Pinned"
+        :ui="{
+          headline: 'text-md',
+        }"
+      >
+        <UPageGrid>
+          <ArtisanSculptCard
+            v-for="sculpt in favoriteSculpts"
+            :key="sculpt.id"
+            :sculpt="sculpt"
+          />
+        </UPageGrid>
+      </UPageHeader>
 
       <UPageGrid>
         <ArtisanSculptCard

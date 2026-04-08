@@ -8,11 +8,11 @@
 
         <template #right>
           <div v-if="editable" class="flex items-center gap-2">
-            <UModal v-model:visible="visible.create" title="Submit Colorway">
+            <UModal v-model:visible="visible.create" title="Add Colorway">
               <UButton
-                icon="hugeicons:image-add-01"
+                icon="hugeicons:dashboard-square-add"
                 color="primary"
-                label="Submit Colorway"
+                label="Add Colorway"
               />
 
               <template #body="{ close }">
@@ -68,26 +68,34 @@
           </div>
 
           <SharedProfileDrawer
-            title="Sculpt information"
+            :title="sculpt.name"
             :description="sculpt.story"
             :links="sculptLinks"
           />
+
+          <USelect
+            v-if="$device.isDesktopOrTablet"
+            v-model="sortValue"
+            :items="sortOptions"
+            :icon="sortIconMap[sortValue]"
+            variant="soft"
+            :ui="{ content: 'min-w-fit' }"
+          />
         </template>
       </UDashboardNavbar>
-    </template>
 
-    <template #body>
-      <div class="mb-4 flex flex-wrap items-center gap-2">
+      <UDashboardToolbar v-if="$device.isMobile">
         <USelect
           v-model="sortValue"
           :items="sortOptions"
           :icon="sortIconMap[sortValue]"
           variant="soft"
           :ui="{ content: 'min-w-fit' }"
-          @change="onChangeSorting"
         />
-      </div>
+      </UDashboardToolbar>
+    </template>
 
+    <template #body>
       <UPageGrid>
         <UPageCard
           v-for="colorway in sculpt.colorways"
@@ -216,11 +224,6 @@ const page = computed(() => Number(route.query.page) || 1)
 const sortField = ref('order')
 const sortOrder = ref('desc')
 const sortValue = ref('order|desc')
-const onChangeSorting = (value) => {
-  const [field, order] = value.split('|')
-  sortField.value = field
-  sortOrder.value = order
-}
 
 const sortOptions = [
   {
@@ -246,6 +249,12 @@ const sortOptions = [
 ]
 
 const sortIconMap = getSortIconMap(sortOptions)
+
+watch(sortValue, (newValue) => {
+  const [field, order] = newValue.split('|')
+  sortField.value = field
+  sortOrder.value = order
+})
 
 const { data: sculpt, refresh } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,

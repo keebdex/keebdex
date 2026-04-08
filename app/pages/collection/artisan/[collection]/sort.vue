@@ -5,21 +5,8 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
-      </UDashboardNavbar>
-    </template>
 
-    <template #body>
-      <UPageHeader :title="`Sorting - ${data?.name}`">
-        <template #description>
-          <UAlert
-            :icon="appConfig.ui.icons.sortManual"
-            title="Click and drag any card to rearrange them in your preferred order."
-            description="Don't forget to save your custom sort before leaving the page — changes won't be saved automatically!"
-            color="info"
-          />
-        </template>
-
-        <template #links>
+        <template #right>
           <UButton
             label="Save Custom Sorting"
             icon="hugeicons:bookmark-03"
@@ -27,7 +14,18 @@
             @click="saveCustomSorting"
           />
         </template>
-      </UPageHeader>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <div>
+        <UAlert
+          :icon="appConfig.ui.icons.sortManual"
+          title="Click and drag any card to rearrange them in your preferred order."
+          description="Don't forget to save your custom sort before leaving the page — changes won't be saved automatically!"
+          color="info"
+        />
+      </div>
 
       <draggable
         :list="items"
@@ -111,7 +109,7 @@ const breadcrumbs = computed(() => {
       to: `/collection/artisan/${route.params.collection}`,
     },
     {
-      label: 'Sorting',
+      label: 'Manual Sorting',
     },
   ]
 })
