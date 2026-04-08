@@ -51,13 +51,17 @@
               />
             </template>
           </UModal>
+
+          <SharedProfileDrawer
+            :title="data.name"
+            :description="data.bio"
+            :links="brandLinks"
+          />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <KeyboardBrandPageHeader :brand="data" />
-
       <UPageGrid
         v-if="data.keyboards?.length"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
@@ -139,6 +143,39 @@ const description = computed(() => {
   }
 
   return `Explore keyboards from ${data.value?.name} and discover their unique features, designs, and innovations in the world of mechanical keyboards.`
+})
+
+const brandLinks = computed(() => {
+  const items = []
+
+  if (data.value?.website) {
+    items.push({
+      label: 'Website',
+      icon: 'hugeicons:globe-02',
+      to: data.value.website,
+      target: '_blank',
+    })
+  }
+
+  if (data.value?.instagram) {
+    items.push({
+      label: 'Instagram',
+      icon: 'hugeicons:instagram',
+      to: data.value.instagram,
+      target: '_blank',
+    })
+  }
+
+  if (data.value?.discord) {
+    items.push({
+      label: 'Discord',
+      icon: 'hugeicons:discord',
+      to: data.value.discord,
+      target: '_blank',
+    })
+  }
+
+  return items
 })
 
 useSeoMeta({

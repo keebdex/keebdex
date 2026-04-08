@@ -31,6 +31,22 @@
           </UModal>
 
           <UModal
+            v-if="Object.hasOwn(favorites, maker.id)"
+            v-model:visible="visible.customize_pins"
+            title="Customize Pins"
+            description="Pin up to 6 sculpts to the top for easy access."
+          >
+            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
+
+            <template #body="{ close }">
+              <ArtisanModalPinSculpt
+                :sculpts="favoriteSculpts.concat(otherSculpts)"
+                @on-success="close"
+              />
+            </template>
+          </UModal>
+
+          <UModal
             v-if="editable"
             v-model:visible="visible.edit"
             title="Edit Maker"
@@ -51,27 +67,23 @@
             </template>
           </UModal>
 
-          <UModal
-            v-if="Object.hasOwn(favorites, maker.id)"
-            v-model:visible="visible.customize_pins"
-            title="Customize Pins"
-            description="Pin up to 6 sculpts to the top for easy access."
-          >
-            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
-
-            <template #body="{ close }">
-              <ArtisanModalPinSculpt
-                :sculpts="favoriteSculpts.concat(otherSculpts)"
-                @on-success="close"
-              />
-            </template>
-          </UModal>
+          <SharedProfileDrawer
+            :title="maker.name"
+            :description="maker.bio"
+            :links="makerLinks"
+          />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <ArtisanMakerPageHeader :maker="maker" :sculpts="favoriteSculpts" />
+      <UPageGrid v-if="favoriteSculpts.length" class="mb-6">
+        <ArtisanSculptCard
+          v-for="sculpt in favoriteSculpts"
+          :key="sculpt.id"
+          :sculpt="sculpt"
+        />
+      </UPageGrid>
 
       <UPageGrid>
         <ArtisanSculptCard
@@ -113,6 +125,66 @@ const favoriteSculpts = computed(() => {
 })
 const otherSculpts = computed(() => {
   return sculpts.value.filter((s) => !favSculpts.value.includes(s.sculpt_id))
+})
+
+const makerLinks = computed(() => {
+  const items = []
+
+  if (maker.value?.website) {
+    items.push({
+      label: 'Website',
+      icon: 'hugeicons:globe-02',
+      to: maker.value.website,
+      target: '_blank',
+    })
+  }
+
+  if (maker.value?.instagram) {
+    items.push({
+      label: 'Instagram',
+      icon: 'hugeicons:instagram',
+      to: maker.value.instagram,
+      target: '_blank',
+    })
+  }
+
+  if (maker.value?.discord) {
+    items.push({
+      label: 'Discord',
+      icon: 'hugeicons:discord',
+      to: maker.value.discord,
+      target: '_blank',
+    })
+  }
+
+  if (maker.value?.artisancollector) {
+    items.push({
+      label: 'ArtisanCollector',
+      icon: 'hugeicons:globe-02',
+      to: maker.value.artisancollector,
+      target: '_blank',
+    })
+  }
+
+  if (
+    !maker.value?.disable_google_sync &&
+    Array.isArray(maker.value?.document_ids) &&
+    maker.value.document_ids.length
+  ) {
+    maker.value.document_ids.forEach((docId, idx) => {
+      items.push({
+        label:
+          maker.value.document_ids.length > 1
+            ? `Catalogue ${idx + 1}`
+            : 'Catalogue',
+        icon: 'hugeicons:file-02',
+        to: `https://docs.google.com/document/d/${docId}`,
+        target: '_blank',
+      })
+    })
+  }
+
+  return items
 })
 
 const breadcrumbs = computed(() => {

@@ -26,11 +26,6 @@
     </template>
 
     <template #body>
-      <UPageHeader
-        title="Keyboard Brands"
-        description="Browse keyboard brands, then drill into each catalog to manage boards, releases, and variants."
-      />
-
       <UPageGrid
         v-if="data?.length"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
@@ -58,7 +53,8 @@
 <script setup>
 useSeoMeta({
   title: 'Keyboard Brands',
-  description: 'Discover and manage mechanical keyboard brands on Keebdex.',
+  description:
+    'Browse keyboard brands, then drill into each catalog to manage boards, releases, and variants.',
 })
 
 const { data, refresh } = await useAsyncData('keyboard-brands', () =>

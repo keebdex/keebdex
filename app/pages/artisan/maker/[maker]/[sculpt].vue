@@ -66,12 +66,27 @@
               </template>
             </UModal>
           </div>
+
+          <SharedProfileDrawer
+            title="Sculpt information"
+            :description="sculpt.story"
+            :links="sculptLinks"
+          />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <ArtisanSculptPageHeader :sculpt="sculpt" @on-sorting="onChangeSorting" />
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <USelect
+          v-model="sortValue"
+          :items="sortOptions"
+          :icon="sortIconMap[sortValue]"
+          variant="soft"
+          :ui="{ content: 'min-w-fit' }"
+          @change="onChangeSorting"
+        />
+      </div>
 
       <UPageGrid>
         <UPageCard
@@ -189,6 +204,7 @@
 </template>
 
 <script setup>
+const appConfig = useAppConfig()
 const colorMode = useColorMode()
 const route = useRoute()
 const router = useRouter()
@@ -199,11 +215,37 @@ const page = computed(() => Number(route.query.page) || 1)
 
 const sortField = ref('order')
 const sortOrder = ref('desc')
+const sortValue = ref('order|desc')
 const onChangeSorting = (value) => {
   const [field, order] = value.split('|')
   sortField.value = field
   sortOrder.value = order
 }
+
+const sortOptions = [
+  {
+    label: 'Name (A-Z)',
+    icon: appConfig.ui.icons.sortAlphaAsc,
+    value: 'name|asc',
+  },
+  {
+    label: 'Name (Z-A)',
+    icon: appConfig.ui.icons.sortAlphaDesc,
+    value: 'name|desc',
+  },
+  {
+    label: 'Oldest First',
+    icon: appConfig.ui.icons.sortNumberAsc,
+    value: 'order|asc',
+  },
+  {
+    label: 'Newest First',
+    icon: appConfig.ui.icons.sortNumberDesc,
+    value: 'order|desc',
+  },
+]
+
+const sortIconMap = getSortIconMap(sortOptions)
 
 const { data: sculpt, refresh } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
@@ -283,6 +325,21 @@ const visible = ref({
   edit: false,
   create: false,
   card: false,
+})
+
+const sculptLinks = computed(() => {
+  if (!sculpt.value?.href) {
+    return []
+  }
+
+  return [
+    {
+      label: 'Website',
+      icon: 'hugeicons:globe-02',
+      to: sculpt.value.href,
+      target: '_blank',
+    },
+  ]
 })
 
 // colorway submission

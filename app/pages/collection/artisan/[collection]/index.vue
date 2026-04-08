@@ -215,10 +215,7 @@ const sortOptions = [
   },
 ]
 
-const sortIconMap = sortOptions.reduce((acc, option) => {
-  acc[option.value] = option.icon
-  return acc
-}, {})
+const sortIconMap = getSortIconMap(sortOptions)
 
 const config = useRuntimeConfig()
 

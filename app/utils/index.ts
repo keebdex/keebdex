@@ -98,6 +98,15 @@ export const formatKeyboardDescription = (names: Array<string | undefined>) => {
   return names.filter((n) => !!n).join(' ')
 }
 
+export const getSortIconMap = (
+  options: Array<{ value: string; icon: string }>,
+) => {
+  return options.reduce<Record<string, string>>((acc, option) => {
+    acc[option.value] = option.icon
+    return acc
+  }, {})
+}
+
 export const discordInviteRegex = /discord\.gg\/[a-zA-Z0-9]+/
 export const instagramProfileRegex =
   /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
