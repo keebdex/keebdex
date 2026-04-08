@@ -123,7 +123,7 @@ const wrapSection = ({
 const routes = computed(() => {
   const isCollapsed = collapsed.value
 
-  let profiles = Object.entries(keycapProfiles)
+  let profiles = Object.entries(keysetProfiles)
     .map(([profile, manufacturers]) => {
       return [
         {
@@ -144,7 +144,7 @@ const routes = computed(() => {
     profiles = profiles.filter((p) => p.type !== 'label')
   }
 
-  const statuses = Object.entries(keycapStatusMap).map(([status, meta]) => ({
+  const statuses = Object.entries(keysetStatusMap).map(([status, meta]) => ({
     label: meta.title,
     icon: meta.icon,
     to: `/keyset?status=${status}`,
@@ -201,7 +201,7 @@ const routes = computed(() => {
     },
   ]
 
-  const keycapChildren = [
+  const keysetChildren = [
     {
       label: 'Sets by Status',
       icon: 'hugeicons:calendar-03',
@@ -252,10 +252,10 @@ const routes = computed(() => {
     }),
     wrapSection({
       collapsed: isCollapsed,
-      label: 'Keycaps',
+      label: 'Keysets',
       icon: 'hugeicons:grid-view',
       active: route.path.startsWith('/keyset'),
-      children: keycapChildren,
+      children: keysetChildren,
     }),
   ]
 })

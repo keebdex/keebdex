@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`keyset-${profile}-${keyset}`">
     <template #header>
-      <UDashboardNavbar title="Manage Keycap Kits">
+      <UDashboardNavbar title="Manage Keyset Kits">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -28,7 +28,7 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Manage Keycap Kits" :description="description" />
+      <UPageHeader title="Manage Keyset Kits" :description="description" />
 
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #name-cell="{ row }">
@@ -152,11 +152,11 @@ const columns = [
 ]
 
 const description =
-  'Organize and edit keycap kits with ease. Add, update, or remove kits to keep your collection accurate and up to date.'
+  'Organize and edit keyset kits with ease. Add, update, or remove kits to keep your collection accurate and up to date.'
 
 useSeoMeta({
   title: data.value
-    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Kits`
+    ? `${data.value.profile.name} ${data.value.name} - Manage Keyset Kits`
     : manufacturers[profile],
   description,
 })

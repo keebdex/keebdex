@@ -72,9 +72,9 @@
       </UMarquee>
     </div>
 
-    <div v-if="liveKeycaps.length">
+    <div v-if="liveKeysets.length">
       <UPageHeader
-        title="Keycap Sets Open for Group Buys & Launches"
+        title="Keysets Open for Group Buys & Launches"
         :ui="{
           root: 'border-none py-4',
           title: 'text-sm sm:text-md text-muted',
@@ -98,9 +98,9 @@
         class="py-3 [--duration:28s] [--gap:--spacing(8)]"
       >
         <UPageCard
-          v-for="keycap in liveKeycaps"
-          :key="keycap.profile_keyset_id"
-          :to="`/keyset/${keycap.profile_keyset_id}`"
+          v-for="keyset in liveKeysets"
+          :key="keyset.profile_keyset_id"
+          :to="`/keyset/${keyset.profile_keyset_id}`"
           variant="subtle"
           reverse
           spotlight
@@ -108,22 +108,22 @@
         >
           <NuxtImg
             loading="lazy"
-            :alt="`${keycap.profile.name} ${keycap.name}`"
-            :src="keycap.img || keycap.render_img"
+            :alt="`${keyset.profile.name} ${keyset.name}`"
+            :src="keyset.img || keyset.render_img"
             class="aspect-[16/9] w-full rounded-lg object-cover"
           />
 
           <template #body>
             <UUser
-              :name="`${keycap.profile.name} ${keycap.name}`"
+              :name="`${keyset.profile.name} ${keyset.name}`"
               :description="
-                formatDateRange(keycap.start_date, keycap.end_date) ||
+                formatDateRange(keyset.start_date, keyset.end_date) ||
                 'Live Now'
               "
               size="lg"
               :avatar="{
-                src: `/logo/${keycap.profile_id}.png`,
-                alt: keycap.profile.name,
+                src: `/logo/${keyset.profile_id}.png`,
+                alt: keyset.profile.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
                   image: $colorMode.value === 'dark' && 'invert',
@@ -154,10 +154,10 @@ const { data } = await useAsyncData(
 )
 
 const artisanDrops = computed(() => data.value?.makers || [])
-const liveKeycaps = computed(() => data.value?.keysets || [])
+const liveKeysets = computed(() => data.value?.keysets || [])
 
 const totalFreshReleases = computed(
-  () => artisanDrops.value.length + liveKeycaps.value.length,
+  () => artisanDrops.value.length + liveKeysets.value.length,
 )
 
 const formatMakerAdditions = (count) => {

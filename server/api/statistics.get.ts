@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     },
   )
 
-  const { data: keysets, error: keycapsError } = await client
+  const { data: keysets, error: keysetsError } = await client
     .from('keysets')
     .select('*, profile:keyset_profiles(name, manufacturer_id)')
     .eq('status', 'Live')
@@ -39,15 +39,15 @@ export default defineEventHandler(async (event) => {
   // .lte('start_date', startOfDay)
   // .gte('end_date', startOfDay)
 
-  if (keycapsError) {
+  if (keysetsError) {
     throw createError({
       statusCode: 500,
-      statusMessage: keycapsError.message,
+      statusMessage: keysetsError.message,
     })
   }
 
   return {
     makers: sortBy(makers, 'name'),
-    keycaps: sortBy(keysets, 'profile_keyset_id'),
+    keysets: sortBy(keysets, 'profile_keyset_id'),
   }
 })

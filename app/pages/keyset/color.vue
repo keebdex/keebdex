@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="keycap-color">
+  <UDashboardPanel id="keyset-color">
     <template #header>
       <UDashboardNavbar :title="meta.title">
         <template #right>
@@ -175,9 +175,9 @@ const confirmDelete = (color) => {
 }
 
 const meta = {
-  title: 'Keycap Colors',
+  title: 'Keyset Colors',
   description:
-    'Browse and explore official keycap color codes used in the mechanical keyboard community.',
+    'Browse and explore official keyset color codes used in the mechanical keyboard community.',
 }
 
 useSeoMeta(meta)

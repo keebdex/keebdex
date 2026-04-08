@@ -2,12 +2,12 @@
   <KeysetListing
     :title="title"
     :description="description"
-    :keycaps="data.keycaps"
+    :keysets="data.keysets"
     :total="data.count"
     :page="page"
     :size="size"
     @update:page="updatePage"
-    @update:keycaps="refresh"
+    @update:keysets="refresh"
   />
 </template>
 
@@ -15,7 +15,7 @@
 const route = useRoute()
 const router = useRouter()
 
-const validStatuses = Object.keys(keycapStatusMap)
+const validStatuses = Object.keys(keysetStatusMap)
 
 const status = computed(() => {
   const s = route.query.status
@@ -48,9 +48,9 @@ const updatePage = (newPage) => {
   })
 }
 
-const title = computed(() => `${keycapStatusMap[status.value]?.title}`)
+const title = computed(() => `${keysetStatusMap[status.value]?.title}`)
 const description = computed(
-  () => `${keycapStatusMap[status.value]?.description}`,
+  () => `${keysetStatusMap[status.value]?.description}`,
 )
 
 useSeoMeta({

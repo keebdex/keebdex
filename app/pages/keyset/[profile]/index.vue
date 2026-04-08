@@ -2,13 +2,13 @@
   <KeysetListing
     :title="title"
     :description="description"
-    :keycaps="data?.keycaps"
+    :keysets="keysets"
     :total="data?.count"
     :profile="data?.profile"
     :page="page"
     :size="size"
     @update:page="updatePage"
-    @update:keycaps="refresh"
+    @update:keysets="refresh"
   />
 </template>
 
@@ -36,6 +36,8 @@ const { data, refresh } = await useAsyncData(
     watch: [page, size],
   },
 )
+
+const keysets = computed(() => data.value?.keysets || [])
 
 const title = manufacturers[profile]
 const description = data.value?.profile?.description

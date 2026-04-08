@@ -19,7 +19,7 @@ export const formatDateRange = (fromDate: string, toDate: string) => {
     : ''
 }
 
-export const keycapProfiles = {
+export const keysetProfiles = {
   Cherry: {
     epbt: 'ePBT',
     gmk: 'GMK CYL',
@@ -42,7 +42,7 @@ export const keycapProfiles = {
   },
 }
 
-export const keycapStatusColors = {
+export const keysetStatusColors = {
   'Interest Check': 'secondary',
   Cancelled: 'error',
   Scheduled: 'info',
@@ -52,7 +52,7 @@ export const keycapStatusColors = {
   Complete: 'success',
 }
 
-export const keycapStatusMap = {
+export const keysetStatusMap = {
   ic: {
     title: 'Interest Check',
     description:
@@ -79,7 +79,7 @@ export const keycapStatusMap = {
   },
 }
 
-export const manufacturers = Object.values(keycapProfiles).reduce(
+export const manufacturers = Object.values(keysetProfiles).reduce(
   (curr, prev) => {
     Object.assign(curr, prev)
     return curr

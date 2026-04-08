@@ -828,7 +828,7 @@ export type Database = {
           exchange: boolean
           id: number
           keyboard_item_id: number | null
-          keycap_item_id: string | null
+          keyset_item_id: string | null
           order: number | null
           priority: boolean
           uid: string
@@ -840,7 +840,7 @@ export type Database = {
           exchange?: boolean
           id?: number
           keyboard_item_id?: number | null
-          keycap_item_id?: string | null
+          keyset_item_id?: string | null
           order?: number | null
           priority?: boolean
           uid: string
@@ -852,7 +852,7 @@ export type Database = {
           exchange?: boolean
           id?: number
           keyboard_item_id?: number | null
-          keycap_item_id?: string | null
+          keyset_item_id?: string | null
           order?: number | null
           priority?: boolean
           uid?: string
@@ -880,8 +880,8 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_collection_items_keycap_item_id_fkey"
-            columns: ["keycap_item_id"]
+            foreignKeyName: "user_collection_items_keyset_item_id_fkey"
+            columns: ["keyset_item_id"]
             isOneToOne: false
             referencedRelation: "keysets"
             referencedColumns: ["profile_keyset_id"]
@@ -1064,7 +1064,7 @@ export type Database = {
         | "Shipping"
         | "Complete"
         | "Cancelled"
-      module: "Artisan" | "Keycap" | "Keyboard"
+      module: "Artisan" | "Keyset" | "Keyboard"
       review_status: "Pending" | "Approved" | "Rejected"
       sale_format:
         | "Raffle"
@@ -1290,7 +1290,7 @@ export const Constants = {
         "Complete",
         "Cancelled",
       ],
-      module: ["Artisan", "Keycap", "Keyboard"],
+      module: ["Artisan", "Keyset", "Keyboard"],
       review_status: ["Pending", "Approved", "Rejected"],
       sale_format: [
         "Raffle",

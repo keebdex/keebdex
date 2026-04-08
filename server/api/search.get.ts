@@ -147,11 +147,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (isIncluded('keycap')) {
+  if (isIncluded('keyset')) {
     searchTasks.push({
-      key: 'keycaps',
+      key: 'keysets',
       search: runCombinedSearch({
-        label: 'Keycap Sets',
+        label: 'Keysets',
         ftsQuery: client
           .from('keysets')
           .select('*, profile:keyset_profiles(name, manufacturer_id)')
@@ -274,7 +274,7 @@ export default defineEventHandler(async (event) => {
     artisanMakers = [],
     artisanSculpts = [],
     artisanColorways = [],
-    keycaps = [],
+    keysets = [],
     keyboardBrands = [],
     keyboards = [],
     keyboardReleases = [],
@@ -349,10 +349,10 @@ export default defineEventHandler(async (event) => {
       }),
     },
     {
-      id: 'keycap-set',
-      label: 'Keycap Sets',
+      id: 'keyset',
+      label: 'Keysets',
       ignoreFilter: true,
-      items: keycaps.map((kc: any) => ({
+      items: keysets.map((kc: any) => ({
         id: kc.id,
         label: `${kc.profile.name} ${kc.name}`,
         to: `/keyset/${kc.profile_keyset_id}`,

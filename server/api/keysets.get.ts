@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    keycaps: data?.map(omitSensitive),
+    keysets: data?.map(omitSensitive),
     profile,
     count,
   }

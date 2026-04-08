@@ -29,7 +29,7 @@
             />
           </UDropdownMenu>
 
-          <UModal v-if="editable" v-model:visible="visible" title="Edit Keycap">
+          <UModal v-if="editable" v-model:visible="visible" title="Edit Keyset">
             <UButton label="Edit" icon="hugeicons:keyboard" />
 
             <template #body="{ close }">
@@ -107,7 +107,7 @@
                     term: 'Status',
                     badge: {
                       label: data.status,
-                      color: keycapStatusColors[data.status],
+                      color: keysetStatusColors[data.status],
                     },
                   },
                 ]"
