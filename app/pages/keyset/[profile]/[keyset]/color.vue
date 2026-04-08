@@ -1,7 +1,7 @@
 <template>
-  <UDashboardPanel :id="`keycap-${profile}-${keycap}-color`">
+  <UDashboardPanel :id="`keyset-${profile}-${keyset}-color`">
     <template #header>
-      <UDashboardNavbar title="Manage Keycap Colors">
+      <UDashboardNavbar title="Manage Keyset Colors">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -11,7 +11,7 @@
             <UButton icon="hugeicons:dashboard-circle-add" label="Add" />
 
             <template #body="{ close }">
-              <KeycapModalKeycapColorForm
+              <KeysetModalKeysetColorForm
                 @on-success="
                   () => {
                     close()
@@ -26,18 +26,18 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Manage Keycap Colors" :description="description" />
+      <UPageHeader title="Manage Keyset Colors" :description="description" />
 
       <UTable :data="data.colors" :columns="columns" class="flex-1">
         <template #hex-cell="{ row }">
-          <KeycapColorSwatch :color="row.original.color?.hex" />
+          <KeysetColorSwatch :color="row.original.color?.hex" />
         </template>
 
         <template #action-cell="{ row }">
           <div class="flex gap-2">
             <UModal v-model:visible="visible" title="Edit Color">
               <template #body="{ close }">
-                <KeycapModalKeycapColorForm
+                <KeysetModalKeysetColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="
@@ -88,22 +88,22 @@ definePageMeta({
 const toast = useToast()
 
 const route = useRoute()
-const { profile, keycap } = route.params
+const { profile, keyset } = route.params
 
 const { data, refresh } = await useAsyncData(
-  `keycap/${profile}/${keycap}`,
-  () => $fetch(`/api/keycaps/${profile}/${keycap}`),
+  `keyset/${profile}/${keyset}`,
+  () => $fetch(`/api/keysets/${profile}/${keyset}`),
 )
 
 const breadcrumbs = computed(() => {
   return [
     {
       label: manufacturers[profile],
-      to: `/keycap/${profile}`,
+      to: `/keyset/${profile}`,
     },
     {
       label: data.value.name,
-      to: `/keycap/${profile}/${keycap}`,
+      to: `/keyset/${profile}/${keyset}`,
     },
     {
       label: 'Colors',
@@ -131,10 +131,10 @@ const columns = [
 ]
 
 const description =
-  'Easily manage and connect official color codes to keycap sets on Keebdex.'
+  'Easily manage and connect official color codes to keyset collections on Keebdex.'
 useSeoMeta({
   title: data.value
-    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Colors`
+    ? `${data.value.profile.name} ${data.value.name} - Manage Keyset Colors`
     : manufacturers[profile],
   description,
 })
@@ -153,7 +153,7 @@ const setSelectedColor = (color) => {
 
 const deleteColor = ref(false)
 const confirmDelete = (color) => {
-  $fetch(`/api/keycaps/${color.profile_keycap_id}/colors/${color.id}`, {
+  $fetch(`/api/keysets/${color.profile_keyset_id}/colors/${color.id}`, {
     method: 'delete',
   })
     .then(() => {

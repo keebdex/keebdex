@@ -1,9 +1,9 @@
 <template>
-  <UDashboardPanel id="keycap-sets">
+  <UDashboardPanel id="keyset-sets">
     <template #header>
       <UDashboardNavbar :title="title">
         <template #right>
-          <UModal v-model:visible="visible" title="Add Keycap">
+          <UModal v-model:visible="visible" title="Add Keyset">
             <UButton
               v-if="isAdmin"
               color="primary"
@@ -12,12 +12,12 @@
             />
 
             <template #body="{ close }">
-              <KeycapModalKeycapForm
+              <KeysetModalKeysetForm
                 :metadata="query"
                 @on-success="
                   () => {
                     close()
-                    $emit('update:keycaps')
+                    $emit('update:keysets')
                   }
                 "
               />
@@ -35,47 +35,47 @@
       </UPageHeader> -->
 
       <UPageGrid
-        v-if="keycaps.length"
+        v-if="keysets.length"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
       >
         <UPageCard
-          v-for="keycap in keycaps"
-          :key="keycap.id"
-          :to="`/keycap/${keycap.profile_keycap_id}`"
+          v-for="keyset in keysets"
+          :key="keyset.id"
+          :to="`/keyset/${keyset.profile_keyset_id}`"
           :title="
-            keycap.profile
-              ? `${keycap.profile?.name} ${keycap.name}`
-              : keycap.name
+            keyset.profile
+              ? `${keyset.profile?.name} ${keyset.name}`
+              : keyset.name
           "
           :description="
-            keycap.profile
-              ? formatDateRange(keycap.start_date, keycap.end_date) || '\u00A0'
-              : keycap.description || '\u00A0'
+            keyset.profile
+              ? formatDateRange(keyset.start_date, keyset.end_date) || '\u00A0'
+              : keyset.description || '\u00A0'
           "
-          :icon="statusIconMap[keycap.status]"
+          :icon="statusIconMap[keyset.status]"
           reverse
           spotlight
           :ui="{
-            leadingIcon: `text-${keycapStatusColors[keycap.status]}`,
+            leadingIcon: `text-${keysetStatusColors[keyset.status]}`,
             /**
              * applied to card descriptions to normalize card height
              * and ensure titles align across grid items
              */
-            description: !keycap.profile && 'line-clamp-4 min-h-[5rem]',
+            description: !keyset.profile && 'line-clamp-4 min-h-[5rem]',
           }"
         >
           <NuxtImg
             loading="lazy"
-            :alt="keycap.name"
-            :src="keycap.img || keycap.render_img"
+            :alt="keyset.name"
+            :src="keyset.img || keyset.render_img"
             class="aspect-[16/9] w-full object-cover"
           />
 
           <template #footer>
             <SharedSaveToCollection
               v-if="authenticated"
-              :item="keycap"
-              category="keycap"
+              :item="keyset"
+              category="keyset"
               label="Save"
               class="z-10"
               @on-select="saveTo"
@@ -89,7 +89,7 @@
           statusCode: 404,
           statusMessage: 'Not Found',
           message:
-            'Currently, there are no keycaps available. Check back soon for fresh additions!',
+            'Currently, there are no keysets available. Check back soon for fresh additions!',
         }"
       />
 
@@ -112,7 +112,7 @@
 defineProps({
   title: {
     type: String,
-    default: 'Keycaps',
+    default: 'Keysets',
   },
   description: {
     type: String,
@@ -130,13 +130,13 @@ defineProps({
     type: Number,
     default: 0,
   },
-  keycaps: {
+  keysets: {
     type: Array,
     default: () => [],
   },
 })
 
-defineEmits(['update:page', 'update:keycaps'])
+defineEmits(['update:page', 'update:keysets'])
 
 const userStore = useUserStore()
 const { authenticated, isAdmin, user } = storeToRefs(userStore)
@@ -152,11 +152,11 @@ const statusIconMap = {
 
 const visible = ref(false)
 
-const saveTo = (collection, keycap) => {
+const saveTo = (collection, keyset) => {
   const item = {
     uid: user.value.uid,
     collection_id: collection.id,
-    keycap_item_id: keycap.profile_keycap_id,
+    keyset_item_id: keyset.profile_keyset_id,
   }
 
   $fetch(`/api/users/${user.value.uid}/collections/${collection.id}/items`, {
@@ -164,7 +164,7 @@ const saveTo = (collection, keycap) => {
     body: item,
   })
     .then(() => {
-      toast.add(handleSuccess('add', keycap.name, undefined, collection.name))
+      toast.add(handleSuccess('add', keyset.name, undefined, collection.name))
     })
     .catch((error) => {
       toast.add(handleError(error))

@@ -1,7 +1,7 @@
 <template>
-  <UDashboardPanel :id="`keycap-${profile}-${keycap}`">
+  <UDashboardPanel :id="`keyset-${profile}-${keyset}`">
     <template #header>
-      <UDashboardNavbar title="Manage Keycap Kits">
+      <UDashboardNavbar title="Manage Keyset Kits">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -11,7 +11,7 @@
             <UButton icon="hugeicons:dashboard-square-add" label="Add" />
 
             <template #body="{ close }">
-              <KeycapModalKeycapKitForm
+              <KeysetModalKeysetKitForm
                 :is-edit="!!selectedKit?.id"
                 :metadata="selectedKit"
                 @on-success="
@@ -28,7 +28,7 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Manage Keycap Kits" :description="description" />
+      <UPageHeader title="Manage Keyset Kits" :description="description" />
 
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #name-cell="{ row }">
@@ -51,7 +51,7 @@
               />
 
               <template #body="{ close }">
-                <KeycapModalKeycapKitForm
+                <KeysetModalKeysetKitForm
                   :is-edit="true"
                   :metadata="selectedKit"
                   @on-success="
@@ -102,22 +102,22 @@ definePageMeta({
 const toast = useToast()
 
 const route = useRoute()
-const { profile, keycap } = route.params
+const { profile, keyset } = route.params
 
 const { data, refresh } = await useAsyncData(
-  `keycap/${profile}/${keycap}`,
-  () => $fetch(`/api/keycaps/${profile}/${keycap}`),
+  `keyset/${profile}/${keyset}`,
+  () => $fetch(`/api/keysets/${profile}/${keyset}`),
 )
 
 const breadcrumbs = computed(() => {
   return [
     {
       label: manufacturers[profile],
-      to: `/keycap/${profile}`,
+      to: `/keyset/${profile}`,
     },
     {
       label: data.value.name,
-      to: `/keycap/${profile}/${keycap}`,
+      to: `/keyset/${profile}/${keyset}`,
     },
     {
       label: 'Kits',
@@ -152,11 +152,11 @@ const columns = [
 ]
 
 const description =
-  'Organize and edit keycap kits with ease. Add, update, or remove kits to keep your collection accurate and up to date.'
+  'Organize and edit keyset kits with ease. Add, update, or remove kits to keep your collection accurate and up to date.'
 
 useSeoMeta({
   title: data.value
-    ? `${data.value.profile.name} ${data.value.name} - Manage Keycap Kits`
+    ? `${data.value.profile.name} ${data.value.name} - Manage Keyset Kits`
     : manufacturers[profile],
   description,
 })
@@ -174,7 +174,7 @@ const setSelectedKit = (kit) => {
 
 const deleteKit = ref(false)
 const confirmDelete = (kit) => {
-  $fetch(`/api/keycaps/${kit.profile_keycap_id}/kits/${kit.id}`, {
+  $fetch(`/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`, {
     method: 'delete',
   })
     .then(() => {

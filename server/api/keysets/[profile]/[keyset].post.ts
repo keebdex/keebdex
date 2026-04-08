@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
     await readBody(event)
 
   const { data, error } = rest.id
-    ? await client.from('keycaps').update(rest).eq('id', rest.id)
+    ? await client.from('keysets').update(rest).eq('id', rest.id)
     : await client
-        .from('keycaps')
+        .from('keysets')
         .insert(rest)
-        .eq('profile_keycap_id', rest.profile_keycap_id)
+        .eq('profile_keyset_id', rest.profile_keyset_id)
 
   if (error) {
     throw createError({

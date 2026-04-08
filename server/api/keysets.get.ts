@@ -22,15 +22,15 @@ export default defineEventHandler(async (event) => {
   switch (status) {
     case 'pending':
       query = client
-        .from('keycaps')
-        .select('*, profile:keycap_profiles(name)', { count: 'exact' })
+        .from('keysets')
+        .select('*, profile:keyset_profiles(name)', { count: 'exact' })
         .in('review_status', ['Pending'])
         .range(from, to)
       break
     case 'ic':
       query = client
-        .from('keycaps')
-        .select('*, profile:keycap_profiles(name)', { count: 'exact' })
+        .from('keysets')
+        .select('*, profile:keyset_profiles(name)', { count: 'exact' })
         .in('status', statusMap[status] || [])
         .neq('review_status', 'Pending')
         .neq('review_status', 'Rejected')
@@ -40,8 +40,8 @@ export default defineEventHandler(async (event) => {
     case 'live':
     case 'ended':
       query = client
-        .from('keycaps')
-        .select('*, profile:keycap_profiles(name)', { count: 'exact' })
+        .from('keysets')
+        .select('*, profile:keyset_profiles(name)', { count: 'exact' })
         .in('status', statusMap[status] || [])
         .neq('review_status', 'Pending')
         .neq('review_status', 'Rejected')
@@ -50,13 +50,13 @@ export default defineEventHandler(async (event) => {
       break
     default:
       query = client
-        .from('keycaps')
+        .from('keysets')
         .select('*', { count: 'exact' })
         .eq('profile_id', profile_id)
         .neq('status', '')
         .neq('review_status', 'Pending')
         .neq('review_status', 'Rejected')
-        .order('profile_keycap_id')
+        .order('profile_keyset_id')
         .range(from, to)
       break
   }
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const { data: profile, error: profileError } = await client
-    .from('keycap_profiles')
+    .from('keyset_profiles')
     .select()
     .eq('id', profile_id)
     .single()
@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    keycaps: data?.map(omitSensitive),
+    keysets: data?.map(omitSensitive),
     profile,
     count,
   }

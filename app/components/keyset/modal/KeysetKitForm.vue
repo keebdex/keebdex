@@ -99,7 +99,7 @@ const kit = ref({
   kit_id: 'base',
   name: '',
   img: '',
-  profile_keycap_id: `${route.params.profile}/${route.params.keycap}`,
+  profile_keyset_id: `${route.params.profile}/${route.params.keyset}`,
   cancelled: false,
 })
 
@@ -118,7 +118,7 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
-  await $fetch(`/api/keycaps/${kit.value.profile_keycap_id}/kits`, {
+  await $fetch(`/api/keysets/${kit.value.profile_keyset_id}/kits`, {
     method: 'post',
     body: kit.value,
   })

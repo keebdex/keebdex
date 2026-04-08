@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="keycap-color">
+  <UDashboardPanel id="keyset-color">
     <template #header>
       <UDashboardNavbar :title="meta.title">
         <template #right>
@@ -7,7 +7,7 @@
             <UButton icon="hugeicons:color-picker" label="Add" />
 
             <template #body="{ close }">
-              <KeycapModalColorForm
+              <KeysetModalColorForm
                 :is-edit="!!selectedColor?.id"
                 :metadata="selectedColor"
                 @on-success="
@@ -41,7 +41,7 @@
         :columns="columns"
       >
         <template #hex-cell="{ row }">
-          <KeycapColorSwatch :color="row.original.hex" />
+          <KeysetColorSwatch :color="row.original.hex" />
         </template>
 
         <template v-if="editable" #action-cell="{ row }">
@@ -55,7 +55,7 @@
               />
 
               <template #body="{ close }">
-                <KeycapModalColorForm
+                <KeysetModalColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="
@@ -175,9 +175,9 @@ const confirmDelete = (color) => {
 }
 
 const meta = {
-  title: 'Keycap Colors',
+  title: 'Keyset Colors',
   description:
-    'Browse and explore official keycap color codes used in the mechanical keyboard community.',
+    'Browse and explore official keyset color codes used in the mechanical keyboard community.',
 }
 
 useSeoMeta(meta)

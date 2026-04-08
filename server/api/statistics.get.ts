@@ -21,33 +21,33 @@ export default defineEventHandler(async (event) => {
   }
 
   const makers = Object.entries(groupBy(data, 'maker.name')).map(
-    ([name, keycaps]) => {
+    ([name, keysets]) => {
       return {
         name,
-        invertible_logo: keycaps[0].maker.invertible_logo,
-        id: keycaps[0].maker_id,
-        additions: keycaps.length,
+        invertible_logo: keysets[0].maker.invertible_logo,
+        id: keysets[0].maker_id,
+        additions: keysets.length,
       }
     },
   )
 
-  const { data: keycaps, error: keycapsError } = await client
-    .from('keycaps')
-    .select('*, profile:keycap_profiles(name, manufacturer_id)')
+  const { data: keysets, error: keysetsError } = await client
+    .from('keysets')
+    .select('*, profile:keyset_profiles(name, manufacturer_id)')
     .eq('status', 'Live')
     .eq('review_status', 'Approved')
   // .lte('start_date', startOfDay)
   // .gte('end_date', startOfDay)
 
-  if (keycapsError) {
+  if (keysetsError) {
     throw createError({
       statusCode: 500,
-      statusMessage: keycapsError.message,
+      statusMessage: keysetsError.message,
     })
   }
 
   return {
     makers: sortBy(makers, 'name'),
-    keycaps: sortBy(keycaps, 'profile_keycap_id'),
+    keysets: sortBy(keysets, 'profile_keyset_id'),
   }
 })

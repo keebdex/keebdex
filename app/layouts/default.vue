@@ -123,7 +123,7 @@ const wrapSection = ({
 const routes = computed(() => {
   const isCollapsed = collapsed.value
 
-  let profiles = Object.entries(keycapProfiles)
+  let profiles = Object.entries(keysetProfiles)
     .map(([profile, manufacturers]) => {
       return [
         {
@@ -132,9 +132,9 @@ const routes = computed(() => {
         },
         ...Object.entries(manufacturers).map(([id, name]) => ({
           label: name,
-          to: `/keycap/${id}`,
+          to: `/keyset/${id}`,
           exact: true,
-          active: route.path.includes(`/keycap/${id}`),
+          active: route.path.includes(`/keyset/${id}`),
         })),
       ]
     })
@@ -144,11 +144,11 @@ const routes = computed(() => {
     profiles = profiles.filter((p) => p.type !== 'label')
   }
 
-  const statuses = Object.entries(keycapStatusMap).map(([status, meta]) => ({
+  const statuses = Object.entries(keysetStatusMap).map(([status, meta]) => ({
     label: meta.title,
     icon: meta.icon,
-    to: `/keycap?status=${status}`,
-    active: route.path === '/keycap' && route.query.status === status,
+    to: `/keyset?status=${status}`,
+    active: route.path === '/keyset' && route.query.status === status,
     exact: true,
   }))
 
@@ -201,13 +201,13 @@ const routes = computed(() => {
     },
   ]
 
-  const keycapChildren = [
+  const keysetChildren = [
     {
       label: 'Sets by Status',
       icon: 'hugeicons:calendar-03',
       ...(isCollapsed ? {} : { type: 'trigger' }),
       defaultOpen: true,
-      active: route.path === '/keycap',
+      active: route.path === '/keyset',
       children: statuses,
     },
     {
@@ -216,14 +216,14 @@ const routes = computed(() => {
       ...(isCollapsed ? {} : { type: 'trigger' }),
       defaultOpen: false,
       active:
-        route.path.startsWith('/keycap/') && !route.path.endsWith('color'),
+        route.path.startsWith('/keyset/') && !route.path.endsWith('color'),
       children: profiles,
     },
     {
       label: 'Color Swatches',
       icon: 'hugeicons:colors',
-      to: '/keycap/color',
-      active: route.path === '/keycap/color',
+      to: '/keyset/color',
+      active: route.path === '/keyset/color',
     },
   ]
 
@@ -252,10 +252,10 @@ const routes = computed(() => {
     }),
     wrapSection({
       collapsed: isCollapsed,
-      label: 'Keycaps',
+      label: 'Keysets',
       icon: 'hugeicons:grid-view',
-      active: route.path.startsWith('/keycap'),
-      children: keycapChildren,
+      active: route.path.startsWith('/keyset'),
+      children: keysetChildren,
     }),
   ]
 })

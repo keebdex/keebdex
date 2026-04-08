@@ -2,14 +2,13 @@ import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
+  const { category, ...kit } = await readBody(event)
 
-  const { params } = event.context
+  const query = kit.id
+    ? client.from('keyset_kits').update(kit).eq('id', kit.id)
+    : client.from('keyset_kits').insert(kit)
 
-  const { data, error } = await client
-    .from('keycap_kits')
-    .delete()
-    .eq('id', params?.id)
-    .eq('profile_keycap_id', `${params?.profile}/${params?.keycap}`)
+  const { data, error } = await query
 
   if (error) {
     throw createError({

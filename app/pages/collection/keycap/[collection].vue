@@ -57,25 +57,25 @@
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
       >
         <UPageCard
-          v-for="{ id, keycap } in sortedCollections"
-          :key="keycap.id"
-          :title="keycap.name"
-          :description="keycap.designer"
+          v-for="{ id, keyset } in sortedCollections"
+          :key="keyset.id"
+          :title="keyset.name"
+          :description="keyset.designer"
           variant="subtle"
           reverse
         >
           <NuxtImg
             loading="lazy"
-            :alt="keycap.name"
-            :src="keycap.img || keycap.render_img"
+            :alt="keyset.name"
+            :src="keyset.img || keyset.render_img"
             class="aspect-[16/9] w-full object-cover"
           />
 
           <template #footer>
             <UModal
               v-model:visible="visible.remove"
-              title="Remove Keycap"
-              :description="`Are you sure you want to remove ${keycap.name}?`"
+              title="Remove Keyset"
+              :description="`Are you sure you want to remove ${keyset.name}?`"
               :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UButton
@@ -89,7 +89,7 @@
                 <UButton
                   label="Delete"
                   color="error"
-                  @click="remove(id, keycap)"
+                  @click="remove(id, keyset)"
                 />
               </template>
             </UModal>
@@ -134,17 +134,17 @@ useSeoMeta({
 watchEffect(() => route.params.collection, refresh())
 
 const sortedCollections = computed(() => {
-  return sortBy(data.value?.items || [], ['keycap.name'])
+  return sortBy(data.value?.items || [], ['keyset.name'])
 })
 
-const remove = (id, keycap) => {
+const remove = (id, keyset) => {
   $fetch(
     `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
     { method: 'delete' },
   )
     .then(() => {
       refresh()
-      toast.add(handleSuccess('delete', keycap?.name))
+      toast.add(handleSuccess('delete', keyset?.name))
     })
     .catch((error) => {
       toast.add(handleError(error))

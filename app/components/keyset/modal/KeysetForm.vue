@@ -1,9 +1,9 @@
 <template>
-  <UForm :schema="schema" :state="keycap" class="space-y-4">
+  <UForm :schema="schema" :state="keyset" class="space-y-4">
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Name" name="name" required>
         <UInput
-          v-model.trim="keycap.name"
+          v-model.trim="keyset.name"
           icon="hugeicons:text-font"
           class="w-full"
         />
@@ -11,7 +11,7 @@
 
       <UFormField label="Designer" name="designer">
         <UInput
-          v-model.trim="keycap.designer"
+          v-model.trim="keyset.designer"
           icon="hugeicons:user-star-01"
           class="w-full"
         />
@@ -21,9 +21,9 @@
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Profile" name="profile" required>
         <USelect
-          v-model="keycap.profile_id"
+          v-model="keyset.profile_id"
           :items="
-            Object.entries(keycapProfiles)
+            Object.entries(keysetProfiles)
               .map(([profile, manufacturers], idx) => {
                 return [
                   { type: 'label', label: profile },
@@ -46,7 +46,7 @@
 
       <UFormField label="Sculpt" name="sculpt">
         <UInputMenu
-          v-model.trim="keycap.sculpt"
+          v-model.trim="keyset.sculpt"
           :items="sculpts"
           icon="hugeicons:dashboard-square-02"
           class="w-full"
@@ -56,7 +56,7 @@
 
     <UFormField label="URL" name="url">
       <UInput
-        v-model.trim="keycap.url"
+        v-model.trim="keyset.url"
         icon="hugeicons:globe-02"
         class="w-full"
       />
@@ -64,7 +64,7 @@
 
     <UFormField label="Render" name="render_img">
       <UInput
-        v-model.trim="keycap.render_img"
+        v-model.trim="keyset.render_img"
         icon="hugeicons:image-02"
         class="w-full"
       />
@@ -73,15 +73,15 @@
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Status" name="status">
         <USelect
-          v-model="keycap.status"
-          :items="Constants.public.Enums.keycap_status"
+          v-model="keyset.status"
+          :items="keysetStatusEnum"
           class="w-full"
         />
       </UFormField>
 
       <UFormField label="Review Status" name="review_status">
         <USelect
-          v-model="keycap.review_status"
+          v-model="keyset.review_status"
           :items="Constants.public.Enums.review_status"
           class="w-full"
         />
@@ -91,11 +91,11 @@
     <UFormField label="IC Date" name="ic_date">
       <UPopover>
         <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
-          {{ keycap.ic_date ? formatDate(keycap.ic_date) : 'Select a date' }}
+          {{ keyset.ic_date ? formatDate(keyset.ic_date) : 'Select a date' }}
         </UButton>
 
         <template #content>
-          <UCalendar v-model="keycap.ic_date" />
+          <UCalendar v-model="keyset.ic_date" />
         </template>
       </UPopover>
     </UFormField>
@@ -123,7 +123,7 @@
 
     <UFormField label="Order Graph" name="order_graph">
       <UInput
-        v-model.trim="keycap.order_graph"
+        v-model.trim="keyset.order_graph"
         icon="hugeicons:bar-chart-horizontal"
         class="w-full"
       />
@@ -131,7 +131,7 @@
 
     <UFormField label="Order History" name="order_history">
       <UInput
-        v-model.trim="keycap.order_history"
+        v-model.trim="keyset.order_history"
         icon="hugeicons:chart-line-data-02"
         class="w-full"
       />
@@ -142,7 +142,7 @@
       name="description"
       help="Keep it concise and under 400 characters for optimal display."
     >
-      <UTextarea v-model.trim="keycap.description" :rows="5" class="w-full" />
+      <UTextarea v-model.trim="keyset.description" :rows="5" class="w-full" />
     </UFormField>
 
     <!-- FIXME: I don't know why form submit is not working for this form. So I need to did this -->
@@ -170,8 +170,9 @@ const { metadata, isEdit } = defineProps({
 
 const route = useRoute()
 const toast = useToast()
+const keysetStatusEnum = Constants.public.Enums.keyset_status
 
-const keycap = ref({
+const keyset = ref({
   name: '',
   url: '',
   render_img: '',
@@ -181,10 +182,10 @@ const range = ref({})
 
 onBeforeMount(() => {
   const { page, size, ...rest } = metadata
-  Object.assign(keycap.value, rest)
+  Object.assign(keyset.value, rest)
 
   if (rest.ic_date) {
-    keycap.value.ic_date = parseDate(rest.ic_date)
+    keyset.value.ic_date = parseDate(rest.ic_date)
   }
   if (rest.start_date) {
     range.value.start = parseDate(rest.start_date)
@@ -194,7 +195,7 @@ onBeforeMount(() => {
   }
 })
 
-const ic = computed(() => keycap.value.status === 'Interest Check')
+const ic = computed(() => keyset.value.status === 'Interest Check')
 
 const sculpts = [
   {
@@ -222,7 +223,7 @@ const schema = z.object({
   // ic_date: z.date(),
   // start_date: z.date(),
   // end_date: z.date(),
-  status: z.enum(Constants.public.Enums.keycap_status).nullish(),
+  status: z.enum(keysetStatusEnum).nullish(),
   review_status: z.enum(Constants.public.Enums.review_status).nullish(),
   order_graph: z.url().nullish().or(z.string().min(0).max(0)),
   order_history: z.url().nullish().or(z.string().min(0).max(0)),
@@ -230,49 +231,49 @@ const schema = z.object({
 })
 
 const onSubmit = () => {
-  const slug = slugify(keycap.value.name, { lower: true })
+  const slug = slugify(keyset.value.name, { lower: true })
 
-  keycap.value.profile_keycap_id = `${keycap.value.profile_id}/${slug}`
+  keyset.value.profile_keyset_id = `${keyset.value.profile_id}/${slug}`
 
-  if (keycap.value.ic_date) {
-    keycap.value.ic_date = toISODate(keycap.value.ic_date)
+  if (keyset.value.ic_date) {
+    keyset.value.ic_date = toISODate(keyset.value.ic_date)
   }
   if (range.value.start) {
-    keycap.value.start_date = toISODate(range.value.start)
+    keyset.value.start_date = toISODate(range.value.start)
   }
   if (range.value.end) {
-    keycap.value.end_date = toISODate(range.value.end)
+    keyset.value.end_date = toISODate(range.value.end)
   }
 
   /**
    * FIXME: maybe we need to change this
    * this is workaround to handle updating render_img and refresh cdn image
    */
-  if (metadata.render_img && metadata.render_img !== keycap.value.render_img) {
-    keycap.value.img = ''
+  if (metadata.render_img && metadata.render_img !== keyset.value.render_img) {
+    keyset.value.img = ''
   }
 
   $fetch(
-    `/api/keycaps/${route.params.profile}/${route.params.keycap || slug}`,
+    `/api/keysets/${route.params.profile}/${route.params.keyset || slug}`,
     {
       method: 'post',
-      body: keycap.value,
+      body: keyset.value,
     },
   )
     .then(() => {
       if (isEdit) {
-        toast.add(handleSuccess('update', keycap.value.name, 'Keycap'))
+        toast.add(handleSuccess('update', keyset.value.name, 'Keyset'))
 
-        if (route.params.keycap !== slug) {
-          navigateTo(`/keycap/${keycap.value.profile_keycap_id}`)
+        if (route.params.keyset !== slug) {
+          navigateTo(`/keyset/${keyset.value.profile_keyset_id}`)
         }
       } else {
         toast.add({
-          ...handleSuccess('add', keycap.value.name, 'Keycap'),
+          ...handleSuccess('add', keyset.value.name, 'Keyset'),
           actions: [
             {
               label: 'View',
-              to: `/keycap/${keycap.value.profile_keycap_id}`,
+              to: `/keyset/${keyset.value.profile_keyset_id}`,
             },
           ],
         })

@@ -21,7 +21,7 @@
   >
     <UTooltip :text="move ? 'Move' : 'Save'" :delay-duration="0">
       <UButton
-        :id="`${item.colorway_id || item.profile_keycap_id || item.id || 'item'}-save-to`"
+        :id="`${item.colorway_id || item.profile_keyset_id || item.id || 'item'}-save-to`"
         :label="label"
         :icon="icon"
       />

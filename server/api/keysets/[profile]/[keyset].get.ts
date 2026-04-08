@@ -7,12 +7,12 @@ export default defineEventHandler(async (event) => {
   const { params } = event.context
 
   const { data, error } = await client
-    .from('keycaps')
+    .from('keysets')
     .select(
-      '*, kits:keycap_kits(*, category:kit_categories(name)), colors:keycap_colors(*, color:colors(*)), profile:keycap_profiles(name)',
+      '*, kits:keyset_kits(*, category:kit_categories(name)), colors:keyset_colors(*, color:colors(*)), profile:keyset_profiles(name)',
     )
-    // .select('*, artisans:artisan_colorways(*), kits:keycap_kits(*)')
-    .eq('profile_keycap_id', `${params?.profile}/${params?.keycap}`)
+    // .select('*, artisans:artisan_colorways(*), kits:keyset_kits(*)')
+    .eq('profile_keyset_id', `${params?.profile}/${params?.keyset}`)
     .single()
 
   if (error) {

@@ -1,14 +1,14 @@
 <template>
-  <KeycapListing
+  <KeysetListing
     :title="title"
     :description="description"
-    :keycaps="data?.keycaps"
+    :keysets="keysets"
     :total="data?.count"
     :profile="data?.profile"
     :page="page"
     :size="size"
     @update:page="updatePage"
-    @update:keycaps="refresh"
+    @update:keysets="refresh"
   />
 </template>
 
@@ -31,18 +31,20 @@ const query = computed(() => {
 
 const { data, refresh } = await useAsyncData(
   route.path,
-  () => $fetch('/api/keycaps', { query: query.value }),
+  () => $fetch('/api/keysets', { query: query.value }),
   {
     watch: [page, size],
   },
 )
+
+const keysets = computed(() => data.value?.keysets || [])
 
 const title = manufacturers[profile]
 const description = data.value?.profile?.description
 
 const updatePage = (newPage) => {
   router.push({
-    path: `/keycap/${profile}`,
+    path: `/keyset/${profile}`,
     query: { page: newPage },
   })
 }
