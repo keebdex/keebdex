@@ -558,14 +558,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "keycap_colors_color_id_fkey"
+            foreignKeyName: "keyset_colors_color_id_fkey"
             columns: ["color_id"]
             isOneToOne: false
             referencedRelation: "colors"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "keycap_colors_profile_keycap_id_fkey"
+            foreignKeyName: "keyset_colors_profile_keyset_id_fkey"
             columns: ["profile_keyset_id"]
             isOneToOne: false
             referencedRelation: "keysets"
@@ -612,14 +612,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "keycap_kits_kit_id_fkey"
+            foreignKeyName: "keyset_kits_kit_id_fkey"
             columns: ["kit_id"]
             isOneToOne: false
             referencedRelation: "kit_categories"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "keycap_kits_profile_keycap_id_fkey"
+            foreignKeyName: "keyset_kits_profile_keyset_id_fkey"
             columns: ["profile_keyset_id"]
             isOneToOne: false
             referencedRelation: "keysets"
@@ -720,7 +720,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "keycaps_profile_id_fkey"
+            foreignKeyName: "keysets_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "keyset_profiles"

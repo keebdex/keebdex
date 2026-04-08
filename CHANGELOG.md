@@ -13,7 +13,7 @@
 
 ### ⚠️ Breaking Changes
 
-<!-- - Standardized artisan-related table names using the `artisan_*` prefix for more consistent and predictable schema design. -->
+- Renamed the **Keycap** domain to **Keyset** across database schema/types, API paths, app routes/components, and related UI copy for consistent naming.
 
 ### 🚀 Improvements
 
