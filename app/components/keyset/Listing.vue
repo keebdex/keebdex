@@ -12,12 +12,12 @@
             />
 
             <template #body="{ close }">
-              <KeycapModalKeycapForm
+              <KeysetModalKeysetForm
                 :metadata="query"
                 @on-success="
                   () => {
                     close()
-                    $emit('update:keycaps')
+                    $emit('update:keysets')
                   }
                 "
               />
@@ -35,13 +35,13 @@
       </UPageHeader> -->
 
       <UPageGrid
-        v-if="keycaps.length"
+        v-if="keysets.length"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
       >
         <UPageCard
-          v-for="keycap in keycaps"
+          v-for="keycap in keysets"
           :key="keycap.id"
-          :to="`/keycap/${keycap.profile_keycap_id}`"
+          :to="`/keyset/${keycap.profile_keyset_id}`"
           :title="
             keycap.profile
               ? `${keycap.profile?.name} ${keycap.name}`
@@ -89,7 +89,7 @@
           statusCode: 404,
           statusMessage: 'Not Found',
           message:
-            'Currently, there are no keycaps available. Check back soon for fresh additions!',
+            'Currently, there are no keysets available. Check back soon for fresh additions!',
         }"
       />
 
@@ -130,13 +130,13 @@ defineProps({
     type: Number,
     default: 0,
   },
-  keycaps: {
+  keysets: {
     type: Array,
     default: () => [],
   },
 })
 
-defineEmits(['update:page', 'update:keycaps'])
+defineEmits(['update:page', 'update:keysets'])
 
 const userStore = useUserStore()
 const { authenticated, isAdmin, user } = storeToRefs(userStore)
@@ -156,7 +156,7 @@ const saveTo = (collection, keycap) => {
   const item = {
     uid: user.value.uid,
     collection_id: collection.id,
-    keycap_item_id: keycap.profile_keycap_id,
+    keyset_item_id: keycap.profile_keyset_id,
   }
 
   $fetch(`/api/users/${user.value.uid}/collections/${collection.id}/items`, {

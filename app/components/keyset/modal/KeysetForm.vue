@@ -253,7 +253,7 @@ const onSubmit = () => {
   }
 
   $fetch(
-    `/api/keysets/${route.params.profile}/${route.params.keycap || slug}`,
+    `/api/keysets/${route.params.profile}/${route.params.keyset || slug}`,
     {
       method: 'post',
       body: keycap.value,
@@ -263,7 +263,7 @@ const onSubmit = () => {
       if (isEdit) {
         toast.add(handleSuccess('update', keycap.value.name, 'Keycap'))
 
-        if (route.params.keycap !== slug) {
+        if (route.params.keyset !== slug) {
           navigateTo(`/keyset/${keycap.value.profile_keyset_id}`)
         }
       } else {

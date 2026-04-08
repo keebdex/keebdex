@@ -153,18 +153,18 @@ export default defineEventHandler(async (event) => {
       search: runCombinedSearch({
         label: 'Keycap Sets',
         ftsQuery: client
-          .from('keycaps')
-          .select('*, profile:keycap_profiles(name, manufacturer_id)')
+          .from('keysets')
+          .select('*, profile:keyset_profiles(name, manufacturer_id)')
           .textSearch('fts', `${fts}`)
-          .order('profile_keycap_id')
+          .order('profile_keyset_id')
           .limit(10),
         likeQuery: client
-          .from('keycaps')
-          .select('*, profile:keycap_profiles(name, manufacturer_id)')
+          .from('keysets')
+          .select('*, profile:keyset_profiles(name, manufacturer_id)')
           .or(
-            `name.ilike.%${queryText}%,profile_keycap_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
+            `name.ilike.%${queryText}%,profile_keyset_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
           )
-          .order('profile_keycap_id')
+          .order('profile_keyset_id')
           .limit(10),
       }),
     })
@@ -355,7 +355,7 @@ export default defineEventHandler(async (event) => {
       items: keycaps.map((kc: any) => ({
         id: kc.id,
         label: `${kc.profile.name} ${kc.name}`,
-        to: `/keycap/${kc.profile_keycap_id}`,
+        to: `/keyset/${kc.profile_keyset_id}`,
         avatar: {
           src: `/logo/${kc.profile.manufacturer_id}.png`,
           alt: kc.profile.name,

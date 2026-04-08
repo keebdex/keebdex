@@ -6,10 +6,10 @@ export default defineEventHandler(async (event) => {
   const { params } = event.context
 
   const { data, error } = await client
-    .from('keycap_colors')
+    .from('keyset_kits')
     .delete()
     .eq('id', params?.id)
-    .eq('profile_keycap_id', `${params?.profile}/${params?.keycap}`)
+    .eq('profile_keyset_id', `${params?.profile}/${params?.keyset}`)
 
   if (error) {
     throw createError({

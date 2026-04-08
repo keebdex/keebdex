@@ -53,18 +53,18 @@ const selectedColors = ref([])
 
 const color = computed(() => {
   return {
-    profile_keycap_id: `${route.params.profile}/${route.params.keycap}`,
+    profile_keyset_id: `${route.params.profile}/${route.params.keyset}`,
     color_ids: selectedColors.value.map((c) => c.id),
   }
 })
 
 const schema = z.object({
-  profile_keycap_id: z.string(),
+  profile_keyset_id: z.string(),
   color_ids: z.number().array().min(1),
 })
 
 const onSubmit = async () => {
-  await $fetch(`/api/keycaps/${color.value.profile_keycap_id}/colors`, {
+  await $fetch(`/api/keysets/${color.value.profile_keyset_id}/colors`, {
     method: 'post',
     body: color.value,
   })

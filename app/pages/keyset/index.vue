@@ -1,5 +1,5 @@
 <template>
-  <KeycapListing
+  <KeysetListing
     :title="title"
     :description="description"
     :keycaps="data.keycaps"
@@ -24,7 +24,7 @@ const status = computed(() => {
 
 // redirect invalid or missing → live
 if (!route.query.status || !validStatuses.includes(route.query.status)) {
-  router.replace({ path: '/keycap', query: { status: status.value } })
+  router.replace({ path: '/keyset', query: { status: status.value } })
 }
 
 const page = computed(() => Number(route.query.page) || 1)
@@ -33,7 +33,7 @@ const size = 36
 const { data, refresh } = await useAsyncData(
   route.path,
   () =>
-    $fetch('/api/keycaps', {
+    $fetch('/api/keysets', {
       query: { page: page.value, size, status: status.value },
     }),
   {
@@ -43,7 +43,7 @@ const { data, refresh } = await useAsyncData(
 
 const updatePage = (newPage) => {
   router.push({
-    path: '/keycap',
+    path: '/keyset',
     query: { status: status.value, page: newPage },
   })
 }

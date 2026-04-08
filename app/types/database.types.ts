@@ -537,24 +537,24 @@ export type Database = {
           },
         ]
       }
-      keycap_colors: {
+      keyset_colors: {
         Row: {
           color_id: number
           created_at: string
           id: number
-          profile_keycap_id: string
+          profile_keyset_id: string
         }
         Insert: {
           color_id: number
           created_at?: string
           id?: number
-          profile_keycap_id: string
+          profile_keyset_id: string
         }
         Update: {
           color_id?: number
           created_at?: string
           id?: number
-          profile_keycap_id?: string
+          profile_keyset_id?: string
         }
         Relationships: [
           {
@@ -566,14 +566,14 @@ export type Database = {
           },
           {
             foreignKeyName: "keycap_colors_profile_keycap_id_fkey"
-            columns: ["profile_keycap_id"]
+            columns: ["profile_keyset_id"]
             isOneToOne: false
-            referencedRelation: "keycaps"
-            referencedColumns: ["profile_keycap_id"]
+            referencedRelation: "keysets"
+            referencedColumns: ["profile_keyset_id"]
           },
         ]
       }
-      keycap_kits: {
+      keyset_kits: {
         Row: {
           cancelled: boolean
           created_at: string
@@ -583,7 +583,7 @@ export type Database = {
           kit_id: string | null
           name: string | null
           price: number | null
-          profile_keycap_id: string
+          profile_keyset_id: string
           qty: number | null
         }
         Insert: {
@@ -595,7 +595,7 @@ export type Database = {
           kit_id?: string | null
           name?: string | null
           price?: number | null
-          profile_keycap_id: string
+          profile_keyset_id: string
           qty?: number | null
         }
         Update: {
@@ -607,7 +607,7 @@ export type Database = {
           kit_id?: string | null
           name?: string | null
           price?: number | null
-          profile_keycap_id?: string
+          profile_keyset_id?: string
           qty?: number | null
         }
         Relationships: [
@@ -620,21 +620,21 @@ export type Database = {
           },
           {
             foreignKeyName: "keycap_kits_profile_keycap_id_fkey"
-            columns: ["profile_keycap_id"]
+            columns: ["profile_keyset_id"]
             isOneToOne: false
-            referencedRelation: "keycaps"
-            referencedColumns: ["profile_keycap_id"]
+            referencedRelation: "keysets"
+            referencedColumns: ["profile_keyset_id"]
           },
         ]
       }
-      keycap_profiles: {
+      keyset_profiles: {
         Row: {
           description: string | null
           id: string
           manufacturer: string | null
           manufacturer_id: string | null
           name: string
-          profile: Database["public"]["Enums"]["keycap_profile"] | null
+          profile: Database["public"]["Enums"]["keyset_profile"] | null
         }
         Insert: {
           description?: string | null
@@ -642,7 +642,7 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name: string
-          profile?: Database["public"]["Enums"]["keycap_profile"] | null
+          profile?: Database["public"]["Enums"]["keyset_profile"] | null
         }
         Update: {
           description?: string | null
@@ -650,11 +650,11 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name?: string
-          profile?: Database["public"]["Enums"]["keycap_profile"] | null
+          profile?: Database["public"]["Enums"]["keyset_profile"] | null
         }
         Relationships: []
       }
-      keycaps: {
+      keysets: {
         Row: {
           created_at: string
           description: string | null
@@ -668,7 +668,7 @@ export type Database = {
           order_graph: string | null
           order_history: string | null
           profile_id: string
-          profile_keycap_id: string
+          profile_keyset_id: string
           render_img: string | null
           review_status: Database["public"]["Enums"]["review_status"] | null
           sculpt: string | null
@@ -689,7 +689,7 @@ export type Database = {
           order_graph?: string | null
           order_history?: string | null
           profile_id: string
-          profile_keycap_id: string
+          profile_keyset_id: string
           render_img?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
@@ -710,7 +710,7 @@ export type Database = {
           order_graph?: string | null
           order_history?: string | null
           profile_id?: string
-          profile_keycap_id?: string
+          profile_keyset_id?: string
           render_img?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
@@ -723,7 +723,7 @@ export type Database = {
             foreignKeyName: "keycaps_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "keycap_profiles"
+            referencedRelation: "keyset_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -883,8 +883,8 @@ export type Database = {
             foreignKeyName: "user_collection_items_keycap_item_id_fkey"
             columns: ["keycap_item_id"]
             isOneToOne: false
-            referencedRelation: "keycaps"
-            referencedColumns: ["profile_keycap_id"]
+            referencedRelation: "keysets"
+            referencedColumns: ["profile_keyset_id"]
           },
           {
             foreignKeyName: "user_collection_items_uid_fkey"
@@ -1045,7 +1045,7 @@ export type Database = {
         | "Hotswap + RGB"
         | "Bluetooth"
         | "Wired"
-      keycap_profile:
+      keyset_profile:
         | "Cherry"
         | "SA"
         | "MT3"
@@ -1056,7 +1056,7 @@ export type Database = {
         | "DSA"
         | "XDA"
         | "KAM"
-      keycap_status:
+      keyset_status:
         | "Interest Check"
         | "Scheduled"
         | "Live"
@@ -1269,7 +1269,7 @@ export const Constants = {
         "Bluetooth",
         "Wired",
       ],
-      keycap_profile: [
+      keyset_profile: [
         "Cherry",
         "SA",
         "MT3",
@@ -1281,7 +1281,7 @@ export const Constants = {
         "XDA",
         "KAM",
       ],
-      keycap_status: [
+      keyset_status: [
         "Interest Check",
         "Scheduled",
         "Live",

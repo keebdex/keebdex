@@ -7,7 +7,7 @@
             <UButton icon="hugeicons:color-picker" label="Add" />
 
             <template #body="{ close }">
-              <KeycapModalColorForm
+              <KeysetModalColorForm
                 :is-edit="!!selectedColor?.id"
                 :metadata="selectedColor"
                 @on-success="
@@ -41,7 +41,7 @@
         :columns="columns"
       >
         <template #hex-cell="{ row }">
-          <KeycapColorSwatch :color="row.original.hex" />
+          <KeysetColorSwatch :color="row.original.hex" />
         </template>
 
         <template v-if="editable" #action-cell="{ row }">
@@ -55,7 +55,7 @@
               />
 
               <template #body="{ close }">
-                <KeycapModalColorForm
+                <KeysetModalColorForm
                   :is-edit="true"
                   :metadata="selectedColor"
                   @on-success="

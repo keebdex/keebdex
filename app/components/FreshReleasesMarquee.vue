@@ -82,7 +82,7 @@
         :links="[
           {
             label: 'Explore Keysets',
-            to: '/keycap?status=live',
+            to: '/keyset?status=live',
             icon: 'solar:layers-bold-duotone',
             color: 'primary',
             variant: 'ghost',
@@ -99,8 +99,8 @@
       >
         <UPageCard
           v-for="keycap in liveKeycaps"
-          :key="keycap.profile_keycap_id"
-          :to="`/keycap/${keycap.profile_keycap_id}`"
+          :key="keycap.profile_keyset_id"
+          :to="`/keyset/${keycap.profile_keyset_id}`"
           variant="subtle"
           reverse
           spotlight
@@ -143,18 +143,18 @@ const { data } = await useAsyncData(
   () =>
     $fetch('/api/statistics').catch(() => ({
       makers: [],
-      keycaps: [],
+      keysets: [],
     })),
   {
     default: () => ({
       makers: [],
-      keycaps: [],
+      keysets: [],
     }),
   },
 )
 
 const artisanDrops = computed(() => data.value?.makers || [])
-const liveKeycaps = computed(() => data.value?.keycaps || [])
+const liveKeycaps = computed(() => data.value?.keysets || [])
 
 const totalFreshReleases = computed(
   () => artisanDrops.value.length + liveKeycaps.value.length,

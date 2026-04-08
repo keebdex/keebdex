@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel :id="`keycap-${profile}-${keycap}`">
+  <UDashboardPanel :id="`keyset-${profile}-${keyset}`">
     <template #header>
       <UDashboardNavbar :title="data.name">
         <template v-if="$device.isDesktopOrTablet" #left>
@@ -13,12 +13,12 @@
               {
                 label: 'Manage Kits',
                 icon: 'hugeicons:cells',
-                to: `/keycap/${data.profile_keycap_id}/kit`,
+                to: `/keyset/${data.profile_keyset_id}/kit`,
               },
               {
                 label: 'Manage Colors',
                 icon: 'hugeicons:colors',
-                to: `/keycap/${data.profile_keycap_id}/color`,
+                to: `/keyset/${data.profile_keyset_id}/color`,
               },
             ]"
           >
@@ -33,7 +33,7 @@
             <UButton label="Edit" icon="hugeicons:keyboard" />
 
             <template #body="{ close }">
-              <KeycapModalKeycapForm
+              <KeysetModalKeysetForm
                 :is-edit="true"
                 :metadata="data"
                 @on-success="
@@ -133,7 +133,7 @@
 
             <template v-if="data.colors?.length" #colors>
               <div class="flex flex-wrap gap-2 py-2">
-                <KeycapColorCard
+                <KeysetColorCard
                   v-for="color in data.colors"
                   :key="color.id"
                   v-bind="color.color"
@@ -153,20 +153,20 @@ import groupBy from 'lodash.groupby'
 const route = useRoute()
 const userStore = useUserStore()
 
-const { profile, keycap } = route.params
-const editable = computed(() => userStore.isEditable(`${profile}/${keycap}`))
+const { profile, keyset } = route.params
+const editable = computed(() => userStore.isEditable(`${profile}/${keyset}`))
 
 const activeKey = ref(['0', '1', '2', '3'])
 
 const { data, refresh } = await useAsyncData(
-  `keycap/${profile}/${keycap}`,
+  `keyset/${profile}/${keyset}`,
   () =>
-    $fetch(`/api/keycaps/${profile}/${keycap}`).then((data) => {
+    $fetch(`/api/keysets/${profile}/${keyset}`).then((data) => {
       data.artisans = groupBy(data.artisans, 'maker_name')
       return data
     }),
   {
-    watch: [() => profile, () => keycap],
+    watch: [() => profile, () => keyset],
   },
 )
 
@@ -174,7 +174,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: manufacturers[profile],
-      to: `/keycap/${profile}`,
+      to: `/keyset/${profile}`,
     },
     {
       label: data.value.name,

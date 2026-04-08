@@ -132,9 +132,9 @@ const routes = computed(() => {
         },
         ...Object.entries(manufacturers).map(([id, name]) => ({
           label: name,
-          to: `/keycap/${id}`,
+          to: `/keyset/${id}`,
           exact: true,
-          active: route.path.includes(`/keycap/${id}`),
+          active: route.path.includes(`/keyset/${id}`),
         })),
       ]
     })
@@ -147,8 +147,8 @@ const routes = computed(() => {
   const statuses = Object.entries(keycapStatusMap).map(([status, meta]) => ({
     label: meta.title,
     icon: meta.icon,
-    to: `/keycap?status=${status}`,
-    active: route.path === '/keycap' && route.query.status === status,
+    to: `/keyset?status=${status}`,
+    active: route.path === '/keyset' && route.query.status === status,
     exact: true,
   }))
 
@@ -207,7 +207,7 @@ const routes = computed(() => {
       icon: 'hugeicons:calendar-03',
       ...(isCollapsed ? {} : { type: 'trigger' }),
       defaultOpen: true,
-      active: route.path === '/keycap',
+      active: route.path === '/keyset',
       children: statuses,
     },
     {
@@ -216,14 +216,14 @@ const routes = computed(() => {
       ...(isCollapsed ? {} : { type: 'trigger' }),
       defaultOpen: false,
       active:
-        route.path.startsWith('/keycap/') && !route.path.endsWith('color'),
+        route.path.startsWith('/keyset/') && !route.path.endsWith('color'),
       children: profiles,
     },
     {
       label: 'Color Swatches',
       icon: 'hugeicons:colors',
-      to: '/keycap/color',
-      active: route.path === '/keycap/color',
+      to: '/keyset/color',
+      active: route.path === '/keyset/color',
     },
   ]
 
@@ -254,7 +254,7 @@ const routes = computed(() => {
       collapsed: isCollapsed,
       label: 'Keycaps',
       icon: 'hugeicons:grid-view',
-      active: route.path.startsWith('/keycap'),
+      active: route.path.startsWith('/keyset'),
       children: keycapChildren,
     }),
   ]

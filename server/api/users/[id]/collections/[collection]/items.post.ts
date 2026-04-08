@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const itemKey = [
     'artisan_item_id',
-    'keycap_item_id',
+    'keyset_item_id',
     'keyboard_item_id',
   ].find((key) => body?.[key] !== undefined && body?.[key] !== null)
 
