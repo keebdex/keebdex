@@ -98,30 +98,43 @@ export const discordInviteRegex = /discord\.gg\/[a-zA-Z0-9]+/
 export const instagramProfileRegex =
   /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
 
-export const roleMap = {
+export const roleMap: Record<
+  string,
+  { label: string; icon: string; class: string; color: string }
+> = {
   admin: {
     label: 'Administrator',
     icon: 'hugeicons:shield-user',
     class: 'text-error',
+    color: 'error',
   },
   editor: {
     label: 'Editor',
     icon: 'hugeicons:user-edit-01',
     class: 'text-warning',
+    color: 'warning',
   },
   maker: {
     label: 'Maker',
     icon: 'hugeicons:user-star-01',
     class: 'text-info',
+    color: 'info',
   },
   designer: {
     label: 'Designer',
     icon: 'hugeicons:user-star-01',
     class: 'text-info',
+    color: 'info',
   },
   donator: {
     label: 'Donator',
     icon: 'hugeicons:user-love-01',
     class: 'text-donator',
+    color: 'success',
   },
+}
+
+export const getRoleLabel = (role: string) => {
+  const mapping = roleMap[role]
+  return mapping ? mapping.label : role.charAt(0).toUpperCase() + role.slice(1)
 }

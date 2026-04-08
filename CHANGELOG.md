@@ -5,7 +5,8 @@
 ### ✨ What's New
 
 - Introduced a new **Keyboard** module to support **Brands**, **Keyboards**, **Releases**, and **Variants**, featuring built-in design lineage tracking and standardized technical hardware specifications.
-- Enabled **collection management** support for Keyboards, allowing users to track and catalog their personal hardware and builds.
+- Enabled **ollection management** support for Keyboards, allowing users to track and catalog their personal hardware and builds.
+- Added a dedicated **User Management** page for managing user access.
 
 ### 🐛 Bug Fixes
 

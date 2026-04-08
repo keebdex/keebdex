@@ -10,11 +10,9 @@
     </template>
 
     <template #body>
-      <div
-        class="flex flex-col gap-4 sm:gap-6 lg:gap-12 w-full lg:max-w-2xl mx-auto"
-      >
+      <UPageCard variant="subtle" class="space-y-4 mx-auto w-full lg:max-w-5xl">
         <NuxtPage />
-      </div>
+      </UPageCard>
     </template>
   </UDashboardPanel>
 </template>

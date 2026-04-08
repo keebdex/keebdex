@@ -51,7 +51,7 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user, role } = storeToRefs(userStore)
+const { authenticated, user, role, isAdmin } = storeToRefs(userStore)
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -60,41 +60,51 @@ const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
 const items = computed(() => {
-  const appearance = [
-    {
-      label: 'Appearance',
-      icon: 'hugeicons:paint-board',
-      children: [
-        {
-          label: 'System',
-          icon: appConfig.ui.icons.system,
-          active: colorMode.preference === 'system',
-          onSelect(e) {
-            e.preventDefault()
-            colorMode.preference = 'system'
+  const adminActions = isAdmin.value
+    ? [
+        [
+          {
+            label: 'User Management',
+            icon: 'hugeicons:user-group',
+            to: '/admin/users',
           },
+        ],
+      ]
+    : []
+
+  const appearance = {
+    label: 'Appearance',
+    icon: 'hugeicons:paint-board',
+    children: [
+      {
+        label: 'System',
+        icon: appConfig.ui.icons.system,
+        active: colorMode.preference === 'system',
+        onSelect(e) {
+          e.preventDefault()
+          colorMode.preference = 'system'
         },
-        {
-          label: 'Light',
-          icon: appConfig.ui.icons.light,
-          active: colorMode.preference === 'light',
-          onSelect(e) {
-            e.preventDefault()
-            colorMode.preference = 'light'
-          },
+      },
+      {
+        label: 'Light',
+        icon: appConfig.ui.icons.light,
+        active: colorMode.preference === 'light',
+        onSelect(e) {
+          e.preventDefault()
+          colorMode.preference = 'light'
         },
-        {
-          label: 'Dark',
-          icon: appConfig.ui.icons.dark,
-          active: colorMode.preference === 'dark',
-          onSelect(e) {
-            e.preventDefault()
-            colorMode.preference = 'dark'
-          },
+      },
+      {
+        label: 'Dark',
+        icon: appConfig.ui.icons.dark,
+        active: colorMode.preference === 'dark',
+        onSelect(e) {
+          e.preventDefault()
+          colorMode.preference = 'dark'
         },
-      ],
-    },
-  ]
+      },
+    ],
+  }
 
   return authenticated.value
     ? [
@@ -114,8 +124,9 @@ const items = computed(() => {
             icon: 'hugeicons:settings-02',
             to: '/account/settings',
           },
+          appearance,
         ],
-        appearance,
+        ...adminActions,
         [
           {
             label: 'Sign Out',
