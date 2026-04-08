@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
   const term = String(query.term || '').trim()
+  const role = String(query.role || '').trim()
 
   const from = (page - 1) * size
   const to = from + size - 1
@@ -44,6 +45,10 @@ export default defineEventHandler(async (event) => {
 
   if (term) {
     request = request.ilike('email', `%${term}%`)
+  }
+
+  if (role !== 'all' && role) {
+    request = request.eq('role', role)
   }
 
   const { data, count, error } = await request

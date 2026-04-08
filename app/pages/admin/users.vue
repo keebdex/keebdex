@@ -18,15 +18,7 @@
             class="flex-1"
           />
 
-          <UButton
-            icon="hugeicons:refresh"
-            color="neutral"
-            variant="soft"
-            :loading="status === 'pending'"
-            @click="refresh"
-          >
-            Refresh
-          </UButton>
+          <USelect v-model="role" :items="filterOptions" class="w-44" />
         </div>
 
         <template #header>
@@ -40,7 +32,7 @@
           :columns="columns"
         >
           <template #email-cell="{ row }">
-            <div class="font-medium truncate max-w-48">
+            <div class="font-medium truncate max-w-64">
               {{ row.original.email }}
             </div>
           </template>
@@ -51,13 +43,36 @@
               :label="getRoleLabel(row.original.role)"
               variant="subtle"
               :color="roleMap[row.original.role]?.color"
+              :icon="roleMap[row.original.role]?.icon"
             />
           </template>
 
           <template #assignments-cell="{ row }">
-            <span class="text-sm text-muted truncate max-w-72 block">
-              {{ formatAssignments(row.original.assignments) }}
-            </span>
+            <div class="flex flex-wrap items-center gap-1 max-w-72">
+              <UBadge
+                v-for="assignment in getVisibleAssignments(
+                  row.original.assignments,
+                )"
+                :key="assignment"
+                :label="assignment"
+                :avatar="{
+                  src: `/logo/${assignment}.png`,
+                  ui: {
+                    root: 'rounded-none bg-transparent',
+                    image: $colorMode.value === 'dark' && 'invert',
+                  },
+                }"
+                variant="subtle"
+                color="neutral"
+              />
+
+              <UBadge
+                v-if="getOverflowCount(row.original.assignments) > 0"
+                :label="`+${getOverflowCount(row.original.assignments)}`"
+                variant="soft"
+                color="neutral"
+              />
+            </div>
           </template>
 
           <template #action-cell="{ row }">
@@ -104,12 +119,11 @@
             <UFormField
               label="Assignments"
               name="assignments"
-              help="Separate values by comma or line break."
+              help="Press Enter to add multiple assignments."
             >
-              <UTextarea
+              <UInputTags
                 v-model="form.assignments"
-                :rows="4"
-                placeholder="maker-a, maker-b"
+                placeholder="Type assignment and press Enter"
                 class="w-full"
               />
             </UFormField>
@@ -125,15 +139,14 @@
 </template>
 
 <script setup>
-import { Constants } from '~/types/database.types'
-
 const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
 const toast = useToast()
 
-const roleOptions = Constants.public.Enums.user_role.map((role) => ({
-  label: getRoleLabel(role),
-  value: role,
+const roleOptions = Object.entries(roleMap).map(([value, { label, icon }]) => ({
+  label,
+  value,
+  icon,
 }))
 
 const columns = [
@@ -157,12 +170,23 @@ const columns = [
 const page = ref(1)
 const size = ref(20)
 const term = ref('')
+const role = ref('all')
+
+const filterOptions = [
+  {
+    label: 'All Users',
+    value: 'all',
+    icon: 'hugeicons:user-group',
+  },
+  ...roleOptions,
+]
 
 const query = computed(() => {
   return {
     page: page.value,
     size: size.value,
     term: term.value,
+    role: role.value,
   }
 })
 
@@ -178,7 +202,7 @@ const { data, status, refresh } = await useAsyncData(
     })
   },
   {
-    watch: [isAdmin, page, size, term],
+    watch: [isAdmin, page, size, term, role],
     default: () => ({ users: [], count: 0, page: 1, size: 20 }),
   },
 )
@@ -187,19 +211,32 @@ watch(term, () => {
   page.value = 1
 })
 
-const formatAssignments = (assignments) => {
+watch(role, () => {
+  page.value = 1
+})
+
+const getVisibleAssignments = (assignments) => {
   if (!Array.isArray(assignments) || assignments.length === 0) {
-    return '-'
+    return []
   }
 
-  return assignments.join(', ')
+  return assignments.length > 3 ? assignments.slice(0, 2) : assignments
 }
 
-const parseAssignments = (value) => {
-  const parsed = String(value || '')
-    .split(/[\n,]+/)
-    .map((item) => item.trim())
-    .filter(Boolean)
+const getOverflowCount = (assignments) => {
+  if (!Array.isArray(assignments) || assignments.length <= 3) {
+    return 0
+  }
+
+  return assignments.length - 2
+}
+
+const normalizeAssignments = (values) => {
+  if (!Array.isArray(values)) {
+    return null
+  }
+
+  const parsed = values.map((item) => item.trim()).filter(Boolean)
 
   return parsed.length ? [...new Set(parsed)] : null
 }
@@ -210,15 +247,15 @@ const selectedUser = ref(null)
 
 const form = ref({
   role: null,
-  assignments: '',
+  assignments: [],
 })
 
 const openEditor = (user) => {
   selectedUser.value = user
   form.value.role = user.role || null
   form.value.assignments = Array.isArray(user.assignments)
-    ? user.assignments.join(', ')
-    : ''
+    ? [...user.assignments]
+    : []
   editVisible.value = true
 }
 
@@ -234,7 +271,7 @@ const onSubmit = async () => {
       method: 'post',
       body: {
         role: form.value.role || null,
-        assignments: parseAssignments(form.value.assignments),
+        assignments: normalizeAssignments(form.value.assignments),
       },
     })
 

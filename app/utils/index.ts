@@ -1,5 +1,6 @@
 import type { CalendarDate } from '@internationalized/date'
 import { DateFormatter } from '@internationalized/date'
+import type { Database } from '~/types/database.types'
 
 const df = new DateFormatter('en-US', {
   dateStyle: 'medium',
@@ -42,7 +43,10 @@ export const keysetProfiles = {
   },
 }
 
-export const keysetStatusColors = {
+export const keysetStatusColors: Record<
+  Database['public']['Enums']['keyset_status'],
+  string
+> = {
   'Interest Check': 'secondary',
   Cancelled: 'error',
   Scheduled: 'info',
@@ -99,12 +103,12 @@ export const instagramProfileRegex =
   /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
 
 export const roleMap: Record<
-  string,
+  Database['public']['Enums']['user_role'],
   { label: string; icon: string; class: string; color: string }
 > = {
   admin: {
     label: 'Administrator',
-    icon: 'hugeicons:shield-user',
+    icon: 'hugeicons:user-shield-01',
     class: 'text-error',
     color: 'error',
   },
@@ -134,7 +138,9 @@ export const roleMap: Record<
   },
 }
 
-export const getRoleLabel = (role: string) => {
+export const getRoleLabel = (
+  role: Database['public']['Enums']['user_role'],
+) => {
   const mapping = roleMap[role]
   return mapping ? mapping.label : role.charAt(0).toUpperCase() + role.slice(1)
 }
