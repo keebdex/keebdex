@@ -58,10 +58,18 @@ const sections = ref([
     title: 'General',
     features: [
       {
+        title: 'Collection Coverage',
+        tiers: {
+          keebdex:
+            'Built for the keyboard trinity: keyboards, keysets, and artisans',
+          archivist: 'Built specifically for artisan keycaps',
+        },
+      },
+      {
         title: 'Data Management',
         tiers: {
           keebdex:
-            'Purpose-built database with optional Google Docs sync for legacy makers',
+            'Moves beyond artisan Google Docs into a fully managed database that now covers artisans, keyboards, and keysets',
           archivist:
             'Document-based, manually maintained across shared Google Docs',
         },
@@ -83,7 +91,8 @@ const sections = ref([
       {
         title: 'Image Support',
         tiers: {
-          keebdex: 'Rich, high-quality images to showcase your keycaps',
+          keebdex:
+            'Rich, high-quality images to showcase keysets, artisans, and keyboard variants',
           archivist: 'Limited preview images only',
         },
       },
@@ -128,7 +137,7 @@ const sections = ref([
 
 const title = 'Why Choose Keebdex?'
 const description =
-  'A modern platform built for collectors. See how Keebdex outpaces alternatives with better data management, intuitive editing, and powerful tools designed specifically for your collection.'
+  'A modern platform built for collectors. See how Keebdex outpaces alternatives with better data management, intuitive editing, and powerful tools designed for the full keyboard trinity: keyboards, keysets, and artisans.'
 
 useSeoMeta({
   title,

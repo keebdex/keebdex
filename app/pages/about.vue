@@ -29,14 +29,14 @@
 
 <script setup>
 const description =
-  'Learn how Keebdex empowers collectors with a purpose-built platform designed to organize, sync, and share keyboard collections with ease and confidence.'
+  'Learn how Keebdex empowers collectors with a purpose-built platform to organize, sync, and share the full keyboard trinity: keyboards, keysets, and artisans.'
 
 const features = ref([
   {
     icon: 'solar:database-bold-duotone',
-    title: 'Fully Managed Artisan Database',
+    title: 'Unified Trinity Database',
     description:
-      'Move beyond document-based systems. Our powerful database replaces shared Google Docs with a robust, purpose-built platform for your keycap collection, with optional sync for makers migrating from legacy tools.',
+      'Move beyond document-based systems. Keebdex replaces shared Google Docs with a robust platform that manages keyboards, keysets, and artisans in one place, with optional sync for makers migrating from legacy tools.',
   },
   {
     icon: 'solar:stars-bold-duotone',
@@ -60,19 +60,19 @@ const features = ref([
     icon: 'solar:bookmark-square-bold-duotone',
     title: 'Powerful Collection Tools',
     description:
-      'Create unlimited collections, track status (sold, completed, active), reorganize freely, and never hit a limit.',
+      'Create unlimited collections across keyboards, keysets, and artisans; track status (sold, completed, active), reorganize freely, and never hit a limit.',
   },
   {
     icon: 'solar:share-circle-bold-duotone',
     title: 'Share Your Passion',
     description:
-      'Generate eye-catching wishlist images and share your dream builds with the community in seconds.',
+      'Generate eye-catching wishlist images and share your dream keyboard setups and collection targets with the community in seconds.',
   },
   {
     icon: 'solar:cart-large-2-bold-duotone',
     title: 'Built-In Trading Community',
     description:
-      'Connect directly with buyers and sellers through wishlists and tools designed specifically for artisan enthusiasts.',
+      'Connect directly with buyers and sellers through wishlists and tools built for the full keyboard community, from artisans to keysets and boards.',
   },
 ])
 
