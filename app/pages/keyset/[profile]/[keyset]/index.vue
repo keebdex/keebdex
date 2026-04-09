@@ -30,7 +30,7 @@
           </UDropdownMenu>
 
           <UModal v-if="editable" v-model:visible="visible" title="Edit Keyset">
-            <UButton label="Edit" icon="hugeicons:keyboard" />
+            <UButton label="Edit" icon="hugeicons:edit-01" />
 
             <template #body="{ close }">
               <KeysetModalKeysetForm
@@ -52,7 +52,7 @@
     <template #body>
       <UPageHeader :title="data.name" :links="links">
         <template v-if="data.description" #description>
-          <SharedPageHeaderDescription :description="data.description" />
+          <SharedDescription :description="data.description" />
         </template>
 
         <template #links>

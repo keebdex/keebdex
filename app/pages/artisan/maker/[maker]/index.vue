@@ -31,22 +31,6 @@
           </UModal>
 
           <UModal
-            v-if="Object.hasOwn(favorites, maker.id)"
-            v-model:visible="visible.customize_pins"
-            title="Customize Pins"
-            description="Pin up to 6 sculpts to the top for easy access."
-          >
-            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
-
-            <template #body="{ close }">
-              <ArtisanModalPinSculpt
-                :sculpts="favoriteSculpts.concat(otherSculpts)"
-                @on-success="close"
-              />
-            </template>
-          </UModal>
-
-          <UModal
             v-if="editable"
             v-model:visible="visible.edit"
             title="Edit Maker"
@@ -63,6 +47,22 @@
                     refresh()
                   }
                 "
+              />
+            </template>
+          </UModal>
+
+          <UModal
+            v-if="Object.hasOwn(favorites, maker.id)"
+            v-model:visible="visible.customize_pins"
+            title="Customize Pins"
+            description="Pin up to 6 sculpts to the top for easy access."
+          >
+            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
+
+            <template #body="{ close }">
+              <ArtisanModalPinSculpt
+                :sculpts="favoriteSculpts.concat(otherSculpts)"
+                @on-success="close"
               />
             </template>
           </UModal>

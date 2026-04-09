@@ -45,6 +45,21 @@
               </template>
             </UModal>
 
+            <USelect
+              v-if="$device.isDesktopOrTablet"
+              v-model="sortValue"
+              :items="sortOptions"
+              :icon="sortIconMap[sortValue]"
+              variant="soft"
+              :ui="{ content: 'min-w-fit' }"
+            />
+
+            <SharedProfileDrawer
+              :title="sculpt.name"
+              :description="sculpt.story"
+              :links="sculptLinks"
+            />
+
             <UModal
               title="Delete Sculpt"
               :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
@@ -66,21 +81,6 @@
               </template>
             </UModal>
           </div>
-
-          <SharedProfileDrawer
-            :title="sculpt.name"
-            :description="sculpt.story"
-            :links="sculptLinks"
-          />
-
-          <USelect
-            v-if="$device.isDesktopOrTablet"
-            v-model="sortValue"
-            :items="sortOptions"
-            :icon="sortIconMap[sortValue]"
-            variant="soft"
-            :ui="{ content: 'min-w-fit' }"
-          />
         </template>
       </UDashboardNavbar>
 
