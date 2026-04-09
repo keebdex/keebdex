@@ -128,8 +128,8 @@ const { data, refresh } = await useAsyncData(
 const breadcrumbs = computed(() => {
   return [
     {
-      label: 'Keyboard Brands',
-      icon: 'hugeicons:keyboard',
+      label: 'Brands',
+      icon: 'hugeicons:user-group-03',
       to: '/keyboard/brand',
     },
     {

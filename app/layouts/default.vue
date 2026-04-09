@@ -239,7 +239,7 @@ const routes = computed(() => {
     wrapSection({
       collapsed: isCollapsed,
       label: 'Artisans',
-      icon: 'hugeicons:ai-image',
+      icon: 'hugeicons:alien-01',
       active: route.path.startsWith('/artisan'),
       children: artisanChildren,
     }),

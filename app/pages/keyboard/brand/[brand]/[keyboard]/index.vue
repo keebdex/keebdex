@@ -299,9 +299,9 @@ const items = computed(() => {
 const breadcrumbs = computed(() => {
   return [
     {
-      label: 'Keyboard Brands',
+      label: 'Brands',
       to: '/keyboard/brand',
-      icon: 'hugeicons:keyboard',
+      icon: 'hugeicons:user-group-03',
     },
     {
       label: data.value?.brand?.name,

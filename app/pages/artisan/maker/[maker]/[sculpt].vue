@@ -55,6 +55,7 @@
             />
 
             <SharedProfileDrawer
+              v-if="sculpt.story"
               :title="sculpt.name"
               :description="sculpt.story"
               :links="sculptLinks"
