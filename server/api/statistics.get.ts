@@ -6,7 +6,7 @@ import sortBy from 'lodash.sortby'
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const startOfDay = today(getLocalTimeZone()).subtract({ days: 1 }).toString()
+  const startOfDay = today(getLocalTimeZone()).toString()
 
   const { data, error } = await client
     .from('artisan_colorways')
