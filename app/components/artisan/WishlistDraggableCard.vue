@@ -23,7 +23,12 @@
             body: 'flex gap-2 w-full',
             container: flex && 'max-w-2xs',
           }"
-          variant="soft"
+          variant="subtle"
+          :class="
+            buying && item.priority && tradingCfg.highlight_filled
+              ? 'bg-success/30'
+              : ''
+          "
         >
           <div class="relative aspect-square overflow-hidden">
             <NuxtImg
@@ -94,6 +99,8 @@
 import draggable from 'vuedraggable'
 
 defineEmits(['onRemove', 'onHighlight'])
+
+const tradingCfg = useState('trading-config')
 
 const { data } = defineProps({
   flex: Boolean,

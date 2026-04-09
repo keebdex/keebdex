@@ -90,6 +90,13 @@
       />
     </UFormField>
 
+    <UFormField>
+      <UCheckbox
+        v-model="tradingConfig.highlight_filled"
+        label="Use filled highlight"
+      />
+    </UFormField>
+
     <UButton
       v-if="$device.isMobileOrTablet"
       block

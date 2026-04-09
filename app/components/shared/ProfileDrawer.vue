@@ -5,9 +5,8 @@
     <template #body>
       <UPageCard
         reverse
+        variant="naked"
         :ui="{
-          root: 'rounded-none ring-0 bg-transparent',
-          container: '!p-0',
           footer: 'flex-wrap gap-2 justify-center w-full',
           description: 'text-justify',
         }"
