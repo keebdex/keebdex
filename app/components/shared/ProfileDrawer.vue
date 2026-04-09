@@ -36,6 +36,8 @@
             :target="link.to?.startsWith('http') ? '_blank' : undefined"
             :disabled="!link.to"
             v-bind="link"
+            variant="link"
+            class="flex flex-col"
           />
         </template>
       </UPageCard>

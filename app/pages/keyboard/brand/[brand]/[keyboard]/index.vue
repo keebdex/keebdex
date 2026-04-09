@@ -63,18 +63,16 @@
             :ui="{ content: 'min-w-fit' }"
           />
 
-          <UButton
-            v-if="data.keyboard.parent_slug"
-            :to="`/keyboard/brand/${data.keyboard.parent_slug}`"
-            :label="`${data.keyboard.parent.brand.name} ${data.keyboard.parent.name}`"
-            icon="hugeicons:share-knowledge"
-          />
-
           <SharedProfileDrawer
+            v-if="data.keyboard.description"
             :title="data.keyboard.name"
             :description="data.keyboard.description"
             :links="keyboardLinks"
           />
+
+          <UDropdownMenu v-if="items.length" :items="items">
+            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
+          </UDropdownMenu>
         </template>
       </UDashboardNavbar>
 
@@ -279,6 +277,24 @@ const { data, refresh } = await useAsyncData(
     watch: [brand, keyboard],
   },
 )
+
+const items = computed(() => {
+  if (data.value.keyboard.parent_slug) {
+    return [
+      {
+        label: 'Original Design',
+        type: 'label',
+      },
+      {
+        label: `${data.value.keyboard.parent.brand.name} ${data.value.keyboard.parent.name}`,
+        icon: 'hugeicons:keyboard',
+        to: `/keyboard/brand/${data.value.keyboard.parent_slug}`,
+      },
+    ]
+  }
+
+  return []
+})
 
 const breadcrumbs = computed(() => {
   return [

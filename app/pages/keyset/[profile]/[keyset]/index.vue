@@ -29,12 +29,8 @@
             :description="data.description"
           />
 
-          <UDropdownMenu v-if="editable" :items="items">
-            <UButton
-              label="More"
-              icon="hugeicons:more"
-              trailing-icon="hugeicons:arrow-down-01"
-            />
+          <UDropdownMenu v-if="items.length" :items="items">
+            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
           </UDropdownMenu>
         </template>
       </UDashboardNavbar>
@@ -158,22 +154,24 @@ const breadcrumbs = computed(() => {
 })
 
 const items = computed(() => {
-  const manageItems = [
-    {
-      label: 'Manage',
-      type: 'label',
-    },
-    {
-      label: 'Manage Kits',
-      icon: 'hugeicons:cells',
-      to: `/keyset/${data.value.profile_keyset_id}/kit`,
-    },
-    {
-      label: 'Manage Colors',
-      icon: 'hugeicons:colors',
-      to: `/keyset/${data.value.profile_keyset_id}/color`,
-    },
-  ]
+  const manageItems = editable.value
+    ? [
+        {
+          label: 'Manage',
+          type: 'label',
+        },
+        {
+          label: 'Manage Kits',
+          icon: 'hugeicons:cells',
+          to: `/keyset/${data.value.profile_keyset_id}/kit`,
+        },
+        {
+          label: 'Manage Colors',
+          icon: 'hugeicons:colors',
+          to: `/keyset/${data.value.profile_keyset_id}/color`,
+        },
+      ]
+    : []
 
   const infoItems = []
 
