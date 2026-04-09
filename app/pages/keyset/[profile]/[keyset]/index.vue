@@ -7,30 +7,8 @@
         </template>
 
         <template #right>
-          <UDropdownMenu
-            v-if="editable"
-            :items="[
-              {
-                label: 'Manage Kits',
-                icon: 'hugeicons:cells',
-                to: `/keyset/${data.profile_keyset_id}/kit`,
-              },
-              {
-                label: 'Manage Colors',
-                icon: 'hugeicons:colors',
-                to: `/keyset/${data.profile_keyset_id}/color`,
-              },
-            ]"
-          >
-            <UButton
-              label="Manage"
-              icon="hugeicons:dashboard-square-setting"
-              trailing-icon="hugeicons:arrow-down-01"
-            />
-          </UDropdownMenu>
-
           <UModal v-if="editable" v-model:visible="visible" title="Edit Keyset">
-            <UButton label="Edit" icon="hugeicons:keyboard" />
+            <UButton label="Edit" icon="hugeicons:edit-01" />
 
             <template #body="{ close }">
               <KeysetModalKeysetForm
@@ -45,27 +23,20 @@
               />
             </template>
           </UModal>
+
+          <SharedProfileDrawer
+            :title="data.name"
+            :description="data.description"
+          />
+
+          <UDropdownMenu v-if="items.length" :items="items">
+            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
+          </UDropdownMenu>
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <UPageHeader :title="data.name" :links="links">
-        <template v-if="data.description" #description>
-          <SharedPageHeaderDescription :description="data.description" />
-        </template>
-
-        <template #links>
-          <UButton
-            v-for="link in links"
-            :key="link.label"
-            :target="link.to?.startsWith('http') ? '_blank' : undefined"
-            :disabled="!link.to"
-            v-bind="link"
-          />
-        </template>
-      </UPageHeader>
-
       <div v-if="data.kits.length" class="grid grid-cols-3 gap-6">
         <div class="col-span-3 lg:col-span-2">
           <UCarousel
@@ -89,7 +60,7 @@
         </div>
 
         <div class="col-span-3 lg:col-span-1">
-          <UAccordion v-model="activeKey" :items="items" type="multiple">
+          <UAccordion v-model="activeKey" :items="accordions" type="multiple">
             <template #specifications>
               <SharedDescriptionList
                 :items="[
@@ -182,44 +153,79 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const links = []
-if (data.value.url) {
-  if (data.value.url.includes('geekhack')) {
-    links.push({
-      label: 'Geekhack',
-      icon: 'hugeicons:comment-01',
-      to: data.value.url,
-      target: '_blank',
-    })
-  } else {
-    links.push({
-      label: 'Vendor',
-      icon: 'hugeicons:link-forward',
-      to: data.value.url,
+const items = computed(() => {
+  const manageItems = editable.value
+    ? [
+        {
+          label: 'Manage',
+          type: 'label',
+        },
+        {
+          label: 'Manage Kits',
+          icon: 'hugeicons:cells',
+          to: `/keyset/${data.value.profile_keyset_id}/kit`,
+        },
+        {
+          label: 'Manage Colors',
+          icon: 'hugeicons:colors',
+          to: `/keyset/${data.value.profile_keyset_id}/color`,
+        },
+      ]
+    : []
+
+  const infoItems = []
+
+  if (data.value.url) {
+    if (data.value.url.includes('geekhack')) {
+      infoItems.push({
+        label: 'Geekhack',
+        icon: 'hugeicons:comment-01',
+        to: data.value.url,
+        target: '_blank',
+      })
+    } else {
+      infoItems.push({
+        label: 'Vendor',
+        icon: 'hugeicons:link-forward',
+        to: data.value.url,
+        target: '_blank',
+      })
+    }
+  }
+
+  if (data.value.order_graph) {
+    infoItems.push({
+      label: 'Order Graph',
+      icon: 'hugeicons:chart-bar-big',
+      to: data.value.order_graph,
       target: '_blank',
     })
   }
-}
 
-if (data.value.order_graph) {
-  links.push({
-    label: 'Order Graph',
-    icon: 'hugeicons:chart-bar-big',
-    to: data.value.order_graph,
-    target: '_blank',
-  })
-}
+  if (data.value.order_history) {
+    infoItems.push({
+      label: 'Order History',
+      icon: 'hugeicons:chart-line-data-02',
+      to: data.value.order_history,
+      target: '_blank',
+    })
+  }
 
-if (data.value.order_history) {
-  links.push({
-    label: 'Order History',
-    icon: 'hugeicons:chart-line-data-02',
-    to: data.value.order_history,
-    target: '_blank',
-  })
-}
+  if (infoItems.length) {
+    return [
+      ...manageItems,
+      {
+        label: 'Information',
+        type: 'label',
+      },
+      ...infoItems,
+    ]
+  }
 
-const items = [
+  return manageItems
+})
+
+const accordions = [
   {
     label: 'Specifications',
     icon: 'hugeicons:information-circle',

@@ -35,7 +35,7 @@
             v-model:visible="visible.edit"
             title="Edit Maker"
           >
-            <UButton icon="hugeicons:user-edit-01" label="Edit" />
+            <UButton icon="hugeicons:edit-01" label="Edit" />
 
             <template #body="{ close }">
               <ArtisanModalMakerForm
@@ -66,12 +66,33 @@
               />
             </template>
           </UModal>
+
+          <SharedProfileDrawer
+            :title="maker.name"
+            :slug="maker.id"
+            :description="maker.bio"
+            :links="makerLinks"
+          />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <ArtisanMakerPageHeader :maker="maker" :sculpts="favoriteSculpts" />
+      <UPageHeader
+        v-if="favoriteSculpts.length"
+        headline="Pinned"
+        :ui="{
+          headline: 'text-md',
+        }"
+      >
+        <UPageGrid>
+          <ArtisanSculptCard
+            v-for="sculpt in favoriteSculpts"
+            :key="sculpt.id"
+            :sculpt="sculpt"
+          />
+        </UPageGrid>
+      </UPageHeader>
 
       <UPageGrid>
         <ArtisanSculptCard
@@ -113,6 +134,66 @@ const favoriteSculpts = computed(() => {
 })
 const otherSculpts = computed(() => {
   return sculpts.value.filter((s) => !favSculpts.value.includes(s.sculpt_id))
+})
+
+const makerLinks = computed(() => {
+  const items = []
+
+  if (maker.value?.website) {
+    items.push({
+      label: 'Website',
+      icon: 'hugeicons:globe-02',
+      to: maker.value.website,
+      target: '_blank',
+    })
+  }
+
+  if (maker.value?.instagram) {
+    items.push({
+      label: 'Instagram',
+      icon: 'hugeicons:instagram',
+      to: maker.value.instagram,
+      target: '_blank',
+    })
+  }
+
+  if (maker.value?.discord) {
+    items.push({
+      label: 'Discord',
+      icon: 'hugeicons:discord',
+      to: maker.value.discord,
+      target: '_blank',
+    })
+  }
+
+  if (maker.value?.artisancollector) {
+    items.push({
+      label: 'ArtisanCollector',
+      icon: 'hugeicons:globe-02',
+      to: maker.value.artisancollector,
+      target: '_blank',
+    })
+  }
+
+  if (
+    !maker.value?.disable_google_sync &&
+    Array.isArray(maker.value?.document_ids) &&
+    maker.value.document_ids.length
+  ) {
+    maker.value.document_ids.forEach((docId, idx) => {
+      items.push({
+        label:
+          maker.value.document_ids.length > 1
+            ? `Catalogue ${idx + 1}`
+            : 'Catalogue',
+        icon: 'hugeicons:file-02',
+        to: `https://docs.google.com/document/d/${docId}`,
+        target: '_blank',
+      })
+    })
+  }
+
+  return items
 })
 
 const breadcrumbs = computed(() => {

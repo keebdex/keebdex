@@ -15,7 +15,7 @@
     />
 
     <template #description>
-      <SharedPageHeaderDescription
+      <SharedDescription
         v-if="colorway.description"
         :description="colorway.description"
       />

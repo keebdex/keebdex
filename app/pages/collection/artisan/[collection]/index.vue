@@ -7,6 +7,19 @@
         </template>
 
         <template #right>
+          <UButton
+            v-if="shareable"
+            icon="hugeicons:copy-link"
+            label="Copy URL"
+            @click="copyShareUrl"
+          />
+
+          <UButton
+            :icon="appConfig.ui.icons.sortManual"
+            label="Manual Sort"
+            :to="`/collection/artisan/${route.params.collection}/sort`"
+          />
+
           <UModal
             v-if="authenticated"
             v-model:visible="visible.edit"
@@ -47,27 +60,9 @@
               <UButton label="Delete" color="error" @click="deleteCollection" />
             </template>
           </UModal>
-        </template>
-      </UDashboardNavbar>
-    </template>
-
-    <template #body>
-      <UPageHeader :title="data?.name || 'Collection'">
-        <template #links>
-          <UButton
-            v-if="shareable"
-            icon="hugeicons:copy-link"
-            label="Copy URL"
-            @click="copyShareUrl"
-          />
-
-          <UButton
-            :icon="appConfig.ui.icons.sortManual"
-            label="Change Sort Order"
-            :to="`/collection/artisan/${route.params.collection}/sort`"
-          />
 
           <USelect
+            v-if="$device.isDesktopOrTablet"
             v-model="sort"
             :items="sortOptions"
             :icon="sortIconMap[sort]"
@@ -75,8 +70,20 @@
             :ui="{ content: 'min-w-fit' }"
           />
         </template>
-      </UPageHeader>
+      </UDashboardNavbar>
 
+      <UDashboardToolbar v-if="$device.isMobile">
+        <USelect
+          v-model="sort"
+          :items="sortOptions"
+          :icon="sortIconMap[sort]"
+          variant="soft"
+          :ui="{ content: 'min-w-fit' }"
+        />
+      </UDashboardToolbar>
+    </template>
+
+    <template #body>
       <UAlert
         v-if="hasOutdated"
         description="Outdated items found during database sync. Please remove and re-add from the maker page if needed before deletion."
@@ -215,10 +222,7 @@ const sortOptions = [
   },
 ]
 
-const sortIconMap = sortOptions.reduce((acc, option) => {
-  acc[option.value] = option.icon
-  return acc
-}, {})
+const sortIconMap = getSortIconMap(sortOptions)
 
 const config = useRuntimeConfig()
 

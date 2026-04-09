@@ -26,8 +26,6 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Manage Keyset Colors" :description="description" />
-
       <UTable :data="data.colors" :columns="columns" class="flex-1">
         <template #hex-cell="{ row }">
           <KeysetColorSwatch :color="row.original.color?.hex" />

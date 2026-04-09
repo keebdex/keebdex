@@ -53,19 +53,41 @@
               />
             </template>
           </UModal>
+
+          <USelect
+            v-if="$device.isDesktopOrTablet"
+            v-model="sort"
+            :items="sortOptions"
+            :icon="sortIconMap[sort]"
+            variant="soft"
+            :ui="{ content: 'min-w-fit' }"
+          />
+
+          <SharedProfileDrawer
+            v-if="data.keyboard.description"
+            :title="data.keyboard.name"
+            :description="data.keyboard.description"
+            :links="keyboardLinks"
+          />
+
+          <UDropdownMenu v-if="items.length" :items="items">
+            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
+          </UDropdownMenu>
         </template>
       </UDashboardNavbar>
+
+      <UDashboardToolbar v-if="$device.isMobile">
+        <USelect
+          v-model="sort"
+          :items="sortOptions"
+          :icon="sortIconMap[sort]"
+          variant="soft"
+          :ui="{ content: 'min-w-fit' }"
+        />
+      </UDashboardToolbar>
     </template>
 
     <template #body>
-      <KeyboardPageHeader
-        :brand="data.brand"
-        :keyboard="data.keyboard"
-        :releases="data.releases"
-        :total-variants="totalVariants"
-        @on-sorting="sort = $event"
-      />
-
       <UPageList v-if="data.releases?.length" divide class="mt-4">
         <UPageCard
           v-for="(release, idx) in sortedReleases"
@@ -231,6 +253,22 @@ const selectedRelease = ref({})
 const selectedVariant = ref({})
 
 const sort = ref('order|desc')
+const appConfig = useAppConfig()
+
+const sortOptions = [
+  {
+    label: 'Oldest First',
+    icon: appConfig.ui.icons.sortNumberAsc,
+    value: 'order|asc',
+  },
+  {
+    label: 'Newest First',
+    icon: appConfig.ui.icons.sortNumberDesc,
+    value: 'order|desc',
+  },
+]
+
+const sortIconMap = getSortIconMap(sortOptions)
 
 const { data, refresh } = await useAsyncData(
   () => `keyboard:${brand.value}/${keyboard.value}`,
@@ -239,6 +277,24 @@ const { data, refresh } = await useAsyncData(
     watch: [brand, keyboard],
   },
 )
+
+const items = computed(() => {
+  if (data.value.keyboard.parent_slug) {
+    return [
+      {
+        label: 'Original Design',
+        type: 'label',
+      },
+      {
+        label: `${data.value.keyboard.parent.brand.name} ${data.value.keyboard.parent.name}`,
+        icon: 'hugeicons:keyboard',
+        to: `/keyboard/brand/${data.value.keyboard.parent_slug}`,
+      },
+    ]
+  }
+
+  return []
+})
 
 const breadcrumbs = computed(() => {
   return [
@@ -266,13 +322,6 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const totalVariants = computed(() => {
-  return (data.value?.releases || []).reduce(
-    (sum, release) => sum + (release.variants?.length || 0),
-    0,
-  )
-})
-
 const sortedReleases = computed(() => {
   const releases = data.value?.releases || []
   const [sortField, sortDir] = sort.value.split('|')
@@ -293,6 +342,20 @@ const sortedReleases = computed(() => {
   return sorted
 })
 
+const keyboardLinks = computed(() => {
+  const links = []
+
+  if (data.value?.keyboard?.parent_slug) {
+    links.push({
+      label: `${data.value.keyboard.parent.brand.name} ${data.value.keyboard.parent.name}`,
+      icon: 'hugeicons:share-knowledge',
+      to: `/keyboard/brand/${data.value.keyboard.parent_slug}`,
+    })
+  }
+
+  return links
+})
+
 const clearSelectedRelease = () => {
   selectedRelease.value = {}
 }
@@ -300,11 +363,6 @@ const clearSelectedRelease = () => {
 const setSelectedRelease = (release) => {
   selectedRelease.value = { ...release }
 }
-
-// const createVariant = (releaseId) => {
-//   selectedVariant.value = { release_id: releaseId }
-//   visible.value.addVariant = true
-// }
 
 const clearSelectedVariant = () => {
   selectedVariant.value = {}

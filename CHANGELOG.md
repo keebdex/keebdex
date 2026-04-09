@@ -19,4 +19,5 @@
 ### 🚀 Improvements
 
 - Combined full-text search with partial matching to better handle incomplete queries (e.g. searching "gundam" now finds "GUNDAMHAKU").
+- Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages.
 - Migrated application-level enums to native **PostgreSQL types** to ensure 100% data accuracy and eliminate mismatches between the code and database.

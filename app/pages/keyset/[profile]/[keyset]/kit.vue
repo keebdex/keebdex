@@ -28,8 +28,6 @@
     </template>
 
     <template #body>
-      <UPageHeader title="Manage Keyset Kits" :description="description" />
-
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #name-cell="{ row }">
           {{ row.original.name || row.original.category?.name }}
