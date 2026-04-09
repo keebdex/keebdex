@@ -63,6 +63,7 @@
           <UAccordion v-model="activeKey" :items="accordions" type="multiple">
             <template #specifications>
               <SharedDescriptionList
+                :columns="1"
                 :items="[
                   { term: 'Designer', description: data.designer },
                   { term: 'Sculpt', description: data.sculpt },

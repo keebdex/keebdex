@@ -7,19 +7,6 @@
         </template>
 
         <template #right>
-          <UButton
-            v-if="shareable"
-            icon="hugeicons:copy-link"
-            label="Copy URL"
-            @click="copyShareUrl"
-          />
-
-          <UButton
-            :icon="appConfig.ui.icons.sortManual"
-            label="Manual Sort"
-            :to="`/collection/artisan/${route.params.collection}/sort`"
-          />
-
           <UModal
             v-if="authenticated"
             v-model:visible="visible.edit"
@@ -42,6 +29,15 @@
             </template>
           </UModal>
 
+          <USelect
+            v-if="$device.isDesktopOrTablet"
+            v-model="sort"
+            :items="sortOptions"
+            :icon="sortIconMap[sort]"
+            variant="soft"
+            :ui="{ content: 'min-w-fit' }"
+          />
+
           <UModal
             v-model:visible="visible.delete"
             title="Delete Collection"
@@ -61,14 +57,9 @@
             </template>
           </UModal>
 
-          <USelect
-            v-if="$device.isDesktopOrTablet"
-            v-model="sort"
-            :items="sortOptions"
-            :icon="sortIconMap[sort]"
-            variant="soft"
-            :ui="{ content: 'min-w-fit' }"
-          />
+          <UDropdownMenu :items="items">
+            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
+          </UDropdownMenu>
         </template>
       </UDashboardNavbar>
 
@@ -235,6 +226,26 @@ const router = useRouter()
 const { data, refresh } = await useAsyncData(() =>
   $fetch(`/api/collections/${route.params.collection}`),
 )
+
+const items = computed(() => {
+  const menuItems = [
+    {
+      icon: appConfig.ui.icons.sortManual,
+      label: 'Manual Sort',
+      to: `/collection/artisan/${route.params.collection}/sort`,
+    },
+  ]
+
+  if (shareable) {
+    menuItems.push({
+      label: 'Copy URL',
+      icon: 'hugeicons:copy-link',
+      onClick: copyShareUrl,
+    })
+  }
+
+  return menuItems
+})
 
 const sort = ref(data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name')
 
