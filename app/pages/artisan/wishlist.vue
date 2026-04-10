@@ -62,6 +62,8 @@ const tradingConfig = useState('trading-config', () => {
     social,
     type: 'buying',
     fnf_only: false,
+    shipping_included: false,
+    highlight_filled: false,
   }
 })
 
@@ -78,6 +80,9 @@ const resetTradingState = () => {
     title: '',
     placeholder: 'WTS/WTT',
   }
+  tradingConfig.value.fnf_only = false
+  tradingConfig.value.shipping_included = false
+  tradingConfig.value.highlight_filled = false
 }
 
 const tabItems = [

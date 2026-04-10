@@ -146,6 +146,15 @@
           </UAlert>
 
           <UAlert
+            v-if="tradingCfg.shipping_included"
+            icon="hugeicons:package-moving"
+            title="Shipping Included"
+            variant="subtle"
+            color="info"
+            class="mt-4"
+          />
+
+          <UAlert
             v-if="tradingCfg.fnf_only"
             icon="hugeicons:alert-02"
             title="No PayPal Buyer Protection"

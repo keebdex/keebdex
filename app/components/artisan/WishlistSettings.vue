@@ -83,14 +83,21 @@
       />
     </UFormField>
 
-    <UFormField>
+    <UFormField v-if="tradingConfig.type !== 'buying'">
       <UCheckbox
         v-model="tradingConfig.fnf_only"
         label="I do not accept PayPal G&S"
       />
     </UFormField>
 
-    <UFormField>
+    <UFormField v-if="tradingConfig.type !== 'buying'">
+      <UCheckbox
+        v-model="tradingConfig.shipping_included"
+        label="Shipping included"
+      />
+    </UFormField>
+
+    <UFormField v-if="tradingConfig.type !== 'selling'">
       <UCheckbox
         v-model="tradingConfig.highlight_filled"
         label="Use filled highlight"

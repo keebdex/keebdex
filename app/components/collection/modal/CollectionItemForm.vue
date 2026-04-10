@@ -12,7 +12,7 @@
     </UFormField>
 
     <UFormField
-      v-if="selling && item.exchange"
+      v-if="item.exchange"
       label="Asking / Offer Price (USD)"
       name="asking_price"
     >
@@ -43,13 +43,12 @@ import z from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, buying, selling } = defineProps({
+const { metadata, buying } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
   buying: Boolean,
-  selling: Boolean,
 })
 
 const route = useRoute()
@@ -77,7 +76,6 @@ onBeforeMount(() => {
 const schema = z.object({
   asking_price: z.number().nullish(),
   buying: z.boolean(),
-  selling: z.boolean(),
 })
 
 const onSubmit = async () => {

@@ -14,7 +14,6 @@
         <UPageCard
           :title="item.artisan.name"
           :description="item.artisan?.sculpt.name"
-          orientation="vertical"
           reverse
           :highlight="buying && item.priority"
           :ui="{
@@ -64,12 +63,15 @@
               size="xl"
               class="flex-1"
             />
-            <span
+            <UBadge
               v-if="item.exchange && item.asking_price"
-              class="text-xl sm:text-xl font-semibold"
-            >
-              ${{ item.asking_price }}
-            </span>
+              :label="`$${item.asking_price}`"
+              :color="
+                buying ? (item.priority ? 'error' : 'success') : 'secondary'
+              "
+              size="xl"
+              :icon="buying ? 'hugeicons:auction' : 'hugeicons:sale-tag-02'"
+            />
           </template>
 
           <template v-if="!copying" #footer>
