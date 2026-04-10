@@ -1,4 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import type { Enums } from '~/types/database.types'
 
 const ALLOWED_ROLES = new Set(['admin', 'editor', 'maker', 'designer'])
 
@@ -9,6 +10,24 @@ interface CloudflareImageUploadResponse {
     id?: string
     variants?: string[]
   }
+}
+
+type UploadCategory = Lowercase<Enums<'module'>>
+
+function resolveUploadLimit(
+  config: ReturnType<typeof useRuntimeConfig>,
+  category?: UploadCategory,
+) {
+  if (!category) {
+    return 5
+  }
+
+  const maxSizeMap =
+    (config.public.upload?.max_image_size as Partial<
+      Record<UploadCategory, number>
+    >) || {}
+
+  return Number(maxSizeMap[category]) || 5
 }
 
 function isAuthorizedUploader(
@@ -51,6 +70,9 @@ export default defineEventHandler(async (event) => {
   const assignment = String(
     formData.get('assignment') || formData.get('maker_id') || '',
   ).trim()
+  const category = String(formData.get('category') || '')
+    .trim()
+    .toLowerCase() as UploadCategory
 
   if (!(file instanceof File)) {
     throw createError({ statusCode: 400, statusMessage: 'Missing image file' })
@@ -70,12 +92,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Validate file size (max 10MB)
-  const maxSize = 10 * 1024 * 1024 // 10MB in bytes
+  const config = useRuntimeConfig(event)
+  const maxSizeMb = resolveUploadLimit(config, category)
+  const maxSize = maxSizeMb * 1024 * 1024
+
   if (file.size > maxSize) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Image file size must be less than 10MB',
+      statusMessage: `Image file size must be less than ${maxSizeMb}MB`,
     })
   }
 
@@ -93,7 +117,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const config = useRuntimeConfig(event)
   const accountId = config.cloudflare?.accountId
   const apiToken = config.cloudflare?.imagesApiToken
 

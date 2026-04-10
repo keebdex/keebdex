@@ -1,4 +1,6 @@
-const MAX_IMAGE_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024
+import type { Enums } from '~/types/database.types'
+
+type UploadImageCategory = Lowercase<Enums<'module'>>
 
 type UploadableFile = File | File[] | null | undefined
 
@@ -8,19 +10,30 @@ function getSingleFile(file: UploadableFile): File | null {
   return file
 }
 
-function validateImageFile(file: File) {
+function getMaxUploadSizeMb(category: UploadImageCategory) {
+  const config = useRuntimeConfig()
+  const maxSizeMap = config.public.upload?.max_image_size || {}
+
+  return Number(maxSizeMap[category]) || 5
+}
+
+function validateImageFile(file: File, category: UploadImageCategory) {
   if (!file.type?.startsWith('image/')) {
     throw new Error('Only image files are allowed')
   }
 
-  if (file.size > MAX_IMAGE_UPLOAD_SIZE_BYTES) {
-    throw new Error('Image file size must be less than 10MB')
+  const maxSizeMb = getMaxUploadSizeMb(category)
+  const maxSizeBytes = maxSizeMb * 1024 * 1024
+
+  if (file.size > maxSizeBytes) {
+    throw new Error(`Image file size must be less than ${maxSizeMb}MB`)
   }
 }
 
 export async function uploadImageToCloudflare(options: {
   file: UploadableFile
   assignment: string
+  category: UploadImageCategory
 }) {
   const selectedFile = getSingleFile(options.file)
 
@@ -34,11 +47,12 @@ export async function uploadImageToCloudflare(options: {
     throw new Error('Missing upload assignment')
   }
 
-  validateImageFile(selectedFile)
+  validateImageFile(selectedFile, options.category)
 
   const formData = new FormData()
   formData.append('file', selectedFile, selectedFile.name)
   formData.append('assignment', assignment)
+  formData.append('category', options.category)
 
   const result = await $fetch<{ url?: string }>('/api/images/upload', {
     method: 'post',

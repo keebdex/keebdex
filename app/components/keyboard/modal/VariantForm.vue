@@ -231,6 +231,7 @@ const onSubmit = async () => {
       payload.image_url = await uploadImageToCloudflare({
         file: uploadedFile.value,
         assignment: String(keyboard.brand_keyboard_slug || ''),
+        category: 'keyboard',
       })
     }
 
@@ -252,7 +253,7 @@ const onSubmit = async () => {
     uploadedFile.value = null
     emit('onSuccess', data)
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
     uploading.value = false
   }

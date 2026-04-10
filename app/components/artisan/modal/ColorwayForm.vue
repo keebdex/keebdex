@@ -222,6 +222,7 @@ const onSubmit = async () => {
       payload.img = await uploadImageToCloudflare({
         file: uploadedFile.value,
         assignment: String(colorway.value.maker_id || route.params.maker || ''),
+        category: 'artisan',
       })
     }
 
@@ -248,7 +249,7 @@ const onSubmit = async () => {
     replaceMode.value = false
     emit('onSuccess')
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
     uploading.value = false
   }

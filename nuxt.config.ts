@@ -50,6 +50,13 @@ export default defineNuxtConfig({
       imagesDefaultVariant: process.env.CF_IMAGES_VARIANT || 'public',
     },
     public: {
+      upload: {
+        max_image_size: {
+          artisan: Number(process.env.UPLOAD_MAX_ARTISAN_IMAGE_SIZE_MB) || 5,
+          keyboard: Number(process.env.UPLOAD_MAX_KEYBOARD_IMAGE_SIZE_MB) || 20,
+          keyset: Number(process.env.UPLOAD_MAX_KEYSET_IMAGE_SIZE_MB) || 10,
+        },
+      },
       site: {
         name: app.displayName,
         description: app.description,

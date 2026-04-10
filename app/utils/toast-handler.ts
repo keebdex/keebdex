@@ -32,13 +32,26 @@ interface ToastMessage {
   color: 'error' | 'warning' | 'success'
 }
 
+interface HandleErrorOptions {
+  showOriginalMessage?: boolean
+}
+
 /**
  * Handles error logic and returns a structured object for Toast components.
  * @param error - The raw error object (from fetch, axios, etc.)
+ * @param options - Optional behavior flags for error presentation.
  * @returns {ToastMessage} Ready-to-use toast configuration
  */
-export function handleError(error: any): ToastMessage {
+export function handleError(
+  error: any,
+  options: HandleErrorOptions = {},
+): ToastMessage {
   const status = error?.status || error?.statusCode || error?.response?.status
+  const statusMessage =
+    error?.statusMessage ||
+    error?.data?.statusMessage ||
+    error?.response?.data?.statusMessage ||
+    error?.message
 
   // 1. Log the technical error for internal debugging
   const isDev = process.env.NODE_ENV === 'development'
@@ -56,6 +69,14 @@ export function handleError(error: any): ToastMessage {
       message: error?.message,
       status,
     })
+  }
+
+  if (options.showOriginalMessage && statusMessage) {
+    return {
+      title: String(statusMessage),
+      description: 'Please check the requirements and try again.',
+      color: 'error',
+    }
   }
 
   // 2. Handle specific HTTP status codes for smarter feedback
