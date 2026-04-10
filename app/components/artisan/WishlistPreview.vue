@@ -61,6 +61,36 @@
 
       <UPageHeader
         title="Information"
+        :links="
+          tradingCfg.shipping_included
+            ? [
+                {
+                  label: 'Shipping Included',
+                  icon: 'hugeicons:package-moving',
+                  color: 'info',
+                  variant: 'soft',
+                  size: 'xl',
+                },
+              ]
+            : [
+                {
+                  label: $config.public.site.name,
+                  avatar: {
+                    alt: $config.public.site.name,
+                    src:
+                      $colorMode.value === 'dark'
+                        ? '/logo-outlined.png'
+                        : '/logo-filled.png',
+                    ui: {
+                      root: 'rounded-none bg-transparent',
+                    },
+                  },
+                  color: 'info',
+                  variant: 'soft',
+                  size: 'xl',
+                },
+              ]
+        "
         :ui="{
           root: 'border-none',
         }"
@@ -144,15 +174,6 @@
               keep your wishlist between 16-24 items.
             </template>
           </UAlert>
-
-          <UAlert
-            v-if="tradingCfg.shipping_included"
-            icon="hugeicons:package-moving"
-            title="Shipping Included"
-            variant="subtle"
-            color="info"
-            class="mt-4"
-          />
 
           <UAlert
             v-if="tradingCfg.fnf_only"
