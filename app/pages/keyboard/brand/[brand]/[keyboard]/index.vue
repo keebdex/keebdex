@@ -319,7 +319,9 @@ const breadcrumbs = computed(() => {
         ui: {
           root: 'bg-transparent',
           image:
-            colorMode.value === 'dark' ? 'rounded-none invert' : 'rounded-none',
+            data.value?.brand?.invertible_logo && colorMode.value === 'dark'
+              ? 'rounded-none invert'
+              : 'rounded-none',
         },
       },
     },

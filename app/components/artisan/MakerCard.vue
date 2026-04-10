@@ -10,19 +10,17 @@
       wrapper: 'items-center',
     }"
   >
-    <UAvatar
-      :src="`/logo/${maker.id}.png`"
-      :alt="maker.name"
-      size="7xl"
-      :ui="{
-        root: 'bg-transparent rounded-none p-6 aspect-square',
-      }"
-      :class="{
-        invert: maker.invertible_logo && $colorMode.value === 'dark',
-      }"
-    >
-      {{ maker.name }}
-    </UAvatar>
+    <div class="flex items-center p-6 aspect-square">
+      <NuxtImg
+        loading="lazy"
+        :src="`/logo/${maker.id}.png`"
+        :alt="maker.name"
+        class="mx-auto my-auto overflow-hidden"
+        :class="{
+          invert: maker.invertible_logo && $colorMode.value === 'dark',
+        }"
+      />
+    </div>
   </UPageCard>
 </template>
 

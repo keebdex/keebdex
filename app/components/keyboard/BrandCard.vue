@@ -10,20 +10,17 @@
       wrapper: 'items-center',
     }"
   >
-    <UAvatar
-      :src="`/logo/${brand.slug}.png`"
-      :alt="brand.name"
-      size="7xl"
-      :ui="{
-        root: 'bg-transparent rounded-none p-6 aspect-video',
-        image: 'h-full w-auto object-contain',
-      }"
-      :class="{
-        invert: brand.invertible_logo && $colorMode.value === 'dark',
-      }"
-    >
-      {{ brand.name }}
-    </UAvatar>
+    <div class="flex items-center p-6 aspect-square">
+      <NuxtImg
+        loading="lazy"
+        :src="`/logo/${brand.slug}.png`"
+        :alt="brand.name"
+        class="mx-auto my-auto overflow-hidden"
+        :class="{
+          invert: brand.invertible_logo && $colorMode.value === 'dark',
+        }"
+      />
+    </div>
   </UPageCard>
 </template>
 
