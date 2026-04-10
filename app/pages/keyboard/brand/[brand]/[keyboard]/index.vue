@@ -32,6 +32,13 @@
             </template>
           </UModal>
 
+          <UButton
+            v-if="editable"
+            :to="`/keyboard/brand/${brand}/${keyboard}/sort`"
+            :icon="appConfig.ui.icons.sortManual"
+            label="Sort"
+          />
+
           <UModal
             v-if="editable"
             v-model:visible="visible.editKeyboard"

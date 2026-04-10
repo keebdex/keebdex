@@ -3,7 +3,7 @@ import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { id, cover_image, ...body } = await readBody(event)
+  const { id, cover_image, parent, ...body } = await readBody(event)
 
   const { brand: brand_slug } = event.context.params || {}
 

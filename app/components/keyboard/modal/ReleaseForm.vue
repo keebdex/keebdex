@@ -9,25 +9,14 @@
       />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Release Year" name="release_year">
-        <UInput
-          v-model.number="release.release_year"
-          type="number"
-          icon="hugeicons:calendar-03"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Order" name="order">
-        <UInput
-          v-model.number="release.order"
-          type="number"
-          icon="hugeicons:hashtag"
-          class="w-full"
-        />
-      </UFormField>
-    </div>
+    <UFormField label="Release Year" name="release_year">
+      <UInput
+        v-model.number="release.release_year"
+        type="number"
+        icon="hugeicons:calendar-03"
+        class="w-full"
+      />
+    </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Mount Style" name="mount_style">
@@ -173,7 +162,6 @@ const schema = z.object({
         message: 'Release name must be unique for this keyboard',
       },
     ),
-  order: z.coerce.number().nullish(),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
