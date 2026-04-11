@@ -12,17 +12,14 @@
     <template #item="{ element: item }">
       <div class="cursor-move">
         <UPageCard
-          :title="item.artisan.name"
-          :description="item.artisan?.sculpt.name"
+          :title="colorwayTitle(item.artisan)"
           reverse
           :highlight="buying && item.priority"
           :ui="{
             root: 'h-full flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
-            body: 'flex gap-2 w-full',
-            container: flex && 'max-w-2xs',
+            footer: 'w-full',
           }"
-          variant="subtle"
           :class="
             buying && item.priority && tradingCfg.highlight_filled
               ? 'bg-success/30'
@@ -56,26 +53,8 @@
             </span>
           </div>
 
-          <template #body>
-            <UUser
-              :name="item.artisan.name"
-              :description="item.artisan?.sculpt.name"
-              size="xl"
-              class="flex-1"
-            />
-            <UBadge
-              v-if="item.exchange && item.asking_price"
-              :label="`$${item.asking_price}`"
-              :color="
-                buying ? (item.priority ? 'error' : 'success') : 'secondary'
-              "
-              size="xl"
-              :icon="buying ? 'hugeicons:auction' : 'hugeicons:sale-tag-02'"
-            />
-          </template>
-
-          <template v-if="!copying" #footer>
-            <UTooltip text="Priority" :delay-duration="0">
+          <template #footer>
+            <UTooltip v-if="!copying" text="Priority" :delay-duration="0">
               <UButton
                 v-if="buying && item.exchange"
                 icon="hugeicons:shopping-bag-favorite"
@@ -83,13 +62,27 @@
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>
-            <UTooltip text="Remove" :delay-duration="0">
+            <UTooltip v-if="!copying" text="Remove" :delay-duration="0">
               <UButton
                 icon="hugeicons:shopping-bag-remove"
                 color="error"
                 @click="$emit('onRemove', item)"
               />
             </UTooltip>
+            <UButton
+              v-if="item.asking_price && item.exchange"
+              :label="item.asking_price"
+              :icon="
+                buying
+                  ? 'hugeicons:dollar-send-01'
+                  : 'hugeicons:dollar-receive-01'
+              "
+              :color="item.priority ? 'error' : 'info'"
+              :class="{
+                'font-bold text-2xl': copying,
+              }"
+              block
+            />
           </template>
         </UPageCard>
       </div>
