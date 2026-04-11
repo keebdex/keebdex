@@ -43,21 +43,30 @@
           "
           :description="
             keyset.profile
-              ? formatDateRange(keyset.start_date, keyset.end_date) || '\u00A0'
-              : keyset.description || '\u00A0'
+              ? formatDateRange(keyset.start_date, keyset.end_date) || ''
+              : keyset.description || ''
           "
-          :icon="statusIconMap[keyset.status]"
           reverse
           spotlight
           :ui="{
-            leadingIcon: `text-${keysetStatusColors[keyset.status]}`,
-            /**
-             * applied to card descriptions to normalize card height
-             * and ensure titles align across grid items
-             */
-            description: !keyset.profile && 'line-clamp-4 min-h-[5rem]',
+            root: 'h-full flex flex-col',
+            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            // wrapper: 'h-full min-h-0 flex flex-col',
+            // body: 'flex-1 min-h-0',
+            footer: 'mt-auto',
+            description: !keyset.profile && 'line-clamp-4',
           }"
         >
+          <UBadge
+            v-if="
+              keyset.status === 'Cancelled' || keyset.status === 'Scheduled'
+            "
+            :label="keyset.status"
+            :color="keysetStatusColors[keyset.status]"
+            variant="solid"
+            class="absolute top-6 right-6 z-20"
+          />
+
           <NuxtImg
             loading="lazy"
             :alt="keyset.name"
@@ -135,14 +144,6 @@ defineEmits(['update:page', 'update:keysets'])
 const userStore = useUserStore()
 const { authenticated, isAdmin, user } = storeToRefs(userStore)
 const toast = useToast()
-
-const statusIconMap = {
-  Live: 'hugeicons:live-streaming-01',
-  Scheduled: 'hugeicons:appointment-01',
-  'In Production': 'hugeicons:product-loading',
-  Shipping: 'hugeicons:shipping-truck-01',
-  Cancelled: 'hugeicons:unavailable',
-}
 
 const visible = ref(false)
 

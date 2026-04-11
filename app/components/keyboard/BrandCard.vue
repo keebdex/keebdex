@@ -1,7 +1,6 @@
 <template>
   <UPageCard
     :title="brand.name"
-    orientation="vertical"
     reverse
     spotlight
     :to="`/keyboard/brand/${brand.slug}`"
@@ -10,12 +9,12 @@
       wrapper: 'items-center',
     }"
   >
-    <div class="flex items-center p-6 aspect-square">
+    <div class="flex items-center p-6">
       <NuxtImg
         loading="lazy"
         :src="`/logo/${brand.slug}.png`"
         :alt="brand.name"
-        class="mx-auto my-auto overflow-hidden"
+        class="mx-auto my-auto overflow-hidden aspect-video object-contain"
         :class="{
           invert: brand.invertible_logo && $colorMode.value === 'dark',
         }"

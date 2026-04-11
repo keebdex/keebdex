@@ -1,7 +1,6 @@
 <template>
   <UPageCard
     :title="maker.name"
-    orientation="vertical"
     reverse
     spotlight
     :to="`/artisan/maker/${maker.id}`"

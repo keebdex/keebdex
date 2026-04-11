@@ -173,9 +173,9 @@ const confirmDelete = (color) => {
 }
 
 const meta = {
-  title: 'Keyset Colors',
+  title: 'Color Swatches',
   description:
-    'Browse and explore official keyset color codes used in the mechanical keyboard community.',
+    'Explore the vibrant world of keycap colors! Browse our extensive collection of color swatches, from classic hues to unique shades.',
 }
 
 useSeoMeta(meta)

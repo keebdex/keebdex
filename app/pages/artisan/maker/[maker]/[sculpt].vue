@@ -102,7 +102,6 @@
           v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"
           :title="colorway.name"
-          orientation="vertical"
           reverse
           spotlight
           :ui="{

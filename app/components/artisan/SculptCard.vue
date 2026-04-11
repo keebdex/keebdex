@@ -2,7 +2,6 @@
   <UPageCard
     :title="sculpt.name"
     :description="sculpt.collection"
-    orientation="vertical"
     reverse
     spotlight
     :to="`/artisan/maker/${sculpt.maker_id}/${sculpt.sculpt_id}`"

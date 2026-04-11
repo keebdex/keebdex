@@ -47,7 +47,6 @@
             :key="id"
             :title="artisan.name"
             :description="artisan?.sculpt.name"
-            orientation="vertical"
             reverse
             :highlight="!!priority"
             :ui="{
