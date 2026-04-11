@@ -97,7 +97,7 @@
     <template #body>
       <UPageList v-if="data.releases?.length" divide class="mt-4">
         <UPageCard
-          v-for="(release, idx) in sortedReleases"
+          v-for="(release, idx) in data.releases"
           :key="release.id"
           :title="release.name"
           :description="release.description"
@@ -287,16 +287,16 @@ const { data, refresh } = await useAsyncData(
 )
 
 const items = computed(() => {
-  if (data.value.keyboard.parent_slug) {
+  if (data.value.keyboard.derived_from) {
     return [
       {
         label: 'Original Design',
         type: 'label',
       },
       {
-        label: `${data.value.keyboard.parent.brand.name} ${data.value.keyboard.parent.name}`,
+        label: `${data.value.keyboard.original.brand.name} ${data.value.keyboard.original.name}`,
         icon: 'hugeicons:keyboard',
-        to: `/keyboard/brand/${data.value.keyboard.parent_slug}`,
+        to: `/keyboard/brand/${data.value.keyboard.derived_from}`,
       },
     ]
   }
@@ -332,34 +332,14 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const sortedReleases = computed(() => {
-  const releases = data.value?.releases || []
-  const [sortField, sortDir] = sort.value.split('|')
-
-  const sorted = [...releases].sort((a, b) => {
-    const aVal = a[sortField] ?? 0
-    const bVal = b[sortField] ?? 0
-
-    if (typeof aVal === 'string') {
-      return sortDir === 'asc'
-        ? aVal.localeCompare(bVal)
-        : bVal.localeCompare(aVal)
-    }
-
-    return sortDir === 'asc' ? aVal - bVal : bVal - aVal
-  })
-
-  return sorted
-})
-
 const keyboardLinks = computed(() => {
   const links = []
 
-  if (data.value?.keyboard?.parent_slug) {
+  if (data.value?.keyboard?.derived_from) {
     links.push({
-      label: `${data.value.keyboard.parent.brand.name} ${data.value.keyboard.parent.name}`,
+      label: `${data.value.keyboard.original.brand.name} ${data.value.keyboard.original.name}`,
       icon: 'hugeicons:share-knowledge',
-      to: `/keyboard/brand/${data.value.keyboard.parent_slug}`,
+      to: `/keyboard/brand/${data.value.keyboard.derived_from}`,
     })
   }
 

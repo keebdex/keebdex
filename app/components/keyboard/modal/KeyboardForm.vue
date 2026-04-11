@@ -49,7 +49,7 @@
 
     <UFormField
       label="Original Design"
-      name="parent_slug"
+      name="derived_from"
       help="Optional. Pick the keyboard this design is based on."
     >
       <USelectMenu
@@ -104,7 +104,7 @@ const keyboard = ref({
   slug: '',
   layout: Constants.public.Enums.keyboard_layout[0],
   typing_angle: null,
-  parent_slug: null,
+  derived_from: null,
 })
 
 const selectedParentKeyboard = ref(null)
@@ -164,7 +164,7 @@ const schema = z.object({
     .or(z.string().min(0).max(0)),
   layout: z.enum(Constants.public.Enums.keyboard_layout),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
-  parent_slug: z
+  derived_from: z
     .string()
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
@@ -177,20 +177,20 @@ const schema = z.object({
 onBeforeMount(() => {
   Object.assign(keyboard.value, metadata || {})
 
-  if (keyboard.value.parent_slug) {
+  if (keyboard.value.derived_from) {
     selectedParentKeyboard.value = {
-      value: metadata.parent_slug,
+      value: metadata.derived_from,
       label: formatKeyboardDescription([
-        metadata?.parent?.brand?.name,
-        metadata?.parent?.name,
+        metadata?.original?.brand?.name,
+        metadata?.original?.name,
       ]),
       avatar: {
-        src: `/logo/${metadata?.parent?.brand_slug}.png`,
-        alt: metadata?.parent?.brand?.name,
+        src: `/logo/${metadata?.original?.brand_slug}.png`,
+        alt: metadata?.original?.brand?.name,
         ui: {
           root: 'bg-transparent rounded-none',
           image:
-            metadata?.parent?.brand?.invertible_logo &&
+            metadata?.original?.brand?.invertible_logo &&
             colorMode.value === 'dark' &&
             'invert',
         },
@@ -219,7 +219,7 @@ onBeforeUnmount(() => {
 })
 
 watch(selectedParentKeyboard, (value) => {
-  keyboard.value.parent_slug = value?.value || null
+  keyboard.value.derived_from = value?.value || null
 })
 
 const onSubmit = async () => {
@@ -234,7 +234,7 @@ const onSubmit = async () => {
       ...keyboard.value,
       slug,
       brand_slug: brandSlug,
-      parent_slug: keyboard.value.parent_slug || null,
+      derived_from: keyboard.value.derived_from || null,
     },
   })
     .then((data) => {

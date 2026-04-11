@@ -291,6 +291,7 @@ export type Database = {
         Row: {
           bio: string | null
           country_origin: string | null
+          created_at: string
           discord: string | null
           fts: unknown
           id: number
@@ -303,6 +304,7 @@ export type Database = {
         Insert: {
           bio?: string | null
           country_origin?: string | null
+          created_at?: string
           discord?: string | null
           fts?: unknown
           id?: number
@@ -315,6 +317,7 @@ export type Database = {
         Update: {
           bio?: string | null
           country_origin?: string | null
+          created_at?: string
           discord?: string | null
           fts?: unknown
           id?: number
@@ -331,6 +334,7 @@ export type Database = {
           brand_keyboard_slug: string
           brand_slug: string
           case_materials: string[] | null
+          created_at: string
           currency: string | null
           description: string | null
           fts: unknown
@@ -355,6 +359,7 @@ export type Database = {
           brand_keyboard_slug: string
           brand_slug: string
           case_materials?: string[] | null
+          created_at?: string
           currency?: string | null
           description?: string | null
           fts?: unknown
@@ -379,6 +384,7 @@ export type Database = {
           brand_keyboard_slug?: string
           brand_slug?: string
           case_materials?: string[] | null
+          created_at?: string
           currency?: string | null
           description?: string | null
           fts?: unknown
@@ -420,6 +426,7 @@ export type Database = {
         Row: {
           brand_keyboard_slug: string
           brand_slug: string
+          created_at: string
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           fts: unknown
           id: number
@@ -434,6 +441,7 @@ export type Database = {
         Insert: {
           brand_keyboard_slug: string
           brand_slug: string
+          created_at?: string
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           fts?: unknown
           id?: never
@@ -448,6 +456,7 @@ export type Database = {
         Update: {
           brand_keyboard_slug?: string
           brand_slug?: string
+          created_at?: string
           finish_type?: Database["public"]["Enums"]["keyboard_finish_type"]
           fts?: unknown
           id?: never
@@ -487,36 +496,39 @@ export type Database = {
         Row: {
           brand_keyboard_slug: string
           brand_slug: string | null
+          created_at: string
+          derived_from: string | null
           description: string | null
           fts: unknown
           id: number
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
-          parent_slug: string | null
           slug: string
           typing_angle: number | null
         }
         Insert: {
           brand_keyboard_slug: string
           brand_slug?: string | null
+          created_at?: string
+          derived_from?: string | null
           description?: string | null
           fts?: unknown
           id?: never
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
-          parent_slug?: string | null
           slug: string
           typing_angle?: number | null
         }
         Update: {
           brand_keyboard_slug?: string
           brand_slug?: string | null
+          created_at?: string
+          derived_from?: string | null
           description?: string | null
           fts?: unknown
           id?: never
           layout?: Database["public"]["Enums"]["keyboard_layout"]
           name?: string
-          parent_slug?: string | null
           slug?: string
           typing_angle?: number | null
         }
@@ -529,8 +541,8 @@ export type Database = {
             referencedColumns: ["slug"]
           },
           {
-            foreignKeyName: "keyboards_parent_slug_fkey"
-            columns: ["parent_slug"]
+            foreignKeyName: "keyboards_derived_from_fkey"
+            columns: ["derived_from"]
             isOneToOne: false
             referencedRelation: "keyboards"
             referencedColumns: ["brand_keyboard_slug"]
