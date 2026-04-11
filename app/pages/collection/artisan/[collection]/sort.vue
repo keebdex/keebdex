@@ -41,8 +41,8 @@
               reverse
               spotlight
               :ui="{
-                root: 'h-full',
-                wrapper: 'flex-1',
+                root: 'h-full flex flex-col',
+                container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
               }"
             >
               <div class="relative aspect-square overflow-hidden">
