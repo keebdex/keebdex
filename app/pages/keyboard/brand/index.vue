@@ -30,10 +30,14 @@
         v-if="data?.length"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
       >
-        <KeyboardBrandCard
+        <SharedKeebLogoCard
           v-for="brand in data"
           :key="brand.slug"
-          :brand="brand"
+          :title="brand.name"
+          :to="`/keyboard/brand/${brand.slug}`"
+          :slug="brand.slug"
+          :invertible="brand.invertible_logo"
+          aspect="video"
         />
       </UPageGrid>
 

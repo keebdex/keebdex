@@ -46,19 +46,27 @@
         }"
       >
         <UPageGrid>
-          <ArtisanMakerCard
+          <SharedKeebLogoCard
             v-for="maker in favoriteMakers"
             :key="maker.id"
-            :maker="maker"
+            :title="maker.name"
+            :to="`/artisan/maker/${maker.id}`"
+            :slug="maker.id"
+            :invertible="maker.invertible_logo"
+            aspect="square"
           />
         </UPageGrid>
       </UPageHeader>
 
       <UPageGrid>
-        <ArtisanMakerCard
+        <SharedKeebLogoCard
           v-for="maker in otherMakers"
           :key="maker.id"
-          :maker="maker"
+          :title="maker.name"
+          :to="`/artisan/maker/${maker.id}`"
+          :slug="maker.id"
+          :invertible="maker.invertible_logo"
+          aspect="square"
         />
       </UPageGrid>
     </template>
