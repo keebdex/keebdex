@@ -1,10 +1,7 @@
 <template>
-  <UDashboardPanel
-    v-if="data && editable"
-    :id="`keyboard-${brand}-${keyboard}-sort`"
-  >
+  <UDashboardPanel v-if="data && editable" :id="`keyboard-${slug}-sort`">
     <template #header>
-      <UDashboardNavbar :title="data.keyboard.name">
+      <UDashboardNavbar :title="data.name">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -80,17 +77,14 @@ const toast = useToast()
 const route = useRoute()
 const userStore = useUserStore()
 
-const brand = computed(() => String(route.params.brand || ''))
-const keyboard = computed(() => String(route.params.keyboard || ''))
-const editable = computed(() =>
-  userStore.isEditable(`${brand.value}/${keyboard.value}`),
-)
+const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
+const editable = computed(() => userStore.isEditable(slug.value))
 
 const { data, refresh } = await useAsyncData(
-  () => `keyboard-release-sort:${brand.value}/${keyboard.value}`,
-  () => $fetch(`/api/keyboards/${brand.value}/${keyboard.value}`),
+  () => `keyboard-release-sort:${slug.value}`,
+  () => $fetch(`/api/keyboards/${slug.value}`),
   {
-    watch: [brand, keyboard],
+    watch: [slug],
   },
 )
 
@@ -117,11 +111,11 @@ const breadcrumbs = computed(() => {
     },
     {
       label: data.value?.brand?.name,
-      to: `/keyboard/brand/${brand.value}`,
+      to: `/keyboard/brand/${route.params.brand}`,
     },
     {
-      label: data.value?.keyboard?.name,
-      to: `/keyboard/brand/${brand.value}/${keyboard.value}`,
+      label: data.value?.name,
+      to: `/keyboard/brand/${slug.value}`,
     },
     {
       label: 'Manual Sorting',
@@ -132,16 +126,13 @@ const breadcrumbs = computed(() => {
 const saveCustomSorting = async () => {
   const total = items.value.length
 
-  await $fetch(
-    `/api/keyboards/${brand.value}/${keyboard.value}/releases/sort`,
-    {
-      method: 'post',
-      body: items.value.map(({ id }, idx) => ({
-        order: total - idx,
-        id,
-      })),
-    },
-  )
+  await $fetch(`/api/keyboards/${slug.value}/releases/sort`, {
+    method: 'post',
+    body: items.value.map(({ id }, idx) => ({
+      order: total - idx,
+      id,
+    })),
+  })
     .then(() => {
       refresh()
       toast.add(handleNotice('order_save'))

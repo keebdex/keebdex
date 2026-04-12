@@ -3,7 +3,7 @@ import { omitSensitive } from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { id, variants, ...body } = await readBody(event)
+  const { id, variants, keyboard_variants, ...body } = await readBody(event)
 
   // FIXME: we can do validation here and remove below checks
   const payload = {

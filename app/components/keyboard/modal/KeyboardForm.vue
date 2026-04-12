@@ -53,11 +53,11 @@
       help="Optional. Pick the keyboard this design is based on."
     >
       <USelectMenu
-        v-model="selectedParentKeyboard"
-        v-model:search-term="parentKeyboardSearch"
-        :items="parentKeyboardOptions"
+        v-model="selectedOriginalKeyboard"
+        v-model:search-term="originalKeyboardSearch"
+        :items="originalKeyboardOptions"
         label-key="label"
-        :loading="parentKeyboardStatus === 'pending'"
+        :loading="originalKeyboardStatus === 'pending'"
         ignore-filter
         icon="hugeicons:keyboard"
         placeholder="Type at least 2 characters to search..."
@@ -84,18 +84,15 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit, brandSlug } = defineProps({
+const { metadata, isEdit } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
   isEdit: Boolean,
-  brandSlug: {
-    type: String,
-    required: true,
-  },
 })
 
+const route = useRoute()
 const toast = useToast()
 const colorMode = useColorMode()
 
@@ -107,23 +104,23 @@ const keyboard = ref({
   derived_from: null,
 })
 
-const selectedParentKeyboard = ref(null)
-const parentKeyboardSearch = ref('')
-const parentKeyboardStatus = ref('idle')
-const parentKeyboardOptions = ref([])
+const selectedOriginalKeyboard = ref(null)
+const originalKeyboardSearch = ref('')
+const originalKeyboardStatus = ref('idle')
+const originalKeyboardOptions = ref([])
 
-let parentSearchTimer = null
+let originalSearchTimer = null
 
-const fetchParentKeyboardOptions = async () => {
-  const term = parentKeyboardSearch.value.trim()
+const fetchOriginalKeyboardOptions = async () => {
+  const term = originalKeyboardSearch.value.trim()
 
   if (term.length < 2) {
-    parentKeyboardOptions.value = []
-    parentKeyboardStatus.value = 'idle'
+    originalKeyboardOptions.value = []
+    originalKeyboardStatus.value = 'idle'
     return
   }
 
-  parentKeyboardStatus.value = 'pending'
+  originalKeyboardStatus.value = 'pending'
 
   await $fetch('/api/search', {
     query: {
@@ -142,12 +139,12 @@ const fetchParentKeyboardOptions = async () => {
           avatar: item.avatar,
         }))
 
-      parentKeyboardOptions.value = options
-      parentKeyboardStatus.value = 'success'
+      originalKeyboardOptions.value = options
+      originalKeyboardStatus.value = 'success'
     })
     .catch((error) => {
-      parentKeyboardOptions.value = []
-      parentKeyboardStatus.value = 'error'
+      originalKeyboardOptions.value = []
+      originalKeyboardStatus.value = 'error'
       toast.add(handleError(error))
     })
 }
@@ -178,7 +175,7 @@ onBeforeMount(() => {
   Object.assign(keyboard.value, metadata || {})
 
   if (keyboard.value.derived_from) {
-    selectedParentKeyboard.value = {
+    selectedOriginalKeyboard.value = {
       value: metadata.derived_from,
       label: formatKeyboardDescription([
         metadata?.original?.brand?.name,
@@ -197,28 +194,28 @@ onBeforeMount(() => {
       },
     }
 
-    parentKeyboardOptions.value = [selectedParentKeyboard.value]
-    parentKeyboardStatus.value = 'success'
+    originalKeyboardOptions.value = [selectedOriginalKeyboard.value]
+    originalKeyboardStatus.value = 'success'
   }
 })
 
-watch(parentKeyboardSearch, () => {
-  if (parentSearchTimer) {
-    clearTimeout(parentSearchTimer)
+watch(originalKeyboardSearch, () => {
+  if (originalSearchTimer) {
+    clearTimeout(originalSearchTimer)
   }
 
-  parentSearchTimer = setTimeout(() => {
-    fetchParentKeyboardOptions()
+  originalSearchTimer = setTimeout(() => {
+    fetchOriginalKeyboardOptions()
   }, 250)
 })
 
 onBeforeUnmount(() => {
-  if (parentSearchTimer) {
-    clearTimeout(parentSearchTimer)
+  if (originalSearchTimer) {
+    clearTimeout(originalSearchTimer)
   }
 })
 
-watch(selectedParentKeyboard, (value) => {
+watch(selectedOriginalKeyboard, (value) => {
   keyboard.value.derived_from = value?.value || null
 })
 
@@ -228,12 +225,14 @@ const onSubmit = async () => {
     : String(keyboard.value.slug || '').trim() ||
       slugify(keyboard.value.name, { lower: true })
 
-  await $fetch(`/api/keyboards/${brandSlug}/${slug}`, {
+  const brand_slug = route.params.brand
+
+  await $fetch(`/api/keyboards/${brand_slug}/${slug}`, {
     method: 'post',
     body: {
       ...keyboard.value,
       slug,
-      brand_slug: brandSlug,
+      brand_slug,
       derived_from: keyboard.value.derived_from || null,
     },
   })

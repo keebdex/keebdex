@@ -112,7 +112,7 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit, keyboard, releases } = defineProps({
+const { metadata, isEdit, keyboard } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -121,10 +121,6 @@ const { metadata, isEdit, keyboard, releases } = defineProps({
   keyboard: {
     type: Object,
     default: () => ({}),
-  },
-  releases: {
-    type: Array,
-    default: () => [],
   },
 })
 
@@ -175,7 +171,7 @@ const schema = z.object({
 const setDefaultReleaseYear = () => {
   if (isEdit) return
 
-  const selectedRelease = (releases || []).find(
+  const selectedRelease = (keyboard.releases || []).find(
     (release) => Number(release.id) === Number(variant.value.release_id),
   )
 
@@ -203,7 +199,7 @@ watch(
 )
 
 const releaseOptions = computed(() => {
-  return releases.map((release) => ({
+  return (keyboard.releases || []).map((release) => ({
     label: release.name,
     value: release.id,
   }))

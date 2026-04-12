@@ -47,12 +47,10 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
+    ...omitSensitive(keyboard),
+    cover_image: coverImage || null,
+    original,
     brand: omitSensitive(brand),
-    keyboard: {
-      ...omitSensitive(keyboard),
-      cover_image: coverImage || null,
-      original,
-    },
     releases: releases.map((release: any) => ({
       ...omitSensitive(release),
       variants: sortBy(release.keyboard_variants, 'id').map(omitSensitive),

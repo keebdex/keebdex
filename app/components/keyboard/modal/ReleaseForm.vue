@@ -105,7 +105,7 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit, keyboard, releases } = defineProps({
+const { metadata, isEdit, keyboard } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -114,10 +114,6 @@ const { metadata, isEdit, keyboard, releases } = defineProps({
   keyboard: {
     type: Object,
     default: () => ({}),
-  },
-  releases: {
-    type: Array,
-    default: () => [],
   },
 })
 
@@ -147,7 +143,7 @@ const schema = z.object({
       (value) => {
         const normalized = value.trim().toLowerCase()
 
-        return !(releases || []).some((release) => {
+        return !(keyboard.releases || []).some((release) => {
           const sameId = isEdit && metadata?.id && release.id === metadata.id
           if (sameId) return false
 
@@ -212,7 +208,7 @@ onBeforeMount(() => {
 
   // Auto-calculate order for new releases
   if (!isEdit && !release.value.order) {
-    release.value.order = (releases?.length ?? 0) + 1
+    release.value.order = (keyboard.releases?.length ?? 0) + 1
   }
 })
 

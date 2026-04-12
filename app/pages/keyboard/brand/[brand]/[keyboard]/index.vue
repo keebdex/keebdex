@@ -1,7 +1,7 @@
 <template>
-  <UDashboardPanel v-if="data" :id="`keyboard-${brand}-${keyboard}`">
+  <UDashboardPanel v-if="data" :id="`keyboard-${slug}`">
     <template #header>
-      <UDashboardNavbar :title="data.keyboard.name">
+      <UDashboardNavbar :title="data.name">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -20,8 +20,7 @@
 
             <template #body="{ close }">
               <KeyboardModalReleaseForm
-                :keyboard="data.keyboard"
-                :releases="data.releases"
+                :keyboard="data"
                 @on-success="
                   () => {
                     close()
@@ -34,7 +33,7 @@
 
           <UButton
             v-if="editable"
-            :to="`/keyboard/brand/${brand}/${keyboard}/sort`"
+            :to="`/keyboard/brand/${slug}/sort`"
             :icon="appConfig.ui.icons.sortManual"
             label="Sort"
           />
@@ -49,8 +48,7 @@
             <template #body="{ close }">
               <KeyboardModalKeyboardForm
                 :is-edit="true"
-                :metadata="data.keyboard"
-                :brand-slug="brand"
+                :metadata="data"
                 @on-success="
                   () => {
                     close()
@@ -71,9 +69,9 @@
           />
 
           <SharedProfileDrawer
-            v-if="data.keyboard.description"
-            :title="data.keyboard.name"
-            :description="data.keyboard.description"
+            v-if="data.description"
+            :title="data.name"
+            :description="data.description"
             :links="keyboardLinks"
           />
 
@@ -123,8 +121,7 @@
                   <KeyboardModalReleaseForm
                     :is-edit="true"
                     :metadata="selectedRelease"
-                    :keyboard="data.keyboard"
-                    :releases="data.releases"
+                    :keyboard="data"
                     @on-success="
                       () => {
                         close()
@@ -142,8 +139,7 @@
                 <template #body="{ close }">
                   <KeyboardModalVariantForm
                     :metadata="{ release_id: release.id }"
-                    :keyboard="data.keyboard"
-                    :releases="data.releases"
+                    :keyboard="data"
                     @on-success="
                       () => {
                         close()
@@ -208,8 +204,7 @@
                       <KeyboardModalVariantForm
                         :is-edit="true"
                         :metadata="selectedVariant"
-                        :releases="data.releases"
-                        :keyboard="data.keyboard"
+                        :keyboard="data"
                         @on-success="
                           () => {
                             close()
@@ -236,7 +231,7 @@
       />
     </template>
   </UDashboardPanel>
-  <SharedRedirectPage v-else :to="`/keyboard/brand/${brand}`" />
+  <SharedRedirectPage v-else :to="`/keyboard/brand/${route.params.brand}`" />
 </template>
 
 <script setup>
@@ -245,12 +240,10 @@ const route = useRoute()
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 const toast = useToast()
-const brand = computed(() => String(route.params.brand || ''))
-const keyboard = computed(() => String(route.params.keyboard || ''))
 
-const editable = computed(() =>
-  userStore.isEditable(`${brand.value}/${keyboard.value}`),
-)
+const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
+
+const editable = computed(() => userStore.isEditable(slug.value))
 
 const visible = ref({
   addRelease: false,
@@ -279,24 +272,24 @@ const sortOptions = [
 const sortIconMap = getSortIconMap(sortOptions)
 
 const { data, refresh } = await useAsyncData(
-  () => `keyboard:${brand.value}/${keyboard.value}`,
-  () => $fetch(`/api/keyboards/${brand.value}/${keyboard.value}`),
+  () => `keyboard:${slug.value}`,
+  () => $fetch(`/api/keyboards/${slug.value}`),
   {
-    watch: [brand, keyboard],
+    watch: [slug],
   },
 )
 
 const items = computed(() => {
-  if (data.value.keyboard.derived_from) {
+  if (data.value.derived_from) {
     return [
       {
         label: 'Original Design',
         type: 'label',
       },
       {
-        label: `${data.value.keyboard.original.brand.name} ${data.value.keyboard.original.name}`,
+        label: `${data.value.original.brand.name} ${data.value.original.name}`,
         icon: 'hugeicons:keyboard',
-        to: `/keyboard/brand/${data.value.keyboard.derived_from}`,
+        to: `/keyboard/brand/${data.value.derived_from}`,
       },
     ]
   }
@@ -313,9 +306,9 @@ const breadcrumbs = computed(() => {
     },
     {
       label: data.value?.brand?.name,
-      to: `/keyboard/brand/${brand.value}`,
+      to: `/keyboard/brand/${route.params.brand}`,
       avatar: {
-        src: `/logo/${data.value?.brand?.slug}.png`,
+        src: `/logo/${route.params.brand}.png`,
         alt: data.value?.brand?.name,
         ui: {
           root: 'bg-transparent',
@@ -327,7 +320,7 @@ const breadcrumbs = computed(() => {
       },
     },
     {
-      label: data.value?.keyboard?.name,
+      label: data.value?.name,
     },
   ]
 })
@@ -335,11 +328,11 @@ const breadcrumbs = computed(() => {
 const keyboardLinks = computed(() => {
   const links = []
 
-  if (data.value?.keyboard?.derived_from) {
+  if (data.value?.derived_from) {
     links.push({
-      label: `${data.value.keyboard.original.brand.name} ${data.value.keyboard.original.name}`,
+      label: `${data.value.original.brand.name} ${data.value.original.name}`,
       icon: 'hugeicons:share-knowledge',
-      to: `/keyboard/brand/${data.value.keyboard.derived_from}`,
+      to: `/keyboard/brand/${data.value.derived_from}`,
     })
   }
 
@@ -381,7 +374,7 @@ const saveToCollection = (collection, variant) => {
         })
       } else {
         const contextName = formatKeyboardDescription([
-          data.value?.keyboard?.name,
+          data.value?.name,
           variant.release_name,
           variant.variant_name,
         ])
@@ -462,7 +455,7 @@ const getReleaseSpecs = (release) => {
 }
 
 const title = computed(() => {
-  return `${data.value?.brand?.name} ${data.value?.keyboard?.name}`
+  return `${data.value?.brand?.name} ${data.value?.name}`
 })
 
 const description = computed(() => {
@@ -470,7 +463,7 @@ const description = computed(() => {
     return data.value.description
   }
 
-  return `Explore ${data.value?.keyboard?.name} from ${data.value?.brand?.name} and discover its unique features, designs, and innovations in the world of mechanical keyboards.`
+  return `Explore ${data.value?.name} from ${data.value?.brand?.name} and discover its unique features, designs, and innovations in the world of mechanical keyboards.`
 })
 
 useSeoMeta({
@@ -481,7 +474,7 @@ useSeoMeta({
 })
 
 defineOgImage('Module', {
-  title: data.value?.keyboard?.name,
+  title: data.value?.name,
   description: description.value,
   headline: data.value?.brand?.name,
   headlineLogo: `/logo/${data.value?.brand?.slug}.png`,
