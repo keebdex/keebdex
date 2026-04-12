@@ -61,6 +61,12 @@
         icon="hugeicons:save-money-dollar"
         color="info"
       />
+      <UBadge
+        v-if="colorway.photo_credit"
+        :label="`${colorway.photo_credit}`"
+        icon="hugeicons:camera-add-02"
+        color="info"
+      />
     </template>
 
     <template v-if="!copying" #footer>

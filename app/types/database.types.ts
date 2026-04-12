@@ -100,6 +100,7 @@ export type Database = {
           artisancollector: string | null
           bio: string | null
           contributors: Json[] | null
+          country_origin: string | null
           deleted: boolean
           disable_google_sync: boolean
           discord: string | null
@@ -110,7 +111,6 @@ export type Database = {
           instagram: string | null
           invertible_logo: boolean | null
           name: string
-          nationality: string | null
           updated_at: string | null
           verified: boolean
           website: string | null
@@ -119,6 +119,7 @@ export type Database = {
           artisancollector?: string | null
           bio?: string | null
           contributors?: Json[] | null
+          country_origin?: string | null
           deleted?: boolean
           disable_google_sync?: boolean
           discord?: string | null
@@ -129,7 +130,6 @@ export type Database = {
           instagram?: string | null
           invertible_logo?: boolean | null
           name: string
-          nationality?: string | null
           updated_at?: string | null
           verified?: boolean
           website?: string | null
@@ -138,6 +138,7 @@ export type Database = {
           artisancollector?: string | null
           bio?: string | null
           contributors?: Json[] | null
+          country_origin?: string | null
           deleted?: boolean
           disable_google_sync?: boolean
           discord?: string | null
@@ -148,7 +149,6 @@ export type Database = {
           instagram?: string | null
           invertible_logo?: boolean | null
           name?: string
-          nationality?: string | null
           updated_at?: string | null
           verified?: boolean
           website?: string | null

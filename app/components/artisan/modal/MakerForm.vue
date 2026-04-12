@@ -42,9 +42,9 @@
       />
     </UFormField>
 
-    <UFormField label="Nationality" name="nationality">
+    <UFormField label="Country" name="country_origin">
       <USelectMenu
-        v-model="maker.nationality"
+        v-model="maker.country_origin"
         :items="country"
         label-key="name"
         value-key="code"
@@ -183,7 +183,7 @@ const schema = z.object({
     )
     .nullish()
     .or(z.string().min(0).max(0)),
-  nationality: z.string().nullish().or(z.string().min(0).max(0)),
+  country_origin: z.string().nullish().or(z.string().min(0).max(0)),
   founded: z.string().nullish().or(z.string().min(0).max(0)),
   document_ids: z.string().array(),
   website: z.url().nullish().or(z.string().min(0).max(0)),
