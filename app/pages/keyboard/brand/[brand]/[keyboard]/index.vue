@@ -222,12 +222,12 @@
         </UPageCard>
       </UPageList>
 
-      <UAlert
+      <UPageSection
         v-else
-        title="No releases yet"
-        description="Add the first release to start cataloging this keyboard."
-        icon="hugeicons:information-circle"
-        color="info"
+        icon="hugeicons:keyboard"
+        title="No Releases Yet"
+        description="Please check back later or contribute by adding releases for this keyboard."
+        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

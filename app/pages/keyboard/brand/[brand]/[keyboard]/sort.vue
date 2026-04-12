@@ -56,12 +56,12 @@
         </template>
       </draggable>
 
-      <UAlert
+      <UPageSection
         v-else
-        title="No releases yet"
-        description="Add releases to this keyboard before using manual sorting."
-        icon="hugeicons:information-circle"
-        color="info"
+        icon="hugeicons:keyboard"
+        title="No Releases Yet"
+        description="Please check back later or contribute by adding releases for this keyboard."
+        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

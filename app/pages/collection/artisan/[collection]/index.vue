@@ -82,7 +82,7 @@
         color="warning"
       />
 
-      <UPageGrid>
+      <UPageGrid v-if="sortedCollections.length">
         <UPageCard
           v-for="{ artisan, ...rest } in sortedCollections"
           :key="rest.id"
@@ -185,6 +185,14 @@
           </template>
         </UPageCard>
       </UPageGrid>
+
+      <UPageSection
+        v-else
+        icon="hugeicons:alien-01"
+        title="No Artisans Yet"
+        description="Save artisan items from their respective pages to start building this collection."
+        class="mx-auto"
+      />
     </template>
   </UDashboardPanel>
 </template>

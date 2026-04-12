@@ -93,12 +93,12 @@
         </UPageCard>
       </UPageGrid>
 
-      <UAlert
+      <UPageSection
         v-else
-        title="No keyboards yet"
-        description="Start by adding the first keyboard for this brand."
-        icon="hugeicons:information-circle"
-        color="info"
+        icon="hugeicons:keyboard"
+        title="No Keyboards Yet"
+        description="Please check back later or contribute by adding keyboards from this brand."
+        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

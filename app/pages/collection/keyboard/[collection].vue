@@ -103,11 +103,12 @@
         </UPageCard>
       </UPageGrid>
 
-      <UAlert
+      <UPageSection
         v-else
-        title="No keyboard variants yet"
         icon="hugeicons:keyboard"
-        description="Save variants from keyboard pages to start building this collection."
+        title="No Keyboards Yet"
+        description="Save keyboard variants from their respective pages to start building this collection."
+        class="mx-auto"
       />
     </template>
   </UDashboardPanel>
