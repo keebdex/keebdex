@@ -35,7 +35,7 @@ export const keysetProfiles = {
   Others: {
     dcs: 'DCS',
     dsa: 'DSA',
-    'gmk-mtnu': 'GMK MTNU',
+    mtnu: 'GMK MTNU',
     kat: 'KAT',
     kam: 'KAM',
     mt3: 'MT3',

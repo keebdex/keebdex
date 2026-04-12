@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-Expands Keebdex beyond keysets with full keyboard coverage, richer collection tracking, and a more consistent data model for future features.
+We're expanding beyond keysets and entering the **Keyboard Era** — with full support for keyboards, richer collection tracking, and a stronger foundation for everything ahead.
 
 ### ✨ What's New
 

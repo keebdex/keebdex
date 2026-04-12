@@ -147,7 +147,7 @@ const items = computed(() => {
             },
           },
         ],
-        appearance,
+        [appearance],
       ]
 })
 
