@@ -20,7 +20,8 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 
 ### 🚀 Improvements
 
+- Migrated application-level enums to native PostgreSQL types to improve data accuracy and prevent mismatches between the code and database.
 - Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries (for example, searching "gundam" now finds "GUNDAMHAKU").
 - Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages for a cleaner layout.
-- Migrated application-level enums to native PostgreSQL types to improve data accuracy and prevent mismatches between the code and database.
 - Applied a shared logo card across all modules, and improved card layout consistency with equal-height grid.
+- Added designer autocomplete in keyset form with suggestions from existing designers to prevent duplicate names with typo issues; new designers can still be added as free-text input.

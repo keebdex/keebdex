@@ -10,9 +10,16 @@
       </UFormField>
 
       <UFormField label="Designer" name="designer">
-        <UInput
+        <UInputMenu
           v-model.trim="keyset.designer"
+          v-model:search-term="designerTerm"
+          :items="designerOptions"
+          :loading="designersStatus === 'pending'"
+          :content="{ hideWhenEmpty: true }"
+          autocomplete
+          ignore-filter
           icon="hugeicons:user-star-01"
+          placeholder="Start typing to search designers..."
           class="w-full"
         />
       </UFormField>
@@ -172,6 +179,10 @@ const route = useRoute()
 const toast = useToast()
 const keysetStatusEnum = Constants.public.Enums.keyset_status
 
+const designerTerm = ref('')
+const designersStatus = ref('idle')
+const designerOptions = ref([])
+
 const keyset = ref({
   name: '',
   url: '',
@@ -179,6 +190,34 @@ const keyset = ref({
 })
 
 const range = ref({})
+let designerSearchTimer = null
+
+const fetchDesignerOptions = async () => {
+  const term = designerTerm.value.trim()
+
+  if (term.length < 2) {
+    designerOptions.value = []
+    designersStatus.value = 'idle'
+    return
+  }
+
+  designersStatus.value = 'pending'
+
+  await $fetch('/api/keysets/designers', {
+    query: {
+      term,
+    },
+  })
+    .then((data) => {
+      designerOptions.value = data.designers || []
+      designersStatus.value = 'success'
+    })
+    .catch((error) => {
+      designerOptions.value = []
+      designersStatus.value = 'error'
+      toast.add(handleError(error))
+    })
+}
 
 onBeforeMount(() => {
   const { page, size, ...rest } = metadata
@@ -192,6 +231,22 @@ onBeforeMount(() => {
   }
   if (rest.end_date) {
     range.value.end = parseDate(rest.end_date)
+  }
+})
+
+watch(designerTerm, () => {
+  if (designerSearchTimer) {
+    clearTimeout(designerSearchTimer)
+  }
+
+  designerSearchTimer = setTimeout(() => {
+    fetchDesignerOptions()
+  }, 250)
+})
+
+onBeforeUnmount(() => {
+  if (designerSearchTimer) {
+    clearTimeout(designerSearchTimer)
   }
 })
 
