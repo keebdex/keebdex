@@ -93,12 +93,11 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageSection
+      <SharedContributeSection
         v-else
         icon="hugeicons:keyboard"
         title="No Keyboards Yet"
         description="Please check back later or contribute by adding keyboards from this brand."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

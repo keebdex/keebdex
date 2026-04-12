@@ -222,12 +222,11 @@
         </UPageCard>
       </UPageList>
 
-      <UPageSection
+      <SharedContributeSection
         v-else
         icon="hugeicons:keyboard"
         title="No Releases Yet"
         description="Please check back later or contribute by adding releases for this keyboard."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

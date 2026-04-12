@@ -9,17 +9,12 @@
       wrapper: 'items-center',
     }"
   >
-    <div
-      class="flex items-center p-6"
-      :class="{
-        'aspect-square': aspect === 'square',
-      }"
-    >
+    <div class="flex items-center p-6">
       <NuxtImg
         loading="lazy"
         :src="`/logo/${slug}.png`"
         :alt="title"
-        class="mx-auto my-auto overflow-hidden object-contain"
+        class="mx-auto my-auto overflow-hidden object-contain h-auto w-full"
         :class="{
           invert: invertible && $colorMode.value === 'dark',
           [`aspect-${props.aspect}`]: props.aspect,

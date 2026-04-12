@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",
-    "@takumi-rs/core": "1.0.0-rc.15",
+    "@takumi-rs/core": "1.0.4",
     "@vercel/analytics": "2.0.1",
     "@vercel/speed-insights": "2.0.0",
     "crc": "4.3.2",
@@ -61,7 +61,7 @@
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/supabase": "2.0.5",
     "@tailwindcss/typography": "^0.5.19",
-    "@takumi-rs/wasm": "1.0.0-rc.15",
+    "@takumi-rs/wasm": "1.0.4",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
     "@types/lodash.omit": "^4.5.9",
@@ -78,7 +78,7 @@
     "lodash.omit": "^4.18.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "^4.4.2",
-    "nuxt-og-image": "^6.3.6",
+    "nuxt-og-image": "^6.3.10",
     "prettier": "^3.8.2",
     "typescript": "^6.0.2"
   }
