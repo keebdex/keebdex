@@ -336,6 +336,13 @@ const visible = ref({
   card: false,
 })
 
+const { addItem } = useCollectionItem()
+
+// add to collection
+const saveTo = (collection, colorway) => {
+  addItem(collection, { artisan_item_id: colorway.id }, colorway.name)
+}
+
 const sculptLinks = computed(() => {
   if (!sculpt.value?.href) {
     return []
@@ -431,34 +438,5 @@ const deleteColorway = async (colorway, closeModal) => {
   } catch (error) {
     toast.add(handleError(error))
   }
-}
-
-// add to collection
-const saveTo = (collection, colorway) => {
-  const item = {
-    uid: user.value.uid,
-    collection_id: collection.id,
-    artisan_item_id: colorway.id,
-  }
-
-  $fetch(`/api/users/${user.value.uid}/collections/${collection.id}/items`, {
-    method: 'post',
-    body: item,
-  })
-    .then((data) => {
-      if (data?.message) {
-        toast.add({
-          color: 'info',
-          title: data.message,
-        })
-      } else {
-        toast.add(
-          handleSuccess('add', colorway.name, undefined, collection.name),
-        )
-      }
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
 }
 </script>

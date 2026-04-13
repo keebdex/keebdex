@@ -89,7 +89,7 @@
                 <UButton
                   label="Delete"
                   color="error"
-                  @click="remove(id, keyset)"
+                  @click="removeItem(id, keyset.name)"
                 />
               </template>
             </UModal>
@@ -98,7 +98,7 @@
       </UPageGrid>
 
       <UPageSection
-        v-else
+        v-else-if="status === 'success'"
         icon="hugeicons:grid-view"
         title="No Keysets Yet"
         description="Save keysets from their respective pages to start building this collection."
@@ -110,6 +110,18 @@
 
 <script setup>
 import sortBy from 'lodash.sortby'
+
+const route = useRoute()
+
+const { authenticated } = storeToRefs(useUserStore())
+const { data, status, refresh, deleteCollection } = useCollection(
+  () => route.params.collection,
+)
+const { removeItem } = useCollectionItem(() => route.params.collection, refresh)
+
+useSeoMeta({
+  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
+})
 
 const breadcrumbs = computed(() => {
   return [
@@ -124,57 +136,9 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const userStore = useUserStore()
-const { authenticated, collections, user } = storeToRefs(userStore)
-
-const route = useRoute()
-const router = useRouter()
-const toast = useToast()
-
-const { data, refresh } = await useAsyncData(() =>
-  $fetch(`/api/collections/${route.params.collection}`),
-)
-
-useSeoMeta({
-  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
-})
-
-watchEffect(() => route.params.collection, refresh())
-
 const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], ['keyset.name'])
 })
-
-const remove = (id, keyset) => {
-  $fetch(
-    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-    { method: 'delete' },
-  )
-    .then(() => {
-      refresh()
-      toast.add(handleSuccess('delete', keyset?.name))
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
-}
-
-const deleteCollection = () => {
-  $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
-    method: 'delete',
-  })
-    .then(() => {
-      collections.value = collections.value.filter(
-        (c) => c.id !== data.value.id,
-      )
-      userStore.$patch({ collections: collections.value })
-      toast.add(handleSuccess('delete', data.value?.name, 'Collection'))
-      router.go(-1)
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
-}
 
 const visible = ref({
   edit: false,

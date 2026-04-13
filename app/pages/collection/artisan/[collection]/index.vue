@@ -187,7 +187,7 @@
       </UPageGrid>
 
       <UPageSection
-        v-else
+        v-else-if="status === 'success'"
         icon="hugeicons:alien-01"
         title="No Artisans Yet"
         description="Save artisan items from their respective pages to start building this collection."
@@ -225,14 +225,17 @@ const sortIconMap = getSortIconMap(sortOptions)
 
 const config = useRuntimeConfig()
 
-const userStore = useUserStore()
-const { authenticated, user } = storeToRefs(userStore)
+const { authenticated } = storeToRefs(useUserStore())
 
 const route = useRoute()
-const router = useRouter()
 
-const { data, refresh } = await useAsyncData(() =>
-  $fetch(`/api/collections/${route.params.collection}`),
+const { data, status, refresh, deleteCollection } = useCollection(
+  () => route.params.collection,
+)
+
+const { removeItem, moveItem } = useCollectionItem(
+  () => route.params.collection,
+  refresh,
 )
 
 const items = computed(() => {
@@ -266,8 +269,6 @@ useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
 })
 
-watchEffect(() => route.params.collection, refresh())
-
 const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),
 )
@@ -294,60 +295,11 @@ const breadcrumbs = computed(() => {
 })
 
 const moveTo = (collection, item) => {
-  const { id, artisan } = item
-
-  $fetch(
-    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-    {
-      method: 'post',
-      body: {
-        collection_id: collection.id,
-        exchange: true,
-      },
-    },
-  )
-    .then(() => {
-      refresh()
-      toast.add(
-        handleSuccess(
-          'move',
-          colorwayTitle(artisan),
-          undefined,
-          collection.name,
-        ),
-      )
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
+  moveItem(collection, item.id, colorwayTitle(item.artisan))
 }
 
 const remove = (id, colorway) => {
-  $fetch(
-    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-    { method: 'delete' },
-  )
-    .then(() => {
-      refresh()
-      toast.add(handleSuccess('delete', colorwayTitle(colorway)))
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
-}
-
-const deleteCollection = () => {
-  $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
-    method: 'delete',
-  })
-    .then(() => {
-      toast.add(handleSuccess('delete', data.value.name))
-
-      router.go(-1)
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
+  removeItem(id, colorwayTitle(colorway))
 }
 
 const copyShareUrl = () => {

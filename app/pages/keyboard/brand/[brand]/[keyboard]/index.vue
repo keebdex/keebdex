@@ -237,8 +237,7 @@
 const colorMode = useColorMode()
 const route = useRoute()
 const userStore = useUserStore()
-const { authenticated, user } = storeToRefs(userStore)
-const toast = useToast()
+const { authenticated } = storeToRefs(userStore)
 
 const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
 
@@ -354,38 +353,15 @@ const setSelectedVariant = (variant) => {
   selectedVariant.value = { ...variant }
 }
 
+const { addItem } = useCollectionItem()
+
 const saveToCollection = (collection, variant) => {
-  const item = {
-    uid: user.value.uid,
-    collection_id: collection.id,
-    keyboard_item_id: variant.id,
-  }
-
-  $fetch(`/api/users/${user.value.uid}/collections/${collection.id}/items`, {
-    method: 'post',
-    body: item,
-  })
-    .then((result) => {
-      if (result?.message) {
-        toast.add({
-          color: 'info',
-          title: result.message,
-        })
-      } else {
-        const contextName = formatKeyboardDescription([
-          data.value?.name,
-          variant.release_name,
-          variant.variant_name,
-        ])
-
-        toast.add(
-          handleSuccess('add', contextName, 'Keyboard', collection.name),
-        )
-      }
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
+  const contextName = formatKeyboardDescription([
+    data.value?.name,
+    variant.release_name,
+    variant.variant_name,
+  ])
+  addItem(collection, { keyboard_item_id: variant.id }, contextName, 'Keyboard')
 }
 
 const formatPrice = (amount, currency = 'USD') => {

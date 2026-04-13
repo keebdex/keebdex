@@ -153,27 +153,13 @@ const formData = computed(() => {
 defineEmits(['update:page', 'update:keysets'])
 
 const userStore = useUserStore()
-const { authenticated, isAdmin, user } = storeToRefs(userStore)
-const toast = useToast()
+const { authenticated, isAdmin } = storeToRefs(userStore)
 
 const visible = ref(false)
 
-const saveTo = (collection, keyset) => {
-  const item = {
-    uid: user.value.uid,
-    collection_id: collection.id,
-    keyset_item_id: keyset.profile_keyset_id,
-  }
+const { addItem } = useCollectionItem()
 
-  $fetch(`/api/users/${user.value.uid}/collections/${collection.id}/items`, {
-    method: 'post',
-    body: item,
-  })
-    .then(() => {
-      toast.add(handleSuccess('add', keyset.name, undefined, collection.name))
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
+const saveTo = (collection, keyset) => {
+  addItem(collection, { keyset_item_id: keyset.profile_keyset_id }, keyset.name)
 }
 </script>

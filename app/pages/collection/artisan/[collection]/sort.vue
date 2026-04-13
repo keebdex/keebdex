@@ -95,7 +95,10 @@ useSeoMeta({
     : 'Collection',
 })
 
-watchEffect(() => route.params.collection, refresh())
+watch(
+  () => route.params.collection,
+  () => refresh(),
+)
 
 const breadcrumbs = computed(() => {
   return [

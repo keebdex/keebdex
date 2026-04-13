@@ -104,7 +104,7 @@
       </UPageGrid>
 
       <UPageSection
-        v-else
+        v-else-if="status === 'success'"
         icon="hugeicons:keyboard"
         title="No Keyboards Yet"
         description="Save keyboard variants from their respective pages to start building this collection."
@@ -116,6 +116,18 @@
 
 <script setup>
 import sortBy from 'lodash.sortby'
+
+const route = useRoute()
+
+const { authenticated } = storeToRefs(useUserStore())
+const { data, status, refresh, deleteCollection } = useCollection(
+  () => route.params.collection,
+)
+const { removeItem } = useCollectionItem(() => route.params.collection, refresh)
+
+useSeoMeta({
+  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
+})
 
 const breadcrumbs = computed(() => {
   return [
@@ -130,66 +142,18 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const userStore = useUserStore()
-const { authenticated, collections, user } = storeToRefs(userStore)
-
-const route = useRoute()
-const router = useRouter()
-const toast = useToast()
-
-const { data, refresh } = await useAsyncData(() =>
-  $fetch(`/api/collections/${route.params.collection}`),
-)
-
-useSeoMeta({
-  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
-})
-
-watch(
-  () => route.params.collection,
-  () => refresh(),
-)
-
 const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], ['keyboard.variant_name'])
 })
 
 const remove = (id, keyboard) => {
-  $fetch(
-    `/api/users/${user.value.uid}/collections/${route.params.collection}/items/${id}`,
-    { method: 'delete' },
-  )
-    .then(() => {
-      refresh()
-      const contextName = formatKeyboardDescription([
-        keyboard?.brand?.name,
-        keyboard?.release?.keyboard?.name,
-        keyboard?.release?.name,
-        keyboard?.variant_name,
-      ])
-
-      toast.add(handleSuccess('delete', contextName, 'Keyboard'))
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
-}
-
-const deleteCollection = () => {
-  $fetch(`/api/users/${data.value.uid}/collections/${data.value.id}`, {
-    method: 'delete',
-  })
-    .then(() => {
-      collections.value = collections.value.filter(
-        (c) => c.id !== data.value.id,
-      )
-      userStore.$patch({ collections: collections.value })
-      toast.add(handleSuccess('delete', data.value?.name, 'Collection'))
-      router.go(-1)
-    })
-    .catch((error) => {
-      toast.add(handleError(error))
-    })
+  const contextName = formatKeyboardDescription([
+    keyboard?.brand?.name,
+    keyboard?.release?.keyboard?.name,
+    keyboard?.release?.name,
+    keyboard?.variant_name,
+  ])
+  removeItem(id, contextName, 'Keyboard')
 }
 
 const visible = ref({
