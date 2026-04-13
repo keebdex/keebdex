@@ -1,29 +1,27 @@
 <template>
   <UForm :schema="schema" :state="keyset" class="space-y-4">
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Name" name="name" required>
-        <UInput
-          v-model.trim="keyset.name"
-          icon="hugeicons:text-font"
-          class="w-full"
-        />
-      </UFormField>
+    <UFormField label="Name" name="name" required>
+      <UInput
+        v-model.trim="keyset.name"
+        icon="hugeicons:text-font"
+        class="w-full"
+      />
+    </UFormField>
 
-      <UFormField label="Designer" name="designer">
-        <UInputMenu
-          v-model.trim="keyset.designer"
-          v-model:search-term="designerTerm"
-          :items="designerOptions"
-          :loading="designersStatus === 'pending'"
-          :content="{ hideWhenEmpty: true }"
-          autocomplete
-          ignore-filter
-          icon="hugeicons:user-star-01"
-          placeholder="Start typing to search designers..."
-          class="w-full"
-        />
-      </UFormField>
-    </div>
+    <UFormField label="Designer" name="designer">
+      <UInputMenu
+        v-model.trim="keyset.designer"
+        v-model:search-term="designerTerm"
+        :items="designerOptions"
+        :loading="designersStatus === 'pending'"
+        :content="{ hideWhenEmpty: true }"
+        autocomplete
+        ignore-filter
+        icon="hugeicons:user-star-01"
+        placeholder="Start typing to search designers..."
+        class="w-full"
+      />
+    </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Profile" name="profile" required>
@@ -222,6 +220,8 @@ const fetchDesignerOptions = async () => {
 onBeforeMount(() => {
   const { page, size, ...rest } = metadata
   Object.assign(keyset.value, rest)
+
+  console.log('metadata', metadata)
 
   if (rest.ic_date) {
     keyset.value.ic_date = parseDate(rest.ic_date)

@@ -7,10 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = rest.id
     ? await client.from('keysets').update(rest).eq('id', rest.id)
-    : await client
-        .from('keysets')
-        .insert(rest)
-        .eq('profile_keyset_id', rest.profile_keyset_id)
+    : await client.from('keysets').insert(rest)
 
   if (error) {
     throw createError({

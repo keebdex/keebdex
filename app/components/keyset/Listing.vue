@@ -13,7 +13,7 @@
 
             <template #body="{ close }">
               <KeysetModalKeysetForm
-                :metadata="query"
+                :metadata="formData"
                 @on-success="
                   () => {
                     close()
@@ -137,6 +137,16 @@ defineProps({
     type: Array,
     default: () => [],
   },
+})
+
+const route = useRoute()
+
+const formData = computed(() => {
+  const { profile: profile_id } = route.params
+
+  return {
+    profile_id: manufacturers[profile_id] && profile_id,
+  }
 })
 
 defineEmits(['update:page', 'update:keysets'])
