@@ -17,7 +17,6 @@
             <template #body="{ close }">
               <CollectionModalCollectionForm
                 :metadata="data"
-                :uid="user.uid"
                 :is-edit="true"
                 @on-success="
                   () => {
@@ -45,7 +44,7 @@
             :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton
-              v-if="user.email_verified"
+              v-if="authenticated"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
@@ -201,7 +200,11 @@
 import sortBy from 'lodash.sortby'
 
 const appConfig = useAppConfig()
+const config = useRuntimeConfig()
+const route = useRoute()
 const toast = useToast()
+
+const { authenticated } = storeToRefs(useUserStore())
 
 const sortOptions = [
   {
@@ -222,12 +225,6 @@ const sortOptions = [
 ]
 
 const sortIconMap = getSortIconMap(sortOptions)
-
-const config = useRuntimeConfig()
-
-const { authenticated } = storeToRefs(useUserStore())
-
-const route = useRoute()
 
 const { data, status, refresh, deleteCollection } = useCollection(
   () => route.params.collection,

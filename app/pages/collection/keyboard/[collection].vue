@@ -17,7 +17,6 @@
             <template #body="{ close }">
               <CollectionModalCollectionForm
                 :metadata="data"
-                :uid="user.uid"
                 :is-edit="true"
                 @on-success="
                   () => {
@@ -36,7 +35,7 @@
             :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton
-              v-if="user.email_verified"
+              v-if="authenticated"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"

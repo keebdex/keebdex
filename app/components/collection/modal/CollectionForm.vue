@@ -109,17 +109,15 @@ const appConfig = useAppConfig()
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, uid, isEdit } = defineProps({
+const { metadata, isEdit } = defineProps({
   metadata: { type: Object, default: () => ({}) },
   isEdit: Boolean,
-  uid: {
-    type: String,
-    required: true,
-  },
 })
 
 const userStore = useUserStore()
 const toast = useToast()
+
+const { user } = storeToRefs(userStore)
 
 const intentExtras = {
   keep: 'Just holding onto it for now.',
@@ -147,7 +145,7 @@ const collection = ref({
   sort_by: 'artisan.maker_sculpt_id|artisan.name',
   contact: null,
   message: null,
-  uid,
+  uid: user.value.uid,
 })
 
 onBeforeMount(() => {
@@ -196,8 +194,8 @@ const onSubmit = async () => {
   const { items, ...rest } = collection.value
 
   const url = isEdit
-    ? `/api/users/${uid}/collections/${rest.id}`
-    : `/api/users/${uid}/collections`
+    ? `/api/users/${user.value.uid}/collections/${rest.id}`
+    : `/api/users/${user.value.uid}/collections`
 
   await $fetch(url, { method: 'post', body: rest })
     .then(() => {
@@ -211,6 +209,6 @@ const onSubmit = async () => {
       toast.add(handleError(error))
     })
 
-  await userStore.fetchUserCollections(uid)
+  await userStore.fetchUserCollections(user.value.uid)
 }
 </script>
