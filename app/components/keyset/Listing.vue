@@ -70,7 +70,7 @@
           <NuxtImg
             loading="lazy"
             :alt="keyset.name"
-            :src="keyset.img || keyset.render_img"
+            :src="keyset.img || keyset.render_img || '/keyset.png'"
             class="aspect-[16/9] w-full object-cover"
           />
 
@@ -140,12 +140,13 @@ defineProps({
 })
 
 const route = useRoute()
+const { manufacturers } = useKeysetProfiles()
 
 const formData = computed(() => {
   const { profile: profile_id } = route.params
 
   return {
-    profile_id: manufacturers[profile_id] && profile_id,
+    profile_id: manufacturers.value[profile_id] && profile_id,
   }
 })
 

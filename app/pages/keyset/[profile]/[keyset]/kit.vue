@@ -101,6 +101,7 @@ const toast = useToast()
 
 const route = useRoute()
 const { profile, keyset } = route.params
+const { manufacturers } = useKeysetProfiles()
 
 const { data, refresh } = await useAsyncData(
   `keyset/${profile}/${keyset}`,
@@ -110,7 +111,7 @@ const { data, refresh } = await useAsyncData(
 const breadcrumbs = computed(() => {
   return [
     {
-      label: manufacturers[profile],
+      label: manufacturers.value[profile],
       to: `/keyset/${profile}`,
     },
     {
@@ -155,7 +156,7 @@ const description =
 useSeoMeta({
   title: data.value
     ? `${data.value.profile.name} ${data.value.name} - Manage Keyset Kits`
-    : manufacturers[profile],
+    : manufacturers.value[profile],
   description,
 })
 

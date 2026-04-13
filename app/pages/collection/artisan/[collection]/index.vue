@@ -159,7 +159,7 @@
             <SharedSaveToCollection
               :item="{ ...rest, artisan }"
               :move="true"
-              icon="hugeicons:move"
+              icon="hugeicons:move-to"
               @on-select="moveTo"
             />
 

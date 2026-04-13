@@ -124,6 +124,7 @@ import groupBy from 'lodash.groupby'
 
 const route = useRoute()
 const userStore = useUserStore()
+const { manufacturers } = useKeysetProfiles()
 
 const { profile, keyset } = route.params
 const editable = computed(() => userStore.isEditable(`${profile}/${keyset}`))
@@ -145,7 +146,7 @@ const { data, refresh } = await useAsyncData(
 const breadcrumbs = computed(() => {
   return [
     {
-      label: manufacturers[profile],
+      label: manufacturers.value[profile],
       to: `/keyset/${profile}`,
     },
     {
@@ -265,7 +266,7 @@ const meta = computed(() => {
   return {
     title: data.value
       ? `${data.value.profile.name} ${data.value.name}`
-      : manufacturers[profile],
+      : manufacturers.value[profile],
     description: data.value?.description,
   }
 })

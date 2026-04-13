@@ -15,6 +15,7 @@
 <script setup>
 const route = useRoute()
 const router = useRouter()
+const { manufacturers } = useKeysetProfiles()
 
 const { profile } = route.params
 
@@ -23,7 +24,7 @@ const size = ref(36)
 
 const query = computed(() => {
   return {
-    profile_id: manufacturers[profile] && profile,
+    profile_id: manufacturers.value[profile] && profile,
     page: page.value,
     size: size.value,
   }
@@ -39,7 +40,7 @@ const { data, refresh } = await useAsyncData(
 
 const keysets = computed(() => data.value?.keysets || [])
 
-const title = manufacturers[profile]
+const title = computed(() => manufacturers.value[profile])
 const description = data.value?.profile?.description
 
 const updatePage = (newPage) => {
@@ -50,7 +51,7 @@ const updatePage = (newPage) => {
 }
 
 useSeoMeta({
-  title,
+  title: title.value,
   description,
   ogDescription: description,
   twitterDescription: description,

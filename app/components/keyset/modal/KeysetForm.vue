@@ -28,15 +28,17 @@
         <USelect
           v-model="keyset.profile_id"
           :items="
-            Object.entries(keysetProfiles)
-              .map(([profile, manufacturers], idx) => {
+            Object.entries(groupedProfiles)
+              .map(([profile, profileManufacturers], idx) => {
                 return [
                   { type: 'label', label: profile },
-                  ...Object.entries(manufacturers).map(([value, label]) => ({
-                    type: 'item',
-                    label,
-                    value,
-                  })),
+                  ...Object.entries(profileManufacturers).map(
+                    ([value, label]) => ({
+                      type: 'item',
+                      label,
+                      value,
+                    }),
+                  ),
                   {
                     type: 'separator',
                   },
@@ -176,6 +178,7 @@ const { metadata, isEdit } = defineProps({
 const route = useRoute()
 const toast = useToast()
 const keysetStatusEnum = Constants.public.Enums.keyset_status
+const { groupedProfiles, manufacturers } = useKeysetProfiles()
 
 const designerTerm = ref('')
 const designersStatus = ref('idle')
@@ -220,8 +223,6 @@ const fetchDesignerOptions = async () => {
 onBeforeMount(() => {
   const { page, size, ...rest } = metadata
   Object.assign(keyset.value, rest)
-
-  console.log('metadata', metadata)
 
   if (rest.ic_date) {
     keyset.value.ic_date = parseDate(rest.ic_date)
@@ -272,7 +273,10 @@ const schema = z.object({
   name: z.string().min(1),
   designer: z.string().nullish(),
   sculpt: z.enum(sculpts.filter((s) => typeof s === 'string')).nullish(),
-  profile_id: z.enum(Object.keys(manufacturers)),
+  profile_id: z
+    .string()
+    .min(1)
+    .refine((value) => !!manufacturers.value[value], 'Invalid keyset profile'),
   url: z.url().nullish().or(z.string().min(0).max(0)),
   render_img: z.url().nullish().or(z.string().min(0).max(0)),
   // ic_date: z.date(),

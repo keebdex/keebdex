@@ -97,6 +97,7 @@ const { isAdmin } = storeToRefs(userStore)
 const open = ref(false)
 const collapsed = ref(false)
 const routesMenuKey = ref(0)
+const { groupedProfiles } = useKeysetProfiles()
 
 const wrapSection = ({
   collapsed,
@@ -123,14 +124,14 @@ const wrapSection = ({
 const routes = computed(() => {
   const isCollapsed = collapsed.value
 
-  let profiles = Object.entries(keysetProfiles)
-    .map(([profile, manufacturers]) => {
+  let profiles = Object.entries(groupedProfiles.value)
+    .map(([profile, profileManufacturers]) => {
       return [
         {
           label: profile,
           type: 'label',
         },
-        ...Object.entries(manufacturers).map(([id, name]) => ({
+        ...Object.entries(profileManufacturers).map(([id, name]) => ({
           label: name,
           to: `/keyset/${id}`,
           exact: true,

@@ -1068,6 +1068,7 @@ export type Database = {
         | "DSA"
         | "XDA"
         | "KAM"
+      keyset_profile_group: "Cherry" | "SA"
       keyset_status:
         | "Interest Check"
         | "Scheduled"
@@ -1293,6 +1294,7 @@ export const Constants = {
         "XDA",
         "KAM",
       ],
+      keyset_profile_group: ["Cherry", "SA"],
       keyset_status: [
         "Interest Check",
         "Scheduled",

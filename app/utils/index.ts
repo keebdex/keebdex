@@ -20,29 +20,6 @@ export const formatDateRange = (fromDate: string, toDate: string) => {
     : ''
 }
 
-export const keysetProfiles = {
-  Cherry: {
-    epbt: 'ePBT',
-    gmk: 'GMK CYL',
-    jtk: 'JTK',
-    keykobo: 'Key Kobo',
-    mw: 'MW',
-    pbtfans: 'PBTfans',
-  },
-  SA: {
-    sa: 'Signature Plastics',
-  },
-  Others: {
-    dcs: 'DCS',
-    dsa: 'DSA',
-    mtnu: 'GMK MTNU',
-    kat: 'KAT',
-    kam: 'KAM',
-    mt3: 'MT3',
-    xda: 'XDA',
-  },
-}
-
 export const keysetStatusColors: Record<
   Database['public']['Enums']['keyset_status'],
   string
@@ -73,23 +50,15 @@ export const keysetStatusMap = {
     title: 'Group Buy Ended',
     description:
       'Sets with group buys already ended and awaiting production or delivery.',
-    icon: 'hugeicons:archive-02',
+    icon: 'hugeicons:file-archive',
   },
   pending: {
     title: 'Pending Review',
     description:
       'Awaiting admin or moderator review before being visible to users.',
-    icon: 'hugeicons:edit-01',
+    icon: 'hugeicons:cursor-loading-02',
   },
 }
-
-export const manufacturers = Object.values(keysetProfiles).reduce(
-  (curr, prev) => {
-    Object.assign(curr, prev)
-    return curr
-  },
-  {},
-)
 
 export const colorwayTitle = (colorway: any) =>
   `${colorway.name} ${colorway?.sculpt.name}`
