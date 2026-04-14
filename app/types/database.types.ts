@@ -628,7 +628,7 @@ export type Database = {
             columns: ["kit_id"]
             isOneToOne: false
             referencedRelation: "kit_categories"
-            referencedColumns: ["id"]
+            referencedColumns: ["slug"]
           },
           {
             foreignKeyName: "keyset_kits_profile_keyset_id_fkey"
@@ -743,61 +743,26 @@ export type Database = {
       kit_categories: {
         Row: {
           description: string | null
-          id: string
+          id: number
           name: string
+          slug: string
           sort_order: number | null
         }
         Insert: {
           description?: string | null
-          id: string
+          id?: number
           name: string
+          slug: string
           sort_order?: number | null
         }
         Update: {
           description?: string | null
-          id?: string
+          id?: number
           name?: string
+          slug?: string
           sort_order?: number | null
         }
         Relationships: []
-      }
-      sales: {
-        Row: {
-          date: string
-          fts: unknown
-          id: number
-          maker_id: string
-          sculpt_id: string
-          sculpt_name: string | null
-          title: string
-        }
-        Insert: {
-          date: string
-          fts?: unknown
-          id?: number
-          maker_id: string
-          sculpt_id: string
-          sculpt_name?: string | null
-          title: string
-        }
-        Update: {
-          date?: string
-          fts?: unknown
-          id?: number
-          maker_id?: string
-          sculpt_id?: string
-          sculpt_name?: string | null
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sales_maker_id_fkey"
-            columns: ["maker_id"]
-            isOneToOne: false
-            referencedRelation: "artisan_makers"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       testimonials: {
         Row: {
