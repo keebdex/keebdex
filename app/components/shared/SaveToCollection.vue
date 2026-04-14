@@ -1,19 +1,18 @@
 <template>
   <UDropdownMenu
+    v-if="filteredCollections.length > 1"
     :items="[
       {
         type: 'label',
         label: `${action} to Collection`,
       },
-      ...collections
-        .filter((c) => c.category === category)
-        .map((collection) => ({
-          label: collection.name,
-          disabled: $route.path.includes(collection.id),
-          onSelect: () => {
-            $emit('onSelect', collection, item)
-          },
-        })),
+      ...filteredCollections.map((collection) => ({
+        label: collection.name,
+        disabled: $route.path.includes(collection.id),
+        onSelect: () => {
+          $emit('onSelect', collection, item)
+        },
+      })),
     ]"
     :ui="{
       content: 'w-48',
@@ -32,7 +31,7 @@
 <script setup>
 defineEmits(['onSelect'])
 
-const { move } = defineProps({
+const { category, move } = defineProps({
   item: {
     type: Object,
     default: () => ({}),
@@ -56,4 +55,8 @@ const action = move ? 'Move' : 'Save'
 
 const userStore = useUserStore()
 const { collections } = storeToRefs(userStore)
+
+const filteredCollections = computed(() =>
+  collections.value.filter((c) => c.category === category),
+)
 </script>

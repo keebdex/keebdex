@@ -77,6 +77,15 @@
           />
 
           <template #footer>
+            <SharedSaveToCollection
+              category="keyboard"
+              label="Move"
+              :item="{ id, keyboard }"
+              :move="true"
+              icon="hugeicons:move-to"
+              @on-select="moveTo"
+            />
+
             <UModal
               v-model:visible="visible.remove"
               title="Remove Keyboard"
@@ -122,7 +131,10 @@ const { authenticated } = storeToRefs(useUserStore())
 const { data, status, refresh, deleteCollection } = useCollection(
   () => route.params.collection,
 )
-const { removeItem } = useCollectionItem(() => route.params.collection, refresh)
+const { moveItem, removeItem } = useCollectionItem(
+  () => route.params.collection,
+  refresh,
+)
 
 useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
@@ -144,6 +156,17 @@ const breadcrumbs = computed(() => {
 const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], ['keyboard.variant_name'])
 })
+
+const moveTo = (collection, { id, keyboard }) => {
+  const contextName = formatKeyboardDescription([
+    keyboard?.brand?.name,
+    keyboard?.release?.keyboard?.name,
+    keyboard?.release?.name,
+    keyboard?.variant_name,
+  ])
+
+  moveItem(collection, id, contextName)
+}
 
 const remove = (id, keyboard) => {
   const contextName = formatKeyboardDescription([

@@ -71,6 +71,15 @@
           />
 
           <template #footer>
+            <SharedSaveToCollection
+              category="keyset"
+              label="Move"
+              :item="{ id, keyset }"
+              :move="true"
+              icon="hugeicons:move-to"
+              @on-select="moveTo"
+            />
+
             <UModal
               v-model:visible="visible.remove"
               title="Remove Keyset"
@@ -116,7 +125,14 @@ const { authenticated } = storeToRefs(useUserStore())
 const { data, status, refresh, deleteCollection } = useCollection(
   () => route.params.collection,
 )
-const { removeItem } = useCollectionItem(() => route.params.collection, refresh)
+const { moveItem, removeItem } = useCollectionItem(
+  () => route.params.collection,
+  refresh,
+)
+
+const moveTo = (collection, item) => {
+  moveItem(collection, item.id, item.keyset.name)
+}
 
 useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
