@@ -87,13 +87,14 @@
 
         <UPagination
           v-if="data.count > size"
-          v-model:page="page"
+          :page="page"
           :items-per-page="size"
           :total="data.count"
           class="border-t border-default pt-4 mt-auto"
           :ui="{
             list: 'justify-center',
           }"
+          @update:page="setPage"
         />
       </UPageCard>
 
@@ -167,8 +168,7 @@ const columns = [
   },
 ]
 
-const page = ref(1)
-const size = ref(20)
+const { page, size, setPage, resetPage } = usePagination(20)
 const term = ref('')
 const role = ref('all')
 
@@ -194,7 +194,7 @@ const { data, status, refresh } = await useAsyncData(
   'admin-users',
   () => {
     if (!isAdmin.value) {
-      return { users: [], count: 0, page: 1, size: 20 }
+      return { users: [], count: 0, page: 1, size }
     }
 
     return $fetch('/api/admin/users', {
@@ -202,18 +202,12 @@ const { data, status, refresh } = await useAsyncData(
     })
   },
   {
-    watch: [isAdmin, page, size, term, role],
-    default: () => ({ users: [], count: 0, page: 1, size: 20 }),
+    watch: [isAdmin, page, term, role],
+    default: () => ({ users: [], count: 0, page: 1, size }),
   },
 )
 
-watch(term, () => {
-  page.value = 1
-})
-
-watch(role, () => {
-  page.value = 1
-})
+watch([term, role], resetPage)
 
 const getVisibleAssignments = (assignments) => {
   if (!Array.isArray(assignments) || assignments.length === 0) {

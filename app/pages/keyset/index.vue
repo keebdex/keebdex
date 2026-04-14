@@ -6,7 +6,7 @@
     :total="data.count"
     :page="page"
     :size="size"
-    @update:page="updatePage"
+    @update:page="setPage"
     @update:keysets="refresh"
   />
 </template>
@@ -27,8 +27,7 @@ if (!route.query.status || !validStatuses.includes(route.query.status)) {
   router.replace({ path: '/keyset', query: { status: status.value } })
 }
 
-const page = computed(() => Number(route.query.page) || 1)
-const size = 36
+const { page, size, setPage } = usePagination(36)
 
 const { data, refresh } = await useAsyncData(
   route.path,
@@ -40,13 +39,6 @@ const { data, refresh } = await useAsyncData(
     watch: [page, status],
   },
 )
-
-const updatePage = (newPage) => {
-  router.push({
-    path: '/keyset',
-    query: { status: status.value, page: newPage },
-  })
-}
 
 const title = computed(() => `${keysetStatusMap[status.value]?.title}`)
 const description = computed(

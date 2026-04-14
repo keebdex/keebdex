@@ -96,13 +96,14 @@
 
       <UPagination
         v-if="data.count > size"
-        v-model:page="page"
+        :page="page"
         :items-per-page="size"
         :total="data.count"
         class="border-t border-default pt-4 mt-auto"
         :ui="{
           list: 'justify-center',
         }"
+        @update:page="setPage"
       />
     </template>
   </UDashboardPanel>
@@ -113,21 +114,20 @@ const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
 const editable = computed(() => userStore.isEditable())
 
-const page = ref(1)
-const size = ref(20)
+const { page, size, setPage, resetPage } = usePagination(20)
 
 const term = ref('')
 const query = computed(() => {
-  return term.value
-    ? { term: term.value }
-    : { page: page.value, size: size.value }
+  return term.value ? { term: term.value } : { page: page.value, size }
 })
 
 const { data, status, refresh } = await useAsyncData(
   'colors',
   () => $fetch('/api/colors', { query: query.value }),
-  { watch: [page, size, term] },
+  { watch: [page, term] },
 )
+
+watch(term, resetPage)
 
 const columns = [
   {

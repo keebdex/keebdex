@@ -205,7 +205,7 @@
         :ui="{
           list: 'justify-center',
         }"
-        @update:page="updatePage"
+        @update:page="setPage"
       />
     </template>
   </UDashboardPanel>
@@ -215,11 +215,9 @@
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
 const route = useRoute()
-const router = useRouter()
 const toast = useToast()
 
-const size = 72
-const page = computed(() => Number(route.query.page) || 1)
+const { page, size, setPage } = usePagination(72)
 
 const sortField = ref('order')
 const sortOrder = ref('desc')
@@ -398,13 +396,6 @@ watch(
   },
   { immediate: true },
 )
-
-const updatePage = (newPage) => {
-  router.push({
-    path: route.path,
-    query: { ...route.query, page: newPage },
-  })
-}
 
 // delete sculpt
 const deleteSculpt = async (closeModal) => {
