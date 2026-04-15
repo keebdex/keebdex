@@ -49,13 +49,11 @@
           </UPageGrid>
         </UPageCard>
       </UPageList>
-      <UAlert
+      <UPageSection
         v-else
-        title="No collections yet"
+        title="No Collections Yet"
         description="Create a collection to organize and showcase your items."
-        icon="hugeicons:information-circle"
-        color="neutral"
-        variant="soft"
+        icon="hugeicons:collections-bookmark"
       />
     </template>
   </UDashboardPanel>

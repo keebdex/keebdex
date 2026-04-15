@@ -97,60 +97,68 @@
         <UPageCard
           v-for="(release, idx) in data.releases"
           :key="release.id"
-          :title="release.name"
-          :description="release.description"
           variant="ghost"
           :ui="{
             container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
           }"
         >
-          <div v-if="getReleaseSpecs(release).length" class="mb-4">
-            <SharedDescriptionList :items="getReleaseSpecs(release)" />
-          </div>
-
-          <template v-if="editable" #footer>
-            <div class="flex items-center gap-2">
-              <UModal title="Edit Release">
-                <UButton
-                  icon="hugeicons:edit-01"
-                  label="Edit Release"
-                  @click="setSelectedRelease(release)"
-                />
-
-                <template #body="{ close }">
-                  <KeyboardModalReleaseForm
-                    :is-edit="true"
-                    :metadata="selectedRelease"
-                    :keyboard="data"
-                    @on-success="
-                      () => {
-                        close()
-                        refresh()
-                        clearSelectedRelease()
-                      }
-                    "
+          <UPageHeader
+            :title="release.name"
+            :description="release.description"
+            :ui="{
+              root: 'py-4 pt-0 border-none',
+              title: 'text-base md:text-lg',
+              description: 'text-sm',
+            }"
+          >
+            <template v-if="editable" #links>
+              <div class="flex items-center gap-2">
+                <UModal title="Edit Release">
+                  <UButton
+                    icon="hugeicons:edit-01"
+                    label="Edit Release"
+                    @click="setSelectedRelease(release)"
                   />
-                </template>
-              </UModal>
 
-              <UModal title="Add Variant">
-                <UButton icon="hugeicons:add-square" label="Add Variant" />
+                  <template #body="{ close }">
+                    <KeyboardModalReleaseForm
+                      :is-edit="true"
+                      :metadata="selectedRelease"
+                      :keyboard="data"
+                      @on-success="
+                        () => {
+                          close()
+                          refresh()
+                          clearSelectedRelease()
+                        }
+                      "
+                    />
+                  </template>
+                </UModal>
 
-                <template #body="{ close }">
-                  <KeyboardModalVariantForm
-                    :metadata="{ release_id: release.id }"
-                    :keyboard="data"
-                    @on-success="
-                      () => {
-                        close()
-                        refresh()
-                      }
-                    "
-                  />
-                </template>
-              </UModal>
+                <UModal title="Add Variant">
+                  <UButton icon="hugeicons:add-square" label="Add Variant" />
+
+                  <template #body="{ close }">
+                    <KeyboardModalVariantForm
+                      :metadata="{ release_id: release.id }"
+                      :keyboard="data"
+                      @on-success="
+                        () => {
+                          close()
+                          refresh()
+                        }
+                      "
+                    />
+                  </template>
+                </UModal>
+              </div>
+            </template>
+
+            <div v-if="getReleaseSpecs(release).length" class="mt-4">
+              <SharedDescriptionList :items="getReleaseSpecs(release)" />
             </div>
-          </template>
+          </UPageHeader>
 
           <UPageGrid
             v-if="release.variants?.length"

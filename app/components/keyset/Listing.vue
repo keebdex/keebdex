@@ -54,7 +54,7 @@
             // wrapper: 'h-full min-h-0 flex flex-col',
             // body: 'flex-1 min-h-0',
             footer: 'mt-auto',
-            description: !keyset.profile && 'line-clamp-4',
+            description: !keyset.profile && 'line-clamp-3',
           }"
         >
           <UBadge

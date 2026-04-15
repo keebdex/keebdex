@@ -72,15 +72,21 @@
           :key="keyboard.slug"
           :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
           :title="keyboard.name"
+          :description="keyboard.description"
           icon="hugeicons:keyboard"
           reverse
           spotlight
+          :ui="{
+            root: 'h-full flex flex-col',
+            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            description: 'line-clamp-3',
+          }"
         >
           <template #leading>
             <UBadge
               v-if="keyboard.layout"
               :label="keyboard.layout"
-              icon="hugeicons:keyboard"
+              color="success"
             />
           </template>
 
