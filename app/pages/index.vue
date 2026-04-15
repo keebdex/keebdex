@@ -17,7 +17,6 @@
             label: 'About Keebdex',
             to: '/about',
             icon: 'solar:telescope-bold-duotone',
-            color: 'primary',
             ui: {
               label: 'block',
             },
@@ -26,8 +25,7 @@
             label: 'Why choose Keebdex?',
             to: '/why-choose-keebdex',
             icon: 'solar:star-fall-bold-duotone',
-            color: 'neutral',
-            variant: 'ghost',
+            color: 'primary',
             ui: {
               label: 'block',
             },

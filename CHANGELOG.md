@@ -12,7 +12,7 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 
 ### 🐛 Bug Fixes
 
-- None
+- Fixed default values in the keyset form for smoother create/edit flow.
 
 ### ⚠️ Breaking Changes
 
