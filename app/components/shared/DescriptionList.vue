@@ -7,10 +7,10 @@
       :description="item.description"
       variant="naked"
       :ui="
-        orientation === 'horizontal'
+        isMobile || orientation === 'horizontal'
           ? {
               body: 'flex flex-row items-center justify-between w-full',
-              title: 'text-sm text-muted',
+              title: 'text-sm font-medium text-muted',
               description: 'text-sm mt-0',
             }
           : {
@@ -42,8 +42,10 @@ const { columns, orientation } = defineProps({
   },
 })
 
+const { isMobile } = useDevice()
+
 const gap = computed(() =>
-  orientation === 'horizontal' ? 'gap-x-4 gap-y-2' : 'gap-4',
+  isMobile || orientation === 'horizontal' ? 'gap-x-4 gap-y-2' : 'gap-4',
 )
 
 const columnsClass = computed(() => {

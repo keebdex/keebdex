@@ -36,14 +36,13 @@
 
       <div v-if="data.kits.length" class="grid grid-cols-3 gap-8">
         <!-- Left: image carousel + thumbnail strip -->
-        <div class="col-span-3 lg:col-span-2 space-y-4">
+        <div class="col-span-3 lg:col-span-2 space-y-4 max-w-7xl mx-auto">
           <UCarousel
             ref="carousel"
             v-slot="{ item }"
             :items="data.kits"
             loop
             :autoplay="{ delay: 3000 }"
-            class="max-w-7xl mx-auto"
             @select="onSelectKit"
           >
             <UPageCard
