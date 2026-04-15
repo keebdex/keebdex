@@ -2,10 +2,12 @@
   <UForm :schema="schema" :state="kit" class="space-y-4" @submit="onSubmit">
     <UFormField label="Kit" name="kit_id" required>
       <UInputMenu
+        :key="status"
         v-model.trim="kit.kit_id"
-        :items="predefinedKits"
+        :items="kits"
+        :loading="status === 'pending'"
         label-key="name"
-        value-key="id"
+        value-key="slug"
         icon="hugeicons:text-font"
         class="w-full"
       />
@@ -70,30 +72,9 @@ const { metadata, isEdit } = defineProps({
   isEdit: Boolean,
 })
 
-const predefinedKits = [
-  { id: 'base', name: 'Base' },
-  { id: 'alphas', name: 'Alphas' },
-  { id: 'mods', name: 'Modifiers' },
-  { id: 'numpad', name: 'Numpad' },
-  { id: 'spacebars', name: 'Spacebars' },
-  { id: 'novelties', name: 'Novelties' },
-  { id: 'forties', name: '40s' },
-  { id: 'ortho', name: 'Ortho' },
-  { id: 'ergo', name: 'Ergo' },
-  { id: 'iso', name: 'ISO' },
-  { id: 'norde', name: 'NorDe' },
-  { id: 'uk', name: 'UK' },
-  { id: 'international', name: 'International' },
-  { id: 'accent', name: 'Accents' },
-  { id: 'extras', name: 'Extras' },
-  { id: 'addons', name: 'Add' },
-  { id: 'arrows', name: 'Arrows' },
-  { id: 'relegendables', name: 'Relegendables' },
-  { id: 'other', name: 'Other' },
-]
-
 const route = useRoute()
 const toast = useToast()
+const { kits, status } = useKeysetKits()
 
 const kit = ref({
   kit_id: 'base',

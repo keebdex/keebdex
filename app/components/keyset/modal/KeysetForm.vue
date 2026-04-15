@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="keyset" class="space-y-4">
+  <UForm :schema="schema" :state="keyset" class="space-y-4" @submit="onSubmit">
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="keyset.name"
@@ -152,10 +152,7 @@
       <UTextarea v-model.trim="keyset.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <!-- FIXME: I don't know why form submit is not working for this form. So I need to did this -->
-    <UButton block color="primary" type="submit" @click="onSubmit">
-      Save
-    </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
