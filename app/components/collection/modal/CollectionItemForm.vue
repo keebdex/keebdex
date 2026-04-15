@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="item" class="space-y-4">
+  <UForm :schema="schema" :state="item" class="space-y-4" @submit="onSubmit">
     <UFormField
       v-if="buying"
       label="Wanted"
@@ -32,9 +32,7 @@
       <USwitch v-model="item.priority" :disabled="!item.exchange" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto @click="onSubmit">
-      Save
-    </UButton>
+    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
   </UForm>
 </template>
 
@@ -74,12 +72,12 @@ onBeforeMount(() => {
 })
 
 const schema = z.object({
-  asking_price: z.number().nullish(),
-  buying: z.boolean(),
+  asking_price: nullableNumber,
 })
 
 const onSubmit = async () => {
-  const { priority, exchange, asking_price } = item.value
+  const { asking_price } = schema.parse(item.value)
+  const { priority, exchange } = item.value
 
   await $fetch(
     `/api/users/${item.value.uid}/collections/${route.params.collection}/items/${item.value.id}`,

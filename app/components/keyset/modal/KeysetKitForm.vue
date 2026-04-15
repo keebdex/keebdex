@@ -91,17 +91,19 @@ onBeforeMount(() => {
 const schema = z.object({
   kit_id: z.string(),
   name: z.string().nullish(),
-  qty: z.number().nullish(),
-  price: z.number().nullish(),
+  qty: nullableNumber,
+  price: nullableNumber,
   img: z.url().nullish().or(z.string().min(0).max(0)),
   // description: z.string(),
   cancelled: z.boolean().catch(false),
 })
 
 const onSubmit = async () => {
+  const payload = schema.parse(kit.value)
+
   await $fetch(`/api/keysets/${kit.value.profile_keyset_id}/kits`, {
     method: 'post',
-    body: kit.value,
+    body: payload,
   })
     .then(() => {
       toast.add(handleSuccess(isEdit ? 'update' : 'add', kit.value.name, 'Kit'))
