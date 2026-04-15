@@ -1,27 +1,33 @@
 <template>
-  <dl class="grid gap-x-4 gap-y-1 mb-1" :class="columnsClass">
-    <template v-for="(item, index) in items" :key="index">
-      <div class="grid grid-cols-8 gap-2 px-0 items-center">
-        <dt class="text-sm font-medium text-color col-span-3">
-          {{ item.term }}
-        </dt>
-        <dd class="mt-0.5 text-sm col-span-5">
-          <template v-if="item.badge">
-            <UBadge v-bind="item.badge" />
-          </template>
-          <template v-else>
-            <span class="text-muted">
-              {{ item.description }}
-            </span>
-          </template>
-        </dd>
-      </div>
-    </template>
-  </dl>
+  <UPageGrid :class="columnsClass">
+    <UPageCard
+      v-for="(item, index) in items"
+      :key="index"
+      :title="item.term"
+      :description="item.description"
+      variant="naked"
+      :ui="
+        orientation === 'horizontal'
+          ? {
+              body: 'flex flex-row items-center justify-between w-full',
+              title: 'text-sm text-muted',
+              description: 'text-sm mt-0',
+            }
+          : {
+              title: 'text-xs text-muted',
+              description: 'text-sm',
+            }
+      "
+    >
+      <template v-if="item.badge" #description>
+        <UBadge v-bind="item.badge" />
+      </template>
+    </UPageCard>
+  </UPageGrid>
 </template>
 
 <script setup>
-const props = defineProps({
+const { columns, orientation } = defineProps({
   items: {
     type: Array,
     default: () => [],
@@ -30,13 +36,21 @@ const props = defineProps({
     type: Number,
     default: undefined,
   },
+  orientation: {
+    type: String,
+    default: 'vertical',
+  },
 })
 
+const gap = computed(() =>
+  orientation === 'horizontal' ? 'gap-x-4 gap-y-2' : 'gap-4',
+)
+
 const columnsClass = computed(() => {
-  if (Number.isInteger(props.columns) && props.columns > 0) {
-    return `grid-cols-${props.columns}`
+  if (Number.isInteger(columns) && columns > 0) {
+    return `grid grid-cols-${columns} sm:grid-cols-${columns} md:grid-cols-${columns} lg:grid-cols-${columns} 2xl:grid-cols-${columns} 4xl:grid-cols-${columns} ${gap.value}`
   }
 
-  return 'grid-cols-1 lg:grid-cols-2 3xl:grid-cols-3'
+  return `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 ${gap.value}`
 })
 </script>

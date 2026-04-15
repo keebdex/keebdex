@@ -21,6 +21,7 @@
       />
 
       <SharedDescriptionList
+        :columns="2"
         :items="
           [
             { term: 'Release', description: colorway.release },

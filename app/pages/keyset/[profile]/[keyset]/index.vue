@@ -117,6 +117,7 @@
             <template #specifications>
               <SharedDescriptionList
                 :columns="1"
+                orientation="horizontal"
                 :items="[
                   { term: 'Designer', description: data.designer },
                   { term: 'Sculpt', description: data.sculpt },
@@ -136,6 +137,7 @@
                     },
                   },
                 ]"
+                class="mb-2"
               />
             </template>
 
