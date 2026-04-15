@@ -20,6 +20,7 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 
 ### 🚀 Improvements
 
+- Redesigned the keyset detail page with an archivist aesthetic, added a thumbnail strip for kit navigation.
 - Migrated application-level enums to native PostgreSQL types to improve data accuracy and prevent mismatches between the code and database.
 - Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries (for example, searching "gundam" now finds "GUNDAMHAKU").
 - Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages for a cleaner layout.

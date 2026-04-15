@@ -24,43 +24,96 @@
             </template>
           </UModal>
 
-          <SharedProfileDrawer
-            :title="data.name"
-            :description="data.description"
-          />
-
-          <UDropdownMenu v-if="items.length" :items="items">
-            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
+          <UDropdownMenu v-if="manageItems.length" :items="manageItems">
+            <UButton label="Manage" trailing-icon="hugeicons:arrow-down-01" />
           </UDropdownMenu>
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <div v-if="data.kits.length" class="grid grid-cols-3 gap-6">
-        <div class="col-span-3 lg:col-span-2">
+      <UPageHeader v-if="data.description" :description="data.description" />
+
+      <div v-if="data.kits.length" class="grid grid-cols-3 gap-8">
+        <!-- Left: image carousel + thumbnail strip -->
+        <div class="col-span-3 lg:col-span-2 space-y-4">
           <UCarousel
             ref="carousel"
             v-slot="{ item }"
             :items="data.kits"
             loop
-            dots
             :autoplay="{ delay: 3000 }"
             class="max-w-7xl mx-auto"
+            @select="onSelectKit"
           >
             <UPageCard
-              :title="item.name || item.category?.name"
-              :description="item.description"
+              :title="
+                activeKit.description
+                  ? activeKit.name || activeKit.category?.name
+                  : undefined
+              "
+              :description="activeKit.description"
               reverse
-              variant="ghost"
+              variant="naked"
+              :ui="{
+                wrapper: 'items-center text-center',
+                title: 'text-muted italic',
+                description: 'text-sm',
+              }"
             >
               <NuxtImg loading="lazy" :alt="item.name" :src="item.img" />
             </UPageCard>
           </UCarousel>
+
+          <UPageGrid
+            class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-6 3xl:sm:grid-cols-8 gap-2 pt-2"
+          >
+            <UButton
+              v-for="(kit, idx) in data.kits"
+              :key="kit.id"
+              class="relative rounded overflow-hidden ring-2 transition-all !p-0"
+              :class="
+                activeIndex === idx
+                  ? 'ring-primary opacity-100'
+                  : 'ring-transparent opacity-60 hover:opacity-90'
+              "
+              variant="naked"
+              @click="onSelectKit(idx)"
+            >
+              <NuxtImg
+                loading="lazy"
+                :src="kit.img"
+                :alt="kit.name || kit.category?.name"
+                class="w-full aspect-video object-cover"
+              />
+              <div
+                class="absolute inset-x-0 bottom-0 bg-black/70 px-1 py-0.5 text-[10px] text-white text-center truncate leading-tight"
+              >
+                {{ kit.name || kit.category?.name }}
+              </div>
+              <div
+                v-if="kit.cancelled"
+                class="absolute inset-0 bg-error/20 flex items-center justify-center"
+              >
+                <UIcon
+                  name="hugeicons:unavailable"
+                  class="text-error h-8 w-8"
+                />
+              </div>
+            </UButton>
+          </UPageGrid>
         </div>
 
-        <div class="col-span-3 lg:col-span-1">
-          <UAccordion v-model="activeKey" :items="accordions" type="multiple">
+        <!-- Right: specs + colors + references -->
+        <div class="col-span-3 lg:col-span-1 space-y-6">
+          <UAccordion
+            v-model="activeKey"
+            :items="accordions"
+            type="multiple"
+            :ui="{
+              label: 'uppercase tracking-widest text-muted',
+            }"
+          >
             <template #specifications>
               <SharedDescriptionList
                 :columns="1"
@@ -86,31 +139,20 @@
               />
             </template>
 
-            <template #kits>
-              <div class="flex flex-wrap gap-2 py-2">
-                <UButton
-                  v-for="(kit, idx) in data.kits"
-                  :key="kit.id"
-                  :label="kit.name || kit.category?.name"
-                  @click="onSelectKit(idx)"
-                >
-                  <template v-if="kit.cancelled" #leading>
-                    <UTooltip text="Cancelled">
-                      <UIcon name="hugeicons:unavailable" class="text-error" />
-                    </UTooltip>
-                  </template>
-                </UButton>
-              </div>
-            </template>
-
             <template v-if="data.colors?.length" #colors>
-              <div class="flex flex-wrap gap-2 py-2">
+              <UPageGrid
+                class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mb-2"
+              >
                 <KeysetColorCard
                   v-for="color in data.colors"
                   :key="color.id"
                   v-bind="color.color"
                 />
-              </div>
+              </UPageGrid>
+            </template>
+
+            <template v-if="externalLinks.length" #links>
+              <UPageLinks :links="externalLinks" />
             </template>
           </UAccordion>
         </div>
@@ -155,100 +197,76 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const items = computed(() => {
-  const manageItems = editable.value
-    ? [
-        {
-          label: 'Manage',
-          type: 'label',
-        },
-        {
-          label: 'Manage Kits',
-          icon: 'hugeicons:cells',
-          to: `/keyset/${data.value.profile_keyset_id}/kit`,
-        },
-        {
-          label: 'Manage Colors',
-          icon: 'hugeicons:colors',
-          to: `/keyset/${data.value.profile_keyset_id}/color`,
-        },
-      ]
-    : []
+const manageItems = computed(() => {
+  if (!editable.value) return []
+  return [
+    {
+      label: 'Manage Kits',
+      icon: 'hugeicons:cells',
+      to: `/keyset/${data.value.profile_keyset_id}/kit`,
+    },
+    {
+      label: 'Manage Colors',
+      icon: 'hugeicons:colors',
+      to: `/keyset/${data.value.profile_keyset_id}/color`,
+    },
+  ]
+})
 
-  const infoItems = []
+const externalLinks = computed(() => {
+  const links = []
 
   if (data.value.url) {
     if (data.value.url.includes('geekhack')) {
-      infoItems.push({
+      links.push({
         label: 'Geekhack',
         icon: 'hugeicons:comment-01',
         to: data.value.url,
-        target: '_blank',
       })
     } else {
-      infoItems.push({
+      links.push({
         label: 'Vendor',
-        icon: 'hugeicons:link-forward',
+        icon: 'hugeicons:link-square-02',
         to: data.value.url,
-        target: '_blank',
       })
     }
   }
 
   if (data.value.order_graph) {
-    infoItems.push({
+    links.push({
       label: 'Order Graph',
       icon: 'hugeicons:chart-bar-big',
       to: data.value.order_graph,
-      target: '_blank',
     })
   }
 
   if (data.value.order_history) {
-    infoItems.push({
+    links.push({
       label: 'Order History',
       icon: 'hugeicons:chart-line-data-02',
       to: data.value.order_history,
-      target: '_blank',
     })
   }
 
-  if (infoItems.length) {
-    return [
-      ...manageItems,
-      {
-        label: 'Information',
-        type: 'label',
-      },
-      ...infoItems,
-    ]
-  }
-
-  return manageItems
+  return links
 })
 
 const accordions = [
   {
     label: 'Specifications',
-    icon: 'hugeicons:information-circle',
+    // icon: 'hugeicons:information-circle',
     slot: 'specifications',
   },
   {
-    label: 'Kits',
-    icon: 'hugeicons:cells',
-    slot: 'kits',
-  },
-  {
-    label: 'Colors',
-    icon: 'hugeicons:colors',
+    label: 'Color Palette',
+    // icon: 'hugeicons:colors',
     slot: 'colors',
     content: 'No color codes have been added yet. Check back soon!',
   },
   {
-    label: 'Disclaimers',
-    icon: 'hugeicons:justice-scale-01',
-    content:
-      'Kindly note that the images are of 3D renders and are for illustration purposes only. The final colors may differ slightly.',
+    label: 'Links',
+    // icon: 'hugeicons:link-square-02',
+    slot: 'links',
   },
 ]
 
@@ -256,10 +274,11 @@ const visible = ref(false)
 
 const activeIndex = ref(0)
 const carousel = useTemplateRef('carousel')
+const activeKit = computed(() => data.value?.kits?.[activeIndex.value])
 
-const onSelectKit = (index) => {
+function onSelectKit(index) {
   activeIndex.value = index
-  carousel.value.emblaApi.scrollTo(index)
+  carousel.value?.emblaApi?.scrollTo(index)
 }
 
 const meta = computed(() => {
