@@ -1,8 +1,9 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { pickTableFields } from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { category, ...kit } = await readBody(event)
+  const kit = pickTableFields('keyset_kits', await readBody(event))
 
   const query = kit.id
     ? client.from('keyset_kits').update(kit).eq('id', kit.id)

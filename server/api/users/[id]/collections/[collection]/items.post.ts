@@ -1,17 +1,22 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { pickTableFields } from '../../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const body = await readBody(event)
+  const body = pickTableFields('user_collection_items', await readBody(event))
 
-  const itemKey = [
+  const keys = [
     'artisan_item_id',
     'keyset_item_id',
     'keyboard_item_id',
-  ].find((key) => body?.[key] !== undefined && body?.[key] !== null)
+  ] as const
 
-  if (!itemKey) {
+  const selectedItemKey = keys.find(
+    (key) => body?.[key] !== undefined && body?.[key] !== null,
+  )
+
+  if (!selectedItemKey) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Collection item reference is required',
@@ -23,7 +28,7 @@ export default defineEventHandler(async (event) => {
     .select('*')
     .eq('uid', body.uid)
     .eq('collection_id', body.collection_id)
-    .eq(itemKey, body[itemKey])
+    .eq(selectedItemKey, body[selectedItemKey])
 
   if (checkError) {
     throw createError({

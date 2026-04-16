@@ -1,17 +1,10 @@
 import { serverSupabaseClient } from '#supabase/server'
-import omit from 'lodash.omit'
+import { pickTableFields } from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  let body = await readBody(event)
-  body = omit(body, [
-    'created_at',
-    'maker_name',
-    'invertible_logo',
-    'total_colorways',
-    'maker_sculpts',
-  ])
+  const body = pickTableFields('artisan_sculpts', await readBody(event))
 
   const { data, error } = await client
     .from('artisan_sculpts')

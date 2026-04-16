@@ -6,9 +6,12 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 
 ### ✨ What's New
 
-- Introduced a new **Keyboard** module with support for **Brands**, **Keyboards**, **Releases**, and **Variants**, including built-in design lineage tracking and standardized technical hardware specifications.
-- Enabled **collection management** for keyboards, letting users track which boards they own and how they relate to keysets and other items.
+- Introduced a new **Keyboard** module with support for **Brands**, **Keyboards**, **Releases**, and **Variants**, including design lineage tracking and standardized technical specifications.
+- Enabled **keyboard collection management**, allowing users to track the boards they own and how they relate to keysets and other items.
 - Added a dedicated **User Management** page for managing user access and roles.
+- Added designer autocomplete to the keyset form, with suggestions from existing designers while still allowing free-text input.
+- Added collection editing and revision autocomplete to the artisan sculpt form.
+- Introduced shared `useCollectionItem` and `useCollection` composables to centralize collection operations across collection pages.
 
 ### 🐛 Bug Fixes
 
@@ -20,11 +23,9 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 
 ### 🚀 Improvements
 
-- Redesigned the keyset detail page with an archivist aesthetic, added a thumbnail strip for kit navigation.
+- Redesigned the keyset detail page with an archivist-inspired aesthetic and added a thumbnail strip for kit navigation.
 - Migrated application-level enums to native PostgreSQL types to improve data accuracy and prevent mismatches between the code and database.
-- Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries (for example, searching "gundam" now finds "GUNDAMHAKU").
+- Hardened POST API payload handling with shared database-based field filtering so only schema-defined fields are accepted and persisted.
+- Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries; for example, searching "gundam" now finds "GUNDAMHAKU".
 - Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages for a cleaner layout.
-- Applied a shared logo card across all modules, and improved card layout consistency with equal-height grid.
-- Added designer autocomplete in keyset form with suggestions from existing designers to prevent duplicate names with typo issues; new designers can still be added as free-text input.
-- Added collection editing and revision autocomplete to the artisan sculpt form.
-- Introduced `useCollectionItem` and `useCollection` composables to centralize all collection operations (fetch, delete collection, add/remove/move items) across collection pages.
+- Applied a shared logo card across all modules and improved card layout consistency with an equal-height grid.

@@ -1,9 +1,13 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../../../utils'
+import {
+  omitSensitive,
+  pickTableFields,
+  toNullableNumber,
+} from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const body = await readBody(event)
+  const body = pickTableFields('keyboard_variants', await readBody(event))
 
   const { error: releaseError } = await client
     .from('keyboard_releases')
@@ -20,17 +24,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const payload = {
-    release_id: Number(body.release_id),
+    release_id: body.release_id,
     variant_name: body.variant_name,
     finish_type: body.finish_type,
-    units_produced:
-      !body.units_produced || isNaN(body.units_produced)
-        ? null
-        : Number(body.units_produced),
-    release_year:
-      !body.release_year || isNaN(body.release_year)
-        ? null
-        : Number(body.release_year),
+    units_produced: toNullableNumber(body.units_produced),
+    release_year: toNullableNumber(body.release_year),
     sale_type: body.sale_type || null,
     image_url: body.image_url || null,
     photo_credit: body.photo_credit || null,

@@ -1,21 +1,20 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../../utils'
+import {
+  omitSensitive,
+  pickTableFields,
+  toNullableNumber,
+} from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { id, cover_image, original, brand, releases, ...body } =
-    await readBody(event)
-
-  const { brand: brand_slug } = event.context.params || {}
+  const body = pickTableFields('keyboards', await readBody(event))
+  const { brand, keyboard } = event.context.params || {}
 
   const payload = {
     ...body,
-    brand_slug,
-    brand_keyboard_slug: `${brand_slug}/${body.slug}`,
-    typing_angle:
-      !body.typing_angle || isNaN(body.typing_angle)
-        ? null
-        : Number(body.typing_angle),
+    brand_slug: brand,
+    brand_keyboard_slug: `${brand}/${keyboard}`,
+    typing_angle: toNullableNumber(body.typing_angle),
   }
 
   const { data, error } = await client

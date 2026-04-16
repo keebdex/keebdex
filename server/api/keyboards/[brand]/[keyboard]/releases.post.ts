@@ -1,25 +1,19 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../../../utils'
+import {
+  omitSensitive,
+  pickTableFields,
+  toNullableNumber,
+} from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { id, variants, keyboard_variants, ...body } = await readBody(event)
+  const body = pickTableFields('keyboard_releases', await readBody(event))
 
-  // FIXME: we can do validation here and remove below checks
   const payload = {
     ...body,
-    release_year:
-      !body.release_year || isNaN(body.release_year)
-        ? null
-        : Number(body.release_year),
-    typing_angle:
-      !body.typing_angle || isNaN(body.typing_angle)
-        ? null
-        : Number(body.typing_angle),
-    msrp_price:
-      !body.msrp_price || isNaN(body.msrp_price)
-        ? null
-        : Number(body.msrp_price),
+    release_year: toNullableNumber(body.release_year),
+    typing_angle: toNullableNumber(body.typing_angle),
+    msrp_price: toNullableNumber(body.msrp_price),
     currency: body.currency || null,
     case_materials:
       Array.isArray(body.case_materials) && body.case_materials.length
@@ -37,11 +31,11 @@ export default defineEventHandler(async (event) => {
 
   let result
 
-  if (id) {
+  if (body.id) {
     result = await client
       .from('keyboard_releases')
       .update(payload)
-      .eq('id', id)
+      .eq('id', body.id)
       .eq('brand_keyboard_slug', body.brand_keyboard_slug)
       .select()
       .single()

@@ -1,13 +1,13 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { pickTableFields } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { artisans, kits, colors, start, end, profile, ...rest } =
-    await readBody(event)
+  const body = pickTableFields('keysets', await readBody(event))
 
-  const { data, error } = rest.id
-    ? await client.from('keysets').update(rest).eq('id', rest.id)
-    : await client.from('keysets').insert(rest)
+  const { data, error } = body.id
+    ? await client.from('keysets').update(body).eq('id', body.id)
+    : await client.from('keysets').insert(body)
 
   if (error) {
     throw createError({

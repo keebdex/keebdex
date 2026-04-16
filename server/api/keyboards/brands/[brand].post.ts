@@ -1,9 +1,9 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../../utils'
+import { omitSensitive, pickTableFields } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
-  const { keyboards, ...body } = await readBody(event)
   const client = await serverSupabaseClient(event)
+  const body = pickTableFields('keyboard_brands', await readBody(event))
 
   const { data, error } = await client
     .from('keyboard_brands')

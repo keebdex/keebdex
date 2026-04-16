@@ -1,15 +1,16 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { crc32 } from 'crc'
 import slugify from 'slugify'
+import { pickTableFields } from '../../../../../utils'
 
 const selfMakers = ['alpha-keycaps', 'gooey-keys']
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { keyset, sculpt, ...rest } = await readBody(event)
+  const rest = pickTableFields('artisan_colorways', await readBody(event))
 
-  if (!rest.colorway_id || selfMakers.includes(rest.maker_id)) {
-    const slug = slugify(rest.name, { lower: true })
+  if (!rest.colorway_id || selfMakers.includes(String(rest.maker_id))) {
+    const slug = slugify(String(rest.name), { lower: true })
     rest.colorway_id = crc32(
       `${rest.maker_id}-${rest.sculpt_id}-${slug}-${rest.order}`,
     ).toString(16)

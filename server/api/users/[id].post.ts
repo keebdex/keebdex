@@ -1,12 +1,13 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { pickTableFields } from '../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const maker = await readBody(event)
+  const body = pickTableFields('users', await readBody(event))
 
   const { data, error } = await client
     .from('users')
-    .update(maker)
+    .update(body)
     .eq('id', event.context.params?.id)
 
   if (error) {
