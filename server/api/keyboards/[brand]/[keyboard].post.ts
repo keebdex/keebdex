@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('keyboards')
     .upsert(payload, { onConflict: 'brand_keyboard_slug' })
+    .eq('brand_keyboard_slug', payload.brand_keyboard_slug)
     .select()
     .single()
 
