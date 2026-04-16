@@ -235,6 +235,10 @@ const { removeItem, moveItem } = useCollectionItem(
   refresh,
 )
 
+const shareable = computed(() => !!data.value?.published)
+const buying = computed(() => data.value?.intent === 'want')
+const selling = computed(() => data.value?.intent === 'sell')
+
 const items = computed(() => {
   const menuItems = [
     {
@@ -244,7 +248,7 @@ const items = computed(() => {
     },
   ]
 
-  if (shareable) {
+  if (shareable.value) {
     menuItems.push({
       label: 'Copy URL',
       icon: 'hugeicons:copy-link',
@@ -256,11 +260,6 @@ const items = computed(() => {
 })
 
 const sort = ref(data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name')
-
-const shareable = !!data.value?.published
-
-const buying = data.value?.intent === 'want'
-const selling = data.value?.intent === 'sell'
 
 useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
