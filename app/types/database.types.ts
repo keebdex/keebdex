@@ -163,7 +163,6 @@ export type Database = {
           deleted: boolean
           design: string | null
           fts: unknown
-          href: string | null
           id: number
           img: string | null
           is_revision_of: string | null
@@ -182,7 +181,6 @@ export type Database = {
           deleted?: boolean
           design?: string | null
           fts?: unknown
-          href?: string | null
           id?: number
           img?: string | null
           is_revision_of?: string | null
@@ -201,7 +199,6 @@ export type Database = {
           deleted?: boolean
           design?: string | null
           fts?: unknown
-          href?: string | null
           id?: number
           img?: string | null
           is_revision_of?: string | null

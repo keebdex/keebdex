@@ -28,14 +28,6 @@
       <UTabs v-model="sculpt.design" size="sm" :items="designs" />
     </UFormField>
 
-    <UFormField label="URL" name="url">
-      <UInput
-        v-model.trim="sculpt.href"
-        icon="hugeicons:globe-02"
-        class="w-full"
-      />
-    </UFormField>
-
     <UFormField
       label="Storyline"
       name="story"
@@ -96,7 +88,6 @@ const schema = z.object({
   profile: z.enum(profiles.map((p) => p.value)).nullish(),
   cast: z.enum(casts.map((c) => c.value)).nullish(),
   design: z.enum(designs.map((d) => d.value)).nullish(),
-  href: z.url().nullish().or(z.string().min(0).max(0)),
   // story: z.string(),
 })
 

@@ -58,7 +58,6 @@
               v-if="sculpt.story"
               :title="sculpt.name"
               :description="sculpt.story"
-              :links="sculptLinks"
             />
 
             <UModal
@@ -340,21 +339,6 @@ const { addItem } = useCollectionItem()
 const saveTo = (collection, colorway) => {
   addItem(collection, { artisan_item_id: colorway.id }, colorway.name)
 }
-
-const sculptLinks = computed(() => {
-  if (!sculpt.value?.href) {
-    return []
-  }
-
-  return [
-    {
-      label: 'Website',
-      icon: 'hugeicons:globe-02',
-      to: sculpt.value.href,
-      target: '_blank',
-    },
-  ]
-})
 
 // colorway submission
 const newColorwayMetadata = computed(() => ({
