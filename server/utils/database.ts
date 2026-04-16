@@ -82,6 +82,12 @@ function getAllowedTableFields<T extends PublicTable>(table: T) {
   return tableFields
 }
 
+/**
+ * Picks only the allowed fields for a given table from the provided body object.
+ * @param table The name of the table to pick fields from
+ * @param body The object containing potential fields to pick
+ * @returns An object containing only the allowed fields for the specified table
+ */
 export function pickTableFields<T extends PublicTable>(
   table: T,
   body: unknown,

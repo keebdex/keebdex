@@ -1,5 +1,4 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { groupByMakerWithChunks } from '../utils/group'
 
 const avatarUi = (invertible: boolean, theme: string | undefined) => {
   return {

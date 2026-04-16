@@ -22,6 +22,13 @@ function chunkLabel(makers: { maker: Maker }[]) {
   return { first, last }
 }
 
+/**
+ * Groups items by their maker, then splits into chunks of a certain size,
+ * but keeps makers with the same first letter together.
+ * Numeric makers are always in the first chunk.
+ * @param items
+ * @returns
+ */
 function groupByMakerWithChunks(items: Item[]) {
   const makers = groupBy(items, (item) => item.maker.name)
 

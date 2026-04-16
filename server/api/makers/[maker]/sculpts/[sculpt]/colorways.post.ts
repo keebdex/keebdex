@@ -1,7 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { crc32 } from 'crc'
 import slugify from 'slugify'
-import { pickTableFields } from '../../../../../utils'
 
 const selfMakers = ['alpha-keycaps', 'gooey-keys']
 

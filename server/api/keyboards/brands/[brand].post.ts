@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive, pickTableFields } from '../../../utils'
+import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)

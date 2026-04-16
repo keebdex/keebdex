@@ -1,14 +1,6 @@
 import omit from 'lodash.omit'
 
 /**
- * Pick only the fields that are defined in the database table to prevent unexpected fields from being inserted
- * @param tableName
- * @param data
- * @returns
- */
-export { pickTableFields } from './database'
-
-/**
  * Omit sensitive fields from the object before sending it to the client
  * @param obj
  * @returns
