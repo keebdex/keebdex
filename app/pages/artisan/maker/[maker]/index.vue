@@ -20,6 +20,7 @@
 
             <template #body="{ close }">
               <ArtisanModalSculptForm
+                :sculpts="sculpts"
                 @on-success="
                   () => {
                     close()

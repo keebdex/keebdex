@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     'maker_name',
     'invertible_logo',
     'total_colorways',
+    'maker_sculpts',
   ])
 
   const { data, error } = await client

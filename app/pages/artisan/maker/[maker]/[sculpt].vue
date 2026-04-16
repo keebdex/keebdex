@@ -35,6 +35,7 @@
                 <ArtisanModalSculptForm
                   :is-edit="true"
                   :metadata="sculpt"
+                  :sculpts="sculpt.maker_sculpts"
                   @on-success="
                     () => {
                       close()
@@ -272,6 +273,9 @@ const { data: sculpt, refresh } = await useAsyncData(
 
       sculpt.maker_name = data.name
       sculpt.invertible_logo = data.invertible_logo
+      sculpt.maker_sculpts = Object.values(data.sculpts || {}).map(
+        ({ colorways, ...rest }) => rest,
+      )
 
       return sculpt
     },

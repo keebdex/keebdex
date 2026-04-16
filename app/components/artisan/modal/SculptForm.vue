@@ -29,6 +29,37 @@
     </UFormField>
 
     <UFormField
+      label="Revision Of"
+      name="is_revision_of"
+      help="Pick an existing sculpt from this maker."
+    >
+      <UInputMenu
+        v-model="sculpt.is_revision_of"
+        :items="
+          sculpts.filter((s) => s.maker_sculpt_id !== sculpt.maker_sculpt_id)
+        "
+        value-key="maker_sculpt_id"
+        label-key="name"
+        clear
+        icon="hugeicons:hierarchy-square-10"
+        placeholder="Search sculpts..."
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Collection" name="collection">
+      <UInputMenu
+        v-model.trim="sculpt.collection"
+        :items="collectionOptions"
+        autocomplete
+        clear
+        icon="hugeicons:dashboard-square-02"
+        placeholder="Collection name"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField
       label="Storyline"
       name="story"
       help="Keep it concise and under 400 characters for optimal display."
@@ -46,10 +77,14 @@ import slugify from 'slugify'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit } = defineProps({
+const { metadata, sculpts, isEdit } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
+  },
+  sculpts: {
+    type: Array,
+    default: () => [],
   },
   isEdit: Boolean,
 })
@@ -60,12 +95,20 @@ const route = useRoute()
 const sculpt = ref({
   maker_id: route.params.maker,
   sculpt_id: route.params.sculpt,
+  collection: undefined,
+  is_revision_of: undefined,
 })
 
 onBeforeMount(() => {
   const { colorways, ...rest } = metadata
 
   Object.assign(sculpt.value, rest)
+})
+
+const collectionOptions = computed(() => {
+  return Array.from(
+    new Set(sculpts.map((item) => item.collection).filter(Boolean)),
+  ).sort()
 })
 
 const profiles = [
@@ -88,6 +131,8 @@ const schema = z.object({
   profile: z.enum(profiles.map((p) => p.value)).nullish(),
   cast: z.enum(casts.map((c) => c.value)).nullish(),
   design: z.enum(designs.map((d) => d.value)).nullish(),
+  collection: z.string().nullish(),
+  is_revision_of: z.string().nullish(),
   // story: z.string(),
 })
 
@@ -103,6 +148,8 @@ const onSubmit = async () => {
       ...sculpt.value,
       maker_id: makerId,
       sculpt_id: sculptId,
+      collection: sculpt.value.collection || null,
+      is_revision_of: sculpt.value.is_revision_of || null,
     },
   })
     .then(() => {

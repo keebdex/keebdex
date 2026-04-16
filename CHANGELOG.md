@@ -26,4 +26,5 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 - Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages for a cleaner layout.
 - Applied a shared logo card across all modules, and improved card layout consistency with equal-height grid.
 - Added designer autocomplete in keyset form with suggestions from existing designers to prevent duplicate names with typo issues; new designers can still be added as free-text input.
+- Added collection editing and revision autocomplete to the artisan sculpt form.
 - Introduced `useCollectionItem` and `useCollection` composables to centralize all collection operations (fetch, delete collection, add/remove/move items) across collection pages.
