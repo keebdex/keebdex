@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
     .find((variant: any) => variant.image_url)?.image_url
 
   let original: any = null
+  let derivations: any[] = []
 
   if (keyboard?.derived_from) {
     const { data: foundation } = await client
@@ -44,12 +45,41 @@ export default defineEventHandler(async (event) => {
     if (foundation) {
       original = omitSensitive(foundation)
     }
+  } else {
+    const { data } = await client
+      .from('keyboards')
+      .select(
+        '*, brand:keyboard_brands(name, slug, invertible_logo), keyboard_releases(*, keyboard_variants(id, image_url))',
+      )
+      .eq('derived_from', brandKeyboardSlug)
+      .order('name', { ascending: true })
+
+    if (data?.length) {
+      derivations = data.map((item: any) => {
+        const {
+          brand: derivedBrand,
+          keyboard_releases: derivedReleases,
+          ...derivedKeyboard
+        } = item
+
+        const derivedCoverImage = (derivedReleases || [])
+          .flatMap((release: any) => release.keyboard_variants || [])
+          .find((variant: any) => variant.image_url)?.image_url
+
+        return {
+          ...omitSensitive(derivedKeyboard),
+          brand: derivedBrand,
+          cover_image: derivedCoverImage || null,
+        }
+      })
+    }
   }
 
   return {
     ...omitSensitive(keyboard),
     cover_image: coverImage || null,
     original,
+    derived_keyboards: derivations,
     brand: omitSensitive(brand),
     releases: releases.map((release: any) => ({
       ...omitSensitive(release),

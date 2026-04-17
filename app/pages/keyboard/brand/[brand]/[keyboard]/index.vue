@@ -68,6 +68,37 @@
             :ui="{ content: 'min-w-fit' }"
           />
 
+          <USlideover
+            v-if="data.derived_keyboards?.length"
+            title="Derived Designs"
+            description="A collection of keyboards that share this design's DNA through community reworks, official collaborations, and specialized iterations."
+          >
+            <UButton
+              label="Derived"
+              icon="hugeicons:share-knowledge"
+              variant="soft"
+            />
+
+            <template #body>
+              <UPageList class="flex gap-4">
+                <UPageCard
+                  v-for="keyboard in data.derived_keyboards"
+                  :key="keyboard.brand_keyboard_slug"
+                  :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
+                  :title="`${keyboard.brand?.name} ${keyboard.name}`"
+                  reverse
+                >
+                  <NuxtImg
+                    loading="lazy"
+                    :alt="keyboard.name"
+                    :src="keyboard.cover_image || '/keyboard.png'"
+                    class="aspect-video w-full object-cover"
+                  />
+                </UPageCard>
+              </UPageList>
+            </template>
+          </USlideover>
+
           <SharedProfileDrawer
             v-if="data.description"
             :title="data.name"
