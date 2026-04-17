@@ -22,7 +22,7 @@
               v-if="headlineLogo"
               :src="headlineLogo"
               :alt="headline"
-              class="h-[48px] lg:h-[64px] w-auto object-contain"
+              class="h-[36px] lg:h-[48px] w-auto object-contain"
             >
             <span
               :class="headlineClass"
@@ -37,7 +37,7 @@
             <img
               :src="titleLogo"
               :alt="title"
-              class="h-[120px] lg:h-[144px] w-auto object-contain"
+              class="h-[96px] lg:h-[120px] w-auto object-contain"
             >
             <h1
               :class="titleClass"
