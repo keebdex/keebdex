@@ -278,7 +278,7 @@ const { authenticated } = storeToRefs(userStore)
 
 const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
 
-const editable = computed(() => userStore.isEditable(slug.value))
+const editable = computed(() => userStore.isEditable(route.params.brand))
 
 const visible = ref({
   addRelease: false,

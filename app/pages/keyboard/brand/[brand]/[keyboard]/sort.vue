@@ -66,7 +66,10 @@
     </template>
   </UDashboardPanel>
 
-  <SharedRedirectPage v-else :to="`/keyboard/brand/${brand}/${keyboard}`" />
+  <SharedRedirectPage
+    v-else
+    :to="`/keyboard/brand/${route.params.brand}/${route.params.keyboard}`"
+  />
 </template>
 
 <script setup>
@@ -78,7 +81,7 @@ const route = useRoute()
 const userStore = useUserStore()
 
 const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
-const editable = computed(() => userStore.isEditable(slug.value))
+const editable = computed(() => userStore.isEditable(route.params.brand))
 
 const { data, refresh } = await useAsyncData(
   () => `keyboard-release-sort:${slug.value}`,
