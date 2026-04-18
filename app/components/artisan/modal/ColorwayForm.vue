@@ -194,10 +194,10 @@ const colorway = ref({
 const schema = z.object({
   name: z.string().nullish(),
   release: z.string().nullish(),
-  qty: nullableNumber,
-  order: nullableNumber,
+  qty: z.number().nullish(),
+  order: z.number().nullish(),
   currency: z.enum(currencies).nullish(),
-  price: nullableNumber,
+  price: z.number().nullish(),
   sale_type: z.enum(formats).nullish(),
 })
 
@@ -215,11 +215,8 @@ const onSubmit = async () => {
   try {
     uploading.value = true
 
-    const parsed = schema.parse(colorway.value)
-
     const payload = {
       ...colorway.value,
-      ...parsed,
     }
 
     if (uploadedFile.value) {

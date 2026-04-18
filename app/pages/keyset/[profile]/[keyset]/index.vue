@@ -60,7 +60,12 @@
                 description: 'text-sm',
               }"
             >
-              <NuxtImg loading="lazy" :alt="item.name" :src="item.img" />
+              <NuxtImg
+                loading="lazy"
+                :alt="item.name"
+                :src="item.img"
+                class="w-full"
+              />
             </UPageCard>
           </UCarousel>
 

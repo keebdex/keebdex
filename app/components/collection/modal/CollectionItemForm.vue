@@ -72,7 +72,10 @@ onBeforeMount(() => {
 })
 
 const schema = z.object({
-  asking_price: nullableNumber,
+  asking_price: z.preprocess(
+    (value) => (value === '' ? null : value),
+    z.number().nullish(),
+  ),
 })
 
 const onSubmit = async () => {
