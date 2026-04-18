@@ -109,7 +109,7 @@
           <NuxtImg
             loading="lazy"
             :alt="`${keyset.profile.name} ${keyset.name}`"
-            :src="keyset.img || keyset.render_img"
+            :src="keyset.img || '/keyset.png'"
             class="aspect-[16/9] w-full rounded-lg object-cover"
           />
 

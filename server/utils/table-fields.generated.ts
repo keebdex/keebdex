@@ -183,7 +183,6 @@ export const TABLE_FIELDS = {
     "order_history",
     "profile_id",
     "profile_keyset_id",
-    "render_img",
     "review_status",
     "sculpt",
     "start_date",

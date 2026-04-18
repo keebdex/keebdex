@@ -66,7 +66,7 @@
           <NuxtImg
             loading="lazy"
             :alt="keyset.name"
-            :src="keyset.img || keyset.render_img"
+            :src="keyset.img || '/keyset.png'"
             class="aspect-[16/9] w-full object-cover"
           />
 

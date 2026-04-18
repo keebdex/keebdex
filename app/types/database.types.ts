@@ -492,7 +492,7 @@ export type Database = {
       keyboards: {
         Row: {
           brand_keyboard_slug: string
-          brand_slug: string | null
+          brand_slug: string
           created_at: string
           derived_from: string | null
           description: string | null
@@ -505,12 +505,12 @@ export type Database = {
         }
         Insert: {
           brand_keyboard_slug: string
-          brand_slug?: string | null
+          brand_slug: string
           created_at?: string
           derived_from?: string | null
           description?: string | null
           fts?: unknown
-          id?: never
+          id?: number
           layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
@@ -518,12 +518,12 @@ export type Database = {
         }
         Update: {
           brand_keyboard_slug?: string
-          brand_slug?: string | null
+          brand_slug?: string
           created_at?: string
           derived_from?: string | null
           description?: string | null
           fts?: unknown
-          id?: never
+          id?: number
           layout?: Database["public"]["Enums"]["keyboard_layout"]
           name?: string
           slug?: string
@@ -678,7 +678,6 @@ export type Database = {
           order_history: string | null
           profile_id: string
           profile_keyset_id: string
-          render_img: string | null
           review_status: Database["public"]["Enums"]["review_status"] | null
           sculpt: string | null
           start_date: string | null
@@ -699,7 +698,6 @@ export type Database = {
           order_history?: string | null
           profile_id: string
           profile_keyset_id: string
-          render_img?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
           start_date?: string | null
@@ -720,7 +718,6 @@ export type Database = {
           order_history?: string | null
           profile_id?: string
           profile_keyset_id?: string
-          render_img?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
           start_date?: string | null

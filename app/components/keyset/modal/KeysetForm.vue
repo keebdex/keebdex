@@ -69,9 +69,9 @@
       />
     </UFormField>
 
-    <UFormField label="Render" name="render_img">
+    <UFormField label="Image" name="img">
       <UInput
-        v-model.trim="keyset.render_img"
+        v-model.trim="keyset.img"
         icon="hugeicons:image-02"
         class="w-full"
       />
@@ -184,7 +184,7 @@ const designerOptions = ref([])
 const keyset = ref({
   name: '',
   url: '',
-  render_img: '',
+  img: '',
 })
 
 const range = ref({})
@@ -275,7 +275,7 @@ const schema = z.object({
     .min(1)
     .refine((value) => !!manufacturers.value[value], 'Invalid keyset profile'),
   url: z.url().nullish().or(z.string().min(0).max(0)),
-  render_img: z.url().nullish().or(z.string().min(0).max(0)),
+  img: z.url().nullish().or(z.string().min(0).max(0)),
   // ic_date: z.date(),
   // start_date: z.date(),
   // end_date: z.date(),
@@ -299,14 +299,6 @@ const onSubmit = () => {
   }
   if (range.value.end) {
     keyset.value.end_date = toISODate(range.value.end)
-  }
-
-  /**
-   * FIXME: maybe we need to change this
-   * this is workaround to handle updating render_img and refresh cdn image
-   */
-  if (metadata.render_img && metadata.render_img !== keyset.value.render_img) {
-    keyset.value.img = ''
   }
 
   $fetch(
