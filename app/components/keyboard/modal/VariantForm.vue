@@ -75,7 +75,7 @@
           icon="hugeicons:image-upload"
           layout="list"
           label="Click to browse or drag & drop an image to upload"
-          description="Maximum file size: 10MB"
+          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
           :ui="{
             base: 'min-h-40',
           }"
@@ -154,6 +154,7 @@ const variant = ref({
   photo_credit: '',
 })
 
+const maxUploadSizeMb = getMaxUploadSizeMb('keyboard')
 const uploading = ref(false)
 const uploadedFile = ref(null)
 
@@ -226,7 +227,7 @@ const onSubmit = async () => {
     if (uploadedFile.value) {
       payload.image_url = await uploadImageToCloudflare({
         file: uploadedFile.value,
-        assignment: String(keyboard.brand_keyboard_slug || ''),
+        assignment: String(keyboard.brand_slug || ''),
         category: 'keyboard',
       })
     }

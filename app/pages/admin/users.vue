@@ -14,7 +14,7 @@
           <UInput
             v-model="term"
             icon="hugeicons:search-01"
-            placeholder="Search by email"
+            placeholder="Search by email, name, or discord"
             class="flex-1"
           />
 
@@ -31,8 +31,14 @@
           :data="data.users"
           :columns="columns"
         >
+          <template #full_name-cell="{ row }">
+            <div class="font-medium truncate max-w-48">
+              {{ row.original.full_name }}
+            </div>
+          </template>
+
           <template #email-cell="{ row }">
-            <div class="font-medium truncate max-w-64">
+            <div class="font-medium truncate max-w-48">
               {{ row.original.email }}
             </div>
           </template>
@@ -85,17 +91,27 @@
           </template>
         </UTable>
 
-        <UPagination
-          v-if="data.count > size"
-          :page="page"
-          :items-per-page="size"
-          :total="data.count"
-          class="border-t border-default pt-4 mt-auto"
-          :ui="{
-            list: 'justify-center',
-          }"
-          @update:page="setPage"
-        />
+        <div
+          class="border-t border-default pt-4 mt-auto px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p class="text-toned text-sm text-center sm:text-left">
+            Showing {{ paginationMeta.from }} to {{ paginationMeta.to }} of
+            <span class="font-semibold text-highlighted">{{
+              paginationMeta.total
+            }}</span>
+          </p>
+
+          <UPagination
+            v-if="data.count > size"
+            :page="page"
+            :items-per-page="size"
+            :total="data.count"
+            :ui="{
+              list: 'justify-center sm:justify-end',
+            }"
+            @update:page="setPage"
+          />
+        </div>
       </UPageCard>
 
       <UModal v-model:open="editVisible" title="Edit User Access">
@@ -156,8 +172,16 @@ const roleOptions = Object.entries(roleMap).map(([value, { label, icon }]) => ({
 
 const columns = [
   {
+    accessorKey: 'full_name',
+    header: 'Name',
+  },
+  {
     accessorKey: 'email',
     header: 'Email',
+  },
+  {
+    accessorKey: 'discord',
+    header: 'Discord',
   },
   {
     accessorKey: 'role',
@@ -172,7 +196,7 @@ const columns = [
   },
 ]
 
-const { page, size, setPage, resetPage } = usePagination(20)
+const { page, size, setPage, resetPage } = usePagination(10)
 const term = ref('')
 const role = ref('all')
 
@@ -188,7 +212,7 @@ const filterOptions = [
 const query = computed(() => {
   return {
     page: page.value,
-    size: size.value,
+    size,
     term: term.value,
     role: role.value,
   }
@@ -210,6 +234,30 @@ const { data, status, refresh } = await useAsyncData(
     default: () => ({ users: [], count: 0, page: 1, size }),
   },
 )
+
+const paginationMeta = computed(() => {
+  const total = data.value?.count || 0
+  const visibleOnPage = data.value?.users?.length || 0
+
+  if (!total || !visibleOnPage) {
+    return {
+      total,
+      from: 0,
+      to: 0,
+      pageSize: size,
+    }
+  }
+
+  const from = (page.value - 1) * size + 1
+  const to = from + visibleOnPage - 1
+
+  return {
+    total,
+    from,
+    to,
+    pageSize: size,
+  }
+})
 
 watch([term, role], resetPage)
 

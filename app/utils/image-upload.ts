@@ -10,7 +10,7 @@ function getSingleFile(file: UploadableFile): File | null {
   return file
 }
 
-function getMaxUploadSizeMb(category: UploadImageCategory) {
+export function getMaxUploadSizeMb(category: UploadImageCategory) {
   const config = useRuntimeConfig()
   const maxSizeMap = config.public.upload?.max_image_size || {}
 

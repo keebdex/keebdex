@@ -37,14 +37,16 @@ export default defineEventHandler(async (event) => {
 
   let request = client
     .from('users')
-    .select('id, email, role, assignments, discord, reddit, qq', {
+    .select('id, full_name, email, role, assignments, discord, reddit, qq', {
       count: 'exact',
     })
     .order('email')
     .range(from, to)
 
   if (term) {
-    request = request.ilike('email', `%${term}%`)
+    request = request.or(
+      `email.ilike.%${term}%,full_name.ilike.%${term}%,discord.ilike.%${term}%`,
+    )
   }
 
   if (role !== 'all' && role) {

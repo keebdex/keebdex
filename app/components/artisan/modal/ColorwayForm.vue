@@ -73,7 +73,7 @@
       label="Image"
       name="img"
       :required="!isEditMode"
-      help="Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: 10MB."
+      :help="`Please ensure the image is square (e.g., 1:1 aspect ratio) and focused closely on the keycap for the best display. Maximum file size: ${maxUploadSizeMb}MB.`"
     >
       <div v-if="isEditMode && colorway.img && !replaceMode" class="space-y-3">
         <NuxtImg
@@ -201,6 +201,7 @@ const schema = z.object({
   sale_type: z.enum(formats).nullish(),
 })
 
+const maxUploadSizeMb = getMaxUploadSizeMb('artisan')
 const isEditMode = computed(() => Boolean(colorway.value.id))
 const uploading = ref(false)
 const uploadedFile = ref(null)
@@ -224,7 +225,7 @@ const onSubmit = async () => {
     if (uploadedFile.value) {
       payload.img = await uploadImageToCloudflare({
         file: uploadedFile.value,
-        assignment: String(colorway.value.maker_id || route.params.maker || ''),
+        assignment: colorway.value.maker_id,
         category: 'artisan',
       })
     }
