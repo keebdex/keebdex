@@ -73,11 +73,7 @@
             title="Derived Designs"
             description="A collection of keyboards that share this design's DNA through community reworks, official collaborations, and specialized iterations."
           >
-            <UButton
-              label="Derived"
-              icon="hugeicons:share-knowledge"
-              variant="soft"
-            />
+            <UButton label="Derived" icon="hugeicons:archive-02" />
 
             <template #body>
               <UPageList class="flex gap-4">
@@ -124,9 +120,9 @@
     </template>
 
     <template #body>
-      <UPageList v-if="data.releases?.length" divide class="mt-4">
+      <UPageList v-if="sortedReleases.length" divide class="mt-4">
         <UPageCard
-          v-for="(release, idx) in data.releases"
+          v-for="(release, idx) in sortedReleases"
           :key="release.id"
           variant="ghost"
           :ui="{
@@ -273,6 +269,8 @@
 </template>
 
 <script setup>
+import sortBy from 'lodash.sortby'
+
 const colorMode = useColorMode()
 const route = useRoute()
 const userStore = useUserStore()
@@ -315,6 +313,13 @@ const { data, refresh } = await useAsyncData(
     watch: [slug],
   },
 )
+
+const sortedReleases = computed(() => {
+  const releases = sortBy(data.value?.releases || [], 'order')
+  const [, direction = 'desc'] = String(sort.value || 'order|desc').split('|')
+
+  return direction === 'asc' ? releases : releases.reverse()
+})
 
 const items = computed(() => {
   if (data.value.derived_from) {
