@@ -228,12 +228,16 @@ const externalLinks = computed(() => {
         label: 'Geekhack',
         icon: 'hugeicons:comment-01',
         to: data.value.url,
+        target: '_blank',
+        external: true,
       })
     } else {
       links.push({
         label: 'Vendor',
         icon: 'hugeicons:link-square-02',
         to: data.value.url,
+        target: '_blank',
+        external: true,
       })
     }
   }
@@ -243,6 +247,8 @@ const externalLinks = computed(() => {
       label: 'Order Graph',
       icon: 'hugeicons:chart-bar-big',
       to: data.value.order_graph,
+      target: '_blank',
+      external: true,
     })
   }
 
@@ -251,6 +257,8 @@ const externalLinks = computed(() => {
       label: 'Order History',
       icon: 'hugeicons:chart-line-data-02',
       to: data.value.order_history,
+      target: '_blank',
+      external: true,
     })
   }
 

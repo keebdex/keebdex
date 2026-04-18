@@ -6,6 +6,7 @@
     variant="naked"
     :ui="{
       root: 'w-full',
+      container: 'gap-y-2',
       title: 'text-sm font-medium',
       description: 'text-xs text-muted uppercase',
     }"

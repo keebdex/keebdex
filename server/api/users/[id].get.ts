@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
     .from('users')
     .select()
     .eq('id', event.context.params?.id)
-    .single()
+    .maybeSingle()
 
   if (error) {
     throw createError({
-      statusCode: 404,
+      statusCode: 500,
       statusMessage: error.message,
     })
   }
