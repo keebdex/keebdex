@@ -110,9 +110,13 @@
             </UFormField>
 
             <UFormField label="Role" name="role">
-              <USelect
+              <USelectMenu
                 v-model="form.role"
                 :items="roleOptions"
+                value-key="value"
+                label-key="label"
+                clear
+                placeholder="Select a role"
                 class="w-full"
               />
             </UFormField>
