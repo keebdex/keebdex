@@ -8,11 +8,58 @@
       description: 'flex flex-col gap-4',
     }"
   >
-    <NuxtImg
-      :src="keyboard.img_front || keyboard.img_back || '/keyboard.png'"
-      :alt="title"
-      class="aspect-video w-full object-cover rounded"
-    />
+    <div v-if="viewMode === 'single'" class="relative">
+      <NuxtImg
+        :src="
+          showBack
+            ? keyboard.img_back || keyboard.img_front || '/keyboard.png'
+            : keyboard.img_front || keyboard.img_back || '/keyboard.png'
+        "
+        :alt="title + (showBack ? ' (Back)' : ' (Front)')"
+        class="aspect-video w-full object-cover rounded"
+      />
+      <UButton
+        v-if="keyboard.img_front && keyboard.img_back"
+        size="xs"
+        class="absolute top-2 right-2 z-10"
+        icon="hugeicons:flip-horizontal"
+        :label="showBack ? 'Show Front' : 'Show Back'"
+        @click="showBack = !showBack"
+      />
+      <UButton
+        v-if="keyboard.img_front && keyboard.img_back"
+        size="xs"
+        class="absolute top-2 left-2 z-10"
+        icon="hugeicons:layout-grid"
+        label="Side by Side"
+        @click="viewMode = 'side'"
+      />
+    </div>
+    <div v-else-if="viewMode === 'side'" class="flex gap-2">
+      <div class="flex-1">
+        <NuxtImg
+          :src="keyboard.img_front || '/keyboard.png'"
+          :alt="title + ' (Front)'"
+          class="aspect-video w-full object-cover rounded"
+        />
+        <div class="text-xs text-center mt-1">Front</div>
+      </div>
+      <div class="flex-1">
+        <NuxtImg
+          :src="keyboard.img_back || '/keyboard.png'"
+          :alt="title + ' (Back)'"
+          class="aspect-video w-full object-cover rounded"
+        />
+        <div class="text-xs text-center mt-1">Back</div>
+      </div>
+      <UButton
+        size="xs"
+        class="absolute top-6 right-6 z-10"
+        icon="hugeicons:border-all-02"
+        label="Single View"
+        @click="viewMode = 'single'"
+      />
+    </div>
 
     <template #description>
       <SharedDescriptionList
@@ -65,6 +112,9 @@
 </template>
 
 <script setup>
+const showBack = ref(false)
+const viewMode = ref('single')
+// 'single' or 'side'
 const emit = defineEmits(['saveTo'])
 
 const { keyboard, authenticated } = defineProps({

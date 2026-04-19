@@ -293,7 +293,8 @@ const onSubmit = async () => {
         'Variant',
       ),
     )
-    uploadedFile.value = null
+    uploadedFileFront.value = null
+    uploadedFileBack.value = null
     emit('onSuccess', data)
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
