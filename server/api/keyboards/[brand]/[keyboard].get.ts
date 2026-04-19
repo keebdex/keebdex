@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('keyboards')
     .select(
-      '*, brand:keyboard_brands!inner(*), keyboard_releases(*, keyboard_variants(*))',
+      '*, brand:keyboard_brands!inner(*), releases:keyboard_releases(*, variants:keyboard_variants(*))',
     )
     .eq('brand_keyboard_slug', brandKeyboardSlug)
     .eq('brand_slug', brand_slug)
@@ -25,11 +25,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { brand, keyboard_releases, ...keyboard } = data
-  const releases = sortBy(keyboard_releases, 'order').reverse()
+  const { brand, releases, ...keyboard } = data
 
-  const coverImage = releases
-    .flatMap((release: any) => release.keyboard_variants)
+  const coverImage = sortBy(releases, 'order')
+    .reverse()
+    .flatMap((release: any) => release.variants)
     .find((variant: any) => variant.img_front)?.img_front
 
   let original: any = null
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     const { data } = await client
       .from('keyboards')
       .select(
-        '*, brand:keyboard_brands(name, slug, invertible_logo), keyboard_releases(*, keyboard_variants(id, img_front, img_back))',
+        '*, brand:keyboard_brands(name, slug, invertible_logo), releases:keyboard_releases(*, variants:keyboard_variants(id, img_front, img_back))',
       )
       .eq('derived_from', brandKeyboardSlug)
       .order('name', { ascending: true })
@@ -58,12 +58,12 @@ export default defineEventHandler(async (event) => {
       derivations = data.map((item: any) => {
         const {
           brand: derivedBrand,
-          keyboard_releases: derivedReleases,
+          releases: derivedReleases,
           ...derivedKeyboard
         } = item
 
         const derivedCoverImage = (derivedReleases || [])
-          .flatMap((release: any) => release.keyboard_variants || [])
+          .flatMap((release: any) => release.variants || [])
           .find((variant: any) => variant.img_front)?.img_front
 
         return {
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
     brand: omitSensitive(brand),
     releases: releases.map((release: any) => ({
       ...omitSensitive(release),
-      variants: sortBy(release.keyboard_variants, 'id').map(omitSensitive),
+      variants: sortBy(release.variants, 'id').map(omitSensitive),
     })),
   }
 })
