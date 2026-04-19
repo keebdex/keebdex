@@ -93,7 +93,6 @@ const { authenticated, colorway } = defineProps({
     type: Object,
     default: () => ({}),
   },
-  editable: Boolean,
   authenticated: Boolean,
 })
 

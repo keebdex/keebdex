@@ -206,7 +206,6 @@
                   root: 'h-full cursor-pointer flex flex-col',
                   container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
                 }"
-                @click="setSelectedVariant(variant, release)"
               >
                 <NuxtImg
                   loading="lazy"

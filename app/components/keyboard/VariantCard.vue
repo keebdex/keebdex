@@ -11,7 +11,7 @@
     <NuxtImg
       :src="keyboard.image_url || '/keyboard.png'"
       :alt="title"
-      class="w-full rounded"
+      class="aspect-video w-full object-cover rounded"
     />
 
     <template #description>

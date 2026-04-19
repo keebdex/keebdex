@@ -113,7 +113,6 @@
               root: 'h-full cursor-pointer flex flex-col',
               container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
             }"
-            @click="setSelectedColorway(colorway)"
           >
             <div class="aspect-square overflow-hidden">
               <NuxtImg
@@ -182,11 +181,7 @@
 
           <template #content>
             <ArtisanColorwayCard
-              :colorway="
-                selectedColorway.colorway_id === colorway.colorway_id
-                  ? selectedColorway
-                  : colorway
-              "
+              :colorway="{ ...colorway, sculpt: { name: sculpt.name } }"
               :authenticated="authenticated"
               @save-to="saveTo"
             />
