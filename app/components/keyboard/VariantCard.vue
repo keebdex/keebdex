@@ -9,13 +9,16 @@
     }"
   >
     <NuxtImg
-      :src="keyboard.image_url || '/keyboard.png'"
+      :src="keyboard.img_front || keyboard.img_back || '/keyboard.png'"
       :alt="title"
       class="aspect-video w-full object-cover rounded"
     />
 
     <template #description>
-      <SharedDescriptionList :columns="3" :items="specs" />
+      <SharedDescriptionList
+        :columns="$device.isMobile ? 1 : 3"
+        :items="specs"
+      />
     </template>
 
     <template #leading>
@@ -74,7 +77,6 @@ const { keyboard, authenticated } = defineProps({
 
 const title = computed(() => {
   return formatKeyboardDescription([
-    keyboard.brand_name,
     keyboard.keyboard_name,
     keyboard.release_name,
     keyboard.variant_name,

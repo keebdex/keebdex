@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const { data: brandData, error: brandError } = await client
     .from('keyboard_brands')
     .select(
-      '*, keyboards(*, keyboard_releases(*, keyboard_variants(id, image_url)))',
+      '*, keyboards(*, keyboard_releases(*, keyboard_variants(id, img_front, img_back)))',
     )
     .eq('slug', brand_slug)
     .single()
@@ -33,8 +33,8 @@ export default defineEventHandler(async (event) => {
         )
 
         const coverImage = variants.find(
-          (variant: any) => variant.image_url,
-        )?.image_url
+          (variant: any) => variant.img_front,
+        )?.img_front
 
         return {
           ...omitSensitive(keyboard),

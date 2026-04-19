@@ -98,8 +98,8 @@ watch(
   (releases) => {
     items.value = (releases || []).map((release) => ({
       ...release,
-      cover_image: release.variants?.find((variant) => variant.image_url)
-        ?.image_url,
+      cover_image: release.variants?.find((variant) => variant.img_front)
+        ?.img_front,
     }))
   },
   { immediate: true },

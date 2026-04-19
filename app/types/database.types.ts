@@ -427,7 +427,8 @@ export type Database = {
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           fts: unknown
           id: number
-          image_url: string | null
+          img_back: string | null
+          img_front: string | null
           photo_credit: string | null
           release_id: number | null
           release_year: number | null
@@ -442,7 +443,8 @@ export type Database = {
           finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           fts?: unknown
           id?: never
-          image_url?: string | null
+          img_back?: string | null
+          img_front?: string | null
           photo_credit?: string | null
           release_id?: number | null
           release_year?: number | null
@@ -457,7 +459,8 @@ export type Database = {
           finish_type?: Database["public"]["Enums"]["keyboard_finish_type"]
           fts?: unknown
           id?: never
-          image_url?: string | null
+          img_back?: string | null
+          img_front?: string | null
           photo_credit?: string | null
           release_id?: number | null
           release_year?: number | null
@@ -919,6 +922,7 @@ export type Database = {
           discord: string | null
           email: string
           favorite_makers: Json
+          full_name: string | null
           id: string
           qq: string | null
           reddit: string | null
@@ -929,6 +933,7 @@ export type Database = {
           discord?: string | null
           email: string
           favorite_makers?: Json
+          full_name?: string | null
           id: string
           qq?: string | null
           reddit?: string | null
@@ -939,6 +944,7 @@ export type Database = {
           discord?: string | null
           email?: string
           favorite_makers?: Json
+          full_name?: string | null
           id?: string
           qq?: string | null
           reddit?: string | null

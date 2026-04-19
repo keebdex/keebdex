@@ -210,7 +210,9 @@
                 <NuxtImg
                   loading="lazy"
                   :alt="variant.variant_name"
-                  :src="variant.image_url || '/keyboard.png'"
+                  :src="
+                    variant.img_front || variant.img_back || '/keyboard.png'
+                  "
                   class="aspect-video w-full object-cover"
                 />
 

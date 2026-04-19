@@ -72,7 +72,7 @@
           <NuxtImg
             loading="lazy"
             :alt="keyboard.variant_name"
-            :src="keyboard.image_url || '/keyboard.png'"
+            :src="keyboard.img_front || keyboard.img_back || '/keyboard.png'"
             class="aspect-[16/9] w-full object-cover"
           />
 

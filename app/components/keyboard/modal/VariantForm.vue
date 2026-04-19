@@ -57,9 +57,9 @@
       </UFormField>
     </div>
 
-    <UFormField label="Image URL" name="image_url">
+    <UFormField label="Front Image" name="img_front">
       <UInput
-        v-model.trim="variant.image_url"
+        v-model.trim="variant.img_front"
         icon="hugeicons:image-02"
         class="w-full"
       />
@@ -70,7 +70,7 @@
 
       <div class="mt-2 space-y-2">
         <UFileUpload
-          v-model="uploadedFile"
+          v-model="uploadedFileFront"
           accept="image/*"
           icon="hugeicons:image-upload"
           layout="list"
@@ -82,10 +82,45 @@
         />
 
         <UButton
-          v-if="uploadedFile"
+          v-if="uploadedFileFront"
           icon="hugeicons:clean"
           block
-          @click="uploadedFile = null"
+          @click="uploadedFileFront = null"
+        >
+          Clear Selection
+        </UButton>
+      </div>
+    </UFormField>
+
+    <UFormField label="Back Image" name="img_back">
+      <UInput
+        v-model.trim="variant.img_back"
+        icon="hugeicons:image-02"
+        class="w-full"
+      />
+
+      <p class="mt-2 text-xs text-muted">
+        Optional back image for the keyboard.
+      </p>
+
+      <div class="mt-2 space-y-2">
+        <UFileUpload
+          v-model="uploadedFileBack"
+          accept="image/*"
+          icon="hugeicons:image-upload"
+          layout="list"
+          label="Click to browse or drag & drop a back image to upload"
+          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
+          :ui="{
+            base: 'min-h-40',
+          }"
+        />
+
+        <UButton
+          v-if="uploadedFileBack"
+          icon="hugeicons:clean"
+          block
+          @click="uploadedFileBack = null"
         >
           Clear Selection
         </UButton>
@@ -150,13 +185,15 @@ const variant = ref({
   units_produced: null,
   sale_type: saleFormatEnums[0],
   release_year: null,
-  image_url: '',
+  img_front: '',
+  img_back: '',
   photo_credit: '',
 })
 
 const maxUploadSizeMb = getMaxUploadSizeMb('keyboard')
 const uploading = ref(false)
-const uploadedFile = ref(null)
+const uploadedFileFront = ref(null)
+const uploadedFileBack = ref(null)
 
 const schema = z.object({
   release_id: z.coerce.number().min(1),
@@ -165,7 +202,8 @@ const schema = z.object({
   units_produced: z.coerce.number().min(0).nullish(),
   sale_type: z.enum(saleFormatEnums).nullish().or(z.string().min(0).max(0)),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
-  image_url: z.url().nullish().or(z.string().min(0).max(0)),
+  img_front: z.url().nullish().or(z.string().min(0).max(0)),
+  img_back: z.url().nullish().or(z.string().min(0).max(0)),
   photo_credit: z.string().max(255).nullish().or(z.string().min(0).max(0)),
 })
 
@@ -224,9 +262,17 @@ const onSubmit = async () => {
       ...variant.value,
     }
 
-    if (uploadedFile.value) {
-      payload.image_url = await uploadImageToCloudflare({
-        file: uploadedFile.value,
+    if (uploadedFileFront.value) {
+      payload.img_front = await uploadImageToCloudflare({
+        file: uploadedFileFront.value,
+        assignment: String(keyboard.brand_slug || ''),
+        category: 'keyboard',
+      })
+    }
+
+    if (uploadedFileBack.value) {
+      payload.img_back = await uploadImageToCloudflare({
+        file: uploadedFileBack.value,
         assignment: String(keyboard.brand_slug || ''),
         category: 'keyboard',
       })
