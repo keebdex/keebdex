@@ -71,15 +71,6 @@
     </template>
 
     <template v-if="!copying" #footer>
-      <!-- This seems not working due to nested modal in Nuxt UI -->
-      <!-- <UButton
-        v-if="editable"
-        icon="hugeicons:file-edit"
-        @click="$emit('editColorway', colorway, true)"
-      >
-        Edit
-      </UButton> -->
-
       <UButton icon="hugeicons:copy-02" @click="copyColorwayCard">
         Copy
       </UButton>
@@ -105,32 +96,6 @@ const { authenticated, colorway } = defineProps({
   editable: Boolean,
   authenticated: Boolean,
 })
-
-const extras = []
-if (colorway.release) {
-  extras.push({
-    icon: 'pi pi-calendar',
-    text: colorway.release,
-  })
-}
-if (colorway.qty) {
-  extras.push({
-    icon: 'pi pi-hashtag',
-    text: colorway.qty,
-  })
-}
-if (colorway.price) {
-  extras.push({
-    icon: 'pi pi-money-bill',
-    text: `${colorway.currency} ${colorway.price}`,
-  })
-}
-if (colorway.stem) {
-  extras.push({
-    icon: 'pi pi-plus-circle',
-    text: colorway?.stem.join(),
-  })
-}
 
 const toast = useToast()
 

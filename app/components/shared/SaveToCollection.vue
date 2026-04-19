@@ -1,6 +1,6 @@
 <template>
   <UDropdownMenu
-    v-if="filteredCollections.length > 1"
+    v-if="filteredCollections.length"
     :items="[
       {
         type: 'label',

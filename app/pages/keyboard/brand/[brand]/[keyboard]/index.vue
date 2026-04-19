@@ -191,68 +191,92 @@
             v-if="release.variants?.length"
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
           >
-            <UPageCard
+            <UModal
               v-for="variant in release.variants"
               :key="variant.id"
-              :title="variant.variant_name"
-              :description="variant.finish_type"
-              reverse
-              spotlight
               :ui="{
-                root: 'h-full flex flex-col',
-                container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                content: 'sm:max-w-3xl',
               }"
             >
-              <NuxtImg
-                loading="lazy"
-                :alt="variant.variant_name"
-                :src="variant.image_url || '/keyboard.png'"
-                class="aspect-video w-full object-cover"
-              />
-
-              <template v-if="variant.photo_credit" #leading>
-                <UBadge
-                  :label="variant.photo_credit"
-                  icon="hugeicons:camera-add-02"
-                  color="info"
+              <UPageCard
+                :title="variant.variant_name"
+                reverse
+                spotlight
+                :ui="{
+                  root: 'h-full cursor-pointer flex flex-col',
+                  container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                }"
+                @click="setSelectedVariant(variant, release)"
+              >
+                <NuxtImg
+                  loading="lazy"
+                  :alt="variant.variant_name"
+                  :src="variant.image_url || '/keyboard.png'"
+                  class="aspect-video w-full object-cover"
                 />
-              </template>
 
-              <template #footer>
-                <div class="flex items-center justify-between gap-2">
-                  <SharedSaveToCollection
-                    v-if="authenticated"
-                    :item="{ ...variant, release_name: release.name }"
-                    category="keyboard"
-                    label="Save"
-                    @on-select="saveToCollection"
+                <template v-if="variant.photo_credit" #leading>
+                  <UBadge
+                    :label="variant.photo_credit"
+                    icon="hugeicons:camera-add-02"
+                    color="info"
                   />
+                </template>
 
-                  <UModal v-if="editable" title="Edit Variant">
-                    <UButton
-                      icon="hugeicons:edit-01"
-                      label="Edit"
-                      @click="setSelectedVariant(variant)"
+                <template #footer>
+                  <div
+                    class="flex items-center justify-between gap-2"
+                    @click.stop
+                  >
+                    <SharedSaveToCollection
+                      v-if="authenticated"
+                      :item="{ ...variant, release_name: release.name }"
+                      category="keyboard"
+                      label="Save"
+                      @on-select="saveToCollection"
                     />
 
-                    <template #body="{ close }">
-                      <KeyboardModalVariantForm
-                        :is-edit="true"
-                        :metadata="selectedVariant"
-                        :keyboard="data"
-                        @on-success="
-                          () => {
-                            close()
-                            refresh()
-                            clearSelectedVariant()
-                          }
-                        "
+                    <UModal v-if="editable" title="Edit Variant">
+                      <UButton
+                        icon="hugeicons:edit-01"
+                        label="Edit"
+                        @click="setSelectedVariant(variant, release)"
                       />
-                    </template>
-                  </UModal>
-                </div>
+
+                      <template #body="{ close }">
+                        <KeyboardModalVariantForm
+                          :is-edit="true"
+                          :metadata="selectedVariant"
+                          :keyboard="data"
+                          @on-success="
+                            () => {
+                              close()
+                              refresh()
+                              clearSelectedVariant()
+                            }
+                          "
+                        />
+                      </template>
+                    </UModal>
+                  </div>
+                </template>
+              </UPageCard>
+
+              <template #content>
+                <KeyboardVariantCard
+                  :keyboard="{
+                    ...variant,
+                    release_name: release.name,
+                    keyboard_name: data.name,
+                    brand_name: data?.brand?.name,
+                    layout: data?.layout,
+                    typing_angle: data?.typing_angle,
+                  }"
+                  :authenticated="authenticated"
+                  @save-to="saveToCollection"
+                />
               </template>
-            </UPageCard>
+            </UModal>
           </UPageGrid>
         </UPageCard>
       </UPageList>
@@ -393,8 +417,11 @@ const clearSelectedVariant = () => {
   selectedVariant.value = {}
 }
 
-const setSelectedVariant = (variant) => {
-  selectedVariant.value = { ...variant }
+const setSelectedVariant = (variant, release = null) => {
+  selectedVariant.value = {
+    ...variant,
+    release_name: release?.name || variant.release_name,
+  }
 }
 
 const { addItem } = useCollectionItem()

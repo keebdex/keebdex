@@ -98,102 +98,100 @@
 
     <template #body>
       <UPageGrid>
-        <UPageCard
+        <UModal
           v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"
-          :title="colorway.name"
-          reverse
-          spotlight
           :ui="{
-            root: 'h-full flex flex-col',
-            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            content: 'max-w-xl',
           }"
         >
-          <div class="aspect-square overflow-hidden">
-            <NuxtImg
-              loading="lazy"
-              :alt="colorway.name"
-              :src="colorway.img"
-              class="w-full h-full object-cover rounded"
-            />
-          </div>
-
-          <template #footer>
-            <UModal v-if="editable" title="Edit Colorway">
-              <UTooltip text="Edit" :delay-duration="0">
-                <UButton
-                  icon="hugeicons:file-edit"
-                  @click="setSelectedColorway(colorway)"
-                />
-              </UTooltip>
-
-              <template #body="{ close }">
-                <ArtisanModalColorwayForm
-                  :metadata="selectedColorway"
-                  @on-success="
-                    () => {
-                      close()
-                      refresh()
-                      clearSelectedColorway()
-                    }
-                  "
-                />
-              </template>
-            </UModal>
-
-            <UModal
-              v-model:visible="visible.card"
-              :ui="{
-                content: 'max-w-xl',
-              }"
-            >
-              <UTooltip text="Expand" :delay-duration="0">
-                <UButton
-                  icon="hugeicons:zoom-in-area"
-                  @click="setSelectedColorway(colorway)"
-                />
-              </UTooltip>
-
-              <template #content>
-                <ArtisanColorwayCard
-                  :colorway="selectedColorway"
-                  :editable="editable"
-                  :authenticated="authenticated"
-                  @save-to="saveTo"
-                />
-              </template>
-            </UModal>
-
-            <SharedSaveToCollection
-              v-if="authenticated"
-              :item="colorway"
-              :text="true"
-              @on-select="saveTo"
-            />
-
-            <UModal
-              v-if="editable"
-              title="Delete"
-              :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
-              :ui="{ footer: 'justify-end', content: 'divide-none' }"
-            >
-              <UButton
-                v-if="user.email_verified"
-                icon="hugeicons:file-remove"
-                color="error"
+          <UPageCard
+            :title="colorway.name"
+            reverse
+            spotlight
+            :ui="{
+              root: 'h-full cursor-pointer flex flex-col',
+              container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            }"
+            @click="setSelectedColorway(colorway)"
+          >
+            <div class="aspect-square overflow-hidden">
+              <NuxtImg
+                loading="lazy"
+                :alt="colorway.name"
+                :src="colorway.img"
+                class="w-full h-full object-cover rounded"
               />
+            </div>
 
-              <template #footer="{ close }">
-                <UButton label="Cancel" @click="close" />
-                <UButton
-                  label="Delete"
-                  color="error"
-                  @click="deleteColorway(colorway, close)"
+            <template #footer>
+              <div class="flex items-center gap-2" @click.stop>
+                <UModal v-if="editable" title="Edit Colorway">
+                  <UTooltip text="Edit" :delay-duration="0">
+                    <UButton
+                      icon="hugeicons:file-edit"
+                      @click="setSelectedColorway(colorway)"
+                    />
+                  </UTooltip>
+
+                  <template #body="{ close }">
+                    <ArtisanModalColorwayForm
+                      :metadata="selectedColorway"
+                      @on-success="
+                        () => {
+                          close()
+                          refresh()
+                          clearSelectedColorway()
+                        }
+                      "
+                    />
+                  </template>
+                </UModal>
+
+                <SharedSaveToCollection
+                  v-if="authenticated"
+                  :item="colorway"
+                  :text="true"
+                  @on-select="saveTo"
                 />
-              </template>
-            </UModal>
+
+                <UModal
+                  v-if="editable"
+                  title="Delete"
+                  :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
+                  :ui="{ footer: 'justify-end', content: 'divide-none' }"
+                >
+                  <UButton
+                    v-if="user.email_verified"
+                    icon="hugeicons:file-remove"
+                    color="error"
+                  />
+
+                  <template #footer="{ close }">
+                    <UButton label="Cancel" @click="close" />
+                    <UButton
+                      label="Delete"
+                      color="error"
+                      @click="deleteColorway(colorway, close)"
+                    />
+                  </template>
+                </UModal>
+              </div>
+            </template>
+          </UPageCard>
+
+          <template #content>
+            <ArtisanColorwayCard
+              :colorway="
+                selectedColorway.colorway_id === colorway.colorway_id
+                  ? selectedColorway
+                  : colorway
+              "
+              :authenticated="authenticated"
+              @save-to="saveTo"
+            />
           </template>
-        </UPageCard>
+        </UModal>
       </UPageGrid>
 
       <UPagination
@@ -373,7 +371,6 @@ const toggleColorwayCard = () => {
   )
   if (clw) {
     setSelectedColorway(clw)
-    visible.value.card = !visible.value.card
   }
 }
 
