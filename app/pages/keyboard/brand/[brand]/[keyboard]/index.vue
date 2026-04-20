@@ -162,23 +162,6 @@
                     />
                   </template>
                 </UModal>
-
-                <UModal title="Add Variant">
-                  <UButton icon="hugeicons:add-square" label="Add Variant" />
-
-                  <template #body="{ close }">
-                    <KeyboardModalVariantForm
-                      :metadata="{ release_id: release.id }"
-                      :keyboard="data"
-                      @on-success="
-                        () => {
-                          close()
-                          refresh()
-                        }
-                      "
-                    />
-                  </template>
-                </UModal>
               </div>
             </template>
 
@@ -275,6 +258,34 @@
                   }"
                   :authenticated="authenticated"
                   @save-to="saveToCollection"
+                />
+              </template>
+            </UModal>
+
+            <UModal
+              v-if="editable"
+              title="Add Variant"
+              :ui="{ content: 'sm:max-w-xl' }"
+            >
+              <template #default="{ open }">
+                <UButton
+                  label="Add Variant"
+                  icon="hugeicons:add-square"
+                  variant="outline"
+                  class="w-full justify-center ring-0 border border-default border-dashed rounded-lg"
+                  @click="open()"
+                />
+              </template>
+              <template #body="{ close }">
+                <KeyboardModalVariantForm
+                  :metadata="{ release_id: release.id }"
+                  :keyboard="data"
+                  @on-success="
+                    () => {
+                      close()
+                      refresh()
+                    }
+                  "
                 />
               </template>
             </UModal>
