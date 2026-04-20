@@ -73,22 +73,13 @@
           v-model="uploadedFileFront"
           accept="image/*"
           icon="hugeicons:image-upload"
-          layout="list"
+          layout="grid"
           label="Click to browse or drag & drop an image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
           :ui="{
-            base: 'min-h-40',
+            base: 'aspect-video',
           }"
         />
-
-        <UButton
-          v-if="uploadedFileFront"
-          icon="hugeicons:clean"
-          block
-          @click="uploadedFileFront = null"
-        >
-          Clear Selection
-        </UButton>
       </div>
     </UFormField>
 
@@ -100,7 +91,7 @@
       />
 
       <p class="mt-2 text-xs text-muted">
-        Optional back image for the keyboard.
+        Or drag and drop an image below to upload and auto-fill this field.
       </p>
 
       <div class="mt-2 space-y-2">
@@ -108,22 +99,13 @@
           v-model="uploadedFileBack"
           accept="image/*"
           icon="hugeicons:image-upload"
-          layout="list"
+          layout="grid"
           label="Click to browse or drag & drop a back image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
           :ui="{
-            base: 'min-h-40',
+            base: 'aspect-video',
           }"
         />
-
-        <UButton
-          v-if="uploadedFileBack"
-          icon="hugeicons:clean"
-          block
-          @click="uploadedFileBack = null"
-        >
-          Clear Selection
-        </UButton>
       </div>
     </UFormField>
 

@@ -23,6 +23,22 @@
 
     <UFormField label="Image" name="img">
       <UInput v-model.trim="kit.img" icon="hugeicons:image-02" class="w-full" />
+
+      <p class="mt-2 text-xs text-muted">
+        Or drag and drop an image below to upload and auto-fill this field.
+      </p>
+
+      <div class="mt-2 space-y-2">
+        <UFileUpload
+          v-model="uploadedFile"
+          accept="image/*"
+          icon="hugeicons:image-upload"
+          layout="grid"
+          label="Click to browse or drag & drop an image to upload"
+          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
+          :ui="{ base: 'aspect-video' }"
+        />
+      </div>
     </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
@@ -84,6 +100,9 @@ const kit = ref({
   cancelled: false,
 })
 
+const uploadedFile = ref(null)
+const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
+
 onBeforeMount(() => {
   Object.assign(kit.value, metadata)
 })
@@ -99,6 +118,19 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
+  if (uploadedFile.value) {
+    try {
+      kit.value.img = await uploadImageToCloudflare({
+        file: uploadedFile.value,
+        assignment: kit.value.profile_keyset_id,
+        category: 'keyset',
+      })
+    } catch (e) {
+      toast.add(handleError(e))
+      return
+    }
+  }
+
   await $fetch(`/api/keysets/${kit.value.profile_keyset_id}/kits`, {
     method: 'post',
     body: kit.value,

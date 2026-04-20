@@ -75,6 +75,22 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
+
+      <p class="mt-2 text-xs text-muted">
+        Or drag and drop an image below to upload and auto-fill this field.
+      </p>
+
+      <div class="mt-2 space-y-2">
+        <UFileUpload
+          v-model="uploadedFile"
+          accept="image/*"
+          icon="hugeicons:image-upload"
+          layout="grid"
+          label="Click to browse or drag & drop an image to upload"
+          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
+          :ui="{ base: 'aspect-video' }"
+        />
+      </div>
     </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
@@ -188,6 +204,8 @@ const keyset = ref({
 })
 
 const range = ref({})
+const uploadedFile = ref(null)
+const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 let designerSearchTimer = null
 
 const fetchDesignerOptions = async () => {
@@ -286,10 +304,22 @@ const schema = z.object({
   // description: z.string(),
 })
 
-const onSubmit = () => {
+const onSubmit = async () => {
   const slug = slugify(keyset.value.name, { lower: true })
-
   keyset.value.profile_keyset_id = `${keyset.value.profile_id}/${slug}`
+
+  if (uploadedFile.value) {
+    try {
+      keyset.value.img = await uploadImageToCloudflare({
+        file: uploadedFile.value,
+        assignment: keyset.value.profile_keyset_id,
+        category: 'keyset',
+      })
+    } catch (e) {
+      toast.add(handleError(e))
+      return
+    }
+  }
 
   if (keyset.value.ic_date) {
     keyset.value.ic_date = toISODate(keyset.value.ic_date)
