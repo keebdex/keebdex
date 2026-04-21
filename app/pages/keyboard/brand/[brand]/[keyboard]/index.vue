@@ -162,6 +162,36 @@
                     />
                   </template>
                 </UModal>
+
+                <UModal
+                  v-if="
+                    editable && (!release.variants || !release.variants.length)
+                  "
+                  v-model:visible="visible.deleteRelease"
+                  title="Delete Release"
+                  :description="`Are you sure you want to delete release '${release.name}'? This action cannot be undone.`"
+                  :ui="{ footer: 'justify-end', content: 'divide-none' }"
+                >
+                  <UButton
+                    label="Delete Release"
+                    icon="hugeicons:trash-02"
+                    color="error"
+                    @click="
+                      () => {
+                        setSelectedRelease(release)
+                        visible.deleteRelease = true
+                      }
+                    "
+                  />
+                  <template #footer="{ close }">
+                    <UButton label="Cancel" @click="close" />
+                    <UButton
+                      label="Delete"
+                      color="error"
+                      @click="() => deleteRelease(release, close)"
+                    />
+                  </template>
+                </UModal>
               </div>
             </template>
 
@@ -242,6 +272,33 @@
                         />
                       </template>
                     </UModal>
+                    <UModal
+                      v-if="editable"
+                      v-model:visible="visible.deleteVariant"
+                      title="Delete Variant"
+                      :description="`Are you sure you want to delete variant '${variant.variant_name}'? This action cannot be undone.`"
+                      :ui="{ footer: 'justify-end', content: 'divide-none' }"
+                    >
+                      <UButton
+                        label="Delete"
+                        icon="hugeicons:file-remove"
+                        color="error"
+                        @click="
+                          () => {
+                            setSelectedVariant(variant, release)
+                            visible.deleteVariant = true
+                          }
+                        "
+                      />
+                      <template #footer="{ close }">
+                        <UButton label="Cancel" @click="close" />
+                        <UButton
+                          label="Delete"
+                          color="error"
+                          @click="() => deleteVariant(variant, close)"
+                        />
+                      </template>
+                    </UModal>
                   </div>
                 </template>
               </UPageCard>
@@ -311,6 +368,7 @@ const colorMode = useColorMode()
 const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
+const toast = useToast()
 
 const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
 
@@ -319,6 +377,8 @@ const editable = computed(() => userStore.isEditable(route.params.brand))
 const visible = ref({
   addRelease: false,
   editKeyboard: false,
+  deleteVariant: false,
+  deleteRelease: false,
 })
 
 const selectedRelease = ref({})
@@ -433,6 +493,44 @@ const setSelectedVariant = (variant, release = null) => {
   selectedVariant.value = {
     ...variant,
     release_name: release?.name || variant.release_name,
+  }
+}
+
+const deleteVariant = async (variant, close) => {
+  try {
+    await $fetch(
+      `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+      { method: 'delete' },
+    )
+
+    toast.add(handleSuccess('delete', variant.variant_name, 'Variant'))
+
+    if (typeof close === 'function') close()
+    refresh()
+  } catch (error) {
+    toast.add(handleError(error))
+  } finally {
+    visible.value.deleteVariant = false
+    clearSelectedVariant()
+  }
+}
+
+const deleteRelease = async (release, close) => {
+  try {
+    await $fetch(
+      `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
+      { method: 'delete' },
+    )
+
+    toast.add(handleSuccess('delete', release.name, 'Release'))
+
+    if (typeof close === 'function') close()
+    refresh()
+  } catch (error) {
+    toast.add(handleError(error))
+  } finally {
+    visible.value.deleteRelease = false
+    clearSelectedRelease()
   }
 }
 
