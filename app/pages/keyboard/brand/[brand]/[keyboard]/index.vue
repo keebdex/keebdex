@@ -331,7 +331,7 @@
                   icon="hugeicons:add-square"
                   variant="outline"
                   class="w-full justify-center ring-0 border border-default border-dashed rounded-lg"
-                  @click="open()"
+                  @click="open"
                 />
               </template>
               <template #body="{ close }">

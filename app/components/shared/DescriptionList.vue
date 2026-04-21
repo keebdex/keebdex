@@ -4,7 +4,7 @@
       v-for="(item, index) in items"
       :key="index"
       :title="item.term"
-      :description="item.description"
+      :description="item.description ? item.description.toString() : undefined"
       variant="naked"
       :ui="
         isMobile || orientation === 'horizontal'
