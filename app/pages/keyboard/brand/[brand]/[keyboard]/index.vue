@@ -143,7 +143,7 @@
                 <UModal title="Edit Release">
                   <UButton
                     icon="hugeicons:edit-01"
-                    label="Edit Release"
+                    label="Edit"
                     @click="setSelectedRelease(release)"
                   />
 
@@ -173,8 +173,8 @@
                   :ui="{ footer: 'justify-end', content: 'divide-none' }"
                 >
                   <UButton
-                    label="Delete Release"
-                    icon="hugeicons:trash-02"
+                    label="Delete"
+                    icon="hugeicons:file-remove"
                     color="error"
                     @click="
                       () => {
@@ -195,7 +195,7 @@
               </div>
             </template>
 
-            <div v-if="getReleaseSpecs(release).length" class="mt-4">
+            <div v-if="!release.variant_specs" class="mt-4">
               <SharedDescriptionList :items="getReleaseSpecs(release)" />
             </div>
           </UPageHeader>
@@ -313,6 +313,7 @@
                     layout: data?.layout,
                     typing_angle: data?.typing_angle,
                   }"
+                  :release="release"
                   :authenticated="authenticated"
                   @save-to="saveToCollection"
                 />
@@ -556,55 +557,54 @@ const formatPrice = (amount, currency = 'USD') => {
 }
 
 const getReleaseSpecs = (release) => {
-  const items = []
-
-  if (release?.release_year) {
-    items.push({
+  const items = [
+    {
       term: 'Release Year',
-      description: String(release.release_year),
-    })
-  }
-
-  if (release?.msrp_price) {
-    items.push({
-      term: 'Pricing',
-      description: formatPrice(release.msrp_price, release.currency),
-    })
-  }
-
-  if (release?.mount_style) {
-    items.push({
+      description: release?.release_year,
+    },
+    {
       term: 'Mount',
-      description: release.mount_style,
-    })
-  }
+      description: release?.mount_style,
+    },
+    {
+      term: 'Typing Angle',
+      description: release?.typing_angle ? `${release.typing_angle}°` : null,
+    },
+  ]
 
-  if (release?.pcb_types?.length) {
-    items.push({
-      term: 'PCB',
-      description: release.pcb_types.join(', '),
-    })
-  }
-
-  if (release?.case_materials?.length) {
-    items.push({
-      term: 'Case',
-      description: release.case_materials.join(', '),
-    })
-  }
-
-  if (release?.plate_materials?.length) {
-    items.push({
-      term: 'Plate',
-      description: release.plate_materials.join(', '),
-    })
-  }
-
-  if (release?.weight_materials?.length) {
-    items.push({
-      term: 'Weight',
-      description: release.weight_materials.join(', '),
-    })
+  if (!release?.variant_specs) {
+    items.push(
+      {
+        term: 'Pricing',
+        description: release?.msrp_price
+          ? formatPrice(release.msrp_price, release.currency)
+          : null,
+      },
+      {
+        term: 'Case',
+        description: release?.case_materials?.length
+          ? release.case_materials.join(', ')
+          : null,
+      },
+      {
+        term: 'PCB',
+        description: release?.pcb_types?.length
+          ? release.pcb_types.join(', ')
+          : null,
+      },
+      {
+        term: 'Plate',
+        description: release?.plate_materials?.length
+          ? release.plate_materials.join(', ')
+          : null,
+      },
+      {
+        term: 'Weight',
+        description: release?.weight_materials?.length
+          ? release.weight_materials.join(', ')
+          : null,
+      },
+    )
   }
 
   return items

@@ -6,6 +6,7 @@
     :ui="{
       body: 'w-full',
       description: 'flex flex-col gap-4',
+      leading: 'flex gap-2',
     }"
   >
     <div v-if="viewMode === 'single'" class="relative">
@@ -118,8 +119,12 @@ const viewMode = ref('single')
 // 'single' or 'side'
 const emit = defineEmits(['saveTo'])
 
-const { keyboard, authenticated } = defineProps({
+const { keyboard, release, authenticated } = defineProps({
   keyboard: {
+    type: Object,
+    default: () => ({}),
+  },
+  release: {
     type: Object,
     default: () => ({}),
   },
@@ -134,23 +139,53 @@ const title = computed(() => {
   ])
 })
 
+const formatPrice = (amount, currency = 'USD') => {
+  if (!amount || isNaN(amount)) return null
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 2,
+  }).format(amount)
+}
+
 const specs = computed(() => {
+  const variantSpecs = release.variant_specs
+
+  const price = variantSpecs
+    ? formatPrice(keyboard.msrp_price, keyboard.currency)
+    : formatPrice(release.msrp_price, release.currency)
+
+  const caseMaterials = variantSpecs
+    ? keyboard.case_materials
+    : release.case_materials
+
+  const pcbTypes = variantSpecs ? keyboard.pcb_types : release.pcb_types
+
+  const plateMaterials = variantSpecs
+    ? keyboard.plate_materials
+    : release.plate_materials
+
+  const weightMaterials = variantSpecs
+    ? keyboard.weight_materials
+    : release.weight_materials
+
   return [
     {
       term: 'Release Year',
-      description: keyboard.release_year
-        ? String(keyboard.release_year)
-        : undefined,
+      description: keyboard.release_year,
     },
     {
       term: 'Layout',
       description: keyboard.layout,
     },
     {
+      term: 'Mount',
+      description: release.mount_style,
+    },
+    {
       term: 'Typing Angle',
-      description: keyboard.typing_angle
-        ? `${keyboard.typing_angle}°`
-        : undefined,
+      description: keyboard.typing_angle ? `${keyboard.typing_angle}°` : null,
     },
     {
       term: 'Finish',
@@ -163,6 +198,26 @@ const specs = computed(() => {
     {
       term: 'Units Produced',
       description: keyboard.units_produced,
+    },
+    {
+      term: 'Pricing',
+      description: price,
+    },
+    {
+      term: 'Case',
+      description: caseMaterials?.length ? caseMaterials.join(', ') : null,
+    },
+    {
+      term: 'PCB',
+      description: pcbTypes?.length ? pcbTypes.join(', ') : null,
+    },
+    {
+      term: 'Plate',
+      description: plateMaterials?.length ? plateMaterials.join(', ') : null,
+    },
+    {
+      term: 'Weight',
+      description: weightMaterials?.length ? weightMaterials.join(', ') : null,
     },
   ]
 })

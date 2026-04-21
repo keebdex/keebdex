@@ -38,54 +38,66 @@
       </UFormField>
     </div>
 
-    <UFormField label="MSRP" name="msrp_price">
-      <UFieldGroup class="w-full">
-        <USelect v-model="release.currency" :items="currencies" />
-        <UInput
-          v-model.number="release.msrp_price"
-          type="number"
-          step="0.01"
-          placeholder="0.00"
+    <UFormField
+      name="variant_specs"
+      help="Enable this for commissions or special drops where every colorway has different materials or pricing. Disable for standard runs where all boards share the same specs."
+    >
+      <USwitch
+        v-model="release.variant_specs"
+        label="Unique Specs per Variant"
+      />
+    </UFormField>
+
+    <template v-if="!release.variant_specs">
+      <UFormField label="MSRP" name="msrp_price">
+        <UFieldGroup class="w-full">
+          <USelect v-model="release.currency" :items="currencies" />
+          <UInput
+            v-model.number="release.msrp_price"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            class="w-full"
+          />
+        </UFieldGroup>
+      </UFormField>
+
+      <UFormField label="Case" name="case_materials">
+        <USelectMenu
+          v-model="release.case_materials"
+          :items="Constants.public.Enums.keyboard_material"
+          multiple
           class="w-full"
         />
-      </UFieldGroup>
-    </UFormField>
+      </UFormField>
 
-    <UFormField label="Case" name="case_materials">
-      <USelectMenu
-        v-model="release.case_materials"
-        :items="Constants.public.Enums.keyboard_material"
-        multiple
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="PCB" name="pcb_types">
+        <USelectMenu
+          v-model="release.pcb_types"
+          :items="Constants.public.Enums.keyboard_pcb_type"
+          multiple
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="PCB" name="pcb_types">
-      <USelectMenu
-        v-model="release.pcb_types"
-        :items="Constants.public.Enums.keyboard_pcb_type"
-        multiple
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Plate" name="plate_materials">
+        <USelectMenu
+          v-model="release.plate_materials"
+          :items="Constants.public.Enums.keyboard_material"
+          multiple
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Plate" name="plate_materials">
-      <USelectMenu
-        v-model="release.plate_materials"
-        :items="Constants.public.Enums.keyboard_material"
-        multiple
-        class="w-full"
-      />
-    </UFormField>
-
-    <UFormField label="Weight" name="weight_materials">
-      <USelectMenu
-        v-model="release.weight_materials"
-        :items="Constants.public.Enums.keyboard_material"
-        multiple
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Weight" name="weight_materials">
+        <USelectMenu
+          v-model="release.weight_materials"
+          :items="Constants.public.Enums.keyboard_material"
+          multiple
+          class="w-full"
+        />
+      </UFormField>
+    </template>
 
     <UFormField
       label="Description"
@@ -125,6 +137,7 @@ const release = ref({
   description: '',
   order: null,
   release_year: null,
+  variant_specs: false,
   mount_style: null,
   pcb_types: [],
   typing_angle: null,
@@ -159,6 +172,7 @@ const schema = z.object({
       },
     ),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
+  variant_specs: z.boolean().nullish(),
   mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
   currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),

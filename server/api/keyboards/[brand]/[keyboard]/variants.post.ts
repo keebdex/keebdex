@@ -29,6 +29,18 @@ export default defineEventHandler(async (event) => {
     img_front: body.img_front || null,
     img_back: body.img_back || null,
     photo_credit: body.photo_credit || null,
+    currency: body.currency || null,
+    msrp_price: toNullableNumber(body.msrp_price),
+    case_materials: Array.isArray(body.case_materials)
+      ? body.case_materials
+      : null,
+    pcb_types: Array.isArray(body.pcb_types) ? body.pcb_types : null,
+    plate_materials: Array.isArray(body.plate_materials)
+      ? body.plate_materials
+      : null,
+    weight_materials: Array.isArray(body.weight_materials)
+      ? body.weight_materials
+      : null,
     brand_slug: body.brand_slug,
     brand_keyboard_slug: body.brand_keyboard_slug,
   }

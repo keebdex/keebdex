@@ -113,23 +113,30 @@ export const TABLE_FIELDS = {
     "plate_materials",
     "release_year",
     "typing_angle",
+    "variant_specs",
     "weight_materials"
   ],
   "keyboard_variants": [
     "brand_keyboard_slug",
     "brand_slug",
+    "case_materials",
     "created_at",
+    "currency",
     "finish_type",
     "fts",
     "id",
     "img_back",
     "img_front",
+    "msrp_price",
+    "pcb_types",
     "photo_credit",
+    "plate_materials",
     "release_id",
     "release_year",
     "sale_type",
     "units_produced",
-    "variant_name"
+    "variant_name",
+    "weight_materials"
   ],
   "keyboards": [
     "brand_keyboard_slug",

@@ -1,15 +1,5 @@
 <template>
   <UForm :schema="schema" :state="variant" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Release" name="release_id" required>
-      <USelect
-        v-model="variant.release_id"
-        :items="releaseOptions"
-        value-key="value"
-        label-key="label"
-        class="w-full"
-      />
-    </UFormField>
-
     <UFormField label="Variant Name" name="variant_name" required>
       <UInput
         v-model.trim="variant.variant_name"
@@ -19,11 +9,32 @@
     </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Release" name="release_id" required>
+        <USelect
+          v-model="variant.release_id"
+          :items="releaseOptions"
+          value-key="value"
+          label-key="label"
+          class="w-full"
+        />
+      </UFormField>
+
       <UFormField label="Release Year" name="release_year">
         <UInput
           v-model.number="variant.release_year"
           type="number"
           icon="hugeicons:calendar-03"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Sale Type" name="sale_type">
+        <USelect
+          v-model="variant.sale_type"
+          :items="saleFormats"
+          icon="hugeicons:sale-tag-02"
           class="w-full"
         />
       </UFormField>
@@ -38,24 +49,64 @@
       </UFormField>
     </div>
 
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Finish Type" name="finish_type" required>
-        <USelect
-          v-model="variant.finish_type"
-          :items="Constants.public.Enums.keyboard_finish_type"
+    <UFormField label="Finish Type" name="finish_type" required>
+      <USelect
+        v-model="variant.finish_type"
+        :items="Constants.public.Enums.keyboard_finish_type"
+        class="w-full"
+      />
+    </UFormField>
+
+    <template v-if="specsPerVariant">
+      <UFormField label="MSRP" name="msrp_price">
+        <UFieldGroup class="w-full">
+          <USelect v-model="variant.currency" :items="currencies" />
+          <UInput
+            v-model.number="variant.msrp_price"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            class="w-full"
+          />
+        </UFieldGroup>
+      </UFormField>
+
+      <UFormField label="Case" name="case_materials">
+        <USelectMenu
+          v-model="variant.case_materials"
+          :items="Constants.public.Enums.keyboard_material"
+          multiple
           class="w-full"
         />
       </UFormField>
 
-      <UFormField label="Sale Type" name="sale_type">
-        <USelect
-          v-model="variant.sale_type"
-          :items="saleFormats"
-          icon="hugeicons:sale-tag-02"
+      <UFormField label="PCB" name="pcb_types">
+        <USelectMenu
+          v-model="variant.pcb_types"
+          :items="Constants.public.Enums.keyboard_pcb_type"
+          multiple
           class="w-full"
         />
       </UFormField>
-    </div>
+
+      <UFormField label="Plate" name="plate_materials">
+        <USelectMenu
+          v-model="variant.plate_materials"
+          :items="Constants.public.Enums.keyboard_material"
+          multiple
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="Weight" name="weight_materials">
+        <USelectMenu
+          v-model="variant.weight_materials"
+          :items="Constants.public.Enums.keyboard_material"
+          multiple
+          class="w-full"
+        />
+      </UFormField>
+    </template>
 
     <UFormField label="Front Image" name="img_front">
       <UInput
@@ -142,6 +193,7 @@ const { metadata, isEdit, keyboard } = defineProps({
 })
 
 const toast = useToast()
+const currencies = Constants.public.Enums.currency
 const saleFormatEnums = Constants.public.Enums.sale_format
 const specialFormats = ['Giveaway', 'Commission', 'Auction']
 const saleFormats = [
@@ -170,6 +222,14 @@ const variant = ref({
   img_front: '',
   img_back: '',
   photo_credit: '',
+  mount_style: null,
+  typing_angle: null,
+  currency: 'USD',
+  msrp_price: null,
+  case_materials: [],
+  pcb_types: [],
+  plate_materials: [],
+  weight_materials: [],
 })
 
 const maxUploadSizeMb = getMaxUploadSizeMb('keyboard')
@@ -187,12 +247,35 @@ const schema = z.object({
   img_front: z.url().nullish().or(z.string().min(0).max(0)),
   img_back: z.url().nullish().or(z.string().min(0).max(0)),
   photo_credit: z.string().max(255).nullish().or(z.string().min(0).max(0)),
+  mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
+  typing_angle: z.coerce.number().min(0).max(30).nullish(),
+  currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
+  msrp_price: z.coerce.number().min(0).nullish(),
+  case_materials: z
+    .array(z.enum(Constants.public.Enums.keyboard_material))
+    .nullish(),
+  pcb_types: z
+    .array(z.enum(Constants.public.Enums.keyboard_pcb_type))
+    .nullish(),
+  plate_materials: z
+    .array(z.enum(Constants.public.Enums.keyboard_material))
+    .nullish(),
+  weight_materials: z
+    .array(z.enum(Constants.public.Enums.keyboard_material))
+    .nullish(),
+})
+
+const specsPerVariant = computed(() => {
+  const selectedRelease = keyboard.releases.find(
+    (release) => Number(release.id) === Number(variant.value.release_id),
+  )
+  return selectedRelease?.variant_specs ?? false
 })
 
 const setDefaultReleaseYear = () => {
   if (isEdit) return
 
-  const selectedRelease = (keyboard.releases || []).find(
+  const selectedRelease = keyboard.releases.find(
     (release) => Number(release.id) === Number(variant.value.release_id),
   )
 
@@ -208,6 +291,17 @@ onBeforeMount(() => {
     brand_slug: keyboard.brand_slug,
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
+
+  for (const field of [
+    'case_materials',
+    'pcb_types',
+    'plate_materials',
+    'weight_materials',
+  ]) {
+    if (!Array.isArray(variant.value[field])) {
+      variant.value[field] = variant.value[field] ? [variant.value[field]] : []
+    }
+  }
 
   setDefaultReleaseYear()
 })
