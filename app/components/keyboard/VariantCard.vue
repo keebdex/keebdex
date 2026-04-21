@@ -19,7 +19,7 @@
         class="aspect-video w-full object-cover rounded"
       />
       <UButton
-        v-if="keyboard.img_front && keyboard.img_back"
+        v-if="keyboard.img_front && keyboard.img_back && !copying"
         size="xs"
         class="absolute top-2 right-2 z-10"
         icon="hugeicons:flip-horizontal"
@@ -27,7 +27,7 @@
         @click="showBack = !showBack"
       />
       <UButton
-        v-if="keyboard.img_front && keyboard.img_back"
+        v-if="keyboard.img_front && keyboard.img_back && !copying"
         size="xs"
         class="absolute top-2 left-2 z-10"
         icon="hugeicons:layout-grid"
@@ -53,6 +53,7 @@
         <div class="text-xs text-center mt-1">Back</div>
       </div>
       <UButton
+        v-if="!copying"
         size="xs"
         class="absolute top-6 right-6 z-10"
         icon="hugeicons:border-all-02"
