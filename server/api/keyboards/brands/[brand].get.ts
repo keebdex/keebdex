@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import sortBy from 'lodash.sortby'
-import { omitSensitive } from '../../../utils'
+import { getRandomCoverImage, omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const { brand: brand_slug } = event.context.params || {}
@@ -32,13 +32,9 @@ export default defineEventHandler(async (event) => {
           (release: any) => release.keyboard_variants || [],
         )
 
-        const coverImage = variants.find(
-          (variant: any) => variant.img_front,
-        )?.img_front
-
         return {
           ...omitSensitive(keyboard),
-          cover_image: coverImage || null,
+          cover_image: getRandomCoverImage(variants),
         }
       }),
       'name',

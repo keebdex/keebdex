@@ -43,7 +43,7 @@
           :alt="title + ' (Front)'"
           class="aspect-video w-full object-cover rounded"
         />
-        <div class="text-xs text-center mt-1">Front</div>
+        <div class="text-xs text-center italic mt-2">Front</div>
       </div>
       <div class="flex-1">
         <NuxtImg
@@ -51,7 +51,7 @@
           :alt="title + ' (Back)'"
           class="aspect-video w-full object-cover rounded"
         />
-        <div class="text-xs text-center mt-1">Back</div>
+        <div class="text-xs text-center italic mt-2">Back</div>
       </div>
       <UButton
         v-if="!copying"

@@ -18,3 +18,15 @@ export function toNullableNumber(value: unknown): number | null {
   const parsed = typeof value === 'number' ? value : Number(value)
   return Number.isNaN(parsed) ? null : parsed
 }
+
+/**
+ * Get a random cover image from a list of variants: prefer img_front, else img_back, else null
+ * @param variants Array of variant objects with img_front/img_back
+ * @returns string|null
+ */
+export function getRandomCoverImage(variants: any[]): string | null {
+  const fronts = variants.map((v) => v.img_front).filter(Boolean)
+  const backs = variants.map((v) => v.img_back).filter(Boolean)
+  const pool = fronts.length ? fronts : backs
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null
+}

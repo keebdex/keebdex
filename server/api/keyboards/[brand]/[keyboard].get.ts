@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import sortBy from 'lodash.sortby'
-import { omitSensitive } from '../../../utils'
+import { getRandomCoverImage, omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -26,11 +26,6 @@ export default defineEventHandler(async (event) => {
   }
 
   const { brand, releases, ...keyboard } = data
-
-  const coverImage = sortBy(releases, 'order')
-    .reverse()
-    .flatMap((release: any) => release.variants)
-    .find((variant: any) => variant.img_front)?.img_front
 
   let original: any = null
   let derivations: any[] = []
@@ -62,14 +57,12 @@ export default defineEventHandler(async (event) => {
           ...derivedKeyboard
         } = item
 
-        const derivedCoverImage = (derivedReleases || [])
-          .flatMap((release: any) => release.variants || [])
-          .find((variant: any) => variant.img_front)?.img_front
+        const allVariants = derivedReleases.flatMap((r: any) => r.variants)
 
         return {
           ...omitSensitive(derivedKeyboard),
           brand: derivedBrand,
-          cover_image: derivedCoverImage || null,
+          cover_image: getRandomCoverImage(allVariants),
         }
       })
     }
@@ -77,7 +70,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...omitSensitive(keyboard),
-    cover_image: coverImage || null,
     original,
     derived_keyboards: derivations,
     brand: omitSensitive(brand),

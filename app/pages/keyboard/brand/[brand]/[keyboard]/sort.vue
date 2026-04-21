@@ -90,11 +90,17 @@ const { data, refresh } = await useAsyncData(
     watch: [slug],
     transform: (data) => {
       data.releases = (data.releases || [])
-        .map((release) => ({
-          ...release,
-          cover_image: release.variants?.find((variant) => variant.img_front)
-            ?.img_front,
-        }))
+        .map((release) => {
+          const variants = release.variants || []
+          const fronts = variants.map((v) => v.img_front).filter(Boolean)
+          const backs = variants.map((v) => v.img_back).filter(Boolean)
+          const pool = fronts.length ? fronts : backs
+          const cover_image = pool.length
+            ? pool[Math.floor(Math.random() * pool.length)]
+            : null
+
+          return { ...release, cover_image }
+        })
         .sort((a, b) => (b.order || 0) - (a.order || 0)) // Sort by order desc by default
 
       return data
