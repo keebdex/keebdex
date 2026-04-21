@@ -88,22 +88,21 @@ const { data, refresh } = await useAsyncData(
   () => $fetch(`/api/keyboards/${slug.value}`),
   {
     watch: [slug],
+    transform: (data) => {
+      data.releases = (data.releases || [])
+        .map((release) => ({
+          ...release,
+          cover_image: release.variants?.find((variant) => variant.img_front)
+            ?.img_front,
+        }))
+        .sort((a, b) => (b.order || 0) - (a.order || 0)) // Sort by order desc by default
+
+      return data
+    },
   },
 )
 
-const items = ref([])
-
-watch(
-  () => data.value?.releases,
-  (releases) => {
-    items.value = (releases || []).map((release) => ({
-      ...release,
-      cover_image: release.variants?.find((variant) => variant.img_front)
-        ?.img_front,
-    }))
-  },
-  { immediate: true },
-)
+const items = computed(() => data.value?.releases || [])
 
 const breadcrumbs = computed(() => {
   return [
