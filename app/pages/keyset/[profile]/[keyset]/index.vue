@@ -36,7 +36,9 @@
 
       <div v-if="data.kits.length" class="grid grid-cols-3 gap-8">
         <!-- Left: image carousel + thumbnail strip -->
-        <div class="col-span-3 lg:col-span-2 space-y-4 max-w-7xl mx-auto">
+        <div
+          class="col-span-3 lg:col-span-2 space-y-4 max-w-7xl mx-auto w-full"
+        >
           <UCarousel
             ref="carousel"
             v-slot="{ item }"
@@ -70,7 +72,7 @@
           </UCarousel>
 
           <UPageGrid
-            class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-6 3xl:grid-cols-8 gap-2 pt-2"
+            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 3xl:grid-cols-6 gap-2 pt-2"
           >
             <UButton
               v-for="(kit, idx) in data.kits"
