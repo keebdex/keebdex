@@ -18,6 +18,7 @@
           size="4xl"
           :ui="{
             root: 'bg-transparent rounded-none p-6 aspect-square w-2/5 mx-auto',
+            image: 'h-full w-auto',
           }"
           :class="{
             invert: $colorMode.value === 'dark',

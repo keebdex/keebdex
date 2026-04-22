@@ -80,7 +80,6 @@
             v-if="data.description"
             :title="data.name"
             :description="data.description"
-            :links="keyboardLinks"
           />
 
           <KeyboardRelatedKeyboardsDrawer
@@ -447,20 +446,6 @@ const breadcrumbs = computed(() => {
       label: data.value?.name,
     },
   ]
-})
-
-const keyboardLinks = computed(() => {
-  const links = []
-
-  if (data.value?.derived_from) {
-    links.push({
-      label: `${data.value.original.brand.name} ${data.value.original.name}`,
-      icon: 'hugeicons:share-knowledge',
-      to: `/keyboard/brand/${data.value.derived_from}`,
-    })
-  }
-
-  return links
 })
 
 const clearSelectedRelease = () => {

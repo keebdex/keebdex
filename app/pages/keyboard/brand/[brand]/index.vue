@@ -73,7 +73,6 @@
           :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
           :title="keyboard.name"
           :description="keyboard.description"
-          icon="hugeicons:keyboard"
           reverse
           spotlight
           :ui="{
@@ -82,14 +81,6 @@
             description: 'line-clamp-3',
           }"
         >
-          <template #leading>
-            <UBadge
-              v-if="keyboard.layout"
-              :label="keyboard.layout"
-              color="success"
-            />
-          </template>
-
           <NuxtImg
             loading="lazy"
             :alt="keyboard.name"
