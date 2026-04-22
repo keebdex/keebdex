@@ -150,23 +150,23 @@ const formatPrice = (amount, currency = 'USD') => {
 }
 
 const specs = computed(() => {
-  const variantSpecs = release.variant_specs
-
   const price = keyboard.msrp_price
     ? formatPrice(keyboard.msrp_price, keyboard.currency)
     : formatPrice(release.msrp_price, release.currency)
 
-  const caseMaterials = variantSpecs
+  const caseMaterials = keyboard.case_materials?.length
     ? keyboard.case_materials
     : release.case_materials
 
-  const pcbTypes = variantSpecs ? keyboard.pcb_types : release.pcb_types
+  const pcbTypes = keyboard.pcb_types?.length
+    ? keyboard.pcb_types
+    : release.pcb_types
 
-  const plateMaterials = variantSpecs
+  const plateMaterials = keyboard.plate_materials?.length
     ? keyboard.plate_materials
     : release.plate_materials
 
-  const weightMaterials = variantSpecs
+  const weightMaterials = keyboard.weight_materials?.length
     ? keyboard.weight_materials
     : release.weight_materials
 

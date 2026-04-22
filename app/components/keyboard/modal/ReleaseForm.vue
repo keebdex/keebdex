@@ -38,16 +38,6 @@
       </UFormField>
     </div>
 
-    <UFormField
-      name="variant_specs"
-      help="Enable this for commissions or special drops where every colorway has different materials or pricing. Disable for standard runs where all boards share the same specs."
-    >
-      <USwitch
-        v-model="release.variant_specs"
-        label="Unique Specs per Variant"
-      />
-    </UFormField>
-
     <UFormField label="Base Price" name="msrp_price">
       <UFieldGroup class="w-full">
         <USelect v-model="release.currency" :items="currencies" />
@@ -59,6 +49,16 @@
           class="w-full"
         />
       </UFieldGroup>
+    </UFormField>
+
+    <UFormField
+      name="variant_specs"
+      help="Enable this for commissions or special drops where every colorway has different materials or pricing. Disable for standard runs where all boards share the same specs."
+    >
+      <USwitch
+        v-model="release.variant_specs"
+        label="Unique Specs per Variant"
+      />
     </UFormField>
 
     <template v-if="!release.variant_specs">

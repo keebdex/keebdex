@@ -74,7 +74,15 @@
       </UFieldGroup>
     </UFormField>
 
-    <template v-if="specsPerVariant">
+    <UFormField
+      v-if="!specsPerVariant"
+      name="override_release_specs"
+      help="Enable for special editions with unique pricing or materials. Disable to inherit release defaults."
+    >
+      <UCheckbox v-model="overrideReleaseSpecs" label="Custom Variant Specs" />
+    </UFormField>
+
+    <template v-if="showVariantSpecFields">
       <UFormField label="Case" name="case_materials">
         <USelectMenu
           v-model="variant.case_materials"
@@ -240,6 +248,7 @@ const maxUploadSizeMb = getMaxUploadSizeMb('keyboard')
 const uploading = ref(false)
 const uploadedFileFront = ref(null)
 const uploadedFileBack = ref(null)
+const overrideReleaseSpecs = ref(false)
 
 const schema = z.object({
   release_id: z.coerce.number().min(1),
@@ -276,6 +285,19 @@ const specsPerVariant = computed(() => {
   return selectedRelease?.variant_specs ?? false
 })
 
+const showVariantSpecFields = computed(
+  () => specsPerVariant.value || overrideReleaseSpecs.value,
+)
+
+const hasMaterialOverrides = computed(() => {
+  return (
+    !!variant.value.case_materials?.length ||
+    !!variant.value.pcb_types?.length ||
+    !!variant.value.plate_materials?.length ||
+    !!variant.value.weight_materials?.length
+  )
+})
+
 const setDefaultReleaseYear = () => {
   if (isEdit) return
 
@@ -306,6 +328,9 @@ onBeforeMount(() => {
       variant.value[field] = variant.value[field] ? [variant.value[field]] : []
     }
   }
+
+  overrideReleaseSpecs.value =
+    specsPerVariant.value || hasMaterialOverrides.value
 
   setDefaultReleaseYear()
 })
@@ -340,6 +365,13 @@ const onSubmit = async () => {
 
     const payload = {
       ...variant.value,
+    }
+
+    if (!showVariantSpecFields.value) {
+      payload.case_materials = null
+      payload.pcb_types = null
+      payload.plate_materials = null
+      payload.weight_materials = null
     }
 
     if (uploadedFileFront.value) {
