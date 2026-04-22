@@ -95,7 +95,7 @@
     </template>
 
     <template #body>
-      <UPageGrid>
+      <UPageGrid :class="squareGridClass">
         <UModal
           v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"

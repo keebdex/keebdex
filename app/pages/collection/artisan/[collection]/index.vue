@@ -79,7 +79,7 @@
         color="warning"
       />
 
-      <UPageGrid v-if="sortedCollections.length">
+      <UPageGrid v-if="sortedCollections.length" :class="squareGridClass">
         <UPageCard
           v-for="{ artisan, ...rest } in sortedCollections"
           :key="rest.id"

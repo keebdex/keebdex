@@ -63,10 +63,7 @@
     </template>
 
     <template #body>
-      <UPageGrid
-        v-if="data.keyboards?.length"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
-      >
+      <UPageGrid v-if="data.keyboards?.length">
         <UPageCard
           v-for="keyboard in data.keyboards"
           :key="keyboard.slug"

@@ -122,3 +122,6 @@ export const getRoleLabel = (
   const mapping = roleMap[role]
   return mapping ? mapping.label : role.charAt(0).toUpperCase() + role.slice(1)
 }
+
+export const squareGridClass =
+  'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'

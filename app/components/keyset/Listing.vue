@@ -28,10 +28,7 @@
     </template>
 
     <template #body>
-      <UPageGrid
-        v-if="keysets.length"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4"
-      >
+      <UPageGrid v-if="keysets.length">
         <UPageCard
           v-for="keyset in keysets"
           :key="keyset.id"

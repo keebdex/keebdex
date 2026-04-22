@@ -45,7 +45,7 @@
           headline: 'text-md',
         }"
       >
-        <UPageGrid>
+        <UPageGrid :class="squareGridClass">
           <SharedKeebLogoCard
             v-for="maker in favoriteMakers"
             :key="maker.id"
@@ -58,7 +58,7 @@
         </UPageGrid>
       </UPageHeader>
 
-      <UPageGrid>
+      <UPageGrid :class="squareGridClass">
         <SharedKeebLogoCard
           v-for="maker in otherMakers"
           :key="maker.id"

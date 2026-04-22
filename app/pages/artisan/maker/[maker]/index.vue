@@ -86,7 +86,7 @@
           headline: 'text-md',
         }"
       >
-        <UPageGrid>
+        <UPageGrid :class="squareGridClass">
           <ArtisanSculptCard
             v-for="sculpt in favoriteSculpts"
             :key="sculpt.id"
@@ -95,7 +95,7 @@
         </UPageGrid>
       </UPageHeader>
 
-      <UPageGrid>
+      <UPageGrid :class="squareGridClass">
         <ArtisanSculptCard
           v-for="sculpt in otherSculpts"
           :key="sculpt.id"
