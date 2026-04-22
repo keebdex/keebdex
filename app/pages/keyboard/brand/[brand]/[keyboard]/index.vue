@@ -65,35 +65,16 @@
             :items="sortOptions"
             :icon="sortIconMap[sort]"
             variant="soft"
-            :ui="{ content: 'min-w-fit' }"
           />
 
-          <USlideover
+          <KeyboardRelatedKeyboardsDrawer
             v-if="data.derived_keyboards?.length"
+            :keyboards="data.derived_keyboards"
             title="Derived Designs"
             description="A collection of keyboards that share this design's DNA through community reworks, official collaborations, and specialized iterations."
-          >
-            <UButton label="Derived" icon="hugeicons:archive-02" />
-
-            <template #body>
-              <UPageList class="flex gap-4">
-                <UPageCard
-                  v-for="keyboard in data.derived_keyboards"
-                  :key="keyboard.brand_keyboard_slug"
-                  :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
-                  :title="`${keyboard.brand?.name} ${keyboard.name}`"
-                  reverse
-                >
-                  <NuxtImg
-                    loading="lazy"
-                    :alt="keyboard.name"
-                    :src="keyboard.cover_image || '/keyboard.png'"
-                    class="aspect-video w-full object-cover"
-                  />
-                </UPageCard>
-              </UPageList>
-            </template>
-          </USlideover>
+            button-label="Derived"
+            icon="hugeicons:archive-02"
+          />
 
           <SharedProfileDrawer
             v-if="data.description"
@@ -102,7 +83,16 @@
             :links="keyboardLinks"
           />
 
-          <UDropdownMenu v-if="items.length" :items="items">
+          <KeyboardRelatedKeyboardsDrawer
+            v-if="data.derived_from && data.original"
+            :keyboards="[data.original]"
+            title="Original Design"
+            description="This is the original design that inspired this keyboard's creation."
+            button-label="Original"
+            icon="hugeicons:copyright"
+          />
+
+          <UDropdownMenu v-else-if="items.length" :items="items">
             <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
           </UDropdownMenu>
         </template>
@@ -114,7 +104,6 @@
           :items="sortOptions"
           :icon="sortIconMap[sort]"
           variant="soft"
-          :ui="{ content: 'min-w-fit' }"
         />
       </UDashboardToolbar>
     </template>
@@ -320,11 +309,7 @@
               </template>
             </UModal>
 
-            <UModal
-              v-if="editable"
-              title="Add Variant"
-              :ui="{ content: 'sm:max-w-xl' }"
-            >
+            <UModal v-if="editable" title="Add Variant">
               <template #default="{ open }">
                 <UButton
                   label="Add Variant"

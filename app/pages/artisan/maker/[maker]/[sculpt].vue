@@ -52,7 +52,6 @@
               :items="sortOptions"
               :icon="sortIconMap[sortValue]"
               variant="soft"
-              :ui="{ content: 'min-w-fit' }"
             />
 
             <SharedProfileDrawer
@@ -91,7 +90,6 @@
           :items="sortOptions"
           :icon="sortIconMap[sortValue]"
           variant="soft"
-          :ui="{ content: 'min-w-fit' }"
         />
       </UDashboardToolbar>
     </template>

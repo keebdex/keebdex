@@ -34,7 +34,6 @@
             :items="sortOptions"
             :icon="sortIconMap[sort]"
             variant="soft"
-            :ui="{ content: 'min-w-fit' }"
           />
 
           <UModal
@@ -68,7 +67,6 @@
           :items="sortOptions"
           :icon="sortIconMap[sort]"
           variant="soft"
-          :ui="{ content: 'min-w-fit' }"
         />
       </UDashboardToolbar>
     </template>
