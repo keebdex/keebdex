@@ -70,7 +70,7 @@
           </UCarousel>
 
           <UPageGrid
-            class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-6 3xl:sm:grid-cols-8 gap-2 pt-2"
+            class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-6 3xl:grid-cols-8 gap-2 pt-2"
           >
             <UButton
               v-for="(kit, idx) in data.kits"

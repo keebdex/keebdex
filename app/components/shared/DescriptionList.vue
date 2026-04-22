@@ -1,5 +1,11 @@
 <template>
-  <UPageGrid :class="columnsClass">
+  <UPageGrid
+    :class="{
+      grid: hasFixedColumns,
+      [gap]: hasFixedColumns,
+    }"
+    :style="gridStyle"
+  >
     <UPageCard
       v-for="(item, index) in items"
       :key="index"
@@ -9,9 +15,9 @@
       :ui="
         isMobile || orientation === 'horizontal'
           ? {
-              body: 'flex flex-row items-center justify-between w-full',
+              body: 'grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)] items-start gap-x-4 w-full',
               title: 'text-sm font-medium text-muted',
-              description: 'text-sm mt-0',
+              description: 'text-sm mt-0 break-words',
             }
           : {
               title: 'text-xs text-muted',
@@ -44,15 +50,17 @@ const { columns, orientation } = defineProps({
 
 const { isMobile } = useDevice()
 
+const hasFixedColumns = computed(() => Number.isInteger(columns) && columns > 0)
+
+const gridStyle = computed(() => {
+  if (!hasFixedColumns.value) return undefined
+
+  return {
+    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+  }
+})
+
 const gap = computed(() =>
   isMobile || orientation === 'horizontal' ? 'gap-x-4 gap-y-2' : 'gap-4',
 )
-
-const columnsClass = computed(() => {
-  if (Number.isInteger(columns) && columns > 0) {
-    return `grid grid-cols-${columns} sm:grid-cols-${columns} md:grid-cols-${columns} lg:grid-cols-${columns} 2xl:grid-cols-${columns} 4xl:grid-cols-${columns} ${gap.value}`
-  }
-
-  return `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 ${gap.value}`
-})
 </script>
