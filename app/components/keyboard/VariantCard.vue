@@ -152,7 +152,7 @@ const formatPrice = (amount, currency = 'USD') => {
 const specs = computed(() => {
   const variantSpecs = release.variant_specs
 
-  const price = variantSpecs
+  const price = keyboard.msrp_price
     ? formatPrice(keyboard.msrp_price, keyboard.currency)
     : formatPrice(release.msrp_price, release.currency)
 

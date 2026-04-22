@@ -57,20 +57,24 @@
       />
     </UFormField>
 
-    <template v-if="specsPerVariant">
-      <UFormField label="MSRP" name="msrp_price">
-        <UFieldGroup class="w-full">
-          <USelect v-model="variant.currency" :items="currencies" />
-          <UInput
-            v-model.number="variant.msrp_price"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
-            class="w-full"
-          />
-        </UFieldGroup>
-      </UFormField>
+    <UFormField
+      label="MSRP"
+      name="msrp_price"
+      help="Leave empty to use the release base price. Only set this if this variant has a different price."
+    >
+      <UFieldGroup class="w-full">
+        <USelect v-model="variant.currency" :items="currencies" />
+        <UInput
+          v-model.number="variant.msrp_price"
+          type="number"
+          step="0.01"
+          placeholder="0.00"
+          class="w-full"
+        />
+      </UFieldGroup>
+    </UFormField>
 
+    <template v-if="specsPerVariant">
       <UFormField label="Case" name="case_materials">
         <USelectMenu
           v-model="variant.case_materials"
