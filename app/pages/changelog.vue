@@ -55,6 +55,13 @@ const { data: versions } = await useFetch(
         title: release.name || release.tag,
         date: release.publishedAt,
         markdown: release.markdown,
+        badge: release.prerelease
+          ? {
+              label: 'Pre-release',
+              color: 'warning',
+              variant: 'subtle',
+            }
+          : undefined,
         authors: [
           {
             name: release.author,

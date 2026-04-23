@@ -7,7 +7,7 @@
     }"
   >
     <UPageHeader
-      title="What people say about Keebdex"
+      title="What people say"
       :ui="{
         root: 'pb-4',
         title:
