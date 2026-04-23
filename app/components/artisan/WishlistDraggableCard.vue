@@ -18,7 +18,7 @@
           :ui="{
             root: 'h-full flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
-            footer: 'w-full',
+            body: `flex items-center justify-between w-full gap-4 ${item.exchange && item.asking_price ? 'divide-x divide-default' : ''}`,
           }"
           :class="
             buying && item.priority && tradingCfg.highlight_filled
@@ -53,8 +53,27 @@
             </span>
           </div>
 
-          <template #footer>
-            <UTooltip v-if="!copying" text="Priority" :delay-duration="0">
+          <template #body>
+            <UUser
+              :name="item.artisan.name"
+              :description="item.artisan.sculpt?.name"
+              size="xl"
+              class="flex-1"
+            />
+
+            <span
+              v-if="item.exchange"
+              class="text-4xl font-bold"
+              :class="{
+                'text-error': item.priority,
+              }"
+            >
+              {{ item.asking_price }}
+            </span>
+          </template>
+
+          <template v-if="!copying" #footer>
+            <UTooltip text="Priority" :delay-duration="0">
               <UButton
                 v-if="buying && item.exchange"
                 icon="hugeicons:shopping-bag-favorite"
@@ -62,27 +81,14 @@
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>
-            <UTooltip v-if="!copying" text="Remove" :delay-duration="0">
+
+            <UTooltip text="Remove" :delay-duration="0">
               <UButton
                 icon="hugeicons:shopping-bag-remove"
                 color="error"
                 @click="$emit('onRemove', item)"
               />
             </UTooltip>
-            <UButton
-              v-if="item.asking_price && item.exchange"
-              :label="item.asking_price"
-              :icon="
-                buying
-                  ? 'hugeicons:dollar-send-01'
-                  : 'hugeicons:dollar-receive-01'
-              "
-              :color="item.priority ? 'error' : 'info'"
-              :class="{
-                'font-bold text-2xl': copying,
-              }"
-              block
-            />
           </template>
         </UPageCard>
       </div>
