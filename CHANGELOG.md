@@ -15,6 +15,7 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 
 ### 🐛 Bug Fixes
 
+- Fixed artisan sculpt page not jumping to the correct pagination page when `cid` is present in the query string; the colorway card modal now opens automatically on load and closes cleanly.
 - Fixed default values in the keyset form for smoother create/edit flow.
 
 ### ⚠️ Breaking Changes

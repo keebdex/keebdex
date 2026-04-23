@@ -96,96 +96,100 @@
 
     <template #body>
       <UPageGrid :class="squareGridClass">
-        <UModal
+        <UPageCard
           v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"
+          :title="colorway.name"
+          reverse
+          spotlight
           :ui="{
-            content: 'max-w-xl',
+            root: 'h-full cursor-pointer flex flex-col',
+            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
           }"
+          @click="openColorwayCard(colorway)"
         >
-          <UPageCard
-            :title="colorway.name"
-            reverse
-            spotlight
-            :ui="{
-              root: 'h-full cursor-pointer flex flex-col',
-              container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
-            }"
-          >
-            <div class="aspect-square overflow-hidden">
-              <NuxtImg
-                loading="lazy"
-                :alt="colorway.name"
-                :src="colorway.img"
-                class="w-full h-full object-cover rounded"
+          <div class="aspect-square overflow-hidden">
+            <NuxtImg
+              loading="lazy"
+              :alt="colorway.name"
+              :src="colorway.img"
+              class="w-full h-full object-cover rounded"
+            />
+          </div>
+
+          <template #footer>
+            <div class="flex items-center gap-2" @click.stop>
+              <UModal v-if="editable" title="Edit Colorway">
+                <UTooltip text="Edit" :delay-duration="0">
+                  <UButton
+                    icon="hugeicons:file-edit"
+                    @click="setSelected(colorway)"
+                  />
+                </UTooltip>
+
+                <template #body="{ close }">
+                  <ArtisanModalColorwayForm
+                    :metadata="selectedColorway"
+                    @on-success="
+                      () => {
+                        close()
+                        refresh()
+                        clearSelected()
+                      }
+                    "
+                  />
+                </template>
+              </UModal>
+
+              <SharedSaveToCollection
+                v-if="authenticated"
+                :item="colorway"
+                :text="true"
+                @on-select="saveTo"
               />
-            </div>
 
-            <template #footer>
-              <div class="flex items-center gap-2" @click.stop>
-                <UModal v-if="editable" title="Edit Colorway">
-                  <UTooltip text="Edit" :delay-duration="0">
-                    <UButton
-                      icon="hugeicons:file-edit"
-                      @click="setSelectedColorway(colorway)"
-                    />
-                  </UTooltip>
-
-                  <template #body="{ close }">
-                    <ArtisanModalColorwayForm
-                      :metadata="selectedColorway"
-                      @on-success="
-                        () => {
-                          close()
-                          refresh()
-                          clearSelectedColorway()
-                        }
-                      "
-                    />
-                  </template>
-                </UModal>
-
-                <SharedSaveToCollection
-                  v-if="authenticated"
-                  :item="colorway"
-                  :text="true"
-                  @on-select="saveTo"
+              <UModal
+                v-if="editable"
+                title="Delete"
+                :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
+                :ui="{ footer: 'justify-end', content: 'divide-none' }"
+              >
+                <UButton
+                  v-if="user.email_verified"
+                  icon="hugeicons:file-remove"
+                  color="error"
                 />
 
-                <UModal
-                  v-if="editable"
-                  title="Delete"
-                  :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
-                  :ui="{ footer: 'justify-end', content: 'divide-none' }"
-                >
+                <template #footer="{ close }">
+                  <UButton label="Cancel" @click="close" />
                   <UButton
-                    v-if="user.email_verified"
-                    icon="hugeicons:file-remove"
+                    label="Delete"
                     color="error"
+                    @click="deleteColorway(colorway, close)"
                   />
-
-                  <template #footer="{ close }">
-                    <UButton label="Cancel" @click="close" />
-                    <UButton
-                      label="Delete"
-                      color="error"
-                      @click="deleteColorway(colorway, close)"
-                    />
-                  </template>
-                </UModal>
-              </div>
-            </template>
-          </UPageCard>
-
-          <template #content>
-            <ArtisanColorwayCard
-              :colorway="{ ...colorway, sculpt: { name: sculpt.name } }"
-              :authenticated="authenticated"
-              @save-to="saveTo"
-            />
+                </template>
+              </UModal>
+            </div>
           </template>
-        </UModal>
+        </UPageCard>
       </UPageGrid>
+
+      <UModal
+        v-model:open="visible.card"
+        :ui="{
+          content: 'max-w-xl',
+        }"
+        @update:open="(open) => !open && closeColorwayCard()"
+      >
+        <template #content>
+          <ArtisanColorwayCard
+            v-if="selectedColorway.colorway_id"
+            :colorway="selectedColorway"
+            :authenticated="authenticated"
+            @save-to="saveTo"
+          />
+        </template>
+      </UModal>
 
       <UPagination
         v-if="sculpt.total_colorways > size"
@@ -206,6 +210,7 @@
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 
 const { page, size, setPage } = usePagination(72)
@@ -251,6 +256,7 @@ const { data: sculpt, refresh } = await useAsyncData(
     $fetch(`/api/makers/${route.params.maker}`, {
       query: {
         sculpt: route.params.sculpt,
+        cid: route.query.cid,
         order_by: sortField.value,
         sort: sortOrder.value,
         from: (page.value - 1) * size,
@@ -258,12 +264,13 @@ const { data: sculpt, refresh } = await useAsyncData(
       },
     }),
   {
-    watch: [page, sortField, sortOrder],
+    watch: [page, sortField, sortOrder, () => route.query.cid],
     transform: (data) => {
       const sculpt = data.sculpts[route.params.sculpt]
 
       sculpt.maker_name = data.name
       sculpt.invertible_logo = data.invertible_logo
+      sculpt.selected_colorway_index = data.selected_colorway_index
       sculpt.maker_sculpts = Object.values(data.sculpts || {}).map(
         ({ colorways, ...rest }) => rest,
       )
@@ -320,7 +327,7 @@ defineOgImage('Module', {
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
-const editable = computed(() => userStore.isEditable(sculpt.value.maker_id))
+const editable = computed(() => userStore.isEditable(sculpt.value?.maker_id))
 
 const visible = ref({
   edit: false,
@@ -330,12 +337,10 @@ const visible = ref({
 
 const { addItem } = useCollectionItem()
 
-// add to collection
 const saveTo = (collection, colorway) => {
   addItem(collection, { artisan_item_id: colorway.id }, colorway.name)
 }
 
-// colorway submission
 const newColorwayMetadata = computed(() => ({
   maker_id: sculpt.value.maker_id,
   sculpt_id: sculpt.value.sculpt_id,
@@ -345,37 +350,96 @@ const newColorwayMetadata = computed(() => ({
   order: (sculpt.value.total_colorways || 0) + 1,
 }))
 
-// show colorway card popup
 const selectedColorway = ref({})
-const clearSelectedColorway = () => {
+
+const clearSelected = () => {
   selectedColorway.value = {}
 }
-const setSelectedColorway = (clw) => {
+
+const setSelected = (colorway) => {
   const { colorways, ...rest } = sculpt.value
   selectedColorway.value = {
-    ...clw,
+    ...colorway,
     sculpt: rest,
   }
 }
 
-const toggleColorwayCard = () => {
-  const clw = sculpt.value.colorways.find(
-    (c) => c.colorway_id === route.query.cid,
-  )
-  if (clw) {
-    setSelectedColorway(clw)
+const colorwayCid = computed(() => {
+  return typeof route.query.cid === 'string' ? route.query.cid : ''
+})
+
+const updateColorwayQuery = (cid) => {
+  router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      cid,
+    },
+  })
+}
+
+const closeColorwayCard = () => {
+  visible.value.card = false
+  clearSelected()
+
+  if (colorwayCid.value) {
+    updateColorwayQuery()
   }
 }
 
+const openColorwayCard = (colorway) => {
+  setSelected(colorway)
+  visible.value.card = true
+
+  if (colorwayCid.value !== colorway.colorway_id) {
+    updateColorwayQuery(colorway.colorway_id)
+  }
+}
+
+const syncColorwayCardFromQuery = () => {
+  if (!colorwayCid.value) {
+    visible.value.card = false
+    clearSelected()
+    return
+  }
+
+  const selectedColorwayIndex = sculpt.value?.selected_colorway_index
+
+  if (selectedColorwayIndex >= 0) {
+    const targetPage = Math.floor(selectedColorwayIndex / size) + 1
+
+    if (page.value !== targetPage) {
+      setPage(targetPage)
+      return
+    }
+  }
+
+  const colorway = sculpt.value?.colorways?.find(
+    (item) => item.colorway_id === colorwayCid.value,
+  )
+
+  if (!colorway) {
+    visible.value.card = false
+    clearSelected()
+    return
+  }
+
+  setSelected(colorway)
+  visible.value.card = true
+}
+
 watch(
-  () => route.query.cid,
+  [
+    colorwayCid,
+    () => sculpt.value?.selected_colorway_index,
+    () => sculpt.value?.colorways,
+  ],
   () => {
-    toggleColorwayCard()
+    syncColorwayCardFromQuery()
   },
   { immediate: true },
 )
 
-// delete sculpt
 const deleteSculpt = async (closeModal) => {
   try {
     await $fetch(
@@ -392,7 +456,6 @@ const deleteSculpt = async (closeModal) => {
   }
 }
 
-// delete colorway
 const deleteColorway = async (colorway, closeModal) => {
   try {
     await $fetch(
