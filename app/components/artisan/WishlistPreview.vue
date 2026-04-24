@@ -276,7 +276,7 @@ const toast = useToast()
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
-const tradingCfg = useState('trading-config')
+const tradingCfg = useTradingConfig()
 const sidebarOpen = useState('wishlist-sidebar-open', () => true)
 const trading = computed(() => tradingCfg.value.type === 'trading')
 

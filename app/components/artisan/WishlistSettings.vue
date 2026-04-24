@@ -133,24 +133,7 @@ const intentMap = {
   trading: ['keep', 'want'],
 }
 
-const tradingConfig = useState('trading-config', () => ({
-  selling: {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTS/WTT',
-  },
-  buying: {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTB/WTTF',
-  },
-  social,
-  type: 'buying',
-  fnf_only: false,
-  shipping_included: false,
-  highlight_filled: false,
-  columns: 4,
-}))
+const tradingConfig = useTradingConfig()
 
 const normalizeColumns = (value) => {
   const parsed = Number(value)

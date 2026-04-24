@@ -56,9 +56,6 @@
               :name="colorwayTitle(item.artisan)"
               size="xl"
               class="flex-1"
-              :ui="{
-                name: 'font-bold',
-              }"
             />
 
             <span
@@ -103,7 +100,7 @@ import draggable from 'vuedraggable'
 
 defineEmits(['onRemove', 'onHighlight'])
 
-const tradingCfg = useState('trading-config')
+const tradingCfg = useTradingConfig()
 
 const { data } = defineProps({
   data: {

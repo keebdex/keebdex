@@ -30,3 +30,4 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 - Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries; for example, searching "gundam" now finds "GUNDAMHAKU".
 - Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages for a cleaner layout.
 - Applied a shared logo card across all modules and improved card layout consistency with an equal-height grid.
+- Improved the artisan wishlist builder with configurable column layouts and content-width preview sizing for more consistent card layouts.
