@@ -9,10 +9,14 @@
       />
     </UFormField>
 
-    <UFormField label="Layout" name="layout_columns">
-      <USelect
+    <UFormField
+      :label="`Layout - ${tradingConfig.columns} Column${tradingConfig.columns === 1 ? '' : 's'}`"
+      name="layout_columns"
+    >
+      <USlider
         v-model="tradingConfig.columns"
-        :items="columnItems"
+        :min="1"
+        :max="10"
         class="w-full"
       />
     </UFormField>
@@ -135,73 +139,10 @@ const intentMap = {
 
 const tradingConfig = useTradingConfig()
 
-const normalizeColumns = (value) => {
-  const parsed = Number(value)
-
-  if (!Number.isFinite(parsed)) return 4
-
-  return Math.min(10, Math.max(1, Math.trunc(parsed)))
-}
-
 const typeItems = [
   { label: 'Buying', value: 'buying' },
   { label: 'Selling', value: 'selling' },
   { label: 'Trading', value: 'trading' },
-]
-
-const columnItems = [
-  {
-    type: 'label',
-    label: 'Simple',
-  },
-  {
-    value: 1,
-    label: '1 Column',
-  },
-  {
-    value: 2,
-    label: '2 Columns',
-  },
-  {
-    type: 'label',
-    label: 'Balanced',
-  },
-  {
-    value: 3,
-    label: '3 Columns',
-  },
-  {
-    value: 4,
-    label: '4 Columns',
-  },
-  {
-    value: 5,
-    label: '5 Columns',
-  },
-  {
-    value: 6,
-    label: '6 Columns',
-  },
-  {
-    type: 'label',
-    label: 'Dense',
-  },
-  {
-    value: 7,
-    label: '7 Columns',
-  },
-  {
-    value: 8,
-    label: '8 Columns',
-  },
-  {
-    value: 9,
-    label: '9 Columns',
-  },
-  {
-    value: 10,
-    label: '10 Columns',
-  },
 ]
 
 const resetTradingState = () => {
@@ -230,12 +171,4 @@ watch(trading, () => {
 watch(social, (value) => {
   tradingConfig.value.social = value
 })
-
-watch(
-  () => tradingConfig.value.columns,
-  (value) => {
-    tradingConfig.value.columns = normalizeColumns(value)
-  },
-  { immediate: true },
-)
 </script>
