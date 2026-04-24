@@ -3,11 +3,8 @@
     :list="data"
     item-key="id"
     group="group"
-    :class="
-      flex
-        ? 'flex flex-wrap gap-4 justify-between max-w-7xl'
-        : 'grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-8 gap-4'
-    "
+    class="grid gap-4"
+    :style="gridStyle"
   >
     <template #item="{ element: item }">
       <div class="cursor-move">
@@ -19,6 +16,7 @@
             root: 'h-full flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
             body: `flex items-center justify-between w-full gap-4 ${item.exchange && item.asking_price ? 'divide-x divide-default' : ''}`,
+            footer: 'flex flex-wrap gap-2',
           }"
           :class="
             buying && item.priority && tradingCfg.highlight_filled
@@ -108,7 +106,6 @@ defineEmits(['onRemove', 'onHighlight'])
 const tradingCfg = useState('trading-config')
 
 const { data } = defineProps({
-  flex: Boolean,
   data: {
     type: Array,
     default: () => [],
@@ -117,4 +114,20 @@ const { data } = defineProps({
   buying: Boolean,
   selling: Boolean,
 })
+
+const gridColumns = computed(() => {
+  const configuredColumns = Math.max(1, tradingCfg.value.columns || 1)
+  const itemCount = data.length
+
+  if (itemCount > 0 && itemCount < configuredColumns) {
+    return itemCount
+  }
+
+  return configuredColumns
+})
+
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${gridColumns.value}, minmax(0, 1fr))`,
+  width: `min(100%, calc(${gridColumns.value} * var(--wishlist-card-width) + ${Math.max(gridColumns.value - 1, 0)} * var(--wishlist-grid-gap)))`,
+}))
 </script>

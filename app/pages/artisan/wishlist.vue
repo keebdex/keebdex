@@ -32,6 +32,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth',
+})
+
 useSeoMeta({
   title: 'Wishlist',
   description:

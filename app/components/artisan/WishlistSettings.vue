@@ -9,6 +9,14 @@
       />
     </UFormField>
 
+    <UFormField label="Layout" name="layout_columns">
+      <USelect
+        v-model="tradingConfig.columns"
+        :items="columnItems"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
       <UInput
         v-model.trim="tradingConfig.buying.title"
@@ -141,13 +149,27 @@ const tradingConfig = useState('trading-config', () => ({
   fnf_only: false,
   shipping_included: false,
   highlight_filled: false,
+  columns: 4,
 }))
+
+const normalizeColumns = (value) => {
+  const parsed = Number(value)
+
+  if (!Number.isFinite(parsed)) return 4
+
+  return Math.min(8, Math.max(1, Math.trunc(parsed)))
+}
 
 const typeItems = [
   { label: 'Buying', value: 'buying' },
   { label: 'Selling', value: 'selling' },
   { label: 'Trading', value: 'trading' },
 ]
+
+const columnItems = Array.from({ length: 8 }, (_, index) => ({
+  label: `${index + 1} Columns`,
+  value: index + 1,
+}))
 
 const resetTradingState = () => {
   tradingConfig.value.buying = {
@@ -175,4 +197,12 @@ watch(trading, () => {
 watch(social, (value) => {
   tradingConfig.value.social = value
 })
+
+watch(
+  () => tradingConfig.value.columns,
+  (value) => {
+    tradingConfig.value.columns = normalizeColumns(value)
+  },
+  { immediate: true },
+)
 </script>
