@@ -15,7 +15,7 @@
           :ui="{
             root: 'h-full flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
-            body: `flex items-center justify-between w-full gap-4 ${item.exchange && item.asking_price ? 'divide-x divide-default' : ''}`,
+            body: `flex items-start justify-between w-full gap-4 ${item.exchange && item.asking_price ? 'divide-x divide-default' : ''}`,
             footer: 'flex flex-wrap gap-2',
           }"
           :class="

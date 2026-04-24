@@ -5,7 +5,7 @@
     :style="previewVars"
   >
     <template #header>
-      <UDashboardNavbar title="Wishlist" :toggle="false">
+      <UDashboardNavbar title="Wishlist Preview" :toggle="false">
         <template v-if="!isMobile" #right>
           <UButton icon="hugeicons:clipboard" @click="copyToClipboard">
             Copy Text
@@ -19,7 +19,7 @@
 
           <UButton
             icon="hugeicons:layout-align-right"
-            :label="sidebarOpen ? 'Hide Configuration' : 'Show Configuration'"
+            :label="sidebarOpen ? 'Hide Settings' : 'Show Settings'"
             @click="sidebarOpen = !sidebarOpen"
           />
         </template>
@@ -28,7 +28,7 @@
             icon="hugeicons:layout-align-right"
             @click="sidebarOpen = !sidebarOpen"
           >
-            {{ sidebarOpen ? 'Hide Configuration' : 'Show Configuration' }}
+            {{ sidebarOpen ? 'Hide Settings' : 'Show Settings' }}
           </UButton>
         </template>
       </UDashboardNavbar>

@@ -190,14 +190,7 @@ const routes = computed(() => {
   ]
 
   const keysetChildren = [
-    {
-      label: 'Sets by Status',
-      icon: 'hugeicons:calendar-03',
-      ...(isCollapsed ? {} : { type: 'trigger' }),
-      defaultOpen: true,
-      active: route.path === '/keyset',
-      children: statuses,
-    },
+    ...statuses,
     {
       label: 'Sets by Profile',
       icon: 'hugeicons:grid-view',

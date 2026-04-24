@@ -18,7 +18,7 @@ const createDefaultTradingConfig = (social: Record<string, string> = {}) => ({
   fnf_only: false,
   shipping_included: false,
   highlight_filled: false,
-  columns: 4,
+  columns: 5,
 })
 
 export const useTradingConfig = () => {

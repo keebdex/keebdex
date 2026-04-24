@@ -16,18 +16,7 @@
   <UDashboardPanel v-else :ui="{ root: 'flex-row' }">
     <ArtisanWishlistPreview />
 
-    <USidebar
-      v-if="authenticated"
-      v-model:open="sidebarOpen"
-      title="Configuration"
-      collapsible="offcanvas"
-      side="right"
-      :ui="{
-        container: 'border-none',
-      }"
-    >
-      <ArtisanWishlistSettings />
-    </USidebar>
+    <ArtisanWishlistSettings />
   </UDashboardPanel>
 </template>
 
@@ -37,9 +26,4 @@ useSeoMeta({
   description:
     'Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more.',
 })
-
-const userStore = useUserStore()
-const { authenticated } = storeToRefs(userStore)
-
-const sidebarOpen = useState('wishlist-sidebar-open', () => true)
 </script>
