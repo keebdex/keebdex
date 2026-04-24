@@ -7,7 +7,7 @@
     <template #body>
       <UPageSection v-bind="props" class="mx-auto">
         <template #links>
-          <UButton icon="hugeicons:login-03" @click="visible = true">
+          <UButton icon="hugeicons:login-01" @click="visible = true">
             Sign In to Continue
           </UButton>
         </template>

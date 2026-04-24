@@ -1,5 +1,14 @@
 <template>
   <UForm :state="tradingConfig" class="space-y-4">
+    <UFormField label="Type" name="type">
+      <USelect
+        v-model="tradingConfig.type"
+        :items="typeItems"
+        class="w-full"
+        @update:model-value="resetTradingState"
+      />
+    </UFormField>
+
     <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
       <UInput
         v-model.trim="tradingConfig.buying.title"
@@ -103,15 +112,6 @@
         label="Use filled highlight"
       />
     </UFormField>
-
-    <UButton
-      v-if="$device.isMobileOrTablet"
-      block
-      icon="hugeicons:sidebar-right"
-      @click="showPreview = true"
-    >
-      Preview
-    </UButton>
   </UForm>
 </template>
 
@@ -125,7 +125,45 @@ const intentMap = {
   trading: ['keep', 'want'],
 }
 
-const tradingConfig = useState('trading-config')
+const tradingConfig = useState('trading-config', () => ({
+  selling: {
+    collection: undefined,
+    title: '',
+    placeholder: 'WTS/WTT',
+  },
+  buying: {
+    collection: undefined,
+    title: '',
+    placeholder: 'WTB/WTTF',
+  },
+  social,
+  type: 'buying',
+  fnf_only: false,
+  shipping_included: false,
+  highlight_filled: false,
+}))
+
+const typeItems = [
+  { label: 'Buying', value: 'buying' },
+  { label: 'Selling', value: 'selling' },
+  { label: 'Trading', value: 'trading' },
+]
+
+const resetTradingState = () => {
+  tradingConfig.value.buying = {
+    collection: undefined,
+    title: '',
+    placeholder: 'WTB/WTTF',
+  }
+  tradingConfig.value.selling = {
+    collection: undefined,
+    title: '',
+    placeholder: 'WTS/WTT',
+  }
+  tradingConfig.value.fnf_only = false
+  tradingConfig.value.shipping_included = false
+  tradingConfig.value.highlight_filled = false
+}
 
 const trading = computed(() => tradingConfig.value.type === 'trading')
 watch(trading, () => {
@@ -137,6 +175,4 @@ watch(trading, () => {
 watch(social, (value) => {
   tradingConfig.value.social = value
 })
-
-const showPreview = useState('wishlist-preview', () => false)
 </script>

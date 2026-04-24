@@ -1,38 +1,33 @@
 <template>
-  <UDashboardPanel :ui="{ root: 'flex-row' }">
-    <UDashboardPanel
-      v-if="authenticated"
-      id="wishlist"
-      :default-size="20"
-      :min-size="15"
-      :max-size="25"
-      resizable
-    >
-      <UDashboardNavbar title="Information">
-        <template #right>
-          <UTabs
-            v-model="tradingConfig.type"
-            :items="tabItems"
-            :content="false"
-            size="xs"
-            default-value="buying"
-            @update:model-value="resetTradingState"
-          />
-        </template>
-      </UDashboardNavbar>
+  <UDashboardPanel v-if="$device.isMobile" id="wishlist-mobile">
+    <template #header>
+      <UDashboardNavbar title="Wishlist" />
+    </template>
+    <template #body>
+      <UPageSection
+        icon="hugeicons:computer"
+        title="Desktop Only Feature"
+        description="The Wishlist Builder is designed for desktop use. Please switch to a desktop device for the best experience."
+        class="mx-auto"
+      />
+    </template>
+  </UDashboardPanel>
 
-      <ArtisanWishlistSettings class="p-4" />
-    </UDashboardPanel>
-
+  <UDashboardPanel v-else :ui="{ root: 'flex-row' }">
     <ArtisanWishlistPreview />
 
-    <ClientOnly>
-      <USlideover v-if="isMobileOrTablet" v-model:open="showPreview">
-        <template #content>
-          <ArtisanWishlistPreview @close="showPreview = false" />
-        </template>
-      </USlideover>
-    </ClientOnly>
+    <USidebar
+      v-if="authenticated"
+      v-model:open="sidebarOpen"
+      title="Configuration"
+      collapsible="offcanvas"
+      side="right"
+      :ui="{
+        container: 'border-none',
+      }"
+    >
+      <ArtisanWishlistSettings />
+    </USidebar>
   </UDashboardPanel>
 </template>
 
@@ -43,51 +38,8 @@ useSeoMeta({
     'Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more.',
 })
 
-const { isMobileOrTablet } = useDevice()
 const userStore = useUserStore()
-const { authenticated, social } = storeToRefs(userStore)
+const { authenticated } = storeToRefs(userStore)
 
-const tradingConfig = useState('trading-config', () => {
-  return {
-    selling: {
-      collection: undefined,
-      title: '',
-      placeholder: 'WTS/WTT',
-    },
-    buying: {
-      collection: undefined,
-      title: '',
-      placeholder: 'WTB/WTTF',
-    },
-    social,
-    type: 'buying',
-    fnf_only: false,
-    shipping_included: false,
-    highlight_filled: false,
-  }
-})
-
-const showPreview = useState('wishlist-preview')
-
-const resetTradingState = () => {
-  tradingConfig.value.buying = {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTB/WTTF',
-  }
-  tradingConfig.value.selling = {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTS/WTT',
-  }
-  tradingConfig.value.fnf_only = false
-  tradingConfig.value.shipping_included = false
-  tradingConfig.value.highlight_filled = false
-}
-
-const tabItems = [
-  { label: 'Buying', value: 'buying' },
-  { label: 'Selling', value: 'selling' },
-  { label: 'Trading', value: 'trading' },
-]
+const sidebarOpen = useState('wishlist-sidebar-open', () => true)
 </script>

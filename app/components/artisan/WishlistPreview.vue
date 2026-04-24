@@ -9,17 +9,7 @@
     }"
   >
     <template #header>
-      <UDashboardNavbar title="Preview" :toggle="false">
-        <template v-if="isMobile" #leading>
-          <UButton
-            icon="hugeicons:cancel-01"
-            color="neutral"
-            variant="ghost"
-            class="-ms-1.5"
-            @click="emit('close')"
-          />
-        </template>
-
+      <UDashboardNavbar title="Wishlist" :toggle="false">
         <template v-if="!isMobile" #right>
           <UButton icon="hugeicons:clipboard" @click="copyToClipboard">
             Copy Text
@@ -29,6 +19,20 @@
           </UButton>
           <UButton icon="hugeicons:image-download-02" @click="screenshot(true)">
             Save
+          </UButton>
+
+          <UButton
+            icon="hugeicons:layout-align-right"
+            :label="sidebarOpen ? 'Hide Configuration' : 'Show Configuration'"
+            @click="sidebarOpen = !sidebarOpen"
+          />
+        </template>
+        <template v-else #right>
+          <UButton
+            icon="hugeicons:layout-align-right"
+            @click="sidebarOpen = !sidebarOpen"
+          >
+            {{ sidebarOpen ? 'Hide Configuration' : 'Show Configuration' }}
           </UButton>
         </template>
       </UDashboardNavbar>
@@ -271,14 +275,13 @@
 import groupBy from 'lodash.groupby'
 import sortBy from 'lodash.sortby'
 
-const emit = defineEmits(['close'])
-
 const { isDesktop, isMobile } = useDevice()
 const toast = useToast()
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const tradingCfg = useState('trading-config')
+const sidebarOpen = useState('wishlist-sidebar-open', () => true)
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
 const { data: collections, refresh } = await useAsyncData(

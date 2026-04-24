@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",
-    "@takumi-rs/core": "1.1.0",
+    "@takumi-rs/core": "1.1.2",
     "@vercel/analytics": "2.0.1",
     "@vercel/speed-insights": "2.0.0",
     "crc": "4.3.2",
@@ -65,7 +65,7 @@
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/supabase": "2.0.6",
     "@tailwindcss/typography": "^0.5.19",
-    "@takumi-rs/wasm": "1.1.0",
+    "@takumi-rs/wasm": "1.1.2",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
     "@types/lodash.omit": "^4.5.9",

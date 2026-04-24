@@ -29,7 +29,7 @@
     <UButton
       v-else
       :label="collapsed ? undefined : 'Sign In'"
-      icon="hugeicons:login-03"
+      icon="hugeicons:login-01"
       :trailing-icon="collapsed ? undefined : 'hugeicons:unfold-more'"
       variant="ghost"
       block
@@ -130,7 +130,7 @@ const items = computed(() => {
         [
           {
             label: 'Sign Out',
-            icon: 'hugeicons:logout-03',
+            icon: 'hugeicons:logout-01',
             onSelect() {
               logout()
             },
@@ -141,7 +141,7 @@ const items = computed(() => {
         [
           {
             label: 'Sign In',
-            icon: 'hugeicons:login-03',
+            icon: 'hugeicons:login-01',
             onSelect() {
               toggleShowLogin()
             },

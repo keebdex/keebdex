@@ -55,10 +55,12 @@
 
           <template #body>
             <UUser
-              :name="item.artisan.name"
-              :description="item.artisan.sculpt?.name"
+              :name="colorwayTitle(item.artisan)"
               size="xl"
               class="flex-1"
+              :ui="{
+                name: 'font-bold',
+              }"
             />
 
             <span
@@ -76,6 +78,7 @@
             <UTooltip text="Priority" :delay-duration="0">
               <UButton
                 v-if="buying && item.exchange"
+                label="Priority"
                 icon="hugeicons:shopping-bag-favorite"
                 :color="item.priority ? 'success' : 'neutral'"
                 @click="$emit('onHighlight', item.id)"
@@ -84,6 +87,7 @@
 
             <UTooltip text="Remove" :delay-duration="0">
               <UButton
+                label="Remove"
                 icon="hugeicons:shopping-bag-remove"
                 color="error"
                 @click="$emit('onRemove', item)"
