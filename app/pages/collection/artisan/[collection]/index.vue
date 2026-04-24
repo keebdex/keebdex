@@ -257,7 +257,9 @@ const items = computed(() => {
   return menuItems
 })
 
-const sort = ref(data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name')
+const sort = computed(
+  () => data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name',
+)
 
 useSeoMeta({
   title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
