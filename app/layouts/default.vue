@@ -165,29 +165,16 @@ const routes = computed(() => {
       active: route.path.startsWith('/artisan/maker'),
     },
     {
-      label: 'Marketplace',
+      label: 'Trading Hub',
       icon: 'hugeicons:store-01',
-      defaultOpen: true,
-      type: 'trigger',
-      active:
-        route.path === '/artisan/marketplace' ||
-        route.path === '/artisan/wishlist',
-      children: [
-        {
-          label: 'Trading Hub',
-          icon: 'hugeicons:store-01',
-          to: '/artisan/marketplace',
-          active: route.path === '/artisan/marketplace',
-          exact: true,
-        },
-        {
-          label: 'Wishlist Image',
-          icon: 'hugeicons:ai-image',
-          to: '/artisan/wishlist',
-          active: route.path === '/artisan/wishlist',
-          exact: true,
-        },
-      ],
+      to: '/artisan/marketplace',
+      active: route.path === '/artisan/marketplace',
+    },
+    {
+      label: 'Wishlist Image',
+      icon: 'hugeicons:ai-image',
+      to: '/artisan/wishlist',
+      active: route.path === '/artisan/wishlist',
     },
   ]
 

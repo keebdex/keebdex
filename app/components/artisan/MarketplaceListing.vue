@@ -5,6 +5,9 @@
       :key="trade.id"
       title="Trade Inventory"
       description="All items listed are available and ready for your trade proposal."
+      :ui="{
+        content: 'max-w-4xl',
+      }"
     >
       <UPageCard
         variant="ghost"
@@ -41,7 +44,9 @@
           :description="trade.message"
         />
 
-        <UPageGrid class="grid !grid-cols-2 gap-4 mt-4">
+        <UPageGrid
+          class="grid !grid-cols-2 md:!grid-cols-3 xl:!grid-cols-4 gap-4 mt-4"
+        >
           <UPageCard
             v-for="{ id, priority, artisan } in trade.items"
             :key="id"
