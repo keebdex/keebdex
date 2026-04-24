@@ -9,6 +9,18 @@
       />
     </UFormField>
 
+    <UFormField
+      :label="`Layout - ${tradingConfig.columns} Column${tradingConfig.columns === 1 ? '' : 's'}`"
+      name="layout_columns"
+    >
+      <USlider
+        v-model="tradingConfig.columns"
+        :min="1"
+        :max="10"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
       <UInput
         v-model.trim="tradingConfig.buying.title"
@@ -125,23 +137,7 @@ const intentMap = {
   trading: ['keep', 'want'],
 }
 
-const tradingConfig = useState('trading-config', () => ({
-  selling: {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTS/WTT',
-  },
-  buying: {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTB/WTTF',
-  },
-  social,
-  type: 'buying',
-  fnf_only: false,
-  shipping_included: false,
-  highlight_filled: false,
-}))
+const tradingConfig = useTradingConfig()
 
 const typeItems = [
   { label: 'Buying', value: 'buying' },
