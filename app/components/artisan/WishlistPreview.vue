@@ -3,9 +3,6 @@
     v-if="authenticated"
     id="wishlist-preview"
     :style="previewVars"
-    :ui="{
-      body: 'bg-(--ui-bg)',
-    }"
   >
     <template #header>
       <UDashboardNavbar title="Wishlist" :toggle="false">
@@ -55,7 +52,7 @@
 
     <template v-if="totalItems" #body>
       <div
-        class="trading-preview mx-auto flex flex-col gap-8"
+        class="trading-preview bg-(--ui-bg) p-4 mx-auto flex flex-col gap-4"
         :style="previewStyle"
       >
         <UPage v-if="isMobile && !copying">
