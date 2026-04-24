@@ -140,7 +140,7 @@ const normalizeColumns = (value) => {
 
   if (!Number.isFinite(parsed)) return 4
 
-  return Math.min(8, Math.max(1, Math.trunc(parsed)))
+  return Math.min(10, Math.max(1, Math.trunc(parsed)))
 }
 
 const typeItems = [
@@ -149,10 +149,60 @@ const typeItems = [
   { label: 'Trading', value: 'trading' },
 ]
 
-const columnItems = Array.from({ length: 8 }, (_, index) => ({
-  label: `${index + 1} Columns`,
-  value: index + 1,
-}))
+const columnItems = [
+  {
+    type: 'label',
+    label: 'Simple',
+  },
+  {
+    value: 1,
+    label: '1 Column',
+  },
+  {
+    value: 2,
+    label: '2 Columns',
+  },
+  {
+    type: 'label',
+    label: 'Balanced',
+  },
+  {
+    value: 3,
+    label: '3 Columns',
+  },
+  {
+    value: 4,
+    label: '4 Columns',
+  },
+  {
+    value: 5,
+    label: '5 Columns',
+  },
+  {
+    value: 6,
+    label: '6 Columns',
+  },
+  {
+    type: 'label',
+    label: 'Dense',
+  },
+  {
+    value: 7,
+    label: '7 Columns',
+  },
+  {
+    value: 8,
+    label: '8 Columns',
+  },
+  {
+    value: 9,
+    label: '9 Columns',
+  },
+  {
+    value: 10,
+    label: '10 Columns',
+  },
+]
 
 const resetTradingState = () => {
   tradingConfig.value.buying = {
