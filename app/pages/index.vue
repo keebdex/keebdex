@@ -10,7 +10,6 @@
 
     <template #body>
       <UPageHero
-        :title="`Welcome to ${$config.public.site.name}`"
         :description="$config.public.site.description"
         :links="[
           {
@@ -31,12 +30,12 @@
             },
           },
         ]"
-        :ui="{
-          container: 'py-12 sm:py-16 lg:py-20',
-          title:
-            'bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text',
-        }"
-      />
+        :ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
+      >
+        <template #title>
+          Welcome to <AppWordmark size="2xl" inline />
+        </template>
+      </UPageHero>
 
       <FreshReleasesMarquee />
 

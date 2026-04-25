@@ -11,7 +11,7 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 - Added a dedicated **User Management** page for managing user access and roles.
 - Added designer autocomplete to the keyset form, with suggestions from existing designers while still allowing free-text input.
 - Added collection editing and revision autocomplete to the artisan sculpt form.
-- Introduced shared `useCollectionItem` and `useCollection` composables to centralize collection operations across collection pages.
+- Redesigned the Keebdex logo with a new wordmark using the Dosis typeface (bold/extrabold weight), replacing the previous image-based logo.
 
 ### 🐛 Bug Fixes
 
@@ -30,4 +30,5 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 - Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries; for example, searching "gundam" now finds "GUNDAMHAKU".
 - Improved page headers by moving profile details into a drawer in the navbar across maker, brand, sculpt, and keyboard pages for a cleaner layout.
 - Applied a shared logo card across all modules and improved card layout consistency with an equal-height grid.
+- Extracted `useCollectionItem` and `useCollection` as shared composables to centralize collection operations across collection pages.
 - Improved the artisan wishlist builder with configurable column layouts and content-width preview sizing for more consistent card layouts.

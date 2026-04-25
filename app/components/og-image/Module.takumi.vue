@@ -1,6 +1,7 @@
 <template>
   <div
-    class="w-full h-full flex items-center justify-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50 font-sans"
+    class="w-full h-full flex items-center justify-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50"
+    style="font-family: 'Dosis', sans-serif"
   >
     <!-- Background -->
     <div class="absolute inset-0" :style="bgBottomRight" />
@@ -50,18 +51,18 @@
       </div>
 
       <!-- Site Footer -->
-      <div class="flex items-center gap-4">
-        <!-- <img
-          src="/logo-filled.png"
-          :alt="$config.public.site.name"
-          class="h-[36px] lg:h-[48px] object-contain"
-        > -->
+      <div class="flex flex-col items-start">
         <span
           :class="headlineClass"
-          class="font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
+          class="font-extrabold tracking-tight leading-none"
         >
-          {{ $config.public.site.name }}
+          <span class="text-slate-900 dark:text-slate-100">keeb</span
+          ><span class="text-rose-500 dark:text-rose-400">dex</span>
         </span>
+        <div
+          class="rounded-full bg-rose-500 dark:bg-rose-400 mt-1"
+          style="height: 4px; width: 55px"
+        />
       </div>
     </div>
   </div>

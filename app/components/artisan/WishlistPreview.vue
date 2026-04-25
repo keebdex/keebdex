@@ -76,24 +76,7 @@
                     size: 'xl',
                   },
                 ]
-              : [
-                  {
-                    label: $config.public.site.name,
-                    avatar: {
-                      alt: $config.public.site.name,
-                      src:
-                        $colorMode.value === 'dark'
-                          ? '/logo-outlined.png'
-                          : '/logo-filled.png',
-                      ui: {
-                        root: 'rounded-none bg-transparent',
-                      },
-                    },
-                    color: 'info',
-                    variant: 'soft',
-                    size: 'xl',
-                  },
-                ]
+              : undefined
           "
           :ui="{
             root: 'border-none',
@@ -229,21 +212,8 @@
           @on-remove="remove"
         />
 
-        <USeparator class="mt-16">
-          <UUser
-            :name="`From ${$config.public.site.name} with love`"
-            size="3xl"
-            :avatar="{
-              alt: $config.public.site.name,
-              src:
-                $colorMode.value === 'dark'
-                  ? '/logo-outlined.png'
-                  : '/logo-filled.png',
-              ui: {
-                root: 'rounded-none bg-transparent',
-              },
-            }"
-          />
+        <USeparator class="mt-8">
+          <AppWordmark />
         </USeparator>
       </div>
     </template>
