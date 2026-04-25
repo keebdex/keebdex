@@ -83,8 +83,8 @@
                       alt: $config.public.site.name,
                       src:
                         $colorMode.value === 'dark'
-                          ? '/logo-outlined.png'
-                          : '/logo-filled.png',
+                          ? '/logo-dark.png'
+                          : '/logo-light.png',
                       ui: {
                         root: 'rounded-none bg-transparent',
                       },
@@ -237,8 +237,8 @@
               alt: $config.public.site.name,
               src:
                 $colorMode.value === 'dark'
-                  ? '/logo-outlined.png'
-                  : '/logo-filled.png',
+                  ? '/logo-dark.png'
+                  : '/logo-light.png',
               ui: {
                 root: 'rounded-none bg-transparent',
               },

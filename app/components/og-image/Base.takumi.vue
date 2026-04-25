@@ -1,6 +1,7 @@
 <template>
   <div
-    class="w-full h-full flex items-center justify-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50 font-sans"
+    class="w-full h-full flex items-center justify-center relative p-10 lg:p-[60px] bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50"
+    style="font-family: 'Dosis', sans-serif"
   >
     <!-- Background -->
     <div class="absolute inset-0" :style="bgBottomRight" />
@@ -18,7 +19,6 @@
           <span
             :class="headlineClass"
             class="font-extrabold tracking-tight leading-none"
-            style="font-family: 'Dosis', sans-serif"
           >
             <span class="text-slate-900 dark:text-slate-100">keeb</span
             ><span class="text-rose-500 dark:text-rose-400">dex</span>
@@ -47,7 +47,6 @@
           <span
             :class="titleClass"
             class="font-extrabold tracking-tight leading-none"
-            style="font-family: 'Dosis', sans-serif"
           >
             <span class="text-slate-900 dark:text-slate-100">keeb</span
             ><span class="text-rose-500 dark:text-rose-400">dex</span>

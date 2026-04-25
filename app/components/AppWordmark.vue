@@ -2,7 +2,7 @@
 const props = defineProps({
   size: {
     type: String,
-    default: 'md',
+    default: 'lg',
     validator: (v) => ['sm', 'md', 'lg', 'xl', '2xl'].includes(v),
   },
   inline: {

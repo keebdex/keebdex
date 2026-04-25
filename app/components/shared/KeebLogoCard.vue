@@ -53,7 +53,7 @@ const props = defineProps({
 
 const logoSrc = computed(() => `/logo/${props.slug}.png`)
 const fallbackSrc = computed(() =>
-  colorMode.value === 'dark' ? '/logo-outlined.png' : '/logo-filled.png',
+  colorMode.value === 'dark' ? '/logo-dark.png' : '/logo-light.png',
 )
 const imageSrc = ref(logoSrc.value)
 
