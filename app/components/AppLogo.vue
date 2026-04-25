@@ -2,12 +2,12 @@
   <!-- Icon mark — shown when sidebar is collapsed -->
   <div
     v-if="props.collapsed"
-    class="flex w-9 h-9 shrink-0 flex-col items-start justify-center gap-[3px] rounded-xl bg-rose-500 px-[7px] py-[5px]"
+    class="flex w-9 h-9 shrink-0 flex-col items-start justify-center gap-[3px] rounded-xl bg-rose-500 dark:bg-rose-400 px-[7px] py-[5px]"
   >
     <span class="font-dosis text-[14px] font-extrabold leading-none text-white">
       kd
+      <div class="h-[3px] w-full rounded-full bg-white" />
     </span>
-    <div class="h-[3px] w-[22px] rounded-full bg-white" />
   </div>
 
   <!-- Wordmark — shown when sidebar is expanded -->
