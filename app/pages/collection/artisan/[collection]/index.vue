@@ -7,6 +7,19 @@
         </template>
 
         <template #right>
+          <UButton
+            v-if="shareable"
+            label="Copy URL"
+            icon="hugeicons:copy-link"
+            @click="copyShareUrl"
+          />
+
+          <UButton
+            :icon="appConfig.ui.icons.sortManual"
+            label="Manual Sort"
+            :to="`/collection/artisan/${route.params.collection}/sort`"
+          />
+
           <UModal
             v-if="authenticated"
             v-model:visible="visible.edit"
@@ -28,14 +41,6 @@
             </template>
           </UModal>
 
-          <USelect
-            v-if="$device.isDesktopOrTablet"
-            v-model="sort"
-            :items="sortOptions"
-            :icon="sortIconMap[sort]"
-            variant="soft"
-          />
-
           <UModal
             v-model:visible="visible.delete"
             title="Delete Collection"
@@ -54,21 +59,8 @@
               <UButton label="Delete" color="error" @click="deleteCollection" />
             </template>
           </UModal>
-
-          <UDropdownMenu :items="items">
-            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
-          </UDropdownMenu>
         </template>
       </UDashboardNavbar>
-
-      <UDashboardToolbar v-if="$device.isMobile">
-        <USelect
-          v-model="sort"
-          :items="sortOptions"
-          :icon="sortIconMap[sort]"
-          variant="soft"
-        />
-      </UDashboardToolbar>
     </template>
 
     <template #body>
@@ -204,26 +196,6 @@ const toast = useToast()
 
 const { authenticated } = storeToRefs(useUserStore())
 
-const sortOptions = [
-  {
-    label: 'Sculpt Name',
-    icon: appConfig.ui.icons.sortAlphaAsc,
-    value: 'artisan.maker_sculpt_id|artisan.name',
-  },
-  {
-    label: 'Colorway Name',
-    icon: appConfig.ui.icons.sortAlphaAsc,
-    value: 'artisan.name|artisan.maker_sculpt_id',
-  },
-  {
-    label: 'Custom Order',
-    icon: appConfig.ui.icons.sortManual,
-    value: 'order|asc',
-  },
-]
-
-const sortIconMap = getSortIconMap(sortOptions)
-
 const { data, status, refresh, deleteCollection } = useCollection(
   () => route.params.collection,
 )
@@ -237,26 +209,6 @@ const shareable = computed(() => !!data.value?.published)
 const buying = computed(() => data.value?.intent === 'want')
 const selling = computed(() => data.value?.intent === 'sell')
 
-const items = computed(() => {
-  const menuItems = [
-    {
-      icon: appConfig.ui.icons.sortManual,
-      label: 'Manual Sort',
-      to: `/collection/artisan/${route.params.collection}/sort`,
-    },
-  ]
-
-  if (shareable.value) {
-    menuItems.push({
-      label: 'Copy URL',
-      icon: 'hugeicons:copy-link',
-      onClick: copyShareUrl,
-    })
-  }
-
-  return menuItems
-})
-
 const sort = computed(
   () => data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name',
 )
@@ -268,9 +220,10 @@ useSeoMeta({
 const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),
 )
+
 const sortedCollections = computed(() => {
   const iteratees =
-    data.value?.sort_by === 'order|asc'
+    sort.value === 'order|asc'
       ? sort.value.split('|')
       : ['artisan.maker_id', ...sort.value.split('|')]
 
