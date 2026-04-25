@@ -11,16 +11,7 @@
   </div>
 
   <!-- Wordmark — shown when sidebar is expanded -->
-  <div v-else class="flex flex-col items-start">
-    <span class="font-dosis text-xl font-extrabold leading-none tracking-tight">
-      <span ref="keebRef" class="text-slate-900 dark:text-slate-100">keeb</span
-      ><span class="text-rose-500">dex</span>
-    </span>
-    <div
-      class="mt-1 h-[5px] rounded-full bg-rose-500 transition-[width]"
-      :style="{ width: barWidth > 0 ? `${barWidth}px` : '40px' }"
-    />
-  </div>
+  <AppWordmark v-else />
 </template>
 
 <script setup>
@@ -30,15 +21,4 @@ const props = defineProps({
     default: false,
   },
 })
-
-const keebRef = ref(null)
-const barWidth = ref(0)
-
-function measureBar() {
-  if (keebRef.value) {
-    barWidth.value = keebRef.value.offsetWidth
-  }
-}
-
-onMounted(measureBar)
 </script>
