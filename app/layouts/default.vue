@@ -10,23 +10,8 @@
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header>
-        <NuxtLink to="/" class="flex items-end gap-2">
-          <NuxtImg
-            :alt="$config.public.site.name"
-            :src="
-              $colorMode.value === 'dark'
-                ? '/logo-outlined.png'
-                : '/logo-filled.png'
-            "
-            class="h-8 w-auto shrink-0"
-          />
-
-          <span
-            v-if="!collapsed"
-            class="text-xl font-bold bg-gradient-to-r from-blue-400 via-red-500 to-amber-400 dark:via-red-400 dark:to-amber-200 text-transparent bg-clip-text"
-          >
-            {{ $config.public.site.name }}
-          </span>
+        <NuxtLink to="/" class="flex items-center">
+          <AppLogo :collapsed="collapsed" />
         </NuxtLink>
 
         <div v-if="!collapsed" class="flex items-center gap-1.5 ms-auto">
