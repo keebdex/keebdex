@@ -39,7 +39,7 @@
               :title="collection.name"
               :description="`${collection.total_items} items`"
               :icon="
-                collection.published ? 'hugeicons:face-id' : 'hugeicons:locked'
+                collection.published ? 'hugeicons:global' : 'hugeicons:locked'
               "
               variant="subtle"
               :ui="{

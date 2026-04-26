@@ -25,6 +25,7 @@ We're expanding beyond keysets and entering the **Keyboard Era** — with full s
 ### 🚀 Improvements
 
 - Redesigned the keyset detail page with an archivist-inspired aesthetic and added a thumbnail strip for kit navigation.
+- Redesigned the collection share flow with a private/public radio group; Copy Link auto-publishes if needed, and visibility is no longer duplicated in the Edit Collection form.
 - Migrated application-level enums to native PostgreSQL types to improve data accuracy and prevent mismatches between the code and database.
 - Hardened POST API payload handling with shared database-based field filtering so only schema-defined fields are accepted and persisted.
 - Combined full-text search with partial matching to better handle incomplete or slightly misspelled queries; for example, searching "gundam" now finds "GUNDAMHAKU".

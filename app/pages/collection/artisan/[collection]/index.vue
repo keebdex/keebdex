@@ -7,12 +7,46 @@
         </template>
 
         <template #right>
-          <UButton
-            v-if="shareable"
-            label="Copy URL"
-            icon="hugeicons:copy-link"
-            @click="copyShareUrl"
-          />
+          <UModal
+            v-if="authenticated"
+            v-model:visible="visible.share"
+            title="Share Collection"
+            description="Control the visibility of this collection and generate a shareable link if needed."
+            :ui="{ footer: 'justify-end', content: 'divide-none' }"
+          >
+            <UButton icon="hugeicons:share-03" label="Share" />
+
+            <template #body>
+              <URadioGroup
+                v-model="shareOption"
+                variant="table"
+                indicator="end"
+                :items="shareItems"
+              />
+            </template>
+
+            <template v-if="shareOption === 'public'" #footer>
+              <UInput :model-value="shareUrl" readonly class="flex-1" />
+              <UButton
+                label="Copy Link"
+                icon="hugeicons:copy-link"
+                loading-auto
+                @click="copyShareUrl"
+              />
+            </template>
+            <template
+              v-else-if="shareOption === 'private' && data?.published"
+              #footer="{ close }"
+            >
+              <UButton label="Cancel" variant="ghost" @click="close" />
+              <UButton
+                label="Make Private"
+                color="error"
+                loading-auto
+                @click="saveShareOption(close)"
+              />
+            </template>
+          </UModal>
 
           <UButton
             :icon="appConfig.ui.icons.sortManual"
@@ -205,9 +239,65 @@ const { removeItem, moveItem } = useCollectionItem(
   refresh,
 )
 
-const shareable = computed(() => !!data.value?.published)
 const buying = computed(() => data.value?.intent === 'want')
 const selling = computed(() => data.value?.intent === 'sell')
+
+const shareUrl = computed(() => config.public.site.homepage + route.fullPath)
+const shareOption = ref('private')
+const shareItems = [
+  {
+    label: 'Keep Private',
+    description: 'Only you have access',
+    value: 'private',
+    icon: 'hugeicons:locked',
+  },
+  {
+    label: 'Create Public Link',
+    description: 'Anyone with the link can view',
+    value: 'public',
+    icon: 'hugeicons:global',
+  },
+]
+
+const visible = ref({
+  share: false,
+  edit: false,
+  delete: false,
+  remove: false,
+  edit_item: false,
+})
+
+// Sync shareOption with saved state whenever the modal is closed
+// (handles initial async data load + reset after close-without-save)
+watchEffect(() => {
+  if (!visible.value.share) {
+    shareOption.value = data.value?.published ? 'public' : 'private'
+  }
+})
+
+const saveShareOption = (close) => {
+  const published = shareOption.value === 'public'
+  return $fetch(`/api/users/${data.value?.uid}/collections/${data.value?.id}`, {
+    method: 'post',
+    body: { published },
+  })
+    .then(() => {
+      refresh()
+      toast.add(handleSuccess('update', data.value?.name, 'Collection'))
+      if (!published) close()
+    })
+    .catch((error) => {
+      toast.add(handleError(error))
+    })
+}
+
+const copyShareUrl = async () => {
+  if (!data.value?.published) {
+    await saveShareOption(() => {})
+  }
+  navigator.clipboard.writeText(shareUrl.value)
+  toast.add(handleNotice('copy'))
+}
 
 const sort = computed(
   () => data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name',
@@ -250,16 +340,4 @@ const moveTo = (collection, item) => {
 const remove = (id, colorway) => {
   removeItem(id, colorwayTitle(colorway))
 }
-
-const copyShareUrl = () => {
-  navigator.clipboard.writeText(config.public.site.homepage + route.fullPath)
-  toast.add(handleNotice('copy'))
-}
-
-const visible = ref({
-  edit: false,
-  delete: false,
-  remove: false,
-  edit_item: false,
-})
 </script>

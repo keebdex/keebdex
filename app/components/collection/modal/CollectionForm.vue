@@ -14,25 +14,6 @@
     </UFormField>
 
     <UFormField
-      label="Visibility"
-      name="published"
-      :help="
-        collection.published
-          ? 'Anyone can now discover your collection publicly.'
-          : 'Keeping it private means only you can see it.'
-      "
-    >
-      <URadioGroup
-        v-model="collection.published"
-        orientation="horizontal"
-        :items="[
-          { label: 'Private', value: false },
-          { label: 'Public', value: true },
-        ]"
-      />
-    </UFormField>
-
-    <UFormField
       v-if="collection.category === 'artisan'"
       label="Intent"
       name="intent"
