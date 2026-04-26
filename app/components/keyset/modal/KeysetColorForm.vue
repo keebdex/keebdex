@@ -20,6 +20,10 @@
             </template>
           </UUser>
         </template>
+
+        <template #tags-item-text="{ item }">
+          {{ item.system }} {{ item.code }}
+        </template>
       </UInputMenu>
     </UFormField>
 

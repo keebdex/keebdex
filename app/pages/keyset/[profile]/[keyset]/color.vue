@@ -32,6 +32,10 @@
       />
 
       <UTable :data="data.colors" :columns="columns" class="flex-1">
+        <template #code-cell="{ row }">
+          {{ row.original.color.system }} {{ row.original.color.code }}
+        </template>
+
         <template #hex-cell="{ row }">
           <KeysetColorSwatch :color="row.original.color?.hex" />
         </template>
@@ -117,6 +121,7 @@ const breadcrumbs = computed(() => {
 
 const columns = [
   {
+    id: 'code',
     accessorKey: 'color.code',
     header: 'Code',
   },
@@ -127,7 +132,7 @@ const columns = [
   {
     id: 'hex',
     accessorKey: 'color.hex',
-    header: 'Color',
+    header: 'Hex',
   },
   {
     id: 'action',

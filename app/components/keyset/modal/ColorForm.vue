@@ -79,6 +79,8 @@ const schema = z.object({
 })
 
 const onSubmit = async () => {
+  color.value.hex = color.value.hex.toLowerCase()
+
   await $fetch(`/api/colors`, {
     method: 'post',
     body: color.value,
