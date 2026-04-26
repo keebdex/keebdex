@@ -188,7 +188,7 @@
           }"
         />
 
-        <ArtisanWishlistDraggableCard
+        <ArtisanWishlistCard
           :data="buyingItems"
           :copying="copying"
           :buying="tradingCfg.type !== 'selling'"
@@ -204,7 +204,7 @@
           }"
         />
 
-        <ArtisanWishlistDraggableCard
+        <ArtisanWishlistCard
           v-if="trading"
           :data="sellingItems"
           :copying="copying"

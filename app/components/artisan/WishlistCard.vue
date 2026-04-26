@@ -15,7 +15,8 @@
           :ui="{
             root: 'h-full flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
-            body: `flex items-start justify-between w-full gap-4 ${item.exchange && item.asking_price ? 'divide-x divide-default' : ''}`,
+            body: 'w-full',
+            description: 'flex items-baseline justify-between',
             footer: 'flex flex-wrap gap-2',
           }"
           :class="
@@ -51,19 +52,14 @@
             </span>
           </div>
 
-          <template #body>
-            <UUser
-              :name="colorwayTitle(item.artisan)"
-              size="xl"
-              class="flex-1"
-            />
-
+          <template v-if="item.asking_price" #description>
             <span
-              v-if="item.exchange"
-              class="text-4xl font-bold"
-              :class="{
-                'text-error': item.priority,
-              }"
+              class="text-xs font-medium tracking-widest uppercase text-gray-400"
+            >
+              {{ buying ? 'Offering' : 'Asking' }}
+            </span>
+            <span
+              :class="`font-mono text-3xl font-bold ${item.priority ? 'text-error' : 'text-info'} opacity-90`"
             >
               {{ item.asking_price }}
             </span>
@@ -73,7 +69,6 @@
             <UTooltip text="Priority" :delay-duration="0">
               <UButton
                 v-if="buying && item.exchange"
-                label="Priority"
                 icon="hugeicons:shopping-bag-favorite"
                 :color="item.priority ? 'success' : 'neutral'"
                 @click="$emit('onHighlight', item.id)"
@@ -82,7 +77,6 @@
 
             <UTooltip text="Remove" :delay-duration="0">
               <UButton
-                label="Remove"
                 icon="hugeicons:shopping-bag-remove"
                 color="error"
                 @click="$emit('onRemove', item)"
