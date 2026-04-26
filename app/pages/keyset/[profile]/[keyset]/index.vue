@@ -24,9 +24,19 @@
             </template>
           </UModal>
 
-          <UDropdownMenu v-if="manageItems.length" :items="manageItems">
-            <UButton label="Manage" trailing-icon="hugeicons:arrow-down-01" />
-          </UDropdownMenu>
+          <UButton
+            v-if="editable"
+            label="Kits"
+            icon="hugeicons:cells"
+            :to="`/keyset/${data.profile_keyset_id}/kit`"
+          />
+
+          <UButton
+            v-if="editable"
+            label="Colors"
+            icon="hugeicons:colors"
+            :to="`/keyset/${data.profile_keyset_id}/color`"
+          />
         </template>
       </UDashboardNavbar>
     </template>
@@ -148,6 +158,13 @@
             </template>
 
             <template v-if="data.colors?.length" #colors>
+              <div class="text-muted text-sm text-info mb-4">
+                Colors displayed on screen are for reference only - use a
+                physical color fan for accurate matching. Some codes are from
+                the designer and may differ from official references (RAL,
+                Pantone, etc.).
+              </div>
+
               <UPageGrid
                 class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mb-2"
               >
@@ -201,22 +218,6 @@ const breadcrumbs = computed(() => {
     },
     {
       label: data.value.name,
-    },
-  ]
-})
-
-const manageItems = computed(() => {
-  if (!editable.value) return []
-  return [
-    {
-      label: 'Manage Kits',
-      icon: 'hugeicons:cells',
-      to: `/keyset/${data.value.profile_keyset_id}/kit`,
-    },
-    {
-      label: 'Manage Colors',
-      icon: 'hugeicons:colors',
-      to: `/keyset/${data.value.profile_keyset_id}/color`,
     },
   ]
 })

@@ -28,6 +28,10 @@
     </template>
 
     <template #body>
+      <UPageCard
+        description="Please add base kits and alpha kits before proceeding to add novelties, spacebars, or other additional kits."
+        variant="naked"
+      />
       <UTable :data="data.kits" :columns="columns" class="flex-1">
         <template #name-cell="{ row }">
           {{ row.original.name || row.original.category?.name }}

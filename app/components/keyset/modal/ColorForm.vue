@@ -23,6 +23,7 @@
     <UFormField
       label="Hex"
       name="hex"
+      required
       help="Enter a valid hex color starting with # — use 3 or 6 hex digits (0-9, A-F)"
     >
       <UInput

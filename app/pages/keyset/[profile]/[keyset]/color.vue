@@ -26,6 +26,11 @@
     </template>
 
     <template #body>
+      <UPageCard
+        description="Please add the primary keyset colors (alpha and modifier) before proceeding to add any accent colors."
+        variant="naked"
+      />
+
       <UTable :data="data.colors" :columns="columns" class="flex-1">
         <template #hex-cell="{ row }">
           <KeysetColorSwatch :color="row.original.color?.hex" />
