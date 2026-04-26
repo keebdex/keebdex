@@ -145,7 +145,7 @@
             </span>
           </div>
 
-          <template v-if="artisan.deleted" #footer>
+          <template v-if="authenticated && artisan.deleted" #footer>
             <UButton
               icon="hugeicons:clean"
               color="warning"
@@ -154,9 +154,8 @@
               Clear Outdated
             </UButton>
           </template>
-          <template v-else #footer>
+          <template v-else-if="authenticated" #footer>
             <UModal
-              v-if="authenticated"
               v-model:visible="visible.edit_item"
               :title="`Edit ${colorwayTitle(artisan)} Details`"
             >
