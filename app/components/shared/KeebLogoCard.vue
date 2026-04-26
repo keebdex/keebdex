@@ -16,7 +16,9 @@
         :alt="title"
         class="mx-auto my-auto overflow-hidden object-contain h-auto w-full"
         :class="{
-          invert: invertible && $colorMode.value === 'dark',
+          invert:
+            $colorMode.value === 'dark' &&
+            (invertible || imageSrc === '/not-found.png'),
           [`aspect-${props.aspect}`]: props.aspect,
         }"
         @error="handleError"
@@ -26,8 +28,6 @@
 </template>
 
 <script setup>
-const colorMode = useColorMode()
-
 const props = defineProps({
   title: {
     type: String,
@@ -52,15 +52,14 @@ const props = defineProps({
 })
 
 const logoSrc = computed(() => `/logo/${props.slug}.png`)
-const fallbackSrc = computed(() =>
-  colorMode.value === 'dark' ? '/logo-dark.png' : '/logo-light.png',
-)
+const fallbackSrc = '/not-found.png'
+
 const imageSrc = ref(logoSrc.value)
 
 function handleError() {
-  if (imageSrc.value === fallbackSrc.value) return
+  if (imageSrc.value === fallbackSrc) return
 
-  imageSrc.value = fallbackSrc.value
+  imageSrc.value = fallbackSrc
 }
 
 watch(logoSrc, (value) => {
