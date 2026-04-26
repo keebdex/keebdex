@@ -12,7 +12,7 @@
       />
     </UFormField>
 
-    <UFormField label="Name" name="name" required>
+    <UFormField label="Name" name="name">
       <UInput
         v-model.trim="color.name"
         icon="hugeicons:text-font"
@@ -23,7 +23,6 @@
     <UFormField
       label="Hex"
       name="hex"
-      required
       help="Enter a valid hex color starting with # — use 3 or 6 hex digits (0-9, A-F)"
     >
       <UInput
@@ -71,12 +70,15 @@ const colorSystems = ['GMK', 'SP', 'Pantone', 'RAL']
 const schema = z.object({
   system: z.enum(colorSystems),
   code: z.string().min(1),
-  name: z.string().min(1),
-  hex: z.string().length(7),
+  name: z.string().nullish(),
+  hex: z
+    .string()
+    .lowercase()
+    .regex(/^#([0-9a-f]{3}|[0-9a-f]{6})$/),
 })
 
 const onSubmit = async () => {
-  await $fetch(`/api/colors/${color.value.id}`, {
+  await $fetch(`/api/colors`, {
     method: 'post',
     body: color.value,
   })

@@ -1,6 +1,6 @@
 <template>
   <UPageCard
-    :title="code"
+    :title="`${system} ${code}`"
     :description="hex"
     reverse
     variant="naked"
@@ -17,6 +17,10 @@
 
 <script setup>
 defineProps({
+  system: {
+    type: String,
+    required: true,
+  },
   code: {
     type: String,
     required: true,

@@ -13,8 +13,12 @@
         label-key="code"
         class="w-full"
       >
-        <template #item-leading="{ item }">
-          <UAvatar :style="{ backgroundColor: item.hex }" />
+        <template #item="{ item }">
+          <UUser :name="`${item.system} ${item.code}`" :description="item.name">
+            <template #avatar>
+              <UAvatar :style="{ backgroundColor: item.hex }" />
+            </template>
+          </UUser>
         </template>
       </UInputMenu>
     </UFormField>
