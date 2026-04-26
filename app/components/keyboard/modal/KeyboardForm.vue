@@ -114,7 +114,7 @@ let originalSearchTimer = null
 const fetchOriginalKeyboardOptions = async () => {
   const term = originalKeyboardSearch.value.trim()
 
-  if (term.length < 2) {
+  if (term.length < SEARCH_TERM_MIN_LENGTH) {
     originalKeyboardOptions.value = []
     originalKeyboardStatus.value = 'idle'
     return

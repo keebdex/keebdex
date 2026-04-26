@@ -125,3 +125,5 @@ export const getRoleLabel = (
 
 export const squareGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
+
+export const SEARCH_TERM_MIN_LENGTH = 3

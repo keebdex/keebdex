@@ -211,7 +211,7 @@ let designerSearchTimer = null
 const fetchDesignerOptions = async () => {
   const term = designerTerm.value.trim()
 
-  if (term.length < 2) {
+  if (term.length < SEARCH_TERM_MIN_LENGTH) {
     designerOptions.value = []
     designersStatus.value = 'idle'
     return

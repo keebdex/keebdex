@@ -20,15 +20,21 @@ const { routes } = defineProps({
 const colorMode = useColorMode()
 
 const term = ref('')
+const normalizedTerm = computed(() => term.value.trim())
 
 const { data, status } = await useAsyncData(
   'command-palette',
-  () =>
-    $fetch('/api/search', {
-      query: { query: term.value, theme: colorMode.value },
-    }),
-  { watch: [term] },
+  async () => {
+    if (normalizedTerm.value.length < SEARCH_TERM_MIN_LENGTH) {
+      return []
+    }
+
+    return await $fetch('/api/search', {
+      query: { query: normalizedTerm.value, theme: colorMode.value },
+    })
+  },
+  { watch: [normalizedTerm] },
 )
 
-const groups = computed(() => routes.concat(data.value))
+const groups = computed(() => routes.concat(data.value || []))
 </script>
