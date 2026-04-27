@@ -41,6 +41,8 @@
 </template>
 
 <script setup>
+import Papa from 'papaparse'
+
 const emit = defineEmits(['onSuccess'])
 
 const toast = useToast()
@@ -51,37 +53,6 @@ const isImporting = ref(false)
 
 const preview = ref({ headers: [], columns: [], rows: [], total: 0 })
 
-const parseCsvLine = (line) => {
-  const values = []
-  let current = ''
-  let inQuotes = false
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i]
-
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"'
-        i++
-      } else {
-        inQuotes = !inQuotes
-      }
-      continue
-    }
-
-    if (char === ',' && !inQuotes) {
-      values.push(current.trim())
-      current = ''
-      continue
-    }
-
-    current += char
-  }
-
-  values.push(current.trim())
-  return values
-}
-
 watch(importFile, async (val) => {
   const file = getSingleFile(val)
   preview.value = { headers: [], columns: [], rows: [], total: 0 }
@@ -89,15 +60,25 @@ watch(importFile, async (val) => {
   if (!file) return
 
   const text = await file.text()
-  const lines = text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean)
+  const { data: rows, errors } = Papa.parse(text, {
+    skipEmptyLines: true,
+  })
 
-  if (lines.length < 2) return
+  if (errors.length) {
+    toast.add(
+      handleError({
+        statusCode: 400,
+        statusMessage: `CSV preview parse error: ${errors[0]?.message ?? 'Unknown error'}`,
+      }),
+    )
+    return
+  }
 
-  const headers = parseCsvLine(lines[0])
-  const dataRows = lines.slice(1).map(parseCsvLine)
+  const [headerRow, ...dataRows] = rows
+
+  if (!headerRow?.length || !dataRows.length) return
+
+  const headers = headerRow.map((h) => h?.toString().trim() || '')
 
   preview.value = {
     headers,
@@ -105,7 +86,7 @@ watch(importFile, async (val) => {
     rows: dataRows
       .slice(0, 10)
       .map((row) =>
-        Object.fromEntries(headers.map((h, i) => [h, row[i] ?? ''])),
+        Object.fromEntries(headers.map((h, i) => [h, row?.[i] ?? ''])),
       ),
     total: dataRows.length,
   }

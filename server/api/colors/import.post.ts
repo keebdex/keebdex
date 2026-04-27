@@ -1,50 +1,11 @@
 import { serverSupabaseClient } from '#supabase/server'
+import Papa from 'papaparse'
 import type { TablesInsert } from '~/types/database.types'
 
 type ColorInsert = Pick<
   TablesInsert<'colors'>,
   'system' | 'code' | 'name' | 'hex'
 >
-
-function parseCsvLine(line: string) {
-  const values: string[] = []
-  let current = ''
-  let inQuotes = false
-
-  for (let i = 0; i < line.length; i += 1) {
-    const char = line[i]
-    const nextChar = line[i + 1]
-
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        current += '"'
-        i += 1
-      } else {
-        inQuotes = !inQuotes
-      }
-      continue
-    }
-
-    if (char === ',' && !inQuotes) {
-      values.push(current.trim())
-      current = ''
-      continue
-    }
-
-    current += char
-  }
-
-  values.push(current.trim())
-  return values
-}
-
-function parseCsv(text: string) {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map(parseCsvLine)
-}
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -67,17 +28,28 @@ export default defineEventHandler(async (event) => {
   }
 
   const rawCsv = await file.text()
-  const rows = parseCsv(rawCsv)
+
+  const { data: rows, errors } = Papa.parse<string[]>(rawCsv, {
+    skipEmptyLines: true,
+  })
+
+  if (errors.length) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `CSV parse error: ${errors[0]?.message ?? 'Unknown error'}`,
+    })
+  }
+
   const [headerRow, ...dataRows] = rows
 
-  if (!headerRow) {
+  if (!headerRow?.length) {
     throw createError({
       statusCode: 400,
       statusMessage: 'CSV file is empty',
     })
   }
 
-  const headers = headerRow.map((header) => header.toLowerCase())
+  const headers = headerRow.map((h) => h.toLowerCase().trim())
   const requiredHeaders = ['system', 'code', 'hex']
 
   for (const requiredHeader of requiredHeaders) {
