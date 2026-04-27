@@ -76,6 +76,7 @@ export default defineNuxtConfig({
         'lodash.groupby', // CJS
         'lodash.sortby', // CJS
         'modern-screenshot',
+        'papaparse', // CJS
         'vuedraggable', // CJS
         'zod',
       ],
