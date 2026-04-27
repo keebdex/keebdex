@@ -132,7 +132,7 @@ const { isAdmin } = storeToRefs(userStore)
 const editable = computed(() => userStore.isEditable())
 const toast = useToast()
 
-const { page, size, setPage, resetPage } = usePagination(20)
+const { page, size, setPage, resetPage } = usePagination(10)
 
 const term = ref('')
 const system = ref('all')

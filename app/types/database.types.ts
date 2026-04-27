@@ -235,7 +235,7 @@ export type Database = {
           hex: string
           id: number
           name: string | null
-          system: string
+          system: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Insert: {
           code: string
@@ -244,7 +244,7 @@ export type Database = {
           hex: string
           id?: number
           name?: string | null
-          system: string
+          system: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Update: {
           code?: string
@@ -253,7 +253,7 @@ export type Database = {
           hex?: string
           id?: number
           name?: string | null
-          system?: string
+          system?: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Relationships: []
       }

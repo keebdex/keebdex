@@ -9,7 +9,8 @@
     <template #body>
       <p class="text-sm text-muted">
         Upload a CSV file with headers:
-        <strong>system, code, name, hex</strong>
+        <strong>system, code, hex</strong> and optional <strong>name</strong>
+        (max 2MB)
       </p>
 
       <UFileUpload
@@ -51,6 +52,8 @@ const visible = ref(false)
 const importFile = ref(null)
 const isImporting = ref(false)
 
+const MAX_CSV_SIZE_BYTES = 2 * 1024 * 1024
+
 const preview = ref({ headers: [], columns: [], rows: [], total: 0 })
 
 watch(importFile, async (val) => {
@@ -58,6 +61,17 @@ watch(importFile, async (val) => {
   preview.value = { headers: [], columns: [], rows: [], total: 0 }
 
   if (!file) return
+
+  if (file.size > MAX_CSV_SIZE_BYTES) {
+    toast.add(
+      handleError({
+        statusCode: 413,
+        statusMessage: 'CSV file is too large. Maximum size is 2MB.',
+      }),
+    )
+    importFile.value = null
+    return
+  }
 
   const text = await file.text()
   const { data: rows, errors } = Papa.parse(text, {
@@ -106,6 +120,16 @@ const importColors = async (close) => {
       handleError({
         statusCode: 400,
         statusMessage: 'Please select a CSV file before importing.',
+      }),
+    )
+    return
+  }
+
+  if (file.size > MAX_CSV_SIZE_BYTES) {
+    toast.add(
+      handleError({
+        statusCode: 413,
+        statusMessage: 'CSV file is too large. Maximum size is 2MB.',
       }),
     )
     return

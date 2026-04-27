@@ -7,6 +7,8 @@ type ColorInsert = Pick<
   'system' | 'code' | 'name' | 'hex'
 >
 
+const MAX_CSV_SIZE_BYTES = 2 * 1024 * 1024
+
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
@@ -24,6 +26,13 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Please upload a valid CSV file',
+    })
+  }
+
+  if (file.size > MAX_CSV_SIZE_BYTES) {
+    throw createError({
+      statusCode: 413,
+      statusMessage: 'CSV file is too large. Maximum size is 2MB.',
     })
   }
 

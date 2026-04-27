@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased] - 4.0.1
+## [Unreleased]
+
+## [4.0.1]
 
 ### ✨ What's New
 
