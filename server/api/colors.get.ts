@@ -25,7 +25,10 @@ export default defineEventHandler(async (event) => {
     dbQuery = dbQuery.textSearch('fts', fts)
   }
 
-  const { data, count, error } = await dbQuery.range(from, to)
+  const { data, count, error } = await dbQuery
+    .range(from, to)
+    .order('system', { ascending: true })
+    .order('code', { ascending: true })
 
   if (error) {
     throw createError({
