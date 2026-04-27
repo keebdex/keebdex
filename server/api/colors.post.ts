@@ -4,7 +4,13 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const body = pickTableFields('colors', await readBody(event))
 
-  const { data, error } = await client.from('colors').insert(body)
+  const { data, error } = await client
+    .from('colors')
+    .upsert(body, {
+      onConflict: 'system,code',
+      ignoreDuplicates: true,
+    })
+    .select()
 
   if (error) {
     throw createError({
