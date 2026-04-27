@@ -5,23 +5,27 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
   const query: Record<string, any> = getQuery(event)
-  const { page, size } = query
+  const page = Number(query.page) || 1
+  const size = Number(query.size) || 20
+  const system = query.system?.toString().trim()
+  const term = query.term?.toString().trim()
 
   const from = (page - 1) * size
   const to = page * size - 1
 
-  const fts = query.term
-    ?.toString()
-    .trim()
-    .split(/[\s,\t,\n]+/) // split and remove more than 1 space
-    .join(' | ')
+  let dbQuery = client.from('colors').select('*', { count: 'exact' })
 
-  const { data, count, error } = Object.hasOwn(query, 'term')
-    ? await client.from('colors').select().textSearch('fts', `${fts}`)
-    : await client
-        .from('colors')
-        .select('*', { count: 'exact' })
-        .range(from, to)
+  if (system) {
+    dbQuery = dbQuery.eq('system', system)
+  }
+
+  if (term) {
+    const fts = term.split(/[\s,\t,\n]+/).join(' | ')
+
+    dbQuery = dbQuery.textSearch('fts', fts)
+  }
+
+  const { data, count, error } = await dbQuery.range(from, to)
 
   if (error) {
     throw createError({

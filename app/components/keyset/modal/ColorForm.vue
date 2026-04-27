@@ -45,6 +45,7 @@
 
 <script setup>
 import { z } from 'zod'
+import { Constants } from '~/types/database.types'
 
 const emit = defineEmits(['onSuccess'])
 
@@ -66,7 +67,7 @@ onBeforeMount(() => {
   Object.assign(color.value, metadata)
 })
 
-const colorSystems = ['GMK', 'SP', 'Pantone', 'RAL']
+const colorSystems = Constants.public.Enums.keyset_color_matching_system
 
 const schema = z.object({
   system: z.enum(colorSystems),

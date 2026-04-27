@@ -1061,6 +1061,7 @@ export type Database = {
         | "Hotswap + RGB"
         | "Bluetooth"
         | "Wired"
+      keyset_color_matching_system: "GMK" | "SP" | "Pantone" | "RAL" | "Custom"
       keyset_profile:
         | "Cherry"
         | "SA"
@@ -1286,6 +1287,7 @@ export const Constants = {
         "Bluetooth",
         "Wired",
       ],
+      keyset_color_matching_system: ["GMK", "SP", "Pantone", "RAL", "Custom"],
       keyset_profile: [
         "Cherry",
         "SA",

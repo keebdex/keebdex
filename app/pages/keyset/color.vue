@@ -2,8 +2,10 @@
   <UDashboardPanel id="keyset-color">
     <template #header>
       <UDashboardNavbar :title="meta.title">
-        <template #right>
-          <UModal v-if="editable" v-model:visible="visible" title="Add Color">
+        <template v-if="editable" #right>
+          <KeysetModalColorImportForm @on-success="refresh" />
+
+          <UModal v-model:visible="visible" title="Add Color">
             <UButton icon="hugeicons:color-picker" label="Add" />
 
             <template #body="{ close }">
@@ -24,11 +26,20 @@
     </template>
 
     <template #body>
-      <div class="flex px-4 py-3.5 border-b border-accented">
+      <div
+        class="flex flex-col gap-2 px-4 py-3.5 border-b border-accented sm:flex-row"
+      >
+        <USelect
+          v-model="system"
+          :items="systemFilters"
+          class="w-full sm:w-56"
+        />
+
         <UInput
           v-model="term"
           icon="hugeicons:filter"
           placeholder="What's your hue?"
+          class="w-full"
         />
       </div>
 
@@ -110,24 +121,41 @@
 </template>
 
 <script setup>
+import { Constants } from '~/types/database.types'
+
 const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
 const editable = computed(() => userStore.isEditable())
+const toast = useToast()
 
 const { page, size, setPage, resetPage } = usePagination(20)
 
 const term = ref('')
+const system = ref('all')
+const systemFilters = [
+  { label: 'All Matching Systems', value: 'all' },
+  ...Constants.public.Enums.keyset_color_matching_system.map((s) => ({
+    label: s,
+    value: s,
+  })),
+]
+
 const query = computed(() => {
-  return term.value ? { term: term.value } : { page: page.value, size }
+  return {
+    page: page.value,
+    size,
+    term: term.value.trim(),
+    ...(system.value !== 'all' ? { system: system.value } : {}),
+  }
 })
 
 const { data, status, refresh } = await useAsyncData(
   'colors',
   () => $fetch('/api/colors', { query: query.value }),
-  { watch: [page, term] },
+  { watch: [page, term, system] },
 )
 
-watch(term, resetPage)
+watch([term, system], resetPage)
 
 const columns = [
   {
