@@ -55,7 +55,11 @@
 
         <template v-if="editable" #action-cell="{ row }">
           <div class="flex gap-2">
-            <UModal v-model:visible="visible" title="Edit Color">
+            <UModal
+              v-model:visible="visible"
+              title="Edit Color"
+              @after:leave="setSelectedColor"
+            >
               <UButton
                 label="Edit"
                 icon="hugeicons:dashboard-circle-edit"

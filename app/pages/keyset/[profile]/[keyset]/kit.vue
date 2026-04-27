@@ -44,7 +44,11 @@
         </template>
         <template #action-cell="{ row }">
           <div class="flex gap-2">
-            <UModal v-model:visible="visible" title="Edit Kit">
+            <UModal
+              v-model:visible="visible"
+              title="Edit Kit"
+              @after:leave="setSelectedKit"
+            >
               <UButton
                 label="Edit"
                 icon="hugeicons:dashboard-square-edit"

@@ -96,7 +96,7 @@ const codeOptions = ref([])
 const fetchCodeOptions = async () => {
   const term = codeTerm.value.trim()
 
-  if (term.length < 2) {
+  if (isEdit || term.length < 2) {
     codeOptions.value = []
     codeOptionsStatus.value = 'idle'
     return
