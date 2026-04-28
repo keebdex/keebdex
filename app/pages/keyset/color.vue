@@ -3,10 +3,12 @@
     <template #header>
       <UDashboardNavbar :title="meta.title">
         <template v-if="editable" #right>
-          <KeysetModalColorImportForm @on-success="refresh" />
-
           <UModal v-model:visible="visible" title="Add Color">
-            <UButton icon="hugeicons:color-picker" label="Add" />
+            <UButton
+              icon="hugeicons:color-picker"
+              label="Add"
+              color="primary"
+            />
 
             <template #body="{ close }">
               <KeysetModalColorForm
@@ -21,6 +23,8 @@
               />
             </template>
           </UModal>
+
+          <KeysetModalColorImportForm @on-success="refresh" />
         </template>
       </UDashboardNavbar>
     </template>

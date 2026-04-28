@@ -194,8 +194,13 @@ const keysetStatusEnum = Constants.public.Enums.keyset_status
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
 
 const designerTerm = ref('')
-const designersStatus = ref('idle')
-const designerOptions = ref([])
+
+const { data: designerData, status: designersStatus } = useGuardedSearch(
+  '/api/keysets/designers',
+  { term: designerTerm },
+)
+
+const designerOptions = computed(() => designerData.value?.designers || [])
 
 const keyset = ref({
   name: '',
@@ -206,34 +211,6 @@ const keyset = ref({
 const range = ref({})
 const uploadedFile = ref(null)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
-let designerSearchTimer = null
-
-const fetchDesignerOptions = async () => {
-  const term = designerTerm.value.trim()
-
-  if (term.length < SEARCH_TERM_MIN_LENGTH) {
-    designerOptions.value = []
-    designersStatus.value = 'idle'
-    return
-  }
-
-  designersStatus.value = 'pending'
-
-  await $fetch('/api/keysets/designers', {
-    query: {
-      term,
-    },
-  })
-    .then((data) => {
-      designerOptions.value = data.designers || []
-      designersStatus.value = 'success'
-    })
-    .catch((error) => {
-      designerOptions.value = []
-      designersStatus.value = 'error'
-      toast.add(handleError(error))
-    })
-}
 
 onBeforeMount(() => {
   const { page, size, ...rest } = metadata
@@ -247,22 +224,6 @@ onBeforeMount(() => {
   }
   if (rest.end_date) {
     range.value.end = parseDate(rest.end_date)
-  }
-})
-
-watch(designerTerm, () => {
-  if (designerSearchTimer) {
-    clearTimeout(designerSearchTimer)
-  }
-
-  designerSearchTimer = setTimeout(() => {
-    fetchDesignerOptions()
-  }, 250)
-})
-
-onBeforeUnmount(() => {
-  if (designerSearchTimer) {
-    clearTimeout(designerSearchTimer)
   }
 })
 

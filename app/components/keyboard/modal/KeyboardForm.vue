@@ -54,10 +54,10 @@
     >
       <USelectMenu
         v-model="selectedOriginalKeyboard"
-        v-model:search-term="originalKeyboardSearch"
+        v-model:search-term="term"
         :items="originalKeyboardOptions"
         label-key="label"
-        :loading="originalKeyboardStatus === 'pending'"
+        :loading="status === 'pending'"
         ignore-filter
         icon="hugeicons:keyboard"
         placeholder="Type at least 2 characters to search..."
@@ -105,49 +105,24 @@ const keyboard = ref({
 })
 
 const selectedOriginalKeyboard = ref(null)
-const originalKeyboardSearch = ref('')
-const originalKeyboardStatus = ref('idle')
-const originalKeyboardOptions = ref([])
+const term = ref('')
 
-let originalSearchTimer = null
+const { data, status } = useGuardedSearch('/api/search', {
+  term,
+  module: 'keyboard',
+})
 
-const fetchOriginalKeyboardOptions = async () => {
-  const term = originalKeyboardSearch.value.trim()
-
-  if (term.length < SEARCH_TERM_MIN_LENGTH) {
-    originalKeyboardOptions.value = []
-    originalKeyboardStatus.value = 'idle'
-    return
-  }
-
-  originalKeyboardStatus.value = 'pending'
-
-  await $fetch('/api/search', {
-    query: {
-      query: term,
-      theme: colorMode.value,
-      module: 'keyboard',
-    },
-  })
-    .then((groups) => {
-      const options = groups
-        .filter((group) => group.id === 'keyboard-board')
-        .flatMap((group) => group.items || [])
-        .map((item) => ({
-          value: item.to.replace('/keyboard/brand/', ''),
-          label: formatKeyboardDescription([item.label, item.suffix]),
-          avatar: item.avatar,
-        }))
-
-      originalKeyboardOptions.value = options
-      originalKeyboardStatus.value = 'success'
-    })
-    .catch((error) => {
-      originalKeyboardOptions.value = []
-      originalKeyboardStatus.value = 'error'
-      toast.add(handleError(error))
-    })
-}
+const originalKeyboardOptions = computed(() => {
+  const groups = Array.isArray(data.value) ? data.value : []
+  return groups
+    .filter((group) => group.id === 'keyboard-board')
+    .flatMap((group) => group.items || [])
+    .map((item) => ({
+      value: item.to.replace('/keyboard/brand/', ''),
+      label: formatKeyboardDescription([item.label, item.suffix]),
+      avatar: item.avatar,
+    }))
+})
 
 const schema = z.object({
   name: z.string().min(1),
@@ -193,25 +168,6 @@ onBeforeMount(() => {
         },
       },
     }
-
-    originalKeyboardOptions.value = [selectedOriginalKeyboard.value]
-    originalKeyboardStatus.value = 'success'
-  }
-})
-
-watch(originalKeyboardSearch, () => {
-  if (originalSearchTimer) {
-    clearTimeout(originalSearchTimer)
-  }
-
-  originalSearchTimer = setTimeout(() => {
-    fetchOriginalKeyboardOptions()
-  }, 250)
-})
-
-onBeforeUnmount(() => {
-  if (originalSearchTimer) {
-    clearTimeout(originalSearchTimer)
   }
 })
 

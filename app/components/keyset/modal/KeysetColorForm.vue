@@ -40,22 +40,8 @@ const route = useRoute()
 const toast = useToast()
 
 const term = ref('')
-const query = computed(() => {
-  return {
-    term: term.value,
-  }
-})
 
-const { data, status } = await useAsyncData(
-  route.path,
-  () =>
-    $fetch('/api/colors', {
-      query: query.value,
-    }),
-  {
-    watch: [term],
-  },
-)
+const { data, status } = useGuardedSearch('/api/colors', { term, minLength: 2 })
 
 const selectedColors = ref([])
 

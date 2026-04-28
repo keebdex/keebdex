@@ -2,8 +2,6 @@
 
 ## [Unreleased]
 
-## [4.0.1]
-
 ### ✨ What's New
 
 - Added CSV color import with preview and a matching system filter for narrowing results.
@@ -16,3 +14,4 @@
 ### 🚀 Improvements
 
 - Enhanced color creation with code suggestions, duplicate hints, and helper text for display name.
+- Introduced `useGuardedSearch` composable to centralize API search logic across form components, enforcing consistent minimum term length validation.

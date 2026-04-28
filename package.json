@@ -57,7 +57,7 @@
     "@commitlint/cli": "^20.5.2",
     "@commitlint/config-conventional": "^20.5.0",
     "@iconify-json/hugeicons": "^1.2.25",
-    "@iconify-json/simple-icons": "^1.2.78",
+    "@iconify-json/simple-icons": "^1.2.80",
     "@iconify-json/solar": "^1.2.5",
     "@nuxt/content": "^3.13.0",
     "@nuxt/eslint": "^1.15.2",

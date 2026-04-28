@@ -8,7 +8,11 @@
 
         <template #right>
           <UModal v-model:visible="visible" title="Add Kit">
-            <UButton icon="hugeicons:dashboard-square-add" label="Add" />
+            <UButton
+              icon="hugeicons:dashboard-square-add"
+              label="Add"
+              color="primary"
+            />
 
             <template #body="{ close }">
               <KeysetModalKeysetKitForm

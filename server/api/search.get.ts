@@ -1,12 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
 
-const avatarUi = (invertible: boolean, theme: string | undefined) => {
-  return {
-    root: 'bg-transparent rounded-none',
-    image: invertible && theme === 'dark' && 'invert',
-  }
-}
-
 const mergeById = (primary: any[] = [], secondary: any[] = []) => {
   const map = new Map()
 
@@ -52,9 +45,10 @@ const runCombinedSearch = async ({
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
-  const { query, theme, module } = getQuery(event)
+  const { term, query, module } = getQuery(event)
+  const searchTerm = term || query
 
-  if (!query) return []
+  if (!searchTerm) return []
 
   const modules = String(module || '')
     .split(',')
@@ -69,13 +63,13 @@ export default defineEventHandler(async (event) => {
     return true
   }
 
-  const fts = query
+  const fts = searchTerm
     ?.toString()
     .trim()
     .split(/[\s,\t,\n]+/) // split and remove more than 1 space
     .join(' | ')
 
-  const queryText = query.toString().trim()
+  const queryText = searchTerm.toString().trim()
 
   const searchTasks: Array<{ key: string; search: Promise<any[]> }> = []
 
@@ -292,7 +286,7 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${m.id}.png`,
           alt: m.name,
-          ui: avatarUi(m.invertible_logo, theme?.toString()),
+          invertible: m.invertible_logo,
         },
       })),
     },
@@ -308,7 +302,7 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${s.maker_id}.png`,
           alt: s.maker.name,
-          ui: avatarUi(s.maker.invertible_logo, theme?.toString()),
+          invertible: s.maker.invertible_logo,
         },
       })),
     },
@@ -334,7 +328,7 @@ export default defineEventHandler(async (event) => {
               avatar: {
                 src: `/logo/${maker.id}.png`,
                 alt: maker.name,
-                ui: avatarUi(maker.invertible_logo, theme?.toString()),
+                invertible: maker.invertible_logo,
               },
               children: items.map((c: any) => ({
                 id: c.id,
@@ -358,7 +352,7 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${kc.profile.manufacturer_id}.png`,
           alt: kc.profile.name,
-          ui: avatarUi(true, theme?.toString()),
+          invertible: true,
         },
       })),
     },
@@ -373,7 +367,7 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${brand.slug}.png`,
           alt: brand.name,
-          ui: avatarUi(true, theme?.toString()),
+          invertible: true,
         },
       })),
     },
@@ -390,7 +384,7 @@ export default defineEventHandler(async (event) => {
           avatar: {
             src: `/logo/${kb.brand_slug}.png`,
             alt: kb.brand.name,
-            ui: avatarUi(true, theme?.toString()),
+            invertible: true,
           },
         }
       }),
@@ -408,7 +402,7 @@ export default defineEventHandler(async (event) => {
           avatar: {
             src: `/logo/${release.brand_slug}.png`,
             alt: release.brand.name,
-            ui: avatarUi(true, theme?.toString()),
+            invertible: true,
           },
         }
       }),
@@ -426,7 +420,7 @@ export default defineEventHandler(async (event) => {
           avatar: {
             src: `/logo/${variant.brand_slug}.png`,
             alt: variant.brand.name,
-            ui: avatarUi(true, theme?.toString()),
+            invertible: true,
           },
         }
       }),

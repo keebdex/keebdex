@@ -8,7 +8,11 @@
 
         <template #right>
           <UModal v-model:visible="visible" title="Add Color">
-            <UButton icon="hugeicons:dashboard-circle-add" label="Add" />
+            <UButton
+              icon="hugeicons:dashboard-circle-add"
+              label="Add"
+              color="primary"
+            />
 
             <template #body="{ close }">
               <KeysetModalKeysetColorForm
