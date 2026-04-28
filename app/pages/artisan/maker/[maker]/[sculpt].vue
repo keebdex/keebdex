@@ -253,9 +253,8 @@ watch(sortValue, (newValue) => {
 const { data: sculpt, refresh } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
   () =>
-    $fetch(`/api/makers/${route.params.maker}`, {
+    $fetch(`/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`, {
       query: {
-        sculpt: route.params.sculpt,
         cid: route.query.cid,
         order_by: sortField.value,
         sort: sortOrder.value,
@@ -265,18 +264,6 @@ const { data: sculpt, refresh } = await useAsyncData(
     }),
   {
     watch: [page, sortField, sortOrder, () => route.query.cid],
-    transform: (data) => {
-      const sculpt = data.sculpts[route.params.sculpt]
-
-      sculpt.maker_name = data.name
-      sculpt.invertible_logo = data.invertible_logo
-      sculpt.selected_colorway_index = data.selected_colorway_index
-      sculpt.maker_sculpts = Object.values(data.sculpts || {}).map(
-        ({ colorways, ...rest }) => rest,
-      )
-
-      return sculpt
-    },
   },
 )
 
