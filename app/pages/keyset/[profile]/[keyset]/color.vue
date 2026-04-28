@@ -76,7 +76,12 @@
                 <UButton
                   label="Remove"
                   color="error"
-                  @click="confirmDelete(row.original)"
+                  @click="
+                    () => {
+                      confirmDelete(row.original)
+                      close()
+                    }
+                  "
                 />
               </template>
             </UModal>
@@ -166,7 +171,13 @@ const confirmDelete = (color) => {
     method: 'delete',
   })
     .then(() => {
-      toast.add(handleSuccess('delete', color.name))
+      toast.add(
+        handleSuccess(
+          'delete',
+          `${color.color?.system} ${color.color?.code}`,
+          'Color',
+        ),
+      )
 
       refresh()
     })
