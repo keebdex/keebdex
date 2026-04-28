@@ -189,13 +189,13 @@ export default defineEventHandler(async (event) => {
         label: 'Keyboards',
         ftsQuery: client
           .from('keyboards')
-          .select('*, brand:keyboard_brands(name, slug)')
+          .select('*, brand:keyboard_brands(name, slug, invertible_logo)')
           .textSearch('fts', `${fts}`)
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
           .from('keyboards')
-          .select('*, brand:keyboard_brands(name, slug)')
+          .select('*, brand:keyboard_brands(name, slug, invertible_logo)')
           .or(
             `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
           )
@@ -211,7 +211,7 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keyboard_releases')
           .select(
-            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
+            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
           )
           .textSearch('fts', `${fts}`)
           .order('brand_keyboard_slug')
@@ -219,7 +219,7 @@ export default defineEventHandler(async (event) => {
         likeQuery: client
           .from('keyboard_releases')
           .select(
-            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug)',
+            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
           )
           .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
           .order('brand_keyboard_slug')
@@ -234,7 +234,7 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keyboard_variants')
           .select(
-            '*, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
+            '*, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug, invertible_logo)',
           )
           .textSearch('fts', `${fts}`)
           .order('release_id')
@@ -367,7 +367,7 @@ export default defineEventHandler(async (event) => {
         avatar: {
           src: `/logo/${brand.slug}.png`,
           alt: brand.name,
-          invertible: true,
+          invertible: brand.invertible_logo,
         },
       })),
     },
@@ -384,7 +384,7 @@ export default defineEventHandler(async (event) => {
           avatar: {
             src: `/logo/${kb.brand_slug}.png`,
             alt: kb.brand.name,
-            invertible: true,
+            invertible: kb.brand.invertible_logo,
           },
         }
       }),
@@ -402,7 +402,7 @@ export default defineEventHandler(async (event) => {
           avatar: {
             src: `/logo/${release.brand_slug}.png`,
             alt: release.brand.name,
-            invertible: true,
+            invertible: release.brand.invertible_logo,
           },
         }
       }),
@@ -420,7 +420,7 @@ export default defineEventHandler(async (event) => {
           avatar: {
             src: `/logo/${variant.brand_slug}.png`,
             alt: variant.brand.name,
-            invertible: true,
+            invertible: variant.brand.invertible_logo,
           },
         }
       }),

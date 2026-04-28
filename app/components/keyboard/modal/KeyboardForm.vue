@@ -117,11 +117,23 @@ const originalKeyboardOptions = computed(() => {
   return groups
     .filter((group) => group.id === 'keyboard-board')
     .flatMap((group) => group.items || [])
-    .map((item) => ({
-      value: item.to.replace('/keyboard/brand/', ''),
-      label: formatKeyboardDescription([item.label, item.suffix]),
-      avatar: item.avatar,
-    }))
+    .map((item) => {
+      const invertible = Boolean(item?.avatar?.invertible)
+
+      return {
+        value: item.to.replace('/keyboard/brand/', ''),
+        label: formatKeyboardDescription([item.label, item.suffix]),
+        avatar: item.avatar
+          ? {
+              ...item.avatar,
+              ui: {
+                root: 'bg-transparent rounded-none',
+                image: invertible && colorMode.value === 'dark' && 'invert',
+              },
+            }
+          : undefined,
+      }
+    })
 })
 
 const schema = z.object({
