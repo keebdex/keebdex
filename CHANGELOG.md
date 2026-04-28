@@ -7,6 +7,7 @@
 ### ✨ What's New
 
 - Added CSV color import with preview and a matching system filter for narrowing results.
+- Added RAL code auto-fill support to fetch hex and name automatically, with a manual refetch action for supported systems.
 
 ### 🐛 Bug Fixes
 

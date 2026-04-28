@@ -5,39 +5,56 @@
     </UFormField>
 
     <UFormField label="Code" name="code" required>
-      <UInputMenu
-        v-model.trim="color.code"
-        v-model:search-term="codeTerm"
-        :items="codeOptions"
-        :loading="codeOptionsStatus === 'pending'"
-        :content="{ hideWhenEmpty: true }"
-        autocomplete
-        ignore-filter
-        label-key="label"
-        value-key="code"
-        icon="hugeicons:tag-01"
-        placeholder="Type a code to search existing colors..."
-        class="w-full"
-      >
-        <template #item="{ item }">
-          <UUser :name="`${item.system} ${item.code}`" :description="item.name">
-            <template #avatar>
-              <UAvatar :style="{ backgroundColor: item.hex }" />
-            </template>
-          </UUser>
-        </template>
-      </UInputMenu>
+      <UFieldGroup class="w-full">
+        <UInputMenu
+          v-model.trim="color.code"
+          v-model:search-term="codeTerm"
+          :items="codeOptions"
+          :loading="codeOptionsStatus === 'pending'"
+          :content="{ hideWhenEmpty: true }"
+          autocomplete
+          ignore-filter
+          label-key="label"
+          value-key="code"
+          icon="hugeicons:tag-01"
+          placeholder="Type a code to search existing colors..."
+          class="w-full"
+        >
+          <template #item="{ item }">
+            <UUser
+              :name="`${item.system} ${item.code}`"
+              :description="item.name"
+            >
+              <template #avatar>
+                <UAvatar :style="{ backgroundColor: item.hex }" />
+              </template>
+            </UUser>
+          </template>
+        </UInputMenu>
 
-      <p v-if="hasDuplicateInSystem" class="mt-2 text-xs text-warning">
+        <UButton
+          v-if="isSystemFetchSupported"
+          icon="hugeicons:search-area"
+          variant="outline"
+          :loading="isFetchingFromSource"
+          @click="fetchColorFromSystem"
+        />
+      </UFieldGroup>
+
+      <template v-if="hasDuplicateInSystem" #error>
         This code already exists in {{ color.system }}. Saving will ignore
         duplicates.
-      </p>
+      </template>
+      <template v-else-if="isSystemFetchSupported" #help>
+        Look up a code to auto-fill the hex value and name.
+      </template>
     </UFormField>
 
     <UFormField
       label="Name"
       name="name"
-      help="Use the color name (for example: Leather Red), not the matching code."
+      placeholder="e.g. Leather Red"
+      help="Use the color name, not the matching code."
     >
       <UInput
         v-model.trim="color.name"
@@ -88,6 +105,9 @@ const toast = useToast()
 const color = ref({
   name: '',
 })
+const isFetchingFromSource = ref(false)
+let autoFetchTimer = null
+const lastAutoFetchedRalCode = ref('')
 
 const codeTerm = ref('')
 const codeOptionsStatus = ref('idle')
@@ -133,6 +153,29 @@ onBeforeMount(() => {
 watch([codeTerm, () => color.value.system], fetchCodeOptions)
 
 const colorSystems = Constants.public.Enums.keyset_color_matching_system
+const isSystemFetchSupported = computed(
+  () => color.value.system?.toUpperCase() === 'RAL',
+)
+
+const normalizeRalCode = (value) => {
+  const parts = value
+    .replace(/^ral\s*/i, '')
+    .replace(/[^0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (parts.length !== 3) return null
+
+  const a = parts[0]
+  const b = parts[1]
+  const c = parts[2]
+
+  if (!a || !b || !c) return null
+  if (a.length !== 3 || b.length !== 2 || c.length !== 2) return null
+
+  return `${a} ${b} ${c}`
+}
 
 const hasDuplicateInSystem = computed(() => {
   const code = color.value.code?.toString().trim().toLowerCase()
@@ -158,6 +201,93 @@ const schema = z.object({
     .string()
     .lowercase()
     .regex(/^#([0-9a-f]{3}|[0-9a-f]{6})$/),
+})
+
+const fetchColorFromSystem = async ({ silent = false } = {}) => {
+  if (!isSystemFetchSupported.value) {
+    return
+  }
+
+  const normalizedRalCode = normalizeRalCode(color.value.code?.trim() || '')
+
+  if (!color.value.system || !normalizedRalCode) {
+    if (silent) return
+
+    toast.add(
+      handleError({
+        statusCode: 400,
+        statusMessage: 'Please enter a valid RAL code (000 00 00).',
+      }),
+    )
+    return
+  }
+
+  isFetchingFromSource.value = true
+
+  await $fetch('/api/colors/fetch', {
+    method: 'post',
+    body: {
+      system: color.value.system,
+      code: normalizedRalCode,
+    },
+  })
+    .then((result) => {
+      color.value.system = result.system
+      color.value.code = result.code
+      color.value.hex = result.hex
+      if (result.name) color.value.name = result.name
+
+      lastAutoFetchedRalCode.value = result.code
+
+      if (!silent) {
+        toast.add(
+          handleSuccess(
+            'update',
+            `${result.system} ${result.code}`,
+            'Color Data',
+          ),
+        )
+      }
+    })
+    .catch((error) => {
+      if (!silent) {
+        toast.add(handleError(error, { showOriginalMessage: true }))
+      }
+    })
+    .finally(() => {
+      isFetchingFromSource.value = false
+    })
+}
+
+watch([() => color.value.system, () => color.value.code], ([system, code]) => {
+  if (autoFetchTimer) {
+    clearTimeout(autoFetchTimer)
+    autoFetchTimer = null
+  }
+
+  if (!system || system.toUpperCase() !== 'RAL' || !code || isEdit) {
+    return
+  }
+
+  const normalizedRalCode = normalizeRalCode(code)
+
+  if (
+    !normalizedRalCode ||
+    normalizedRalCode === lastAutoFetchedRalCode.value
+  ) {
+    return
+  }
+
+  autoFetchTimer = setTimeout(() => {
+    fetchColorFromSystem({ silent: true })
+  }, 500)
+})
+
+onBeforeUnmount(() => {
+  if (autoFetchTimer) {
+    clearTimeout(autoFetchTimer)
+    autoFetchTimer = null
+  }
 })
 
 const onSubmit = async () => {
