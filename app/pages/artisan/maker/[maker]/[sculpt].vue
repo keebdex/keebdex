@@ -175,7 +175,7 @@
       <UModal
         v-model:open="visible.card"
         :ui="{
-          content: 'max-w-xl',
+          content: cardModalWidth,
         }"
         @update:open="(open) => !open && closeColorwayCard()"
       >
@@ -184,6 +184,7 @@
             v-if="selectedColorway.colorway_id"
             :colorway="selectedColorway"
             :authenticated="authenticated"
+            :orientation="cardOrientation"
             @save-to="saveTo"
           />
         </template>
@@ -210,6 +211,7 @@ const colorMode = useColorMode()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const { isMobile } = useDevice()
 
 const { page, size, setPage } = usePagination(72)
 
@@ -336,6 +338,18 @@ const newColorwayMetadata = computed(() => ({
 }))
 
 const selectedColorway = ref({})
+
+const cardOrientation = computed(() => {
+  if (isMobile || !selectedColorway.value?.description) {
+    return 'vertical'
+  }
+
+  return 'horizontal'
+})
+
+const cardModalWidth = computed(() => {
+  return cardOrientation.value === 'vertical' ? 'max-w-lg' : 'max-w-4xl'
+})
 
 const clearSelected = () => {
   selectedColorway.value = {}

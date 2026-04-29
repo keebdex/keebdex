@@ -2,9 +2,11 @@
   <UPageCard
     :title="colorwayTitle(colorway)"
     reverse
+    :orientation="orientation"
     class="colorway-details-card"
     :ui="{
       body: 'w-full',
+      wrapper: 'h-full',
       description: 'flex flex-col gap-4',
     }"
   >
@@ -91,12 +93,16 @@
 <script setup>
 const emit = defineEmits(['saveTo'])
 
-const { authenticated, colorway } = defineProps({
+const { authenticated, colorway, orientation } = defineProps({
   colorway: {
     type: Object,
     default: () => ({}),
   },
   authenticated: Boolean,
+  orientation: {
+    type: String,
+    default: 'vertical',
+  },
 })
 
 const toast = useToast()
