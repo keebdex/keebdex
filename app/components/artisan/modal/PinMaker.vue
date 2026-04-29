@@ -52,7 +52,7 @@ const initial = ref({
 })
 
 const schema = z.object({
-  makers: z.string().array().max(6),
+  makers: z.string().array().max(6, 'You can only pin up to 6 makers.'),
 })
 
 const onSubmit = async () => {

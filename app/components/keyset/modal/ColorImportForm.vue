@@ -2,7 +2,9 @@
   <UModal
     v-model:visible="visible"
     title="Import Colors"
-    :ui="{ footer: 'justify-end', content: 'divide-none', body: 'space-y-4' }"
+    :ui="{
+      body: 'space-y-4',
+    }"
   >
     <UButton icon="hugeicons:file-import" label="Import" />
 

@@ -95,13 +95,4 @@ const favoriteMakers = computed(() => {
 const otherMakers = computed(() => {
   return data.value.filter((m) => !Object.keys(favorites.value).includes(m.id))
 })
-
-// const showAll = ref(false)
-// const rowsPerPage = computed(() => {
-//   if (showAll.value) {
-//     return otherMakers.value.length
-//   } else {
-//     return authenticated.value && favoriteMakers.value.length ? 54 : 60
-//   }
-// })
 </script>

@@ -91,7 +91,6 @@
               v-model:visible="deleteColor"
               title="Remove Color"
               description="Are you sure you want to continue? This action cannot be undone."
-              :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UButton
                 label="Delete"

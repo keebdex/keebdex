@@ -74,6 +74,13 @@ export default defineAppConfig({
         help: 'text-xs',
       },
     },
+    modal: {
+      slots: {
+        content: 'divide-none',
+        body: '!pt-0',
+        footer: 'justify-end',
+      },
+    },
     radioGroup: {
       slots: {
         fieldset: 'gap-x-4',

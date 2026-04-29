@@ -32,7 +32,6 @@
             v-model:visible="visible.delete"
             title="Delete Collection"
             :description="`Are you sure you want to delete ${data?.name}?`"
-            :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton
               v-if="authenticated"
@@ -81,7 +80,6 @@
               v-model:visible="visible.remove"
               title="Remove Keyset"
               :description="`Are you sure you want to remove ${keyset.name}?`"
-              :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UButton
                 label="Remove"

@@ -63,7 +63,6 @@
             <UModal
               title="Delete Sculpt"
               :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
-              :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UButton
                 icon="hugeicons:delete-02"
@@ -152,7 +151,6 @@
                 v-if="editable"
                 title="Delete"
                 :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
-                :ui="{ footer: 'justify-end', content: 'divide-none' }"
               >
                 <UButton
                   v-if="user.email_verified"

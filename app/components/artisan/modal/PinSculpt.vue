@@ -38,7 +38,7 @@ const initial = ref({
 })
 
 const schema = z.object({
-  sculpts: z.string().array().max(6),
+  sculpts: z.string().array().max(6, 'You can only pin up to 6 sculpts.'),
 })
 
 const onSubmit = async () => {

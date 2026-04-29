@@ -158,7 +158,6 @@
                   v-model:visible="visible.deleteRelease"
                   title="Delete Release"
                   :description="`Are you sure you want to delete release '${release.name}'? This action cannot be undone.`"
-                  :ui="{ footer: 'justify-end', content: 'divide-none' }"
                 >
                   <UButton
                     label="Delete"
@@ -262,7 +261,6 @@
                       v-model:visible="visible.deleteVariant"
                       title="Delete Variant"
                       :description="`Are you sure you want to delete variant '${variant.variant_name}'? This action cannot be undone.`"
-                      :ui="{ footer: 'justify-end', content: 'divide-none' }"
                     >
                       <UButton
                         label="Delete"

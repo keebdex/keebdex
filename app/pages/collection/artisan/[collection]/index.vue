@@ -12,7 +12,6 @@
             v-model:visible="visible.share"
             title="Share Collection"
             description="Control the visibility of this collection and generate a shareable link if needed."
-            :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton icon="hugeicons:share-03" label="Share" />
 
@@ -79,7 +78,6 @@
             v-model:visible="visible.delete"
             title="Delete Collection"
             :description="`Are you sure you want to delete ${data?.name}?`"
-            :ui="{ footer: 'justify-end', content: 'divide-none' }"
           >
             <UButton
               v-if="authenticated"
@@ -189,7 +187,6 @@
               v-model:visible="visible.remove"
               title="Remove Artisan"
               :description="`Are you sure you want to remove ${colorwayTitle(artisan)}?`"
-              :ui="{ footer: 'justify-end', content: 'divide-none' }"
             >
               <UTooltip text="Remove" :delay-duration="0">
                 <UButton icon="hugeicons:bookmark-minus-02" color="error" />
