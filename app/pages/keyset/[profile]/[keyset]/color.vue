@@ -7,7 +7,7 @@
         </template>
 
         <template #right>
-          <UModal v-model:visible="visible" title="Add Color">
+          <UModal v-model:visible="visible" title="Add Keyset Color">
             <UButton
               icon="hugeicons:dashboard-circle-add"
               label="Add"
