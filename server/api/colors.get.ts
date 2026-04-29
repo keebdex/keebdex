@@ -38,7 +38,9 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    colors: data?.map(omitSensitive),
-    count,
+    data: data?.map(omitSensitive) || [],
+    count: count || 0,
+    page,
+    size,
   }
 })

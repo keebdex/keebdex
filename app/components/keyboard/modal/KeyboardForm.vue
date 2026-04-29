@@ -108,6 +108,7 @@ const selectedOriginalKeyboard = ref(null)
 const term = ref('')
 
 const { data, status } = useGuardedSearch('/api/search', {
+  key: 'keyboard-original-search',
   term,
   module: 'keyboard',
 })

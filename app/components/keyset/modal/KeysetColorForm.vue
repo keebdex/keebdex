@@ -5,7 +5,7 @@
         v-model="selectedColors"
         v-model:search-term="term"
         multiple
-        :items="data.colors"
+        :items="data?.data || []"
         :loading="status === 'pending'"
         ignore-filter
         icon="hugeicons:paint-board"
@@ -41,7 +41,11 @@ const toast = useToast()
 
 const term = ref('')
 
-const { data, status } = useGuardedSearch('/api/colors', { term, minLength: 2 })
+const { data, status } = useGuardedSearch('/api/colors', {
+  key: 'keyset-color-form-search',
+  term,
+  minLength: 2,
+})
 
 const selectedColors = ref([])
 

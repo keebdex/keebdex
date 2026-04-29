@@ -10,7 +10,7 @@
           v-model.trim="color.code"
           v-model:search-term="codeTerm"
           :items="codeOptions"
-          :loading="codeOptionsStatus === 'pending'"
+          :loading="status === 'pending'"
           :content="{ hideWhenEmpty: true }"
           autocomplete
           ignore-filter
@@ -110,47 +110,27 @@ let autoFetchTimer = null
 const lastAutoFetchedRalCode = ref('')
 
 const codeTerm = ref('')
-const codeOptionsStatus = ref('idle')
-const codeOptions = ref([])
+const term = computed(() => (isEdit ? '' : codeTerm.value))
 
-const fetchCodeOptions = async () => {
-  const term = codeTerm.value.trim()
+const { data, status } = useAdvancedSearch('/api/colors', {
+  key: 'keyset-color-code-search',
+  term,
+  minLength: 2,
+  filters: {
+    system: computed(() => color.value.system || undefined),
+  },
+})
 
-  if (isEdit || term.length < 2) {
-    codeOptions.value = []
-    codeOptionsStatus.value = 'idle'
-    return
-  }
-
-  codeOptionsStatus.value = 'pending'
-
-  await $fetch('/api/colors', {
-    query: {
-      term,
-      system: color.value.system,
-      page: 1,
-      size: 10,
-    },
-  })
-    .then((data) => {
-      codeOptions.value = (data.colors || []).map((item) => ({
-        ...item,
-        label: `${item.system} ${item.code}`,
-      }))
-      codeOptionsStatus.value = 'success'
-    })
-    .catch((error) => {
-      codeOptions.value = []
-      codeOptionsStatus.value = 'error'
-      toast.add(handleError(error))
-    })
-}
+const codeOptions = computed(() => {
+  return (data.value?.data || []).map((item) => ({
+    ...item,
+    label: `${item.system} ${item.code}`,
+  }))
+})
 
 onBeforeMount(() => {
   Object.assign(color.value, metadata)
 })
-
-watch([codeTerm, () => color.value.system], fetchCodeOptions)
 
 const colorSystems = Constants.public.Enums.keyset_color_matching_system
 const isSystemFetchSupported = computed(

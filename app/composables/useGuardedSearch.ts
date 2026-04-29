@@ -1,4 +1,5 @@
 interface UseGuardedSearchOptions {
+  key?: string
   term: Ref<string>
   minLength?: number
   immediate?: boolean
@@ -8,8 +9,9 @@ interface UseGuardedSearchOptions {
 /**
  * Composable for handling guarded API searches with minimum term length validation.
  * Uses SEARCH_TERM_MIN_LENGTH constant to maintain consistent search behavior.
- * Query always includes 'term' parameter. Theme and module are optional.
- * Default value is always { data: [], count: 0 }
+ * Query always includes 'term' parameter. Module is optional.
+ * Returned data mirrors the endpoint response shape. When the term is shorter
+ * than `minLength`, this composable returns `null`.
  *
  * @example
  * const { data, status } = useGuardedSearch('/api/colors', { term })
@@ -25,13 +27,14 @@ export const useGuardedSearch = (
   options: UseGuardedSearchOptions,
 ) => {
   const {
+    key,
     term: searchTerm,
     minLength = SEARCH_TERM_MIN_LENGTH,
     immediate = false,
     module,
   } = options
 
-  const defaultValue = { data: [], count: 0 }
+  const cacheKey = key || (module ? `${endpoint}-${module}` : endpoint)
 
   const normalizedTerm = computed(() => searchTerm.value.trim())
   const shouldSearch = computed(() => normalizedTerm.value.length >= minLength)
@@ -48,19 +51,17 @@ export const useGuardedSearch = (
     return q
   })
 
-  const key = module ? `${endpoint}:${module}` : endpoint
-
   const { data, status, refresh } = useAsyncData(
-    key,
+    cacheKey,
     () => {
       if (!shouldSearch.value) {
-        return Promise.resolve(defaultValue)
+        return Promise.resolve(null)
       }
       return $fetch(endpoint, { query: query.value })
     },
     {
       immediate,
-      default: () => defaultValue,
+      default: () => null,
       watch: [searchTerm],
     },
   )

@@ -14,4 +14,4 @@
 ### 🚀 Improvements
 
 - Enhanced color creation with code suggestions, duplicate hints, and helper text for display name.
-- Introduced `useGuardedSearch` composable to centralize API search logic across form components, enforcing consistent minimum term length validation.
+- Introduced `useGuardedSearch` and `useAdvancedSearch` composables to centralize API search logic across form components, with consistent minimum term length handling, filtering, and pagination support.

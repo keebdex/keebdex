@@ -28,7 +28,7 @@
         <UTable
           sticky
           :loading="status === 'pending'"
-          :data="data.users"
+          :data="data.data"
           :columns="columns"
         >
           <template #full_name-cell="{ row }">
@@ -209,35 +209,22 @@ const filterOptions = [
   ...roleOptions,
 ]
 
-const query = computed(() => {
-  return {
-    page: page.value,
+const { data, status, refresh } = useAdvancedSearch('/api/admin/users', {
+  key: 'admin-users',
+  term,
+  minLength: 0,
+  pagination: {
+    page,
     size,
-    term: term.value,
-    role: role.value,
-  }
+  },
+  filters: {
+    role,
+  },
 })
-
-const { data, status, refresh } = await useAsyncData(
-  'admin-users',
-  () => {
-    if (!isAdmin.value) {
-      return { users: [], count: 0, page: 1, size }
-    }
-
-    return $fetch('/api/admin/users', {
-      query: query.value,
-    })
-  },
-  {
-    watch: [isAdmin, page, term, role],
-    default: () => ({ users: [], count: 0, page: 1, size }),
-  },
-)
 
 const paginationMeta = computed(() => {
   const total = data.value?.count || 0
-  const visibleOnPage = data.value?.users?.length || 0
+  const visibleOnPage = data.value?.data?.length || 0
 
   if (!total || !visibleOnPage) {
     return {
@@ -336,6 +323,6 @@ useSeoMeta({
 })
 
 definePageMeta({
-  middleware: 'auth',
+  middleware: 'admin',
 })
 </script>

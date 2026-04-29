@@ -197,7 +197,10 @@ const designerTerm = ref('')
 
 const { data: designerData, status: designersStatus } = useGuardedSearch(
   '/api/keysets/designers',
-  { term: designerTerm },
+  {
+    key: 'keyset-designer-search',
+    term: designerTerm,
+  },
 )
 
 const designerOptions = computed(() => designerData.value?.designers || [])

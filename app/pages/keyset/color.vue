@@ -50,7 +50,7 @@
       <UTable
         sticky
         :loading="status === 'pending'"
-        :data="data.colors"
+        :data="data.data"
         :columns="columns"
       >
         <template #hex-cell="{ row }">
@@ -148,20 +148,18 @@ const systemFilters = [
   })),
 ]
 
-const query = computed(() => {
-  return {
-    page: page.value,
+const { data, status, refresh } = useAdvancedSearch('/api/colors', {
+  key: 'keyset-colors',
+  term,
+  minLength: 0,
+  pagination: {
+    page,
     size,
-    term: term.value.trim(),
-    ...(system.value !== 'all' ? { system: system.value } : {}),
-  }
+  },
+  filters: {
+    system: computed(() => (system.value !== 'all' ? system.value : undefined)),
+  },
 })
-
-const { data, status, refresh } = await useAsyncData(
-  'colors',
-  () => $fetch('/api/colors', { query: query.value }),
-  { watch: [page, term, system] },
-)
 
 watch([term, system], resetPage)
 

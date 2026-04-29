@@ -22,6 +22,7 @@ const colorMode = useColorMode()
 const term = ref('')
 
 const { data, status } = useGuardedSearch('/api/search', {
+  key: 'keeb-search',
   term,
 })
 

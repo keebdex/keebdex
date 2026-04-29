@@ -39,12 +39,10 @@ export default defineEventHandler(async (event) => {
   const role = body?.role ?? null
   const assignments = Array.isArray(body?.assignments)
     ? [
-      ...new Set(
-        body.assignments
-          .map((item) => String(item).trim())
-          .filter(Boolean),
-      ),
-    ]
+        ...new Set(
+          body.assignments.map((item: unknown) => String(item).trim()).filter(Boolean),
+        ),
+      ]
     : null
 
   if (role !== null && !ALLOWED_ROLES.has(role)) {

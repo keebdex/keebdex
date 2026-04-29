@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    users: data || [],
+    data: data || [],
     count: count || 0,
     page,
     size,
