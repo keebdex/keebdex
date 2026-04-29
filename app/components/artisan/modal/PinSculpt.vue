@@ -1,13 +1,13 @@
 <template>
   <UForm :schema="schema" :state="initial" class="space-y-4" @submit="onSubmit">
     <UFormField name="sculpts" required>
-      <USelectMenu
+      <UListbox
         v-model="initial.sculpts"
         multiple
+        filter
         label-key="name"
         value-key="sculpt_id"
         :items="sculpts"
-        class="w-full"
         selected-icon="hugeicons:pin"
       />
     </UFormField>

@@ -1,15 +1,30 @@
 <template>
   <UForm :schema="schema" :state="initial" class="space-y-4" @submit="onSubmit">
     <UFormField name="makers" required>
-      <USelectMenu
+      <UListbox
         v-model="initial.makers"
         multiple
+        filter
         label-key="name"
         value-key="id"
         :items="makers"
-        class="w-full"
         selected-icon="hugeicons:pin"
-      />
+        :ui="{
+          item: 'items-center',
+        }"
+      >
+        <template #item-leading="{ item }">
+          <UAvatar
+            :src="`/logo/${item.id}.png`"
+            size="xs"
+            :ui="{
+              root: 'rounded-none bg-transparent',
+              image:
+                item.invertible_logo && $colorMode.value === 'dark' && 'invert',
+            }"
+          />
+        </template>
+      </UListbox>
     </UFormField>
 
     <UButton block color="primary" type="submit" loading-auto> Save </UButton>
