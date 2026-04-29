@@ -82,6 +82,9 @@
         @on-select="onSelectCollection"
       />
     </template>
+    <template v-else #footer>
+      <AppWordmark size="sm" />
+    </template>
   </UPageCard>
 </template>
 
