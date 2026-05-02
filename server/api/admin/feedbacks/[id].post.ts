@@ -4,18 +4,12 @@ import { requireAdminClient } from '../../../utils/admin'
 export default defineEventHandler(async (event) => {
   const client = await requireAdminClient(event)
 
-  const id = Number(event.context.params?.id)
-  if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Missing feedback id' })
-  }
-
-  const body = pickTableFields('feedbacks', await readBody(event))
-  body.resolved = !!body.resolved
+  const { id, ...body } = pickTableFields('feedbacks', await readBody(event))
 
   const { data, error } = await client
     .from('feedbacks')
     .update(body)
-    .eq('id', id)
+    .eq('id', event.context.params?.id)
     .select('id, resolved')
     .single()
 
