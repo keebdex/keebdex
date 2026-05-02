@@ -26,8 +26,6 @@ const login = async (provider) => {
     toast.add(handleError(error))
   } else if (user) {
     toast.add(handleNotice('login', user.name))
-
-    router.back()
   }
 }
 

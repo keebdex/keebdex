@@ -41,7 +41,7 @@
 
       <ArtisanCollectorGuide />
 
-      <TestimonialsMarquee />
+      <ShoutoutsMarquee />
     </template>
   </UDashboardPanel>
 </template>

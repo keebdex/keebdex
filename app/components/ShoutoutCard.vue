@@ -1,7 +1,7 @@
 <template>
   <UPageCard
     variant="subtle"
-    class="w-[320px] shrink-0 bg-elevated/60"
+    class="w-full bg-elevated/60 transition-all duration-200 hover:-translate-y-1 hover:bg-elevated/80 hover:shadow-lg"
     :ui="{
       root: 'h-full',
       body: 'p-4',

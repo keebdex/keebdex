@@ -79,6 +79,7 @@ export default defineNuxtConfig({
         'papaparse', // CJS
         'vuedraggable', // CJS
         'zod',
+        '@vueuse/core',
       ],
     },
   },

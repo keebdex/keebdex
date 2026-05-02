@@ -51,12 +51,12 @@
     "pinia": "^3.0.4",
     "slugify": "^1.6.9",
     "vuedraggable": "^4.1.0",
-    "zod": "^4.3.6"
+    "zod": "^4.4.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.2",
-    "@commitlint/config-conventional": "^20.5.0",
-    "@iconify-json/hugeicons": "^1.2.25",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@iconify-json/hugeicons": "^1.2.27",
     "@iconify-json/simple-icons": "^1.2.80",
     "@iconify-json/solar": "^1.2.5",
     "@nuxt/content": "^3.13.0",
@@ -73,7 +73,7 @@
     "@types/lodash.sortby": "^4.7.9",
     "@types/papaparse": "^5.5.2",
     "better-sqlite3": "^12.9.0",
-    "eslint": "^10.2.1",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-vue": "^10.9.0",
@@ -83,8 +83,8 @@
     "lodash.keyby": "^4.6.0",
     "lodash.omit": "^4.18.0",
     "lodash.sortby": "^4.7.0",
-    "nuxt": "^4.4.2",
-    "nuxt-og-image": "^6.4.8",
+    "nuxt": "^4.4.4",
+    "nuxt-og-image": "^6.4.9",
     "prettier": "^3.8.3",
     "typescript": "^6.0.3"
   }

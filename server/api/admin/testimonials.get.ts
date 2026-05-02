@@ -3,32 +3,27 @@ import { requireAdminClient } from '../../utils/admin'
 
 export default defineEventHandler(async (event) => {
   const client = await requireAdminClient(event)
-
   const query = getQuery(event)
+
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
-  const term = String(query.term || '').trim()
-  const role = String(query.role || '').trim()
+  const featured = String(query.featured || 'all').trim()
 
   const from = (page - 1) * size
   const to = from + size - 1
 
   let request = client
-    .from('users')
-    .select('id, full_name, email, role, assignments, discord, reddit, qq', {
+    .from('testimonials')
+    .select('*', {
       count: 'exact',
     })
-    .order('email')
+    .order('id', { ascending: false })
     .range(from, to)
 
-  if (term) {
-    request = request.or(
-      `email.ilike.%${term}%,full_name.ilike.%${term}%,discord.ilike.%${term}%`,
-    )
-  }
-
-  if (role !== 'all' && role) {
-    request = request.eq('role', role)
+  if (featured === 'featured') {
+    request = request.eq('featured', true)
+  } else if (featured === 'hidden') {
+    request = request.eq('featured', false)
   }
 
   const { data, count, error } = await request

@@ -6,6 +6,9 @@
 
 - Added CSV color import with preview and a matching system filter for narrowing results.
 - Added RAL code auto-fill support to fetch hex and name automatically, with a manual refetch action for supported systems.
+- Added admin feedback management so feedback can be reviewed, resolved, and turned into shoutouts more easily.
+- Added public shoutouts page at `/shoutouts` so users can browse community feedback and stories about Keebdex.
+- Added admin shoutouts management at `/admin/shoutouts` with controls to manage featured shoutouts and feedback conversions.
 
 ### 🐛 Bug Fixes
 
