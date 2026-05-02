@@ -7,17 +7,26 @@ export default defineEventHandler(async (event) => {
 
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
+  const resolved = String(query.resolved ?? 'false').trim() === 'true'
 
   const from = (page - 1) * size
   const to = from + size - 1
 
-  const { data, count, error } = await client
+  let request = client
     .from('feedbacks')
     .select('*', {
       count: 'exact',
     })
     .order('id', { ascending: false })
     .range(from, to)
+
+  if (resolved) {
+    request = request.eq('resolved', true)
+  } else {
+    request = request.eq('resolved', false)
+  }
+
+  const { data, count, error } = await request
 
   if (error) {
     throw createError({

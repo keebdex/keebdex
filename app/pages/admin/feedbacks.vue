@@ -13,6 +13,14 @@
           messages to shoutouts.
         </template>
 
+        <div class="flex justify-end px-4 py-3.5 border-b border-accented">
+          <USelect
+            v-model="resolvedFilter"
+            :items="resolvedFilterOptions"
+            class="w-full sm:w-52"
+          />
+        </div>
+
         <UTable
           sticky
           :loading="status === 'pending'"
@@ -27,7 +35,7 @@
 
           <template #name-cell="{ row }">
             <div
-              class="font-medium truncate max-w-36 cursor-pointer"
+              class="font-medium truncate cursor-pointer"
               @click="toggleExpand(row.original.id)"
             >
               {{ row.original.name || 'Anonymous' }}
@@ -36,7 +44,7 @@
 
           <template #email-cell="{ row }">
             <div
-              class="truncate max-w-44 cursor-pointer"
+              class="truncate cursor-pointer"
               @click="toggleExpand(row.original.id)"
             >
               {{ row.original.email || '-' }}
@@ -53,7 +61,7 @@
                 :class="
                   isExpanded(row.original.id)
                     ? 'whitespace-pre-wrap'
-                    : 'line-clamp-2'
+                    : 'line-clamp-1 truncate'
                 "
               >
                 {{ row.original.message || '-' }}
@@ -64,6 +72,7 @@
           <template #action-cell="{ row }">
             <div class="flex flex-wrap items-center gap-2">
               <UButton
+                v-if="!resolvedFilter"
                 :label="row.original.resolved ? 'Resolved' : 'Resolve'"
                 size="xs"
                 color="primary"
@@ -76,9 +85,7 @@
               <UButton
                 label="To Shoutout"
                 size="xs"
-                color="neutral"
-                variant="outline"
-                icon="hugeicons:quote-up-circle"
+                icon="hugeicons:quote-up"
                 :loading="movingId === row.original.id"
                 @click="moveToTestimonial(row.original.id)"
               />
@@ -139,7 +146,19 @@ const columns = [
   },
 ]
 
-const { page, size, setPage } = usePagination(10)
+const resolvedFilter = ref(false)
+const resolvedFilterOptions = [
+  {
+    label: 'Unresolved',
+    value: false,
+  },
+  {
+    label: 'Resolved',
+    value: true,
+  },
+]
+
+const { page, size, setPage, resetPage } = usePagination(10)
 const term = ref('')
 
 const { data, status, refresh } = useAdvancedSearch('/api/admin/feedbacks', {
@@ -149,6 +168,9 @@ const { data, status, refresh } = useAdvancedSearch('/api/admin/feedbacks', {
   pagination: {
     page,
     size,
+  },
+  filters: {
+    resolved: resolvedFilter,
   },
 })
 
@@ -161,6 +183,11 @@ const isExpanded = (id) => expandedId.value === id
 const toggleExpand = (id) => {
   expandedId.value = expandedId.value === id ? null : id
 }
+
+watch(resolvedFilter, () => {
+  expandedId.value = null
+  resetPage()
+})
 
 const paginationMeta = computed(() => {
   const total = data.value?.count || 0

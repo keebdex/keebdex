@@ -79,7 +79,7 @@ const items = computed(() => {
           },
           {
             label: 'Shoutouts',
-            icon: 'hugeicons:quote-up-circle',
+            icon: 'hugeicons:quote-up',
             to: '/admin/shoutouts',
           },
         ],
