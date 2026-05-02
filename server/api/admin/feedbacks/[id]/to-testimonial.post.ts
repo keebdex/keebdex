@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: feedback, error: feedbackError } = await client
     .from('feedbacks')
-    .select('id, name, message')
+    .select('id, name, message, resolved')
     .eq('id', id)
     .single()
 
@@ -26,6 +26,13 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Feedback message is required',
+    })
+  }
+
+  if (feedback.resolved) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'Feedback has already been resolved',
     })
   }
 

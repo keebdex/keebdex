@@ -83,6 +83,7 @@
               />
 
               <UButton
+                v-if="!row.original.resolved"
                 label="To Shoutout"
                 size="xs"
                 icon="hugeicons:quote-up"
