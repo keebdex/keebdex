@@ -9,10 +9,18 @@
     <UPageHeader
       title="What people say"
       :ui="{
-        root: 'pb-4',
+        root: 'flex-1 pb-4',
         title:
           'text-base sm:text-md font-semibold uppercase tracking-[0.24em] text-dimmed',
       }"
+      :links="[
+        {
+          to: '/shoutouts',
+          label: 'All Shoutouts',
+          variant: 'ghost',
+          trailingIcon: 'solar:map-arrow-right-bold-duotone',
+        },
+      ]"
     />
 
     <UMarquee
@@ -20,7 +28,12 @@
       :repeat="$device.isMobile ? 2 : 4"
       class="py-3 [--duration:28s] [--gap:--spacing(8)]"
     >
-      <TestimonialCard v-for="item in firstRow" :key="item.id" :item="item" />
+      <ShoutoutCard
+        v-for="item in firstRow"
+        :key="item.id"
+        :item="item"
+        class="w-[320px] shrink-0"
+      />
     </UMarquee>
 
     <UMarquee
@@ -30,7 +43,12 @@
       :repeat="$device.isMobile ? 2 : 4"
       class="py-3 [--duration:28s] [--gap:--spacing(8)]"
     >
-      <TestimonialCard v-for="item in secondRow" :key="item.id" :item="item" />
+      <ShoutoutCard
+        v-for="item in secondRow"
+        :key="item.id"
+        :item="item"
+        class="w-[320px] shrink-0"
+      />
     </UMarquee>
   </UPageSection>
 </template>

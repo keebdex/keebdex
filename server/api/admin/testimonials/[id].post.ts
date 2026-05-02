@@ -12,18 +12,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const body = await readBody(event)
-
-  if (typeof body?.featured !== 'boolean') {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Missing or invalid featured value',
-    })
-  }
+  const body = pickTableFields('testimonials', await readBody(event))
+  body.featured = !!body.featured
 
   const { data, error } = await client
     .from('testimonials')
-    .update({ featured: body.featured })
+    .update(body)
     .eq('id', id)
     .select('id, featured')
     .single()

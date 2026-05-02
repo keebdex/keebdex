@@ -9,18 +9,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing feedback id' })
   }
 
-  const body = await readBody(event)
-
-  if (typeof body?.resolved !== 'boolean') {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Missing or invalid resolved value',
-    })
-  }
+  const body = pickTableFields('feedbacks', await readBody(event))
+  body.resolved = !!body.resolved
 
   const { data, error } = await client
     .from('feedbacks')
-    .update({ resolved: body.resolved })
+    .update(body)
     .eq('id', id)
     .select('id, resolved')
     .single()

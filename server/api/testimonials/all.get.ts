@@ -6,27 +6,18 @@ export default defineEventHandler(async (event) => {
 
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 12, 1), 48)
-  const term = String(query.term || '').trim()
 
   const from = (page - 1) * size
   const to = from + size - 1
 
-  let request = client
+  const { data, count, error } = await client
     .from('testimonials')
-    .select('id, name, role, content, avatar_url, created_at', {
+    .select('id, name, role, content, avatar_url', {
       count: 'exact',
     })
     .eq('status', 'Approved')
-    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .range(from, to)
-
-  if (term) {
-    request = request.or(
-      `name.ilike.%${term}%,role.ilike.%${term}%,content.ilike.%${term}%`,
-    )
-  }
-
-  const { data, count, error } = await request
 
   if (error) {
     throw createError({
