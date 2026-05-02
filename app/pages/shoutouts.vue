@@ -5,7 +5,6 @@
         icon="solar:chat-round-like-bold-duotone"
         headline="What Collectors Are Saying"
         title="Shoutouts"
-        class="mx-auto w-full lg:max-w-6xl"
       >
         <div
           v-if="status === 'pending'"

@@ -12,17 +12,15 @@
       <UInput v-model.trim="form.avatar_url" class="w-full" />
     </UFormField>
 
-    <div class="grid gap-4 sm:grid-cols-2">
-      <UFormField label="Status" name="status" required>
-        <USelect v-model="form.status" :items="statusOptions" class="w-full" />
-      </UFormField>
+    <UFormField label="Status" name="status" required>
+      <USelect v-model="form.status" :items="statusOptions" class="w-full" />
+    </UFormField>
 
-      <UFormField label="Featured" name="featured">
-        <div class="flex h-10 items-center">
-          <USwitch v-model="form.featured" />
-        </div>
-      </UFormField>
-    </div>
+    <UFormField label="Show on Homepage" name="featured">
+      <div class="flex h-10 items-center">
+        <USwitch v-model="form.featured" />
+      </div>
+    </UFormField>
 
     <UFormField label="Content" name="content" required>
       <UTextarea v-model.trim="form.content" :rows="6" class="w-full" />

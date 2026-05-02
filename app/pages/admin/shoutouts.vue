@@ -45,7 +45,9 @@
 
           <template #featured-cell="{ row }">
             <UBadge
-              :label="row.original.featured ? 'Featured' : 'Hidden'"
+              :label="
+                row.original.featured ? 'Homepage Featured' : 'Shoutouts Only'
+              "
               :color="row.original.featured ? 'success' : 'neutral'"
               variant="subtle"
             />
@@ -135,7 +137,7 @@ const columns = [
   },
   {
     accessorKey: 'featured',
-    header: 'Visibility',
+    header: 'Homepage',
   },
   {
     accessorKey: 'status',
@@ -149,15 +151,15 @@ const columns = [
 const featuredFilter = ref('all')
 const featuredFilterOptions = [
   {
-    label: 'All Visibility',
+    label: 'All Shoutouts',
     value: 'all',
   },
   {
-    label: 'Featured Only',
+    label: 'Homepage Featured',
     value: 'featured',
   },
   {
-    label: 'Hidden Only',
+    label: 'Shoutouts Only',
     value: 'hidden',
   },
 ]
