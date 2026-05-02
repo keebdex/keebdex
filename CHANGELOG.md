@@ -6,6 +6,9 @@
 
 - Added CSV color import with preview and a matching system filter for narrowing results.
 - Added RAL code auto-fill support to fetch hex and name automatically, with a manual refetch action for supported systems.
+- Added admin feedback management page with expandable rows, resolve action, and a one-click promotion flow to move feedback into shoutouts.
+- Added public shoutouts page at `/shoutouts` so users can browse all approved testimonials.
+- Added admin shoutouts management page at `/admin/shoutouts` and switched feedback/testimonial status updates to record-level CRUD update APIs.
 
 ### 🐛 Bug Fixes
 

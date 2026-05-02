@@ -230,7 +230,7 @@ const links = computed(() => [
   [
     {
       label: 'Feedback',
-      icon: 'hugeicons:comment-01',
+      icon: 'hugeicons:message-question',
       class: 'cursor-pointer',
       onSelect() {
         toggle('feedback')

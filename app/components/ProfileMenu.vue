@@ -64,9 +64,23 @@ const items = computed(() => {
     ? [
         [
           {
-            label: 'User Management',
+            type: 'label',
+            label: 'Management',
+          },
+          {
+            label: 'Users',
             icon: 'hugeicons:user-group',
             to: '/admin/users',
+          },
+          {
+            label: 'Feedback',
+            icon: 'hugeicons:message-question',
+            to: '/admin/feedbacks',
+          },
+          {
+            label: 'Shoutouts',
+            icon: 'hugeicons:quote-up-circle',
+            to: '/admin/shoutouts',
           },
         ],
       ]
