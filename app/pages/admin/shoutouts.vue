@@ -3,7 +3,15 @@
 
   <UDashboardPanel v-else id="admin-shoutouts">
     <template #header>
-      <UDashboardNavbar title="Shoutouts Management" />
+      <UDashboardNavbar title="Shoutouts Management">
+        <template #right>
+          <UButton
+            label="Add Shoutout"
+            icon="hugeicons:add-01"
+            @click="openCreateModal"
+          />
+        </template>
+      </UDashboardNavbar>
     </template>
 
     <template #body>
@@ -53,11 +61,10 @@
 
           <template #action-cell="{ row }">
             <UButton
-              :label="row.original.featured ? 'Unfeature' : 'Feature'"
+              label="Edit"
               size="xs"
-              icon="hugeicons:star"
-              :loading="updatingId === row.original.id"
-              @click="toggleFeatured(row.original)"
+              icon="hugeicons:edit-01"
+              @click="openEditModal(row.original)"
             />
           </template>
         </UTable>
@@ -84,6 +91,23 @@
           />
         </div>
       </UPageCard>
+
+      <UModal v-model:open="editorOpen" :title="editorTitle">
+        <template #body="{ close }">
+          <ModalShoutoutForm
+            :is-edit="!!selectedTestimonial"
+            :metadata="selectedTestimonial || {}"
+            @on-success="
+              () => {
+                close()
+                editorOpen = false
+                clearSelectedTestimonial()
+                refresh()
+              }
+            "
+          />
+        </template>
+      </UModal>
     </template>
   </UDashboardPanel>
 </template>
@@ -91,7 +115,6 @@
 <script setup>
 const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
-const toast = useToast()
 
 const columns = [
   {
@@ -161,9 +184,14 @@ const { data, status, refresh } = useAdvancedSearch('/api/admin/testimonials', {
   },
 })
 
-const updatingId = ref(null)
+const editorOpen = ref(false)
+const selectedTestimonial = ref(null)
 
 watch(featuredFilter, resetPage)
+
+const editorTitle = computed(() =>
+  selectedTestimonial.value ? 'Edit Shoutout' : 'Add Shoutout',
+)
 
 const paginationMeta = computed(() => {
   const total = data.value?.count || 0
@@ -187,24 +215,18 @@ const paginationMeta = computed(() => {
   }
 })
 
-const toggleFeatured = async (testimonial) => {
-  updatingId.value = testimonial.id
+const openCreateModal = () => {
+  selectedTestimonial.value = null
+  editorOpen.value = true
+}
 
-  try {
-    await $fetch(`/api/admin/testimonials/${testimonial.id}`, {
-      method: 'post',
-      body: {
-        featured: !testimonial.featured,
-      },
-    })
+const openEditModal = (testimonial) => {
+  selectedTestimonial.value = testimonial
+  editorOpen.value = true
+}
 
-    toast.add(handleSuccess('save', 'Shoutout visibility'))
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error))
-  } finally {
-    updatingId.value = null
-  }
+const clearSelectedTestimonial = () => {
+  selectedTestimonial.value = null
 }
 
 useSeoMeta({
