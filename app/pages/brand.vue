@@ -1,8 +1,12 @@
 <template>
   <UTheme
     :ui="{
+      pageCard: {
+        title: 'text-sm font-bold',
+        description: 'mt-1 text-xs leading-relaxed text-muted',
+      },
       pageHeader: {
-        headline: 'font-mono uppercase tracking-widest',
+        headline: 'font-mono uppercase tracking-[0.24em]',
         root: 'border-none',
       },
     }"
@@ -64,7 +68,7 @@
 
             <!-- 2×2 grid — bg-black gap so the separator is always visible -->
             <div
-              class="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl bg-black"
+              class="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl bg-transparent"
             >
               <!-- Light -->
               <div
@@ -187,8 +191,6 @@
                 :ui="{
                   root: 'w-full',
                   container: 'gap-y-2',
-                  title: 'text-sm font-medium',
-                  description: 'text-xs text-muted',
                 }"
               >
                 <div
@@ -264,8 +266,6 @@
                   :ui="{
                     header:
                       'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-default',
-                    title: 'text-sm font-bold',
-                    description: 'mt-1 text-xs leading-relaxed text-muted',
                   }"
                 >
                   <template #header>
@@ -276,6 +276,11 @@
                     />
                   </template>
                 </UPageCard>
+                <span
+                  class="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
+                >
+                  ✕
+                </span>
               </div>
 
               <!-- Don't 2: Distorted -->
@@ -288,8 +293,6 @@
                   :ui="{
                     header:
                       'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-elevated',
-                    title: 'text-sm font-bold',
-                    description: 'mt-1 text-xs leading-relaxed text-muted',
                   }"
                 >
                   <template #header>
@@ -303,49 +306,57 @@
                     />
                   </template>
                 </UPageCard>
+                <span
+                  class="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
+                >
+                  ✕
+                </span>
               </div>
 
               <!-- Don't 3: Recolored -->
-              <UPageCard
-                variant="naked"
-                class="w-full"
-                title="Recolored"
-                :description="`Never change the accent color of 'dex'. Use only approved palette.`"
-                :ui="{
-                  header:
-                    'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-elevated',
-                  title: 'text-sm font-bold',
-                  description: 'mt-1 text-xs leading-relaxed text-muted',
-                }"
-              >
-                <template #header>
-                  <span
-                    class="font-dosis font-extrabold leading-none tracking-tight text-slate-400"
-                  >
-                    keebdex</span
-                  >
-                </template>
-              </UPageCard>
+              <div class="relative">
+                <UPageCard
+                  variant="naked"
+                  class="w-full"
+                  title="Recolored"
+                  :description="`Never change the accent color of 'dex'. Use only approved palette.`"
+                  :ui="{
+                    header:
+                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-elevated',
+                  }"
+                >
+                  <template #header>
+                    <span
+                      class="font-dosis text-3xl font-extrabold leading-none tracking-tight text-slate-400"
+                    >
+                      keebdex</span
+                    >
+                  </template>
+                </UPageCard>
+                <span
+                  class="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
+                >
+                  ✕
+                </span>
+              </div>
             </div>
           </section>
 
           <!-- Download CTAs -->
-          <div
-            class="flex flex-wrap items-center gap-3 rounded-2xl border border-default bg-elevated/50 px-6 py-5"
-          >
-            <p class="mr-2 font-mono text-xs text-muted">
-              ASSETS · COMING SOON
-            </p>
-            <UButton color="neutral" variant="outline" disabled>
-              Download SVG
-            </UButton>
-            <UButton color="neutral" variant="outline" disabled>
-              Download PNG
-            </UButton>
-            <UButton color="neutral" variant="outline" disabled>
-              Download Brand Kit
-            </UButton>
-          </div>
+          <UPageCTA
+            title="Brand Assets"
+            description="Download the official Keebdex logos, marks, and brand kit for use in your projects and press coverage."
+            variant="subtle"
+            :links="[
+              {
+                label: 'Coming Soon',
+                color: 'primary',
+                icon: 'solar:download-minimalistic-bold-duotone',
+                to: '/brand/press-kit.zip',
+                disabled: true,
+              },
+            ]"
+          />
 
           <!-- Footer -->
           <div
@@ -366,13 +377,13 @@
 const colors = [
   {
     name: 'Teal 500',
-    hex: '#14b8a6',
+    hex: '#00bba7',
     role: 'Primary Accent · Light UI',
     bg: 'bg-teal-500',
   },
   {
     name: 'Teal 400',
-    hex: '#2dd4bf',
+    hex: '#00d5be',
     role: 'Primary Accent · Dark UI',
     bg: 'bg-teal-400',
   },

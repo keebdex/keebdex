@@ -45,10 +45,10 @@ const frameClass = computed(() => {
   }
 
   if (props.variant === 'dark') {
-    return 'bg-teal-400'
+    return 'bg-slate-900'
   }
 
-  return 'bg-teal-500 dark:bg-teal-400'
+  return 'bg-teal-500 dark:bg-slate-900'
 })
 
 const textClass = computed(() => {
@@ -57,17 +57,29 @@ const textClass = computed(() => {
   }
 
   if (props.variant === 'dark') {
-    return 'text-slate-950'
+    return 'text-teal-400'
   }
 
-  return 'text-white dark:text-slate-950'
+  return 'text-white dark:text-teal-400'
+})
+
+const barClass = computed(() => {
+  if (props.variant === 'light') {
+    return 'bg-white'
+  }
+
+  if (props.variant === 'dark') {
+    return 'bg-teal-400'
+  }
+
+  return 'bg-white dark:bg-teal-400'
 })
 </script>
 
 <template>
   <div
     :class="[
-      'shrink-0 flex flex-col items-start justify-center',
+      'shrink-0 flex flex-col items-center justify-center',
       props.framed ? [sizeMap[props.size].frame, frameClass] : 'gap-1',
     ]"
   >
@@ -79,13 +91,9 @@ const textClass = computed(() => {
       ]"
     >
       kd
+      <div
+        :class="['w-full rounded-full', sizeMap[props.size].bar, barClass]"
+      />
     </span>
-    <div
-      :class="[
-        'w-full rounded-full',
-        sizeMap[props.size].bar,
-        textClass.includes('text-white') ? 'bg-white' : 'bg-slate-950',
-      ]"
-    />
   </div>
 </template>
