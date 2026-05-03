@@ -6,7 +6,7 @@
         description: 'mt-1 text-xs leading-relaxed text-muted',
       },
       pageHeader: {
-        headline: 'font-mono uppercase tracking-[0.24em]',
+        headline: 'font-mono text-xs uppercase tracking-[0.24em] text-muted',
         root: 'border-none',
       },
     }"
@@ -22,39 +22,44 @@
         >
           <!-- Hero -->
           <section class="flex flex-col gap-8">
-            <p
-              class="font-mono text-[11px] uppercase tracking-[0.22em] text-muted"
+            <UPageHeader
+              headline="keebdex.org — Brand Guidelines"
+              description="The ultimate platform for keyboard collectors to curate, sync, and showcase their collections."
+              :ui="{
+                container: 'space-y-12',
+                description: 'space-y-8 text-default',
+              }"
             >
-              keebdex.org — Brand Guidelines
-            </p>
+              <template #title>
+                <AppWordmark size="2xl" variant="auto" />
+              </template>
 
-            <AppWordmark size="2xl" variant="auto" />
+              <template #description>
+                <p class="text-lg font-medium leading-relaxed text-muted">
+                  The ultimate platform for keyboard collectors to curate, sync,
+                  and showcase their collections.
+                </p>
 
-            <p
-              class="max-w-[520px] text-lg font-medium leading-relaxed text-muted"
-            >
-              The ultimate platform for keyboard collectors to curate, sync, and
-              showcase their collections.
-            </p>
-
-            <!-- Meta row -->
-            <div class="flex gap-12">
-              <div
-                v-for="item in heroMeta"
-                :key="item.key"
-                class="flex flex-col gap-1"
-              >
-                <span
-                  class="font-mono text-[10px] uppercase tracking-[0.18em] text-muted"
-                >
-                  {{ item.key }}
-                </span>
-                <span class="text-[15px] font-bold">{{ item.val }}</span>
-              </div>
-            </div>
+                <!-- Meta -->
+                <div class="flex gap-12">
+                  <div
+                    v-for="item in heroMeta"
+                    :key="item.key"
+                    class="flex flex-col gap-1"
+                  >
+                    <span
+                      class="font-mono text-[10px] uppercase tracking-[0.18em] text-muted"
+                    >
+                      {{ item.key }}
+                    </span>
+                    <span class="text-[15px] font-bold">{{ item.val }}</span>
+                  </div>
+                </div>
+              </template>
+            </UPageHeader>
           </section>
 
-          <UDivider />
+          <USeparator />
 
           <!-- 01 Logo -->
           <section id="logo" class="flex flex-col gap-8">
@@ -66,7 +71,7 @@
               Escape key, the most iconic key on any collector&apos;s board.'
             />
 
-            <!-- 2×2 grid — bg-black gap so the separator is always visible -->
+            <!-- 2×2 grid -->
             <div
               class="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl bg-transparent"
             >
@@ -117,7 +122,7 @@
             </div>
           </section>
 
-          <UDivider />
+          <USeparator />
 
           <!-- 02 Favicon -->
           <section id="favicon" class="flex flex-col gap-8">
@@ -169,7 +174,7 @@
             </div>
           </section>
 
-          <UDivider />
+          <USeparator />
 
           <!-- 03 Colors -->
           <section id="colors" class="flex flex-col gap-8">
@@ -206,7 +211,7 @@
             </div>
           </section>
 
-          <UDivider />
+          <USeparator />
 
           <!-- 04 Typography -->
           <section id="typography" class="flex flex-col gap-8">
@@ -245,7 +250,7 @@
             </UPageCard>
           </section>
 
-          <UDivider />
+          <USeparator />
 
           <!-- 05 Usage / Don'ts -->
           <section id="usage" class="flex flex-col gap-8">
@@ -265,7 +270,7 @@
                   :description="`Never place the logo on backgrounds with insufficient contrast.`"
                   :ui="{
                     header:
-                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-default',
+                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
                   }"
                 >
                   <template #header>
@@ -292,7 +297,7 @@
                   description="Never stretch or squash the wordmark. Always scale proportionally."
                   :ui="{
                     header:
-                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-elevated',
+                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
                   }"
                 >
                   <template #header>
@@ -322,7 +327,7 @@
                   :description="`Never change the accent color of 'dex'. Use only approved palette.`"
                   :ui="{
                     header:
-                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-elevated',
+                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
                   }"
                 >
                   <template #header>
@@ -388,7 +393,7 @@ const colors = [
     bg: 'bg-teal-400',
   },
   {
-    name: 'Navy 900',
+    name: 'Slate 900',
     hex: '#0f172a',
     role: 'Primary Text · Dark Background',
     bg: 'bg-slate-900',
