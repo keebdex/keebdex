@@ -217,37 +217,49 @@
           <section id="typography" class="flex flex-col gap-8">
             <UPageHeader
               headline="04 - Typography"
-              title="Dosis"
-              description="Dosis is a rounded geometric sans-serif — the same DNA as the
-              legends printed on GMK keycaps. Bold, precise, and unmistakably
-              keyboard."
+              title="Type System"
+              description="Two fonts, clear roles. Dosis is reserved exclusively for the logo and wordmark. Reddit Sans handles all UI text — headers, body, labels."
             />
 
-            <UPageCard variant="soft">
-              <p
-                class="mb-6 font-mono text-[11px] uppercase tracking-[0.16em] text-muted"
+            <div
+              class="flex flex-col divide-y divide-default overflow-hidden rounded-xl border border-default"
+            >
+              <div
+                v-for="scale in typeScales"
+                :key="scale.weight + scale.family"
+                class="flex items-center gap-8 bg-elevated/40 px-8 py-7"
               >
-                Dosis — Primary Typeface
-              </p>
-              <div class="flex flex-col gap-4">
-                <div
-                  v-for="scale in typeScales"
-                  :key="scale.weight"
-                  class="flex items-baseline gap-6"
-                >
-                  <span class="w-10 shrink-0 font-mono text-[10px] text-muted">
-                    {{ scale.weight }}
+                <div class="flex w-36 shrink-0 flex-col gap-0.5">
+                  <span
+                    class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
+                  >
+                    {{ scale.family }}
                   </span>
                   <span
-                    class="font-dosis leading-tight"
-                    :class="scale.muted ? 'text-muted' : ''"
-                    :style="{ fontWeight: scale.weight, fontSize: scale.size }"
+                    class="font-mono text-[10px] tracking-[0.1em] text-muted/60"
                   >
-                    {{ scale.sample }}
+                    Weight {{ scale.weight }}
+                  </span>
+                  <span class="mt-1 text-[11px] text-muted/50">
+                    {{ scale.use }}
                   </span>
                 </div>
+                <span
+                  :class="[
+                    'leading-tight',
+                    scale.mono ? 'font-mono' : scale.dosis ? 'font-dosis' : '',
+                    scale.muted ? 'text-muted' : '',
+                  ]"
+                  :style="{
+                    fontWeight: scale.weight,
+                    fontSize: scale.size,
+                    letterSpacing: scale.tracking,
+                  }"
+                >
+                  {{ scale.sample }}
+                </span>
               </div>
-            </UPageCard>
+            </div>
           </section>
 
           <USeparator />
@@ -408,32 +420,54 @@ const colors = [
 
 const typeScales = [
   {
+    family: 'Dosis',
     weight: '800',
-    size: 'clamp(28px,4vw,48px)',
-    sample: 'Collect. Catalog. Connect.',
+    use: 'Logo & wordmark only',
+    size: '42px',
+    tracking: '-0.02em',
+    sample: 'keebdex',
+    dosis: true,
   },
   {
+    family: 'Reddit Sans',
     weight: '700',
-    size: 'clamp(20px,2.8vw,32px)',
-    sample: "The collector's platform",
+    use: 'Headings',
+    size: '32px',
+    sample: "The Collector's Platform",
   },
   {
+    family: 'Reddit Sans',
     weight: '600',
-    size: 'clamp(16px,2vw,20px)',
+    use: 'Subheadings, labels',
+    size: '20px',
     sample: 'Artisan · Keyset · Keyboard',
   },
   {
-    weight: '500',
+    family: 'Reddit Sans',
+    weight: '400',
+    use: 'Body text',
     size: '16px',
-    sample: 'Organize your artisans intelligently, stay synced across devices.',
+    sample:
+      'Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.',
+    muted: true,
+  },
+  {
+    family: 'Reddit Mono',
+    weight: '400',
+    use: 'Labels, hex codes, meta',
+    size: '13px',
+    tracking: '0.12em',
+    sample: '01 — BRAND · #00bba7 · v1.0',
+    mono: true,
     muted: true,
   },
 ]
 
 const heroMeta = [
   { key: 'Version', val: '1.0' },
-  { key: 'Primary Font', val: 'Dosis 800' },
-  { key: 'Primary Color', val: '#14b8a6' },
+  { key: 'Logo Font', val: 'Dosis 800' },
+  { key: 'Body Font', val: 'Reddit Sans' },
+  { key: 'Primary Color', val: '#00bba7' },
 ]
 
 useSeoMeta({
