@@ -57,10 +57,10 @@
           class="font-extrabold tracking-tight leading-none"
         >
           <span class="text-slate-900 dark:text-slate-100">keeb</span
-          ><span class="text-rose-500 dark:text-rose-400">dex</span>
+          ><span class="text-teal-500 dark:text-teal-400">dex</span>
         </span>
         <div
-          class="rounded-full bg-rose-500 dark:bg-rose-400 mt-1"
+          class="rounded-full bg-teal-500 dark:bg-teal-400 mt-1"
           style="height: 4px; width: 55px"
         />
       </div>

@@ -45,13 +45,13 @@ onMounted(measureBar)
       ]"
     >
       <span ref="keebRef" class="text-slate-900 dark:text-slate-100">keeb</span
-      ><span class="text-rose-500 dark:text-rose-400">dex</span>
+      ><span class="text-teal-500 dark:text-teal-400">dex</span>
     </span>
     <div
       :class="[
         sizeMap[props.size].bar,
         sizeMap[props.size].mt,
-        'rounded-full bg-rose-500 dark:bg-rose-400 transition-[width]',
+        'rounded-full bg-teal-500 dark:bg-teal-400 transition-[width]',
       ]"
       :style="{
         width: barWidth > 0 ? `${barWidth}px` : sizeMap[props.size].barDefault,

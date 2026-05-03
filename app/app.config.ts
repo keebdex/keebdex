@@ -1,5 +1,13 @@
 export default defineAppConfig({
   ui: {
+    colors: {
+      primary: 'teal',
+      secondary: 'violet',
+      success: 'emerald',
+      info: 'sky',
+      error: 'red',
+      warning: 'amber',
+    },
     icons: {
       arrowDown: 'hugeicons:arrow-down-02',
       arrowLeft: 'hugeicons:arrow-left-02',
