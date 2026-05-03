@@ -75,7 +75,7 @@ const loadPage = async (nextPage = 1) => {
   }
 
   try {
-    const result = await $fetch('/api/testimonials/all', {
+    const result = await $fetch('/api/testimonials', {
       query: {
         page: nextPage,
         size: PAGE_SIZE,

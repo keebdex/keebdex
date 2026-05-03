@@ -88,7 +88,7 @@
                 size="xs"
                 icon="hugeicons:quote-up"
                 :loading="movingId === row.original.id"
-                @click="moveToTestimonial(row.original.id)"
+                @click="moveToTestimonial(row.original)"
               />
             </div>
           </template>
@@ -116,6 +116,22 @@
           />
         </div>
       </UPageCard>
+
+      <UModal v-model:open="editorOpen" :title="editorTitle">
+        <template #body="{ close }">
+          <ModalShoutoutForm
+            :metadata="shoutoutDraft"
+            @on-success="
+              async () => {
+                await completeFeedbackMove()
+                close()
+                editorOpen = false
+                clearSelectedFeedback()
+              }
+            "
+          />
+        </template>
+      </UModal>
     </template>
   </UDashboardPanel>
 </template>
@@ -178,6 +194,8 @@ const { data, status, refresh } = useAdvancedSearch('/api/admin/feedbacks', {
 const expandedId = ref(null)
 const resolvingId = ref(null)
 const movingId = ref(null)
+const editorOpen = ref(false)
+const selectedFeedback = ref(null)
 
 const isExpanded = (id) => expandedId.value === id
 
@@ -189,6 +207,17 @@ watch(resolvedFilter, () => {
   expandedId.value = null
   resetPage()
 })
+
+const editorTitle = computed(() => 'Create Shoutout')
+
+const shoutoutDraft = computed(() => ({
+  name: selectedFeedback.value?.name || 'Anonymous',
+  content: selectedFeedback.value?.message || '',
+  role: '',
+  avatar_url: '',
+  status: 'Approved',
+  featured: false,
+}))
 
 const paginationMeta = computed(() => {
   const total = data.value?.count || 0
@@ -232,18 +261,34 @@ const markResolved = async (id) => {
   }
 }
 
-const moveToTestimonial = async (id) => {
-  movingId.value = id
+const clearSelectedFeedback = () => {
+  selectedFeedback.value = null
+}
+
+const moveToTestimonial = async (feedback) => {
+  selectedFeedback.value = feedback
+  editorOpen.value = true
+}
+
+const completeFeedbackMove = async () => {
+  if (!selectedFeedback.value?.id) {
+    return
+  }
+
+  movingId.value = selectedFeedback.value.id
 
   try {
-    await $fetch(`/api/admin/feedbacks/${id}/to-testimonial`, {
+    await $fetch(`/api/admin/feedbacks/${selectedFeedback.value.id}`, {
       method: 'post',
+      body: {
+        resolved: true,
+      },
     })
 
-    toast.add(handleSuccess('save', 'Shoutout'))
     await refresh()
   } catch (error) {
     toast.add(handleError(error))
+    throw error
   } finally {
     movingId.value = null
   }

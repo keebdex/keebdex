@@ -61,15 +61,18 @@ const { data } = await useAsyncData(
   () => `home-featured-testimonials-${size.value}`,
   () =>
     $fetch('/api/testimonials', {
-      query: { size: size.value },
-    }).catch(() => []),
+      query: {
+        size: size.value,
+        featured: true,
+      },
+    }).catch(() => ({ data: [] })),
   {
     watch: [size],
-    default: () => [],
+    default: () => ({ data: [] }),
   },
 )
 
-const testimonials = computed(() => data.value || [])
+const testimonials = computed(() => data.value?.data || [])
 const useTwoRows = computed(() => testimonials.value.length >= 6)
 
 const firstRow = computed(() => {

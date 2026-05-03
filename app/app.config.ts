@@ -94,7 +94,7 @@ export default defineAppConfig({
       },
     },
     pageColumns: {
-      base: 'md:columns-2 lg:columns-3 2xl:columns-4 4xl:columns-6 gap-4',
+      base: 'gap-4',
     },
     pageGrid: {
       base: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4',
