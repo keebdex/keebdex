@@ -1,10 +1,5 @@
 <template>
-  <UForm
-    :schema="schema"
-    :state="feedback"
-    class="space-y-4"
-    @submit="onSubmit"
-  >
+  <UForm :schema :state="feedback" class="space-y-4" @submit="onSubmit">
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="feedback.name"
@@ -18,9 +13,7 @@
       name="message"
       required
       help="Please don't include any sensitive information like passwords, or personal details."
-      :ui="{
-        help: 'text-warning',
-      }"
+      :ui="{ help: 'text-warning' }"
     >
       <UTextarea
         v-model.trim="feedback.message"
@@ -30,55 +23,15 @@
       />
     </UFormField>
 
-    <USeparator>
-      <template #default>
-        <b>Help us make {{ $config.public.site.name }} amazing!</b>
-      </template>
-    </USeparator>
-
-    <UAlert
-      color="neutral"
-      variant="ghost"
-      title="We welcome your contributions!"
-      description="If you encounter any issues or have suggestions for improvement, please feel free to:"
-      :ui="{
-        root: 'rounded-none p-0',
-        title: 'font-bold',
-      }"
-    />
-
     <UFormField
-      label="Submit a GitHub Issue or Discussion"
-      name="github"
-      help="Report bugs, request features, or discuss ideas on our GitHub repository"
-    >
-      <UInput
-        value="https://github.com/keebdex/keebdex"
-        icon="hugeicons:github"
-        disabled
-        class="w-full"
-      >
-        <template #trailing>
-          <UButton
-            icon="hugeicons:link-square-02"
-            variant="ghost"
-            to="https://github.com/keebdex/keebdex"
-            target="_blank"
-            external
-          />
-        </template>
-      </UInput>
-    </UFormField>
-
-    <UFormField
-      label="Get Involved"
+      label="Email"
       name="email"
-      help="Leave your email here if you're interested in supporting our project or receiving exclusive updates. We'll be in touch personally!"
+      help="Leave your email if you want us to follow up."
     >
       <UInput
-        v-model="feedback.email"
+        v-model.trim="feedback.email"
         icon="hugeicons:mail-01"
-        placeholder="Share your email to connect with our team."
+        placeholder="you@domain.com"
         class="w-full"
       />
     </UFormField>
@@ -86,15 +39,18 @@
     <UAlert
       color="neutral"
       variant="ghost"
-      title="Your feedback and support are invaluable to us. Thank you for your help!"
-      :ui="{
-        root: 'rounded-none p-0',
-        title: 'font-bold',
-      }"
+      title="Your feedback is invaluable to us. Thank you for sharing it!"
+      :ui="{ root: 'rounded-none p-0', title: 'font-bold' }"
     />
 
-    <UButton block icon="hugeicons:sent" color="primary" type="submit">
-      Send
+    <UButton
+      block
+      icon="hugeicons:sent"
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Send Feedback
     </UButton>
   </UForm>
 </template>
@@ -106,21 +62,27 @@ const emit = defineEmits(['onSuccess'])
 
 const toast = useToast()
 
-const feedback = ref({
-  name: '',
-  message: '',
-})
+const feedback = ref({ name: '', message: '', email: '' })
 
 const schema = z.object({
-  name: z.string().min(1),
-  message: z.string().min(1),
-  email: z.email().nullish(),
+  name: z.string().trim().min(1, 'Name is required.'),
+  message: z.string().trim().min(1, 'Message is required.'),
+  email: z
+    .string()
+    .trim()
+    .refine((v) => !v || z.string().email().safeParse(v).success, {
+      message: 'Please enter a valid email address.',
+    }),
 })
 
 const onSubmit = async () => {
   await $fetch('/api/feedbacks', {
     method: 'post',
-    body: feedback.value,
+    body: {
+      name: feedback.value.name,
+      message: feedback.value.message,
+      email: feedback.value.email || null,
+    },
   })
     .then(() => {
       toast.add({

@@ -58,9 +58,21 @@
 
     <!-- <NotificationsSlideover /> -->
 
-    <UModal v-model:open="visible.feedback" title="Share your thoughts!">
+    <UModal
+      v-model:open="visible.feedback"
+      title="Share your thoughts!"
+      :ui="{
+        body: 'flex flex-col gap-4',
+      }"
+    >
       <template #body>
-        <ModalFeedbackForm />
+        <UTabs v-model="feedbackMode" :items="feedbackFlowItems" />
+
+        <ModalFeedbackForm
+          v-if="feedbackMode === 'feedback'"
+          @on-success="toggle('feedback')"
+        />
+        <ModalContributeForm v-else @on-success="toggle('feedback')" />
       </template>
     </UModal>
 
@@ -279,6 +291,13 @@ const visible = ref({
   feedback: false,
   donate: false,
 })
+
+const feedbackMode = ref('feedback')
+
+const feedbackFlowItems = [
+  { label: 'Feedback', value: 'feedback' },
+  { label: 'Contribute', value: 'contribute' },
+]
 
 const toggle = (key) => {
   visible.value[key] = !visible.value[key]
