@@ -9,6 +9,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  variant: {
+    type: String,
+    default: 'auto',
+    validator: (v) => ['auto', 'light', 'dark'].includes(v),
+  },
 })
 
 const sizeMap = {
@@ -27,6 +32,42 @@ const sizeMap = {
 const keebRef = ref(null)
 const barWidth = ref(0)
 
+const keebTextClass = computed(() => {
+  if (props.variant === 'light') {
+    return 'text-slate-900'
+  }
+
+  if (props.variant === 'dark') {
+    return 'text-slate-100'
+  }
+
+  return 'text-slate-900 dark:text-slate-100'
+})
+
+const dexTextClass = computed(() => {
+  if (props.variant === 'light') {
+    return 'text-teal-500'
+  }
+
+  if (props.variant === 'dark') {
+    return 'text-teal-400'
+  }
+
+  return 'text-teal-500 dark:text-teal-400'
+})
+
+const barClass = computed(() => {
+  if (props.variant === 'light') {
+    return 'bg-teal-500'
+  }
+
+  if (props.variant === 'dark') {
+    return 'bg-teal-400'
+  }
+
+  return 'bg-teal-500 dark:bg-teal-400'
+})
+
 function measureBar() {
   if (keebRef.value) {
     barWidth.value = keebRef.value.offsetWidth
@@ -44,14 +85,15 @@ onMounted(measureBar)
         'font-dosis font-extrabold leading-none tracking-tight',
       ]"
     >
-      <span ref="keebRef" class="text-slate-900 dark:text-slate-100">keeb</span
-      ><span class="text-teal-500 dark:text-teal-400">dex</span>
+      <span ref="keebRef" :class="keebTextClass">keeb</span
+      ><span :class="dexTextClass">dex</span>
     </span>
     <div
       :class="[
         sizeMap[props.size].bar,
         sizeMap[props.size].mt,
-        'rounded-full bg-teal-500 dark:bg-teal-400 transition-[width]',
+        'rounded-full transition-[width]',
+        barClass,
       ]"
       :style="{
         width: barWidth > 0 ? `${barWidth}px` : sizeMap[props.size].barDefault,
