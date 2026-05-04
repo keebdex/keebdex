@@ -68,7 +68,9 @@
               </template>
 
               <template #description>
-                <p class="text-lg font-medium leading-relaxed text-muted">
+                <p
+                  class="text-lg font-medium leading-relaxed text-muted text-start"
+                >
                   The ultimate platform for keyboard collectors to curate, sync,
                   and showcase their collections.
                 </p>
@@ -102,13 +104,15 @@
           description='The Keebdex wordmark combines a bold typographic treatment with a minimal Esc key motif — the small bar beneath "keeb" references the Escape key, the most iconic key on any collector&apos;s board.'
           class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
         >
+          <!-- Mobile: rows / Tablet+: 2x2 grid -->
           <div
-            class="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl bg-transparent"
+            class="flex flex-col gap-0.5 overflow-hidden rounded-2xl sm:grid sm:grid-cols-2"
           >
             <div
-              class="flex flex-col items-center justify-center gap-8 bg-teal-50 px-12 py-16"
+              class="flex items-center justify-between gap-8 bg-teal-50 px-8 py-10 sm:flex-col sm:items-center sm:justify-center sm:gap-8 sm:px-12 sm:py-16"
             >
-              <AppWordmark size="xl" variant="light" />
+              <AppWordmark size="lg" variant="light" class="sm:hidden" />
+              <AppWordmark size="xl" variant="light" class="hidden sm:block" />
               <span
                 class="font-mono text-[10px] uppercase tracking-[0.18em] text-black/35"
               >
@@ -116,9 +120,10 @@
               </span>
             </div>
             <div
-              class="flex flex-col items-center justify-center gap-8 bg-slate-900 px-12 py-16 ring-1 ring-inset ring-white/10"
+              class="flex items-center justify-between gap-8 bg-slate-900 px-8 py-10 ring-1 ring-inset ring-white/10 sm:flex-col sm:items-center sm:justify-center sm:gap-8 sm:px-12 sm:py-16"
             >
-              <AppWordmark size="xl" variant="dark" />
+              <AppWordmark size="lg" variant="dark" class="sm:hidden" />
+              <AppWordmark size="xl" variant="dark" class="hidden sm:block" />
               <span
                 class="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35"
               >
@@ -126,9 +131,10 @@
               </span>
             </div>
             <div
-              class="flex flex-col items-center justify-center gap-8 bg-teal-500 px-12 py-16"
+              class="flex items-center justify-between gap-8 bg-teal-500 px-8 py-10 sm:flex-col sm:items-center sm:justify-center sm:gap-8 sm:px-12 sm:py-16"
             >
-              <AppWordmark size="xl" variant="dark" />
+              <AppWordmark size="lg" variant="dark" class="sm:hidden" />
+              <AppWordmark size="xl" variant="dark" class="hidden sm:block" />
               <span
                 class="font-mono text-[10px] uppercase tracking-[0.18em] text-black/35"
               >
@@ -136,9 +142,10 @@
               </span>
             </div>
             <div
-              class="flex flex-col items-center justify-center gap-8 bg-slate-800 px-12 py-16 ring-1 ring-inset ring-white/10"
+              class="flex items-center justify-between gap-8 bg-slate-800 px-8 py-10 ring-1 ring-inset ring-white/10 sm:flex-col sm:items-center sm:justify-center sm:gap-8 sm:px-12 sm:py-16"
             >
-              <AppWordmark size="xl" variant="dark" />
+              <AppWordmark size="lg" variant="dark" class="sm:hidden" />
+              <AppWordmark size="xl" variant="dark" class="hidden sm:block" />
               <span
                 class="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35"
               >
@@ -158,8 +165,10 @@
           description='The mark distills the wordmark into "kd" — short for keebdex — with the Esc bar below. Used as favicon, app icon, and avatar across all platforms.'
           class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
         >
-          <div class="flex flex-wrap items-end gap-8">
-            <div class="flex items-end gap-6">
+          <div
+            class="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:divide-x sm:divide-default sm:gap-0"
+          >
+            <div class="flex items-end justify-center gap-6 sm:pr-8">
               <div
                 v-for="size in ['xl', 'lg', 'md']"
                 :key="`light-${size}`"
@@ -173,8 +182,7 @@
                 </span>
               </div>
             </div>
-            <div class="hidden self-stretch border-l border-default sm:block" />
-            <div class="flex items-end gap-6">
+            <div class="flex items-end justify-center gap-6 sm:pl-8">
               <div
                 v-for="size in ['xl', 'lg', 'md']"
                 :key="`dark-${size}`"
@@ -240,9 +248,11 @@
             <div
               v-for="scale in typeScales"
               :key="scale.weight + scale.family"
-              class="flex items-center gap-8 bg-elevated/40 px-8 py-7"
+              class="flex flex-col gap-3 bg-elevated/40 px-5 py-5 sm:flex-row sm:items-center sm:gap-8 sm:px-8 sm:py-7"
             >
-              <div class="flex w-36 shrink-0 flex-col gap-0.5">
+              <div
+                class="flex w-full shrink-0 flex-row items-baseline gap-3 sm:w-36 sm:flex-col sm:gap-0.5"
+              >
                 <span
                   class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
                 >
@@ -251,21 +261,22 @@
                 <span
                   class="font-mono text-[10px] tracking-[0.1em] text-muted/60"
                 >
-                  Weight {{ scale.weight }}
+                  {{ scale.weight }}
                 </span>
-                <span class="mt-1 text-[11px] text-muted/50">{{
-                  scale.use
-                }}</span>
+                <span
+                  class="hidden text-[11px] text-muted/50 sm:block sm:mt-1"
+                  >{{ scale.use }}</span
+                >
               </div>
               <span
                 :class="[
-                  'leading-tight',
+                  'leading-tight min-w-0 overflow-hidden',
                   scale.mono ? 'font-mono' : scale.dosis ? 'font-dosis' : '',
                   scale.muted ? 'text-muted' : '',
                 ]"
                 :style="{
                   fontWeight: scale.weight,
-                  fontSize: scale.size,
+                  fontSize: `clamp(1rem, ${scale.size}, ${scale.size})`,
                   letterSpacing: scale.tracking,
                 }"
               >
