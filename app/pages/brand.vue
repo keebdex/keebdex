@@ -5,26 +5,59 @@
         title: 'text-sm font-bold',
         description: 'mt-1 text-xs leading-relaxed text-muted',
       },
-      pageHeader: {
+      pageSection: {
         headline: 'font-mono text-xs uppercase tracking-[0.24em] text-muted',
-        root: 'border-none',
+        header: 'flex flex-col items-start',
+        description: 'text-start',
       },
     }"
   >
-    <UDashboardPanel id="brand">
+    <UDashboardPanel
+      id="brand"
+      :ui="{
+        body: 'overflow-y-scroll snap-y snap-mandatory scroll-smooth p-0',
+      }"
+    >
       <template v-if="$device.isMobileOrTablet" #header>
         <UDashboardNavbar title="Brand Guidelines" />
       </template>
 
       <template #body>
+        <!-- Section progress dots -->
         <div
-          class="mx-auto flex w-full max-w-5xl flex-col gap-32 px-4 py-16 sm:px-6 lg:px-8 gap-12"
+          class="fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-2.5 lg:flex"
         >
-          <!-- Hero -->
-          <section class="flex flex-col gap-8">
-            <UPageHeader
+          <button
+            v-for="(label, i) in sectionLabels"
+            :key="i"
+            :title="label"
+            class="group relative flex items-center justify-end gap-2"
+            @click="scrollToSection(i)"
+          >
+            <span
+              class="pointer-events-none invisible absolute right-5 whitespace-nowrap rounded bg-inverted/80 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-inverted opacity-0 transition-all group-hover:visible group-hover:opacity-100"
+            >
+              {{ label }}
+            </span>
+            <span
+              class="block rounded-full transition-all duration-300"
+              :class="
+                currentSection === i
+                  ? 'h-5 w-1.5 bg-primary'
+                  : 'h-1.5 w-1.5 bg-muted hover:bg-default'
+              "
+            />
+          </button>
+        </div>
+
+        <!-- Hero -->
+        <section
+          :ref="(el) => (sectionRefs[0] = el)"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+        >
+          <div class="max-w-5xl w-full mx-auto">
+            <UPageSection
               headline="keebdex.org — Brand Guidelines"
-              description="The ultimate platform for keyboard collectors to curate, sync, and showcase their collections."
               :ui="{
                 container: 'space-y-12',
                 description: 'space-y-8 text-default',
@@ -40,7 +73,6 @@
                   and showcase their collections.
                 </p>
 
-                <!-- Meta -->
                 <div class="flex gap-12">
                   <div
                     v-for="item in heroMeta"
@@ -56,310 +88,303 @@
                   </div>
                 </div>
               </template>
-            </UPageHeader>
-          </section>
+            </UPageSection>
+          </div>
 
-          <USeparator />
+          <BrandScrollIndicator />
+        </section>
 
-          <!-- 01 Logo -->
-          <section id="logo" class="flex flex-col gap-8">
-            <UPageHeader
-              headline="01 - Logo"
-              title="The Wordmark"
-              description='The Keebdex wordmark combines a bold typographic treatment with a
-              minimal Esc key motif — the small bar beneath "keeb" references the
-              Escape key, the most iconic key on any collector&apos;s board.'
-            />
-
-            <!-- 2×2 grid -->
+        <!-- 01 Logo -->
+        <UPageSection
+          :ref="(el) => (sectionRefs[1] = el)"
+          headline="01 - Logo"
+          title="The Wordmark"
+          description='The Keebdex wordmark combines a bold typographic treatment with a minimal Esc key motif — the small bar beneath "keeb" references the Escape key, the most iconic key on any collector&apos;s board.'
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+        >
+          <div
+            class="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl bg-transparent"
+          >
             <div
-              class="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl bg-transparent"
+              class="flex flex-col items-center justify-center gap-8 bg-teal-50 px-12 py-16"
             >
-              <!-- Light -->
-              <div
-                class="flex flex-col items-center justify-center gap-8 bg-teal-50 px-12 py-16"
+              <AppWordmark size="xl" variant="light" />
+              <span
+                class="font-mono text-[10px] uppercase tracking-[0.18em] text-black/35"
               >
-                <AppWordmark size="xl" variant="light" />
-                <span
-                  class="font-mono text-[10px] uppercase tracking-[0.18em] text-black/35"
-                >
-                  Light
-                </span>
-              </div>
-              <!-- Dark -->
-              <div
-                class="flex flex-col items-center justify-center gap-8 bg-slate-900 px-12 py-16 ring-1 ring-inset ring-white/10"
+                Light
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center justify-center gap-8 bg-slate-900 px-12 py-16 ring-1 ring-inset ring-white/10"
+            >
+              <AppWordmark size="xl" variant="dark" />
+              <span
+                class="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35"
               >
-                <AppWordmark size="xl" variant="dark" />
-                <span
-                  class="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35"
-                >
-                  Dark
-                </span>
-              </div>
-              <!-- Teal -->
-              <div
-                class="flex flex-col items-center justify-center gap-8 bg-teal-500 px-12 py-16"
+                Dark
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center justify-center gap-8 bg-teal-500 px-12 py-16"
+            >
+              <AppWordmark size="xl" variant="dark" />
+              <span
+                class="font-mono text-[10px] uppercase tracking-[0.18em] text-black/35"
               >
-                <AppWordmark size="xl" variant="dark" />
-                <span
-                  class="font-mono text-[10px] uppercase tracking-[0.18em] text-black/35"
-                >
-                  Teal
-                </span>
-              </div>
-              <!-- Slate -->
-              <div
-                class="flex flex-col items-center justify-center gap-8 bg-slate-800 px-12 py-16 ring-1 ring-inset ring-white/10"
+                Teal
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center justify-center gap-8 bg-slate-800 px-12 py-16 ring-1 ring-inset ring-white/10"
+            >
+              <AppWordmark size="xl" variant="dark" />
+              <span
+                class="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35"
               >
-                <AppWordmark size="xl" variant="dark" />
+                Slate
+              </span>
+            </div>
+          </div>
+
+          <BrandScrollIndicator />
+        </UPageSection>
+
+        <!-- 02 Favicon -->
+        <UPageSection
+          :ref="(el) => (sectionRefs[2] = el)"
+          headline="02 - Favicon & App Icon"
+          title="The Mark"
+          description='The mark distills the wordmark into "kd" — short for keebdex — with the Esc bar below. Used as favicon, app icon, and avatar across all platforms.'
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+        >
+          <div class="flex flex-wrap items-end gap-8">
+            <div class="flex items-end gap-6">
+              <div
+                v-for="size in ['xl', 'lg', 'md']"
+                :key="`light-${size}`"
+                class="flex flex-col items-center gap-3"
+              >
+                <AppFaviconLogo :size="size" variant="light" framed />
                 <span
-                  class="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35"
+                  class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
                 >
-                  Slate
+                  {{ size }} · Light
                 </span>
               </div>
             </div>
-          </section>
-
-          <USeparator />
-
-          <!-- 02 Favicon -->
-          <section id="favicon" class="flex flex-col gap-8">
-            <UPageHeader
-              headline="02 - Favicon & App Icon"
-              title="The Mark"
-              description='The mark distills the wordmark into "kd" — short for keebdex —
-              with the Esc bar below. Used as favicon, app icon, and avatar
-              across all platforms.'
-            />
-
-            <div class="flex flex-wrap items-end gap-8">
-              <!-- Light group -->
-              <div class="flex items-end gap-6">
-                <div
-                  v-for="size in ['xl', 'lg', 'md']"
-                  :key="`light-${size}`"
-                  class="flex flex-col items-center gap-3"
-                >
-                  <AppFaviconLogo :size="size" variant="light" framed />
-                  <span
-                    class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
-                  >
-                    {{ size }} · Light
-                  </span>
-                </div>
-              </div>
-
-              <!-- Divider -->
+            <div class="hidden self-stretch border-l border-default sm:block" />
+            <div class="flex items-end gap-6">
               <div
-                class="hidden self-stretch border-l border-default sm:block"
+                v-for="size in ['xl', 'lg', 'md']"
+                :key="`dark-${size}`"
+                class="flex flex-col items-center gap-3"
+              >
+                <AppFaviconLogo :size="size" variant="dark" framed />
+                <span
+                  class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
+                >
+                  {{ size }} · Dark
+                </span>
+              </div>
+            </div>
+          </div>
+          <BrandScrollIndicator />
+        </UPageSection>
+
+        <!-- 03 Colors -->
+        <UPageSection
+          :ref="(el) => (sectionRefs[3] = el)"
+          headline="03 - Colors"
+          title="Color Palette"
+          description="Teal anchors the brand — precise, focused, and distinct from the saturated palettes common in the keyboard space."
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+        >
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <UPageCard
+              v-for="color in colors"
+              :key="color.hex"
+              :title="color.name"
+              :description="color.hex"
+              reverse
+              variant="naked"
+              :ui="{
+                root: 'w-full',
+                container: 'gap-y-2',
+              }"
+            >
+              <div
+                :style="{ backgroundColor: color.hex }"
+                class="h-16 rounded"
               />
+              <template #description>
+                {{ color.hex }}
+                <p class="mt-1 text-xs text-muted">{{ color.role }}</p>
+              </template>
+            </UPageCard>
+          </div>
+          <BrandScrollIndicator />
+        </UPageSection>
 
-              <!-- Dark group -->
-              <div class="flex items-end gap-6">
-                <div
-                  v-for="size in ['xl', 'lg', 'md']"
-                  :key="`dark-${size}`"
-                  class="flex flex-col items-center gap-3"
+        <!-- 04 Typography -->
+        <UPageSection
+          :ref="(el) => (sectionRefs[4] = el)"
+          headline="04 - Typography"
+          title="Type System"
+          description="Two fonts, clear roles. Dosis is reserved exclusively for the logo and wordmark. Reddit Sans handles all UI text — headers, body, labels."
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+        >
+          <div
+            class="flex flex-col divide-y divide-default overflow-hidden rounded-xl border border-default"
+          >
+            <div
+              v-for="scale in typeScales"
+              :key="scale.weight + scale.family"
+              class="flex items-center gap-8 bg-elevated/40 px-8 py-7"
+            >
+              <div class="flex w-36 shrink-0 flex-col gap-0.5">
+                <span
+                  class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
                 >
-                  <AppFaviconLogo :size="size" variant="dark" framed />
-                  <span
-                    class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
-                  >
-                    {{ size }} · Dark
-                  </span>
-                </div>
+                  {{ scale.family }}
+                </span>
+                <span
+                  class="font-mono text-[10px] tracking-[0.1em] text-muted/60"
+                >
+                  Weight {{ scale.weight }}
+                </span>
+                <span class="mt-1 text-[11px] text-muted/50">{{
+                  scale.use
+                }}</span>
               </div>
-            </div>
-          </section>
-
-          <USeparator />
-
-          <!-- 03 Colors -->
-          <section id="colors" class="flex flex-col gap-8">
-            <UPageHeader
-              headline="03 - Colors"
-              title="Color Palette"
-              description="Teal anchors the brand — precise, focused, and distinct from the
-              saturated palettes common in the keyboard space."
-            />
-
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <UPageCard
-                v-for="color in colors"
-                :key="color.hex"
-                :title="color.name"
-                :description="color.hex"
-                reverse
-                variant="naked"
-                :ui="{
-                  root: 'w-full',
-                  container: 'gap-y-2',
+              <span
+                :class="[
+                  'leading-tight',
+                  scale.mono ? 'font-mono' : scale.dosis ? 'font-dosis' : '',
+                  scale.muted ? 'text-muted' : '',
+                ]"
+                :style="{
+                  fontWeight: scale.weight,
+                  fontSize: scale.size,
+                  letterSpacing: scale.tracking,
                 }"
               >
-                <div
-                  :style="{ backgroundColor: color.hex }"
-                  class="h-16 rounded"
-                />
+                {{ scale.sample }}
+              </span>
+            </div>
+          </div>
+          <BrandScrollIndicator />
+        </UPageSection>
 
-                <template #description>
-                  {{ color.hex }}
-                  <p class="mt-1 text-xs text-muted">{{ color.role }}</p>
+        <!-- 05 Usage / Don'ts -->
+        <UPageSection
+          :ref="(el) => (sectionRefs[5] = el)"
+          headline="05 - Usage"
+          title="Do's & Don'ts"
+          description="Keep the logo clean and consistent across all surfaces."
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+        >
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="relative">
+              <UPageCard
+                variant="naked"
+                class="w-full"
+                title="Low Contrast"
+                :description="`Never place the logo on backgrounds with insufficient contrast.`"
+                :ui="{
+                  header:
+                    'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
+                }"
+              >
+                <template #header>
+                  <AppWordmark size="lg" variant="light" style="opacity: 30%" />
                 </template>
               </UPageCard>
+              <BrandDontBadge />
             </div>
-          </section>
 
-          <USeparator />
-
-          <!-- 04 Typography -->
-          <section id="typography" class="flex flex-col gap-8">
-            <UPageHeader
-              headline="04 - Typography"
-              title="Type System"
-              description="Two fonts, clear roles. Dosis is reserved exclusively for the logo and wordmark. Reddit Sans handles all UI text — headers, body, labels."
-            />
-
-            <div
-              class="flex flex-col divide-y divide-default overflow-hidden rounded-xl border border-default"
-            >
-              <div
-                v-for="scale in typeScales"
-                :key="scale.weight + scale.family"
-                class="flex items-center gap-8 bg-elevated/40 px-8 py-7"
+            <div class="relative">
+              <UPageCard
+                variant="naked"
+                class="w-full"
+                title="Distorted"
+                description="Never stretch or squash the wordmark. Always scale proportionally."
+                :ui="{
+                  header:
+                    'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
+                }"
               >
-                <div class="flex w-36 shrink-0 flex-col gap-0.5">
-                  <span
-                    class="font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
-                  >
-                    {{ scale.family }}
-                  </span>
-                  <span
-                    class="font-mono text-[10px] tracking-[0.1em] text-muted/60"
-                  >
-                    Weight {{ scale.weight }}
-                  </span>
-                  <span class="mt-1 text-[11px] text-muted/50">
-                    {{ scale.use }}
-                  </span>
-                </div>
-                <span
-                  :class="[
-                    'leading-tight',
-                    scale.mono ? 'font-mono' : scale.dosis ? 'font-dosis' : '',
-                    scale.muted ? 'text-muted' : '',
-                  ]"
-                  :style="{
-                    fontWeight: scale.weight,
-                    fontSize: scale.size,
-                    letterSpacing: scale.tracking,
-                  }"
-                >
-                  {{ scale.sample }}
-                </span>
-              </div>
+                <template #header>
+                  <AppWordmark
+                    size="lg"
+                    variant="light"
+                    style="
+                      transform: scaleX(1.4);
+                      transform-origin: center center;
+                    "
+                  />
+                </template>
+              </UPageCard>
+              <BrandDontBadge />
             </div>
-          </section>
 
-          <USeparator />
-
-          <!-- 05 Usage / Don'ts -->
-          <section id="usage" class="flex flex-col gap-8">
-            <UPageHeader
-              headline="05 - Usage"
-              title="Do's & Don'ts"
-              description="Keep the logo clean and consistent across all surfaces."
-            />
-
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <!-- Don't 1: Low contrast -->
-              <div class="relative">
-                <UPageCard
-                  variant="naked"
-                  class="w-full"
-                  title="Low Contrast"
-                  :description="`Never place the logo on backgrounds with insufficient contrast.`"
-                  :ui="{
-                    header:
-                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
-                  }"
-                >
-                  <template #header>
-                    <AppWordmark
-                      size="lg"
-                      variant="light"
-                      style="opacity: 30%"
-                    />
-                  </template>
-                </UPageCard>
-                <span
-                  class="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
-                >
-                  ✕
-                </span>
-              </div>
-
-              <!-- Don't 2: Distorted -->
-              <div class="relative">
-                <UPageCard
-                  variant="naked"
-                  class="w-full"
-                  title="Distorted"
-                  description="Never stretch or squash the wordmark. Always scale proportionally."
-                  :ui="{
-                    header:
-                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
-                  }"
-                >
-                  <template #header>
-                    <AppWordmark
-                      size="lg"
-                      variant="light"
-                      style="
-                        transform: scaleX(1.4);
-                        transform-origin: center center;
-                      "
-                    />
-                  </template>
-                </UPageCard>
-                <span
-                  class="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
-                >
-                  ✕
-                </span>
-              </div>
-
-              <!-- Don't 3: Recolored -->
-              <div class="relative">
-                <UPageCard
-                  variant="naked"
-                  class="w-full"
-                  title="Recolored"
-                  :description="`Never change the accent color of 'dex'. Use only approved palette.`"
-                  :ui="{
-                    header:
-                      'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
-                  }"
-                >
-                  <template #header>
-                    <span
-                      class="font-dosis text-3xl font-extrabold leading-none tracking-tight text-slate-400"
-                    >
-                      keebdex</span
-                    >
-                  </template>
-                </UPageCard>
-                <span
-                  class="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white"
-                >
-                  ✕
-                </span>
-              </div>
+            <div class="relative">
+              <UPageCard
+                variant="naked"
+                class="w-full"
+                title="Recolored"
+                :description="`Never change the accent color of 'dex'. Use only approved palette.`"
+                :ui="{
+                  header:
+                    'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
+                }"
+              >
+                <template #header>
+                  <span
+                    class="font-dosis text-3xl font-extrabold leading-none tracking-tight text-slate-400"
+                    >keebdex</span
+                  >
+                </template>
+              </UPageCard>
+              <BrandDontBadge />
             </div>
-          </section>
 
-          <!-- Download CTAs -->
+            <div class="relative">
+              <UPageCard
+                variant="naked"
+                class="w-full"
+                title="Wrong Font"
+                description="Never render the wordmark in Reddit Sans or any font other than Dosis 800."
+                :ui="{
+                  header:
+                    'flex w-full h-28 items-center justify-center rounded-xl border border-default bg-muted',
+                }"
+              >
+                <template #header>
+                  <span
+                    class="font-sans text-3xl font-extrabold leading-none tracking-tight"
+                    >keeb</span
+                  ><span
+                    class="font-sans text-3xl font-extrabold leading-none tracking-tight text-teal-500 dark:text-teal-400"
+                    >dex</span
+                  >
+                </template>
+              </UPageCard>
+              <BrandDontBadge />
+            </div>
+          </div>
+          <BrandScrollIndicator />
+        </UPageSection>
+
+        <!-- 06 Download -->
+        <UPageSection
+          :ref="(el) => (sectionRefs[6] = el)"
+          class="snap-start"
+          :ui="{
+            root: 'relative flex min-h-dvh flex-col items-center justify-center px-8 py-20',
+            container: 'w-full max-w-5xl',
+          }"
+        >
           <UPageCTA
             title="Brand Assets"
             description="Download the official Keebdex logos, marks, and brand kit for use in your projects and press coverage."
@@ -375,22 +400,63 @@
             ]"
           />
 
-          <!-- Footer -->
           <div
-            class="flex flex-wrap items-center justify-between gap-4 border-t border-default py-6"
+            class="absolute inset-x-8 bottom-6 flex flex-wrap items-center justify-between gap-4 border-t border-default pt-6"
           >
             <AppWordmark size="md" variant="auto" />
             <p class="font-mono text-xs text-muted">
               keebdex.org — Brand Guidelines v1.0
             </p>
           </div>
-        </div>
+        </UPageSection>
       </template>
     </UDashboardPanel>
   </UTheme>
 </template>
 
 <script setup>
+const sectionLabels = [
+  'Overview',
+  '01 · Logo',
+  '02 · Favicon',
+  '03 · Colors',
+  '04 · Typography',
+  '05 · Usage',
+  'Download',
+]
+
+const sectionRefs = ref([])
+const currentSection = ref(0)
+
+// Resolve a ref to its DOM element — handles both native elements and Vue component instances
+const getEl = (ref) => ref?.$el ?? ref
+
+onMounted(() => {
+  const domEls = sectionRefs.value.map(getEl)
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const index = domEls.indexOf(entry.target)
+          if (index !== -1) currentSection.value = index
+        }
+      }
+    },
+    { threshold: 0.5 },
+  )
+
+  for (const el of domEls) {
+    if (el) observer.observe(el)
+  }
+
+  onUnmounted(() => observer.disconnect())
+})
+
+const scrollToSection = (index) => {
+  getEl(sectionRefs.value[index])?.scrollIntoView({ behavior: 'smooth' })
+}
+
 const colors = [
   {
     name: 'Teal 500',
