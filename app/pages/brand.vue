@@ -7,8 +7,6 @@
       },
       pageSection: {
         headline: 'font-mono text-xs uppercase tracking-[0.24em] text-muted',
-        header: 'flex flex-col items-start',
-        description: 'text-start',
       },
     }"
   >
@@ -330,7 +328,7 @@
                     size="lg"
                     variant="light"
                     style="
-                      transform: scaleX(1.4);
+                      transform: scaleX(1.5) scaleY(0.75);
                       transform-origin: center center;
                     "
                   />
@@ -402,11 +400,12 @@
             variant="subtle"
             :links="[
               {
-                label: 'Coming Soon',
+                label: 'Download Press Kit',
                 color: 'primary',
                 icon: 'solar:download-minimalistic-bold-duotone',
-                to: '/brand/press-kit.zip',
-                disabled: true,
+                to: 'https://github.com/keebdex/press-kit/archive/refs/heads/main.zip',
+                external: true,
+                target: '_blank',
               },
             ]"
           />
