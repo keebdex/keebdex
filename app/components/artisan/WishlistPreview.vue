@@ -64,85 +64,54 @@
         </UPage>
 
         <UPageHeader
-          title="Information"
-          :links="
-            tradingCfg.shipping_included
-              ? [
-                  {
-                    label: 'Shipping Included',
-                    icon: 'hugeicons:package-moving',
-                    color: 'info',
-                    variant: 'soft',
-                    size: 'xl',
-                  },
-                ]
-              : undefined
-          "
           :ui="{
             root: 'border-none',
           }"
         >
-          <template #description>
-            <UPageGrid class="grid gap-4" :style="socialGridStyle">
-              <UUser
-                v-if="tradingCfg.social.discord"
-                :name="tradingCfg.social.discord"
-                size="2xl"
-                :avatar="{
-                  icon: 'hugeicons:discord',
-                  ui: {
-                    icon: 'text-(--color-discord)',
-                  },
-                }"
-                :ui="{
-                  name: 'text-(--color-discord)',
-                }"
-              />
+          <template #title>
+            <AppWordmark size="xl" />
+          </template>
 
-              <UUser
-                v-if="tradingCfg.social.reddit"
-                :name="tradingCfg.social.reddit"
-                size="2xl"
-                :avatar="{
-                  icon: 'hugeicons:reddit',
-                  ui: {
-                    icon: 'text-(--color-reddit)',
-                  },
-                }"
-                :ui="{
-                  name: 'text-(--color-reddit)',
-                }"
-              />
-
-              <UUser
-                v-if="tradingCfg.social.qq"
-                :name="tradingCfg.social.qq"
-                size="2xl"
-                :avatar="{
-                  icon: 'hugeicons:bubble-chat',
-                }"
-              />
-            </UPageGrid>
-
-            <UAlert
-              v-if="!copying"
-              icon="hugeicons:information-circle"
-              variant="subtle"
-              color="info"
-              class="mt-4"
+          <template #links>
+            <UBadge
+              v-if="tradingCfg.social.discord"
+              icon="hugeicons:discord"
+              size="xl"
+              class="text-(--color-discord) bg-transparent"
             >
-              <template #description>
-                Click and drag cards to change their order. You can update
-                asking prices in the
-                <ULink
-                  :to="`/collection/artisan/${tradingCfg.selling.collection || tradingCfg.buying.collection}`"
-                >
-                  Manage Collection
-                </ULink>
-                page.
-              </template>
-            </UAlert>
+              {{ tradingCfg.social.discord }}
+            </UBadge>
 
+            <UBadge
+              v-if="tradingCfg.social.reddit"
+              icon="hugeicons:reddit"
+              size="xl"
+              class="text-(--color-reddit) bg-transparent"
+            >
+              {{ tradingCfg.social.reddit }}
+            </UBadge>
+
+            <UBadge
+              v-if="tradingCfg.social.qq"
+              icon="basil:qq-outline"
+              size="xl"
+              class="text-(--color-qq) bg-transparent"
+            >
+              {{ tradingCfg.social.qq }}
+            </UBadge>
+
+            <UBadge
+              v-if="tradingCfg.shipping_included"
+              icon="hugeicons:package-moving"
+              size="xl"
+              color="info"
+              class="bg-transparent"
+            >
+              Shipping Included
+            </UBadge>
+          </template>
+
+          <template #description>
             <UAlert
               v-if="totalItems > 24 && !copying"
               icon="hugeicons:information-circle"
@@ -309,10 +278,6 @@ const previewStyle = computed(() => {
     width: `min(100%, calc(${previewColumns.value} * var(--wishlist-card-width) + ${Math.max(previewColumns.value - 1, 0)} * var(--wishlist-grid-gap)))`,
   }
 })
-
-const socialGridStyle = computed(() => ({
-  gridTemplateColumns: `repeat(${Math.min(3, previewColumns.value)}, minmax(0, 1fr))`,
-}))
 
 watch(authenticated, () => refresh())
 

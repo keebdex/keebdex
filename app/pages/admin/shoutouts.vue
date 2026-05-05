@@ -46,7 +46,7 @@
           <template #featured-cell="{ row }">
             <UBadge
               :label="
-                row.original.featured ? 'Homepage Featured' : 'Shoutouts Only'
+                row.original.featured ? 'Featured' : 'Shoutouts'
               "
               :color="row.original.featured ? 'success' : 'neutral'"
               variant="subtle"
@@ -137,7 +137,7 @@ const columns = [
   },
   {
     accessorKey: 'featured',
-    header: 'Homepage',
+    header: 'Visibility',
   },
   {
     accessorKey: 'status',
