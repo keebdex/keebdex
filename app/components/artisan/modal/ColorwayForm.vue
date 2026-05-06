@@ -94,6 +94,14 @@
       </div>
     </UFormField>
 
+    <UFormField label="Photo Credit" name="photo_credit">
+      <UInput
+        v-model.trim="colorway.photo_credit"
+        icon="hugeicons:camera-add-02"
+        class="w-full"
+      />
+    </UFormField>
+
     <UButton block color="primary" type="submit" :loading="uploading">
       Save
     </UButton>

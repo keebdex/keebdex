@@ -30,7 +30,7 @@
             {
               term: 'Price',
               description: colorway.price
-                ? `${colorway.currency} ${colorway.price}`
+                ? `${colorway.currency || 'USD'} ${colorway.price}`
                 : undefined,
             },
             { term: 'Quantity', description: colorway.qty },
