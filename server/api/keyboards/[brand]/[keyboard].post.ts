@@ -4,21 +4,22 @@ import { omitSensitive, toNullableNumber } from '../../../utils'
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const body = pickTableFields('keyboards', await readBody(event))
-  const { brand, keyboard } = event.context.params || {}
+  const { brand } = event.context.params || {}
 
   const payload = {
     ...body,
-    brand_slug: brand,
-    brand_keyboard_slug: `${brand}/${keyboard}`,
+    brand_keyboard_slug: `${brand}/${body.slug}`,
     typing_angle: toNullableNumber(body.typing_angle),
   }
 
-  const { data, error } = await client
-    .from('keyboards')
-    .upsert(payload, { onConflict: 'brand_keyboard_slug' })
-    .eq('brand_keyboard_slug', payload.brand_keyboard_slug)
-    .select()
-    .single()
+  const { data, error } = payload.id
+    ? await client
+        .from('keyboards')
+        .update(payload)
+        .eq('id', payload.id)
+        .select()
+        .single()
+    : await client.from('keyboards').insert(payload).select().single()
 
   if (error) {
     throw createError({

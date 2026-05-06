@@ -235,19 +235,17 @@ watch(
 )
 
 const onSubmit = async () => {
-  const slug = isEdit
-    ? String(metadata?.slug || keyboard.value.slug || '').trim()
-    : String(keyboard.value.slug || '').trim() ||
-      slugify(keyboard.value.name, { lower: true })
+  const slug = slugify(keyboard.value.name, { lower: true })
 
   const brand_slug = route.params.brand
 
-  await $fetch(`/api/keyboards/${brand_slug}/${slug}`, {
+  await $fetch(`/api/keyboards/${brand_slug}/${route.params.keyboard}`, {
     method: 'post',
     body: {
       ...keyboard.value,
       slug,
       brand_slug,
+      brand_keyboard_slug: `${brand_slug}/${slug}`,
       derived_from: keyboard.value.derived_from || null,
       top_case_styles: requiresTopCaseStyles.value
         ? keyboard.value.top_case_styles
@@ -262,6 +260,11 @@ const onSubmit = async () => {
           'Keyboard',
         ),
       )
+
+      if (isEdit && String(route.params.keyboard || '') !== slug) {
+        navigateTo(`/keyboard/brand/${brand_slug}/${slug}`)
+      }
+
       emit('onSuccess', data)
     })
     .catch((error) => {
