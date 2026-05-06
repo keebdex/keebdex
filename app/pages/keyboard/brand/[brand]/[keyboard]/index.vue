@@ -293,7 +293,8 @@
                     release_name: release.name,
                     keyboard_name: data.name,
                     brand_name: data?.brand?.name,
-                    layout: data?.layout,
+                    form_factor: data?.form_factor,
+                    top_case_styles: data?.top_case_styles,
                     typing_angle: data?.typing_angle,
                   }"
                   :release="release"

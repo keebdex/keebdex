@@ -27,11 +27,25 @@
       />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Layout" name="layout" required>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <UFormField label="Form Factor" name="form_factor" required>
         <USelect
-          v-model="keyboard.layout"
-          :items="Constants.public.Enums.keyboard_layout"
+          v-model="keyboard.form_factor"
+          :items="Constants.public.Enums.keyboard_form_factor"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        v-if="requiresTopCaseStyles"
+        label="Top Case Styles"
+        name="top_case_styles"
+        required
+      >
+        <USelect
+          v-model="keyboard.top_case_styles"
+          :items="Constants.public.Enums.keyboard_top_case_style"
+          multiple
           class="w-full"
         />
       </UFormField>
@@ -99,10 +113,17 @@ const colorMode = useColorMode()
 const keyboard = ref({
   name: '',
   slug: '',
-  layout: Constants.public.Enums.keyboard_layout[0],
+  form_factor: Constants.public.Enums.keyboard_form_factor[0],
+  top_case_styles: [],
   typing_angle: null,
   derived_from: null,
 })
+
+const topCaseStylesEnabled = ['60%', 'TKL']
+
+const requiresTopCaseStyles = computed(() =>
+  topCaseStylesEnabled.includes(keyboard.value.form_factor),
+)
 
 const selectedOriginalKeyboard = ref(null)
 const term = ref('')
@@ -137,27 +158,43 @@ const originalKeyboardOptions = computed(() => {
     })
 })
 
-const schema = z.object({
-  name: z.string().min(1),
-  slug: z
-    .string()
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'Use lowercase letters, numbers, and hyphens only',
-    )
-    .nullish()
-    .or(z.string().min(0).max(0)),
-  layout: z.enum(Constants.public.Enums.keyboard_layout),
-  typing_angle: z.coerce.number().min(0).max(30).nullish(),
-  derived_from: z
-    .string()
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'Expected format: brand-slug/keyboard-slug',
-    )
-    .nullish()
-    .or(z.string().min(0).max(0)),
-})
+const schema = z
+  .object({
+    name: z.string().min(1),
+    slug: z
+      .string()
+      .regex(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        'Use lowercase letters, numbers, and hyphens only',
+      )
+      .nullish()
+      .or(z.string().min(0).max(0)),
+    form_factor: z.enum(Constants.public.Enums.keyboard_form_factor),
+    top_case_styles: z.array(
+      z.enum(Constants.public.Enums.keyboard_top_case_style),
+    ),
+    typing_angle: z.coerce.number().min(0).max(30).nullish(),
+    derived_from: z
+      .string()
+      .regex(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        'Expected format: brand-slug/keyboard-slug',
+      )
+      .nullish()
+      .or(z.string().min(0).max(0)),
+  })
+  .superRefine((value, context) => {
+    if (
+      topCaseStylesEnabled.includes(value.form_factor) &&
+      value.top_case_styles.length === 0
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['top_case_styles'],
+        message: 'Top case styles are required for this form factor',
+      })
+    }
+  })
 
 onBeforeMount(() => {
   Object.assign(keyboard.value, metadata || {})
@@ -188,6 +225,15 @@ watch(selectedOriginalKeyboard, (value) => {
   keyboard.value.derived_from = value?.value || null
 })
 
+watch(
+  () => keyboard.value.form_factor,
+  (value) => {
+    if (!topCaseStylesEnabled.includes(value)) {
+      keyboard.value.top_case_styles = []
+    }
+  },
+)
+
 const onSubmit = async () => {
   const slug = isEdit
     ? String(metadata?.slug || keyboard.value.slug || '').trim()
@@ -203,6 +249,9 @@ const onSubmit = async () => {
       slug,
       brand_slug,
       derived_from: keyboard.value.derived_from || null,
+      top_case_styles: requiresTopCaseStyles.value
+        ? keyboard.value.top_case_styles
+        : null,
     },
   })
     .then((data) => {

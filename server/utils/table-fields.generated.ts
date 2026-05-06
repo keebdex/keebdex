@@ -144,11 +144,12 @@ export const TABLE_FIELDS = {
     "created_at",
     "derived_from",
     "description",
+    "form_factor",
     "fts",
     "id",
-    "layout",
     "name",
     "slug",
+    "top_case_styles",
     "typing_angle"
   ],
   "keyset_colors": [

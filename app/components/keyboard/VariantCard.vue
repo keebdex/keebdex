@@ -179,8 +179,14 @@ const specs = computed(() => {
       description: keyboard.release_year,
     },
     {
-      term: 'Layout',
-      description: keyboard.layout,
+      term: 'Form Factor',
+      description: keyboard.form_factor,
+    },
+    {
+      term: 'Top Case Styles',
+      description: Array.isArray(keyboard.top_case_styles)
+        ? keyboard.top_case_styles.join(', ')
+        : keyboard.top_case_styles,
     },
     {
       term: 'Mount',

@@ -538,11 +538,14 @@ export type Database = {
           created_at: string
           derived_from: string | null
           description: string | null
+          form_factor: Database["public"]["Enums"]["keyboard_form_factor"]
           fts: unknown
           id: number
-          layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
+          top_case_styles:
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           typing_angle: number | null
         }
         Insert: {
@@ -551,11 +554,14 @@ export type Database = {
           created_at?: string
           derived_from?: string | null
           description?: string | null
+          form_factor: Database["public"]["Enums"]["keyboard_form_factor"]
           fts?: unknown
           id?: number
-          layout: Database["public"]["Enums"]["keyboard_layout"]
           name: string
           slug: string
+          top_case_styles?:
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           typing_angle?: number | null
         }
         Update: {
@@ -564,11 +570,14 @@ export type Database = {
           created_at?: string
           derived_from?: string | null
           description?: string | null
+          form_factor?: Database["public"]["Enums"]["keyboard_form_factor"]
           fts?: unknown
           id?: number
-          layout?: Database["public"]["Enums"]["keyboard_layout"]
           name?: string
           slug?: string
+          top_case_styles?:
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           typing_angle?: number | null
         }
         Relationships: [
@@ -1020,7 +1029,7 @@ export type Database = {
         | "Raw"
         | "PVD"
         | "Mirror"
-      keyboard_layout:
+      keyboard_form_factor:
         | "40%"
         | "60%"
         | "65%"
@@ -1032,8 +1041,6 @@ export type Database = {
         | "96%"
         | "Alice"
         | "Arisu"
-        | "HHKB"
-        | "WKL"
       keyboard_material:
         | "Aluminum"
         | "Brass"
@@ -1061,6 +1068,7 @@ export type Database = {
         | "Hotswap + RGB"
         | "Bluetooth"
         | "Wired"
+      keyboard_top_case_style: "WK" | "WKL" | "HHKB"
       keyset_color_matching_system: "GMK" | "SP" | "Pantone" | "RAL" | "Custom"
       keyset_profile:
         | "Cherry"
@@ -1242,7 +1250,7 @@ export const Constants = {
         "PVD",
         "Mirror",
       ],
-      keyboard_layout: [
+      keyboard_form_factor: [
         "40%",
         "60%",
         "65%",
@@ -1254,8 +1262,6 @@ export const Constants = {
         "96%",
         "Alice",
         "Arisu",
-        "HHKB",
-        "WKL",
       ],
       keyboard_material: [
         "Aluminum",
@@ -1287,6 +1293,7 @@ export const Constants = {
         "Bluetooth",
         "Wired",
       ],
+      keyboard_top_case_style: ["WK", "WKL", "HHKB"],
       keyset_color_matching_system: ["GMK", "SP", "Pantone", "RAL", "Custom"],
       keyset_profile: [
         "Cherry",
