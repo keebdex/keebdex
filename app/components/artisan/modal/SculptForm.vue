@@ -1,9 +1,19 @@
 <template>
   <UForm :schema="schema" :state="sculpt" class="space-y-4" @submit="onSubmit">
     <UFormField label="Name" name="name" required>
+      <template v-if="disableGoogleSync" #help>
+        Changing name updates slug. Users who pinned this sculpt in favorites
+        may need to update their pins.
+      </template>
+      <template v-else #help>
+        You cannot change the name of a sculpt that is synced with Google Docs.
+        Please make the change in the sheet directly.
+      </template>
+
       <UInput
         v-model.trim="sculpt.name"
         icon="hugeicons:text-font"
+        :disabled="!disableGoogleSync"
         class="w-full"
       />
     </UFormField>
@@ -77,7 +87,7 @@ import slugify from 'slugify'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, sculpts, isEdit } = defineProps({
+const { metadata, sculpts, isEdit, disableGoogleSync } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -87,6 +97,7 @@ const { metadata, sculpts, isEdit } = defineProps({
     default: () => [],
   },
   isEdit: Boolean,
+  disableGoogleSync: Boolean,
 })
 
 const toast = useToast()
@@ -138,16 +149,16 @@ const schema = z.object({
 
 const onSubmit = async () => {
   const makerId = String(sculpt.value.maker_id || route.params.maker || '')
-  const sculptId = isEdit
-    ? String(sculpt.value.sculpt_id || route.params.sculpt || '')
-    : slugify(sculpt.value.name, { lower: true })
+  const sculptId = String(sculpt.value.sculpt_id || route.params.sculpt || '')
+
+  const slug = slugify(sculpt.value.name, { lower: true })
 
   await $fetch(`/api/makers/${makerId}/sculpts/${sculptId}`, {
     method: 'post',
     body: {
       ...sculpt.value,
       maker_id: makerId,
-      sculpt_id: sculptId,
+      sculpt_id: slug,
       collection: sculpt.value.collection || null,
       is_revision_of: sculpt.value.is_revision_of || null,
     },
@@ -156,6 +167,11 @@ const onSubmit = async () => {
       toast.add(
         handleSuccess(isEdit ? 'update' : 'add', sculpt.value.name, 'Sculpt'),
       )
+
+      if (isEdit && sculptId !== slug) {
+        navigateTo(`/artisan/maker/${route.params.maker}/${slug}`)
+      }
+
       emit('onSuccess')
     })
     .catch((error) => {

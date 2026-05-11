@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const { data: profile, error: profileError } = await client
     .from('artisan_makers')
     .select(
-      'name, invertible_logo, sculpts:artisan_sculpts (*, total_colorways:artisan_colorways(count))',
+      'name, invertible_logo, disable_google_sync, sculpts:artisan_sculpts (*, total_colorways:artisan_colorways(count))',
     )
     .eq('id', makerId)
     .eq('sculpts.deleted', false)
@@ -97,6 +97,7 @@ export default defineEventHandler(async (event) => {
   sculpt.colorways = colorways?.map(omitSensitive) || []
   sculpt.maker_name = profile.name
   sculpt.invertible_logo = profile.invertible_logo
+  sculpt.disable_google_sync = profile.disable_google_sync
   sculpt.selected_colorway_index = selectedColorwayIndex
   sculpt.maker_sculpts = sculpts.map(({ colorways, ...rest }: any) => rest)
 

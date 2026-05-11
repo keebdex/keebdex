@@ -21,7 +21,7 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-defineProps({
+const { sculpts } = defineProps({
   sculpts: {
     type: Array,
     default: () => [],
@@ -33,8 +33,11 @@ const toast = useToast()
 const userStore = useUserStore()
 const { favorites, user } = storeToRefs(userStore)
 
+const ids = sculpts.map((s) => s.sculpt_id)
+
 const initial = ref({
-  sculpts: favorites.value[route.params.maker] || [],
+  sculpts:
+    favorites.value[route.params.maker].filter((id) => ids.includes(id)) || [],
 })
 
 const schema = z.object({

@@ -11,3 +11,5 @@
 - Fixed keyboard edit behavior so changing the keyboard name now regenerates slug consistently.
 
 ### 🚀 Improvements
+
+- Allowed makers/editors to rename sculpts, with sculpt URLs now updating automatically to match the new name after save.

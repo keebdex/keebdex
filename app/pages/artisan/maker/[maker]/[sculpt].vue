@@ -36,6 +36,7 @@
                   :is-edit="true"
                   :metadata="sculpt"
                   :sculpts="sculpt.maker_sculpts"
+                  :disable-google-sync="sculpt.disable_google_sync"
                   @on-success="
                     () => {
                       close()
