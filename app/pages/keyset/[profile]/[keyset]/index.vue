@@ -182,6 +182,25 @@
           </UAccordion>
         </div>
       </div>
+
+      <UModal
+        v-model:open="imagePreviewOpen"
+        :title="imagePreviewTitle"
+        :ui="{
+          content: 'max-w-4xl',
+        }"
+      >
+        <template #content>
+          <UPageCard description="Created by dvorcol" reverse>
+            <NuxtImg
+              v-if="imagePreviewUrl"
+              :src="imagePreviewUrl"
+              :alt="imagePreviewTitle"
+              class="w-full rounded-lg border border-default object-contain"
+            />
+          </UPageCard>
+        </template>
+      </UModal>
     </template>
   </UDashboardPanel>
 </template>
@@ -249,9 +268,11 @@ const externalLinks = computed(() => {
     links.push({
       label: 'Order Graph',
       icon: 'hugeicons:chart-bar-big',
-      to: data.value.order_graph,
-      target: '_blank',
-      external: true,
+      onClick: () => {
+        imagePreviewTitle.value = 'Order Graph'
+        imagePreviewUrl.value = data.value.order_graph
+        imagePreviewOpen.value = true
+      },
     })
   }
 
@@ -259,9 +280,11 @@ const externalLinks = computed(() => {
     links.push({
       label: 'Order History',
       icon: 'hugeicons:chart-line-data-02',
-      to: data.value.order_history,
-      target: '_blank',
-      external: true,
+      onClick: () => {
+        imagePreviewTitle.value = 'Order History'
+        imagePreviewUrl.value = data.value.order_history
+        imagePreviewOpen.value = true
+      },
     })
   }
 
@@ -288,6 +311,9 @@ const accordions = [
 ]
 
 const visible = ref(false)
+const imagePreviewOpen = ref(false)
+const imagePreviewUrl = ref('')
+const imagePreviewTitle = ref('')
 
 const activeIndex = ref(0)
 const carousel = useTemplateRef('carousel')
