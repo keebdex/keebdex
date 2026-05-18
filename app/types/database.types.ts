@@ -1041,6 +1041,7 @@ export type Database = {
         | "96%"
         | "Alice"
         | "Arisu"
+        | "Numpad"
       keyboard_material:
         | "Aluminum"
         | "Brass"
@@ -1051,6 +1052,7 @@ export type Database = {
         | "POM"
         | "Carbon Fiber"
         | "Wood"
+        | "Polypropylene"
       keyboard_mounting_style:
         | "Tray"
         | "Top"
@@ -1068,7 +1070,7 @@ export type Database = {
         | "Hotswap + RGB"
         | "Bluetooth"
         | "Wired"
-      keyboard_top_case_style: "WK" | "WKL" | "HHKB"
+      keyboard_top_case_style: "WK" | "WKL" | "HHKB" | "F13 WK" | "F13 WKL"
       keyset_color_matching_system: "GMK" | "SP" | "Pantone" | "RAL" | "Custom"
       keyset_profile:
         | "Cherry"
@@ -1262,6 +1264,7 @@ export const Constants = {
         "96%",
         "Alice",
         "Arisu",
+        "Numpad",
       ],
       keyboard_material: [
         "Aluminum",
@@ -1273,6 +1276,7 @@ export const Constants = {
         "POM",
         "Carbon Fiber",
         "Wood",
+        "Polypropylene",
       ],
       keyboard_mounting_style: [
         "Tray",
@@ -1293,7 +1297,7 @@ export const Constants = {
         "Bluetooth",
         "Wired",
       ],
-      keyboard_top_case_style: ["WK", "WKL", "HHKB"],
+      keyboard_top_case_style: ["WK", "WKL", "HHKB", "F13 WK", "F13 WKL"],
       keyset_color_matching_system: ["GMK", "SP", "Pantone", "RAL", "Custom"],
       keyset_profile: [
         "Cherry",
