@@ -5,7 +5,7 @@
         Changing name updates slug. Users who pinned this sculpt in favorites
         may need to update their pins.
       </template>
-      <template v-else #help>
+      <template v-else-if="isEdit" #help>
         You cannot change the name of a sculpt that is synced with Google Docs.
         Please make the change in the sheet directly.
       </template>
@@ -13,7 +13,7 @@
       <UInput
         v-model.trim="sculpt.name"
         icon="hugeicons:text-font"
-        :disabled="!disableGoogleSync"
+        :disabled="isEdit && !disableGoogleSync"
         class="w-full"
       />
     </UFormField>
