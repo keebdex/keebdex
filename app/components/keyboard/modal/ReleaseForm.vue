@@ -19,10 +19,11 @@
     </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Mount Style" name="mount_style">
-        <USelect
-          v-model="release.mount_style"
+      <UFormField label="Mount Style" name="mount_styles">
+        <USelectMenu
+          v-model="release.mount_styles"
           :items="Constants.public.Enums.keyboard_mounting_style"
+          multiple
           class="w-full"
         />
       </UFormField>
@@ -138,7 +139,7 @@ const release = ref({
   order: null,
   release_year: null,
   variant_specs: false,
-  mount_style: null,
+  mount_styles: [],
   pcb_types: [],
   typing_angle: null,
   currency: 'USD',
@@ -173,7 +174,9 @@ const schema = z.object({
     ),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   variant_specs: z.boolean().nullish(),
-  mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
+  mount_styles: z
+    .array(z.enum(Constants.public.Enums.keyboard_mounting_style))
+    .nullish(),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
   currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
   msrp_price: z.coerce.number().min(0).nullish(),
@@ -197,6 +200,12 @@ onBeforeMount(() => {
     brand_slug: keyboard.brand_slug,
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
+
+  if (!Array.isArray(release.value.mount_styles)) {
+    release.value.mount_styles = release.value.mount_styles
+      ? [release.value.mount_styles]
+      : []
+  }
 
   if (!Array.isArray(release.value.case_materials)) {
     release.value.case_materials = release.value.case_materials

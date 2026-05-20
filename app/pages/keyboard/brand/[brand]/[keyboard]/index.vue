@@ -530,7 +530,9 @@ const getReleaseSpecs = (release) => {
     },
     {
       term: 'Mount',
-      description: release?.mount_style,
+      description: release?.mount_styles?.length
+        ? release.mount_styles.join(', ')
+        : null,
     },
     {
       term: 'Typing Angle',

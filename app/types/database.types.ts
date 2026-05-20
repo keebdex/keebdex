@@ -336,8 +336,8 @@ export type Database = {
           description: string | null
           fts: unknown
           id: number
-          mount_style:
-            | Database["public"]["Enums"]["keyboard_mounting_style"]
+          mount_styles:
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
             | null
           msrp_price: number | null
           name: string
@@ -362,8 +362,8 @@ export type Database = {
           description?: string | null
           fts?: unknown
           id?: number
-          mount_style?:
-            | Database["public"]["Enums"]["keyboard_mounting_style"]
+          mount_styles?:
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
             | null
           msrp_price?: number | null
           name: string
@@ -388,8 +388,8 @@ export type Database = {
           description?: string | null
           fts?: unknown
           id?: number
-          mount_style?:
-            | Database["public"]["Enums"]["keyboard_mounting_style"]
+          mount_styles?:
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
             | null
           msrp_price?: number | null
           name?: string

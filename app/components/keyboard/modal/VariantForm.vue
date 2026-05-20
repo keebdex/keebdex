@@ -234,7 +234,7 @@ const variant = ref({
   img_front: '',
   img_back: '',
   photo_credit: '',
-  mount_style: null,
+  mount_styles: null,
   typing_angle: null,
   currency: 'USD',
   msrp_price: null,
@@ -260,7 +260,9 @@ const schema = z.object({
   img_front: z.url().nullish().or(z.string().min(0).max(0)),
   img_back: z.url().nullish().or(z.string().min(0).max(0)),
   photo_credit: z.string().max(255).nullish().or(z.string().min(0).max(0)),
-  mount_style: z.enum(Constants.public.Enums.keyboard_mounting_style).nullish(),
+  mount_styles: z
+    .array(z.enum(Constants.public.Enums.keyboard_mounting_style))
+    .nullish(),
   typing_angle: z.coerce.number().min(0).max(30).nullish(),
   currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
   msrp_price: z.coerce.number().min(0).nullish(),

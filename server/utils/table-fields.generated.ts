@@ -105,7 +105,7 @@ export const TABLE_FIELDS = {
     "description",
     "fts",
     "id",
-    "mount_style",
+    "mount_styles",
     "msrp_price",
     "name",
     "order",

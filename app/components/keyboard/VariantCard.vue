@@ -190,7 +190,9 @@ const specs = computed(() => {
     },
     {
       term: 'Mount',
-      description: release.mount_style,
+      description: Array.isArray(release.mount_styles)
+        ? release.mount_styles.join(', ')
+        : release.mount_styles,
     },
     {
       term: 'Typing Angle',
