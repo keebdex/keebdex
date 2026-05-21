@@ -18,27 +18,6 @@
       />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Mount Style" name="mount_styles">
-        <USelectMenu
-          v-model="release.mount_styles"
-          :items="Constants.public.Enums.keyboard_mounting_style"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Typing Angle" name="typing_angle">
-        <UInput
-          v-model.number="release.typing_angle"
-          type="number"
-          step="0.1"
-          icon="hugeicons:angle-01"
-          class="w-full"
-        />
-      </UFormField>
-    </div>
-
     <UFormField label="Base Price" name="msrp_price">
       <UFieldGroup class="w-full">
         <USelect v-model="release.currency" :items="currencies" />
@@ -139,9 +118,7 @@ const release = ref({
   order: null,
   release_year: null,
   variant_specs: false,
-  mount_styles: [],
   pcb_types: [],
-  typing_angle: null,
   currency: 'USD',
   msrp_price: null,
   case_materials: [],
@@ -174,10 +151,6 @@ const schema = z.object({
     ),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
   variant_specs: z.boolean().nullish(),
-  mount_styles: z
-    .array(z.enum(Constants.public.Enums.keyboard_mounting_style))
-    .nullish(),
-  typing_angle: z.coerce.number().min(0).max(30).nullish(),
   currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
   msrp_price: z.coerce.number().min(0).nullish(),
   pcb_types: z
@@ -201,12 +174,6 @@ onBeforeMount(() => {
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
 
-  if (!Array.isArray(release.value.mount_styles)) {
-    release.value.mount_styles = release.value.mount_styles
-      ? [release.value.mount_styles]
-      : []
-  }
-
   if (!Array.isArray(release.value.case_materials)) {
     release.value.case_materials = release.value.case_materials
       ? [release.value.case_materials]
@@ -223,10 +190,6 @@ onBeforeMount(() => {
     release.value.weight_materials = release.value.weight_materials
       ? [release.value.weight_materials]
       : []
-  }
-
-  if (!isEdit && !release.value.typing_angle) {
-    release.value.typing_angle = keyboard?.typing_angle ?? null
   }
 
   // Auto-calculate order for new releases

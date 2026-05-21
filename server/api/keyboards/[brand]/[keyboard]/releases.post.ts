@@ -8,13 +8,8 @@ export default defineEventHandler(async (event) => {
   const payload = {
     ...body,
     release_year: toNullableNumber(body.release_year),
-    typing_angle: toNullableNumber(body.typing_angle),
     msrp_price: toNullableNumber(body.msrp_price),
     currency: body.currency || null,
-    mount_styles:
-      Array.isArray(body.mount_styles) && body.mount_styles.length
-        ? body.mount_styles
-        : null,
     case_materials:
       Array.isArray(body.case_materials) && body.case_materials.length
         ? body.case_materials

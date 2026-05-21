@@ -528,16 +528,6 @@ const getReleaseSpecs = (release) => {
       term: 'Release Year',
       description: release?.release_year,
     },
-    {
-      term: 'Mount',
-      description: release?.mount_styles?.length
-        ? release.mount_styles.join(', ')
-        : null,
-    },
-    {
-      term: 'Typing Angle',
-      description: release?.typing_angle ? `${release.typing_angle}°` : null,
-    },
   ]
 
   if (!release?.variant_specs) {

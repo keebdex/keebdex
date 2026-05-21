@@ -336,9 +336,6 @@ export type Database = {
           description: string | null
           fts: unknown
           id: number
-          mount_styles:
-            | Database["public"]["Enums"]["keyboard_mounting_style"][]
-            | null
           msrp_price: number | null
           name: string
           order: number
@@ -347,7 +344,6 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
           release_year: number | null
-          typing_angle: number | null
           variant_specs: boolean | null
           weight_materials:
             | Database["public"]["Enums"]["keyboard_material"][]
@@ -362,9 +358,6 @@ export type Database = {
           description?: string | null
           fts?: unknown
           id?: number
-          mount_styles?:
-            | Database["public"]["Enums"]["keyboard_mounting_style"][]
-            | null
           msrp_price?: number | null
           name: string
           order?: number
@@ -373,7 +366,6 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
           release_year?: number | null
-          typing_angle?: number | null
           variant_specs?: boolean | null
           weight_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
@@ -388,9 +380,6 @@ export type Database = {
           description?: string | null
           fts?: unknown
           id?: number
-          mount_styles?:
-            | Database["public"]["Enums"]["keyboard_mounting_style"][]
-            | null
           msrp_price?: number | null
           name?: string
           order?: number
@@ -399,7 +388,6 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
           release_year?: number | null
-          typing_angle?: number | null
           variant_specs?: boolean | null
           weight_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
@@ -541,6 +529,9 @@ export type Database = {
           form_factor: Database["public"]["Enums"]["keyboard_form_factor"]
           fts: unknown
           id: number
+          mount_styles:
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
+            | null
           name: string
           slug: string
           top_case_styles:
@@ -557,6 +548,9 @@ export type Database = {
           form_factor: Database["public"]["Enums"]["keyboard_form_factor"]
           fts?: unknown
           id?: number
+          mount_styles?:
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
+            | null
           name: string
           slug: string
           top_case_styles?:
@@ -573,6 +567,9 @@ export type Database = {
           form_factor?: Database["public"]["Enums"]["keyboard_form_factor"]
           fts?: unknown
           id?: number
+          mount_styles?:
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
+            | null
           name?: string
           slug?: string
           top_case_styles?:

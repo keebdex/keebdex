@@ -50,6 +50,15 @@
         />
       </UFormField>
 
+      <UFormField label="Mount Styles" name="mount_styles">
+        <USelectMenu
+          v-model="keyboard.mount_styles"
+          :items="Constants.public.Enums.keyboard_mounting_style"
+          multiple
+          class="w-full"
+        />
+      </UFormField>
+
       <UFormField label="Typing Angle" name="typing_angle">
         <UInput
           v-model.number="keyboard.typing_angle"
@@ -115,6 +124,7 @@ const keyboard = ref({
   slug: '',
   form_factor: Constants.public.Enums.keyboard_form_factor[0],
   top_case_styles: [],
+  mount_styles: [],
   typing_angle: null,
   derived_from: null,
 })
@@ -173,6 +183,9 @@ const schema = z
     top_case_styles: z.array(
       z.enum(Constants.public.Enums.keyboard_top_case_style),
     ),
+    mount_styles: z
+      .array(z.enum(Constants.public.Enums.keyboard_mounting_style))
+      .nullish(),
     typing_angle: z.coerce.number().min(0).max(30).nullish(),
     derived_from: z
       .string()
@@ -198,6 +211,12 @@ const schema = z
 
 onBeforeMount(() => {
   Object.assign(keyboard.value, metadata || {})
+
+  if (!Array.isArray(keyboard.value.mount_styles)) {
+    keyboard.value.mount_styles = keyboard.value.mount_styles
+      ? [keyboard.value.mount_styles]
+      : []
+  }
 
   if (keyboard.value.derived_from) {
     selectedOriginalKeyboard.value = {
@@ -250,6 +269,11 @@ const onSubmit = async () => {
       top_case_styles: requiresTopCaseStyles.value
         ? keyboard.value.top_case_styles
         : null,
+      mount_styles:
+        Array.isArray(keyboard.value.mount_styles) &&
+        keyboard.value.mount_styles.length
+          ? keyboard.value.mount_styles
+          : null,
     },
   })
     .then((data) => {

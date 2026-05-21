@@ -13,3 +13,4 @@
 ### 🚀 Improvements
 
 - Allowed makers/editors to rename sculpts, with sculpt URLs now updating automatically to match the new name after save.
+- Removed typing angle from release forms, moved mounting styles to keyboard forms, and added multiple-choice support for keyboard mounting styles.
