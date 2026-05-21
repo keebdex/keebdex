@@ -12,7 +12,7 @@
           :items="codeOptions"
           :loading="status === 'pending'"
           :content="{ hideWhenEmpty: true }"
-          autocomplete
+          mode="autocomplete"
           ignore-filter
           label-key="label"
           value-key="code"

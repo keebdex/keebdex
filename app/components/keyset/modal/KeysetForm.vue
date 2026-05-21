@@ -15,7 +15,7 @@
         :items="designerOptions"
         :loading="designersStatus === 'pending'"
         :content="{ hideWhenEmpty: true }"
-        autocomplete
+        mode="autocomplete"
         ignore-filter
         icon="hugeicons:user-star-01"
         placeholder="Start typing to search designers..."

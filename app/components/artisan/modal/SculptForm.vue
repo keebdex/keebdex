@@ -61,7 +61,7 @@
       <UInputMenu
         v-model.trim="sculpt.collection"
         :items="collectionOptions"
-        autocomplete
+        mode="autocomplete"
         clear
         icon="hugeicons:dashboard-square-02"
         placeholder="Collection name"
