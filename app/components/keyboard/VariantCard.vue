@@ -13,14 +13,14 @@
       <NuxtImg
         :src="
           showBack
-            ? keyboard.img_back || keyboard.img_front || '/keyboard.png'
-            : keyboard.img_front || keyboard.img_back || '/keyboard.png'
+            ? variant.img_back || variant.img_front || '/keyboard.png'
+            : variant.img_front || variant.img_back || '/keyboard.png'
         "
         :alt="title + (showBack ? ' (Back)' : ' (Front)')"
         class="aspect-video w-full object-cover rounded"
       />
       <UButton
-        v-if="keyboard.img_front && keyboard.img_back && !copying"
+        v-if="variant.img_front && variant.img_back && !copying"
         size="xs"
         class="absolute top-2 right-2 z-10"
         icon="hugeicons:flip-horizontal"
@@ -28,7 +28,7 @@
         @click="showBack = !showBack"
       />
       <UButton
-        v-if="keyboard.img_front && keyboard.img_back && !copying"
+        v-if="variant.img_front && variant.img_back && !copying"
         size="xs"
         class="absolute top-2 left-2 z-10"
         icon="hugeicons:layout-grid"
@@ -39,7 +39,7 @@
     <div v-else-if="viewMode === 'side'" class="flex gap-2">
       <div class="flex-1">
         <NuxtImg
-          :src="keyboard.img_front || '/keyboard.png'"
+          :src="variant.img_front || '/keyboard.png'"
           :alt="title + ' (Front)'"
           class="aspect-video w-full object-cover rounded"
         />
@@ -47,7 +47,7 @@
       </div>
       <div class="flex-1">
         <NuxtImg
-          :src="keyboard.img_back || '/keyboard.png'"
+          :src="variant.img_back || '/keyboard.png'"
           :alt="title + ' (Back)'"
           class="aspect-video w-full object-cover rounded"
         />
@@ -72,26 +72,26 @@
 
     <template #leading>
       <UBadge
-        v-if="keyboard.sale_type === 'Auction'"
+        v-if="variant.sale_type === 'Auction'"
         label="Auction"
         icon="hugeicons:charity"
         color="warning"
       />
       <UBadge
-        v-if="keyboard.sale_type === 'Giveaway'"
+        v-if="variant.sale_type === 'Giveaway'"
         label="Giveaway"
         icon="hugeicons:wellness"
         color="success"
       />
       <UBadge
-        v-if="keyboard.sale_type === 'Commission'"
+        v-if="variant.sale_type === 'Commission'"
         label="Commission"
         icon="hugeicons:save-money-dollar"
         color="info"
       />
       <UBadge
-        v-if="keyboard.photo_credit"
-        :label="keyboard.photo_credit"
+        v-if="variant.photo_credit"
+        :label="variant.photo_credit"
         icon="hugeicons:camera-add-02"
         color="info"
       />
@@ -122,12 +122,16 @@ const viewMode = ref('single')
 // 'single' or 'side'
 const emit = defineEmits(['saveTo'])
 
-const { keyboard, release, authenticated } = defineProps({
+const { keyboard, release, variant, authenticated } = defineProps({
   keyboard: {
     type: Object,
     default: () => ({}),
   },
   release: {
+    type: Object,
+    default: () => ({}),
+  },
+  variant: {
     type: Object,
     default: () => ({}),
   },
@@ -153,30 +157,30 @@ const formatPrice = (amount, currency = 'USD') => {
 }
 
 const specs = computed(() => {
-  const price = keyboard.msrp_price
-    ? formatPrice(keyboard.msrp_price, keyboard.currency)
+  const price = variant.msrp_price
+    ? formatPrice(variant.msrp_price, variant.currency)
     : formatPrice(release.msrp_price, release.currency)
 
-  const caseMaterials = keyboard.case_materials?.length
-    ? keyboard.case_materials
+  const caseMaterials = variant.case_materials?.length
+    ? variant.case_materials
     : release.case_materials
 
-  const pcbTypes = keyboard.pcb_types?.length
-    ? keyboard.pcb_types
+  const pcbTypes = variant.pcb_types?.length
+    ? variant.pcb_types
     : release.pcb_types
 
-  const plateMaterials = keyboard.plate_materials?.length
-    ? keyboard.plate_materials
+  const plateMaterials = variant.plate_materials?.length
+    ? variant.plate_materials
     : release.plate_materials
 
-  const weightMaterials = keyboard.weight_materials?.length
-    ? keyboard.weight_materials
+  const weightMaterials = variant.weight_materials?.length
+    ? variant.weight_materials
     : release.weight_materials
 
   return [
     {
       term: 'Release Year',
-      description: keyboard.release_year,
+      description: variant.release_year || release.release_year,
     },
     {
       term: 'Form Factor',
@@ -190,9 +194,9 @@ const specs = computed(() => {
     },
     {
       term: 'Mount',
-      description: Array.isArray(release.mount_styles)
-        ? release.mount_styles.join(', ')
-        : release.mount_styles,
+      description: Array.isArray(keyboard.mount_styles)
+        ? keyboard.mount_styles.join(', ')
+        : keyboard.mount_styles,
     },
     {
       term: 'Typing Angle',
@@ -200,15 +204,15 @@ const specs = computed(() => {
     },
     {
       term: 'Finish',
-      description: keyboard.finish_type,
+      description: variant.finish_type,
     },
     {
       term: 'Sale Type',
-      description: keyboard.sale_type,
+      description: variant.sale_type,
     },
     {
       term: 'Units Produced',
-      description: keyboard.units_produced,
+      description: variant.units_produced,
     },
     {
       term: 'Pricing',

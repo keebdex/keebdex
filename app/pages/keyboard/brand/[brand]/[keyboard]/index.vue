@@ -288,16 +288,9 @@
 
               <template #content>
                 <KeyboardVariantCard
-                  :keyboard="{
-                    ...variant,
-                    release_name: release.name,
-                    keyboard_name: data.name,
-                    brand_name: data?.brand?.name,
-                    form_factor: data?.form_factor,
-                    top_case_styles: data?.top_case_styles,
-                    typing_angle: data?.typing_angle,
-                  }"
+                  :keyboard="keyboard"
                   :release="release"
+                  :variant="variant"
                   :authenticated="authenticated"
                   @save-to="saveToCollection"
                 />
@@ -390,6 +383,12 @@ const { data, refresh } = await useAsyncData(
     watch: [slug],
   },
 )
+
+const keyboard = computed(() => {
+  const { releases, ...rest } = data.value || {}
+
+  return rest
+})
 
 const sortedReleases = computed(() => {
   const releases = sortBy(data.value?.releases || [], 'order')

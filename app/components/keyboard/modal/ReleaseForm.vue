@@ -1,22 +1,24 @@
 <template>
   <UForm :schema="schema" :state="release" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Release Name" name="name" required>
-      <UInput
-        v-model.trim="release.name"
-        icon="hugeicons:tag-01"
-        placeholder="e.g. Round 1"
-        class="w-full"
-      />
-    </UFormField>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <UFormField label="Release Name" name="name" required>
+        <UInput
+          v-model.trim="release.name"
+          icon="hugeicons:tag-01"
+          placeholder="e.g. Round 1"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Release Year" name="release_year">
-      <UInput
-        v-model.number="release.release_year"
-        type="number"
-        icon="hugeicons:calendar-03"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Release Year" name="release_year">
+        <UInput
+          v-model.number="release.release_year"
+          type="number"
+          icon="hugeicons:calendar-03"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
     <UFormField label="Base Price" name="msrp_price">
       <UFieldGroup class="w-full">
