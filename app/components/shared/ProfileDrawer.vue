@@ -21,7 +21,7 @@
             image: 'h-full w-auto',
           }"
           :class="{
-            invert: $colorMode.value === 'dark',
+            invert: invertible && $colorMode.value === 'dark',
           }"
         />
 
@@ -63,5 +63,6 @@ defineProps({
     type: Array,
     default: () => [],
   },
+  invertible: Boolean,
 })
 </script>

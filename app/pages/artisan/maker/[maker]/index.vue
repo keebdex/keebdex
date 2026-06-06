@@ -71,6 +71,7 @@
           <SharedProfileDrawer
             :title="maker.name"
             :slug="maker.id"
+            :invertible="maker.invertible_logo"
             :description="maker.bio"
             :links="makerLinks"
           />

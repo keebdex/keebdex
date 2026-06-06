@@ -55,6 +55,7 @@
           <SharedProfileDrawer
             :title="data.name"
             :slug="data.slug"
+            :invertible="data.invertible_logo"
             :description="data.bio"
             :links="brandLinks"
           />
