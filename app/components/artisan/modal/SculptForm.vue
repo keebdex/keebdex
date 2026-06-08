@@ -153,7 +153,7 @@ const onSubmit = async () => {
 
   const slug = slugify(sculpt.value.name, { lower: true })
 
-  await $fetch(`/api/makers/${makerId}/sculpts/${sculptId}`, {
+  await $fetch(`/api/makers/${makerId}/sculpts/${sculptId || slug}`, {
     method: 'post',
     body: {
       ...sculpt.value,
