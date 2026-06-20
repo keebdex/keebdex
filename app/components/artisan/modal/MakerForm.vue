@@ -165,6 +165,7 @@ const { metadata, isEdit } = defineProps({
 
 const maker = ref({
   name: '',
+  document_ids: [],
 })
 
 onBeforeMount(() => {
@@ -198,6 +199,7 @@ const schema = z.object({
     .nullish()
     .or(z.string().min(0).max(0)),
   artisancollector: z.url().nullish().or(z.string().min(0).max(0)),
+  disable_google_sync: z.boolean(),
 })
 
 const addDocId = () => {
