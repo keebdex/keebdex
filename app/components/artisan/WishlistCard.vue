@@ -52,7 +52,7 @@
             </span>
           </div>
 
-          <template v-if="item.asking_price" #description>
+          <template v-if="item.exchange && item.asking_price" #description>
             <span
               class="text-xs font-medium tracking-widest uppercase text-gray-400"
             >
