@@ -61,7 +61,7 @@
     </UFormField>
 
     <UFormField
-      v-if="collection.published && collection.intent !== 'keep'"
+      v-if="collection.intent !== 'keep'"
       label="Contact"
       name="contact"
       help="Enter your Discord username so buyers/sellers can reach you."
@@ -70,7 +70,7 @@
     </UFormField>
 
     <UFormField
-      v-if="collection.published && collection.intent !== 'keep'"
+      v-if="collection.intent !== 'keep'"
       label="Message"
       name="message"
       help="Describe what you're offering or what kind of offers you're looking for."
@@ -98,7 +98,7 @@ const { metadata, isEdit } = defineProps({
 const userStore = useUserStore()
 const toast = useToast()
 
-const { user } = storeToRefs(userStore)
+const { user, social } = storeToRefs(userStore)
 
 const intentExtras = {
   keep: 'Just holding onto it for now.',
@@ -124,7 +124,7 @@ const collection = ref({
   published: false,
   intent: 'keep',
   sort_by: 'artisan.maker_sculpt_id|artisan.name',
-  contact: null,
+  contact: social.value?.discord || '',
   message: null,
   uid: user.value.uid,
 })
@@ -157,10 +157,7 @@ const schema = z
   })
   .refine(
     (data) => {
-      if (
-        data.published &&
-        (data.intent === 'want' || data.intent === 'sell')
-      ) {
+      if (data.intent === 'want' || data.intent === 'sell') {
         return !!data.contact
       }
       return true
