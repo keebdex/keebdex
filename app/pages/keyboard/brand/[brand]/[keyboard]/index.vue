@@ -420,7 +420,7 @@ const breadcrumbs = computed(() => {
     {
       label: 'Brands',
       to: '/keyboard/brand',
-      icon: 'hugeicons:user-group-03',
+      icon: 'hugeicons:user-multiple',
     },
     {
       label: data.value?.brand?.name,

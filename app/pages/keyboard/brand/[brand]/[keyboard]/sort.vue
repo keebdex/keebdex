@@ -114,7 +114,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Brands',
-      icon: 'hugeicons:user-group-03',
+      icon: 'hugeicons:user-multiple',
       to: '/keyboard/brand',
     },
     {

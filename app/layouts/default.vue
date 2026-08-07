@@ -157,7 +157,7 @@ const routes = computed(() => {
   const artisanChildren = [
     {
       label: 'Makers',
-      icon: 'hugeicons:user-group-03',
+      icon: 'hugeicons:user-multiple',
       to: '/artisan/maker',
       active: route.path.startsWith('/artisan/maker'),
     },
@@ -178,7 +178,7 @@ const routes = computed(() => {
   const keyboardChildren = [
     {
       label: 'Brands',
-      icon: 'hugeicons:user-group-03',
+      icon: 'hugeicons:user-multiple',
       to: '/keyboard/brand',
       active:
         route.path === '/keyboard' || route.path.startsWith('/keyboard/brand'),
@@ -250,7 +250,7 @@ const links = computed(() => [
     },
     {
       label: 'About',
-      icon: 'hugeicons:information-diamond',
+      icon: 'hugeicons:badge-info',
       to: '/about',
       active: route.path === '/about',
     },
