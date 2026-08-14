@@ -13,6 +13,13 @@ export default defineNuxtConfig({
     transpile: [...(isProduction ? ['@babel/runtime'] : [])],
   },
 
+  nitro: {
+    rollupConfig: {
+      // Exclude papaparse from the server bundle
+      external: ['papaparse'],
+    },
+  },
+
   css: ['~/assets/main.css'],
 
   modules: [
