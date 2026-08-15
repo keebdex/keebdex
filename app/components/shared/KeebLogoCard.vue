@@ -51,8 +51,12 @@ const props = defineProps({
   },
 })
 
-const logoSrc = computed(() => `/logo/${props.slug}.png`)
-const fallbackSrc = '/not-found.png'
+const {
+  public: { imgUrl },
+} = useRuntimeConfig()
+
+const logoSrc = computed(() => `${imgUrl}/logo/${props.slug}.png`)
+const fallbackSrc = `${imgUrl}/not-found.png`
 
 const imageSrc = ref(logoSrc.value)
 

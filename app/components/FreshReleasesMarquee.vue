@@ -56,7 +56,7 @@
               :description="formatMakerAdditions(maker.additions)"
               size="lg"
               :avatar="{
-                src: `/logo/${maker.id}.png`,
+                src: `${imgUrl}/logo/${maker.id}.png`,
                 alt: maker.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
@@ -122,7 +122,7 @@
               "
               size="lg"
               :avatar="{
-                src: `/logo/${keyset.profile_id}.png`,
+                src: `${imgUrl}/logo/${keyset.profile_id}.png`,
                 alt: keyset.profile.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
@@ -152,6 +152,10 @@ const { data } = await useAsyncData(
     }),
   },
 )
+
+const {
+  public: { imgUrl },
+} = useRuntimeConfig()
 
 const artisanDrops = computed(() => data.value?.makers || [])
 const liveKeysets = computed(() => data.value?.keysets || [])

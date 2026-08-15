@@ -15,7 +15,7 @@
       >
         <template #item-leading="{ item }">
           <UAvatar
-            :src="`/logo/${item.id}.png`"
+            :src="`${$config.public.imgUrl}/logo/${item.id}.png`"
             size="xs"
             :ui="{
               root: 'rounded-none bg-transparent',

@@ -361,6 +361,10 @@ const selectedVariant = ref({})
 const sort = ref('order|desc')
 const appConfig = useAppConfig()
 
+const {
+  public: { imgUrl },
+} = useRuntimeConfig()
+
 const sortOptions = [
   {
     label: 'Oldest First',
@@ -426,7 +430,7 @@ const breadcrumbs = computed(() => {
       label: data.value?.brand?.name,
       to: `/keyboard/brand/${route.params.brand}`,
       avatar: {
-        src: `/logo/${route.params.brand}.png`,
+        src: `${imgUrl}/logo/${route.params.brand}.png`,
         alt: data.value?.brand?.name,
         ui: {
           root: 'bg-transparent',
@@ -590,6 +594,6 @@ defineOgImage('Module', {
   title: data.value?.name,
   description: description.value,
   headline: data.value?.brand?.name,
-  headlineLogo: `/logo/${data.value?.brand?.slug}.png`,
+  headlineLogo: `${imgUrl}/logo/${data.value?.brand?.slug}.png`,
 })
 </script>

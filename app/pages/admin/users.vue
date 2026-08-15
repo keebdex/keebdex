@@ -62,7 +62,7 @@
                 :key="assignment"
                 :label="assignment"
                 :avatar="{
-                  src: `/logo/${assignment}.png`,
+                  src: `${$config.public.imgUrl}/logo/${assignment}.png`,
                   ui: {
                     root: 'rounded-none bg-transparent',
                     image: $colorMode.value === 'dark' && 'invert',

@@ -58,6 +58,7 @@ export default defineNuxtConfig({
       imagesDefaultVariant: process.env.CF_IMAGES_VARIANT || 'public',
     },
     public: {
+      imgUrl: process.env.IMG_URL || 'https://img.keebdex.org',
       upload: {
         max_image_size: {
           artisan: Number(process.env.UPLOAD_MAX_ARTISAN_IMAGE_SIZE_MB) || 5,

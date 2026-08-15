@@ -119,6 +119,10 @@ const route = useRoute()
 const toast = useToast()
 const colorMode = useColorMode()
 
+const {
+  public: { imgUrl },
+} = useRuntimeConfig()
+
 const keyboard = ref({
   name: '',
   slug: '',
@@ -226,7 +230,7 @@ onBeforeMount(() => {
         metadata?.original?.name,
       ]),
       avatar: {
-        src: `/logo/${metadata?.original?.brand_slug}.png`,
+        src: `${imgUrl}/logo/${metadata?.original?.brand_slug}.png`,
         alt: metadata?.original?.brand?.name,
         ui: {
           root: 'bg-transparent rounded-none',

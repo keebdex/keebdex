@@ -1,5 +1,9 @@
 import { serverSupabaseClient } from '#supabase/server'
 
+const {
+  public: { imgUrl },
+} = useRuntimeConfig()
+
 const mergeById = (primary: any[] = [], secondary: any[] = []) => {
   const map = new Map()
 
@@ -284,7 +288,7 @@ export default defineEventHandler(async (event) => {
         label: m.name,
         to: `/artisan/maker/${m.id}`,
         avatar: {
-          src: `/logo/${m.id}.png`,
+          src: `${imgUrl}/logo/${m.id}.png`,
           alt: m.name,
           invertible: m.invertible_logo,
         },
@@ -300,7 +304,7 @@ export default defineEventHandler(async (event) => {
         suffix: s.name,
         to: `/artisan/maker/${s.maker_id}/${s.sculpt_id}`,
         avatar: {
-          src: `/logo/${s.maker_id}.png`,
+          src: `${imgUrl}/logo/${s.maker_id}.png`,
           alt: s.maker.name,
           invertible: s.maker.invertible_logo,
         },
@@ -326,7 +330,7 @@ export default defineEventHandler(async (event) => {
               id: maker.id,
               label: maker.name,
               avatar: {
-                src: `/logo/${maker.id}.png`,
+                src: `${imgUrl}/logo/${maker.id}.png`,
                 alt: maker.name,
                 invertible: maker.invertible_logo,
               },
@@ -350,7 +354,7 @@ export default defineEventHandler(async (event) => {
         label: `${kc.profile.name} ${kc.name}`,
         to: `/keyset/${kc.profile_keyset_id}`,
         avatar: {
-          src: `/logo/${kc.profile.manufacturer_id}.png`,
+          src: `${imgUrl}/logo/${kc.profile.manufacturer_id}.png`,
           alt: kc.profile.name,
           invertible: true,
         },
@@ -365,7 +369,7 @@ export default defineEventHandler(async (event) => {
         label: brand.name,
         to: `/keyboard/brand/${brand.slug}`,
         avatar: {
-          src: `/logo/${brand.slug}.png`,
+          src: `${imgUrl}/logo/${brand.slug}.png`,
           alt: brand.name,
           invertible: brand.invertible_logo,
         },
@@ -382,7 +386,7 @@ export default defineEventHandler(async (event) => {
           suffix: kb.name,
           to: `/keyboard/brand/${kb.brand_keyboard_slug}`,
           avatar: {
-            src: `/logo/${kb.brand_slug}.png`,
+            src: `${imgUrl}/logo/${kb.brand_slug}.png`,
             alt: kb.brand.name,
             invertible: kb.brand.invertible_logo,
           },
@@ -400,7 +404,7 @@ export default defineEventHandler(async (event) => {
           suffix: release.name,
           to: `/keyboard/brand/${release.brand_keyboard_slug}`,
           avatar: {
-            src: `/logo/${release.brand_slug}.png`,
+            src: `${imgUrl}/logo/${release.brand_slug}.png`,
             alt: release.brand.name,
             invertible: release.brand.invertible_logo,
           },
@@ -418,7 +422,7 @@ export default defineEventHandler(async (event) => {
           suffix: variant.variant_name,
           to: `/keyboard/brand/${variant.brand_keyboard_slug}`,
           avatar: {
-            src: `/logo/${variant.brand_slug}.png`,
+            src: `${imgUrl}/logo/${variant.brand_slug}.png`,
             alt: variant.brand.name,
             invertible: variant.brand.invertible_logo,
           },
