@@ -17,7 +17,6 @@ const createDefaultTradingConfig = (social: Record<string, string> = {}) => ({
   type: 'buying',
   fnf_only: false,
   shipping_included: false,
-  highlight_filled: false,
   columns: 5,
 })
 

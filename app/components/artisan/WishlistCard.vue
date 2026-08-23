@@ -19,11 +19,7 @@
             description: 'flex items-baseline justify-between',
             footer: 'flex flex-wrap gap-2',
           }"
-          :class="
-            buying && item.priority && tradingCfg.highlight_filled
-              ? 'bg-success/30'
-              : ''
-          "
+          :class="buying && item.priority ? 'bg-success/30' : ''"
         >
           <div class="relative aspect-square overflow-hidden">
             <NuxtImg

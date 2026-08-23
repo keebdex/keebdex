@@ -129,13 +129,6 @@
           label="Shipping included"
         />
       </UFormField>
-
-      <UFormField v-if="tradingConfig.type !== 'selling'">
-        <UCheckbox
-          v-model="tradingConfig.highlight_filled"
-          label="Use filled highlight"
-        />
-      </UFormField>
     </UForm>
   </USidebar>
 </template>
@@ -173,7 +166,6 @@ const resetTradingState = () => {
   }
   tradingConfig.value.fnf_only = false
   tradingConfig.value.shipping_included = false
-  tradingConfig.value.highlight_filled = false
 }
 
 const trading = computed(() => tradingConfig.value.type === 'trading')
