@@ -109,11 +109,14 @@ const sculpt = ref({
   collection: undefined,
   is_revision_of: undefined,
 })
+const originalSculpt = ref({})
+const GDOC_MANAGED_FIELDS = ['name', 'release', 'profile', 'cast', 'design']
 
 onBeforeMount(() => {
   const { colorways, ...rest } = metadata
 
   Object.assign(sculpt.value, rest)
+  originalSculpt.value = { ...rest }
 })
 
 const collectionOptions = computed(() => {
@@ -152,16 +155,35 @@ const onSubmit = async () => {
   const sculptId = String(sculpt.value.sculpt_id || route.params.sculpt || '')
 
   const slug = slugify(sculpt.value.name, { lower: true })
+  const payload = {
+    ...sculpt.value,
+    maker_id: makerId,
+    sculpt_id: slug,
+    collection: sculpt.value.collection || null,
+    is_revision_of: sculpt.value.is_revision_of || null,
+  }
+
+  if (!isEdit) {
+    payload.source = 'keebdex'
+    payload.overridden_fields = []
+  } else {
+    const dirtyFields = GDOC_MANAGED_FIELDS.filter(
+      (field) => payload[field] !== originalSculpt.value[field],
+    )
+
+    payload.overridden_fields = dirtyFields.length
+      ? [
+          ...new Set([
+            ...(originalSculpt.value.overridden_fields || []),
+            ...dirtyFields,
+          ]),
+        ]
+      : originalSculpt.value.overridden_fields || []
+  }
 
   await $fetch(`/api/makers/${makerId}/sculpts/${sculptId || slug}`, {
     method: 'post',
-    body: {
-      ...sculpt.value,
-      maker_id: makerId,
-      sculpt_id: slug,
-      collection: sculpt.value.collection || null,
-      is_revision_of: sculpt.value.is_revision_of || null,
-    },
+    body: payload,
   })
     .then(() => {
       toast.add(
