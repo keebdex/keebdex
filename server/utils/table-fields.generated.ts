@@ -21,12 +21,14 @@ export const TABLE_FIELDS = {
     "maker_sculpt_id",
     "name",
     "order",
+    "overridden_fields",
     "photo_credit",
     "price",
     "qty",
     "release",
     "sale_type",
     "sculpt_id",
+    "source",
     "stem"
   ],
   "artisan_makers": [

@@ -171,8 +171,21 @@ const maxUploadSizeMb = getMaxUploadSizeMb('artisan')
 const uploading = ref(false)
 const uploadedFile = ref(null)
 
+// Fields sourced from the Google Doc sync; editing them locally overrides the sync
+const GDOC_MANAGED_FIELDS = [
+  'name',
+  'release',
+  'qty',
+  'photo_credit',
+  'img',
+  'stem',
+]
+
+const originalColorway = ref({})
+
 onBeforeMount(() => {
   Object.assign(colorway.value, metadata)
+  originalColorway.value = { ...metadata }
 })
 
 const onSubmit = async () => {
@@ -189,6 +202,24 @@ const onSubmit = async () => {
         assignment: colorway.value.maker_id,
         category: 'artisan',
       })
+    }
+
+    if (!colorway.value.id) {
+      payload.source = 'keebdex'
+      payload.overridden_fields = []
+    } else {
+      const dirtyFields = GDOC_MANAGED_FIELDS.filter(
+        (field) => payload[field] !== originalColorway.value[field],
+      )
+
+      payload.overridden_fields = dirtyFields.length
+        ? [
+            ...new Set([
+              ...(originalColorway.value.overridden_fields || []),
+              ...dirtyFields,
+            ]),
+          ]
+        : originalColorway.value.overridden_fields || []
     }
 
     await $fetch(
