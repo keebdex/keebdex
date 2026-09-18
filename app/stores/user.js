@@ -1,5 +1,6 @@
 import sortBy from 'lodash.sortby'
 import { defineStore } from 'pinia'
+import { canManageAnyAssignment, canManageAssignment } from '~/utils/permissions'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -13,6 +14,7 @@ export const useUserStore = defineStore('user', {
   getters: {
     authenticated: (state) => state.user && state.user.email_verified,
     isAdmin: (state) => state.role === 'admin',
+    canModerateColorways: (state) => canManageAnyAssignment(state),
   },
   actions: {
     setCurrentUser(authUser) {
@@ -74,13 +76,7 @@ export const useUserStore = defineStore('user', {
       }
     },
     isEditable(page) {
-      const { role, assignments, isAdmin } = this
-      return (
-        isAdmin ||
-        (role === 'editor' && (!assignments || assignments?.includes(page))) ||
-        (role === 'maker' && assignments?.includes(page)) ||
-        role === 'designer'
-      )
+      return canManageAssignment(this, page)
     },
   },
 })

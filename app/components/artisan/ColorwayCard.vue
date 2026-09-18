@@ -47,6 +47,13 @@
 
     <template #leading>
       <UBadge
+        v-if="colorway.status === 'pending'"
+        label="Unverified"
+        icon="hugeicons:alert-02"
+        color="warning"
+        variant="subtle"
+      />
+      <UBadge
         v-if="colorway.sale_type === 'Auction'"
         label="Auction"
         icon="hugeicons:charity"

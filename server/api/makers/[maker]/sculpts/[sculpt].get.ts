@@ -1,20 +1,31 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { omitSensitive } from '../../../../utils'
 
+const STATUS_FILTERS = ['approved', 'pending', 'all'] as const
+
 export default defineEventHandler(async (event) => {
   const { maker: makerId, sculpt: sculptId } = event.context.params || {}
   const query: Record<string, any> = getQuery(event)
   const ascending = query.sort === 'asc'
+  const statusFilter = STATUS_FILTERS.includes(query.status)
+    ? query.status
+    : 'approved'
 
   const client = await serverSupabaseClient(event)
-  const { data: profile, error: profileError } = await client
+  let profileRequest = client
     .from('artisan_makers')
     .select(
       'name, invertible_logo, disable_google_sync, sculpts:artisan_sculpts (*, total_colorways:artisan_colorways(count))',
     )
     .eq('id', makerId)
     .eq('sculpts.deleted', false)
-    .single()
+
+  profileRequest =
+    statusFilter === 'all'
+      ? profileRequest.neq('sculpts.total_colorways.status', 'rejected')
+      : profileRequest.eq('sculpts.total_colorways.status', statusFilter)
+
+  const { data: profile, error: profileError } = await profileRequest.single()
 
   if (profileError) {
     throw createError({
@@ -28,6 +39,11 @@ export default defineEventHandler(async (event) => {
     .select()
     .eq('maker_id', makerId)
     .eq('sculpt_id', sculptId)
+
+  request =
+    statusFilter === 'all'
+      ? request.neq('status', 'rejected')
+      : request.eq('status', statusFilter)
 
   if (query.order_by) {
     request = request.order(query.order_by, { ascending })
@@ -54,6 +70,11 @@ export default defineEventHandler(async (event) => {
       .select('colorway_id')
       .eq('maker_id', makerId)
       .eq('sculpt_id', sculptId)
+
+    selectedColorwayRequest =
+      statusFilter === 'all'
+        ? selectedColorwayRequest.neq('status', 'rejected')
+        : selectedColorwayRequest.eq('status', statusFilter)
 
     if (query.order_by) {
       selectedColorwayRequest = selectedColorwayRequest.order(query.order_by, {

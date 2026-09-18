@@ -7,36 +7,22 @@
         </template>
 
         <template #right>
-          <div v-if="editable" class="flex items-center gap-2">
-            <UModal v-model:visible="visible.create" title="Add Colorway">
+          <div class="flex items-center gap-2">
+            <UModal
+              v-if="authenticated"
+              v-model:visible="visible.create"
+              :title="editable ? 'Add Colorway' : 'Submit Colorway'"
+            >
               <UButton
                 icon="hugeicons:dashboard-square-add"
                 color="primary"
-                label="Add Colorway"
+                :label="editable ? 'Add Colorway' : 'Submit Colorway'"
               />
 
               <template #body="{ close }">
                 <ArtisanModalColorwayForm
                   :metadata="newColorwayMetadata"
-                  @on-success="
-                    () => {
-                      close()
-                      refresh()
-                    }
-                  "
-                />
-              </template>
-            </UModal>
-
-            <UModal v-model:visible="visible.edit" title="Edit Sculpt">
-              <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
-
-              <template #body="{ close }">
-                <ArtisanModalSculptForm
-                  :is-edit="true"
-                  :metadata="sculpt"
-                  :sculpts="sculpt.maker_sculpts"
-                  :disable-google-sync="sculpt.disable_google_sync"
+                  :moderator="editable"
                   @on-success="
                     () => {
                       close()
@@ -49,42 +35,71 @@
 
             <USelect
               v-if="$device.isDesktopOrTablet"
-              v-model="sortValue"
-              :items="sortOptions"
-              :icon="sortIconMap[sortValue]"
+              v-model="statusValue"
+              :items="statusOptions"
               variant="soft"
             />
 
-            <SharedProfileDrawer
-              v-if="sculpt.story"
-              :title="sculpt.name"
-              :description="sculpt.story"
-            />
+            <template v-if="editable">
+              <UModal v-model:visible="visible.edit" title="Edit Sculpt">
+                <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
 
-            <UModal
-              title="Delete Sculpt"
-              :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
-            >
-              <UButton
-                icon="hugeicons:delete-02"
-                label="Delete"
-                color="error"
+                <template #body="{ close }">
+                  <ArtisanModalSculptForm
+                    :is-edit="true"
+                    :metadata="sculpt"
+                    :sculpts="sculpt.maker_sculpts"
+                    :disable-google-sync="sculpt.disable_google_sync"
+                    @on-success="
+                      () => {
+                        close()
+                        refresh()
+                      }
+                    "
+                  />
+                </template>
+              </UModal>
+
+              <USelect
+                v-if="$device.isDesktopOrTablet"
+                v-model="sortValue"
+                :items="sortOptions"
+                :icon="sortIconMap[sortValue]"
+                variant="soft"
               />
 
-              <template #footer="{ close }">
-                <UButton label="Cancel" @click="close" />
+              <SharedProfileDrawer
+                v-if="sculpt.story"
+                :title="sculpt.name"
+                :description="sculpt.story"
+              />
+
+              <UModal
+                title="Delete Sculpt"
+                :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
+              >
                 <UButton
+                  icon="hugeicons:delete-02"
                   label="Delete"
                   color="error"
-                  @click="deleteSculpt(close)"
                 />
-              </template>
-            </UModal>
+
+                <template #footer="{ close }">
+                  <UButton label="Cancel" @click="close" />
+                  <UButton
+                    label="Delete"
+                    color="error"
+                    @click="deleteSculpt(close)"
+                  />
+                </template>
+              </UModal>
+            </template>
           </div>
         </template>
       </UDashboardNavbar>
 
       <UDashboardToolbar v-if="$device.isMobile">
+        <USelect v-model="statusValue" :items="statusOptions" variant="soft" />
         <USelect
           v-model="sortValue"
           :items="sortOptions"
@@ -108,7 +123,15 @@
           }"
           @click="openColorwayCard(colorway)"
         >
-          <div class="aspect-square overflow-hidden">
+          <div class="aspect-square overflow-hidden relative">
+            <UBadge
+              v-if="colorway.status === 'pending'"
+              label="Unverified"
+              icon="hugeicons:alert-02"
+              color="warning"
+              variant="subtle"
+              class="absolute top-2 left-2 z-10"
+            />
             <NuxtImg
               loading="lazy"
               :alt="colorway.name"
@@ -130,6 +153,7 @@
                 <template #body="{ close }">
                   <ArtisanModalColorwayForm
                     :metadata="selectedColorway"
+                    :moderator="true"
                     @on-success="
                       () => {
                         close()
@@ -255,6 +279,18 @@ watch(sortValue, (newValue) => {
   sortOrder.value = order
 })
 
+const statusValue = ref('approved')
+
+const statusOptions = [
+  {
+    label: 'Verified Only',
+    icon: 'hugeicons:checkmark-badge-02',
+    value: 'approved',
+  },
+  { label: 'Submissions', icon: 'hugeicons:clock-01', value: 'pending' },
+  { label: 'All', icon: 'hugeicons:menu-square', value: 'all' },
+]
+
 const { data: sculpt, refresh } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
   () =>
@@ -263,12 +299,13 @@ const { data: sculpt, refresh } = await useAsyncData(
         cid: route.query.cid,
         order_by: sortField.value,
         sort: sortOrder.value,
+        status: statusValue.value,
         from: (page.value - 1) * size,
         to: page.value * size - 1,
       },
     }),
   {
-    watch: [page, sortField, sortOrder, () => route.query.cid],
+    watch: [page, sortField, sortOrder, statusValue, () => route.query.cid],
   },
 )
 

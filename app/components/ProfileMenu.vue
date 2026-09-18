@@ -51,7 +51,8 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user, role, isAdmin } = storeToRefs(userStore)
+const { authenticated, user, role, isAdmin, canModerateColorways } =
+  storeToRefs(userStore)
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -60,28 +61,44 @@ const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
 const items = computed(() => {
-  const adminActions = isAdmin.value
+  const managementItems = []
+
+  if (isAdmin.value) {
+    managementItems.push(
+      {
+        label: 'Users',
+        icon: 'hugeicons:user-group',
+        to: '/admin/users',
+      },
+      {
+        label: 'Feedback',
+        icon: 'hugeicons:message-question',
+        to: '/admin/feedbacks',
+      },
+      {
+        label: 'Shoutouts',
+        icon: 'hugeicons:quote-up',
+        to: '/admin/shoutouts',
+      },
+    )
+  }
+
+  if (canModerateColorways.value) {
+    managementItems.push({
+      label: 'Colorway Submissions',
+      icon: 'hugeicons:file-verified',
+      to: '/artisan/colorway-submissions',
+    })
+  }
+
+  const adminActions = managementItems.length
     ? [
         [
           {
             type: 'label',
             label: 'Management',
           },
-          {
-            label: 'Users',
-            icon: 'hugeicons:user-group',
-            to: '/admin/users',
-          },
-          {
-            label: 'Feedback',
-            icon: 'hugeicons:message-question',
-            to: '/admin/feedbacks',
-          },
-          {
-            label: 'Shoutouts',
-            icon: 'hugeicons:quote-up',
-            to: '/admin/shoutouts',
-          },
+          ...managementItems,
         ],
       ]
     : []

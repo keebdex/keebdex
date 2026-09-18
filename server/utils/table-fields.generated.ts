@@ -63,9 +63,11 @@ export const TABLE_FIELDS = {
     "maker_id",
     "maker_sculpt_id",
     "name",
+    "overridden_fields",
     "profile",
     "release",
     "sculpt_id",
+    "source",
     "story"
   ],
   "colors": [

@@ -1,11 +1,13 @@
-import { serverSupabaseClient } from '#supabase/server'
-
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
+  const { client, profile } = await getActorProfile(event)
   const { maker, sculpt, id } = event.context.params || {}
 
   if (!id) {
     throw createError({ statusCode: 400, statusMessage: 'Missing colorway id' })
+  }
+
+  if (!canModerateAssignment(profile, String(maker || ''))) {
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 
   const { error } = await client
