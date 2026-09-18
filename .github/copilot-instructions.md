@@ -29,7 +29,6 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
 - `server/utils/`: server-side database, authorization, grouping, and response helpers.
 - `scripts/`: repository maintenance scripts, including table-field metadata generation.
-- `supabase/`: Supabase project configuration and database-related files.
 - `public/`: static assets.
 
 Preserve Nuxt file-based routing paths when moving or renaming pages and API handlers.
@@ -50,7 +49,8 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 
 - Define API handlers with `defineEventHandler` and use H3 helpers such as `getQuery`, `readBody`, and `createError` consistently with nearby code.
 - Obtain the server Supabase client with `serverSupabaseClient(event)` and the authenticated user with `serverSupabaseUser(event)`.
-- Use `requireAdminClient(event)` for server-side admin operations and preserve the existing middleware checks for protected pages.
+- Use `requireAdminClient(event)` for admin-only server-side operations. For staff operations scoped to a specific assignment (editor/maker restricted to their assigned pages), use `getActorProfile(event)` plus `canManageAssignment`/`canManageAnyAssignment` from `~/utils/permissions` (also re-exported as `canModerateAssignment` in `server/utils/admin.ts`) instead of duplicating role checks.
+- Preserve the existing middleware checks for protected pages (`app/middleware/admin.ts` for admin-only routes). For staff-but-not-admin pages, follow the existing pattern of a client-side guard (`<SharedRedirectPage v-if="!canX" to="..." />`) backed by a Pinia getter, rather than adding new route middleware.
 - For insert, update, or patch payloads, use `pickTableFields(table, body)` from `server/utils/database.ts`. It validates that the body is an object and whitelists fields from generated metadata.
 - Use `omitSensitive()` and existing response helpers when returning database records so internal fields such as `fts` are not exposed.
 - Follow the existing pagination convention with `getQuery(event)` and Supabase `.range(from, to)`.
@@ -66,7 +66,7 @@ Keep database relationships and table names aligned with the generated `Database
 
 ## State and Auth
 
-Use the existing Pinia user store and composables before adding new global state. Preserve the existing role model and access checks for `admin`, `maker`, `designer`, and `editor`. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned.
+Use the existing Pinia user store and composables before adding new global state. Role/assignment rules (`admin`, `editor`, `maker`, `designer`) are centralized in `app/utils/permissions.ts` (`canManageAssignment`, `canManageAnyAssignment`) and reused by both the client (`userStore.isEditable()`, `userStore.canModerateColorways`) and server (`server/utils/admin.ts`). Do not reimplement role branching inline; extend or call the shared utility instead. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned.
 
 ## Formatting and Validation
 
@@ -79,4 +79,4 @@ Use the existing Pinia user store and composables before adding new global state
 
 ## Git and Documentation
 
-Commit messages follow Conventional Commits through commitlint. Update `README.md` or `CHANGELOG.md` only when behavior or user-facing setup changes require it. Do not create commits or branches unless explicitly requested.
+Commit messages follow Conventional Commits through commitlint. Fold the `[Unreleased]` entries into a new dated version section in `CHANGELOG.md` along with the release notes when cutting a release. Do not create commits or branches unless explicitly requested.
