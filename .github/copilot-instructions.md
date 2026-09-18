@@ -1,0 +1,82 @@
+# Keebdex Copilot Instructions
+
+## Project Overview
+
+Keebdex is a Nuxt 4 application for keyboard collectors. It uses Vue 3, TypeScript, Nuxt UI, Tailwind CSS, Pinia, Nuxt Nitro/H3, and Supabase PostgreSQL.
+
+Use Bun for local commands. The repository contains a `bun.lock` file.
+
+## Important Commands
+
+- `bun run dev`: start the Nuxt development server. The `predev` hook generates database field metadata first.
+- `bun run build`: build for production. The `prebuild` hook generates database field metadata first.
+- `bun run generate`: generate the static site; this also runs the metadata generation hook.
+- `bun run generate:table-fields`: regenerate `server/utils/table-fields.generated.ts` from the database types.
+- `bunx eslint .`: run ESLint. Use `bunx eslint . --fix` for automatic fixes; there is currently no `lint` script in `package.json`.
+- `bun run preview`: preview a production build.
+
+There is no test script or test suite currently defined in `package.json`. Do not claim tests passed unless a relevant check was actually run.
+
+## Repository Layout
+
+- `app/pages/`: Nuxt file-based pages and routes.
+- `app/components/`: Vue components, organized by domain (`artisan`, `keyboard`, `keyset`, `collection`, `brand`, `shared`, and `modal`).
+- `app/composables/`: reusable reactive application logic.
+- `app/stores/`: Pinia stores, including the user store.
+- `app/middleware/`: route guards such as authentication and admin access.
+- `app/types/database.types.ts`: generated Supabase database types; treat this as generated source and do not edit it manually.
+- `app/utils/`: client-side helpers and utilities.
+- `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
+- `server/utils/`: server-side database, authorization, grouping, and response helpers.
+- `scripts/`: repository maintenance scripts, including table-field metadata generation.
+- `supabase/`: Supabase project configuration and database-related files.
+- `public/`: static assets.
+
+Preserve Nuxt file-based routing paths when moving or renaming pages and API handlers.
+
+## Vue and Nuxt Conventions
+
+- Follow the existing Vue 3 Composition API style with `<script setup>`.
+- Keep Vue single-file component blocks in this order: `<template>`, then `<script setup>` (or `<script>` when required), then `<style>`.
+- Use TypeScript for new application code unless the surrounding file is intentionally JavaScript.
+- Keep components in PascalCase. Keep variables and functions in camelCase. Use snake_case for database identifiers.
+- Keep domain-specific components in their existing domain folders; put genuinely reusable components in `app/components/shared/`.
+- Prefer existing Nuxt UI components and the established slots/configuration over custom replacements.
+- Use `NuxtImg` for optimized images where appropriate.
+- Follow the existing mobile-first Tailwind styling and the design tokens in `app/app.config.ts` and `app/assets/main.css`.
+- Use the centralized icon names configured in `app/app.config.ts` rather than introducing arbitrary icon sets.
+
+## Server and Supabase Rules
+
+- Define API handlers with `defineEventHandler` and use H3 helpers such as `getQuery`, `readBody`, and `createError` consistently with nearby code.
+- Obtain the server Supabase client with `serverSupabaseClient(event)` and the authenticated user with `serverSupabaseUser(event)`.
+- Use `requireAdminClient(event)` for server-side admin operations and preserve the existing middleware checks for protected pages.
+- For insert, update, or patch payloads, use `pickTableFields(table, body)` from `server/utils/database.ts`. It validates that the body is an object and whitelists fields from generated metadata.
+- Use `omitSensitive()` and existing response helpers when returning database records so internal fields such as `fts` are not exposed.
+- Follow the existing pagination convention with `getQuery(event)` and Supabase `.range(from, to)`.
+- Preserve existing full-text search behavior using Supabase `.textSearch()` where the endpoint already uses it.
+- Use `createError({ statusCode, statusMessage })` for expected API errors and match nearby status codes and messages.
+- Do not expose service-role credentials or bypass authorization checks from client code.
+
+## Generated Data and Database Types
+
+`app/types/database.types.ts` is generated from the Supabase schema, and `server/utils/table-fields.generated.ts` is generated from those types. Do not hand-edit either generated file. After changing database types or the generation script, run `bun run generate:table-fields` and inspect the generated diff.
+
+Keep database relationships and table names aligned with the generated `Database` type. Do not silently invent columns, tables, or enum values.
+
+## State and Auth
+
+Use the existing Pinia user store and composables before adding new global state. Preserve the existing role model and access checks for `admin`, `maker`, `designer`, and `editor`. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned.
+
+## Formatting and Validation
+
+- Match the repository's Prettier style: single quotes and no semicolons.
+- Keep changes focused and avoid unrelated refactors.
+- After editing, run the narrowest relevant check first, then `bunx eslint .` or `bunx eslint . --fix` when appropriate.
+- For server or schema-related changes, run `bun run generate:table-fields` and a production build when practical.
+- Review generated files and route filenames in the final diff.
+- Never commit secrets or `.env` files.
+
+## Git and Documentation
+
+Commit messages follow Conventional Commits through commitlint. Update `README.md` or `CHANGELOG.md` only when behavior or user-facing setup changes require it. Do not create commits or branches unless explicitly requested.
