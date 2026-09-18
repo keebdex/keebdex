@@ -13,22 +13,22 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
-  const status = String(query.status || 'pending').trim()
+  const status = String(query.status || 'Pending').trim()
 
   const from = (page - 1) * size
   const to = from + size - 1
 
+  // Colorways added directly by staff have a null status (implicitly
+  // approved) and never enter the moderation queue.
   let request = client
     .from('artisan_colorways')
     .select('*, maker:artisan_makers(id, name), sculpt:artisan_sculpts(name)', {
       count: 'exact',
     })
+    .not('status', 'is', null)
+    .eq('status', status)
     .order('created_at', { ascending: false })
     .range(from, to)
-
-  if (status !== 'all') {
-    request = request.eq('status', status)
-  }
 
   // Editors and Makers with specific assignments only moderate their own makers.
   if (profile.role !== 'admin' && profile.assignments?.length) {

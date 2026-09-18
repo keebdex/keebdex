@@ -33,13 +33,6 @@
               </template>
             </UModal>
 
-            <USelect
-              v-if="$device.isDesktopOrTablet"
-              v-model="statusValue"
-              :items="statusOptions"
-              variant="soft"
-            />
-
             <template v-if="editable">
               <UModal v-model:visible="visible.edit" title="Edit Sculpt">
                 <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
@@ -99,7 +92,6 @@
       </UDashboardNavbar>
 
       <UDashboardToolbar v-if="$device.isMobile">
-        <USelect v-model="statusValue" :items="statusOptions" variant="soft" />
         <USelect
           v-model="sortValue"
           :items="sortOptions"
@@ -125,7 +117,7 @@
         >
           <div class="aspect-square overflow-hidden relative">
             <UBadge
-              v-if="colorway.status === 'pending'"
+              v-if="colorway.status === 'Pending'"
               label="Unverified"
               icon="hugeicons:alert-02"
               color="warning"
@@ -279,18 +271,6 @@ watch(sortValue, (newValue) => {
   sortOrder.value = order
 })
 
-const statusValue = ref('approved')
-
-const statusOptions = [
-  {
-    label: 'Verified Only',
-    icon: 'hugeicons:checkmark-badge-02',
-    value: 'approved',
-  },
-  { label: 'Submissions', icon: 'hugeicons:clock-01', value: 'pending' },
-  { label: 'All', icon: 'hugeicons:menu-square', value: 'all' },
-]
-
 const { data: sculpt, refresh } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
   () =>
@@ -299,13 +279,12 @@ const { data: sculpt, refresh } = await useAsyncData(
         cid: route.query.cid,
         order_by: sortField.value,
         sort: sortOrder.value,
-        status: statusValue.value,
         from: (page.value - 1) * size,
         to: page.value * size - 1,
       },
     }),
   {
-    watch: [page, sortField, sortOrder, statusValue, () => route.query.cid],
+    watch: [page, sortField, sortOrder, () => route.query.cid],
   },
 )
 

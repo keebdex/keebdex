@@ -39,11 +39,11 @@ export default defineEventHandler(async (event) => {
   const payload: Record<string, unknown> = { ...editableFields }
 
   if (action === 'approve' || action === 'update') {
-    payload.status = 'approved'
+    payload.status = 'Approved'
     payload.verified_by = user.sub
     payload.verified_at = new Date().toISOString()
   } else if (action === 'reject') {
-    payload.status = 'rejected'
+    payload.status = 'Rejected'
     payload.verified_by = user.sub
     payload.verified_at = new Date().toISOString()
   }

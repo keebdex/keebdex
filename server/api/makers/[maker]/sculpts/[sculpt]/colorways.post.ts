@@ -27,11 +27,10 @@ export default defineEventHandler(async (event) => {
     if (!isModerator) {
       throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
-  } else if (isModerator) {
-    rest.status = 'approved'
-  } else {
+  } else if (!isModerator) {
     // Community submission: mark as pending and record the submitter.
-    rest.status = 'pending'
+    // Staff-added colorways leave `status` null, which means approved.
+    rest.status = 'Pending'
     rest.submitted_by = user.sub
     rest.source = 'keebdex'
     rest.overridden_fields = []

@@ -64,7 +64,7 @@
           <template #action-cell="{ row }">
             <div class="flex flex-wrap items-center gap-2">
               <UButton
-                v-if="row.original.status !== 'approved'"
+                v-if="row.original.status !== 'Approved'"
                 label="Approve"
                 size="xs"
                 color="success"
@@ -74,7 +74,7 @@
               />
 
               <UButton
-                v-if="row.original.status !== 'rejected'"
+                v-if="row.original.status !== 'Rejected'"
                 label="Reject"
                 size="xs"
                 color="error"
@@ -152,24 +152,23 @@ const columns = [
   { id: 'action' },
 ]
 
-const statusFilter = ref('pending')
+const statusFilter = ref('Pending')
 const statusFilterOptions = [
-  { label: 'Pending Review', value: 'pending' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'All', value: 'all' },
+  { label: 'Pending Review', value: 'Pending' },
+  { label: 'Approved', value: 'Approved' },
+  { label: 'Rejected', value: 'Rejected' },
 ]
 
 const statusColorMap = {
-  approved: 'success',
-  pending: 'warning',
-  rejected: 'error',
+  Approved: 'success',
+  Pending: 'warning',
+  Rejected: 'error',
 }
 
 const statusLabel = (value) => {
-  if (value === 'approved') return 'Approved'
-  if (value === 'rejected') return 'Rejected'
-  if (value === 'pending') return 'Pending Review'
+  if (value === 'Approved') return 'Approved'
+  if (value === 'Rejected') return 'Rejected'
+  if (value === 'Pending') return 'Pending Review'
   return value
 }
 
@@ -181,9 +180,9 @@ const formatDate = (value) => {
 const { page, size, setPage, resetPage } = usePagination(10)
 
 const { data, status, refresh } = useAdvancedSearch(
-  '/api/admin/colorway-submissions',
+  '/api/artisan/colorway-submissions',
   {
-    key: 'admin-colorway-submissions',
+    key: 'artisan-colorway-submissions',
     term: ref(''),
     minLength: 0,
     pagination: {
@@ -228,7 +227,7 @@ const approve = async (colorway) => {
   processingId.value = colorway.id
 
   try {
-    await $fetch(`/api/admin/colorway-submissions/${colorway.id}`, {
+    await $fetch(`/api/artisan/colorway-submissions/${colorway.id}`, {
       method: 'post',
       body: { action: 'approve' },
     })
@@ -246,7 +245,7 @@ const reject = async (colorway) => {
   processingId.value = colorway.id
 
   try {
-    await $fetch(`/api/admin/colorway-submissions/${colorway.id}`, {
+    await $fetch(`/api/artisan/colorway-submissions/${colorway.id}`, {
       method: 'post',
       body: { action: 'reject' },
     })
