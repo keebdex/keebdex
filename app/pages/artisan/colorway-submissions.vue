@@ -153,17 +153,22 @@
           v-else
           class="flex flex-col items-center gap-3 py-12 px-4 text-center"
         >
-          <UIcon name="hugeicons:paint-board" class="text-4xl text-dimmed" />
-          <p class="text-toned">You haven't submitted any colorways yet.</p>
-          <p class="text-sm text-dimmed max-w-sm">
-            Visit a maker's sculpt page and use "Submit Colorway" if you'd like
-            to contribute one.
-          </p>
-          <UButton
-            label="Browse Makers"
-            icon="hugeicons:user-multiple"
-            variant="soft"
-            to="/artisan/maker"
+          <UPageSection
+            icon="hugeicons:paint-board"
+            title="No Colorway Submissions Yet"
+            description="You haven't submitted any colorways. Start contributing by browsing makers and submitting your own colorways."
+            :links="[
+              {
+                label: 'Browse Makers',
+                to: '/artisan/maker',
+                icon: 'hugeicons:user-multiple',
+                variant: 'soft',
+              },
+            ]"
+            :ui="{
+              title: 'text-base! text-toned',
+              description: 'text-sm!',
+            }"
           />
         </div>
       </UPageCard>

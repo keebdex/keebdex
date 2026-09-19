@@ -65,13 +65,7 @@
       }"
     >
       <template #body>
-        <UTabs v-model="feedbackMode" :items="feedbackFlowItems" />
-
-        <ModalFeedbackForm
-          v-if="feedbackMode === 'feedback'"
-          @on-success="toggle('feedback')"
-        />
-        <ModalContributeForm v-else @on-success="toggle('feedback')" />
+        <ModalFeedbackForm @on-success="toggle('feedback')" />
       </template>
     </UModal>
 
@@ -300,13 +294,6 @@ const visible = ref({
   donate: false,
 })
 
-const feedbackMode = ref('feedback')
-
-const feedbackFlowItems = [
-  { label: 'Feedback', value: 'feedback' },
-  { label: 'Contribute', value: 'contribute' },
-]
-
 const toggle = (key) => {
   visible.value[key] = !visible.value[key]
 }
@@ -393,6 +380,7 @@ onMounted(() => {
         {
           label: 'Watch',
           to: 'https://www.loom.com/share/660fe9bd026640788b2d0d8a6fe9b6b8',
+          target: '_blank',
           trailingIcon: 'hugeicons:arrow-right-02',
           onClick: () => acknowledge(seenCollectionGuide),
           ui: {
