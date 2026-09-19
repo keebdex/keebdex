@@ -14,6 +14,9 @@ export default defineEventHandler(async (event) => {
     )
     .eq('id', makerId)
     .eq('sculpts.deleted', false)
+    // .or(
+    //   'sculpts.total_colorways.status.is.null,sculpts.total_colorways.status.neq.Rejected',
+    // )
     .single()
 
   if (profileError) {
@@ -28,6 +31,7 @@ export default defineEventHandler(async (event) => {
     .select()
     .eq('maker_id', makerId)
     .eq('sculpt_id', sculptId)
+    .or('status.is.null,status.neq.Rejected')
 
   if (query.order_by) {
     request = request.order(query.order_by, { ascending })
@@ -54,6 +58,7 @@ export default defineEventHandler(async (event) => {
       .select('colorway_id')
       .eq('maker_id', makerId)
       .eq('sculpt_id', sculptId)
+      .or('status.is.null,status.neq.Rejected')
 
     if (query.order_by) {
       selectedColorwayRequest = selectedColorwayRequest.order(query.order_by, {

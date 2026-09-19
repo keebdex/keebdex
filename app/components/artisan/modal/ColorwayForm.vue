@@ -5,6 +5,17 @@
     class="space-y-4"
     @submit="onSubmit"
   >
+    <UAlert
+      v-if="!moderator && !colorway.id"
+      icon="hugeicons:information-circle"
+      color="info"
+      variant="subtle"
+      title="Community Submission"
+      description="Your colorway will be submitted for review and shown with an
+        Unverified badge until a moderator approves it."
+      class="mb-2"
+    />
+
     <UFormField label="Name" name="name">
       <UInput
         v-model.trim="colorway.name"
@@ -103,7 +114,7 @@
     </UFormField>
 
     <UButton block color="primary" type="submit" :loading="uploading">
-      Save
+      {{ moderator || colorway.id ? 'Save' : 'Submit for Review' }}
     </UButton>
   </UForm>
 </template>
@@ -114,11 +125,12 @@ import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata } = defineProps({
+const { metadata, moderator } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  moderator: Boolean,
 })
 
 const toast = useToast()
@@ -222,21 +234,30 @@ const onSubmit = async () => {
         : originalColorway.value.overridden_fields || []
     }
 
-    await $fetch(
-      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways`,
+    const [created] = await $fetch(
+      `/api/makers/${colorway.value.maker_id}/sculpts/${colorway.value.sculpt_id}/colorways`,
       {
         method: 'post',
         body: payload,
       },
     )
 
-    toast.add(
-      handleSuccess(
-        colorway.value.id ? 'update' : 'add',
-        payload.name,
-        'Colorway',
-      ),
-    )
+    if (!moderator && created?.status === 'Pending') {
+      toast.add({
+        title: 'Thanks for your contribution!',
+        description:
+          'Your colorway is now Pending Review and will be shown with an Unverified badge.',
+        color: 'success',
+      })
+    } else {
+      toast.add(
+        handleSuccess(
+          colorway.value.id ? 'update' : 'add',
+          payload.name,
+          'Colorway',
+        ),
+      )
+    }
     emit('onSuccess')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))

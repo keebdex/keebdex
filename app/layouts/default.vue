@@ -52,7 +52,6 @@
     <KeebSearch :routes="groups" />
 
     <div class="flex flex-col w-full">
-      <AppBanner />
       <slot />
     </div>
 
@@ -66,13 +65,7 @@
       }"
     >
       <template #body>
-        <UTabs v-model="feedbackMode" :items="feedbackFlowItems" />
-
-        <ModalFeedbackForm
-          v-if="feedbackMode === 'feedback'"
-          @on-success="toggle('feedback')"
-        />
-        <ModalContributeForm v-else @on-success="toggle('feedback')" />
+        <ModalFeedbackForm @on-success="toggle('feedback')" />
       </template>
     </UModal>
 
@@ -89,7 +82,7 @@ const route = useRoute()
 const toast = useToast()
 const userStore = useUserStore()
 
-const { isAdmin } = storeToRefs(userStore)
+const { isAdmin, authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -174,6 +167,15 @@ const routes = computed(() => {
       active: route.path === '/artisan/wishlist',
     },
   ]
+
+  if (authenticated.value) {
+    artisanChildren.push({
+      label: 'Colorway Submissions',
+      icon: 'hugeicons:file-verified',
+      to: '/artisan/colorway-submissions',
+      active: route.path === '/artisan/colorway-submissions',
+    })
+  }
 
   const keyboardChildren = [
     {
@@ -292,13 +294,6 @@ const visible = ref({
   donate: false,
 })
 
-const feedbackMode = ref('feedback')
-
-const feedbackFlowItems = [
-  { label: 'Feedback', value: 'feedback' },
-  { label: 'Contribute', value: 'contribute' },
-]
-
 const toggle = (key) => {
   visible.value[key] = !visible.value[key]
 }
@@ -309,14 +304,19 @@ watch(collapsed, (isCollapsed, wasCollapsed) => {
   }
 })
 
+const acknowledge = (cookie) => {
+  cookie.value = 'acknowledged'
+}
+
 onMounted(() => {
-  const cookie = useCookie('cookie-consent')
+  const cookieConsent = useCookie('cookie-consent')
 
   // Show cookie consent if not accepted
-  if (cookie.value !== 'accepted') {
+  if (cookieConsent.value !== 'accepted') {
     toast.add({
-      title:
-        'We use cookies to improve your experience. By using our site, you agree to our use of cookies.',
+      title: 'We use cookies',
+      description:
+        'To improve your experience. By using our site, you agree to our use of cookies.',
       icon: 'hugeicons:cookie',
       duration: 0,
       close: false,
@@ -325,11 +325,73 @@ onMounted(() => {
           label: 'Accept',
           color: 'info',
           onClick: () => {
-            cookie.value = 'accepted'
+            cookieConsent.value = 'accepted'
           },
           ui: {
             label: 'block',
           },
+        },
+      ],
+    })
+  }
+
+  const seenColorwaySubmissions = useCookie('seen-colorway-submissions')
+
+  // Announce the new community colorway submission feature until acknowledged.
+  if (seenColorwaySubmissions.value !== 'acknowledged') {
+    toast.add({
+      title: 'New: Community Colorway Submissions',
+      description: 'Anyone can now submit artisan colorways for review.',
+      icon: 'hugeicons:paint-board',
+      color: 'primary',
+      duration: 0,
+      close: false,
+      actions: [
+        {
+          label: 'Browse Makers',
+          to: '/artisan/maker',
+          onClick: () => acknowledge(seenColorwaySubmissions),
+          ui: {
+            label: 'block',
+          },
+        },
+        {
+          label: 'Dismiss',
+          color: 'neutral',
+          variant: 'ghost',
+          onClick: () => acknowledge(seenColorwaySubmissions),
+        },
+      ],
+    })
+  }
+
+  const seenCollectionGuide = useCookie('seen-collection-guide')
+
+  // Point new users to the collection walkthrough video until acknowledged.
+  if (seenCollectionGuide.value !== 'acknowledged') {
+    toast.add({
+      title: 'Manage Your Collection',
+      description: 'Watch how to track your items and generate wishlists.',
+      icon: 'hugeicons:collections-bookmark',
+      color: 'info',
+      duration: 0,
+      close: false,
+      actions: [
+        {
+          label: 'Watch',
+          to: 'https://www.loom.com/share/660fe9bd026640788b2d0d8a6fe9b6b8',
+          target: '_blank',
+          trailingIcon: 'hugeicons:arrow-right-02',
+          onClick: () => acknowledge(seenCollectionGuide),
+          ui: {
+            label: 'block',
+          },
+        },
+        {
+          label: 'Dismiss',
+          color: 'neutral',
+          variant: 'ghost',
+          onClick: () => acknowledge(seenCollectionGuide),
         },
       ],
     })

@@ -60,28 +60,36 @@ const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
 const items = computed(() => {
-  const adminActions = isAdmin.value
+  const managementItems = []
+
+  if (isAdmin.value) {
+    managementItems.push(
+      {
+        label: 'Users',
+        icon: 'hugeicons:user-group',
+        to: '/admin/users',
+      },
+      {
+        label: 'Feedback',
+        icon: 'hugeicons:message-question',
+        to: '/admin/feedbacks',
+      },
+      {
+        label: 'Shoutouts',
+        icon: 'hugeicons:quote-up',
+        to: '/admin/shoutouts',
+      },
+    )
+  }
+
+  const adminActions = managementItems.length
     ? [
         [
           {
             type: 'label',
             label: 'Management',
           },
-          {
-            label: 'Users',
-            icon: 'hugeicons:user-group',
-            to: '/admin/users',
-          },
-          {
-            label: 'Feedback',
-            icon: 'hugeicons:message-question',
-            to: '/admin/feedbacks',
-          },
-          {
-            label: 'Shoutouts',
-            icon: 'hugeicons:quote-up',
-            to: '/admin/shoutouts',
-          },
+          ...managementItems,
         ],
       ]
     : []

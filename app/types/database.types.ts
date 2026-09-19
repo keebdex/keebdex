@@ -36,7 +36,11 @@ export type Database = {
           sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source: string | null
+          status: Database["public"]["Enums"]["review_status"] | null
           stem: string[] | null
+          submitted_by: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           colorway_id: string
@@ -59,7 +63,11 @@ export type Database = {
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source?: string | null
+          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
+          submitted_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           colorway_id?: string
@@ -82,9 +90,27 @@ export type Database = {
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
           source?: string | null
+          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
+          submitted_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "artisan_colorways_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_colorways_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "colorways_maker_id_fkey"
             columns: ["maker_id"]
