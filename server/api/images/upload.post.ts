@@ -1,7 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import type { Enums } from '~/types/database.types'
-
-const ALLOWED_ROLES = new Set(['admin', 'editor', 'maker', 'designer'])
+import { canManageAssignment } from '~/utils/permissions'
 
 interface CloudflareImageUploadResponse {
   success: boolean
@@ -31,30 +30,18 @@ function resolveUploadLimit(
 }
 
 function isAuthorizedUploader(
-  profile: { role?: string | null; assignments?: string[] | null },
+  profile: { role?: string | null; assignments?: string[] | null } | null,
   assignment: string,
+  category: UploadCategory,
 ) {
-  if (!profile.role || !ALLOWED_ROLES.has(profile.role)) {
-    return false
-  }
-
-  if (profile.role === 'admin') {
+  // Any authenticated user can upload artisan images (e.g. colorway
+  // submissions); permission for the underlying record is enforced
+  // separately when it's saved.
+  if (category === 'artisan') {
     return true
   }
 
-  if (profile.role === 'editor') {
-    return !profile.assignments || profile.assignments.includes(assignment)
-  }
-
-  if (profile.role === 'maker') {
-    return !!profile.assignments && profile.assignments.includes(assignment)
-  }
-
-  if (profile.role === 'designer') {
-    return true
-  }
-
-  return false
+  return canManageAssignment(profile, assignment)
 }
 
 export default defineEventHandler(async (event) => {
@@ -110,7 +97,7 @@ export default defineEventHandler(async (event) => {
     .eq('id', user.sub)
     .single()
 
-  if (!profile || !isAuthorizedUploader(profile, assignment)) {
+  if (!isAuthorizedUploader(profile, assignment, category)) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Insufficient permissions',
