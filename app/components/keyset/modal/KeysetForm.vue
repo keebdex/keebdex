@@ -211,7 +211,7 @@ const keyset = ref({
   img: '',
 })
 
-const range = ref({})
+const range = shallowRef({ start: undefined, end: undefined })
 const uploadedFile = ref(null)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 
@@ -222,11 +222,9 @@ onBeforeMount(() => {
   if (rest.ic_date) {
     keyset.value.ic_date = parseDate(rest.ic_date)
   }
-  if (rest.start_date) {
-    range.value.start = parseDate(rest.start_date)
-  }
-  if (rest.end_date) {
-    range.value.end = parseDate(rest.end_date)
+  range.value = {
+    start: rest.start_date ? parseDate(rest.start_date) : undefined,
+    end: rest.end_date ? parseDate(rest.end_date) : undefined,
   }
 })
 

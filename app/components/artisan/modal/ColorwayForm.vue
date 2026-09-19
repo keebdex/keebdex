@@ -11,8 +11,7 @@
       color="info"
       variant="subtle"
       title="Community Submission"
-      description="Your colorway will be submitted for review and shown with an
-        Unverified badge until a moderator approves it."
+      description="Your colorway will be submitted for review and shown with a Pending Review badge until a moderator approves it."
       class="mb-2"
     />
 
@@ -246,7 +245,7 @@ const onSubmit = async () => {
       toast.add({
         title: 'Thanks for your contribution!',
         description:
-          'Your colorway is now Pending Review and will be shown with an Unverified badge.',
+          'Your colorway is now Pending Review and will be shown with a Pending Review badge.',
         color: 'success',
       })
     } else {

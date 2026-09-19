@@ -116,14 +116,6 @@
           @click="openColorwayCard(colorway)"
         >
           <div class="aspect-square overflow-hidden relative">
-            <UBadge
-              v-if="colorway.status === 'Pending'"
-              label="Unverified"
-              icon="hugeicons:alert-02"
-              color="warning"
-              variant="subtle"
-              class="absolute top-2 left-2 z-10"
-            />
             <NuxtImg
               loading="lazy"
               :alt="colorway.name"

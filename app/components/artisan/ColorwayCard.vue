@@ -48,7 +48,7 @@
     <template #leading>
       <UBadge
         v-if="colorway.status === 'Pending'"
-        label="Unverified"
+        label="Pending Review"
         icon="hugeicons:alert-02"
         color="warning"
         variant="subtle"

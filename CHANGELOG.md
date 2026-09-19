@@ -8,7 +8,7 @@ This release opens up colorway contributions to the whole community, adds a mode
 
 ### ✨ What's New
 
-- **Community colorway submissions** — any signed-in user can now submit a new colorway for a sculpt. Submissions are shown publicly right away with an "Unverified" badge until a moderator reviews them.
+- **Community colorway submissions** — any signed-in user can now submit a new colorway for a sculpt. Submissions are shown publicly right away with a "Pending Review" badge until a moderator reviews them.
 - Added a **Colorway Submissions** dashboard at `/artisan/colorway-submissions`: Admins, Editors, and Makers can **approve**, **reject**, **edit & approve**, or **delete** pending/rejected submissions, while regular users can view, edit, and delete their own submission until it's reviewed, or delete it after it's rejected.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
 - Migrated images to a CDN for faster loading.

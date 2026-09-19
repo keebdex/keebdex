@@ -29,7 +29,11 @@ export const TABLE_FIELDS = {
     "sale_type",
     "sculpt_id",
     "source",
-    "stem"
+    "status",
+    "stem",
+    "submitted_by",
+    "verified_at",
+    "verified_by"
   ],
   "artisan_makers": [
     "artisancollector",
