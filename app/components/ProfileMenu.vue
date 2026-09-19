@@ -51,8 +51,7 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user, role, isAdmin, canModerateColorways } =
-  storeToRefs(userStore)
+const { authenticated, user, role, isAdmin } = storeToRefs(userStore)
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -81,14 +80,6 @@ const items = computed(() => {
         to: '/admin/shoutouts',
       },
     )
-  }
-
-  if (canModerateColorways.value) {
-    managementItems.push({
-      label: 'Colorway Submissions',
-      icon: 'hugeicons:file-verified',
-      to: '/artisan/colorway-submissions',
-    })
   }
 
   const adminActions = managementItems.length

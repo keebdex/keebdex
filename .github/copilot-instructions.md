@@ -29,6 +29,7 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
 - `server/utils/`: server-side database, authorization, grouping, and response helpers.
 - `scripts/`: repository maintenance scripts, including table-field metadata generation.
+- `supabase/`: Supabase project configuration and database-related files (gitignored; not tracked in this repo).
 - `public/`: static assets.
 
 Preserve Nuxt file-based routing paths when moving or renaming pages and API handlers.
@@ -66,7 +67,7 @@ Keep database relationships and table names aligned with the generated `Database
 
 ## State and Auth
 
-Use the existing Pinia user store and composables before adding new global state. Role/assignment rules (`admin`, `editor`, `maker`, `designer`) are centralized in `app/utils/permissions.ts` (`canManageAssignment`, `canManageAnyAssignment`) and reused by both the client (`userStore.isEditable()`, `userStore.canModerateColorways`) and server (`server/utils/admin.ts`). Do not reimplement role branching inline; extend or call the shared utility instead. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned.
+Use the existing Pinia user store and composables before adding new global state. Role/assignment rules (`admin`, `editor`, `maker`, `designer`) are centralized in `app/utils/permissions.ts` (`canManageAssignment`, `canManageAnyAssignment`) and reused by both the client (`userStore.isEditable()`, `userStore.isModerator`) and server (`server/utils/admin.ts`). Do not reimplement role branching inline; extend or call the shared utility instead. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned.
 
 ## Formatting and Validation
 

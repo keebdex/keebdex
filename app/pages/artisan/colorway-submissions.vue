@@ -1,5 +1,5 @@
 <template>
-  <SharedRedirectPage v-if="!canModerateColorways" to="/artisan/maker" />
+  <SharedRedirectPage v-if="!isModerator" to="/artisan/maker" />
 
   <UDashboardPanel v-else id="artisan-colorway-submissions">
     <template #header>
@@ -51,7 +51,7 @@
 
           <template #status-cell="{ row }">
             <UBadge
-              :label="statusLabel(row.original.status)"
+              :label="row.original.status"
               variant="subtle"
               :color="statusColorMap[row.original.status] || 'neutral'"
             />
@@ -140,7 +140,7 @@
 
 <script setup>
 const userStore = useUserStore()
-const { canModerateColorways } = storeToRefs(userStore)
+const { isModerator } = storeToRefs(userStore)
 const toast = useToast()
 
 const columns = [
@@ -154,7 +154,7 @@ const columns = [
 
 const statusFilter = ref('Pending')
 const statusFilterOptions = [
-  { label: 'Pending Review', value: 'Pending' },
+  { label: 'Pending', value: 'Pending' },
   { label: 'Approved', value: 'Approved' },
   { label: 'Rejected', value: 'Rejected' },
 ]
@@ -163,13 +163,6 @@ const statusColorMap = {
   Approved: 'success',
   Pending: 'warning',
   Rejected: 'error',
-}
-
-const statusLabel = (value) => {
-  if (value === 'Approved') return 'Approved'
-  if (value === 'Rejected') return 'Rejected'
-  if (value === 'Pending') return 'Pending Review'
-  return value
 }
 
 const formatDate = (value) => {

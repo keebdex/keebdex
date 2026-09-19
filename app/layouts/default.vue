@@ -89,7 +89,7 @@ const route = useRoute()
 const toast = useToast()
 const userStore = useUserStore()
 
-const { isAdmin, canModerateColorways } = storeToRefs(userStore)
+const { isAdmin, isModerator } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -175,7 +175,7 @@ const routes = computed(() => {
     },
   ]
 
-  if (canModerateColorways.value) {
+  if (isModerator.value) {
     artisanChildren.push({
       label: 'Colorway Submissions',
       icon: 'hugeicons:file-verified',

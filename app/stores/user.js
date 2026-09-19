@@ -14,7 +14,7 @@ export const useUserStore = defineStore('user', {
   getters: {
     authenticated: (state) => state.user && state.user.email_verified,
     isAdmin: (state) => state.role === 'admin',
-    canModerateColorways: (state) => canManageAnyAssignment(state),
+    isModerator: (state) => canManageAnyAssignment(state),
   },
   actions: {
     setCurrentUser(authUser) {
