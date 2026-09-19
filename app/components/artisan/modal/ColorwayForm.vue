@@ -10,7 +10,7 @@
       icon="hugeicons:information-circle"
       color="info"
       variant="subtle"
-      title="Community submission"
+      title="Community Submission"
       description="Your colorway will be submitted for review and shown with an
         Unverified badge until a moderator approves it."
       class="mb-2"

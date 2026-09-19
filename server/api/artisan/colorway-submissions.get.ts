@@ -4,11 +4,8 @@ import { omitSensitive } from '../../utils'
 import { canManageAnyAssignment } from '~/utils/permissions'
 
 export default defineEventHandler(async (event) => {
-  const { client, profile } = await getActorProfile(event)
-
-  if (!profile || !canManageAnyAssignment(profile)) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  const { client, user, profile } = await getActorProfile(event)
+  const isModerator = canManageAnyAssignment(profile)
 
   const query = getQuery(event)
   const page = Math.max(Number(query.page) || 1, 1)
@@ -30,9 +27,14 @@ export default defineEventHandler(async (event) => {
     .order('created_at', { ascending: false })
     .range(from, to)
 
-  // Editors and Makers with specific assignments only moderate their own makers.
-  if (profile.role !== 'admin' && profile.assignments?.length) {
-    request = request.in('maker_id', profile.assignments)
+  if (isModerator) {
+    // Editors and Makers with specific assignments only moderate their own makers.
+    if (profile && profile.role !== 'admin' && profile.assignments?.length) {
+      request = request.in('maker_id', profile.assignments)
+    }
+  } else {
+    // Regular users only see the submissions they've personally sent in.
+    request = request.eq('submitted_by', user.sub)
   }
 
   const { data, count, error } = await request

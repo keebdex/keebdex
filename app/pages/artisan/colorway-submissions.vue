@@ -1,7 +1,5 @@
 <template>
-  <SharedRedirectPage v-if="!isModerator" to="/artisan/maker" />
-
-  <UDashboardPanel v-else id="artisan-colorway-submissions">
+  <UDashboardPanel id="artisan-colorway-submissions">
     <template #header>
       <UDashboardNavbar title="Colorway Submissions" />
     </template>
@@ -9,8 +7,7 @@
     <template #body>
       <UPageCard variant="subtle" class="space-y-4 mx-auto w-full lg:max-w-6xl">
         <template #header>
-          Review colorways submitted by the community and approve, reject, or
-          edit them before they become official records.
+          {{ pageDescription }}
         </template>
 
         <div class="flex justify-end px-4 py-3.5 border-b border-accented">
@@ -22,6 +19,7 @@
         </div>
 
         <UTable
+          v-if="hasSubmissions || isModerator"
           sticky
           :loading="status === 'pending'"
           :data="data.data"
@@ -63,38 +61,73 @@
 
           <template #action-cell="{ row }">
             <div class="flex flex-wrap items-center gap-2">
-              <UButton
-                v-if="row.original.status !== 'Approved'"
-                label="Approve"
-                size="xs"
-                color="success"
-                icon="hugeicons:checkmark-circle-02"
-                :loading="processingId === row.original.id"
-                @click="approve(row.original)"
-              />
+              <template v-if="isModerator">
+                <UButton
+                  v-if="row.original.status !== 'Approved'"
+                  label="Approve"
+                  size="xs"
+                  color="success"
+                  icon="hugeicons:checkmark-circle-02"
+                  :loading="processingId === row.original.id"
+                  @click="approve(row.original)"
+                />
 
-              <UButton
-                v-if="row.original.status !== 'Rejected'"
-                label="Reject"
-                size="xs"
-                color="error"
-                icon="hugeicons:cancel-circle"
-                :loading="processingId === row.original.id"
-                @click="reject(row.original)"
-              />
+                <UButton
+                  v-if="row.original.status !== 'Rejected'"
+                  label="Reject"
+                  size="xs"
+                  color="error"
+                  icon="hugeicons:cancel-circle"
+                  :loading="processingId === row.original.id"
+                  @click="reject(row.original)"
+                />
 
-              <UButton
-                label="Edit & Approve"
-                size="xs"
-                variant="soft"
-                icon="hugeicons:file-edit"
-                @click="editAndApprove(row.original)"
-              />
+                <UButton
+                  label="Edit & Approve"
+                  size="xs"
+                  variant="soft"
+                  icon="hugeicons:file-edit"
+                  @click="editSubmission(row.original)"
+                />
+
+                <UButton
+                  v-if="row.original.status !== 'Approved'"
+                  label="Delete"
+                  size="xs"
+                  color="error"
+                  variant="soft"
+                  icon="hugeicons:delete-02"
+                  :loading="processingId === row.original.id"
+                  @click="confirmDelete(row.original)"
+                />
+              </template>
+
+              <template v-else>
+                <UButton
+                  v-if="row.original.status === 'Pending'"
+                  label="Edit"
+                  size="xs"
+                  variant="soft"
+                  icon="hugeicons:file-edit"
+                  @click="editSubmission(row.original)"
+                />
+
+                <UButton
+                  v-if="row.original.status !== 'Approved'"
+                  label="Delete"
+                  size="xs"
+                  color="error"
+                  icon="hugeicons:delete-02"
+                  :loading="processingId === row.original.id"
+                  @click="confirmDelete(row.original)"
+                />
+              </template>
             </div>
           </template>
         </UTable>
 
         <div
+          v-if="hasSubmissions || isModerator"
           class="border-t border-default pt-4 mt-auto px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <p class="text-toned text-sm text-center sm:text-left">
@@ -115,22 +148,57 @@
             @update:page="setPage"
           />
         </div>
+
+        <div
+          v-else
+          class="flex flex-col items-center gap-3 py-12 px-4 text-center"
+        >
+          <UIcon name="hugeicons:paint-board" class="text-4xl text-dimmed" />
+          <p class="text-toned">You haven't submitted any colorways yet.</p>
+          <p class="text-sm text-dimmed max-w-sm">
+            Visit a maker's sculpt page and use "Submit Colorway" if you'd like
+            to contribute one.
+          </p>
+          <UButton
+            label="Browse Makers"
+            icon="hugeicons:user-multiple"
+            variant="soft"
+            to="/artisan/maker"
+          />
+        </div>
       </UPageCard>
 
-      <UModal v-model:open="editorOpen" title="Edit & Approve Colorway">
+      <UModal v-model:open="editorOpen" :title="editorTitle">
         <template #body="{ close }">
           <ArtisanModalColorwayForm
             v-if="selectedSubmission"
             :metadata="selectedSubmission"
-            :moderator="true"
-            @on-success="
-              async () => {
-                await approve(selectedSubmission)
+            :moderator="isModerator"
+            @on-success="() => onEditSuccess(close)"
+          />
+        </template>
+      </UModal>
+
+      <UModal
+        v-model:open="deleteVisible"
+        title="Delete Submission"
+        :description="`Are you sure you want to delete ${deleteTarget?.name}? This action cannot be undone.`"
+      >
+        <template #footer="{ close }">
+          <UButton
+            label="Cancel"
+            @click="
+              () => {
                 close()
-                editorOpen = false
-                selectedSubmission = null
+                deleteTarget = null
               }
             "
+          />
+          <UButton
+            label="Delete"
+            color="error"
+            :loading="processingId === deleteTarget?.id"
+            @click="deleteSubmission(close)"
           />
         </template>
       </UModal>
@@ -139,9 +207,19 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth',
+})
+
 const userStore = useUserStore()
 const { isModerator } = storeToRefs(userStore)
 const toast = useToast()
+
+const pageDescription = computed(() =>
+  isModerator.value
+    ? 'Review colorways submitted by the community and approve, reject, or edit them before they become official records.'
+    : "Track the colorways you've submitted. You can edit or delete a submission while it's pending review, and delete a rejected submission.",
+)
 
 const columns = [
   { accessorKey: 'img', header: 'Image' },
@@ -171,7 +249,6 @@ const formatDate = (value) => {
 }
 
 const { page, size, setPage, resetPage } = usePagination(10)
-
 const { data, status, refresh } = useAdvancedSearch(
   '/api/artisan/colorway-submissions',
   {
@@ -189,6 +266,8 @@ const { data, status, refresh } = useAdvancedSearch(
 )
 
 watch(statusFilter, resetPage)
+
+const hasSubmissions = computed(() => (data.value?.data?.length || 0) > 0)
 
 const paginationMeta = computed(() => {
   const total = data.value?.count || 0
@@ -215,6 +294,10 @@ const paginationMeta = computed(() => {
 const processingId = ref(null)
 const editorOpen = ref(false)
 const selectedSubmission = ref(null)
+
+const editorTitle = computed(() =>
+  isModerator.value ? 'Edit & Approve Colorway' : 'Edit Colorway',
+)
 
 const approve = async (colorway) => {
   processingId.value = colorway.id
@@ -252,8 +335,51 @@ const reject = async (colorway) => {
   }
 }
 
-const editAndApprove = (colorway) => {
+const editSubmission = (colorway) => {
   selectedSubmission.value = colorway
   editorOpen.value = true
+}
+
+const onEditSuccess = async (close) => {
+  if (isModerator.value) {
+    await approve(selectedSubmission.value)
+  } else {
+    await refresh()
+  }
+
+  close()
+  editorOpen.value = false
+  selectedSubmission.value = null
+}
+
+const deleteTarget = ref(null)
+const deleteVisible = ref(false)
+
+const confirmDelete = (colorway) => {
+  deleteTarget.value = colorway
+  deleteVisible.value = true
+}
+
+const deleteSubmission = async (close) => {
+  if (!deleteTarget.value) return
+
+  processingId.value = deleteTarget.value.id
+
+  try {
+    await $fetch(
+      `/api/makers/${deleteTarget.value.maker_id}/sculpts/${deleteTarget.value.sculpt_id}/colorways/${deleteTarget.value.id}`,
+      { method: 'delete' },
+    )
+
+    toast.add(handleSuccess('delete', deleteTarget.value.name))
+    close()
+    deleteVisible.value = false
+    deleteTarget.value = null
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error))
+  } finally {
+    processingId.value = null
+  }
 }
 </script>

@@ -58,6 +58,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Preserve existing full-text search behavior using Supabase `.textSearch()` where the endpoint already uses it.
 - Use `createError({ statusCode, statusMessage })` for expected API errors and match nearby status codes and messages.
 - Do not expose service-role credentials or bypass authorization checks from client code.
+- For submitter-owned records (e.g. `artisan_colorways.submitted_by`), grant the original submitter limited edit/delete rights in addition to staff permissions, scoped by the record's status (e.g. only while still `Pending`, or not once `Approved`). Always re-check ownership and status server-side; never trust a client-supplied owner id.
 - For schema changes, it's fine to draft a SQL migration under `supabase/migrations/` for the user to review and apply manually (e.g. via `supabase db push`); since `supabase/` is gitignored, these files stay local and are never committed.
 
 ## Generated Data and Database Types

@@ -89,7 +89,7 @@ const route = useRoute()
 const toast = useToast()
 const userStore = useUserStore()
 
-const { isAdmin, isModerator } = storeToRefs(userStore)
+const { isAdmin, authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -175,7 +175,7 @@ const routes = computed(() => {
     },
   ]
 
-  if (isModerator.value) {
+  if (authenticated.value) {
     artisanChildren.push({
       label: 'Colorway Submissions',
       icon: 'hugeicons:file-verified',

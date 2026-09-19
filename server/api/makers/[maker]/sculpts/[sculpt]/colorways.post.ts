@@ -23,9 +23,23 @@ export default defineEventHandler(async (event) => {
   const isModerator = canModerateAssignment(profile, makerId)
 
   if (rest.id) {
-    // Editing an existing colorway is restricted to Mod/Admin/Maker staff.
     if (!isModerator) {
-      throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+      // The original submitter may still edit their own submission, but only
+      // while it's awaiting review.
+      const { data: existing, error: existingError } = await client
+        .from('artisan_colorways')
+        .select('submitted_by, status')
+        .eq('id', rest.id)
+        .single()
+
+      if (
+        existingError ||
+        !existing ||
+        existing.submitted_by !== user.sub ||
+        existing.status !== 'Pending'
+      ) {
+        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+      }
     }
   } else if (!isModerator) {
     // Community submission: mark as pending and record the submitter.
