@@ -242,7 +242,7 @@ const onSubmit = async () => {
       },
     )
 
-    if (!moderator && created?.status === 'pending') {
+    if (!moderator && created?.status === 'Pending') {
       toast.add({
         title: 'Thanks for your contribution!',
         description:

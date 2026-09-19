@@ -59,6 +59,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Use `createError({ statusCode, statusMessage })` for expected API errors and match nearby status codes and messages.
 - Do not expose service-role credentials or bypass authorization checks from client code.
 - For submitter-owned records (e.g. `artisan_colorways.submitted_by`), grant the original submitter limited edit/delete rights in addition to staff permissions, scoped by the record's status (e.g. only while still `Pending`, or not once `Approved`). Always re-check ownership and status server-side; never trust a client-supplied owner id.
+- Image uploads (`server/api/images/upload.post.ts`) require staff permission via `canManageAssignment`, except the `artisan` module category, which any authenticated user may upload to (community colorway submissions); the underlying record save still enforces its own permission checks.
 - For schema changes, it's fine to draft a SQL migration under `supabase/migrations/` for the user to review and apply manually (e.g. via `supabase db push`); since `supabase/` is gitignored, these files stay local and are never committed.
 
 ## Generated Data and Database Types
@@ -70,6 +71,8 @@ Keep database relationships and table names aligned with the generated `Database
 ## State and Auth
 
 Use the existing Pinia user store and composables before adding new global state. Role/assignment rules (`admin`, `editor`, `maker`, `designer`) are centralized in `app/utils/permissions.ts` (`canManageAssignment`, `canManageAnyAssignment`) and reused by both the client (`userStore.isEditable()`, `userStore.isModerator`) and server (`server/utils/admin.ts`). Do not reimplement role branching inline; extend or call the shared utility instead. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned.
+
+Site-wide announcements/notices (cookie consent, feature announcements, guides) use persistent toasts added in `app/layouts/default.vue`'s `onMounted`, not a banner component: gate each with its own `useCookie(...)`, set `duration: 0` and `close: false`, and only mark the cookie as acknowledged inside an action's `onClick` so the toast keeps reappearing until the user explicitly dismisses it.
 
 ## Formatting and Validation
 
