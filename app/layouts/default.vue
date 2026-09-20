@@ -360,6 +360,9 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenColorwaySubmissions),
+          ui: {
+            label: 'block',
+          },
         },
       ],
     })
@@ -392,6 +395,9 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenCollectionGuide),
+          ui: {
+            label: 'block',
+          },
         },
       ],
     })
