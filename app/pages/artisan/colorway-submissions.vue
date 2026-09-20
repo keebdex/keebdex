@@ -5,7 +5,11 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="space-y-4 mx-auto w-full lg:max-w-6xl">
+      <UPageCard
+        variant="subtle"
+        class="space-y-4 mx-auto min-w-0 w-full lg:max-w-6xl"
+        :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
+      >
         <template #header>
           {{ pageDescription }}
         </template>
@@ -24,6 +28,7 @@
           :loading="status === 'pending'"
           :data="data.data"
           :columns="columns"
+          class="min-w-0 max-w-full"
         >
           <template #img-cell="{ row }">
             <NuxtImg
@@ -143,7 +148,7 @@
             :items-per-page="size"
             :total="data.count"
             :ui="{
-              list: 'justify-center sm:justify-end',
+              list: 'flex-wrap justify-center sm:justify-end',
             }"
             @update:page="setPage"
           />

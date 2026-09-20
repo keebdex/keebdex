@@ -7,18 +7,26 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="space-y-4 mx-auto w-full lg:max-w-5xl">
+      <UPageCard
+        variant="subtle"
+        class="space-y-4 mx-auto min-w-0 w-full lg:max-w-5xl"
+        :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
+      >
         <div
-          class="flex items-center gap-2 px-4 py-3.5 border-b border-accented"
+          class="flex flex-col gap-2 px-4 py-3.5 border-b border-accented sm:flex-row sm:items-center"
         >
           <UInput
             v-model="term"
             icon="hugeicons:search-01"
             placeholder="Search by email, name, or discord"
-            class="flex-1"
+            class="min-w-0 w-full sm:flex-1"
           />
 
-          <USelect v-model="role" :items="filterOptions" class="w-44" />
+          <USelect
+            v-model="role"
+            :items="filterOptions"
+            class="w-full sm:w-44"
+          />
         </div>
 
         <template #header>
@@ -30,6 +38,7 @@
           :loading="status === 'pending'"
           :data="data.data"
           :columns="columns"
+          class="min-w-0 max-w-full"
         >
           <template #full_name-cell="{ row }">
             <div class="font-medium truncate max-w-48">
@@ -107,7 +116,7 @@
             :items-per-page="size"
             :total="data.count"
             :ui="{
-              list: 'justify-center sm:justify-end',
+              list: 'flex-wrap justify-center sm:justify-end',
             }"
             @update:page="setPage"
           />

@@ -15,7 +15,11 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="space-y-4 mx-auto w-full lg:max-w-6xl">
+      <UPageCard
+        variant="subtle"
+        class="space-y-4 mx-auto min-w-0 w-full lg:max-w-6xl"
+        :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
+      >
         <template #header>
           Manage all testimonials and choose which ones are featured on the
           homepage.
@@ -34,6 +38,7 @@
           :loading="status === 'pending'"
           :data="data.data"
           :columns="columns"
+          class="min-w-0 max-w-full"
         >
           <template #id-cell="{ row }"> #{{ row.original.id }} </template>
 
@@ -45,9 +50,7 @@
 
           <template #featured-cell="{ row }">
             <UBadge
-              :label="
-                row.original.featured ? 'Featured' : 'Shoutouts'
-              "
+              :label="row.original.featured ? 'Featured' : 'Shoutouts'"
               :color="row.original.featured ? 'success' : 'neutral'"
               variant="subtle"
             />
@@ -87,7 +90,7 @@
             :items-per-page="size"
             :total="data.count"
             :ui="{
-              list: 'justify-center sm:justify-end',
+              list: 'flex-wrap justify-center sm:justify-end',
             }"
             @update:page="setPage"
           />
