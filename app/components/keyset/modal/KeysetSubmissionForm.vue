@@ -221,15 +221,40 @@
           @click="() => onModerate('reject')"
         />
       </template>
+
+      <UButton
+        v-if="canDelete"
+        label="Delete"
+        color="error"
+        variant="soft"
+        icon="hugeicons:delete-02"
+        @click="deleteVisible = true"
+      />
     </div>
   </UForm>
+
+  <UModal
+    v-model:open="deleteVisible"
+    title="Delete Submission"
+    :description="`Are you sure you want to delete ${keyset.name}? This action cannot be undone.`"
+  >
+    <template #footer="{ close }">
+      <UButton label="Cancel" @click="close" />
+      <UButton
+        label="Delete"
+        color="error"
+        :loading="processingDelete"
+        @click="onDelete(close)"
+      />
+    </template>
+  </UModal>
 </template>
 
 <script setup>
 import { parseDate } from '@internationalized/date'
 import { z } from 'zod'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'onDelete'])
 
 const { metadata, moderator } = defineProps({
   metadata: {
@@ -244,6 +269,9 @@ const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const { kits: kitCategories, status: kitsStatus } = useKeysetKits()
 
 const isEdit = computed(() => !!metadata.id)
+const canDelete = computed(
+  () => isEdit.value && (moderator || metadata.review_status !== 'Approved'),
+)
 
 const designerTerm = ref('')
 const { data: designerData, status: designersStatus } = useGuardedSearch(
@@ -398,6 +426,28 @@ const onModerate = async (action) => {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
     processingAction.value = null
+  }
+}
+
+const deleteVisible = ref(false)
+const processingDelete = ref(false)
+
+const onDelete = async (close) => {
+  processingDelete.value = true
+
+  try {
+    await $fetch(`/api/submissions/keyset/${keyset.value.id}`, {
+      method: 'delete',
+    })
+
+    toast.add(handleSuccess('delete', keyset.value.name))
+    deleteVisible.value = false
+    close()
+    emit('onDelete')
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    processingDelete.value = false
   }
 }
 </script>

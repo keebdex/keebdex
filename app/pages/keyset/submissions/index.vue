@@ -91,6 +91,7 @@
               :metadata="detail"
               :moderator="isModerator"
               @on-success="onDetailSuccess"
+              @on-delete="onDetailDelete"
             />
           </template>
 
@@ -151,5 +152,11 @@ const onDetailSuccess = async () => {
   if (selectedId.value) {
     detail.value = await $fetch(`/api/submissions/keyset/${selectedId.value}`)
   }
+}
+
+const onDetailDelete = async () => {
+  selectedId.value = null
+  detail.value = null
+  await refresh()
 }
 </script>

@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.5'
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -33,10 +33,10 @@ export type Database = {
           price: number | null
           qty: number | null
           release: string | null
-          sale_type: Database['public']['Enums']['sale_format'] | null
+          sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source: string | null
-          status: Database['public']['Enums']['review_status'] | null
+          status: Database["public"]["Enums"]["review_status"] | null
           stem: string[] | null
           submitted_by: string | null
           verified_at: string | null
@@ -60,10 +60,10 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
-          sale_type?: Database['public']['Enums']['sale_format'] | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source?: string | null
-          status?: Database['public']['Enums']['review_status'] | null
+          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -87,10 +87,10 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
-          sale_type?: Database['public']['Enums']['sale_format'] | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
           source?: string | null
-          status?: Database['public']['Enums']['review_status'] | null
+          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -98,32 +98,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'artisan_colorways_submitted_by_fkey'
-            columns: ['submitted_by']
+            foreignKeyName: "artisan_colorways_submitted_by_fkey"
+            columns: ["submitted_by"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'artisan_colorways_verified_by_fkey'
-            columns: ['verified_by']
+            foreignKeyName: "artisan_colorways_verified_by_fkey"
+            columns: ["verified_by"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'colorways_maker_id_fkey'
-            columns: ['maker_id']
+            foreignKeyName: "colorways_maker_id_fkey"
+            columns: ["maker_id"]
             isOneToOne: false
-            referencedRelation: 'artisan_makers'
-            referencedColumns: ['id']
+            referencedRelation: "artisan_makers"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'colorways_maker_sculpt_id_fkey'
-            columns: ['maker_sculpt_id']
+            foreignKeyName: "colorways_maker_sculpt_id_fkey"
+            columns: ["maker_sculpt_id"]
             isOneToOne: false
-            referencedRelation: 'artisan_sculpts'
-            referencedColumns: ['maker_sculpt_id']
+            referencedRelation: "artisan_sculpts"
+            referencedColumns: ["maker_sculpt_id"]
           },
         ]
       }
@@ -250,18 +250,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'artisan_sculpts_is_revision_of_fkey'
-            columns: ['is_revision_of']
+            foreignKeyName: "artisan_sculpts_is_revision_of_fkey"
+            columns: ["is_revision_of"]
             isOneToOne: false
-            referencedRelation: 'artisan_sculpts'
-            referencedColumns: ['maker_sculpt_id']
+            referencedRelation: "artisan_sculpts"
+            referencedColumns: ["maker_sculpt_id"]
           },
           {
-            foreignKeyName: 'artisan_sculpts_maker_id_fkey'
-            columns: ['maker_id']
+            foreignKeyName: "artisan_sculpts_maker_id_fkey"
+            columns: ["maker_id"]
             isOneToOne: false
-            referencedRelation: 'artisan_makers'
-            referencedColumns: ['id']
+            referencedRelation: "artisan_makers"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -273,7 +273,7 @@ export type Database = {
           hex: string
           id: number
           name: string | null
-          system: Database['public']['Enums']['keyset_color_matching_system']
+          system: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Insert: {
           code: string
@@ -282,7 +282,7 @@ export type Database = {
           hex: string
           id?: number
           name?: string | null
-          system: Database['public']['Enums']['keyset_color_matching_system']
+          system: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Update: {
           code?: string
@@ -291,7 +291,7 @@ export type Database = {
           hex?: string
           id?: number
           name?: string | null
-          system?: Database['public']['Enums']['keyset_color_matching_system']
+          system?: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Relationships: []
       }
@@ -377,13 +377,15 @@ export type Database = {
           msrp_price: number | null
           name: string
           order: number
-          pcb_types: Database['public']['Enums']['keyboard_pcb_type'][] | null
+          pcb_types: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           release_year: number | null
           variant_specs: boolean | null
           weight_materials:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
         }
         Insert: {
           brand_keyboard_slug: string
@@ -397,13 +399,15 @@ export type Database = {
           msrp_price?: number | null
           name: string
           order?: number
-          pcb_types?: Database['public']['Enums']['keyboard_pcb_type'][] | null
+          pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           release_year?: number | null
           variant_specs?: boolean | null
           weight_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
         }
         Update: {
           brand_keyboard_slug?: string
@@ -417,28 +421,30 @@ export type Database = {
           msrp_price?: number | null
           name?: string
           order?: number
-          pcb_types?: Database['public']['Enums']['keyboard_pcb_type'][] | null
+          pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           plate_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           release_year?: number | null
           variant_specs?: boolean | null
           weight_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
         }
         Relationships: [
           {
-            foreignKeyName: 'keyboard_releases_brand_keyboard_slug_fkey'
-            columns: ['brand_keyboard_slug']
+            foreignKeyName: "keyboard_releases_brand_keyboard_slug_fkey"
+            columns: ["brand_keyboard_slug"]
             isOneToOne: false
-            referencedRelation: 'keyboards'
-            referencedColumns: ['brand_keyboard_slug']
+            referencedRelation: "keyboards"
+            referencedColumns: ["brand_keyboard_slug"]
           },
           {
-            foreignKeyName: 'keyboard_releases_brand_slug_fkey'
-            columns: ['brand_slug']
+            foreignKeyName: "keyboard_releases_brand_slug_fkey"
+            columns: ["brand_slug"]
             isOneToOne: false
-            referencedRelation: 'keyboard_brands'
-            referencedColumns: ['slug']
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
           },
         ]
       }
@@ -447,98 +453,107 @@ export type Database = {
           brand_keyboard_slug: string
           brand_slug: string
           case_materials:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           created_at: string
           currency: string | null
-          finish_type: Database['public']['Enums']['keyboard_finish_type']
+          finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           fts: unknown
           id: number
           img_back: string | null
           img_front: string | null
           msrp_price: number | null
-          pcb_types: Database['public']['Enums']['keyboard_pcb_type'][] | null
+          pcb_types: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           photo_credit: string | null
           plate_materials:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           release_id: number | null
           release_year: number | null
-          sale_type: Database['public']['Enums']['sale_format'] | null
+          sale_type: Database["public"]["Enums"]["sale_format"] | null
           units_produced: number | null
           variant_name: string
           weight_materials:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
         }
         Insert: {
           brand_keyboard_slug: string
           brand_slug: string
           case_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           created_at?: string
           currency?: string | null
-          finish_type: Database['public']['Enums']['keyboard_finish_type']
+          finish_type: Database["public"]["Enums"]["keyboard_finish_type"]
           fts?: unknown
           id?: never
           img_back?: string | null
           img_front?: string | null
           msrp_price?: number | null
-          pcb_types?: Database['public']['Enums']['keyboard_pcb_type'][] | null
+          pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           photo_credit?: string | null
           plate_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           release_id?: number | null
           release_year?: number | null
-          sale_type?: Database['public']['Enums']['sale_format'] | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           units_produced?: number | null
           variant_name: string
           weight_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
         }
         Update: {
           brand_keyboard_slug?: string
           brand_slug?: string
           case_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           created_at?: string
           currency?: string | null
-          finish_type?: Database['public']['Enums']['keyboard_finish_type']
+          finish_type?: Database["public"]["Enums"]["keyboard_finish_type"]
           fts?: unknown
           id?: never
           img_back?: string | null
           img_front?: string | null
           msrp_price?: number | null
-          pcb_types?: Database['public']['Enums']['keyboard_pcb_type'][] | null
+          pcb_types?: Database["public"]["Enums"]["keyboard_pcb_type"][] | null
           photo_credit?: string | null
           plate_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
           release_id?: number | null
           release_year?: number | null
-          sale_type?: Database['public']['Enums']['sale_format'] | null
+          sale_type?: Database["public"]["Enums"]["sale_format"] | null
           units_produced?: number | null
           variant_name?: string
           weight_materials?:
-            Database['public']['Enums']['keyboard_material'][] | null
+            | Database["public"]["Enums"]["keyboard_material"][]
+            | null
         }
         Relationships: [
           {
-            foreignKeyName: 'keyboard_variants_brand_keyboard_slug_fkey'
-            columns: ['brand_keyboard_slug']
+            foreignKeyName: "keyboard_variants_brand_keyboard_slug_fkey"
+            columns: ["brand_keyboard_slug"]
             isOneToOne: false
-            referencedRelation: 'keyboards'
-            referencedColumns: ['brand_keyboard_slug']
+            referencedRelation: "keyboards"
+            referencedColumns: ["brand_keyboard_slug"]
           },
           {
-            foreignKeyName: 'keyboard_variants_brand_slug_fkey'
-            columns: ['brand_slug']
+            foreignKeyName: "keyboard_variants_brand_slug_fkey"
+            columns: ["brand_slug"]
             isOneToOne: false
-            referencedRelation: 'keyboard_brands'
-            referencedColumns: ['slug']
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
           },
           {
-            foreignKeyName: 'keyboard_variants_release_id_fkey'
-            columns: ['release_id']
+            foreignKeyName: "keyboard_variants_release_id_fkey"
+            columns: ["release_id"]
             isOneToOne: false
-            referencedRelation: 'keyboard_releases'
-            referencedColumns: ['id']
+            referencedRelation: "keyboard_releases"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -549,15 +564,17 @@ export type Database = {
           created_at: string
           derived_from: string | null
           description: string | null
-          form_factor: Database['public']['Enums']['keyboard_form_factor']
+          form_factor: Database["public"]["Enums"]["keyboard_form_factor"]
           fts: unknown
           id: number
           mount_styles:
-            Database['public']['Enums']['keyboard_mounting_style'][] | null
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
+            | null
           name: string
           slug: string
           top_case_styles:
-            Database['public']['Enums']['keyboard_top_case_style'][] | null
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           typing_angle: number | null
         }
         Insert: {
@@ -566,15 +583,17 @@ export type Database = {
           created_at?: string
           derived_from?: string | null
           description?: string | null
-          form_factor: Database['public']['Enums']['keyboard_form_factor']
+          form_factor: Database["public"]["Enums"]["keyboard_form_factor"]
           fts?: unknown
           id?: number
           mount_styles?:
-            Database['public']['Enums']['keyboard_mounting_style'][] | null
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
+            | null
           name: string
           slug: string
           top_case_styles?:
-            Database['public']['Enums']['keyboard_top_case_style'][] | null
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           typing_angle?: number | null
         }
         Update: {
@@ -583,31 +602,33 @@ export type Database = {
           created_at?: string
           derived_from?: string | null
           description?: string | null
-          form_factor?: Database['public']['Enums']['keyboard_form_factor']
+          form_factor?: Database["public"]["Enums"]["keyboard_form_factor"]
           fts?: unknown
           id?: number
           mount_styles?:
-            Database['public']['Enums']['keyboard_mounting_style'][] | null
+            | Database["public"]["Enums"]["keyboard_mounting_style"][]
+            | null
           name?: string
           slug?: string
           top_case_styles?:
-            Database['public']['Enums']['keyboard_top_case_style'][] | null
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           typing_angle?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: 'keyboards_brand_slug_fkey'
-            columns: ['brand_slug']
+            foreignKeyName: "keyboards_brand_slug_fkey"
+            columns: ["brand_slug"]
             isOneToOne: false
-            referencedRelation: 'keyboard_brands'
-            referencedColumns: ['slug']
+            referencedRelation: "keyboard_brands"
+            referencedColumns: ["slug"]
           },
           {
-            foreignKeyName: 'keyboards_derived_from_fkey'
-            columns: ['derived_from']
+            foreignKeyName: "keyboards_derived_from_fkey"
+            columns: ["derived_from"]
             isOneToOne: false
-            referencedRelation: 'keyboards'
-            referencedColumns: ['brand_keyboard_slug']
+            referencedRelation: "keyboards"
+            referencedColumns: ["brand_keyboard_slug"]
           },
         ]
       }
@@ -632,18 +653,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'keyset_colors_color_id_fkey'
-            columns: ['color_id']
+            foreignKeyName: "keyset_colors_color_id_fkey"
+            columns: ["color_id"]
             isOneToOne: false
-            referencedRelation: 'colors'
-            referencedColumns: ['id']
+            referencedRelation: "colors"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'keyset_colors_profile_keyset_id_fkey'
-            columns: ['profile_keyset_id']
+            foreignKeyName: "keyset_colors_profile_keyset_id_fkey"
+            columns: ["profile_keyset_id"]
             isOneToOne: false
-            referencedRelation: 'keysets'
-            referencedColumns: ['profile_keyset_id']
+            referencedRelation: "keysets"
+            referencedColumns: ["profile_keyset_id"]
           },
         ]
       }
@@ -686,18 +707,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'keyset_kits_kit_id_fkey'
-            columns: ['kit_id']
+            foreignKeyName: "keyset_kits_kit_id_fkey"
+            columns: ["kit_id"]
             isOneToOne: false
-            referencedRelation: 'kit_categories'
-            referencedColumns: ['slug']
+            referencedRelation: "kit_categories"
+            referencedColumns: ["slug"]
           },
           {
-            foreignKeyName: 'keyset_kits_profile_keyset_id_fkey'
-            columns: ['profile_keyset_id']
+            foreignKeyName: "keyset_kits_profile_keyset_id_fkey"
+            columns: ["profile_keyset_id"]
             isOneToOne: false
-            referencedRelation: 'keysets'
-            referencedColumns: ['profile_keyset_id']
+            referencedRelation: "keysets"
+            referencedColumns: ["profile_keyset_id"]
           },
         ]
       }
@@ -708,7 +729,7 @@ export type Database = {
           manufacturer: string | null
           manufacturer_id: string | null
           name: string
-          profile: Database['public']['Enums']['keyset_profile'] | null
+          profile: Database["public"]["Enums"]["keyset_profile"] | null
         }
         Insert: {
           description?: string | null
@@ -716,7 +737,7 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name: string
-          profile?: Database['public']['Enums']['keyset_profile'] | null
+          profile?: Database["public"]["Enums"]["keyset_profile"] | null
         }
         Update: {
           description?: string | null
@@ -724,7 +745,7 @@ export type Database = {
           manufacturer?: string | null
           manufacturer_id?: string | null
           name?: string
-          profile?: Database['public']['Enums']['keyset_profile'] | null
+          profile?: Database["public"]["Enums"]["keyset_profile"] | null
         }
         Relationships: []
       }
@@ -743,7 +764,7 @@ export type Database = {
           order_history: string | null
           profile_id: string
           profile_keyset_id: string
-          review_status: Database['public']['Enums']['review_status'] | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
           sculpt: string | null
           start_date: string | null
           status: string | null
@@ -766,7 +787,7 @@ export type Database = {
           order_history?: string | null
           profile_id: string
           profile_keyset_id: string
-          review_status?: Database['public']['Enums']['review_status'] | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
@@ -789,7 +810,7 @@ export type Database = {
           order_history?: string | null
           profile_id?: string
           profile_keyset_id?: string
-          review_status?: Database['public']['Enums']['review_status'] | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
@@ -800,25 +821,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'keysets_profile_id_fkey'
-            columns: ['profile_id']
+            foreignKeyName: "keysets_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: 'keyset_profiles'
-            referencedColumns: ['id']
+            referencedRelation: "keyset_profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'keysets_submitted_by_fkey'
-            columns: ['submitted_by']
+            foreignKeyName: "keysets_submitted_by_fkey"
+            columns: ["submitted_by"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'keysets_verified_by_fkey'
-            columns: ['verified_by']
+            foreignKeyName: "keysets_verified_by_fkey"
+            columns: ["verified_by"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -855,7 +876,7 @@ export type Database = {
           id: number
           name: string
           role: string | null
-          status: Database['public']['Enums']['review_status']
+          status: Database["public"]["Enums"]["review_status"]
         }
         Insert: {
           avatar_url?: string | null
@@ -865,7 +886,7 @@ export type Database = {
           id?: number
           name: string
           role?: string | null
-          status: Database['public']['Enums']['review_status']
+          status: Database["public"]["Enums"]["review_status"]
         }
         Update: {
           avatar_url?: string | null
@@ -875,7 +896,7 @@ export type Database = {
           id?: number
           name?: string
           role?: string | null
-          status?: Database['public']['Enums']['review_status']
+          status?: Database["public"]["Enums"]["review_status"]
         }
         Relationships: []
       }
@@ -918,39 +939,39 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'user_collection_items_artisan_item_id_fkey'
-            columns: ['artisan_item_id']
+            foreignKeyName: "user_collection_items_artisan_item_id_fkey"
+            columns: ["artisan_item_id"]
             isOneToOne: false
-            referencedRelation: 'artisan_colorways'
-            referencedColumns: ['id']
+            referencedRelation: "artisan_colorways"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'user_collection_items_collection_id_fkey'
-            columns: ['collection_id']
+            foreignKeyName: "user_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
             isOneToOne: false
-            referencedRelation: 'user_collections'
-            referencedColumns: ['id']
+            referencedRelation: "user_collections"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'user_collection_items_keyboard_item_id_fkey'
-            columns: ['keyboard_item_id']
+            foreignKeyName: "user_collection_items_keyboard_item_id_fkey"
+            columns: ["keyboard_item_id"]
             isOneToOne: false
-            referencedRelation: 'keyboard_variants'
-            referencedColumns: ['id']
+            referencedRelation: "keyboard_variants"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'user_collection_items_keyset_item_id_fkey'
-            columns: ['keyset_item_id']
+            foreignKeyName: "user_collection_items_keyset_item_id_fkey"
+            columns: ["keyset_item_id"]
             isOneToOne: false
-            referencedRelation: 'keysets'
-            referencedColumns: ['profile_keyset_id']
+            referencedRelation: "keysets"
+            referencedColumns: ["profile_keyset_id"]
           },
           {
-            foreignKeyName: 'user_collection_items_uid_fkey'
-            columns: ['uid']
+            foreignKeyName: "user_collection_items_uid_fkey"
+            columns: ["uid"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -993,11 +1014,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'user_collections_uid_fkey'
-            columns: ['uid']
+            foreignKeyName: "user_collections_uid_fkey"
+            columns: ["uid"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1046,99 +1067,99 @@ export type Database = {
     }
     Enums: {
       currency:
-        | 'USD'
-        | 'EUR'
-        | 'SGD'
-        | 'AUD'
-        | 'MYR'
-        | 'VND'
-        | 'CNY'
-        | 'KRW'
-        | 'JPY'
-        | 'GBP'
-        | 'CAD'
+        | "USD"
+        | "EUR"
+        | "SGD"
+        | "AUD"
+        | "MYR"
+        | "VND"
+        | "CNY"
+        | "KRW"
+        | "JPY"
+        | "GBP"
+        | "CAD"
       keyboard_finish_type:
-        | 'Anodized'
-        | 'E-Coat'
-        | 'Cerakote'
-        | 'Polycarbonate'
-        | 'Powder Coat'
-        | 'Raw'
-        | 'PVD'
-        | 'Mirror'
+        | "Anodized"
+        | "E-Coat"
+        | "Cerakote"
+        | "Polycarbonate"
+        | "Powder Coat"
+        | "Raw"
+        | "PVD"
+        | "Mirror"
       keyboard_form_factor:
-        | '40%'
-        | '60%'
-        | '65%'
-        | '70%'
-        | '75%'
-        | 'TKL'
-        | 'Full-size'
-        | '1800'
-        | '96%'
-        | 'Alice'
-        | 'Arisu'
-        | 'Numpad'
+        | "40%"
+        | "60%"
+        | "65%"
+        | "70%"
+        | "75%"
+        | "TKL"
+        | "Full-size"
+        | "1800"
+        | "96%"
+        | "Alice"
+        | "Arisu"
+        | "Numpad"
       keyboard_material:
-        | 'Aluminum'
-        | 'Brass'
-        | 'Stainless Steel'
-        | 'Copper'
-        | 'FR4'
-        | 'Polycarbonate'
-        | 'POM'
-        | 'Carbon Fiber'
-        | 'Wood'
-        | 'Polypropylene'
+        | "Aluminum"
+        | "Brass"
+        | "Stainless Steel"
+        | "Copper"
+        | "FR4"
+        | "Polycarbonate"
+        | "POM"
+        | "Carbon Fiber"
+        | "Wood"
+        | "Polypropylene"
       keyboard_mounting_style:
-        | 'Tray'
-        | 'Top'
-        | 'Gasket'
-        | 'Sandwich'
-        | 'Bottom'
-        | 'Integrated'
-        | 'O-ring'
-        | 'Plate'
+        | "Tray"
+        | "Top"
+        | "Gasket"
+        | "Sandwich"
+        | "Bottom"
+        | "Integrated"
+        | "O-ring"
+        | "Plate"
       keyboard_pcb_type:
-        | 'Solder'
-        | 'Hotswap'
-        | 'Wireless'
-        | 'Solder + RGB'
-        | 'Hotswap + RGB'
-        | 'Bluetooth'
-        | 'Wired'
-      keyboard_top_case_style: 'WK' | 'WKL' | 'HHKB' | 'F13 WK' | 'F13 WKL'
-      keyset_color_matching_system: 'GMK' | 'SP' | 'Pantone' | 'RAL' | 'Custom'
+        | "Solder"
+        | "Hotswap"
+        | "Wireless"
+        | "Solder + RGB"
+        | "Hotswap + RGB"
+        | "Bluetooth"
+        | "Wired"
+      keyboard_top_case_style: "WK" | "WKL" | "HHKB" | "F13 WK" | "F13 WKL"
+      keyset_color_matching_system: "GMK" | "SP" | "Pantone" | "RAL" | "Custom"
       keyset_profile:
-        | 'Cherry'
-        | 'SA'
-        | 'MT3'
-        | 'MTNU'
-        | 'KAT'
-        | 'DCS'
-        | 'DSS'
-        | 'DSA'
-        | 'XDA'
-        | 'KAM'
-      keyset_profile_group: 'Cherry' | 'SA'
+        | "Cherry"
+        | "SA"
+        | "MT3"
+        | "MTNU"
+        | "KAT"
+        | "DCS"
+        | "DSS"
+        | "DSA"
+        | "XDA"
+        | "KAM"
+      keyset_profile_group: "Cherry" | "SA"
       keyset_status:
-        | 'Interest Check'
-        | 'Scheduled'
-        | 'Live'
-        | 'In Production'
-        | 'Shipping'
-        | 'Complete'
-        | 'Cancelled'
-      module: 'Artisan' | 'Keyset' | 'Keyboard'
-      review_status: 'Pending' | 'Approved' | 'Rejected'
+        | "Interest Check"
+        | "Scheduled"
+        | "Live"
+        | "In Production"
+        | "Shipping"
+        | "Complete"
+        | "Cancelled"
+      module: "Artisan" | "Keyset" | "Keyboard"
+      review_status: "Pending" | "Approved" | "Rejected"
       sale_format:
-        | 'Raffle'
-        | 'FCFS'
-        | 'Fulfillment'
-        | 'Giveaway'
-        | 'Commission'
-        | 'Auction'
-      user_role: 'admin' | 'editor' | 'maker' | 'designer' | 'donator'
+        | "Raffle"
+        | "FCFS"
+        | "Fulfillment"
+        | "Giveaway"
+        | "Commission"
+        | "Auction"
+      user_role: "admin" | "editor" | "maker" | "designer" | "donator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1146,33 +1167,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] &
-        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1181,22 +1202,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    keyof DefaultSchema['Tables'] | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1205,22 +1227,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    keyof DefaultSchema['Tables'] | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1229,143 +1252,144 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    keyof DefaultSchema['Enums'] | { schema: keyof DatabaseWithoutInternals },
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
     Enums: {
       currency: [
-        'USD',
-        'EUR',
-        'SGD',
-        'AUD',
-        'MYR',
-        'VND',
-        'CNY',
-        'KRW',
-        'JPY',
-        'GBP',
-        'CAD',
+        "USD",
+        "EUR",
+        "SGD",
+        "AUD",
+        "MYR",
+        "VND",
+        "CNY",
+        "KRW",
+        "JPY",
+        "GBP",
+        "CAD",
       ],
       keyboard_finish_type: [
-        'Anodized',
-        'E-Coat',
-        'Cerakote',
-        'Polycarbonate',
-        'Powder Coat',
-        'Raw',
-        'PVD',
-        'Mirror',
+        "Anodized",
+        "E-Coat",
+        "Cerakote",
+        "Polycarbonate",
+        "Powder Coat",
+        "Raw",
+        "PVD",
+        "Mirror",
       ],
       keyboard_form_factor: [
-        '40%',
-        '60%',
-        '65%',
-        '70%',
-        '75%',
-        'TKL',
-        'Full-size',
-        '1800',
-        '96%',
-        'Alice',
-        'Arisu',
-        'Numpad',
+        "40%",
+        "60%",
+        "65%",
+        "70%",
+        "75%",
+        "TKL",
+        "Full-size",
+        "1800",
+        "96%",
+        "Alice",
+        "Arisu",
+        "Numpad",
       ],
       keyboard_material: [
-        'Aluminum',
-        'Brass',
-        'Stainless Steel',
-        'Copper',
-        'FR4',
-        'Polycarbonate',
-        'POM',
-        'Carbon Fiber',
-        'Wood',
-        'Polypropylene',
+        "Aluminum",
+        "Brass",
+        "Stainless Steel",
+        "Copper",
+        "FR4",
+        "Polycarbonate",
+        "POM",
+        "Carbon Fiber",
+        "Wood",
+        "Polypropylene",
       ],
       keyboard_mounting_style: [
-        'Tray',
-        'Top',
-        'Gasket',
-        'Sandwich',
-        'Bottom',
-        'Integrated',
-        'O-ring',
-        'Plate',
+        "Tray",
+        "Top",
+        "Gasket",
+        "Sandwich",
+        "Bottom",
+        "Integrated",
+        "O-ring",
+        "Plate",
       ],
       keyboard_pcb_type: [
-        'Solder',
-        'Hotswap',
-        'Wireless',
-        'Solder + RGB',
-        'Hotswap + RGB',
-        'Bluetooth',
-        'Wired',
+        "Solder",
+        "Hotswap",
+        "Wireless",
+        "Solder + RGB",
+        "Hotswap + RGB",
+        "Bluetooth",
+        "Wired",
       ],
-      keyboard_top_case_style: ['WK', 'WKL', 'HHKB', 'F13 WK', 'F13 WKL'],
-      keyset_color_matching_system: ['GMK', 'SP', 'Pantone', 'RAL', 'Custom'],
+      keyboard_top_case_style: ["WK", "WKL", "HHKB", "F13 WK", "F13 WKL"],
+      keyset_color_matching_system: ["GMK", "SP", "Pantone", "RAL", "Custom"],
       keyset_profile: [
-        'Cherry',
-        'SA',
-        'MT3',
-        'MTNU',
-        'KAT',
-        'DCS',
-        'DSS',
-        'DSA',
-        'XDA',
-        'KAM',
+        "Cherry",
+        "SA",
+        "MT3",
+        "MTNU",
+        "KAT",
+        "DCS",
+        "DSS",
+        "DSA",
+        "XDA",
+        "KAM",
       ],
-      keyset_profile_group: ['Cherry', 'SA'],
+      keyset_profile_group: ["Cherry", "SA"],
       keyset_status: [
-        'Interest Check',
-        'Scheduled',
-        'Live',
-        'In Production',
-        'Shipping',
-        'Complete',
-        'Cancelled',
+        "Interest Check",
+        "Scheduled",
+        "Live",
+        "In Production",
+        "Shipping",
+        "Complete",
+        "Cancelled",
       ],
-      module: ['Artisan', 'Keyset', 'Keyboard'],
-      review_status: ['Pending', 'Approved', 'Rejected'],
+      module: ["Artisan", "Keyset", "Keyboard"],
+      review_status: ["Pending", "Approved", "Rejected"],
       sale_format: [
-        'Raffle',
-        'FCFS',
-        'Fulfillment',
-        'Giveaway',
-        'Commission',
-        'Auction',
+        "Raffle",
+        "FCFS",
+        "Fulfillment",
+        "Giveaway",
+        "Commission",
+        "Auction",
       ],
-      user_role: ['admin', 'editor', 'maker', 'designer', 'donator'],
+      user_role: ["admin", "editor", "maker", "designer", "donator"],
     },
   },
 } as const
