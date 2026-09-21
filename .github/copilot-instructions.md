@@ -68,9 +68,32 @@ Keebdex supports community-submitted content that waits for staff review before 
 
 - **Artisan colorways**: submitted via the maker/sculpt colorway forms, reviewed at `/artisan/submissions` (`artisan_colorways.status`, `server/api/submissions/artisan*`).
 - **Keysets**: any authenticated user can submit a keyset with its kits at `/keyset/submissions/submit` (`KeysetModalKeysetSubmissionForm`, `server/api/submissions/keyset.post.ts`). Submissions are reviewed at `/keyset/submissions`, a master-detail page (card list + detail panel) scoped to the current user unless they're staff, in which case they see and moderate everyone's submissions (`keysets.review_status`, `server/api/submissions/keyset*`). Approving/rejecting sets `verified_at`/`verified_by` and syncs the attached `keyset_kits` rows.
-- Both submission review APIs live under the shared `server/api/submissions/` namespace (`submissions/artisan*`, `submissions/keyset*`) to keep the format and permission patterns consistent across modules.
-- Both review pages share `statusOptions` and `statusColorMap` from `app/utils/index.ts` for the Pending/Approved/Rejected filter UI instead of redeclaring them.
-- A `review_status`/`status` value of `null` means the record was added directly by staff and is implicitly approved (excluded from the moderation queue entirely).
+- **Keyboards**: any authenticated user can submit a keyboard with its releases and variants at `/keyboard/submissions/submit` (`KeyboardModalKeyboardSubmissionForm`, `server/api/submissions/keyboard.post.ts`). Submissions are reviewed at `/keyboard/submissions` (same master-detail layout as keysets), scoped by `brand_slug` assignments (`keyboards.review_status`, `server/api/submissions/keyboard*`).
+- Both submission review APIs live under the shared `server/api/submissions/` namespace (`submissions/artisan*`, `submissions/keyset*`, `submissions/keyboard*`) to keep the format and permission patterns consistent across modules.
+- All three review pages share `statusOptions` and `statusColorMap` from `app/utils/index.ts` for the Pending/Approved/Rejected filter UI instead of redeclaring them.
+- A `review_status`/`status` value of `null` means the record was added directly by staff through an existing admin-only flow (not the community submission form) and is implicitly approved, excluded from the moderation queue entirely.
+
+### Database & RLS conventions for submissions
+
+- Any table that supports community submissions must carry the four control columns: `review_status` (or `status` on `artisan_colorways`, for historical reasons — don't rename it), `submitted_by`, `verified_at`, `verified_by`. Add these via a migration under `supabase/migrations/`, never by hand-editing generated types.
+- RLS policies must allow: public `select` of `Approved`/`null` rows plus the submitter's own `Pending`/`Rejected` rows plus staff reading everything; authenticated `insert` restricted to `review_status IS NULL OR (review_status = 'Pending' AND submitted_by = auth.uid())`; staff-only `update` for moderation fields; submitter `update`/`delete` only while still `Pending`; staff `delete` of any `Pending`/`Rejected` row. Mirror the existing `keyset_submission_status.sql` / `artisan_colorway_submission_status.sql` migrations for exact policy wording.
+- Child records (releases/variants/kits) don't get their own submission columns — their RLS policies and ownership checks always derive from the parent record's `submitted_by`/`review_status` via an `exists` subquery against the parent table.
+
+### Auto-approve rule for staff submissions
+
+- When the authenticated actor is staff for the relevant assignment (`canManageAnyAssignment(profile) && canManageAssignment(profile, assignment)`, e.g. `brand_slug` for keyboards, `profile_keyset_id` for keysets, `maker_id` for artisan colorways), a **create** through the shared submission form must auto-approve instead of entering the Pending queue: set `review_status`/`status = 'Approved'`, `verified_by = user.sub`, and `verified_at = new Date().toISOString()` in the same insert, rather than requiring the moderator to review/approve their own submission afterwards.
+- Regular (non-staff) users always get `review_status = 'Pending'` with `verified_at`/`verified_by` left `null`.
+- This check only applies to the shared `/api/submissions/*` create endpoints (and the shared artisan colorway create endpoint used by both the admin and community forms). Existing admin-only creation endpoints (e.g. `server/api/keyboards/[brand]/[keyboard].post.ts`) are unaffected — they never set these columns and stay implicitly approved via `null`.
+
+### Delete cascade rule for submissions
+
+- Deleting a parent submission (keyboard, keyset, colorway) must also remove its child records in the same request before deleting the parent row: keyboards cascade to `keyboard_releases` then `keyboard_variants`, keysets cascade to `keyset_kits`. Do this explicitly in the `[id].delete.ts` handler (delete children first, then the parent) rather than relying solely on a database `ON DELETE CASCADE`, since RLS on the child tables is scoped through the parent and a direct cascade may not be configured.
+- Delete permission is always `isModerator || (isOwner && review_status !== 'Approved')` — never allow a non-staff owner to delete an already-`Approved` record.
+
+### Submissions route naming convention
+
+- Each module's moderation/review page lives at `/{module}/submissions` (e.g. `/keyboard/submissions`, `/keyset/submissions`, `/artisan/submissions`) and is linked from the sidebar under that module's section in `app/layouts/default.vue`, gated behind `authenticated.value`.
+- The "create a new submission" page lives at `/{module}/submissions/submit` for keyboard/keyset (a nested route under the review page); artisan colorways are instead submitted from the existing maker/sculpt colorway form. Keep new submission flows consistent with the `submissions/submit` nested-route pattern unless there's already a more specific entry point for that module.
 
 ## Generated Data and Database Types
 

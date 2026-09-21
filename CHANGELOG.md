@@ -2,14 +2,12 @@
 
 ## [Unreleased]
 
-## [4.2.0] - Open House
-
-This release opens up both colorway and keyset contributions to the whole community, adds a unified submission review experience for staff, and ships a batch of keyboard/artisan fixes and improvements accumulated since 4.1.0.
-
 ### ✨ What's New
 
-- **Community colorway submissions** — any signed-in user can now submit a new colorway for a sculpt. Submissions are shown publicly right away with a "Pending Review" badge until a moderator reviews them.
-- **Community keyset submissions** — any signed-in user can now submit a new keyset with its full list of kits, reviewed on a master-detail **Keyset Submissions** page at `/keyset/submissions`.
+- **Community Submission System** — any signed-in user can now contribute new **keyboards** (with releases and variants), **keysets** (with kits), and **artisan colorways** to Keebdex, not just staff. Submissions wait in a "Pending" state until reviewed; submissions created by staff (Admin/Editor/Maker) auto-approve immediately since they don't need to review their own work.
+- Added dedicated moderation/review pages on the sidebar navigation for each module — `/keyboard/submissions`, `/keyset/submissions`, and `/artisan/submissions` — with a master-detail layout to filter by status (Pending/Approved/Rejected) and review full submission details before approving, rejecting, or editing.
+- Row-level security policies track `review_status`/`status`, `submitted_by`, `verified_at`, and `verified_by` on `keyboards`, `keysets`, and `artisan_colorways`, so only the original submitter and staff (admin/editor/maker/designer) can view or manage a submission before it's approved.
+- Submitters can delete their own submission while it's `Pending` or `Rejected`, and staff (Admin/Editor/Maker) can delete any submission in those states to clean up spam.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
 - Migrated images to a CDN for faster loading.
 - Added Google Docs sync override tracking for sculpts, mirroring the existing colorway override tracking.

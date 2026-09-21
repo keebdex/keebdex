@@ -15,10 +15,12 @@
 
       <div class="grid grid-cols-2 gap-2">
         <UFormField label="Brand" name="brand_slug" required>
-          <USelect
+          <USelectMenu
             v-model="keyboard.brand_slug"
             :items="brandOptions"
             :loading="brandsStatus === 'pending'"
+            value-key="value"
+            label-key="label"
             class="w-full"
           />
         </UFormField>
@@ -173,9 +175,7 @@
             class="space-y-2 rounded-lg border border-dashed border-default p-3"
           >
             <div class="flex items-center justify-between">
-              <p class="text-xs text-dimmed">
-                Variant #{{ variantIndex + 1 }}
-              </p>
+              <p class="text-xs text-dimmed">Variant #{{ variantIndex + 1 }}</p>
 
               <UButton
                 size="xs"

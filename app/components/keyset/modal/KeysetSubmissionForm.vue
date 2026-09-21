@@ -56,9 +56,16 @@
       </div>
 
       <UFormField label="Sculpt" name="sculpt">
-        <UInput
+        <UInputMenu
           v-model.trim="keyset.sculpt"
+          v-model:search-term="sculptTerm"
+          :items="sculptOptions"
+          :loading="sculptsStatus === 'pending'"
+          :content="{ hideWhenEmpty: true }"
+          mode="autocomplete"
+          ignore-filter
           icon="hugeicons:dashboard-square-02"
+          placeholder="Start typing to search sculpts..."
           class="w-full"
         />
       </UFormField>
@@ -153,7 +160,7 @@
         </div>
 
         <UFormField label="Category" :name="`kits.${index}.kit_id`">
-          <USelect
+          <USelectMenu
             v-model="kit.kit_id"
             :items="kitCategories"
             :loading="kitsStatus === 'pending'"
@@ -282,6 +289,16 @@ const { data: designerData, status: designersStatus } = useGuardedSearch(
   },
 )
 const designerOptions = computed(() => designerData.value?.designers || [])
+
+const sculptTerm = ref('')
+const { data: sculptData, status: sculptsStatus } = useGuardedSearch(
+  '/api/keysets/sculpts',
+  {
+    key: 'keyset-submission-sculpt-search',
+    term: sculptTerm,
+  },
+)
+const sculptOptions = computed(() => sculptData.value?.sculpts || [])
 
 const keyset = ref({
   id: undefined,
