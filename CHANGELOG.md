@@ -2,14 +2,14 @@
 
 ## [Unreleased]
 
-## [4.2.0] - Open Palette
+## [4.2.0] - Open House
 
-This release opens up colorway contributions to the whole community, adds a moderation workflow for staff, and ships a batch of keyboard/artisan fixes and improvements accumulated since 4.1.0.
+This release opens up both colorway and keyset contributions to the whole community, adds a unified submission review experience for staff, and ships a batch of keyboard/artisan fixes and improvements accumulated since 4.1.0.
 
 ### ✨ What's New
 
 - **Community colorway submissions** — any signed-in user can now submit a new colorway for a sculpt. Submissions are shown publicly right away with a "Pending Review" badge until a moderator reviews them.
-- Added a **Colorway Submissions** dashboard at `/artisan/colorway-submissions`: Admins, Editors, and Makers can **approve**, **reject**, **edit & approve**, or **delete** pending/rejected submissions, while regular users can view, edit, and delete their own submission until it's reviewed, or delete it after it's rejected.
+- **Community keyset submissions** — any signed-in user can now submit a new keyset with its full list of kits, reviewed on a master-detail **Keyset Submissions** page at `/keyset/submissions`.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
 - Migrated images to a CDN for faster loading.
 - Added Google Docs sync override tracking for sculpts, mirroring the existing colorway override tracking.
@@ -24,6 +24,7 @@ This release opens up colorway contributions to the whole community, adds a mode
 - Prevented invalid document IDs by initializing them as an empty array.
 - Fixed a row-level security (RLS) error.
 - Required contact info when marking a collection item as WTB or WTT.
+- Removed the now-redundant `/keyset?status=pending` view now that pending keysets are reviewed from the dedicated Keyset Submissions page.
 
 ### 🚀 Improvements
 

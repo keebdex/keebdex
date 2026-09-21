@@ -34,10 +34,10 @@ function isAuthorizedUploader(
   assignment: string,
   category: UploadCategory,
 ) {
-  // Any authenticated user can upload artisan images (e.g. colorway
-  // submissions); permission for the underlying record is enforced
-  // separately when it's saved.
-  if (category === 'artisan') {
+  // Any authenticated user can upload artisan or keyset images (e.g.
+  // colorway/keyset submissions); permission for the underlying record is
+  // enforced separately when it's saved.
+  if (category === 'artisan' || category === 'keyset') {
     return true
   }
 

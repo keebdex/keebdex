@@ -5,7 +5,6 @@ const statusMap: Record<string, string[]> = {
   ic: ['Interest Check'],
   live: ['Live', 'Scheduled'],
   ended: ['In Production', 'Shipping'],
-  pending: ['Pending Review'],
 }
 
 export default defineEventHandler(async (event) => {
@@ -20,13 +19,6 @@ export default defineEventHandler(async (event) => {
   let query
 
   switch (status) {
-    case 'pending':
-      query = client
-        .from('keysets')
-        .select('*, profile:keyset_profiles(name)', { count: 'exact' })
-        .in('review_status', ['Pending'])
-        .range(from, to)
-      break
     case 'ic':
       query = client
         .from('keysets')

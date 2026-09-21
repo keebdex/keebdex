@@ -768,7 +768,10 @@ export type Database = {
           sculpt: string | null
           start_date: string | null
           status: string | null
+          submitted_by: string | null
           url: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           created_at?: string
@@ -788,7 +791,10 @@ export type Database = {
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
+          submitted_by?: string | null
           url?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           created_at?: string
@@ -808,7 +814,10 @@ export type Database = {
           sculpt?: string | null
           start_date?: string | null
           status?: string | null
+          submitted_by?: string | null
           url?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -816,6 +825,20 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "keyset_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keysets_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keysets_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

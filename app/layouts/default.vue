@@ -82,7 +82,7 @@ const route = useRoute()
 const toast = useToast()
 const userStore = useUserStore()
 
-const { isAdmin, authenticated } = storeToRefs(userStore)
+const { authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -143,10 +143,6 @@ const routes = computed(() => {
     exact: true,
   }))
 
-  if (!isAdmin.value) {
-    statuses.pop()
-  }
-
   const artisanChildren = [
     {
       label: 'Makers',
@@ -170,10 +166,10 @@ const routes = computed(() => {
 
   if (authenticated.value) {
     artisanChildren.push({
-      label: 'Colorway Submissions',
+      label: 'Submissions',
       icon: 'hugeicons:file-verified',
-      to: '/artisan/colorway-submissions',
-      active: route.path === '/artisan/colorway-submissions',
+      to: '/artisan/submissions',
+      active: route.path === '/artisan/submissions',
     })
   }
 
@@ -196,7 +192,9 @@ const routes = computed(() => {
       ...(isCollapsed ? {} : { type: 'trigger' }),
       defaultOpen: false,
       active:
-        route.path.startsWith('/keyset/') && !route.path.endsWith('color'),
+        route.path.startsWith('/keyset/') &&
+        !route.path.endsWith('color') &&
+        !route.path.includes('submissions'),
       children: profiles,
     },
     {
@@ -206,6 +204,15 @@ const routes = computed(() => {
       active: route.path === '/keyset/color',
     },
   ]
+
+  if (authenticated.value) {
+    keysetChildren.push({
+      label: 'Submissions',
+      icon: 'hugeicons:file-verified',
+      to: '/keyset/submissions',
+      active: route.path.startsWith('/keyset/submissions'),
+    })
+  }
 
   return [
     [

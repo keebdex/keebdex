@@ -203,7 +203,10 @@ export const TABLE_FIELDS = {
     "sculpt",
     "start_date",
     "status",
-    "url"
+    "submitted_by",
+    "url",
+    "verified_at",
+    "verified_by"
   ],
   "kit_categories": [
     "description",

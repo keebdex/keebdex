@@ -1,5 +1,5 @@
 <template>
-  <UDashboardPanel id="artisan-colorway-submissions">
+  <UDashboardPanel id="artisan-submissions">
     <template #header>
       <UDashboardNavbar title="Colorway Submissions" />
     </template>
@@ -17,7 +17,7 @@
         <div class="flex justify-end px-4 py-3.5 border-b border-accented">
           <USelect
             v-model="statusFilter"
-            :items="statusFilterOptions"
+            :items="statusOptions"
             class="w-full sm:w-52"
           />
         </div>
@@ -241,17 +241,6 @@ const columns = [
 ]
 
 const statusFilter = ref('Pending')
-const statusFilterOptions = [
-  { label: 'Pending', value: 'Pending' },
-  { label: 'Approved', value: 'Approved' },
-  { label: 'Rejected', value: 'Rejected' },
-]
-
-const statusColorMap = {
-  Approved: 'success',
-  Pending: 'warning',
-  Rejected: 'error',
-}
 
 const formatDate = (value) => {
   if (!value) return '-'
@@ -260,9 +249,9 @@ const formatDate = (value) => {
 
 const { page, size, setPage, resetPage } = usePagination(10)
 const { data, status, refresh } = useAdvancedSearch(
-  '/api/artisan/colorway-submissions',
+  '/api/submissions/artisan',
   {
-    key: 'artisan-colorway-submissions',
+    key: 'artisan-submissions',
     term: ref(''),
     minLength: 0,
     pagination: {
@@ -313,7 +302,7 @@ const approve = async (colorway) => {
   processingId.value = colorway.id
 
   try {
-    await $fetch(`/api/artisan/colorway-submissions/${colorway.id}`, {
+    await $fetch(`/api/submissions/artisan/${colorway.id}`, {
       method: 'post',
       body: { action: 'approve' },
     })
@@ -331,7 +320,7 @@ const reject = async (colorway) => {
   processingId.value = colorway.id
 
   try {
-    await $fetch(`/api/artisan/colorway-submissions/${colorway.id}`, {
+    await $fetch(`/api/submissions/artisan/${colorway.id}`, {
       method: 'post',
       body: { action: 'reject' },
     })
