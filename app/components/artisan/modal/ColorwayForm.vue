@@ -27,11 +27,12 @@
       <UInput
         v-model.trim="colorway.release"
         icon="hugeicons:calendar-02"
+        placeholder="DD MMM YYYY"
         class="w-full"
       />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid gap-2" :class="moderator ? 'grid-cols-2' : 'grid-cols-1'">
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="colorway.qty"
@@ -40,7 +41,7 @@
         />
       </UFormField>
 
-      <UFormField label="Order" name="order">
+      <UFormField v-if="moderator" label="Order" name="order">
         <UInput
           v-model.number="colorway.order"
           icon="hugeicons:text-number-sign"
@@ -245,7 +246,7 @@ const onSubmit = async () => {
       toast.add({
         title: 'Thanks for your contribution!',
         description:
-          'Your colorway is now Pending Review and will be shown with a Pending Review badge.',
+          'Your colorway is now pending review and will display a Pending Review badge.',
         color: 'success',
       })
     } else {

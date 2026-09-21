@@ -8,6 +8,7 @@
       body: 'w-full',
       wrapper: 'h-full',
       description: 'flex flex-col gap-4',
+      leading: 'flex flex-row gap-2',
     }"
   >
     <NuxtImg
