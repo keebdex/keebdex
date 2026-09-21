@@ -184,6 +184,15 @@ const routes = computed(() => {
     },
   ]
 
+  if (authenticated.value) {
+    keyboardChildren.push({
+      label: 'Submissions',
+      icon: 'hugeicons:file-verified',
+      to: '/keyboard/submissions',
+      active: route.path.startsWith('/keyboard/submissions'),
+    })
+  }
+
   const keysetChildren = [
     ...statuses,
     {
