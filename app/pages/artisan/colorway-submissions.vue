@@ -17,7 +17,7 @@
         <div class="flex justify-end px-4 py-3.5 border-b border-accented">
           <USelect
             v-model="statusFilter"
-            :items="statusFilterOptions"
+            :items="statusOptions"
             class="w-full sm:w-52"
           />
         </div>
@@ -241,17 +241,6 @@ const columns = [
 ]
 
 const statusFilter = ref('Pending')
-const statusFilterOptions = [
-  { label: 'Pending', value: 'Pending' },
-  { label: 'Approved', value: 'Approved' },
-  { label: 'Rejected', value: 'Rejected' },
-]
-
-const statusColorMap = {
-  Approved: 'success',
-  Pending: 'warning',
-  Rejected: 'error',
-}
 
 const formatDate = (value) => {
   if (!value) return '-'

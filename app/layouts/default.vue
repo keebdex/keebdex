@@ -82,26 +82,12 @@ const route = useRoute()
 const toast = useToast()
 const userStore = useUserStore()
 
-const { isAdmin, authenticated } = storeToRefs(userStore)
+const { authenticated } = storeToRefs(userStore)
 
 const open = ref(false)
 const collapsed = ref(false)
 const routesMenuKey = ref(0)
 const { groupedProfiles } = useKeysetProfiles()
-
-const { data: pendingKeysetSubmissionsData } = useAsyncData(
-  'keyset-submissions-pending-count',
-  () =>
-    authenticated.value
-      ? $fetch('/api/keyset-submissions', {
-          query: { status: 'Pending', size: 1 },
-        })
-      : Promise.resolve(null),
-  { watch: [authenticated], default: () => null },
-)
-const pendingKeysetSubmissions = computed(
-  () => pendingKeysetSubmissionsData.value?.count || 0,
-)
 
 const wrapSection = ({
   collapsed,
@@ -157,10 +143,6 @@ const routes = computed(() => {
     exact: true,
   }))
 
-  if (!isAdmin.value) {
-    statuses.pop()
-  }
-
   const artisanChildren = [
     {
       label: 'Makers',
@@ -210,7 +192,9 @@ const routes = computed(() => {
       ...(isCollapsed ? {} : { type: 'trigger' }),
       defaultOpen: false,
       active:
-        route.path.startsWith('/keyset/') && !route.path.endsWith('color'),
+        route.path.startsWith('/keyset/') &&
+        !route.path.endsWith('color') &&
+        !route.path.includes('submissions'),
       children: profiles,
     },
     {
@@ -226,8 +210,7 @@ const routes = computed(() => {
       label: 'Submissions',
       icon: 'hugeicons:file-verified',
       to: '/keyset/submissions',
-      active: route.path === '/keyset/submissions',
-      badge: pendingKeysetSubmissions.value || undefined,
+      active: route.path.startsWith('/keyset/submissions'),
     })
   }
 

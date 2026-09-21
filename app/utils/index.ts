@@ -52,12 +52,18 @@ export const keysetStatusMap = {
       'Sets with group buys already ended and awaiting production or delivery.',
     icon: 'hugeicons:file-archive',
   },
-  pending: {
-    title: 'Pending Review',
-    description:
-      'Awaiting admin or moderator review before being visible to users.',
-    icon: 'hugeicons:cursor-loading-02',
-  },
+}
+
+export const statusOptions = [
+  { label: 'Pending', value: 'Pending' },
+  { label: 'Approved', value: 'Approved' },
+  { label: 'Rejected', value: 'Rejected' },
+]
+
+export const statusColorMap: Record<string, string> = {
+  Approved: 'success',
+  Pending: 'warning',
+  Rejected: 'error',
 }
 
 export const colorwayTitle = (colorway: any) =>

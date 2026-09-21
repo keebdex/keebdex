@@ -6,7 +6,7 @@
           <UButton
             label="Submit a Keyset"
             icon="hugeicons:plus-sign"
-            to="/keyset/submit"
+            to="/keyset/submissions/submit"
           />
         </template>
       </UDashboardNavbar>
@@ -17,7 +17,7 @@
         <div class="space-y-3">
           <USelect
             v-model="statusFilter"
-            :items="statusFilterOptions"
+            :items="statusOptions"
             class="w-full"
           />
 
@@ -116,17 +116,6 @@ const userStore = useUserStore()
 const { isModerator } = storeToRefs(userStore)
 
 const statusFilter = ref('Pending')
-const statusFilterOptions = [
-  { label: 'Pending', value: 'Pending' },
-  { label: 'Approved', value: 'Approved' },
-  { label: 'Rejected', value: 'Rejected' },
-]
-
-const statusColorMap = {
-  Approved: 'success',
-  Pending: 'warning',
-  Rejected: 'error',
-}
 
 const formatDate = (value) => {
   if (!value) return '-'

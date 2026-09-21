@@ -59,12 +59,21 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Use `createError({ statusCode, statusMessage })` for expected API errors and match nearby status codes and messages.
 - Do not expose service-role credentials or bypass authorization checks from client code.
 - For submitter-owned records (e.g. `artisan_colorways.submitted_by`), grant the original submitter limited edit/delete rights in addition to staff permissions, scoped by the record's status (e.g. only while still `Pending`, or not once `Approved`). Always re-check ownership and status server-side; never trust a client-supplied owner id.
-- Image uploads (`server/api/images/upload.post.ts`) require staff permission via `canManageAssignment`, except the `artisan` module category, which any authenticated user may upload to (community colorway submissions); the underlying record save still enforces its own permission checks.
+- Image uploads (`server/api/images/upload.post.ts`) require staff permission via `canManageAssignment`, except the `artisan` and `keyset` module categories, which any authenticated user may upload to (community colorway/keyset submissions); the underlying record save still enforces its own permission checks.
 - For schema changes, it's fine to draft a SQL migration under `supabase/migrations/` for the user to review and apply manually (e.g. via `supabase db push`); since `supabase/` is gitignored, these files stay local and are never committed.
+
+## Community Submission Workflows
+
+Keebdex supports community-submitted content that waits for staff review before becoming public, using a shared `submitted_by` / `verified_at` / `verified_by` + status pattern:
+
+- **Artisan colorways**: submitted via the maker/sculpt colorway forms, reviewed at `/artisan/colorway-submissions` (`artisan_colorways.status`, `server/api/artisan/colorway-submissions*`).
+- **Keysets**: any authenticated user can submit a keyset with its kits at `/keyset/submissions/submit` (`KeysetModalKeysetSubmissionForm`, `server/api/keyset-submissions.post.ts`). Submissions are reviewed at `/keyset/submissions`, a master-detail page (card list + detail panel) scoped to the current user unless they're staff, in which case they see and moderate everyone's submissions (`keysets.review_status`, `server/api/keyset-submissions*`). Approving/rejecting sets `verified_at`/`verified_by` and syncs the attached `keyset_kits` rows.
+- Both review pages share `submissionStatusOptions` and `submissionStatusColorMap` from `app/utils/index.ts` for the Pending/Approved/Rejected filter UI instead of redeclaring them.
+- A `review_status`/`status` value of `null` means the record was added directly by staff and is implicitly approved (excluded from the moderation queue entirely).
 
 ## Generated Data and Database Types
 
-`app/types/database.types.ts` is generated from the Supabase schema, and `server/utils/table-fields.generated.ts` is generated from those types. Do not hand-edit either generated file. After changing database types or the generation script, run `bun run generate:table-fields` and inspect the generated diff.
+`app/types/database.types.ts` is generated from the Supabase schema, and `server/utils/table-fields.generated.ts` is generated from those types via `bun run generate:table-fields`. Never hand-edit or regenerate either file yourself; they are refreshed outside of your changes once the user applies any related migration against their Supabase project. When a migration adds/changes columns, just describe the expected shape in the migration's comments and leave the generated files untouched.
 
 Keep database relationships and table names aligned with the generated `Database` type. Do not silently invent columns, tables, or enum values.
 
@@ -79,8 +88,8 @@ Site-wide announcements/notices (cookie consent, feature announcements, guides) 
 - Match the repository's Prettier style: single quotes and no semicolons.
 - Keep changes focused and avoid unrelated refactors.
 - After editing, run the narrowest relevant check first, then `bunx eslint .` or `bunx eslint . --fix` when appropriate.
-- For server or schema-related changes, run `bun run generate:table-fields` and a production build when practical.
-- Review generated files and route filenames in the final diff.
+- For server or schema-related changes, run a production build when practical; do not run `bun run generate:table-fields` or edit the generated files yourself.
+- Review route filenames in the final diff.
 - Never commit secrets or `.env` files.
 
 ## Git and Documentation

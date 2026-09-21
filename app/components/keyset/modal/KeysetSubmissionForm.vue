@@ -71,6 +71,30 @@
         />
       </UFormField>
 
+      <UFormField label="GB Time" name="gb_date">
+        <UPopover>
+          <UButton
+            icon="hugeicons:calendar-03"
+            variant="outline"
+            class="w-full"
+          >
+            <template v-if="range.start">
+              <template v-if="range.end">
+                {{ formatDateRange(range.start, range.end) }}
+              </template>
+              <template v-else>
+                {{ formatDate(range.start) }}
+              </template>
+            </template>
+            <template v-else> Pick a date </template>
+          </UButton>
+
+          <template #content>
+            <UCalendar v-model="range" :number-of-months="2" range />
+          </template>
+        </UPopover>
+      </UFormField>
+
       <UFormField label="Image" name="img">
         <UInput
           v-model.trim="keyset.img"
@@ -160,6 +184,10 @@
         <UFormField label="Description" :name="`kits.${index}.description`">
           <UTextarea v-model.trim="kit.description" :rows="2" class="w-full" />
         </UFormField>
+
+        <UFormField>
+          <UCheckbox v-model="kit.cancelled" label="Cancelled" />
+        </UFormField>
       </div>
 
       <p v-if="!kits.length" class="text-sm text-dimmed">
@@ -198,6 +226,7 @@
 </template>
 
 <script setup>
+import { parseDate } from '@internationalized/date'
 import { z } from 'zod'
 
 const emit = defineEmits(['onSuccess'])
@@ -246,13 +275,20 @@ const newKit = () => ({
   price: null,
   qty: null,
   description: '',
+  cancelled: false,
 })
 
 const kits = ref([])
+const range = shallowRef({ start: undefined, end: undefined })
 
 onBeforeMount(() => {
   const { kits: metadataKits, ...rest } = metadata
   Object.assign(keyset.value, rest)
+
+  range.value = {
+    start: rest.start_date ? parseDate(rest.start_date) : undefined,
+    end: rest.end_date ? parseDate(rest.end_date) : undefined,
+  }
 
   kits.value = (metadataKits || []).map((kit) => ({
     ...newKit(),
@@ -299,6 +335,13 @@ const save = async (action = 'update') => {
   const assignment =
     keyset.value.profile_keyset_id ||
     `${keyset.value.profile_id}/pending-${Date.now()}`
+
+  if (range.value.start) {
+    keyset.value.start_date = toISODate(range.value.start)
+  }
+  if (range.value.end) {
+    keyset.value.end_date = toISODate(range.value.end)
+  }
 
   if (uploadedFile.value) {
     try {
