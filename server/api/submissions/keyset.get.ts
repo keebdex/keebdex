@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, getQuery } from 'h3'
-import { getActorProfile } from '../utils/admin'
-import { omitSensitive } from '../utils'
+import { getActorProfile } from '../../utils/admin'
+import { omitSensitive } from '../../utils'
 import { canManageAnyAssignment } from '~/utils/permissions'
 
 export default defineEventHandler(async (event) => {

@@ -1,6 +1,6 @@
 import { createError, defineEventHandler } from 'h3'
-import { getActorProfile } from '../../utils/admin'
-import { omitSensitive } from '../../utils'
+import { getActorProfile } from '../../../utils/admin'
+import { omitSensitive } from '../../../utils'
 import {
   canManageAssignment,
   canManageAnyAssignment,

@@ -359,13 +359,13 @@ const save = async (action = 'update') => {
   const kitsPayload = buildKitsPayload()
 
   if (isEdit.value) {
-    return $fetch(`/api/keyset-submissions/${keyset.value.id}`, {
+    return $fetch(`/api/submissions/keyset/${keyset.value.id}`, {
       method: 'post',
       body: { action, keyset: keyset.value, kits: kitsPayload },
     })
   }
 
-  return $fetch('/api/keyset-submissions', {
+  return $fetch('/api/submissions/keyset', {
     method: 'post',
     body: { keyset: keyset.value, kits: kitsPayload },
   })

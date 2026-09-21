@@ -1,5 +1,5 @@
 import { createError, defineEventHandler } from 'h3'
-import { getActorProfile } from '../../utils/admin'
+import { getActorProfile } from '../../../utils/admin'
 import {
   canManageAssignment,
   canManageAnyAssignment,

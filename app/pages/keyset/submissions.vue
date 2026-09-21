@@ -123,7 +123,7 @@ const formatDate = (value) => {
 }
 
 const { page, size, setPage, resetPage } = usePagination(10)
-const { data, refresh } = useAdvancedSearch('/api/keyset-submissions', {
+const { data, refresh } = useAdvancedSearch('/api/submissions/keyset', {
   key: 'keyset-submissions',
   term: ref(''),
   minLength: 0,
@@ -142,14 +142,14 @@ const detail = ref(null)
 
 const selectSubmission = async (row) => {
   selectedId.value = row.id
-  detail.value = await $fetch(`/api/keyset-submissions/${row.id}`)
+  detail.value = await $fetch(`/api/submissions/keyset/${row.id}`)
 }
 
 const onDetailSuccess = async () => {
   await refresh()
 
   if (selectedId.value) {
-    detail.value = await $fetch(`/api/keyset-submissions/${selectedId.value}`)
+    detail.value = await $fetch(`/api/submissions/keyset/${selectedId.value}`)
   }
 }
 </script>

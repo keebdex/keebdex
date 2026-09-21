@@ -166,10 +166,10 @@ const routes = computed(() => {
 
   if (authenticated.value) {
     artisanChildren.push({
-      label: 'Colorway Submissions',
+      label: 'Submissions',
       icon: 'hugeicons:file-verified',
-      to: '/artisan/colorway-submissions',
-      active: route.path === '/artisan/colorway-submissions',
+      to: '/artisan/submissions',
+      active: route.path === '/artisan/submissions',
     })
   }
 

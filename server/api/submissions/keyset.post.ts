@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import slugify from 'slugify'
-import { getActorProfile } from '../utils/admin'
+import { getActorProfile } from '../../utils/admin'
 
 export default defineEventHandler(async (event) => {
   const { client, user } = await getActorProfile(event)

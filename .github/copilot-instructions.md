@@ -66,9 +66,10 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 
 Keebdex supports community-submitted content that waits for staff review before becoming public, using a shared `submitted_by` / `verified_at` / `verified_by` + status pattern:
 
-- **Artisan colorways**: submitted via the maker/sculpt colorway forms, reviewed at `/artisan/colorway-submissions` (`artisan_colorways.status`, `server/api/artisan/colorway-submissions*`).
-- **Keysets**: any authenticated user can submit a keyset with its kits at `/keyset/submissions/submit` (`KeysetModalKeysetSubmissionForm`, `server/api/keyset-submissions.post.ts`). Submissions are reviewed at `/keyset/submissions`, a master-detail page (card list + detail panel) scoped to the current user unless they're staff, in which case they see and moderate everyone's submissions (`keysets.review_status`, `server/api/keyset-submissions*`). Approving/rejecting sets `verified_at`/`verified_by` and syncs the attached `keyset_kits` rows.
-- Both review pages share `submissionStatusOptions` and `submissionStatusColorMap` from `app/utils/index.ts` for the Pending/Approved/Rejected filter UI instead of redeclaring them.
+- **Artisan colorways**: submitted via the maker/sculpt colorway forms, reviewed at `/artisan/submissions` (`artisan_colorways.status`, `server/api/submissions/artisan*`).
+- **Keysets**: any authenticated user can submit a keyset with its kits at `/keyset/submissions/submit` (`KeysetModalKeysetSubmissionForm`, `server/api/submissions/keyset.post.ts`). Submissions are reviewed at `/keyset/submissions`, a master-detail page (card list + detail panel) scoped to the current user unless they're staff, in which case they see and moderate everyone's submissions (`keysets.review_status`, `server/api/submissions/keyset*`). Approving/rejecting sets `verified_at`/`verified_by` and syncs the attached `keyset_kits` rows.
+- Both submission review APIs live under the shared `server/api/submissions/` namespace (`submissions/artisan*`, `submissions/keyset*`) to keep the format and permission patterns consistent across modules.
+- Both review pages share `statusOptions` and `statusColorMap` from `app/utils/index.ts` for the Pending/Approved/Rejected filter UI instead of redeclaring them.
 - A `review_status`/`status` value of `null` means the record was added directly by staff and is implicitly approved (excluded from the moderation queue entirely).
 
 ## Generated Data and Database Types
