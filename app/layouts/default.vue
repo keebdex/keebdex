@@ -89,6 +89,20 @@ const collapsed = ref(false)
 const routesMenuKey = ref(0)
 const { groupedProfiles } = useKeysetProfiles()
 
+const { data: pendingKeysetSubmissionsData } = useAsyncData(
+  'keyset-submissions-pending-count',
+  () =>
+    authenticated.value
+      ? $fetch('/api/keyset-submissions', {
+          query: { status: 'Pending', size: 1 },
+        })
+      : Promise.resolve(null),
+  { watch: [authenticated], default: () => null },
+)
+const pendingKeysetSubmissions = computed(
+  () => pendingKeysetSubmissionsData.value?.count || 0,
+)
+
 const wrapSection = ({
   collapsed,
   label,
@@ -206,6 +220,16 @@ const routes = computed(() => {
       active: route.path === '/keyset/color',
     },
   ]
+
+  if (authenticated.value) {
+    keysetChildren.push({
+      label: 'Submissions',
+      icon: 'hugeicons:file-verified',
+      to: '/keyset/submissions',
+      active: route.path === '/keyset/submissions',
+      badge: pendingKeysetSubmissions.value || undefined,
+    })
+  }
 
   return [
     [
