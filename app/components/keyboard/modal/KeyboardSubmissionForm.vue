@@ -1,79 +1,20 @@
 <template>
-  <UForm :schema="schema" :state="keyboard" class="space-y-6" @submit="onSave">
+  <UForm
+    :schema="keyboardSubmissionSchema"
+    :state="keyboard"
+    class="space-y-6"
+    @submit="onSave"
+  >
     <div class="space-y-4">
       <p class="text-sm font-medium text-highlighted uppercase tracking-wide">
         Keyboard Info
       </p>
 
-      <UFormField label="Name" name="name" required>
-        <UInput
-          v-model.trim="keyboard.name"
-          icon="hugeicons:text-font"
-          class="w-full"
-        />
-      </UFormField>
-
-      <div class="grid grid-cols-2 gap-2">
-        <UFormField label="Brand" name="brand_slug" required>
-          <USelectMenu
-            v-model="keyboard.brand_slug"
-            :items="brandOptions"
-            :loading="brandsStatus === 'pending'"
-            value-key="value"
-            label-key="label"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField label="Form Factor" name="form_factor" required>
-          <USelect
-            v-model="keyboard.form_factor"
-            :items="Constants.public.Enums.keyboard_form_factor"
-            class="w-full"
-          />
-        </UFormField>
-      </div>
-
-      <UFormField
-        v-if="requiresTopCaseStyles"
-        label="Top Case Styles"
-        name="top_case_styles"
-        required
-      >
-        <USelectMenu
-          v-model="keyboard.top_case_styles"
-          :items="Constants.public.Enums.keyboard_top_case_style"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Mount Styles" name="mount_styles">
-        <USelectMenu
-          v-model="keyboard.mount_styles"
-          :items="Constants.public.Enums.keyboard_mounting_style"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Typing Angle" name="typing_angle">
-        <UInput
-          v-model.number="keyboard.typing_angle"
-          type="number"
-          step="0.1"
-          icon="hugeicons:angle-01"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Description" name="description">
-        <UTextarea
-          v-model.trim="keyboard.description"
-          :rows="4"
-          class="w-full"
-        />
-      </UFormField>
+      <KeyboardModalKeyboardForm
+        v-model="keyboard"
+        mode="embedded"
+        include-brand
+      />
     </div>
 
     <div class="space-y-4">
@@ -287,7 +228,7 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
-import { z } from 'zod'
+import { keyboardSubmissionSchema } from '~/utils/schemas/keyboard'
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
@@ -302,26 +243,9 @@ const { metadata, moderator } = defineProps({
 const toast = useToast()
 const currencies = Constants.public.Enums.currency
 
-const { data: brands, status: brandsStatus } = await useAsyncData(
-  'keyboard-submission-brands',
-  () => $fetch('/api/keyboards/brands'),
-)
-
-const brandOptions = computed(() =>
-  (brands.value || []).map((brand) => ({
-    label: brand.name,
-    value: brand.slug,
-  })),
-)
-
 const isEdit = computed(() => !!metadata.id)
 const canDelete = computed(
   () => isEdit.value && (moderator || metadata.review_status !== 'Approved'),
-)
-
-const topCaseStylesEnabled = ['60%', 'TKL']
-const requiresTopCaseStyles = computed(() =>
-  topCaseStylesEnabled.includes(keyboard.value.form_factor),
 )
 
 const keyboard = ref({
@@ -404,47 +328,8 @@ const removeVariant = (release, index) => {
   release.variants.splice(index, 1)
 }
 
-const schema = z.object({
-  name: z.string().min(1),
-  brand_slug: z.string().min(1, 'Please choose a brand'),
-  form_factor: z.enum(Constants.public.Enums.keyboard_form_factor),
-  top_case_styles: z.array(
-    z.enum(Constants.public.Enums.keyboard_top_case_style),
-  ),
-  mount_styles: z
-    .array(z.enum(Constants.public.Enums.keyboard_mounting_style))
-    .nullish(),
-  typing_angle: z.coerce.number().min(0).max(30).nullish(),
-  description: z.string().nullish(),
-})
-
-const buildReleasesPayload = () =>
-  releases.value
-    .filter((release) => release.name)
-    .map(({ _key, variants, ...release }) => ({
-      ...release,
-      variants: variants
-        .filter((variant) => variant.variant_name)
-        .map(({ _key: variantKey, ...variant }) => variant),
-    }))
-
 const processingAction = ref(null)
-
-const save = async (action = 'update') => {
-  const releasesPayload = buildReleasesPayload()
-
-  if (isEdit.value) {
-    return $fetch(`/api/submissions/keyboard/${keyboard.value.id}`, {
-      method: 'post',
-      body: { action, keyboard: keyboard.value, releases: releasesPayload },
-    })
-  }
-
-  return $fetch('/api/submissions/keyboard', {
-    method: 'post',
-    body: { keyboard: keyboard.value, releases: releasesPayload },
-  })
-}
+const { save, remove } = useKeyboardSubmission({ keyboard, releases, isEdit })
 
 const onSave = async () => {
   try {
@@ -483,9 +368,7 @@ const onDelete = async (close) => {
   processingDelete.value = true
 
   try {
-    await $fetch(`/api/submissions/keyboard/${keyboard.value.id}`, {
-      method: 'delete',
-    })
+    await remove()
 
     toast.add(handleSuccess('delete', keyboard.value.name))
     deleteVisible.value = false

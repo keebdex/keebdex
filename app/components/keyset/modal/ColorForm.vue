@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="color" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="keysetColorSchema"
+    :state="color"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Matching System" name="system" required>
       <USelect v-model="color.system" :items="colorSystems" class="w-full" />
     </UFormField>
@@ -82,22 +87,39 @@
       :style="{ backgroundColor: color.hex }"
     />
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
-import { z } from 'zod'
 import { Constants } from '~/types/database.types'
+import { keysetColorSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, isEdit } = defineProps({
+const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   isEdit: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const toast = useToast()
@@ -129,8 +151,26 @@ const codeOptions = computed(() => {
 })
 
 onBeforeMount(() => {
-  Object.assign(color.value, metadata)
+  Object.assign(color.value, modelValue || metadata)
 })
+
+watch(
+  () => modelValue,
+  (value) => {
+    if (value) {
+      Object.assign(color.value, value)
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  color,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 const colorSystems = Constants.public.Enums.keyset_color_matching_system
 const isSystemFetchSupported = computed(
@@ -171,16 +211,6 @@ const hasDuplicateInSystem = computed(() => {
 
     return sameSystem && sameCode && notCurrentRecord
   })
-})
-
-const schema = z.object({
-  system: z.enum(colorSystems),
-  code: z.string().min(1),
-  name: z.string().nullish(),
-  hex: z
-    .string()
-    .lowercase()
-    .regex(/^#([0-9a-f]{3}|[0-9a-f]{6})$/),
 })
 
 const fetchColorFromSystem = async ({ silent = false } = {}) => {

@@ -26,6 +26,7 @@
 
 ### 🚀 Improvements
 
+- Refactored submission forms around reusable atomic form components with `mode="standalone" | "embedded"`, shared Zod schemas in `app/utils/schemas/`, and dedicated `/submissions/submit` public creation routes for keyboard, keyset, and artisan flows.
 - Replaced the dismissible top banner with persistent, cookie-gated toast notifications (site announcements, cookie consent, and the collection guide) that reappear on every visit until acknowledged.
 - Unified role-based edit/moderation permissions (`admin`/`editor`/`maker`/`designer`) into a single shared permission utility used consistently across artisan, keyboard, and keyset pages.
 - Allowed makers/editors to rename sculpts, with sculpt URLs now updating automatically to match the new name after save.

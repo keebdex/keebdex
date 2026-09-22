@@ -1,10 +1,5 @@
 <template>
-  <UForm
-    :schema="schema"
-    :state="colorway"
-    class="space-y-4"
-    @submit="onSubmit"
-  >
+  <component :is="formWrapper" v-bind="formWrapperProps" @submit="onSubmit">
     <UAlert
       v-if="!moderator && !colorway.id"
       icon="hugeicons:information-circle"
@@ -61,7 +56,7 @@
       </UFormField>
 
       <UFormField
-        v-if="!specialFormats.includes(colorway.sale_type)"
+        v-if="!artisanSpecialSaleFormats.includes(colorway.sale_type)"
         label="Price"
         name="price"
       >
@@ -113,39 +108,58 @@
       />
     </UFormField>
 
-    <UButton block color="primary" type="submit" :loading="uploading">
+    <UButton
+      v-if="isStandalone"
+      block
+      color="primary"
+      type="submit"
+      :loading="uploading"
+    >
       {{ moderator || colorway.id ? 'Save' : 'Submit for Review' }}
     </UButton>
-  </UForm>
+  </component>
 </template>
 
 <script setup>
 import { Constants } from '~/types/database.types'
-import { z } from 'zod'
+import {
+  artisanSaleFormats,
+  artisanSpecialSaleFormats,
+  colorwaySchema,
+} from '~/utils/schemas/artisan'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, moderator } = defineProps({
+const props = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   moderator: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const toast = useToast()
 const route = useRoute()
 
 const currencies = Constants.public.Enums.currency
-const saleFormatEnums = Constants.public.Enums.sale_format
 
-const specialFormats = ['Giveaway', 'Commission', 'Auction']
 const saleFormats = [
   {
     type: 'label',
     label: 'Standard',
   },
-  ...saleFormatEnums.filter((format) => !specialFormats.includes(format)),
+  ...artisanSaleFormats.filter(
+    (format) => !artisanSpecialSaleFormats.includes(format),
+  ),
   {
     type: 'separator',
   },
@@ -153,31 +167,34 @@ const saleFormats = [
     type: 'label',
     label: 'Special',
   },
-  ...saleFormatEnums.filter((format) => specialFormats.includes(format)),
+  ...artisanSaleFormats.filter((format) =>
+    artisanSpecialSaleFormats.includes(format),
+  ),
 ]
 
-const formats = saleFormats.filter((format) => typeof format === 'string')
+const moderator = computed(() => props.moderator)
+const isStandalone = computed(() => props.mode === 'standalone')
+const formWrapper = computed(() =>
+  isStandalone.value ? resolveComponent('UForm') : 'div',
+)
+const formWrapperProps = computed(() =>
+  isStandalone.value
+    ? { schema: colorwaySchema, state: colorway.value, class: 'space-y-4' }
+    : { class: 'space-y-4' },
+)
 
-const colorway = ref({
+const defaultColorway = () => ({
   name: '',
   img: '',
-  maker_id: String(route.params.maker || ''),
-  sculpt_id: String(route.params.sculpt || ''),
-  maker_sculpt_id: `${String(route.params.maker || '')}/${String(route.params.sculpt || '')}`,
+  maker_id: String(route.params.maker || route.query.maker || ''),
+  sculpt_id: String(route.params.sculpt || route.query.sculpt || ''),
+  maker_sculpt_id: `${String(route.params.maker || route.query.maker || '')}/${String(route.params.sculpt || route.query.sculpt || '')}`,
   order: 0,
   currency: 'USD',
   sale_type: 'Raffle',
 })
 
-const schema = z.object({
-  name: z.string().nullish(),
-  release: z.string().nullish(),
-  qty: z.number().nullish(),
-  order: z.number().nullish(),
-  currency: z.enum(currencies).nullish(),
-  price: z.number().nullish(),
-  sale_type: z.enum(formats).nullish(),
-})
+const colorway = ref(defaultColorway())
 
 const maxUploadSizeMb = getMaxUploadSizeMb('artisan')
 const uploading = ref(false)
@@ -196,11 +213,35 @@ const GDOC_MANAGED_FIELDS = [
 const originalColorway = ref({})
 
 onBeforeMount(() => {
-  Object.assign(colorway.value, metadata)
-  originalColorway.value = { ...metadata }
+  Object.assign(
+    colorway.value,
+    defaultColorway(),
+    props.modelValue || props.metadata,
+  )
+  originalColorway.value = { ...props.metadata }
 })
 
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value) {
+      Object.assign(colorway.value, defaultColorway(), value)
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  colorway,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
+
 const onSubmit = async () => {
+  if (!isStandalone.value) return
+
   try {
     uploading.value = true
 
@@ -242,7 +283,7 @@ const onSubmit = async () => {
       },
     )
 
-    if (!moderator && created?.status === 'Pending') {
+    if (!moderator.value && created?.status === 'Pending') {
       toast.add({
         title: 'Thanks for your contribution!',
         description:

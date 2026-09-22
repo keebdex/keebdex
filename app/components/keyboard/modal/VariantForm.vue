@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="variant" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="keyboardVariantStandaloneSchema"
+    :state="variant"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Variant Name" name="variant_name" required>
       <UInput
         v-model.trim="variant.variant_name"
@@ -180,7 +185,13 @@
       />
     </UFormField>
 
-    <UButton block color="primary" type="submit" :loading="uploading">
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      :loading="uploading"
+    >
       Save
     </UButton>
   </UForm>
@@ -188,19 +199,28 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
-import { z } from 'zod'
+import { keyboardVariantStandaloneSchema } from '~/utils/schemas/keyboard'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, isEdit, keyboard } = defineProps({
+const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
+  },
+  modelValue: {
+    type: Object,
+    default: null,
   },
   isEdit: Boolean,
   keyboard: {
     type: Object,
     default: () => ({}),
+  },
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
   },
 })
 
@@ -248,32 +268,6 @@ const uploadedFileFront = ref(null)
 const uploadedFileBack = ref(null)
 const overrideReleaseSpecs = ref(false)
 
-const schema = z.object({
-  release_id: z.coerce.number().min(1),
-  variant_name: z.string().min(1),
-  finish_type: z.enum(Constants.public.Enums.keyboard_finish_type),
-  units_produced: z.coerce.number().min(0).nullish(),
-  sale_type: z.enum(saleFormatEnums).nullish().or(z.string().min(0).max(0)),
-  release_year: z.coerce.number().min(1900).max(2100).nullish(),
-  img_front: z.url().nullish().or(z.string().min(0).max(0)),
-  img_back: z.url().nullish().or(z.string().min(0).max(0)),
-  photo_credit: z.string().max(255).nullish().or(z.string().min(0).max(0)),
-  currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
-  msrp_price: z.coerce.number().min(0).nullish(),
-  case_materials: z
-    .array(z.enum(Constants.public.Enums.keyboard_material))
-    .nullish(),
-  pcb_types: z
-    .array(z.enum(Constants.public.Enums.keyboard_pcb_type))
-    .nullish(),
-  plate_materials: z
-    .array(z.enum(Constants.public.Enums.keyboard_material))
-    .nullish(),
-  weight_materials: z
-    .array(z.enum(Constants.public.Enums.keyboard_material))
-    .nullish(),
-})
-
 const specsPerVariant = computed(() => {
   const selectedRelease = keyboard.releases.find(
     (release) => Number(release.id) === Number(variant.value.release_id),
@@ -309,7 +303,7 @@ const setDefaultReleaseYear = () => {
 }
 
 onBeforeMount(() => {
-  Object.assign(variant.value, metadata || {}, {
+  Object.assign(variant.value, modelValue || metadata || {}, {
     brand_slug: keyboard.brand_slug,
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
@@ -330,6 +324,24 @@ onBeforeMount(() => {
 
   setDefaultReleaseYear()
 })
+
+watch(
+  () => modelValue,
+  (value) => {
+    if (value) {
+      Object.assign(variant.value, value)
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  variant,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 watch(
   () => variant.value.release_id,

@@ -46,6 +46,13 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Follow the existing mobile-first Tailwind styling and the design tokens in `app/app.config.ts` and `app/assets/main.css`.
 - Use the centralized icon names configured in `app/app.config.ts` rather than introducing arbitrary icon sets.
 
+## Form Architecture
+
+- New entity forms must follow the Atomic Form + Composite Wrapper pattern: atomic forms own the field UI for one entity and accept `mode: 'standalone' | 'embedded'` with a default of `'standalone'`.
+- In `standalone` mode, atomic forms may wrap themselves in `UForm`, render their own Submit/Cancel actions, and perform direct admin/edit API saves. In `embedded` mode, they must expose state through `v-model`/`update:modelValue`, hide their standalone actions, and let the parent composite own validation, navigation, and submit actions.
+- Composite submission forms (`*SubmissionForm.vue`) orchestrate multi-step or multi-entity state, progress/navigation, moderation actions, and the final API submit. They should embed atomic forms with `mode="embedded"` instead of duplicating input fields.
+- All form validation schemas must be defined with Zod in `app/utils/schemas/` and reused by both standalone atomic forms and composite submission forms. Keep form-specific dynamic refinements in the component only when they depend on local runtime data.
+
 ## Server and Supabase Rules
 
 - Define API handlers with `defineEventHandler` and use H3 helpers such as `getQuery`, `readBody`, and `createError` consistently with nearby code.
@@ -66,7 +73,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 
 Keebdex supports community-submitted content that waits for staff review before becoming public, using a shared `submitted_by` / `verified_at` / `verified_by` + status pattern:
 
-- **Artisan colorways**: submitted via the maker/sculpt colorway forms, reviewed at `/artisan/submissions` (`artisan_colorways.status`, `server/api/submissions/artisan*`).
+- **Artisan colorways**: submitted at `/artisan/submissions/submit` with maker/sculpt prefilled from query parameters when launched from a sculpt page, reviewed at `/artisan/submissions` (`artisan_colorways.status`, `server/api/submissions/artisan*`).
 - **Keysets**: any authenticated user can submit a keyset with its kits at `/keyset/submissions/submit` (`KeysetModalKeysetSubmissionForm`, `server/api/submissions/keyset.post.ts`). Submissions are reviewed at `/keyset/submissions`, a master-detail page (card list + detail panel) scoped to the current user unless they're staff, in which case they see and moderate everyone's submissions (`keysets.review_status`, `server/api/submissions/keyset*`). Approving/rejecting sets `verified_at`/`verified_by` and syncs the attached `keyset_kits` rows.
 - **Keyboards**: any authenticated user can submit a keyboard with its releases and variants at `/keyboard/submissions/submit` (`KeyboardModalKeyboardSubmissionForm`, `server/api/submissions/keyboard.post.ts`). Submissions are reviewed at `/keyboard/submissions` (same master-detail layout as keysets), scoped by `brand_slug` assignments (`keyboards.review_status`, `server/api/submissions/keyboard*`).
 - Both submission review APIs live under the shared `server/api/submissions/` namespace (`submissions/artisan*`, `submissions/keyset*`, `submissions/keyboard*`) to keep the format and permission patterns consistent across modules.
@@ -93,7 +100,7 @@ Keebdex supports community-submitted content that waits for staff review before 
 ### Submissions route naming convention
 
 - Each module's moderation/review page lives at `/{module}/submissions` (e.g. `/keyboard/submissions`, `/keyset/submissions`, `/artisan/submissions`) and is linked from the sidebar under that module's section in `app/layouts/default.vue`, gated behind `authenticated.value`.
-- The "create a new submission" page lives at `/{module}/submissions/submit` for keyboard/keyset (a nested route under the review page); artisan colorways are instead submitted from the existing maker/sculpt colorway form. Keep new submission flows consistent with the `submissions/submit` nested-route pattern unless there's already a more specific entry point for that module.
+- The "create a new submission" page lives at `/{module}/submissions/submit` for keyboard, keyset, and artisan (a nested route under the review page). Public user create/contribute buttons for main entities should route there. Standalone modals are reserved for admin dashboard direct CRUD and quick-create/edit of sub-entities inside admin/detail contexts.
 
 ## Generated Data and Database Types
 

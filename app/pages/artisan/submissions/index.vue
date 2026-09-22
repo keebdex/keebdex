@@ -1,7 +1,16 @@
 <template>
   <UDashboardPanel id="artisan-submissions">
     <template #header>
-      <UDashboardNavbar title="Colorway Submissions" />
+      <UDashboardNavbar title="Colorway Submissions">
+        <template #right>
+          <UButton
+            label="Submit a Colorway"
+            icon="hugeicons:paint-board"
+            color="primary"
+            to="/artisan/submissions/submit"
+          />
+        </template>
+      </UDashboardNavbar>
     </template>
 
     <template #body>
@@ -168,6 +177,12 @@
                 to: '/artisan/maker',
                 icon: 'hugeicons:user-multiple',
                 variant: 'soft',
+              },
+              {
+                label: 'Submit a Colorway',
+                to: '/artisan/submissions/submit',
+                icon: 'hugeicons:paint-board',
+                color: 'primary',
               },
             ]"
             :ui="{

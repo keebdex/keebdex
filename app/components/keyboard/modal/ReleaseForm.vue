@@ -89,25 +89,42 @@
       <UTextarea v-model.trim="release.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto>Save</UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
 import { Constants } from '~/types/database.types'
-import { z } from 'zod'
+import { keyboardReleaseSchema } from '~/utils/schemas/keyboard'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, isEdit, keyboard } = defineProps({
+const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
+  },
+  modelValue: {
+    type: Object,
+    default: null,
   },
   isEdit: Boolean,
   keyboard: {
     type: Object,
     default: () => ({}),
+  },
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
   },
 })
 
@@ -128,50 +145,29 @@ const release = ref({
   weight_materials: [],
 })
 
-const schema = z.object({
-  name: z
-    .string()
-    .min(1)
-    .refine(
-      (value) => {
-        const normalized = value.trim().toLowerCase()
+const schema = keyboardReleaseSchema.refine(
+  (value) => {
+    const normalized = value.name.trim().toLowerCase()
 
-        return !(keyboard.releases || []).some((release) => {
-          const sameId = isEdit && metadata?.id && release.id === metadata.id
-          if (sameId) return false
+    return !(keyboard.releases || []).some((release) => {
+      const sameId = isEdit && metadata?.id && release.id === metadata.id
+      if (sameId) return false
 
-          return (
-            String(release.name || '')
-              .trim()
-              .toLowerCase() === normalized
-          )
-        })
-      },
-      {
-        message: 'Release name must be unique for this keyboard',
-      },
-    ),
-  release_year: z.coerce.number().min(1900).max(2100).nullish(),
-  variant_specs: z.boolean().nullish(),
-  currency: z.enum(currencies).nullish().or(z.string().min(0).max(0)),
-  msrp_price: z.coerce.number().min(0).nullish(),
-  pcb_types: z
-    .array(z.enum(Constants.public.Enums.keyboard_pcb_type))
-    .nullish(),
-  plate_materials: z
-    .array(z.enum(Constants.public.Enums.keyboard_material))
-    .nullish(),
-  case_materials: z
-    .array(z.enum(Constants.public.Enums.keyboard_material))
-    .nullish(),
-  weight_materials: z
-    .array(z.enum(Constants.public.Enums.keyboard_material))
-    .nullish(),
-  description: z.string().max(400).nullish().or(z.string().min(0).max(0)),
-})
+      return (
+        String(release.name || '')
+          .trim()
+          .toLowerCase() === normalized
+      )
+    })
+  },
+  {
+    path: ['name'],
+    message: 'Release name must be unique for this keyboard',
+  },
+)
 
 onBeforeMount(() => {
-  Object.assign(release.value, metadata || {}, {
+  Object.assign(release.value, modelValue || metadata || {}, {
     brand_slug: keyboard.brand_slug,
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
@@ -200,7 +196,27 @@ onBeforeMount(() => {
   }
 })
 
+watch(
+  () => modelValue,
+  (value) => {
+    if (value) {
+      Object.assign(release.value, value)
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  release,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
+
 const onSubmit = async () => {
+  if (mode !== 'standalone') return
+
   if (!keyboard.brand_keyboard_slug) {
     toast.add(
       handleError({

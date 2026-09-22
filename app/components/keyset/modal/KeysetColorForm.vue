@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="color" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="keysetColorLinkSchema"
+    :state="color"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField name="name" required>
       <UInputMenu
         ref="inputMenu"
@@ -37,15 +42,35 @@
       </UInputMenu>
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
 import { useInfiniteScroll } from '@vueuse/core'
-import { z } from 'zod'
+import { keysetColorLinkSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
+
+const { mode, modelValue } = defineProps({
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
+})
 
 const route = useRoute()
 const toast = useToast()
@@ -118,14 +143,18 @@ useInfiniteScroll(
 const color = computed(() => {
   return {
     profile_keyset_id: `${route.params.profile}/${route.params.keyset}`,
-    color_ids: selectedColors.value.map((c) => c.id),
+    color_ids:
+      modelValue?.color_ids || selectedColors.value.map((color) => color.id),
   }
 })
 
-const schema = z.object({
-  profile_keyset_id: z.string(),
-  color_ids: z.number().array().min(1),
-})
+watch(
+  color,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 const onSubmit = async () => {
   await $fetch(`/api/keysets/${color.value.profile_keyset_id}/colors`, {

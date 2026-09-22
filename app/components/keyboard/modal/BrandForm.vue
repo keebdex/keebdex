@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="brand" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="brandSchema"
+    :state="brand"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="brand.name"
@@ -69,23 +74,40 @@
       <UTextarea v-model.trim="brand.bio" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto>Save</UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
 import slugify from 'slugify'
-import { z } from 'zod'
 import country from 'flag-icons/country.json'
+import { brandSchema } from '~/utils/schemas/keyboard'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, isEdit } = defineProps({
+const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   isEdit: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const toast = useToast()
@@ -99,33 +121,27 @@ const brand = ref({
   discord: '',
 })
 
-const schema = z.object({
-  name: z.string().min(1),
-  slug: z
-    .string()
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'Use lowercase letters, numbers, and hyphens only',
-    )
-    .nullish()
-    .or(z.string().min(0).max(0)),
-  country_origin: z.string().nullish().or(z.string().min(0).max(0)),
-  website: z.url().nullish().or(z.string().min(0).max(0)),
-  instagram: z
-    .url()
-    .regex(instagramProfileRegex, 'Invalid Instagram profile URL')
-    .nullish()
-    .or(z.string().min(0).max(0)),
-  discord: z
-    .url()
-    .regex(discordInviteRegex, 'Invalid Discord invite link')
-    .nullish()
-    .or(z.string().min(0).max(0)),
+onBeforeMount(() => {
+  Object.assign(brand.value, modelValue || metadata || {})
 })
 
-onBeforeMount(() => {
-  Object.assign(brand.value, metadata || {})
-})
+watch(
+  () => modelValue,
+  (value) => {
+    if (value) {
+      Object.assign(brand.value, value)
+    }
+  },
+  { deep: true },
+)
+
+watch(
+  brand,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 const onSubmit = async () => {
   const slug = isEdit
