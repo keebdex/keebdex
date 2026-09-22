@@ -280,11 +280,10 @@ watch(
 watch(
   () => props.modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== keyboard.value) {
       Object.assign(keyboard.value, defaultKeyboard(), value)
     }
   },
-  { deep: true },
 )
 
 watch(

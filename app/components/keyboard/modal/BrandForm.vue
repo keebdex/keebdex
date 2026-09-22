@@ -128,11 +128,10 @@ onBeforeMount(() => {
 watch(
   () => modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== brand.value) {
       Object.assign(brand.value, value)
     }
   },
-  { deep: true },
 )
 
 watch(

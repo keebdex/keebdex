@@ -293,21 +293,19 @@ const sculpts = [
 watch(
   () => props.modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== keyset.value) {
       Object.assign(keyset.value, defaultKeyset(), value)
     }
   },
-  { deep: true },
 )
 
 watch(
   () => props.dateRange,
   (value) => {
-    if (value) {
+    if (value && value !== range.value) {
       range.value = value
     }
   },
-  { deep: true },
 )
 
 watch(

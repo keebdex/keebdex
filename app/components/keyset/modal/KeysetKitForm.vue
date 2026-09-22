@@ -132,11 +132,10 @@ onBeforeMount(() => {
 watch(
   () => modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== kit.value) {
       Object.assign(kit.value, value)
     }
   },
-  { deep: true },
 )
 
 watch(

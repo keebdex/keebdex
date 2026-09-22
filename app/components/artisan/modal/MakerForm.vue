@@ -199,11 +199,10 @@ onBeforeMount(() => {
 watch(
   () => modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== maker.value) {
       maker.value = { ...value }
     }
   },
-  { deep: true },
 )
 
 watch(

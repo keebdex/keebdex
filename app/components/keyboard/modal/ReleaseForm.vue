@@ -199,11 +199,10 @@ onBeforeMount(() => {
 watch(
   () => modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== release.value) {
       Object.assign(release.value, value)
     }
   },
-  { deep: true },
 )
 
 watch(

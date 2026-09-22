@@ -224,11 +224,10 @@ onBeforeMount(() => {
 watch(
   () => props.modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== colorway.value) {
       Object.assign(colorway.value, defaultColorway(), value)
     }
   },
-  { deep: true },
 )
 
 watch(

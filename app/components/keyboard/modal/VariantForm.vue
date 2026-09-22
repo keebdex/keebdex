@@ -328,11 +328,10 @@ onBeforeMount(() => {
 watch(
   () => modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== variant.value) {
       Object.assign(variant.value, value)
     }
   },
-  { deep: true },
 )
 
 watch(

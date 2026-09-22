@@ -145,11 +145,10 @@ onBeforeMount(() => {
 watch(
   () => modelValue,
   (value) => {
-    if (value) {
+    if (value && value !== sculpt.value) {
       Object.assign(sculpt.value, value)
     }
   },
-  { deep: true },
 )
 
 watch(
