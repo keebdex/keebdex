@@ -1,15 +1,5 @@
 <template>
   <component :is="formWrapper" v-bind="formWrapperProps" @submit="onSubmit">
-    <UAlert
-      v-if="!moderator && !colorway.id"
-      icon="hugeicons:information-circle"
-      color="info"
-      variant="subtle"
-      title="Community Submission"
-      description="Your colorway will be submitted for review and shown with a Pending Review badge until a moderator approves it."
-      class="mb-2"
-    />
-
     <UFormField label="Name" name="name">
       <UInput
         v-model.trim="colorway.name"
@@ -230,6 +220,25 @@ watch(
   },
 )
 
+// Upload immediately on selection so embedded (wizard) usage doesn't rely on a standalone submit handler.
+watch(uploadedFile, async (file) => {
+  if (!file) return
+
+  uploading.value = true
+
+  try {
+    colorway.value.img = await uploadImageToCloudflare({
+      file,
+      assignment: colorway.value.maker_id,
+      category: 'artisan',
+    })
+  } catch (e) {
+    toast.add(handleError(e))
+  } finally {
+    uploading.value = false
+  }
+})
+
 watch(
   colorway,
   (value) => {
@@ -246,14 +255,6 @@ const onSubmit = async () => {
 
     const payload = {
       ...colorway.value,
-    }
-
-    if (uploadedFile.value) {
-      payload.img = await uploadImageToCloudflare({
-        file: uploadedFile.value,
-        assignment: colorway.value.maker_id,
-        category: 'artisan',
-      })
     }
 
     if (!colorway.value.id) {

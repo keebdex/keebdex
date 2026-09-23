@@ -1,16 +1,7 @@
 <template>
   <UDashboardPanel id="artisan-submissions">
     <template #header>
-      <UDashboardNavbar title="Colorway Submissions">
-        <template #right>
-          <UButton
-            label="Submit a Colorway"
-            icon="hugeicons:paint-board"
-            color="primary"
-            to="/artisan/submissions/submit"
-          />
-        </template>
-      </UDashboardNavbar>
+      <UDashboardNavbar title="Colorway Submissions" />
     </template>
 
     <template #body>
@@ -170,19 +161,13 @@
           <UPageSection
             icon="hugeicons:paint-board"
             title="No Colorway Submissions Yet"
-            description="You haven't submitted any colorways. Start contributing by browsing makers and submitting your own colorways."
+            description="You haven't submitted any colorways. Start contributing by browsing makers and submitting a colorway from a sculpt page."
             :links="[
               {
                 label: 'Browse Makers',
                 to: '/artisan/maker',
                 icon: 'hugeicons:user-multiple',
                 variant: 'soft',
-              },
-              {
-                label: 'Submit a Colorway',
-                to: '/artisan/submissions/submit',
-                icon: 'hugeicons:paint-board',
-                color: 'primary',
               },
             ]"
             :ui="{

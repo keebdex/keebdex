@@ -23,7 +23,7 @@
       />
     </UFormField>
 
-    <div v-if="showAdminFields" class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-2 gap-2">
       <UFormField label="Profile" name="profile" required>
         <USelect
           v-model="keyset.profile_id"
@@ -93,7 +93,7 @@
       </div>
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
+    <div v-if="showAdminFields" class="grid grid-cols-2 gap-2">
       <UFormField label="Status" name="status">
         <USelect
           v-model="keyset.status"
@@ -144,7 +144,7 @@
       </UPopover>
     </UFormField>
 
-    <UFormField v-if="showAdminFields" label="Order Graph" name="order_graph">
+    <UFormField label="Order Graph" name="order_graph">
       <UInput
         v-model.trim="keyset.order_graph"
         icon="hugeicons:bar-chart-horizontal"
@@ -152,11 +152,7 @@
       />
     </UFormField>
 
-    <UFormField
-      v-if="showAdminFields"
-      label="Order History"
-      name="order_history"
-    >
+    <UFormField label="Order History" name="order_history">
       <UInput
         v-model.trim="keyset.order_history"
         icon="hugeicons:chart-line-data-02"
@@ -256,6 +252,7 @@ const keyset = ref(defaultKeyset())
 
 const range = shallowRef({ start: undefined, end: undefined })
 const uploadedFile = ref(null)
+const uploadingImage = ref(false)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 
 onBeforeMount(() => {
@@ -324,24 +321,35 @@ watch(
   { deep: true },
 )
 
+// Upload immediately on selection using a pending assignment path when the
+// profile_keyset_id isn't known yet (e.g. new keyset submissions).
+watch(uploadedFile, async (file) => {
+  if (!file) return
+
+  const assignment =
+    keyset.value.profile_keyset_id ||
+    `${keyset.value.profile_id || 'pending'}/pending-${Date.now()}`
+
+  uploadingImage.value = true
+
+  try {
+    keyset.value.img = await uploadImageToCloudflare({
+      file,
+      assignment,
+      category: 'keyset',
+    })
+  } catch (e) {
+    toast.add(handleError(e))
+  } finally {
+    uploadingImage.value = false
+  }
+})
+
 const onSubmit = async () => {
   if (!isStandalone.value) return
 
   const slug = slugify(keyset.value.name, { lower: true })
   keyset.value.profile_keyset_id = `${keyset.value.profile_id}/${slug}`
-
-  if (uploadedFile.value) {
-    try {
-      keyset.value.img = await uploadImageToCloudflare({
-        file: uploadedFile.value,
-        assignment: keyset.value.profile_keyset_id,
-        category: 'keyset',
-      })
-    } catch (e) {
-      toast.add(handleError(e))
-      return
-    }
-  }
 
   if (keyset.value.ic_date) {
     keyset.value.ic_date = toISODate(keyset.value.ic_date)

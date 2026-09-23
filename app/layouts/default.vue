@@ -325,7 +325,11 @@ const acknowledge = (cookie) => {
 }
 
 onMounted(() => {
-  const cookieConsent = useCookie('cookie-consent')
+  // Session-only cookies expire when the browser closes; persist acknowledgements for a year.
+  const persistentCookie = (name) =>
+    useCookie(name, { maxAge: 60 * 60 * 24 * 365 })
+
+  const cookieConsent = persistentCookie('cookie-consent')
 
   // Show cookie consent if not accepted
   if (cookieConsent.value !== 'accepted') {
@@ -351,14 +355,17 @@ onMounted(() => {
     })
   }
 
-  const seenColorwaySubmissions = useCookie('seen-colorway-submissions')
+  const seenCommunitySubmissions = persistentCookie(
+    'seen-community-submissions',
+  )
 
-  // Announce the new community colorway submission feature until acknowledged.
-  if (seenColorwaySubmissions.value !== 'acknowledged') {
+  // Announce community submissions (keyboards, keysets, artisan colorways) until acknowledged.
+  if (seenCommunitySubmissions.value !== 'acknowledged') {
     toast.add({
-      title: 'New: Community Colorway Submissions',
-      description: 'Anyone can now submit artisan colorways for review.',
-      icon: 'hugeicons:paint-board',
+      title: 'New: Community Submissions',
+      description:
+        'Anyone can now submit keyboards, keysets, and artisan colorways for review.',
+      icon: 'hugeicons:file-verified',
       color: 'primary',
       duration: 0,
       close: false,
@@ -366,7 +373,7 @@ onMounted(() => {
         {
           label: 'Browse Makers',
           to: '/artisan/maker',
-          onClick: () => acknowledge(seenColorwaySubmissions),
+          onClick: () => acknowledge(seenCommunitySubmissions),
           ui: {
             label: 'block',
           },
@@ -375,7 +382,7 @@ onMounted(() => {
           label: 'Dismiss',
           color: 'neutral',
           variant: 'ghost',
-          onClick: () => acknowledge(seenColorwaySubmissions),
+          onClick: () => acknowledge(seenCommunitySubmissions),
           ui: {
             label: 'block',
           },
@@ -384,7 +391,7 @@ onMounted(() => {
     })
   }
 
-  const seenCollectionGuide = useCookie('seen-collection-guide')
+  const seenCollectionGuide = persistentCookie('seen-collection-guide')
 
   // Point new users to the collection walkthrough video until acknowledged.
   if (seenCollectionGuide.value !== 'acknowledged') {
