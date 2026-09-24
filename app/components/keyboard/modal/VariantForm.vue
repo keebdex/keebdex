@@ -357,6 +357,8 @@ const releaseOptions = computed(() => {
 })
 
 const onSubmit = async () => {
+  if (mode !== 'standalone') return
+
   if (!keyboard.brand_keyboard_slug) {
     toast.add(
       handleError({

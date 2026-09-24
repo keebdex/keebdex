@@ -37,6 +37,16 @@
             icon="hugeicons:colors"
             :to="`/keyset/${data.profile_keyset_id}/color`"
           />
+
+          <UButton
+            v-else-if="authenticated"
+            label="Submit a Kit"
+            icon="hugeicons:cells"
+            :to="{
+              path: '/keyset/submissions/submit',
+              query: { profile, keyset: data.profile_keyset_id },
+            }"
+          />
         </template>
       </UDashboardNavbar>
     </template>

@@ -7,11 +7,11 @@
     <template #body>
       <UPageCard variant="subtle" class="mx-auto min-w-0 w-full lg:max-w-3xl">
         <template #header>
-          Contribute a new keyset and its kits. Submissions are reviewed by our
-          staff before they appear publicly.
+          Contribute a keyset and one of its kits. Submissions are reviewed by
+          our staff before they appear publicly.
         </template>
 
-        <KeysetModalKeysetSubmissionForm @on-success="onSuccess" />
+        <KeysetModalSubmissionWizard @on-success="onSuccess" />
       </UPageCard>
     </template>
   </UDashboardPanel>

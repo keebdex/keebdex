@@ -8,6 +8,8 @@
       <KeysetModalKeysetForm
         v-model="keyset"
         v-model:date-range="range"
+        :is-edit="isEdit"
+        :moderator="moderator"
         mode="embedded"
       />
     </div>

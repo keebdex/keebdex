@@ -27,6 +27,7 @@
 ### 🚀 Improvements
 
 - Refactored submission forms around reusable atomic form components with `mode="standalone" | "embedded"`, shared Zod schemas in `app/utils/schemas/`, and dedicated `/submissions/submit` public creation routes for keyboard, keyset, and artisan flows.
+- The `/submissions/submit` pages now use a `UStepper` wizard to walk through nested entities (Maker → Sculpt → Colorway, Profile → Keyset → Kit, Brand → Keyboard → Release/Variant): the first level is always a plain "select existing" step, the second level lets the user pick an existing entity or propose a new one, and the third level always creates a new sub-entity. The select-vs-create toggle lives in the wizard step, not in the atomic forms. Detail pages for an existing sculpt/keyset/keyboard now deep-link into the wizard with the entity pre-selected so it can jump straight to the last step.
 - Replaced the dismissible top banner with persistent, cookie-gated toast notifications (site announcements, cookie consent, and the collection guide) that reappear on every visit until acknowledged.
 - Unified role-based edit/moderation permissions (`admin`/`editor`/`maker`/`designer`) into a single shared permission utility used consistently across artisan, keyboard, and keyset pages.
 - Allowed makers/editors to rename sculpts, with sculpt URLs now updating automatically to match the new name after save.

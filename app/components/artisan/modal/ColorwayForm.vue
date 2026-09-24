@@ -50,9 +50,9 @@
         label="Price"
         name="price"
       >
-        <UFieldGroup>
+        <UFieldGroup class="w-full">
           <USelect v-model="colorway.currency" :items="currencies" />
-          <UInput v-model.number="colorway.price" />
+          <UInput v-model.number="colorway.price" class="w-full" />
         </UFieldGroup>
       </UFormField>
     </div>

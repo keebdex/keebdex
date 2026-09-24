@@ -147,6 +147,8 @@ watch(
 )
 
 const onSubmit = async () => {
+  if (mode !== 'standalone') return
+
   if (uploadedFile.value) {
     try {
       kit.value.img = await uploadImageToCloudflare({

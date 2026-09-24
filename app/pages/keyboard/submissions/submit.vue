@@ -7,11 +7,11 @@
     <template #body>
       <UPageCard variant="subtle" class="mx-auto min-w-0 w-full lg:max-w-3xl">
         <template #header>
-          Contribute a new keyboard with its releases and variants. Submissions
-          are reviewed by our staff before they appear publicly.
+          Contribute a keyboard and one of its releases. Submissions are
+          reviewed by our staff before they appear publicly.
         </template>
 
-        <KeyboardModalKeyboardSubmissionForm @on-success="onSuccess" />
+        <KeyboardModalSubmissionWizard @on-success="onSuccess" />
       </UPageCard>
     </template>
   </UDashboardPanel>
