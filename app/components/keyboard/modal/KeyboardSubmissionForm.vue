@@ -22,14 +22,6 @@
         <p class="text-sm font-medium text-highlighted uppercase tracking-wide">
           Releases
         </p>
-
-        <UButton
-          label="Add Release"
-          size="xs"
-          variant="soft"
-          icon="hugeicons:plus-sign"
-          @click="addRelease"
-        />
       </div>
 
       <div
@@ -100,14 +92,6 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <p class="text-xs font-medium text-dimmed">Variants</p>
-
-            <UButton
-              label="Add Variant"
-              size="xs"
-              variant="soft"
-              icon="hugeicons:plus-sign"
-              @click="addVariant(release)"
-            />
           </div>
 
           <div
@@ -163,6 +147,15 @@
           <p v-if="!release.variants.length" class="text-xs text-dimmed">
             No variants added yet.
           </p>
+
+          <UButton
+            label="Add Variant"
+            size="xs"
+            variant="soft"
+            icon="hugeicons:plus-sign"
+            block
+            @click="addVariant(release)"
+          />
         </div>
       </div>
 
@@ -170,6 +163,15 @@
         No releases added yet. Click "Add Release" to attach the releases
         included in this keyboard.
       </p>
+
+      <UButton
+        label="Add Release"
+        size="xs"
+        variant="soft"
+        icon="hugeicons:plus-sign"
+        block
+        @click="addRelease"
+      />
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
@@ -180,7 +182,7 @@
         loading-auto
       />
 
-      <template v-if="moderator && isEdit">
+      <template v-if="userStore.isModerator && isEdit">
         <UButton
           label="Approve"
           color="success"
@@ -232,20 +234,22 @@ import { keyboardSubmissionSchema } from '~/utils/schemas/keyboard'
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const { metadata, moderator } = defineProps({
+const { metadata } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
-  moderator: Boolean,
 })
 
 const toast = useToast()
+const userStore = useUserStore()
 const currencies = Constants.public.Enums.currency
 
 const isEdit = computed(() => !!metadata.id)
 const canDelete = computed(
-  () => isEdit.value && (moderator || metadata.review_status !== 'Approved'),
+  () =>
+    isEdit.value &&
+    (userStore.isModerator || metadata.review_status !== 'Approved'),
 )
 
 const keyboard = ref({

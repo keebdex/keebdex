@@ -123,6 +123,9 @@ export const useKeysetSubmissionWizard = () => {
       if (keysetMode.value === 'new') {
         const payload: any = { ...keyset.value, profile_id: profile.value.id }
 
+        if (payload.ic_date) {
+          payload.ic_date = toISODate(payload.ic_date)
+        }
         if (dateRange.value.start) {
           payload.start_date = toISODate(dateRange.value.start)
         }

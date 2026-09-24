@@ -22,7 +22,6 @@
               <template #body="{ close }">
                 <ArtisanModalColorwayForm
                   :metadata="newColorwayMetadata"
-                  :moderator="editable"
                   @on-success="
                     () => {
                       close()
@@ -151,7 +150,6 @@
                 <template #body="{ close }">
                   <ArtisanModalColorwayForm
                     :metadata="selectedColorway"
-                    :moderator="true"
                     @on-success="
                       () => {
                         close()

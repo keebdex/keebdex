@@ -9,7 +9,6 @@
         v-model="keyset"
         v-model:date-range="range"
         :is-edit="isEdit"
-        :moderator="moderator"
         mode="embedded"
       />
     </div>
@@ -19,14 +18,6 @@
         <p class="text-sm font-medium text-highlighted uppercase tracking-wide">
           Kits
         </p>
-
-        <UButton
-          label="Add Kit"
-          size="xs"
-          variant="soft"
-          icon="hugeicons:plus-sign"
-          @click="addKit"
-        />
       </div>
 
       <div
@@ -88,6 +79,15 @@
         No kits added yet. Click "Add Kit" to attach the kits included in this
         keyset.
       </p>
+
+      <UButton
+        label="Add Kit"
+        size="xs"
+        variant="soft"
+        icon="hugeicons:plus-sign"
+        block
+        @click="addKit"
+      />
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
@@ -98,7 +98,7 @@
         loading-auto
       />
 
-      <template v-if="moderator && isEdit">
+      <template v-if="userStore.isModerator && isEdit">
         <UButton
           label="Approve"
           color="success"
@@ -150,21 +150,23 @@ import { createKeysetSchema } from '~/utils/schemas/keyset'
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const { metadata, moderator } = defineProps({
+const { metadata } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
-  moderator: Boolean,
 })
 
 const toast = useToast()
+const userStore = useUserStore()
 const { manufacturers } = useKeysetProfiles()
 const { kits: kitCategories, status: kitsStatus } = useKeysetKits()
 
 const isEdit = computed(() => !!metadata.id)
 const canDelete = computed(
-  () => isEdit.value && (moderator || metadata.review_status !== 'Approved'),
+  () =>
+    isEdit.value &&
+    (userStore.isModerator || metadata.review_status !== 'Approved'),
 )
 
 const keyset = ref({

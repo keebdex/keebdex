@@ -129,7 +129,12 @@ const props = defineProps({
     type: Object,
     default: null,
   },
-  moderator: Boolean,
+  // Explicit maker id for the image upload assignment when embedded (e.g. the
+  // submission wizard), since colorway.maker_id isn't set from route params there.
+  makerId: {
+    type: String,
+    default: '',
+  },
   mode: {
     type: String,
     default: 'standalone',
@@ -138,6 +143,7 @@ const props = defineProps({
 })
 
 const toast = useToast()
+const userStore = useUserStore()
 const route = useRoute()
 
 const currencies = Constants.public.Enums.currency
@@ -162,7 +168,7 @@ const saleFormats = [
   ),
 ]
 
-const moderator = computed(() => props.moderator)
+const moderator = computed(() => userStore.isModerator)
 const isStandalone = computed(() => props.mode === 'standalone')
 const formWrapper = computed(() =>
   isStandalone.value ? resolveComponent('UForm') : 'div',
@@ -229,7 +235,7 @@ watch(uploadedFile, async (file) => {
   try {
     colorway.value.img = await uploadImageToCloudflare({
       file,
-      assignment: colorway.value.maker_id,
+      assignment: props.makerId || colorway.value.maker_id,
       category: 'artisan',
     })
   } catch (e) {

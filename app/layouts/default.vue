@@ -371,9 +371,37 @@ onMounted(() => {
       close: false,
       actions: [
         {
-          label: 'Browse Makers',
-          to: '/artisan/maker',
+          label: 'Dismiss',
+          color: 'neutral',
+          variant: 'ghost',
           onClick: () => acknowledge(seenCommunitySubmissions),
+          ui: {
+            label: 'block',
+          },
+        },
+      ],
+    })
+  }
+
+  const seenDiscordAnnouncement = persistentCookie('seen-discord-announcement')
+
+  // Announce the new Keebdex Discord server for community chat, development, ideas, and feedback.
+  if (seenDiscordAnnouncement.value !== 'acknowledged') {
+    toast.add({
+      title: 'New: Keebdex Discord',
+      description:
+        'Join the new Keebdex Discord server to chat, share ideas, and help shape future improvements.',
+      icon: 'hugeicons:discord',
+      color: 'info',
+      duration: 0,
+      close: false,
+      actions: [
+        {
+          label: 'Join Discord',
+          to: 'https://discord.gg/3s6ZdpPqFR',
+          target: '_blank',
+          trailingIcon: 'hugeicons:arrow-right-02',
+          onClick: () => acknowledge(seenDiscordAnnouncement),
           ui: {
             label: 'block',
           },
@@ -382,7 +410,7 @@ onMounted(() => {
           label: 'Dismiss',
           color: 'neutral',
           variant: 'ghost',
-          onClick: () => acknowledge(seenCommunitySubmissions),
+          onClick: () => acknowledge(seenDiscordAnnouncement),
           ui: {
             label: 'block',
           },

@@ -84,19 +84,9 @@
 
       <template #variant>
         <div class="space-y-4">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-sm text-muted">
-              Add one or more variants for this release.
-            </p>
-
-            <UButton
-              label="Add Variant"
-              size="xs"
-              variant="soft"
-              icon="hugeicons:plus-sign"
-              @click="addVariant"
-            />
-          </div>
+          <p class="text-sm text-muted">
+            Add one or more variants for this release.
+          </p>
 
           <div
             v-for="(variant, index) in variants"
@@ -125,6 +115,15 @@
               mode="embedded"
             />
           </div>
+
+          <UButton
+            label="Add Variant"
+            size="xs"
+            variant="soft"
+            icon="hugeicons:plus-sign"
+            block
+            @click="addVariant"
+          />
         </div>
       </template>
     </UStepper>

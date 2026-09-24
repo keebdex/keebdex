@@ -93,7 +93,7 @@
       </div>
     </UFormField>
 
-    <div v-if="showStatusFields" class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-2 gap-2">
       <UFormField label="Status" name="status">
         <USelect
           v-model="keyset.status"
@@ -105,8 +105,9 @@
       <UFormField label="Review Status" name="review_status">
         <USelect
           v-model="keyset.review_status"
+          default-value="Pending"
           :items="Constants.public.Enums.review_status"
-          :disabled="!props.moderator"
+          :disabled="!userStore.isModerator"
           class="w-full"
         />
       </UFormField>
@@ -203,7 +204,6 @@ const props = defineProps({
     default: null,
   },
   isEdit: Boolean,
-  moderator: Boolean,
   mode: {
     type: String,
     default: 'standalone',
@@ -213,6 +213,7 @@ const props = defineProps({
 
 const route = useRoute()
 const toast = useToast()
+const userStore = useUserStore()
 const keysetStatusEnum = Constants.public.Enums.keyset_status
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const isEdit = computed(() => props.isEdit)
@@ -220,9 +221,7 @@ const isStandalone = computed(() => props.mode === 'standalone')
 // Regular users never see status fields (server controls them); moderators
 // reviewing an existing submission need to see and adjust them too.
 const showAdminFields = computed(() => isStandalone.value)
-const showStatusFields = computed(
-  () => isStandalone.value || (props.moderator && isEdit.value),
-)
+
 const formWrapper = computed(() =>
   isStandalone.value ? resolveComponent('UForm') : 'div',
 )

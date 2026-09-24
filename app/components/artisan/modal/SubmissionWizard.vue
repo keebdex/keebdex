@@ -56,19 +56,9 @@
 
       <template #colorway>
         <div class="space-y-4">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-sm text-muted">
-              Add one or more colorways for this sculpt.
-            </p>
-
-            <UButton
-              label="Add Colorway"
-              size="xs"
-              variant="soft"
-              icon="hugeicons:plus-sign"
-              @click="addColorway"
-            />
-          </div>
+          <p class="text-sm text-muted">
+            Add one or more colorways for this sculpt.
+          </p>
 
           <div
             v-for="(colorway, index) in colorways"
@@ -93,9 +83,19 @@
 
             <ArtisanModalColorwayForm
               v-model="colorways[index]"
+              :maker-id="maker.id"
               mode="embedded"
             />
           </div>
+
+          <UButton
+            label="Add Colorway"
+            size="xs"
+            variant="soft"
+            icon="hugeicons:plus-sign"
+            block
+            @click="addColorway"
+          />
         </div>
       </template>
     </UStepper>

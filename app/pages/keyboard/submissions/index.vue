@@ -81,7 +81,6 @@
             <KeyboardModalKeyboardSubmissionForm
               :key="detail.id"
               :metadata="detail"
-              :moderator="isModerator"
               @on-success="onDetailSuccess"
               @on-delete="onDetailDelete"
             />

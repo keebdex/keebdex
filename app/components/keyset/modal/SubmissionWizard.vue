@@ -68,19 +68,9 @@
 
       <template #kit>
         <div class="space-y-4">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-sm text-muted">
-              Add one or more kits for this keyset.
-            </p>
-
-            <UButton
-              label="Add Kit"
-              size="xs"
-              variant="soft"
-              icon="hugeicons:plus-sign"
-              @click="addKit"
-            />
-          </div>
+          <p class="text-sm text-muted">
+            Add one or more kits for this keyset.
+          </p>
 
           <div
             v-for="(kit, index) in kits"
@@ -105,6 +95,15 @@
 
             <KeysetModalKeysetKitForm v-model="kits[index]" mode="embedded" />
           </div>
+
+          <UButton
+            label="Add Kit"
+            size="xs"
+            variant="soft"
+            icon="hugeicons:plus-sign"
+            block
+            @click="addKit"
+          />
         </div>
       </template>
     </UStepper>

@@ -191,7 +191,6 @@
           <ArtisanModalColorwayForm
             v-if="selectedSubmission"
             :metadata="selectedSubmission"
-            :moderator="isModerator"
             @on-success="() => onEditSuccess(close)"
           />
         </template>
