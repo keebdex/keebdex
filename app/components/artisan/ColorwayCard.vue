@@ -1,136 +1,112 @@
 <template>
-  <UPageCard
-    :title="colorwayTitle(colorway)"
-    reverse
-    :orientation="orientation"
-    class="colorway-details-card"
-    :ui="{
-      body: 'w-full',
-      wrapper: 'h-full',
-      description: 'flex flex-col gap-4',
-      leading: 'flex flex-row gap-2',
-    }"
-  >
-    <NuxtImg
-      :src="colorway.img"
-      :alt="colorwayTitle(colorway)"
-      class="w-full rounded"
+  <UPageCard reverse class="mx-auto">
+    <ArtisanYugiohCard
+      v-if="cardType === 'yugioh'"
+      :colorway="colorway"
+      :stars="classify.stars"
+      :rarity="classify.rarity"
+      class="artisan-trading-card"
+    />
+    <ArtisanPokemonCard
+      v-if="cardType === 'pokemon'"
+      :colorway="colorway"
+      :stars="classify.stars"
+      :rarity="classify.rarity"
+      class="artisan-trading-card"
     />
 
-    <template #description>
-      <SharedDescription
-        v-if="colorway.description"
-        :description="colorway.description"
-      />
-
-      <SharedDescriptionList
-        :columns="2"
-        :items="
-          [
-            { term: 'Release', description: colorway.release },
-            {
-              term: 'Price',
-              description: colorway.price
-                ? `${colorway.currency || 'USD'} ${colorway.price}`
-                : undefined,
-            },
-            { term: 'Quantity', description: colorway.qty },
-            {
-              term: 'Stem',
-              description: Array.isArray(colorway.stem)
-                ? colorway.stem.join(', ')
-                : undefined,
-            },
-          ].filter((i) => i.description)
-        "
-      />
-    </template>
-
-    <template #leading>
-      <UBadge
-        v-if="colorway.status === 'Pending'"
-        label="Pending Review"
-        icon="hugeicons:alert-02"
-        color="warning"
-        variant="subtle"
-      />
-      <UBadge
-        v-if="colorway.sale_type === 'Auction'"
-        label="Auction"
-        icon="hugeicons:charity"
-        color="warning"
-      />
-      <UBadge
-        v-if="colorway.sale_type === 'Giveaway'"
-        label="Giveaway"
-        icon="hugeicons:wellness"
-        color="success"
-      />
-      <UBadge
-        v-if="colorway.sale_type === 'Commission'"
-        label="Commission"
-        icon="hugeicons:save-money-dollar"
-        color="info"
-      />
-      <UBadge
-        v-if="colorway.photo_credit"
-        :label="`${colorway.photo_credit}`"
-        icon="hugeicons:camera-add-02"
-        color="info"
-      />
-    </template>
-
     <template v-if="!copying" #footer>
-      <UButton icon="hugeicons:copy-02" @click="copyColorwayCard">
-        Copy
-      </UButton>
+      <div class="flex items-center justify-center gap-2 w-full">
+        <USelect
+          v-model="cardType"
+          :items="cardTypeOptions"
+          class="mr-auto w-40"
+        />
 
-      <SharedSaveToCollection
-        v-if="authenticated"
-        :item="colorway"
-        label="Save"
-        @on-select="onSelectCollection"
-      />
-    </template>
-    <template v-else #footer>
-      <AppWordmark size="sm" />
+        <UButton icon="hugeicons:copy-02" @click="screenshot()"> Copy </UButton>
+
+        <UButton icon="hugeicons:image-download-02" @click="screenshot(true)">
+          Download
+        </UButton>
+      </div>
     </template>
   </UPageCard>
 </template>
 
 <script setup>
-const emit = defineEmits(['saveTo'])
-
-const { authenticated, colorway, orientation } = defineProps({
+const { colorway } = defineProps({
   colorway: {
     type: Object,
     default: () => ({}),
   },
-  authenticated: Boolean,
-  orientation: {
-    type: String,
-    default: 'vertical',
-  },
 })
 
+const { isDesktop } = useDevice()
 const toast = useToast()
 
+const cardType = ref('yugioh') // 'yugioh' | 'pokemon'
+const cardTypeOptions = [
+  { label: 'Yu-Gi-Oh!', value: 'yugioh' },
+  { label: 'Pokémon', value: 'pokemon' },
+]
+
+const starTiers = [
+  { min: 21, stars: 2, label: 'Very Easy' },
+  { min: 16, stars: 3, label: 'Easy' },
+  { min: 10, stars: 5, label: 'Normal' },
+  { min: 5, stars: 7, label: 'Rare' },
+  { min: 3, stars: 9, label: 'Very Rare' },
+  { min: 0, stars: 12, label: 'Ultra Rare' },
+]
+
+const rarityTiers = [
+  { min: 15, rarity: '', label: 'Normal' },
+  { min: 6, rarity: 'holo-active', label: 'Holographic Foil' },
+  { min: 0, rarity: 'secret-rare-active', label: 'Secret Rare' },
+]
+
+function quantityToStars(qty) {
+  return starTiers.find((t) => qty >= t.min)?.stars ?? null
+}
+
+function quantityToRarity(qty) {
+  return rarityTiers.find((t) => qty >= t.min)?.rarity ?? null
+}
+
+const classify = computed(() => {
+  const qty = colorway.qty || 50
+  return {
+    stars: quantityToStars(qty),
+    rarity: quantityToRarity(qty),
+  }
+})
+
 const copying = ref(false)
-const copyColorwayCard = async () => {
+const screenshot = async (download = false) => {
   copying.value = true
 
-  const card = document.getElementsByClassName('colorway-details-card')[0]
+  // wait a sec to hide footer
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
+
+  const card = document.getElementsByClassName('artisan-trading-card')[0]
+
+  // remove 'flex-1' class to eliminate unnecessary spacing
+  card.classList.remove('flex-1')
 
   try {
-    await copyScreenshot(card, toast)
+    if (download) {
+      await downloadScreenshot(card, toast)
+    } else {
+      await copyScreenshot(card, toast, !isDesktop)
+    }
   } catch (error) {
     toast.add(handleError(error))
   }
 
-  copying.value = false
-}
+  card.classList.add('flex-1')
 
-const onSelectCollection = (collection, colorway) => {
-  emit('saveTo', collection, colorway)
+  copying.value = false
 }
 </script>
