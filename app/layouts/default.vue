@@ -398,7 +398,7 @@ onMounted(() => {
       actions: [
         {
           label: 'Join Discord',
-          to: 'https://discord.gg/3s6ZdpPqFR',
+          to: 'https://keebdex.org/discord',
           target: '_blank',
           trailingIcon: 'hugeicons:arrow-right-02',
           onClick: () => acknowledge(seenDiscordAnnouncement),
