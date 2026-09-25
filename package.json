@@ -52,15 +52,15 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.2",
-    "@commitlint/config-conventional": "^21.2.2",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@iconify-json/hugeicons": "^1.2.35",
-    "@iconify-json/simple-icons": "^1.2.96",
-    "@iconify-json/solar": "^1.2.11",
-    "@nuxt/content": "^3.16.0",
+    "@iconify-json/simple-icons": "^1.2.97",
+    "@iconify-json/solar": "^1.2.12",
+    "@nuxt/content": "^3.16.1",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/image": "^2.1.0",
-    "@nuxt/ui": "^4.11.1",
+    "@nuxt/ui": "^4.11.2",
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/supabase": "2.0.10",
     "@tailwindcss/typography": "^0.5.20",
@@ -76,7 +76,7 @@
     "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "eslint-plugin-vue": "^10.11.0",
+    "eslint-plugin-vue": "^10.11.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "lodash.groupby": "^4.6.0",
@@ -84,7 +84,7 @@
     "lodash.omit": "^4.18.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "4.5.2",
-    "nuxt-og-image": "^6.8.0",
-    "prettier": "^3.9.8"
+    "nuxt-og-image": "^6.9.0",
+    "prettier": "^3.9.9"
   }
 }

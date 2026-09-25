@@ -32,6 +32,16 @@
           </UModal>
 
           <UButton
+            v-else-if="authenticated"
+            label="Submit a Release"
+            icon="hugeicons:delivery-view-01"
+            :to="{
+              path: '/keyboard/submissions/submit',
+              query: { brand: route.params.brand, keyboard: slug },
+            }"
+          />
+
+          <UButton
             v-if="editable"
             :to="`/keyboard/brand/${slug}/sort`"
             :icon="appConfig.ui.icons.sortManual"

@@ -1,12 +1,12 @@
 <template>
-  <UDashboardPanel id="keyset-submissions">
+  <UDashboardPanel id="keyboard-submissions">
     <template #header>
-      <UDashboardNavbar title="Keyset Submissions">
+      <UDashboardNavbar title="Keyboard Submissions">
         <template #right>
           <UButton
-            label="Submit a Keyset"
+            label="Submit a Keyboard"
             icon="hugeicons:plus-sign"
-            to="/keyset/submissions/submit"
+            to="/keyboard/submissions/submit"
           />
         </template>
       </UDashboardNavbar>
@@ -26,7 +26,7 @@
               v-for="row in data.data"
               :key="row.id"
               :title="row.name"
-              :description="`${row.profile?.name || row.profile_id} • ${row.kits_count} kit(s)`"
+              :description="`${row.brand?.name || row.brand_slug} • ${row.releases_count} release(s)`"
               spotlight
               reverse
               class="cursor-pointer"
@@ -40,14 +40,6 @@
               @click="selectSubmission(row)"
             >
               <div class="flex items-center gap-3">
-                <NuxtImg
-                  v-if="row.img"
-                  :src="row.img"
-                  :alt="row.name"
-                  class="size-12 rounded object-cover shrink-0"
-                />
-                <div v-else class="size-12 rounded bg-elevated shrink-0" />
-
                 <div class="min-w-0">
                   <p class="text-xs text-dimmed truncate">
                     {{
@@ -86,7 +78,7 @@
 
         <UPageCard variant="subtle" class="min-w-0">
           <template v-if="detail">
-            <KeysetModalKeysetSubmissionForm
+            <KeyboardModalKeyboardSubmissionForm
               :key="detail.id"
               :metadata="detail"
               @on-success="onDetailSuccess"
@@ -123,8 +115,8 @@ const formatDate = (value) => {
 }
 
 const { page, size, setPage, resetPage } = usePagination(10)
-const { data, refresh } = useAdvancedSearch('/api/submissions/keyset', {
-  key: 'keyset-submissions',
+const { data, refresh } = useAdvancedSearch('/api/submissions/keyboard', {
+  key: 'keyboard-submissions',
   term: ref(''),
   minLength: 0,
   pagination: { page, size },
@@ -142,14 +134,14 @@ const detail = ref(null)
 
 const selectSubmission = async (row) => {
   selectedId.value = row.id
-  detail.value = await $fetch(`/api/submissions/keyset/${row.id}`)
+  detail.value = await $fetch(`/api/submissions/keyboard/${row.id}`)
 }
 
 const onDetailSuccess = async () => {
   await refresh()
 
   if (selectedId.value) {
-    detail.value = await $fetch(`/api/submissions/keyset/${selectedId.value}`)
+    detail.value = await $fetch(`/api/submissions/keyboard/${selectedId.value}`)
   }
 }
 

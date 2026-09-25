@@ -5,119 +5,12 @@
         Keyset Info
       </p>
 
-      <UFormField label="Name" name="name" required>
-        <UInput
-          v-model.trim="keyset.name"
-          icon="hugeicons:text-font"
-          class="w-full"
-        />
-      </UFormField>
-
-      <div class="grid grid-cols-2 gap-2">
-        <UFormField label="Profile" name="profile_id" required>
-          <USelect
-            v-model="keyset.profile_id"
-            :items="
-              Object.entries(groupedProfiles)
-                .map(([label, profileManufacturers]) => {
-                  return [
-                    { type: 'label', label },
-                    ...Object.entries(profileManufacturers).map(
-                      ([value, name]) => ({
-                        type: 'item',
-                        label: name,
-                        value,
-                      }),
-                    ),
-                    { type: 'separator' },
-                  ]
-                })
-                .flat()
-                .slice(0, -1)
-            "
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField label="Designer" name="designer">
-          <UInputMenu
-            v-model.trim="keyset.designer"
-            v-model:search-term="designerTerm"
-            :items="designerOptions"
-            :loading="designersStatus === 'pending'"
-            :content="{ hideWhenEmpty: true }"
-            mode="autocomplete"
-            ignore-filter
-            icon="hugeicons:user-star-01"
-            placeholder="Start typing to search designers..."
-            class="w-full"
-          />
-        </UFormField>
-      </div>
-
-      <UFormField label="Sculpt" name="sculpt">
-        <UInput
-          v-model.trim="keyset.sculpt"
-          icon="hugeicons:dashboard-square-02"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Reference URL" name="url">
-        <UInput
-          v-model.trim="keyset.url"
-          icon="hugeicons:globe-02"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="GB Time" name="gb_date">
-        <UPopover>
-          <UButton
-            icon="hugeicons:calendar-03"
-            variant="outline"
-            class="w-full"
-          >
-            <template v-if="range.start">
-              <template v-if="range.end">
-                {{ formatDateRange(range.start, range.end) }}
-              </template>
-              <template v-else>
-                {{ formatDate(range.start) }}
-              </template>
-            </template>
-            <template v-else> Pick a date </template>
-          </UButton>
-
-          <template #content>
-            <UCalendar v-model="range" :number-of-months="2" range />
-          </template>
-        </UPopover>
-      </UFormField>
-
-      <UFormField label="Image" name="img">
-        <UInput
-          v-model.trim="keyset.img"
-          icon="hugeicons:image-02"
-          class="w-full"
-        />
-
-        <div class="mt-2">
-          <UFileUpload
-            v-model="uploadedFile"
-            accept="image/*"
-            icon="hugeicons:image-upload"
-            layout="grid"
-            label="Click to browse or drag & drop an image to upload"
-            :description="`Maximum file size: ${maxUploadSizeMb}MB`"
-            :ui="{ base: 'aspect-video' }"
-          />
-        </div>
-      </UFormField>
-
-      <UFormField label="Description" name="description">
-        <UTextarea v-model.trim="keyset.description" :rows="4" class="w-full" />
-      </UFormField>
+      <KeysetModalKeysetForm
+        v-model="keyset"
+        v-model:date-range="range"
+        :is-edit="isEdit"
+        mode="embedded"
+      />
     </div>
 
     <div class="space-y-4">
@@ -125,14 +18,6 @@
         <p class="text-sm font-medium text-highlighted uppercase tracking-wide">
           Kits
         </p>
-
-        <UButton
-          label="Add Kit"
-          size="xs"
-          variant="soft"
-          icon="hugeicons:plus-sign"
-          @click="addKit"
-        />
       </div>
 
       <div
@@ -153,7 +38,7 @@
         </div>
 
         <UFormField label="Category" :name="`kits.${index}.kit_id`">
-          <USelect
+          <USelectMenu
             v-model="kit.kit_id"
             :items="kitCategories"
             :loading="kitsStatus === 'pending'"
@@ -194,6 +79,15 @@
         No kits added yet. Click "Add Kit" to attach the kits included in this
         keyset.
       </p>
+
+      <UButton
+        label="Add Kit"
+        size="xs"
+        variant="soft"
+        icon="hugeicons:plus-sign"
+        block
+        @click="addKit"
+      />
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
@@ -204,7 +98,7 @@
         loading-auto
       />
 
-      <template v-if="moderator && isEdit">
+      <template v-if="userStore.isModerator && isEdit">
         <UButton
           label="Approve"
           color="success"
@@ -252,36 +146,28 @@
 
 <script setup>
 import { parseDate } from '@internationalized/date'
-import { z } from 'zod'
+import { createKeysetSchema } from '~/utils/schemas/keyset'
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const { metadata, moderator } = defineProps({
+const { metadata } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
-  moderator: Boolean,
 })
 
 const toast = useToast()
-const { groupedProfiles, manufacturers } = useKeysetProfiles()
+const userStore = useUserStore()
+const { manufacturers } = useKeysetProfiles()
 const { kits: kitCategories, status: kitsStatus } = useKeysetKits()
 
 const isEdit = computed(() => !!metadata.id)
 const canDelete = computed(
-  () => isEdit.value && (moderator || metadata.review_status !== 'Approved'),
+  () =>
+    isEdit.value &&
+    (userStore.isModerator || metadata.review_status !== 'Approved'),
 )
-
-const designerTerm = ref('')
-const { data: designerData, status: designersStatus } = useGuardedSearch(
-  '/api/keysets/designers',
-  {
-    key: 'keyset-submission-designer-search',
-    term: designerTerm,
-  },
-)
-const designerOptions = computed(() => designerData.value?.designers || [])
 
 const keyset = ref({
   id: undefined,
@@ -336,68 +222,10 @@ const removeKit = (index) => {
   kits.value.splice(index, 1)
 }
 
-const uploadedFile = ref(null)
-const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
-
-const schema = z.object({
-  name: z.string().min(1),
-  designer: z.string().nullish(),
-  sculpt: z.string().nullish(),
-  profile_id: z
-    .string()
-    .min(1, 'Please choose a profile')
-    .refine((value) => !!manufacturers.value[value], 'Invalid keyset profile'),
-  url: z.url().nullish().or(z.string().min(0).max(0)),
-  img: z.url().nullish().or(z.string().min(0).max(0)),
-  description: z.string().nullish(),
-})
-
-const buildKitsPayload = () =>
-  kits.value
-    .filter((kit) => kit.name || kit.img || kit.description)
-    .map(({ _key, ...kit }) => kit)
+const schema = computed(() => createKeysetSchema(manufacturers))
 
 const processingAction = ref(null)
-
-const save = async (action = 'update') => {
-  const assignment =
-    keyset.value.profile_keyset_id ||
-    `${keyset.value.profile_id}/pending-${Date.now()}`
-
-  if (range.value.start) {
-    keyset.value.start_date = toISODate(range.value.start)
-  }
-  if (range.value.end) {
-    keyset.value.end_date = toISODate(range.value.end)
-  }
-
-  if (uploadedFile.value) {
-    try {
-      keyset.value.img = await uploadImageToCloudflare({
-        file: uploadedFile.value,
-        assignment,
-        category: 'keyset',
-      })
-    } catch (e) {
-      toast.add(handleError(e))
-      throw e
-    }
-  }
-
-  const kitsPayload = buildKitsPayload()
-
-  if (isEdit.value) {
-    return $fetch(`/api/submissions/keyset/${keyset.value.id}`, {
-      method: 'post',
-      body: { action, keyset: keyset.value, kits: kitsPayload },
-    })
-  }
-
-  return $fetch('/api/submissions/keyset', {
-    method: 'post',
-    body: { keyset: keyset.value, kits: kitsPayload },
-  })
-}
+const { save, remove } = useKeysetSubmission({ keyset, kits, range, isEdit })
 
 const onSave = async () => {
   try {
@@ -436,9 +264,7 @@ const onDelete = async (close) => {
   processingDelete.value = true
 
   try {
-    await $fetch(`/api/submissions/keyset/${keyset.value.id}`, {
-      method: 'delete',
-    })
+    await remove()
 
     toast.add(handleSuccess('delete', keyset.value.name))
     deleteVisible.value = false

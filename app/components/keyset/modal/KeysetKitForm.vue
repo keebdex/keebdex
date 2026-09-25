@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="kit" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="keysetKitSchema"
+    :state="kit"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Kit" name="kit_id" required>
       <UInputMenu
         :key="status"
@@ -71,21 +76,38 @@
       <UCheckbox v-model="kit.cancelled" label="Cancelled" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
-import { z } from 'zod'
+import { keysetKitSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, isEdit } = defineProps({
+const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   isEdit: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const route = useRoute()
@@ -104,20 +126,29 @@ const uploadedFile = ref(null)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 
 onBeforeMount(() => {
-  Object.assign(kit.value, metadata)
+  Object.assign(kit.value, modelValue || metadata)
 })
 
-const schema = z.object({
-  kit_id: z.string(),
-  name: z.string().nullish(),
-  qty: z.number().nullish(),
-  price: z.number().nullish(),
-  img: z.url().nullish().or(z.string().min(0).max(0)),
-  // description: z.string(),
-  cancelled: z.boolean().catch(false),
-})
+watch(
+  () => modelValue,
+  (value) => {
+    if (value && value !== kit.value) {
+      Object.assign(kit.value, value)
+    }
+  },
+)
+
+watch(
+  kit,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 const onSubmit = async () => {
+  if (mode !== 'standalone') return
+
   if (uploadedFile.value) {
     try {
       kit.value.img = await uploadImageToCloudflare({

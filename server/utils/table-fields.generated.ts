@@ -155,9 +155,13 @@ export const TABLE_FIELDS = {
     "id",
     "mount_styles",
     "name",
+    "review_status",
     "slug",
+    "submitted_by",
     "top_case_styles",
-    "typing_angle"
+    "typing_angle",
+    "verified_at",
+    "verified_by"
   ],
   "keyset_colors": [
     "color_id",

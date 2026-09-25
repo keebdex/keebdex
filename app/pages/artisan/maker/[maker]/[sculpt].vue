@@ -9,20 +9,19 @@
         <template #right>
           <div class="flex items-center gap-2">
             <UModal
-              v-if="authenticated"
+              v-if="editable"
               v-model:visible="visible.create"
-              :title="editable ? 'Add Colorway' : 'Submit Colorway'"
+              title="Add Colorway"
             >
               <UButton
                 icon="hugeicons:dashboard-square-add"
                 color="primary"
-                :label="editable ? 'Add Colorway' : 'Submit Colorway'"
+                label="Add Colorway"
               />
 
               <template #body="{ close }">
                 <ArtisanModalColorwayForm
                   :metadata="newColorwayMetadata"
-                  :moderator="editable"
                   @on-success="
                     () => {
                       close()
@@ -32,6 +31,20 @@
                 />
               </template>
             </UModal>
+
+            <UButton
+              v-else-if="authenticated"
+              icon="hugeicons:paint-board"
+              color="primary"
+              label="Submit Colorway"
+              :to="{
+                path: '/artisan/submissions/submit',
+                query: {
+                  maker: route.params.maker,
+                  sculpt: route.params.sculpt,
+                },
+              }"
+            />
 
             <template v-if="editable">
               <UModal v-model:visible="visible.edit" title="Edit Sculpt">
@@ -137,7 +150,6 @@
                 <template #body="{ close }">
                   <ArtisanModalColorwayForm
                     :metadata="selectedColorway"
-                    :moderator="true"
                     @on-success="
                       () => {
                         close()

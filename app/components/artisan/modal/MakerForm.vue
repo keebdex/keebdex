@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="maker" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="makerSchema"
+    :state="maker"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="maker.name"
@@ -141,26 +146,43 @@
       <UTextarea v-model.trim="maker.bio" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
-import { z } from 'zod'
 import country from 'flag-icons/country.json'
 import slugify from 'slugify'
+import { makerSchema } from '~/utils/schemas/artisan'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
 const toast = useToast()
 
-const { metadata, isEdit } = defineProps({
+const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   isKeeb: Boolean,
   isEdit: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const maker = ref({
@@ -169,38 +191,27 @@ const maker = ref({
 })
 
 onBeforeMount(() => {
-  if (Object.keys(metadata).length) {
-    maker.value = { ...metadata }
+  if (modelValue || Object.keys(metadata).length) {
+    maker.value = { ...(modelValue || metadata) }
   }
 })
 
-const schema = z.object({
-  name: z.string().min(1),
-  id: z
-    .string()
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'Use lowercase letters, numbers, and hyphens only',
-    )
-    .nullish()
-    .or(z.string().min(0).max(0)),
-  country_origin: z.string().nullish().or(z.string().min(0).max(0)),
-  founded: z.string().nullish().or(z.string().min(0).max(0)),
-  document_ids: z.string().array(),
-  website: z.url().nullish().or(z.string().min(0).max(0)),
-  instagram: z
-    .url()
-    .regex(instagramProfileRegex, 'Invalid Instagram profile URL')
-    .nullish()
-    .or(z.string().min(0).max(0)),
-  discord: z
-    .url()
-    .regex(discordInviteRegex, 'Invalid Discord invite link')
-    .nullish()
-    .or(z.string().min(0).max(0)),
-  artisancollector: z.url().nullish().or(z.string().min(0).max(0)),
-  disable_google_sync: z.boolean(),
-})
+watch(
+  () => modelValue,
+  (value) => {
+    if (value && value !== maker.value) {
+      maker.value = { ...value }
+    }
+  },
+)
+
+watch(
+  maker,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 const addDocId = () => {
   if (!Array.isArray(maker.value.document_ids)) {
@@ -217,6 +228,8 @@ const removeDocId = (docIdx) => {
 }
 
 const onSubmit = async () => {
+  if (mode !== 'standalone') return
+
   const { sculpts, ...rest } = maker.value
   const normalizedMakerId = String(rest.id || '').trim()
 

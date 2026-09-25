@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="sculpt" class="space-y-4" @submit="onSubmit">
+  <UForm
+    :schema="sculptSchema"
+    :state="sculpt"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField label="Name" name="name" required>
       <template v-if="disableGoogleSync" #help>
         Changing name updates slug. Users who pinned this sculpt in favorites
@@ -77,28 +82,46 @@
       <UTextarea v-model.trim="sculpt.story" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton
+      v-if="mode === 'standalone'"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
   </UForm>
 </template>
 
 <script setup>
-import { z } from 'zod'
 import slugify from 'slugify'
+import { sculptSchema } from '~/utils/schemas/artisan'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, sculpts, isEdit, disableGoogleSync } = defineProps({
-  metadata: {
-    type: Object,
-    default: () => ({}),
-  },
-  sculpts: {
-    type: Array,
-    default: () => [],
-  },
-  isEdit: Boolean,
-  disableGoogleSync: Boolean,
-})
+const { metadata, modelValue, sculpts, isEdit, disableGoogleSync, mode } =
+  defineProps({
+    metadata: {
+      type: Object,
+      default: () => ({}),
+    },
+    modelValue: {
+      type: Object,
+      default: null,
+    },
+    sculpts: {
+      type: Array,
+      default: () => [],
+    },
+    isEdit: Boolean,
+    disableGoogleSync: Boolean,
+    mode: {
+      type: String,
+      default: 'standalone',
+      validator: (value) => ['standalone', 'embedded'].includes(value),
+    },
+  })
 
 const toast = useToast()
 
@@ -113,11 +136,28 @@ const originalSculpt = ref({})
 const GDOC_MANAGED_FIELDS = ['name', 'release', 'profile', 'cast', 'design']
 
 onBeforeMount(() => {
-  const { colorways, ...rest } = metadata
+  const { colorways, ...rest } = modelValue || metadata
 
   Object.assign(sculpt.value, rest)
   originalSculpt.value = { ...rest }
 })
+
+watch(
+  () => modelValue,
+  (value) => {
+    if (value && value !== sculpt.value) {
+      Object.assign(sculpt.value, value)
+    }
+  },
+)
+
+watch(
+  sculpt,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
 
 const collectionOptions = computed(() => {
   return Array.from(
@@ -139,18 +179,9 @@ const designs = [
   { label: 'Hybrid', value: 'hybrid' },
 ]
 
-const schema = z.object({
-  name: z.string().min(1),
-  release: z.string().nullish(),
-  profile: z.enum(profiles.map((p) => p.value)).nullish(),
-  cast: z.enum(casts.map((c) => c.value)).nullish(),
-  design: z.enum(designs.map((d) => d.value)).nullish(),
-  collection: z.string().nullish(),
-  is_revision_of: z.string().nullish(),
-  // story: z.string(),
-})
-
 const onSubmit = async () => {
+  if (mode !== 'standalone') return
+
   const makerId = String(sculpt.value.maker_id || route.params.maker || '')
   const sculptId = String(sculpt.value.sculpt_id || route.params.sculpt || '')
 

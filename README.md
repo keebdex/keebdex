@@ -13,6 +13,7 @@
 - **Powerful Collection Tools**: Create unlimited collections, track status (sold, completed, active), reorganize freely, and never hit a limit.
 - **Share Your Passion**: Generate eye-catching wishlist images and share your dream builds with the community in seconds.
 - **Built-In Trading Community**: Connect directly with buyers and sellers through wishlists and tools designed specifically for artisan enthusiasts.
+- **Community Submission & Verification Workflow**: Any signed-in user can contribute new keyboards, keysets, and artisan colorways. Each submission is tracked with its own status and submitter, and reviewed by staff on dedicated moderation pages before it becomes an official, publicly visible record.
 
 ## License
 

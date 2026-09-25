@@ -571,11 +571,15 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_mounting_style"][]
             | null
           name: string
+          review_status: Database["public"]["Enums"]["review_status"] | null
           slug: string
+          submitted_by: string | null
           top_case_styles:
             | Database["public"]["Enums"]["keyboard_top_case_style"][]
             | null
           typing_angle: number | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           brand_keyboard_slug: string
@@ -590,11 +594,15 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_mounting_style"][]
             | null
           name: string
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           slug: string
+          submitted_by?: string | null
           top_case_styles?:
             | Database["public"]["Enums"]["keyboard_top_case_style"][]
             | null
           typing_angle?: number | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           brand_keyboard_slug?: string
@@ -609,11 +617,15 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_mounting_style"][]
             | null
           name?: string
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           slug?: string
+          submitted_by?: string | null
           top_case_styles?:
             | Database["public"]["Enums"]["keyboard_top_case_style"][]
             | null
           typing_angle?: number | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -629,6 +641,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "keyboards"
             referencedColumns: ["brand_keyboard_slug"]
+          },
+          {
+            foreignKeyName: "keyboards_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keyboards_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }

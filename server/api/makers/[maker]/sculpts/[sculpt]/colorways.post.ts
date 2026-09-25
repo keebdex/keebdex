@@ -41,9 +41,16 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
       }
     }
-  } else if (!isModerator) {
+  } else if (isModerator) {
+    // Staff submitting through the community form don't need to self-approve.
+    rest.status = 'Approved'
+    rest.submitted_by = user.sub
+    rest.verified_by = user.sub
+    rest.verified_at = new Date().toISOString()
+    rest.source = 'keebdex'
+    rest.overridden_fields = []
+  } else {
     // Community submission: mark as pending and record the submitter.
-    // Staff-added colorways leave `status` null, which means approved.
     rest.status = 'Pending'
     rest.submitted_by = user.sub
     rest.source = 'keebdex'

@@ -1,14 +1,20 @@
 <template>
-  <UForm
-    :schema="schema"
-    :state="keyboard"
-    class="space-y-4"
-    @submit="onSubmit"
-  >
+  <component :is="formWrapper" v-bind="formWrapperProps" @submit="onSubmit">
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="keyboard.name"
         icon="hugeicons:text-font"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField v-if="includeBrand" label="Brand" name="brand_slug" required>
+      <USelectMenu
+        v-model="keyboard.brand_slug"
+        :items="brandOptions"
+        :loading="brandsStatus === 'pending'"
+        value-key="value"
+        label-key="label"
         class="w-full"
       />
     </UFormField>
@@ -96,23 +102,45 @@
       <UTextarea v-model.trim="keyboard.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto>Save</UButton>
-  </UForm>
+    <UButton
+      v-if="isStandalone"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
+  </component>
 </template>
 
 <script setup>
 import slugify from 'slugify'
 import { Constants } from '~/types/database.types'
-import { z } from 'zod'
+import {
+  keyboardSchema,
+  keyboardSubmissionSchema,
+  keyboardTopCaseStylesEnabled,
+} from '~/utils/schemas/keyboard'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, isEdit } = defineProps({
+const props = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
   isEdit: Boolean,
+  includeBrand: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const route = useRoute()
@@ -123,20 +151,49 @@ const {
   public: { imgUrl },
 } = useRuntimeConfig()
 
-const keyboard = ref({
+const isEdit = computed(() => props.isEdit)
+const includeBrand = computed(() => props.includeBrand)
+const isStandalone = computed(() => props.mode === 'standalone')
+const formWrapper = computed(() =>
+  isStandalone.value ? resolveComponent('UForm') : 'div',
+)
+const schema = computed(() =>
+  includeBrand.value ? keyboardSubmissionSchema : keyboardSchema,
+)
+const formWrapperProps = computed(() =>
+  isStandalone.value
+    ? { schema: schema.value, state: keyboard.value, class: 'space-y-4' }
+    : { class: 'space-y-4' },
+)
+
+const { data: brands, status: brandsStatus } = await useAsyncData(
+  'keyboard-form-brands',
+  () => $fetch('/api/keyboards/brands'),
+)
+
+const brandOptions = computed(() =>
+  (brands.value || []).map((brand) => ({
+    label: brand.name,
+    value: brand.slug,
+  })),
+)
+
+const defaultKeyboard = () => ({
   name: '',
   slug: '',
+  brand_slug: '',
   form_factor: Constants.public.Enums.keyboard_form_factor[0],
   top_case_styles: [],
   mount_styles: [],
   typing_angle: null,
   derived_from: null,
+  description: '',
 })
 
-const topCaseStylesEnabled = ['60%', 'TKL']
+const keyboard = ref(defaultKeyboard())
 
 const requiresTopCaseStyles = computed(() =>
-  topCaseStylesEnabled.includes(keyboard.value.form_factor),
+  keyboardTopCaseStylesEnabled.includes(keyboard.value.form_factor),
 )
 
 const selectedOriginalKeyboard = ref(null)
@@ -172,49 +229,12 @@ const originalKeyboardOptions = computed(() => {
     })
 })
 
-const schema = z
-  .object({
-    name: z.string().min(1),
-    slug: z
-      .string()
-      .regex(
-        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        'Use lowercase letters, numbers, and hyphens only',
-      )
-      .nullish()
-      .or(z.string().min(0).max(0)),
-    form_factor: z.enum(Constants.public.Enums.keyboard_form_factor),
-    top_case_styles: z.array(
-      z.enum(Constants.public.Enums.keyboard_top_case_style),
-    ),
-    mount_styles: z
-      .array(z.enum(Constants.public.Enums.keyboard_mounting_style))
-      .nullish(),
-    typing_angle: z.coerce.number().min(0).max(30).nullish(),
-    derived_from: z
-      .string()
-      .regex(
-        /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        'Expected format: brand-slug/keyboard-slug',
-      )
-      .nullish()
-      .or(z.string().min(0).max(0)),
-  })
-  .superRefine((value, context) => {
-    if (
-      topCaseStylesEnabled.includes(value.form_factor) &&
-      value.top_case_styles.length === 0
-    ) {
-      context.addIssue({
-        code: 'custom',
-        path: ['top_case_styles'],
-        message: 'Top case styles are required for this form factor',
-      })
-    }
-  })
-
 onBeforeMount(() => {
-  Object.assign(keyboard.value, metadata || {})
+  Object.assign(
+    keyboard.value,
+    defaultKeyboard(),
+    props.modelValue || props.metadata || {},
+  )
 
   if (!Array.isArray(keyboard.value.mount_styles)) {
     keyboard.value.mount_styles = keyboard.value.mount_styles
@@ -224,18 +244,18 @@ onBeforeMount(() => {
 
   if (keyboard.value.derived_from) {
     selectedOriginalKeyboard.value = {
-      value: metadata.derived_from,
+      value: props.metadata.derived_from,
       label: formatKeyboardDescription([
-        metadata?.original?.brand?.name,
-        metadata?.original?.name,
+        props.metadata?.original?.brand?.name,
+        props.metadata?.original?.name,
       ]),
       avatar: {
-        src: `${imgUrl}/logo/${metadata?.original?.brand_slug}.png`,
-        alt: metadata?.original?.brand?.name,
+        src: `${imgUrl}/logo/${props.metadata?.original?.brand_slug}.png`,
+        alt: props.metadata?.original?.brand?.name,
         ui: {
           root: 'bg-transparent rounded-none',
           image:
-            metadata?.original?.brand?.invertible_logo &&
+            props.metadata?.original?.brand?.invertible_logo &&
             colorMode.value === 'dark' &&
             'invert',
         },
@@ -251,13 +271,32 @@ watch(selectedOriginalKeyboard, (value) => {
 watch(
   () => keyboard.value.form_factor,
   (value) => {
-    if (!topCaseStylesEnabled.includes(value)) {
+    if (!keyboardTopCaseStylesEnabled.includes(value)) {
       keyboard.value.top_case_styles = []
     }
   },
 )
 
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value && value !== keyboard.value) {
+      Object.assign(keyboard.value, defaultKeyboard(), value)
+    }
+  },
+)
+
+watch(
+  keyboard,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
+
 const onSubmit = async () => {
+  if (!isStandalone.value) return
+
   const slug = slugify(keyboard.value.name, { lower: true })
 
   const brand_slug = route.params.brand
@@ -283,13 +322,13 @@ const onSubmit = async () => {
     .then((data) => {
       toast.add(
         handleSuccess(
-          isEdit ? 'update' : 'add',
+          isEdit.value ? 'update' : 'add',
           keyboard.value.name,
           'Keyboard',
         ),
       )
 
-      if (isEdit && String(route.params.keyboard || '') !== slug) {
+      if (isEdit.value && String(route.params.keyboard || '') !== slug) {
         navigateTo(`/keyboard/brand/${brand_slug}/${slug}`)
       }
 

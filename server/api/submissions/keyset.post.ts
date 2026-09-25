@@ -1,9 +1,13 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import slugify from 'slugify'
 import { getActorProfile } from '../../utils/admin'
+import {
+  canManageAssignment,
+  canManageAnyAssignment,
+} from '~/utils/permissions'
 
 export default defineEventHandler(async (event) => {
-  const { client, user } = await getActorProfile(event)
+  const { client, user, profile } = await getActorProfile(event)
 
   const body = await readBody(event)
   const keysetInput = pickTableFields('keysets', body?.keyset || {})
@@ -19,13 +23,18 @@ export default defineEventHandler(async (event) => {
   const slug = slugify(String(keysetInput.name), { lower: true })
   const profile_keyset_id = `${keysetInput.profile_id}/${slug}`
 
+  // Staff submitting through the community form don't need to self-approve.
+  const isModerator =
+    canManageAnyAssignment(profile) &&
+    canManageAssignment(profile, profile_keyset_id)
+
   const keysetPayload = {
     ...keysetInput,
     profile_keyset_id,
-    review_status: 'Pending',
+    review_status: isModerator ? 'Approved' : 'Pending',
     submitted_by: user.sub,
-    verified_at: null,
-    verified_by: null,
+    verified_at: isModerator ? new Date().toISOString() : null,
+    verified_by: isModerator ? user.sub : null,
   }
 
   const { data: keyset, error: keysetError } = await client

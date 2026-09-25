@@ -1,5 +1,5 @@
 <template>
-  <UForm :schema="schema" :state="keyset" class="space-y-4" @submit="onSubmit">
+  <component :is="formWrapper" v-bind="formWrapperProps" @submit="onSubmit">
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="keyset.name"
@@ -105,7 +105,9 @@
       <UFormField label="Review Status" name="review_status">
         <USelect
           v-model="keyset.review_status"
+          default-value="Pending"
           :items="Constants.public.Enums.review_status"
+          :disabled="!userStore.isModerator"
           class="w-full"
         />
       </UFormField>
@@ -123,7 +125,7 @@
       </UPopover>
     </UFormField>
 
-    <UFormField v-if="!ic" label="GB Time" name="gb_date">
+    <UFormField v-if="showGbDate" label="GB Time" name="gb_date">
       <UPopover>
         <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
           <template v-if="range.start">
@@ -168,30 +170,67 @@
       <UTextarea v-model.trim="keyset.description" :rows="5" class="w-full" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
-  </UForm>
+    <UButton
+      v-if="isStandalone"
+      block
+      color="primary"
+      type="submit"
+      loading-auto
+    >
+      Save
+    </UButton>
+  </component>
 </template>
 
 <script setup>
 import { parseDate } from '@internationalized/date'
 import slugify from 'slugify'
-import { z } from 'zod'
 import { Constants } from '~/types/database.types'
+import { createKeysetSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:dateRange'])
 
-const { metadata, isEdit } = defineProps({
+const props = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
   },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
+  dateRange: {
+    type: Object,
+    default: null,
+  },
   isEdit: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
 })
 
 const route = useRoute()
 const toast = useToast()
+const userStore = useUserStore()
 const keysetStatusEnum = Constants.public.Enums.keyset_status
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
+const isEdit = computed(() => props.isEdit)
+const isStandalone = computed(() => props.mode === 'standalone')
+// Regular users never see status fields (server controls them); moderators
+// reviewing an existing submission need to see and adjust them too.
+const showAdminFields = computed(() => isStandalone.value)
+
+const formWrapper = computed(() =>
+  isStandalone.value ? resolveComponent('UForm') : 'div',
+)
+const schema = computed(() => createKeysetSchema(manufacturers))
+const formWrapperProps = computed(() =>
+  isStandalone.value
+    ? { schema: schema.value, state: keyset.value, class: 'space-y-4' }
+    : { class: 'space-y-4' },
+)
 
 const designerTerm = ref('')
 
@@ -205,30 +244,38 @@ const { data: designerData, status: designersStatus } = useGuardedSearch(
 
 const designerOptions = computed(() => designerData.value?.designers || [])
 
-const keyset = ref({
+const defaultKeyset = () => ({
   name: '',
+  designer: '',
+  profile_id: '',
+  sculpt: '',
   url: '',
   img: '',
+  description: '',
 })
+
+const keyset = ref(defaultKeyset())
 
 const range = shallowRef({ start: undefined, end: undefined })
 const uploadedFile = ref(null)
+const uploadingImage = ref(false)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 
 onBeforeMount(() => {
-  const { page, size, ...rest } = metadata
-  Object.assign(keyset.value, rest)
+  const { page, size, ...rest } = props.modelValue || props.metadata || {}
+  Object.assign(keyset.value, defaultKeyset(), rest)
 
   if (rest.ic_date) {
     keyset.value.ic_date = parseDate(rest.ic_date)
   }
-  range.value = {
+  range.value = props.dateRange || {
     start: rest.start_date ? parseDate(rest.start_date) : undefined,
     end: rest.end_date ? parseDate(rest.end_date) : undefined,
   }
 })
 
 const ic = computed(() => keyset.value.status === 'Interest Check')
+const showGbDate = computed(() => !showAdminFields.value || !ic.value)
 
 const sculpts = [
   {
@@ -246,42 +293,69 @@ const sculpts = [
   'Uniform R3',
 ]
 
-const schema = z.object({
-  name: z.string().min(1),
-  designer: z.string().nullish(),
-  sculpt: z.enum(sculpts.filter((s) => typeof s === 'string')).nullish(),
-  profile_id: z
-    .string()
-    .min(1)
-    .refine((value) => !!manufacturers.value[value], 'Invalid keyset profile'),
-  url: z.url().nullish().or(z.string().min(0).max(0)),
-  img: z.url().nullish().or(z.string().min(0).max(0)),
-  // ic_date: z.date(),
-  // start_date: z.date(),
-  // end_date: z.date(),
-  status: z.enum(keysetStatusEnum).nullish(),
-  review_status: z.enum(Constants.public.Enums.review_status).nullish(),
-  order_graph: z.url().nullish().or(z.string().min(0).max(0)),
-  order_history: z.url().nullish().or(z.string().min(0).max(0)),
-  // description: z.string(),
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value && value !== keyset.value) {
+      Object.assign(keyset.value, defaultKeyset(), value)
+    }
+  },
+)
+
+watch(
+  () => props.dateRange,
+  (value) => {
+    if (value && value !== range.value) {
+      range.value = value
+    }
+  },
+)
+
+watch(
+  keyset,
+  (value) => {
+    emit('update:modelValue', value)
+  },
+  { deep: true },
+)
+
+watch(
+  range,
+  (value) => {
+    emit('update:dateRange', value)
+  },
+  { deep: true },
+)
+
+// Upload immediately on selection using a pending assignment path when the
+// profile_keyset_id isn't known yet (e.g. new keyset submissions).
+watch(uploadedFile, async (file) => {
+  if (!file) return
+
+  const assignment =
+    keyset.value.profile_keyset_id ||
+    `${keyset.value.profile_id || 'pending'}/pending-${Date.now()}`
+
+  uploadingImage.value = true
+
+  try {
+    keyset.value.img = await uploadImageToCloudflare({
+      file,
+      assignment,
+      category: 'keyset',
+    })
+  } catch (e) {
+    toast.add(handleError(e))
+  } finally {
+    uploadingImage.value = false
+  }
 })
 
 const onSubmit = async () => {
+  if (!isStandalone.value) return
+
   const slug = slugify(keyset.value.name, { lower: true })
   keyset.value.profile_keyset_id = `${keyset.value.profile_id}/${slug}`
-
-  if (uploadedFile.value) {
-    try {
-      keyset.value.img = await uploadImageToCloudflare({
-        file: uploadedFile.value,
-        assignment: keyset.value.profile_keyset_id,
-        category: 'keyset',
-      })
-    } catch (e) {
-      toast.add(handleError(e))
-      return
-    }
-  }
 
   if (keyset.value.ic_date) {
     keyset.value.ic_date = toISODate(keyset.value.ic_date)
@@ -301,7 +375,7 @@ const onSubmit = async () => {
     },
   )
     .then(() => {
-      if (isEdit) {
+      if (isEdit.value) {
         toast.add(handleSuccess('update', keyset.value.name, 'Keyset'))
 
         if (route.params.keyset !== slug) {
