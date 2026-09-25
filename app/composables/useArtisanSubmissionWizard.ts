@@ -21,25 +21,6 @@ export const useArtisanSubmissionWizard = () => {
     story: '',
   })
 
-  let colorwayKeySeed = 0
-  const newColorway = () => ({
-    _key: colorwayKeySeed++,
-    name: '',
-    img: '',
-    order: 0,
-    currency: 'USD',
-    sale_type: 'Raffle',
-  })
-  const colorways = ref([newColorway()])
-
-  const addColorway = () => {
-    colorways.value.push(newColorway())
-  }
-
-  const removeColorway = (index: number) => {
-    if (colorways.value.length > 1) colorways.value.splice(index, 1)
-  }
-
   const uploading = ref(false)
 
   const { data: makers, status: makersStatus } = useAsyncData<any[]>(
@@ -88,6 +69,62 @@ export const useArtisanSubmissionWizard = () => {
       existingSculpt.value = { id: '' }
     },
   )
+
+  const rawOrderOverride = route.params.order ?? route.query.order
+  const orderOverride =
+    rawOrderOverride !== undefined && rawOrderOverride !== ''
+      ? Number(rawOrderOverride)
+      : NaN
+
+  const selectedSculptDetail = computed(() =>
+    sculpts.value.find(
+      (item: any) => item.sculpt_id === existingSculpt.value.id,
+    ),
+  )
+
+  // Where new colorways start counting from: an explicit override, or the
+  // selected sculpt's current colorway count (0 for a brand-new sculpt).
+  const baseOrder = computed(() => {
+    if (!Number.isNaN(orderOverride)) return orderOverride
+
+    if (sculptMode.value === 'existing' && selectedSculptDetail.value) {
+      return Number((selectedSculptDetail.value as any).total_colorways) || 0
+    }
+
+    return 0
+  })
+
+  let colorwayKeySeed = 0
+  const colorways = ref<any[]>([])
+
+  const newColorway = () => ({
+    _key: colorwayKeySeed++,
+    name: '',
+    img: '',
+    order: baseOrder.value + colorways.value.length + 1,
+    currency: 'USD',
+    sale_type: 'Raffle',
+  })
+
+  colorways.value.push(newColorway())
+
+  const addColorway = () => {
+    colorways.value.push(newColorway())
+  }
+
+  const removeColorway = (index: number) => {
+    if (colorways.value.length > 1) colorways.value.splice(index, 1)
+  }
+
+  // Re-sync colorways still on their auto-computed order when baseOrder
+  // changes; anything the user has edited manually is left alone.
+  watch(baseOrder, (next, prev) => {
+    colorways.value.forEach((colorway, index) => {
+      if (colorway.order === prev + index + 1) {
+        colorway.order = next + index + 1
+      }
+    })
+  })
 
   const stepSchemas = [
     () => entitySelectionSchema.safeParse(maker.value),
