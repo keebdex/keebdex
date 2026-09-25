@@ -86,6 +86,14 @@ export const useKeysetSubmissionWizard = () => {
     { immediate: true },
   )
 
+  const canAdvance = computed(() => [
+    !!profile.value.id,
+    keysetMode.value === 'existing'
+      ? !!existingKeyset.value.id
+      : !!keyset.value.name?.trim(),
+    true,
+  ])
+
   const stepSchemas = [
     () => entitySelectionSchema.safeParse(profile.value),
     () =>
@@ -189,6 +197,7 @@ export const useKeysetSubmissionWizard = () => {
     addKit,
     removeKit,
     uploading,
+    canAdvance,
     validateStep,
     submit,
   }

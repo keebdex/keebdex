@@ -126,6 +126,16 @@ export const useArtisanSubmissionWizard = () => {
     })
   })
 
+  // Drives the Next button's disabled state so the wizard can't advance
+  // past a step whose entity hasn't been picked yet.
+  const canAdvance = computed(() => [
+    !!maker.value.id,
+    sculptMode.value === 'existing'
+      ? !!existingSculpt.value.id
+      : !!sculpt.value.name?.trim(),
+    true,
+  ])
+
   const stepSchemas = [
     () => entitySelectionSchema.safeParse(maker.value),
     () =>
@@ -240,6 +250,7 @@ export const useArtisanSubmissionWizard = () => {
     addColorway,
     removeColorway,
     uploading,
+    canAdvance,
     validateStep,
     submit,
   }

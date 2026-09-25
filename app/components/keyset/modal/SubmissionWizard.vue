@@ -120,6 +120,7 @@
         v-if="stepper?.hasNext"
         label="Next"
         trailing-icon="hugeicons:arrow-right-02"
+        :disabled="!canAdvance[active]"
         @click="onNext"
       />
       <UButton
@@ -164,6 +165,7 @@ const {
   addKit,
   removeKit,
   uploading,
+  canAdvance,
   validateStep,
   submit,
 } = useKeysetSubmissionWizard()

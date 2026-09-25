@@ -112,6 +112,7 @@
         v-if="stepper?.hasNext"
         label="Next"
         trailing-icon="hugeicons:arrow-right-02"
+        :disabled="!canAdvance[active]"
         @click="onNext"
       />
       <UButton
@@ -156,6 +157,7 @@ const {
   addColorway,
   removeColorway,
   uploading,
+  canAdvance,
   validateStep,
   submit,
 } = useArtisanSubmissionWizard()

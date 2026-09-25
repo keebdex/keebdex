@@ -159,6 +159,17 @@ export const useKeyboardSubmissionWizard = () => {
     },
   )
 
+  const canAdvance = computed(() => [
+    !!brand.value.id,
+    keyboardMode.value === 'existing'
+      ? !!existingKeyboard.value.id
+      : !!keyboard.value.name?.trim(),
+    releaseMode.value === 'existing'
+      ? !!existingRelease.value.id
+      : !!release.value.name?.trim(),
+    true,
+  ])
+
   const stepSchemas = [
     () => entitySelectionSchema.safeParse(brand.value),
     () =>
@@ -287,6 +298,7 @@ export const useKeyboardSubmissionWizard = () => {
     removeVariant,
     keyboardForVariantForm,
     uploading,
+    canAdvance,
     validateStep,
     submit,
   }
