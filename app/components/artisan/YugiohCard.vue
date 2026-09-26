@@ -51,7 +51,7 @@
 
         <!-- Description Text with line clamping -->
         <p
-          class="line-clamp-5 text-[0.8rem] leading-[1.3] break-words text-[#111827]"
+          class="font-newsreader line-clamp-5 text-[0.8rem] leading-[1.3] break-words text-[#111827]"
         >
           {{ colorway.description }}
         </p>
@@ -59,17 +59,17 @@
 
       <!-- STATS FOOTER -->
       <div
-        class="mt-1 flex items-center justify-between border-t border-amber-900/20 pt-1 font-mono text-xs font-bold text-amber-950"
+        class="font-cinzel mt-1 flex items-center justify-between border-t border-amber-900/20 pt-1 text-xs font-bold text-amber-950"
       >
         <span>
-          PRICE /
+          RSRP /
           {{
             colorway.price
               ? `${colorway.currency || 'USD'}${colorway.price}`
               : '???'
           }}
         </span>
-        <span>QTY / {{ colorway.qty || '???' }}</span>
+        <span>Qty / {{ colorway.qty || '???' }}</span>
       </div>
     </div>
   </ArtisanTCGCardFrame>

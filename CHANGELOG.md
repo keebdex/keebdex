@@ -8,6 +8,7 @@
 - **Contextual Submission Links** — Submitting directly from an existing entity page pre-fills parent steps in the wizard and jumps straight to the target creation step.
 - **Moderation & Review Pages** — Added dedicated review pages (`/keyboard/submissions`, `/keyset/submissions`, `/artisan/submissions`) with a master-detail layout to filter by status (`Pending`/`Approved`/`Rejected`) and let staff approve, reject, or edit pending entries.
 - **Submission Security & Self-Management** — Enforced RLS policies on submissions so only the submitter and staff can view unapproved entries, auto-approving staff contributions while allowing submitters and staff to delete pending or rejected entries.
+- **Trading Card Colorway Preview** — Redesigned the colorway preview into a Yu-Gi-Oh!/Pokémon-style trading card, with a selector to switch between the two styles directly in the preview modal.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
 - Migrated images to a CDN for faster loading.
 - Added Google Docs sync override tracking for sculpts, mirroring the existing colorway override tracking.
