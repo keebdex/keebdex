@@ -34,6 +34,8 @@
 </template>
 
 <script setup>
+import slugify from 'slugify'
+
 const { colorway } = defineProps({
   colorway: {
     type: Object,
@@ -97,7 +99,8 @@ const screenshot = async (download = false) => {
 
   try {
     if (download) {
-      await downloadScreenshot(card, toast)
+      const filename = slugify(colorwayTitle(colorway), { lower: true })
+      await downloadScreenshot(card, filename)
     } else {
       await copyScreenshot(card, toast, !isDesktop)
     }
