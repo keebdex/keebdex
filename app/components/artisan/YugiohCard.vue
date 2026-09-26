@@ -62,7 +62,7 @@
         class="font-cinzel mt-1 flex items-center justify-between border-t border-amber-900/20 pt-1 text-xs font-bold text-amber-950"
       >
         <span>
-          RSRP /
+          R. Price /
           {{
             colorway.price
               ? `${colorway.currency || 'USD'}${colorway.price}`

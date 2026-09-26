@@ -60,7 +60,7 @@
           </span>
         </div>
         <p
-          class="line-clamp-5 text-[11px] leading-snug font-medium break-words text-slate-900"
+          class="line-clamp-5 text-[12px] leading-snug font-medium break-words text-slate-900"
         >
           {{ colorway.description }}
         </p>

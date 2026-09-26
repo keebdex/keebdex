@@ -325,11 +325,19 @@ const acknowledge = (cookie) => {
 }
 
 onMounted(() => {
-  // Session-only cookies expire when the browser closes; persist acknowledgements for a year.
   const persistentCookie = (name) =>
     useCookie(name, { maxAge: 60 * 60 * 24 * 365 })
 
   const cookieConsent = persistentCookie('cookie-consent')
+
+  const persistentLocal = (name) => ({
+    get value() {
+      return localStorage.getItem(name)
+    },
+    set value(newValue) {
+      localStorage.setItem(name, newValue)
+    },
+  })
 
   // Show cookie consent if not accepted
   if (cookieConsent.value !== 'accepted') {
@@ -355,9 +363,7 @@ onMounted(() => {
     })
   }
 
-  const seenCommunitySubmissions = persistentCookie(
-    'seen-community-submissions',
-  )
+  const seenCommunitySubmissions = persistentLocal('seen-community-submissions')
 
   // Announce community submissions (keyboards, keysets, artisan colorways) until acknowledged.
   if (seenCommunitySubmissions.value !== 'acknowledged') {
@@ -383,7 +389,7 @@ onMounted(() => {
     })
   }
 
-  const seenDiscordAnnouncement = persistentCookie('seen-discord-announcement')
+  const seenDiscordAnnouncement = persistentLocal('seen-discord-announcement')
 
   // Announce the new Keebdex Discord server for community chat, development, ideas, and feedback.
   if (seenDiscordAnnouncement.value !== 'acknowledged') {
@@ -419,7 +425,7 @@ onMounted(() => {
     })
   }
 
-  const seenCollectionGuide = persistentCookie('seen-collection-guide')
+  const seenCollectionGuide = persistentLocal('seen-collection-guide')
 
   // Point new users to the collection walkthrough video until acknowledged.
   if (seenCollectionGuide.value !== 'acknowledged') {
