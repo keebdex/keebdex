@@ -31,7 +31,6 @@
         </div>
 
         <UTable
-          v-if="hasSubmissions || isModerator"
           sticky
           :loading="status === 'pending'"
           :data="data.data"
@@ -140,7 +139,6 @@
         </UTable>
 
         <div
-          v-if="hasSubmissions || isModerator"
           class="border-t border-default pt-4 mt-auto px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <p class="text-toned text-sm text-center sm:text-left">
@@ -159,29 +157,6 @@
               list: 'flex-wrap justify-center sm:justify-end',
             }"
             @update:page="setPage"
-          />
-        </div>
-
-        <div
-          v-else
-          class="flex flex-col items-center gap-3 py-12 px-4 text-center"
-        >
-          <UPageSection
-            icon="hugeicons:paint-board"
-            title="No Colorway Submissions Yet"
-            description="You haven't submitted any colorways. Start contributing by browsing makers and submitting a colorway from a sculpt page."
-            :links="[
-              {
-                label: 'Browse Makers',
-                to: '/artisan/maker',
-                icon: 'hugeicons:user-multiple',
-                variant: 'soft',
-              },
-            ]"
-            :ui="{
-              title: 'text-base! text-toned',
-              description: 'text-sm!',
-            }"
           />
         </div>
       </UPageCard>
@@ -272,8 +247,6 @@ const { data, status, refresh } = useAdvancedSearch(
 )
 
 watch(statusFilter, resetPage)
-
-const hasSubmissions = computed(() => (data.value?.data?.length || 0) > 0)
 
 const paginationMeta = computed(() => {
   const total = data.value?.count || 0

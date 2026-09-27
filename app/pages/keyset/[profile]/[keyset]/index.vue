@@ -220,6 +220,8 @@ import groupBy from 'lodash.groupby'
 
 const route = useRoute()
 const userStore = useUserStore()
+const { authenticated } = storeToRefs(userStore)
+
 const { manufacturers } = useKeysetProfiles()
 
 const { profile, keyset } = route.params
