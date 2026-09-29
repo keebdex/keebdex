@@ -169,7 +169,7 @@ const routes = computed(() => {
       label: 'Submissions',
       icon: 'hugeicons:file-verified',
       to: '/artisan/submissions',
-      active: route.path === '/artisan/submissions',
+      active: route.path.startsWith('/artisan/submissions'),
     })
   }
 

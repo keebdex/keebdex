@@ -118,12 +118,14 @@ const sections = ref([
         },
       },
       {
-        title: 'Editing Access',
+        title: 'Editing & Community Submissions',
         tiers: {
-          keebdex: 'Edit instantly through an intuitive web interface',
+          keebdex:
+            'Edit instantly through an intuitive web interface, and any signed-in collector can submit new keyboards, keysets, and colorways through a guided step-by-step wizard, reviewed by moderators',
           keycaplendar:
             'Site content is actively curated by editors for keyset listings',
-          archivist: 'Requires GitHub PRs with unpredictable approval times',
+          archivist:
+            'Only updated through its Google Docs files; adding a new file requires a GitHub PR with unpredictable approval times',
         },
       },
       {

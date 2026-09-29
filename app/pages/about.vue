@@ -63,6 +63,12 @@ const features = ref([
       'Create unlimited collections across keyboards, keysets, and artisans; track status (sold, completed, active), reorganize freely, and never hit a limit.',
   },
   {
+    icon: 'solar:gallery-add-bold-duotone',
+    title: 'Community Submissions',
+    description:
+      'Signed-in collectors can contribute new keyboards, keysets, and artisan colorways through a guided step-by-step wizard. Submissions are reviewed by moderators before they go live.',
+  },
+  {
     icon: 'solar:share-circle-bold-duotone',
     title: 'Share Your Passion',
     description:
