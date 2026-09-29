@@ -304,10 +304,7 @@ const copying = ref(false)
 const screenshot = async (download = false) => {
   copying.value = true
 
-  // wait a sec to hide footer
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000)
-  })
+  await nextTick()
 
   const card = document.getElementsByClassName('trading-preview')[0]
 

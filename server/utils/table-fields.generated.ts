@@ -29,6 +29,7 @@ export const TABLE_FIELDS = {
     "sale_type",
     "sculpt_id",
     "source",
+    "source_document_id",
     "status",
     "stem",
     "submitted_by",
@@ -72,6 +73,7 @@ export const TABLE_FIELDS = {
     "release",
     "sculpt_id",
     "source",
+    "source_document_id",
     "story"
   ],
   "colors": [

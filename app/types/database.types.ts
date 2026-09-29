@@ -36,6 +36,7 @@ export type Database = {
           sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source: string | null
+          source_document_id: string | null
           status: Database["public"]["Enums"]["review_status"] | null
           stem: string[] | null
           submitted_by: string | null
@@ -63,6 +64,7 @@ export type Database = {
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source?: string | null
+          source_document_id?: string | null
           status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
@@ -90,6 +92,7 @@ export type Database = {
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
           source?: string | null
+          source_document_id?: string | null
           status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
@@ -206,6 +209,7 @@ export type Database = {
           release: string | null
           sculpt_id: string
           source: string
+          source_document_id: string | null
           story: string | null
         }
         Insert: {
@@ -226,6 +230,7 @@ export type Database = {
           release?: string | null
           sculpt_id: string
           source: string
+          source_document_id?: string | null
           story?: string | null
         }
         Update: {
@@ -246,6 +251,7 @@ export type Database = {
           release?: string | null
           sculpt_id?: string
           source?: string
+          source_document_id?: string | null
           story?: string | null
         }
         Relationships: [
@@ -1089,7 +1095,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_manage: { Args: { scope: string }; Returns: boolean }
     }
     Enums: {
       currency:

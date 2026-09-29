@@ -4,14 +4,14 @@
       v-if="cardType === 'yugioh'"
       :colorway="colorway"
       :stars="classify.stars"
-      :rarity="classify.rarity"
+      :rarity="displayRarity"
       class="artisan-trading-card"
     />
     <ArtisanPokemonCard
       v-if="cardType === 'pokemon'"
       :colorway="colorway"
       :stars="classify.stars"
-      :rarity="classify.rarity"
+      :rarity="displayRarity"
       class="artisan-trading-card"
     />
 
@@ -84,13 +84,16 @@ const classify = computed(() => {
 })
 
 const copying = ref(false)
+
+// Display the rarity class only when not copying, to ensure the screenshot is clear.
+const displayRarity = computed(() =>
+  copying.value ? '' : classify.value.rarity,
+)
+
 const screenshot = async (download = false) => {
   copying.value = true
 
-  // wait a sec to hide footer
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000)
-  })
+  await nextTick()
 
   const card = document.getElementsByClassName('artisan-trading-card')[0]
 
@@ -106,10 +109,10 @@ const screenshot = async (download = false) => {
     }
   } catch (error) {
     toast.add(handleError(error))
+  } finally {
+    // Restore layout and effects, even if the screenshot fails.
+    card.classList.add('flex-1')
+    copying.value = false
   }
-
-  card.classList.add('flex-1')
-
-  copying.value = false
 }
 </script>

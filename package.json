@@ -55,7 +55,7 @@
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@iconify-json/hugeicons": "^1.2.35",
-    "@iconify-json/simple-icons": "^1.2.97",
+    "@iconify-json/simple-icons": "^1.2.98",
     "@iconify-json/solar": "^1.2.13",
     "@nuxt/content": "^3.16.1",
     "@nuxt/eslint": "^1.17.0",
@@ -84,7 +84,7 @@
     "lodash.omit": "^4.18.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "4.5.2",
-    "nuxt-og-image": "^6.9.0",
+    "nuxt-og-image": "^6.9.1",
     "prettier": "^3.9.9"
   }
 }
