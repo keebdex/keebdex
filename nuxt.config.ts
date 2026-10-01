@@ -37,12 +37,22 @@ export default defineNuxtConfig({
   ],
 
   fonts: {
+    defaults: { weights: [400, 500, 600, 700] },
     families: [
       { name: 'Reddit Sans', global: true },
       { name: 'Reddit Mono', global: true },
       { name: 'Dosis', weights: [700, 800], global: true },
+      { name: 'Cinzel', global: true },
+      { name: 'Outfit', global: true },
+      { name: 'Source Serif 4', global: true },
     ],
   },
+
+  // icon: {
+  //   clientBundle: {
+  //     icons: ['hugeicons', 'simple-icons', 'solar'],
+  //   },
+  // },
 
   supabase: {
     redirect: false,
