@@ -2,9 +2,17 @@ import slugify from 'slugify'
 import { colorwaySchema, sculptSchema } from '~/utils/schemas/artisan'
 import { entitySelectionSchema } from '~/utils/schemas/common'
 
-export const useArtisanSubmissionWizard = () => {
+export const useArtisanSubmissionWizard = ({
+  mode = 'create',
+  submission,
+}: {
+  mode?: 'create' | 'review'
+  submission?: Record<string, any> | null
+} = {}) => {
   const route = useRoute()
   const toast = useToast()
+  const userStore = useUserStore()
+  const isReview = mode === 'review'
 
   const maker = ref({ id: String(route.query.maker || '') })
   const sculptMode = ref('existing')
@@ -114,6 +122,114 @@ export const useArtisanSubmissionWizard = () => {
 
   const removeColorway = (index: number) => {
     if (colorways.value.length > 1) colorways.value.splice(index, 1)
+  }
+
+  const reviewStatus = ref<string | null>(null)
+  const sculptReviewStatus = ref<string | null>(null)
+  const originalColorwayIds = ref<number[]>([])
+
+  const load = async () => {
+    if (!isReview || !submission) return
+
+    maker.value = { id: submission.maker_id }
+    await nextTick()
+    sculptMode.value = 'existing'
+    existingSculpt.value = { id: submission.sculpt_id }
+    reviewStatus.value = submission.status
+    colorways.value = [{ ...submission, _key: colorwayKeySeed++ }]
+    originalColorwayIds.value = [submission.id]
+
+    // The sculpt may itself be a Pending proposal submitted alongside this
+    // colorway (see server/api/makers/[maker]/sculpts/[sculpt].post.ts) — if
+    // so, render it as an editable form instead of a locked "existing" select
+    // so the moderator can actually review/edit it before approving.
+    if (submission.sculpt?.review_status === 'Pending') {
+      try {
+        const sculptDetail: any = await $fetch(
+          `/api/makers/${submission.maker_id}/sculpts/${submission.sculpt_id}`,
+        )
+
+        sculptMode.value = 'new'
+        sculptReviewStatus.value = 'Pending'
+        Object.assign(sculpt.value, {
+          id: sculptDetail.id,
+          name: sculptDetail.name,
+          release: sculptDetail.release,
+          profile: sculptDetail.profile,
+          cast: sculptDetail.cast,
+          design: sculptDetail.design,
+          collection: sculptDetail.collection,
+          is_revision_of: sculptDetail.is_revision_of,
+          story: sculptDetail.story,
+        })
+      } catch {
+        // Fall back to the locked existing-sculpt select below.
+      }
+    }
+  }
+
+  const canDelete = computed(() => isReview && userStore.isModerator)
+
+  const save = async () => {
+    if (sculptReviewStatus.value === 'Pending') {
+      await $fetch(
+        `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}`,
+        {
+          method: 'post',
+          body: {
+            ...sculpt.value,
+            maker_id: maker.value.id,
+            sculpt_id: existingSculpt.value.id,
+          },
+        },
+      )
+    }
+
+    const currentIds = colorways.value.map((item) => item.id).filter(Boolean)
+    const removedIds = originalColorwayIds.value.filter(
+      (id) => !currentIds.includes(id),
+    )
+
+    for (const id of removedIds) {
+      await $fetch(
+        `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways/${id}`,
+        { method: 'delete' },
+      )
+    }
+
+    for (const colorway of colorways.value) {
+      const { _key, ...colorwayData } = colorway
+      const [saved] = await $fetch<any[]>(
+        `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways`,
+        { method: 'post', body: colorwayData },
+      )
+      if (!colorway.id) colorway.id = saved.id
+    }
+
+    originalColorwayIds.value = colorways.value
+      .map((item) => item.id)
+      .filter(Boolean)
+  }
+
+  const moderate = async (action: 'approve' | 'reject') => {
+    const colorwayId = submission?.id
+    if (!colorwayId) return
+
+    await save()
+    await $fetch(`/api/submissions/artisan/${colorwayId}`, {
+      method: 'post',
+      body: { action },
+    })
+  }
+
+  const remove = async () => {
+    const colorwayId = submission?.id
+    if (!colorwayId) return
+
+    await $fetch(
+      `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways/${colorwayId}`,
+      { method: 'delete' },
+    )
   }
 
   // Re-sync colorways still on their auto-computed order when baseOrder
@@ -249,6 +365,13 @@ export const useArtisanSubmissionWizard = () => {
     colorways,
     addColorway,
     removeColorway,
+    reviewStatus,
+    sculptReviewStatus,
+    canDelete,
+    load,
+    save,
+    moderate,
+    remove,
     uploading,
     canAdvance,
     validateStep,

@@ -1,12 +1,33 @@
-import { serverSupabaseClient } from '#supabase/server'
-
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
+  const { client, user, profile } = await getActorProfile(event)
   const { maker: makerId, sculpt: sculptId } = event.context.params || {}
 
-  const body = pickTableFields('artisan_sculpts', await readBody(event))
+  // TODO: drop this `Record<string, unknown>` cast once the artisan sculpt
+  // submission-status migration has been applied and
+  // `bun run generate:table-fields` regenerated.
+  const body: Record<string, unknown> = pickTableFields(
+    'artisan_sculpts',
+    await readBody(event),
+  )
 
   body.maker_sculpt_id = `${body.maker_id}/${body.sculpt_id}`
+
+  // Moderation fields are only ever set by the server, never trusted from
+  // the client, and only apply to a brand-new sculpt — editing an existing
+  // one (by its owner while Pending, or by staff) never resets its status.
+  if (!body.id) {
+    if (
+      canModerateAssignment(profile, String(body.maker_id || makerId || ''))
+    ) {
+      body.review_status = 'Approved'
+      body.submitted_by = user.sub
+      body.verified_by = user.sub
+      body.verified_at = new Date().toISOString()
+    } else {
+      body.review_status = 'Pending'
+      body.submitted_by = user.sub
+    }
+  }
 
   const query = body.id
     ? client

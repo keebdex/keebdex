@@ -16,6 +16,8 @@
 
 ### 🐛 Bug Fixes
 
+- Fixed the keyboard submission wizard not jumping to the Variant step when launched with a specific release pre-selected, and added a "Submit a Variant" entry point for non-staff users on each release's variant grid.
+- Hardened the keyset and keyboard submission wizards to derive the parent profile/brand from the child entity's composite id when only that id is present in the URL query string.
 - Fixed keyboard edit behavior so changing the keyboard name now regenerates slug consistently.
 - Fixed the order graph/order history preview on keyset pages.
 - Fixed the autocomplete component after a Nuxt UI breaking change.
@@ -28,8 +30,15 @@
 
 ### 🚀 Improvements
 
+- Added a compact "Selected: ..." summary line under existing-entity selects (Maker/Sculpt, Brand/Keyboard/Release, Profile/Keyset) in the submission wizards so reviewers can confirm what's chosen without depending solely on the dropdown's own rendering.
+- `artisan_sculpts` now carries the same review_status/submitted_by/verified_at/verified_by columns as keyboards/keysets (draft migration, not yet applied): a non-staff user proposing a new sculpt now creates a Pending row instead of being blocked by RLS, the artisan review wizard renders that Pending sculpt as an editable form, and approving/rejecting the colorway cascades the same decision to its sculpt.
+- Unified artisan, keyboard, and keyset submission review with their create `SubmissionWizard`, reusing atomic forms and prefilling submission data; keyboard/keyset review also supports editing their full nested child lists.
 - Replaced the dismissible top banner with persistent, cookie-gated toast notifications (site announcements, cookie consent, and the collection guide) that reappear on every visit until acknowledged.
 - Unified role-based edit/moderation permissions (`admin`/`editor`/`maker`/`designer`) into a single shared permission utility used consistently across artisan, keyboard, and keyset pages.
 - Allowed makers/editors to rename sculpts, with sculpt URLs now updating automatically to match the new name after save.
 - Removed typing angle from release forms, moved mounting styles to keyboard forms, and added multiple-choice support for keyboard mounting styles.
 - Added an uploading state indicator and original-value change tracking to the Colorway form for clearer Google Docs override detection.
+
+### 🗑️ Removed
+
+- Removed the flat `KeyboardSubmissionForm.vue` and `KeysetSubmissionForm.vue` review composites and their `useKeyboardSubmission.ts` / `useKeysetSubmission.ts` composables; review now uses the shared submission wizards.

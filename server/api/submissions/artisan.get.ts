@@ -19,9 +19,12 @@ export default defineEventHandler(async (event) => {
   // approved) and never enter the moderation queue.
   let request = client
     .from('artisan_colorways')
-    .select('*, maker:artisan_makers(id, name), sculpt:artisan_sculpts(name)', {
-      count: 'exact',
-    })
+    .select(
+      '*, maker:artisan_makers(id, name), sculpt:artisan_sculpts(name, review_status)',
+      {
+        count: 'exact',
+      },
+    )
     .not('status', 'is', null)
     .eq('status', status)
     .order('created_at', { ascending: false })

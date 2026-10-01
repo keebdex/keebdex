@@ -77,10 +77,11 @@
         </div>
 
         <UPageCard variant="subtle" class="min-w-0">
-          <template v-if="detail">
-            <KeyboardModalKeyboardSubmissionForm
-              :key="detail.id"
-              :metadata="detail"
+          <template v-if="selectedId">
+            <KeyboardModalSubmissionWizard
+              :key="selectedId"
+              mode="review"
+              :submission-id="selectedId"
               @on-success="onDetailSuccess"
               @on-delete="onDetailDelete"
             />
@@ -126,28 +127,20 @@ const { data, refresh } = useAdvancedSearch('/api/submissions/keyboard', {
 watch(statusFilter, () => {
   resetPage()
   selectedId.value = null
-  detail.value = null
 })
 
 const selectedId = ref(null)
-const detail = ref(null)
 
-const selectSubmission = async (row) => {
+const selectSubmission = (row) => {
   selectedId.value = row.id
-  detail.value = await $fetch(`/api/submissions/keyboard/${row.id}`)
 }
 
 const onDetailSuccess = async () => {
   await refresh()
-
-  if (selectedId.value) {
-    detail.value = await $fetch(`/api/submissions/keyboard/${selectedId.value}`)
-  }
 }
 
 const onDetailDelete = async () => {
   selectedId.value = null
-  detail.value = null
   await refresh()
 }
 </script>

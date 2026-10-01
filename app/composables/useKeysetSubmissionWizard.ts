@@ -1,3 +1,4 @@
+import { parseDate } from '@internationalized/date'
 import { createKeysetSchema, keysetKitSchema } from '~/utils/schemas/keyset'
 import { entitySelectionSchema } from '~/utils/schemas/common'
 
@@ -5,16 +6,38 @@ import { entitySelectionSchema } from '~/utils/schemas/common'
 // then create the kit. Reuses existing single-entity APIs; creating a new keyset
 // reuses the submission endpoint (with an empty kits array) so the keyset is owned
 // and Pending, which is required for the follow-up kit create call to pass RLS.
-export const useKeysetSubmissionWizard = () => {
+//
+// Also drives the staff "review a keyset submission" flow via the same wizard
+// (`mode: 'review'`): the keyset step is always the pre-filled edit form (the
+// submission row *is* the keyset being reviewed) and the kit step already supports
+// a repeatable list, so it's reused as-is to review/edit/add/remove every kit
+// accumulated on a Pending submission.
+export const useKeysetSubmissionWizard = ({
+  mode = 'create',
+  submissionId = null,
+}: {
+  mode?: 'create' | 'review'
+  submissionId?: string | number | null
+} = {}) => {
   const route = useRoute()
   const toast = useToast()
+  const userStore = useUserStore()
   const { manufacturers } = useKeysetProfiles()
 
-  const profile = ref({ id: String(route.query.profile || '') })
+  const isReview = mode === 'review'
+
+  const queryKeyset = String(route.query.keyset || '')
+  // Fall back to the profile embedded in `profile_keyset_id` (e.g.
+  // "gmk/some-keyset") when only the `keyset` query param made it through,
+  // so a direct "Submit a Kit" link still recognizes the right profile.
+  const profile = ref({
+    id: String(route.query.profile || queryKeyset.split('/')[0] || ''),
+  })
   const keysetMode = ref('existing')
-  const existingKeyset = ref({ id: String(route.query.keyset || '') })
+  const existingKeyset = ref({ id: queryKeyset })
 
   const keyset = ref({
+    id: undefined as number | undefined,
     name: '',
     designer: '',
     sculpt: '',
@@ -22,11 +45,19 @@ export const useKeysetSubmissionWizard = () => {
     img: '',
     description: '',
     profile_id: '',
+    status: undefined as string | undefined,
+    review_status: undefined as string | undefined,
+    ic_date: undefined as ReturnType<typeof parseDate> | string | undefined,
+    start_date: undefined as string | undefined,
+    end_date: undefined as string | undefined,
   })
 
   // Bound to KeysetForm's GB date-range picker; not part of `keyset` since the
   // picker works with CalendarDate objects that need converting on submit.
-  const dateRange = ref({ start: undefined, end: undefined })
+  const dateRange = ref({
+    start: undefined as ReturnType<typeof parseDate> | undefined,
+    end: undefined as ReturnType<typeof parseDate> | undefined,
+  })
 
   let kitKeySeed = 0
   const newKit = () => ({
@@ -48,6 +79,89 @@ export const useKeysetSubmissionWizard = () => {
   const removeKit = (index: number) => {
     if (kits.value.length > 1) kits.value.splice(index, 1)
   }
+
+  const loadingDetail = ref(false)
+  const reviewStatus = ref<string | null>(null)
+
+  const canDelete = computed(
+    () =>
+      isReview && (userStore.isModerator || reviewStatus.value !== 'Approved'),
+  )
+
+  const load = async () => {
+    if (!isReview || !submissionId) return
+
+    loadingDetail.value = true
+
+    try {
+      const data: any = await $fetch(`/api/submissions/keyset/${submissionId}`)
+
+      profile.value = { id: data.profile_id }
+      await nextTick()
+      keysetMode.value = 'new'
+      existingKeyset.value = { id: data.profile_keyset_id }
+      reviewStatus.value = data.review_status
+
+      Object.assign(keyset.value, {
+        id: data.id,
+        name: data.name,
+        designer: data.designer,
+        sculpt: data.sculpt,
+        url: data.url,
+        img: data.img,
+        description: data.description,
+        profile_id: data.profile_id,
+        status: data.status,
+        review_status: data.review_status,
+        ic_date: data.ic_date ? parseDate(data.ic_date) : undefined,
+      })
+
+      dateRange.value = {
+        start: data.start_date ? parseDate(data.start_date) : undefined,
+        end: data.end_date ? parseDate(data.end_date) : undefined,
+      }
+
+      kits.value = (data.kits || []).map((kit: any) => ({
+        ...newKit(),
+        ...kit,
+      }))
+
+      if (!kits.value.length) kits.value.push(newKit())
+    } finally {
+      loadingDetail.value = false
+    }
+  }
+
+  const buildKitsPayload = () =>
+    kits.value
+      .filter((kit) => kit.name || kit.img || kit.description)
+      .map(({ _key, ...kit }) => kit)
+
+  const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    const payload: any = { ...keyset.value }
+
+    if (action === 'update') payload.review_status = 'Pending'
+
+    if (payload.ic_date) {
+      payload.ic_date = toISODate(payload.ic_date)
+    }
+    if (dateRange.value.start) {
+      payload.start_date = toISODate(dateRange.value.start)
+    }
+    if (dateRange.value.end) {
+      payload.end_date = toISODate(dateRange.value.end)
+    }
+
+    return $fetch(`/api/submissions/keyset/${submissionId}`, {
+      method: 'post',
+      body: { action, keyset: payload, kits: buildKitsPayload() },
+    })
+  }
+
+  const approve = () => save('approve')
+  const reject = () => save('reject')
+  const remove = () =>
+    $fetch(`/api/submissions/keyset/${submissionId}`, { method: 'delete' })
 
   const uploading = ref(false)
 
@@ -196,6 +310,14 @@ export const useKeysetSubmissionWizard = () => {
     kits,
     addKit,
     removeKit,
+    loadingDetail,
+    reviewStatus,
+    canDelete,
+    load,
+    save,
+    approve,
+    reject,
+    remove,
     uploading,
     canAdvance,
     validateStep,

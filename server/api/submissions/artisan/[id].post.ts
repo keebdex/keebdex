@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: existing, error: existingError } = await client
     .from('artisan_colorways')
-    .select('id, maker_id')
+    .select('id, maker_id, sculpt_id')
     .eq('id', id)
     .single()
 
@@ -60,6 +60,23 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
       statusMessage: error.message,
     })
+  }
+
+  // The sculpt attached to this colorway may itself be a Pending proposal
+  // created alongside it (see server/api/makers/[maker]/sculpts/[sculpt].post.ts).
+  // Approving/rejecting the colorway resolves that sculpt the same way, since
+  // there's no separate moderation queue for sculpts.
+  if (action === 'approve' || action === 'reject') {
+    await client
+      .from('artisan_sculpts')
+      .update({
+        review_status: action === 'approve' ? 'Approved' : 'Rejected',
+        verified_by: user.sub,
+        verified_at: new Date().toISOString(),
+      })
+      .eq('maker_id', existing.maker_id)
+      .eq('sculpt_id', existing.sculpt_id)
+      .eq('review_status', 'Pending')
   }
 
   return data

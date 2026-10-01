@@ -330,6 +330,22 @@
                 />
               </template>
             </UModal>
+
+            <UButton
+              v-else-if="authenticated"
+              label="Submit a Variant"
+              icon="hugeicons:add-square"
+              variant="outline"
+              class="w-full justify-center ring-0 border border-default border-dashed rounded-lg"
+              :to="{
+                path: '/keyboard/submissions/submit',
+                query: {
+                  brand: route.params.brand,
+                  keyboard: slug,
+                  release: release.id,
+                },
+              }"
+            />
           </UPageGrid>
         </UPageCard>
       </UPageList>

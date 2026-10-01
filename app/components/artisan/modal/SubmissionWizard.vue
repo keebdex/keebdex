@@ -17,36 +17,57 @@
             v-model="maker.id"
             :items="makerOptions"
             :loading="makersStatus === 'pending'"
+            :disabled="mode === 'review'"
             value-key="value"
             label-key="label"
             placeholder="Select a maker"
             class="w-full"
           />
+
+          <p v-if="selectedMakerLabel" class="text-xs text-dimmed">
+            Selected: <strong>{{ selectedMakerLabel }}</strong>
+          </p>
         </div>
       </template>
 
       <template #sculpt>
         <div class="space-y-4">
           <UTabs
-            v-if="sculptOptions.length"
+            v-if="mode === 'create' && sculptOptions.length"
             v-model="sculptMode"
             :items="sculptModeTabs"
             size="sm"
           />
+
+          <p
+            v-if="mode === 'review' && sculptReviewStatus === 'Pending'"
+            class="text-sm text-muted"
+          >
+            This sculpt was proposed together with the colorway below and is
+            still Pending — review and edit it here before approving.
+          </p>
 
           <USelectMenu
             v-if="sculptMode === 'existing'"
             v-model="existingSculpt.id"
             :items="sculptOptions"
             :loading="sculptsStatus === 'pending'"
+            :disabled="mode === 'review'"
             value-key="value"
             label-key="label"
             placeholder="Select a sculpt"
             class="w-full"
           />
 
+          <p
+            v-if="sculptMode === 'existing' && selectedSculptLabel"
+            class="text-xs text-dimmed"
+          >
+            Selected: <strong>{{ selectedSculptLabel }}</strong>
+          </p>
+
           <ArtisanModalSculptForm
-            v-else
+            v-if="sculptMode === 'new'"
             v-model="sculpt"
             :sculpts="sculpts"
             mode="embedded"
@@ -115,19 +136,85 @@
         :disabled="!canAdvance[active]"
         @click="onNext"
       />
+
+      <div
+        v-else-if="mode === 'review' && userStore.isModerator"
+        class="flex flex-wrap items-center justify-end gap-2"
+      >
+        <UButton
+          label="Save Changes"
+          color="primary"
+          :loading="savingAction === 'update'"
+          @click="onReviewAction('update')"
+        />
+        <UButton
+          label="Approve"
+          color="success"
+          icon="hugeicons:checkmark-circle-02"
+          :loading="savingAction === 'approve'"
+          @click="onReviewAction('approve')"
+        />
+        <UButton
+          label="Reject"
+          color="error"
+          icon="hugeicons:cancel-circle"
+          @click="confirmAction = 'reject'"
+        />
+        <UButton
+          v-if="canDelete"
+          label="Delete"
+          color="error"
+          variant="soft"
+          icon="hugeicons:delete-02"
+          @click="confirmAction = 'delete'"
+        />
+      </div>
       <UButton
-        v-else
+        v-else-if="mode === 'create'"
         label="Submit Colorway"
         color="primary"
         :loading="uploading"
         @click="onSubmit"
       />
     </div>
+
+    <UModal
+      v-if="mode === 'review'"
+      v-model:open="confirmVisible"
+      :title="
+        confirmAction === 'reject' ? 'Reject Submission' : 'Delete Submission'
+      "
+      :description="`Are you sure you want to ${confirmAction} ${colorways[0]?.name || 'this submission'}?`"
+    >
+      <template #footer="{ close }">
+        <UButton label="Cancel" @click="close" />
+        <UButton
+          :label="confirmAction === 'reject' ? 'Reject' : 'Delete'"
+          color="error"
+          :loading="savingAction === confirmAction"
+          @click="onConfirmAction(close)"
+        />
+      </template>
+    </UModal>
   </div>
 </template>
 
 <script setup>
-const emit = defineEmits(['onSuccess'])
+const props = defineProps({
+  mode: {
+    type: String,
+    default: 'create',
+    validator: (value) => ['create', 'review'].includes(value),
+  },
+  submission: {
+    type: Object,
+    default: null,
+  },
+})
+
+const emit = defineEmits(['onSuccess', 'onDelete'])
+const toast = useToast()
+const userStore = useUserStore()
 
 const stepper = useTemplateRef('stepper')
 const active = ref(0)
@@ -156,13 +243,37 @@ const {
   colorways,
   addColorway,
   removeColorway,
+  sculptReviewStatus,
+  canDelete,
+  load,
+  save,
+  moderate,
+  remove,
   uploading,
   canAdvance,
   validateStep,
   submit,
-} = useArtisanSubmissionWizard()
+} = useArtisanSubmissionWizard({
+  mode: props.mode,
+  submission: props.submission,
+})
 
-onMounted(() => {
+const selectedMakerLabel = computed(
+  () => makerOptions.value.find((o) => o.value === maker.value.id)?.label,
+)
+
+const selectedSculptLabel = computed(
+  () =>
+    sculptOptions.value.find((o) => o.value === existingSculpt.value.id)?.label,
+)
+
+onMounted(async () => {
+  if (props.mode === 'review') {
+    await load()
+    active.value = 2
+    return
+  }
+
   if (maker.value.id && existingSculpt.value.id) {
     active.value = 2
   }
@@ -171,6 +282,63 @@ onMounted(() => {
 const onNext = () => {
   if (!validateStep(active.value)) return
   stepper.value?.next()
+}
+
+const savingAction = ref(null)
+const confirmAction = ref(null)
+const confirmVisible = computed({
+  get: () => !!confirmAction.value,
+  set: (value) => {
+    if (!value) confirmAction.value = null
+  },
+})
+
+const onReviewAction = async (action) => {
+  if (action !== 'update' && !userStore.isModerator) return
+  if (!validateStep(2)) return
+
+  savingAction.value = action
+
+  try {
+    if (action === 'update') {
+      await save()
+    } else {
+      await moderate(action)
+    }
+
+    toast.add(handleSuccess('save', colorways.value[0]?.name, 'Colorway'))
+    emit('onSuccess')
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    savingAction.value = null
+  }
+}
+
+const onConfirmAction = async (close) => {
+  if (!userStore.isModerator || !confirmAction.value) return
+
+  const action = confirmAction.value
+  savingAction.value = action
+
+  try {
+    if (action === 'reject') {
+      await moderate('reject')
+      toast.add(handleSuccess('save', colorways.value[0]?.name, 'Colorway'))
+      emit('onSuccess')
+    } else {
+      await remove()
+      toast.add(handleSuccess('delete', colorways.value[0]?.name))
+      emit('onDelete')
+    }
+
+    confirmAction.value = null
+    close()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    savingAction.value = null
+  }
 }
 
 const onSubmit = async () => {

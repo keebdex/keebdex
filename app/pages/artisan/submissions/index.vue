@@ -72,69 +72,13 @@
           </template>
 
           <template #action-cell="{ row }">
-            <div class="flex flex-wrap items-center gap-2">
-              <template v-if="isModerator">
-                <UButton
-                  v-if="row.original.status !== 'Approved'"
-                  label="Approve"
-                  size="xs"
-                  color="success"
-                  icon="hugeicons:checkmark-circle-02"
-                  :loading="processingId === row.original.id"
-                  @click="approve(row.original)"
-                />
-
-                <UButton
-                  v-if="row.original.status !== 'Rejected'"
-                  label="Reject"
-                  size="xs"
-                  color="error"
-                  icon="hugeicons:cancel-circle"
-                  :loading="processingId === row.original.id"
-                  @click="reject(row.original)"
-                />
-
-                <UButton
-                  label="Edit & Approve"
-                  size="xs"
-                  variant="soft"
-                  icon="hugeicons:file-edit"
-                  @click="editSubmission(row.original)"
-                />
-
-                <UButton
-                  v-if="row.original.status !== 'Approved'"
-                  label="Delete"
-                  size="xs"
-                  color="error"
-                  variant="soft"
-                  icon="hugeicons:delete-02"
-                  :loading="processingId === row.original.id"
-                  @click="confirmDelete(row.original)"
-                />
-              </template>
-
-              <template v-else>
-                <UButton
-                  v-if="row.original.status === 'Pending'"
-                  label="Edit"
-                  size="xs"
-                  variant="soft"
-                  icon="hugeicons:file-edit"
-                  @click="editSubmission(row.original)"
-                />
-
-                <UButton
-                  v-if="row.original.status !== 'Approved'"
-                  label="Delete"
-                  size="xs"
-                  color="error"
-                  icon="hugeicons:delete-02"
-                  :loading="processingId === row.original.id"
-                  @click="confirmDelete(row.original)"
-                />
-              </template>
-            </div>
+            <UButton
+              label="Review"
+              size="xs"
+              variant="soft"
+              icon="hugeicons:file-edit"
+              @click="editSubmission(row.original)"
+            />
           </template>
         </UTable>
 
@@ -163,34 +107,12 @@
 
       <UModal v-model:open="editorOpen" :title="editorTitle">
         <template #body="{ close }">
-          <ArtisanModalColorwayForm
+          <ArtisanModalSubmissionWizard
             v-if="selectedSubmission"
-            :metadata="selectedSubmission"
+            mode="review"
+            :submission="selectedSubmission"
             @on-success="() => onEditSuccess(close)"
-          />
-        </template>
-      </UModal>
-
-      <UModal
-        v-model:open="deleteVisible"
-        title="Delete Submission"
-        :description="`Are you sure you want to delete ${deleteTarget?.name}? This action cannot be undone.`"
-      >
-        <template #footer="{ close }">
-          <UButton
-            label="Cancel"
-            @click="
-              () => {
-                close()
-                deleteTarget = null
-              }
-            "
-          />
-          <UButton
-            label="Delete"
-            color="error"
-            :loading="processingId === deleteTarget?.id"
-            @click="deleteSubmission(close)"
+            @on-delete="() => onDeleteSuccess(close)"
           />
         </template>
       </UModal>
@@ -205,7 +127,6 @@ definePageMeta({
 
 const userStore = useUserStore()
 const { isModerator } = storeToRefs(userStore)
-const toast = useToast()
 
 const pageDescription = computed(() =>
   isModerator.value
@@ -270,49 +191,10 @@ const paginationMeta = computed(() => {
   }
 })
 
-const processingId = ref(null)
 const editorOpen = ref(false)
 const selectedSubmission = ref(null)
 
-const editorTitle = computed(() =>
-  isModerator.value ? 'Edit & Approve Colorway' : 'Edit Colorway',
-)
-
-const approve = async (colorway) => {
-  processingId.value = colorway.id
-
-  try {
-    await $fetch(`/api/submissions/artisan/${colorway.id}`, {
-      method: 'post',
-      body: { action: 'approve' },
-    })
-
-    toast.add(handleSuccess('save', colorway.name, 'Colorway'))
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    processingId.value = null
-  }
-}
-
-const reject = async (colorway) => {
-  processingId.value = colorway.id
-
-  try {
-    await $fetch(`/api/submissions/artisan/${colorway.id}`, {
-      method: 'post',
-      body: { action: 'reject' },
-    })
-
-    toast.add(handleSuccess('save', colorway.name, 'Colorway'))
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    processingId.value = null
-  }
-}
+const editorTitle = 'Review Colorway'
 
 const editSubmission = (colorway) => {
   selectedSubmission.value = colorway
@@ -320,45 +202,16 @@ const editSubmission = (colorway) => {
 }
 
 const onEditSuccess = async (close) => {
-  if (isModerator.value) {
-    await approve(selectedSubmission.value)
-  } else {
-    await refresh()
-  }
-
+  await refresh()
   close()
   editorOpen.value = false
   selectedSubmission.value = null
 }
 
-const deleteTarget = ref(null)
-const deleteVisible = ref(false)
-
-const confirmDelete = (colorway) => {
-  deleteTarget.value = colorway
-  deleteVisible.value = true
-}
-
-const deleteSubmission = async (close) => {
-  if (!deleteTarget.value) return
-
-  processingId.value = deleteTarget.value.id
-
-  try {
-    await $fetch(
-      `/api/makers/${deleteTarget.value.maker_id}/sculpts/${deleteTarget.value.sculpt_id}/colorways/${deleteTarget.value.id}`,
-      { method: 'delete' },
-    )
-
-    toast.add(handleSuccess('delete', deleteTarget.value.name))
-    close()
-    deleteVisible.value = false
-    deleteTarget.value = null
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error))
-  } finally {
-    processingId.value = null
-  }
+const onDeleteSuccess = async (close) => {
+  await refresh()
+  close()
+  editorOpen.value = false
+  selectedSubmission.value = null
 }
 </script>
