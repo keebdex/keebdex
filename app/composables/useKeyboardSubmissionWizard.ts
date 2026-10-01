@@ -40,7 +40,11 @@ export const useKeyboardSubmissionWizard = ({
   })
   const keyboardMode = ref('existing')
   const existingKeyboard = ref({ id: queryKeyboard })
-  const releaseMode = ref('existing')
+  // A direct "Submit a Release" link (keyboard pre-selected, no release id yet)
+  // already expresses the intent to create a new release, so the release step
+  // should skip the existing/new toggle entirely and only render the create form.
+  const isDirectReleaseEntry = !!queryKeyboard && !route.query.release
+  const releaseMode = ref(isDirectReleaseEntry ? 'new' : 'existing')
   const existingRelease = ref({ id: String(route.query.release || '') })
 
   const keyboard = ref({
@@ -83,24 +87,24 @@ export const useKeyboardSubmissionWizard = ({
     if (variants.value.length > 1) variants.value.splice(index, 1)
   }
 
-  // Fed into VariantForm's required `keyboard` prop so its Release dropdown and
-  // brand stamping work before the real keyboard/release are created.
-  const keyboardForVariantForm = computed(() => ({
-    releases:
-      releaseMode.value === 'existing' && existingRelease.value.id
-        ? [
-            {
-              id: existingRelease.value.id,
-              name:
-                releaseOptions.value.find(
-                  (r: any) => r.value === existingRelease.value.id,
-                )?.label || '',
-            },
-          ]
-        : [{ id: 'draft', name: release.value.name || 'New Release' }],
-    brand_slug: brand.value.id,
-    brand_keyboard_slug: existingKeyboard.value.id || brand.value.id,
-  }))
+  // Fed into VariantForm's required `keyboard` prop so its Release dropdown shows
+  // the chosen/typed release name. Variants always default to `release_id: 'draft'`
+  // (see newVariant below), so the option must always be keyed 'draft' too — the
+  // real release id (existing or newly created) is only resolved at submit time.
+  const keyboardForVariantForm = computed(() => {
+    const releaseLabel =
+      releaseMode.value === 'existing'
+        ? releaseOptions.value.find(
+            (r: any) => r.value === existingRelease.value.id,
+          )?.label
+        : release.value.name
+
+    return {
+      releases: [{ id: 'draft', name: releaseLabel || 'New Release' }],
+      brand_slug: brand.value.id,
+      brand_keyboard_slug: existingKeyboard.value.id || brand.value.id,
+    }
+  })
 
   const uploading = ref(false)
 
@@ -477,6 +481,7 @@ export const useKeyboardSubmissionWizard = ({
     keyboardsStatus,
     keyboard,
     releaseMode,
+    isDirectReleaseEntry,
     existingRelease,
     releaseOptions,
     releasesStatus,

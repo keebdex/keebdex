@@ -35,10 +35,6 @@
             placeholder="Select a profile"
             class="w-full"
           />
-
-          <p v-if="selectedProfileLabel" class="text-xs text-dimmed">
-            Selected: <strong>{{ selectedProfileLabel }}</strong>
-          </p>
         </div>
       </template>
 
@@ -61,17 +57,6 @@
             placeholder="Select a keyset"
             class="w-full"
           />
-
-          <p
-            v-if="
-              mode === 'create' &&
-              keysetMode === 'existing' &&
-              selectedKeysetLabel
-            "
-            class="text-xs text-dimmed"
-          >
-            Selected: <strong>{{ selectedKeysetLabel }}</strong>
-          </p>
 
           <KeysetModalKeysetForm
             v-if="mode === 'review' || keysetMode === 'new'"
@@ -230,12 +215,6 @@ const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const stepper = useTemplateRef('stepper')
 const active = ref(0)
 
-const items = [
-  { slot: 'profile', title: 'Profile', icon: 'hugeicons:grid-view' },
-  { slot: 'keyset', title: 'Keyset', icon: 'hugeicons:keyboard' },
-  { slot: 'kit', title: 'Kit', icon: 'hugeicons:package' },
-]
-
 const keysetModeTabs = [
   { label: 'Choose Existing Keyset', value: 'existing' },
   { label: 'Propose New Keyset', value: 'new' },
@@ -274,10 +253,36 @@ const selectedKeysetLabel = computed(
     keysetOptions.value.find((o) => o.value === existingKeyset.value.id)?.label,
 )
 
+const selectedKeysetContextLabel = computed(() =>
+  props.mode === 'review' || keysetMode.value === 'new'
+    ? keyset.value.name
+    : selectedKeysetLabel.value,
+)
+
+const items = computed(() => [
+  {
+    slot: 'profile',
+    title: 'Profile',
+    description: selectedProfileLabel.value,
+    icon: 'hugeicons:grid-view',
+  },
+  {
+    slot: 'keyset',
+    title: 'Keyset',
+    icon: 'hugeicons:keyboard',
+    description: selectedKeysetContextLabel.value,
+  },
+  {
+    slot: 'kit',
+    title: 'Kit',
+    icon: 'hugeicons:package',
+  },
+])
+
 onMounted(async () => {
   if (props.mode === 'review') {
     await load()
-    active.value = items.length - 1
+    active.value = 1
     return
   }
 
@@ -303,7 +308,7 @@ const onSubmit = async () => {
 }
 
 const validateAllSteps = () => {
-  for (let i = 0; i < items.length; i++) {
+  for (let i = 0; i < items.value.length; i++) {
     if (!validateStep(i)) return false
   }
 

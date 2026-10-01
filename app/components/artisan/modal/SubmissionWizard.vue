@@ -23,10 +23,6 @@
             placeholder="Select a maker"
             class="w-full"
           />
-
-          <p v-if="selectedMakerLabel" class="text-xs text-dimmed">
-            Selected: <strong>{{ selectedMakerLabel }}</strong>
-          </p>
         </div>
       </template>
 
@@ -58,13 +54,6 @@
             placeholder="Select a sculpt"
             class="w-full"
           />
-
-          <p
-            v-if="sculptMode === 'existing' && selectedSculptLabel"
-            class="text-xs text-dimmed"
-          >
-            Selected: <strong>{{ selectedSculptLabel }}</strong>
-          </p>
 
           <ArtisanModalSculptForm
             v-if="sculptMode === 'new'"
@@ -219,12 +208,6 @@ const userStore = useUserStore()
 const stepper = useTemplateRef('stepper')
 const active = ref(0)
 
-const items = [
-  { slot: 'maker', title: 'Maker', icon: 'hugeicons:user-multiple' },
-  { slot: 'sculpt', title: 'Sculpt', icon: 'hugeicons:dashboard-square-02' },
-  { slot: 'colorway', title: 'Colorway', icon: 'hugeicons:paint-board' },
-]
-
 const sculptModeTabs = [
   { label: 'Choose Existing Sculpt', value: 'existing' },
   { label: 'Propose New Sculpt', value: 'new' },
@@ -267,10 +250,34 @@ const selectedSculptLabel = computed(
     sculptOptions.value.find((o) => o.value === existingSculpt.value.id)?.label,
 )
 
+const selectedSculptContextLabel = computed(() =>
+  sculptMode.value === 'new' ? sculpt.value.name : selectedSculptLabel.value,
+)
+
+const items = computed(() => [
+  {
+    slot: 'maker',
+    title: 'Maker',
+    description: selectedMakerLabel.value,
+    icon: 'hugeicons:user-multiple',
+  },
+  {
+    slot: 'sculpt',
+    title: 'Sculpt',
+    icon: 'hugeicons:dashboard-square-02',
+    description: selectedSculptContextLabel.value,
+  },
+  {
+    slot: 'colorway',
+    title: 'Colorway',
+    icon: 'hugeicons:paint-board',
+  },
+])
+
 onMounted(async () => {
   if (props.mode === 'review') {
     await load()
-    active.value = 2
+    active.value = 1
     return
   }
 

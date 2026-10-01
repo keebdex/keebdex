@@ -189,15 +189,24 @@ export const useKeysetSubmissionWizard = ({
     }
   })
 
-  // Reset the dependent keyset selection so a stale id from a previous profile isn't submitted.
+  // KeysetForm always renders its own Profile field; keep it in sync with step 1.
+  // Runs immediately so a new-keyset form pre-fills profile_id on first mount too.
   watch(
     () => profile.value.id,
     (id) => {
-      existingKeyset.value = { id: '' }
-      // KeysetForm always renders its own Profile field; keep it in sync with step 1.
       keyset.value.profile_id = id
     },
     { immediate: true },
+  )
+
+  // Reset the dependent keyset selection so a stale id from a previous profile isn't
+  // submitted — but NOT on the initial run, which would wipe a pre-selected existing
+  // keyset id coming from a direct "Submit a Kit" link's `keyset` query param.
+  watch(
+    () => profile.value.id,
+    () => {
+      existingKeyset.value = { id: '' }
+    },
   )
 
   const canAdvance = computed(() => [

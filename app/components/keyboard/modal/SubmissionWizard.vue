@@ -23,10 +23,6 @@
             placeholder="Select a brand"
             class="w-full"
           />
-
-          <p v-if="selectedBrandLabel" class="text-xs text-dimmed">
-            Selected: <strong>{{ selectedBrandLabel }}</strong>
-          </p>
         </div>
       </template>
 
@@ -50,17 +46,6 @@
             class="w-full"
           />
 
-          <p
-            v-if="
-              mode === 'create' &&
-              keyboardMode === 'existing' &&
-              selectedKeyboardLabel
-            "
-            class="text-xs text-dimmed"
-          >
-            Selected: <strong>{{ selectedKeyboardLabel }}</strong>
-          </p>
-
           <KeyboardModalKeyboardForm
             v-if="mode === 'review' || keyboardMode === 'new'"
             v-model="keyboard"
@@ -72,7 +57,11 @@
       <template #release>
         <div class="space-y-4">
           <UTabs
-            v-if="keyboardMode === 'existing' && releaseOptions.length"
+            v-if="
+              keyboardMode === 'existing' &&
+              releaseOptions.length &&
+              !isDirectReleaseEntry
+            "
             v-model="releaseMode"
             :items="releaseModeTabs"
             size="sm"
@@ -89,15 +78,8 @@
             class="w-full"
           />
 
-          <p
-            v-if="releaseMode === 'existing' && selectedReleaseLabel"
-            class="text-xs text-dimmed"
-          >
-            Selected: <strong>{{ selectedReleaseLabel }}</strong>
-          </p>
-
           <KeyboardModalReleaseForm
-            v-else
+            v-if="releaseMode === 'new'"
             v-model="release"
             :keyboard="{ releases: [] }"
             mode="embedded"
@@ -342,20 +324,6 @@ const userStore = useUserStore()
 const stepper = useTemplateRef('stepper')
 const active = ref(0)
 
-const items =
-  props.mode === 'review'
-    ? [
-        { slot: 'brand', title: 'Brand', icon: 'hugeicons:user-multiple' },
-        { slot: 'keyboard', title: 'Keyboard', icon: 'hugeicons:keyboard' },
-        { slot: 'releases', title: 'Releases', icon: 'hugeicons:package' },
-      ]
-    : [
-        { slot: 'brand', title: 'Brand', icon: 'hugeicons:user-multiple' },
-        { slot: 'keyboard', title: 'Keyboard', icon: 'hugeicons:keyboard' },
-        { slot: 'release', title: 'Release', icon: 'hugeicons:package' },
-        { slot: 'variant', title: 'Variant', icon: 'hugeicons:layers-01' },
-      ]
-
 const keyboardModeTabs = [
   { label: 'Choose Existing Keyboard', value: 'existing' },
   { label: 'Propose New Keyboard', value: 'new' },
@@ -376,6 +344,7 @@ const {
   keyboardsStatus,
   keyboard,
   releaseMode,
+  isDirectReleaseEntry,
   existingRelease,
   releaseOptions,
   releasesStatus,
@@ -419,10 +388,69 @@ const selectedReleaseLabel = computed(
       ?.label,
 )
 
+const selectedKeyboardContextLabel = computed(() =>
+  props.mode === 'review' || keyboardMode.value === 'new'
+    ? keyboard.value.name
+    : selectedKeyboardLabel.value,
+)
+
+const selectedReleaseContextLabel = computed(() =>
+  releaseMode.value === 'new' ? release.value.name : selectedReleaseLabel.value,
+)
+
+const items = computed(() =>
+  props.mode === 'review'
+    ? [
+        {
+          slot: 'brand',
+          title: 'Brand',
+          description: selectedBrandLabel.value,
+          icon: 'hugeicons:user-multiple',
+        },
+        {
+          slot: 'keyboard',
+          title: 'Keyboard',
+          icon: 'hugeicons:keyboard',
+          description: selectedKeyboardContextLabel.value,
+        },
+        {
+          slot: 'releases',
+          title: 'Releases',
+          icon: 'hugeicons:package',
+          description: selectedReleaseContextLabel.value,
+        },
+      ]
+    : [
+        {
+          slot: 'brand',
+          title: 'Brand',
+          description: selectedBrandLabel.value,
+          icon: 'hugeicons:user-multiple',
+        },
+        {
+          slot: 'keyboard',
+          title: 'Keyboard',
+          icon: 'hugeicons:keyboard',
+          description: selectedKeyboardContextLabel.value,
+        },
+        {
+          slot: 'release',
+          title: 'Release',
+          icon: 'hugeicons:package',
+          description: selectedReleaseContextLabel.value,
+        },
+        {
+          slot: 'variant',
+          title: 'Variant',
+          icon: 'hugeicons:layers-01',
+        },
+      ],
+)
+
 onMounted(async () => {
   if (props.mode === 'review') {
     await load()
-    active.value = items.length - 1
+    active.value = 1
     return
   }
 
@@ -450,7 +478,7 @@ const onSubmit = async () => {
 }
 
 const validateAllSteps = () => {
-  for (let i = 0; i < items.length; i++) {
+  for (let i = 0; i < items.value.length; i++) {
     if (!validateStep(i)) return false
   }
 
