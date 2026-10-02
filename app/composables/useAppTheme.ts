@@ -19,6 +19,11 @@ export function useAppTheme() {
     cookie.value = value
   })
 
+  watch(cookie, (value) => {
+    const nextId = findPreset(value).id
+    if (id.value !== nextId) id.value = nextId
+  })
+
   const preset = computed(() => findPreset(id.value))
 
   function setTheme(next: string) {
