@@ -9,7 +9,7 @@
 - **Moderation & Review Pages** — Added dedicated review pages (`/keyboard/submissions`, `/keyset/submissions`, `/artisan/submissions`) with a master-detail layout to filter by status (`Pending`/`Approved`/`Rejected`) and let staff approve, reject, or edit pending entries.
 - **Submission Security & Self-Management** — Enforced RLS policies on submissions so only the submitter and staff can view unapproved entries, auto-approving staff contributions while allowing submitters and staff to delete pending or rejected entries.
 - **Trading Card Colorway Preview** — Redesigned the colorway preview into a Yu-Gi-Oh!/Pokémon-style trading card, with a selector to switch between the two styles directly in the preview modal.
-- **Theme Preset System** — Users can now switch between theme presets (Default, Bubble Tea, Carbon, Parchment) from the profile menu. Each preset controls colors, fonts, component defaults, and CSS custom properties for semantic tokens; themes persist via cookie and apply instantly without reload.
+- **Theme Preset System** — Users can now switch between theme presets (Default, Carbon, Parchment, Taro) from the profile menu. Each preset controls colors, fonts, component defaults, and CSS custom properties for semantic tokens; themes persist via cookie and apply instantly without reload.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
 - Migrated images to a CDN for faster loading.
 - Added Google Docs sync override tracking for sculpts, mirroring the existing colorway override tracking.

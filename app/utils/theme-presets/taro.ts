@@ -1,16 +1,16 @@
 import { palette, type ThemePreset } from './types'
 
 export default {
-  id: 'bubble-tea',
-  label: 'Bubble Tea',
+  id: 'taro',
+  label: 'Taro',
   icon: 'hugeicons:bubble-tea-01',
   ui: {
     colors: {
-      primary: 'bubble-tea',
-      //   secondary: 'bubble-tea-ink',
+      primary: 'taro',
+      //   secondary: 'taro-ink',
       info: 'teal',
       warning: 'yellow',
-      neutral: 'bubble-tea-ink',
+      neutral: 'taro-ink',
     },
     // button: {
     //   defaultVariants: {
@@ -41,7 +41,7 @@ export default {
   css: {
     root: {
       //   '--ui-radius': '0.625rem',
-      ...palette('bubble-tea', {
+      ...palette('taro', {
         50: '#F8F4FA',
         100: '#EDE5F1',
         200: '#DCCCE3',
@@ -54,7 +54,7 @@ export default {
         900: '#302239',
         950: '#170B19',
       }),
-      ...palette('bubble-tea-ink', {
+      ...palette('taro-ink', {
         50: '#FBF9FC',
         100: '#F3EEF5',
         200: '#E5DCE9',

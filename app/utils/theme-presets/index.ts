@@ -1,5 +1,5 @@
 import defaultTheme from './default'
-import bubbleTea from './bubble-tea'
+import taro from './taro'
 import carbon from './carbon'
 import parchment from './parchment'
 
@@ -9,7 +9,7 @@ export { presetToCss } from './types'
 export const THEME_COOKIE = 'app-theme'
 export const DEFAULT_THEME_ID = 'default'
 
-export const themePresets = [defaultTheme, bubbleTea, carbon, parchment]
+export const themePresets = [defaultTheme, carbon, parchment, taro]
 
 export function findPreset(id?: string | null) {
   return (
