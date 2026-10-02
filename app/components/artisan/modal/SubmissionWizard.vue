@@ -66,7 +66,7 @@
 
       <template #colorway>
         <div class="space-y-4">
-          <p class="text-sm text-muted">
+          <p v-if="mode === 'create'" class="text-sm text-muted">
             Add one or more colorways for this sculpt.
           </p>
 
@@ -81,6 +81,7 @@
               </p>
 
               <UButton
+                v-if="mode === 'create'"
                 aria-label="Remove colorway"
                 size="xs"
                 color="error"
@@ -99,6 +100,7 @@
           </div>
 
           <UButton
+            v-if="mode === 'create'"
             label="Add Colorway"
             size="xs"
             variant="soft"
@@ -114,7 +116,7 @@
       <UButton
         label="Back"
         variant="soft"
-        :disabled="!stepper?.hasPrev"
+        :disabled="!stepper?.hasPrev || !!savingAction"
         @click="stepper?.prev()"
       />
 
@@ -122,7 +124,7 @@
         v-if="stepper?.hasNext"
         label="Next"
         trailing-icon="hugeicons:arrow-right-02"
-        :disabled="!canAdvance[active]"
+        :disabled="!canAdvance[active] || (mode === 'review' && !reviewLoaded)"
         @click="onNext"
       />
 
@@ -131,23 +133,12 @@
         class="flex flex-wrap items-center justify-end gap-2"
       >
         <UButton
-          label="Save Changes"
-          color="primary"
-          :loading="savingAction === 'update'"
-          @click="onReviewAction('update')"
-        />
-        <UButton
-          label="Approve"
+          label="Save & Approve"
           color="success"
           icon="hugeicons:checkmark-circle-02"
           :loading="savingAction === 'approve'"
-          @click="onReviewAction('approve')"
-        />
-        <UButton
-          label="Reject"
-          color="error"
-          icon="hugeicons:cancel-circle"
-          @click="confirmAction = 'reject'"
+          :disabled="!reviewLoaded || !!savingAction"
+          @click="onSaveAndApprove"
         />
         <UButton
           v-if="canDelete"
@@ -155,6 +146,7 @@
           color="error"
           variant="soft"
           icon="hugeicons:delete-02"
+          :disabled="!reviewLoaded || !!savingAction"
           @click="confirmAction = 'delete'"
         />
       </div>
@@ -170,15 +162,13 @@
     <UModal
       v-if="mode === 'review'"
       v-model:open="confirmVisible"
-      :title="
-        confirmAction === 'reject' ? 'Reject Submission' : 'Delete Submission'
-      "
-      :description="`Are you sure you want to ${confirmAction} ${colorways[0]?.name || 'this submission'}?`"
+      title="Delete Submission"
+      :description="`Are you sure you want to delete ${colorways[0]?.name || 'this submission'}?`"
     >
       <template #footer="{ close }">
         <UButton label="Cancel" @click="close" />
         <UButton
-          :label="confirmAction === 'reject' ? 'Reject' : 'Delete'"
+          label="Delete"
           color="error"
           :loading="savingAction === confirmAction"
           @click="onConfirmAction(close)"
@@ -229,7 +219,6 @@ const {
   sculptReviewStatus,
   canDelete,
   load,
-  save,
   moderate,
   remove,
   uploading,
@@ -274,10 +263,17 @@ const items = computed(() => [
   },
 ])
 
+const reviewLoaded = ref(false)
+
 onMounted(async () => {
   if (props.mode === 'review') {
-    await load()
-    active.value = 1
+    try {
+      await load()
+      active.value = sculptReviewStatus.value === 'Pending' ? 1 : 2
+      reviewLoaded.value = true
+    } catch (error) {
+      toast.add(handleError(error, { showOriginalMessage: true }))
+    }
     return
   }
 
@@ -300,18 +296,14 @@ const confirmVisible = computed({
   },
 })
 
-const onReviewAction = async (action) => {
-  if (action !== 'update' && !userStore.isModerator) return
-  if (!validateStep(2)) return
+const onSaveAndApprove = async () => {
+  if (!userStore.isModerator || !reviewLoaded.value || savingAction.value) return
+  if (!validateStep(1) || !validateStep(2)) return
 
-  savingAction.value = action
+  savingAction.value = 'approve'
 
   try {
-    if (action === 'update') {
-      await save()
-    } else {
-      await moderate(action)
-    }
+    await moderate('approve')
 
     toast.add(handleSuccess('save', colorways.value[0]?.name, 'Colorway'))
     emit('onSuccess')
@@ -323,21 +315,15 @@ const onReviewAction = async (action) => {
 }
 
 const onConfirmAction = async (close) => {
-  if (!userStore.isModerator || !confirmAction.value) return
+  if (!userStore.isModerator || !confirmAction.value || savingAction.value) return
 
   const action = confirmAction.value
   savingAction.value = action
 
   try {
-    if (action === 'reject') {
-      await moderate('reject')
-      toast.add(handleSuccess('save', colorways.value[0]?.name, 'Colorway'))
-      emit('onSuccess')
-    } else {
-      await remove()
-      toast.add(handleSuccess('delete', colorways.value[0]?.name))
-      emit('onDelete')
-    }
+    await remove()
+    toast.add(handleSuccess('delete', colorways.value[0]?.name))
+    emit('onDelete')
 
     confirmAction.value = null
     close()

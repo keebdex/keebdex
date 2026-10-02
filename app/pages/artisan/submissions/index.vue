@@ -53,10 +53,11 @@
           </template>
 
           <template #maker-cell="{ row }">
-            <div class="truncate max-w-48">
-              {{ row.original.maker?.name || row.original.maker_id }} /
-              {{ row.original.sculpt?.name || row.original.sculpt_id }}
-            </div>
+            {{ row.original.maker?.name || row.original.maker_id }}
+          </template>
+
+          <template #sculpt-cell="{ row }">
+            {{ row.original.sculpt?.name || row.original.sculpt_id }}
           </template>
 
           <template #status-cell="{ row }">
@@ -67,18 +68,51 @@
             />
           </template>
 
-          <template #created_at-cell="{ row }">
-            {{ formatDate(row.original.created_at) }}
+          <template #release-cell="{ row }">
+            {{ row.original.release || '-' }}
           </template>
 
+          <template #qty-cell="{ row }">
+            {{ row.original.qty ?? '-' }}
+          </template>
+
+          <!-- <template #created_at-cell="{ row }">
+            {{ formatDate(row.original.created_at) }}
+          </template> -->
+
           <template #action-cell="{ row }">
-            <UButton
-              label="Review"
-              size="xs"
-              variant="soft"
-              icon="hugeicons:file-edit"
-              @click="editSubmission(row.original)"
-            />
+            <div class="flex flex-wrap items-center gap-2">
+              <template v-if="isModerator">
+                <UButton
+                  v-if="row.original.status !== 'Approved'"
+                  label="Approve"
+                  size="xs"
+                  color="success"
+                  icon="hugeicons:checkmark-circle-02"
+                  :loading="processingId === row.original.id"
+                  :disabled="processingId !== null"
+                  @click="moderateSubmission(row.original, 'approve')"
+                />
+                <UButton
+                  v-if="row.original.status !== 'Rejected'"
+                  label="Reject"
+                  size="xs"
+                  color="error"
+                  icon="hugeicons:cancel-circle"
+                  :loading="processingId === row.original.id"
+                  :disabled="processingId !== null"
+                  @click="moderateSubmission(row.original, 'reject')"
+                />
+              </template>
+              <UButton
+                label="Edit"
+                size="xs"
+                variant="soft"
+                icon="hugeicons:file-edit"
+                :disabled="processingId !== null"
+                @click="editSubmission(row.original)"
+              />
+            </div>
           </template>
         </UTable>
 
@@ -126,6 +160,7 @@ definePageMeta({
 })
 
 const userStore = useUserStore()
+const toast = useToast()
 const { isModerator } = storeToRefs(userStore)
 
 const pageDescription = computed(() =>
@@ -137,18 +172,21 @@ const pageDescription = computed(() =>
 const columns = [
   { accessorKey: 'img', header: 'Image' },
   { accessorKey: 'name', header: 'Name' },
-  { accessorKey: 'maker', header: 'Maker / Sculpt' },
+  { accessorKey: 'maker', header: 'Maker' },
+  { accessorKey: 'sculpt', header: 'Sculpt' },
+  { accessorKey: 'release', header: 'Release' },
+  { accessorKey: 'qty', header: 'Qty' },
   { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'created_at', header: 'Submitted' },
+  // { accessorKey: 'created_at', header: 'Submitted' },
   { id: 'action' },
 ]
 
 const statusFilter = ref('Pending')
 
-const formatDate = (value) => {
-  if (!value) return '-'
-  return new Date(value).toLocaleDateString()
-}
+// const formatDate = (value) => {
+//   if (!value) return '-'
+//   return new Date(value).toLocaleDateString()
+// }
 
 const { page, size, setPage, resetPage } = usePagination(10)
 const { data, status, refresh } = useAdvancedSearch(
@@ -193,8 +231,29 @@ const paginationMeta = computed(() => {
 
 const editorOpen = ref(false)
 const selectedSubmission = ref(null)
+const processingId = ref(null)
 
-const editorTitle = 'Review Colorway'
+const editorTitle = 'Edit Colorway'
+
+const moderateSubmission = async (colorway, action) => {
+  if (!isModerator.value || processingId.value !== null) return
+
+  processingId.value = colorway.id
+
+  try {
+    await $fetch(`/api/submissions/artisan/${colorway.id}`, {
+      method: 'post',
+      body: { action },
+    })
+
+    toast.add(handleSuccess('save', colorway.name, 'Colorway'))
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    processingId.value = null
+  }
+}
 
 const editSubmission = (colorway) => {
   selectedSubmission.value = colorway
