@@ -32,6 +32,11 @@ const links = [
     },
     exact: true,
   },
+  {
+    label: 'Appearance',
+    icon: 'hugeicons:paint-board',
+    to: '/account/settings/appearance',
+  },
 ]
 
 useSeoMeta({

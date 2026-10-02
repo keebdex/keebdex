@@ -1,0 +1,100 @@
+import { palette, type ThemePreset } from './types'
+
+export default {
+  id: 'taro',
+  label: 'Taro',
+  icon: 'hugeicons:bubble-tea-01',
+  ui: {
+    colors: {
+      primary: 'taro',
+      info: 'teal',
+      warning: 'taro-gold',
+      neutral: 'taro-ink',
+    },
+  },
+  css: {
+    root: {
+      //   '--ui-radius': '0.625rem',
+      '--font-sans': "'Dosis', sans-serif",
+      ...palette('taro', {
+        50: '#F8F4FA',
+        100: '#EDE5F1',
+        200: '#DCCCE3',
+        300: '#C9B2D2',
+        400: '#AD8CBD',
+        500: '#8E71A2',
+        600: '#765C87',
+        700: '#5D466C',
+        800: '#473351',
+        900: '#302239',
+        950: '#170B19',
+      }),
+      // 500 = #8E71A2, 950 = #170B19
+      ...palette('taro-ink', {
+        50: '#FBF9FC',
+        100: '#F3EEF5',
+        200: '#E5DCE9',
+        300: '#D2C4D8',
+        400: '#B7A4BE',
+        500: '#8E71A2',
+        600: '#745A80',
+        700: '#59425F',
+        800: '#412F45',
+        900: '#2B1D2E',
+        950: '#170B19',
+      }),
+      // 500 = #f8c200
+      ...palette('taro-gold', {
+        50: '#FFFBE8',
+        100: '#FFF3BD',
+        200: '#FFE785',
+        300: '#FFD84D',
+        400: '#FFCD1F',
+        500: '#F8C200',
+        600: '#D19E00',
+        700: '#A67A00',
+        800: '#7F5D05',
+        900: '#614709',
+        950: '#362704',
+      }),
+    },
+    // Light: soft lavender background (neutral-200), dark text #170B19.
+    // Muted surfaces stay lighter than the page; elevated surfaces and
+    // neutral buttons use a darker lavender for contrast.
+    light: {
+      '--ui-primary': 'var(--ui-color-primary-600)',
+      '--ui-bg': 'var(--ui-color-neutral-200)',
+      '--ui-bg-muted': 'var(--ui-color-neutral-100)',
+      '--ui-bg-elevated': 'var(--ui-color-neutral-300)',
+      '--ui-bg-accented': 'var(--ui-color-neutral-400)',
+      '--ui-bg-inverted': 'var(--ui-color-neutral-950)',
+      '--ui-text-dimmed': 'var(--ui-color-neutral-500)',
+      '--ui-text-muted': 'var(--ui-color-neutral-700)',
+      '--ui-text-toned': 'var(--ui-color-neutral-800)',
+      '--ui-text': 'var(--ui-color-neutral-900)',
+      '--ui-text-highlighted': 'var(--ui-color-neutral-900)',
+      '--ui-text-inverted': 'var(--ui-color-neutral-50)',
+      '--ui-border': 'var(--ui-color-neutral-400)',
+      '--ui-border-muted': 'var(--ui-color-neutral-300)',
+      '--ui-border-accented': 'var(--ui-color-neutral-500)',
+    },
+    // Dark: background #170B19, text #8E71A2
+    dark: {
+      '--ui-primary': 'var(--ui-color-primary-400)',
+      '--ui-bg': 'var(--ui-color-neutral-950)',
+      '--ui-bg-muted': 'var(--ui-color-neutral-900)',
+      '--ui-bg-elevated': 'var(--ui-color-neutral-900)',
+      '--ui-bg-accented': 'var(--ui-color-neutral-800)',
+      '--ui-bg-inverted': 'var(--ui-color-neutral-500)',
+      '--ui-text-dimmed': 'var(--ui-color-neutral-600)',
+      '--ui-text-muted': 'var(--ui-color-neutral-500)',
+      '--ui-text-toned': 'var(--ui-color-neutral-400)',
+      '--ui-text': 'var(--ui-color-neutral-500)',
+      '--ui-text-highlighted': 'var(--ui-color-neutral-300)',
+      '--ui-text-inverted': 'var(--ui-color-neutral-950)',
+      '--ui-border': 'var(--ui-color-neutral-800)',
+      '--ui-border-muted': 'var(--ui-color-neutral-900)',
+      '--ui-border-accented': 'var(--ui-color-neutral-700)',
+    },
+  },
+} satisfies ThemePreset

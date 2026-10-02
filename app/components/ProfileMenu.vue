@@ -58,6 +58,7 @@ const toast = useToast()
 
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
+const { themeId, presets, setTheme } = useAppTheme()
 
 const items = computed(() => {
   const managementItems = []
@@ -96,7 +97,7 @@ const items = computed(() => {
 
   const appearance = {
     label: 'Appearance',
-    icon: 'hugeicons:paint-board',
+    icon: 'hugeicons:dark-mode',
     children: [
       {
         label: 'System',
@@ -128,6 +129,20 @@ const items = computed(() => {
     ],
   }
 
+  const themes = {
+    label: 'Theme',
+    icon: 'hugeicons:paint-board',
+    children: presets.map((preset) => ({
+      label: preset.label,
+      icon: preset.icon,
+      active: themeId.value === preset.id,
+      onSelect(e) {
+        e.preventDefault()
+        setTheme(preset.id)
+      },
+    })),
+  }
+
   return authenticated.value
     ? [
         [
@@ -147,6 +162,7 @@ const items = computed(() => {
             to: '/account/settings',
           },
           appearance,
+          themes,
         ],
         ...adminActions,
         [
@@ -169,7 +185,7 @@ const items = computed(() => {
             },
           },
         ],
-        [appearance],
+        [appearance, themes],
       ]
 })
 

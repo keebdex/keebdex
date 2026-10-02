@@ -26,6 +26,9 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `app/middleware/`: route guards such as authentication and admin access.
 - `app/types/database.types.ts`: generated Supabase database types; treat this as generated source and do not edit it manually.
 - `app/utils/`: client-side helpers and utilities.
+- `app/utils/theme-presets/`: theme preset system with registry, type definitions, and preset configs (default, carbon, parchment).
+- `app/composables/useAppTheme.ts`: reactive theme management with cookie persistence.
+- `app/plugins/theme.ts`: runtime theme application engine; merges preset UI config into `appConfig`, generates CSS, and handles font variables.
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
 - `server/utils/`: server-side database, authorization, grouping, and response helpers.
 - `scripts/`: repository maintenance scripts, including table-field metadata generation.
@@ -45,6 +48,15 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Use `NuxtImg` for optimized images where appropriate.
 - Follow the existing mobile-first Tailwind styling and the design tokens in `app/app.config.ts` and `app/assets/main.css`.
 - Use the centralized icon names configured in `app/app.config.ts` rather than introducing arbitrary icon sets.
+
+## Theme Preset System
+
+- Presets are stored in `app/utils/theme-presets/` and registered in `index.ts`. Each preset exports a `ThemePreset` object defining `id`, `label`, `icon`, `font`, `ui` (Nuxt UI config), and `css` (semantic token overrides).
+- The CSS shape supports `root`, `html`, `body`, and `headings` blocks plus `light`/`dark` mode variants. The `presetToCss()` function serializes these into inline style blocks injected at runtime via the theme plugin.
+- `useAppTheme()` composable persists the selected theme to a cookie (`app-theme`) and provides `themeId`, `preset`, `presets`, and `setTheme(id)` for reactive switching.
+- The theme plugin (`app/plugins/theme.ts`) watches the preset and applies its UI overrides to `appConfig`, merging font/color/variant defaults while preserving the app's base icon pack and component config. Font variables from the preset are applied as CSS custom properties and referenced by Nuxt Fonts configuration.
+- Theme switching does not reload the page; all state is client-side and persisted across sessions via cookie.
+- When adding a new preset: create a `.ts` file in `theme-presets/`, export a `ThemePreset` satisfying the interface, register it in `index.ts`, and ensure `presetToCss()` generates valid CSS for all your root/headings/light/dark blocks.
 
 ## Form Architecture
 
