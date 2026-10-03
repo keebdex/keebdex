@@ -7,7 +7,7 @@ import {
   canManageAssignment,
 } from '~/utils/permissions'
 
-export type ChildSubmissionDomain = 'keyset' | 'keyboard'
+export type ChildSubmissionDomain = 'keyset' | 'keyboard' | 'artisan'
 
 const MODERATION_FIELDS = [
   'review_status',
@@ -16,20 +16,33 @@ const MODERATION_FIELDS = [
   'verified_by',
 ]
 
+// Artisan colorways keep their historical `status` column instead of
+// `review_status`.
+const getStatusColumn = (domain: ChildSubmissionDomain) =>
+  domain === 'artisan' ? 'status' : 'review_status'
+
 /**
  * Child payloads come from the client, so moderation fields are always dropped
  * here and re-applied server-side by `getChildSubmissionContext().attribute`.
  */
 export const omitModerationFields = <T extends Record<string, unknown>>(
   record: T,
-) => omit(record, MODERATION_FIELDS) as Partial<T>
+  statusColumn = 'review_status',
+) =>
+  omit(record, [
+    statusColumn,
+    ...MODERATION_FIELDS.filter((field) => field !== 'review_status'),
+  ]) as Partial<T>
 
 /**
- * Resolves who is adding/editing a kit, release, or variant on an existing
- * keyset/keyboard, and what moderation state a newly created child gets:
+ * Resolves who is adding/editing a kit, release, variant, or colorway on an
+ * existing keyset/keyboard/sculpt (`parentKey` is `profile_keyset_id`,
+ * `brand_keyboard_slug`, or `maker_sculpt_id`), and what moderation state a
+ * newly created child gets:
  * - official (null/Approved) parent + staff for it: auto-approved;
  * - official parent + anyone else: a Pending community proposal;
- * - Pending/Rejected keyset: kits still get their own status (see above);
+ * - Pending/Rejected keyset or sculpt: kits/colorways still get their own
+ *   status (see above);
  * - Pending/Rejected keyboard: releases have no state of their own (the
  *   keyboard's lifecycle owns them), but variants still get their own.
  */
@@ -47,13 +60,19 @@ export const getChildSubmissionContext = async (
           .select('profile_keyset_id, review_status, submitted_by')
           .eq('profile_keyset_id', parentKey)
           .maybeSingle()
-      : client
-          .from('keyboards')
-          .select(
-            'brand_slug, brand_keyboard_slug, review_status, submitted_by',
-          )
-          .eq('brand_keyboard_slug', parentKey)
-          .maybeSingle()
+      : domain === 'keyboard'
+        ? client
+            .from('keyboards')
+            .select(
+              'brand_slug, brand_keyboard_slug, review_status, submitted_by',
+            )
+            .eq('brand_keyboard_slug', parentKey)
+            .maybeSingle()
+        : client
+            .from('artisan_sculpts')
+            .select('maker_id, sculpt_id, review_status, submitted_by')
+            .eq('maker_sculpt_id', parentKey)
+            .maybeSingle()
 
   const { data: parent, error } = await parentQuery
 
@@ -64,32 +83,41 @@ export const getChildSubmissionContext = async (
   if (!parent) {
     throw createError({
       statusCode: 404,
-      statusMessage:
-        domain === 'keyset' ? 'Keyset not found' : 'Keyboard not found',
+      statusMessage: {
+        keyset: 'Keyset not found',
+        keyboard: 'Keyboard not found',
+        artisan: 'Sculpt not found',
+      }[domain],
     })
   }
 
   const scope =
-    'profile_keyset_id' in parent ? parent.profile_keyset_id : parent.brand_slug
+    'profile_keyset_id' in parent
+      ? parent.profile_keyset_id
+      : 'brand_slug' in parent
+        ? parent.brand_slug
+        : parent.maker_id
   const isStaff =
     canManageAnyAssignment(profile) && canManageAssignment(profile, scope)
   const isOfficial =
     !parent.review_status || parent.review_status === 'Approved'
 
-  // `own` children (keyset kits, keyboard variants) always carry their own
-  // status so each can be reviewed alone; others (keyboard releases) follow a
-  // Pending parent's lifecycle.
+  const statusColumn = getStatusColumn(domain)
+
+  // `own` children (keyset kits, keyboard variants, artisan colorways) always
+  // carry their own status so each can be reviewed alone; others (keyboard
+  // releases) follow a Pending parent's lifecycle.
   const attribute = <T extends Record<string, unknown>>(
     record: T,
-    { own = domain === 'keyset' }: { own?: boolean } = {},
+    { own = domain !== 'keyboard' }: { own?: boolean } = {},
   ) => {
-    const base = omitModerationFields(record)
+    const base = omitModerationFields(record, statusColumn)
 
     if (!isOfficial && !own) return base
 
     return {
       ...base,
-      review_status: isStaff ? 'Approved' : 'Pending',
+      [statusColumn]: isStaff ? 'Approved' : 'Pending',
       submitted_by: user.sub,
       verified_at: isStaff ? new Date().toISOString() : null,
       verified_by: isStaff ? user.sub : null,
@@ -109,13 +137,14 @@ export const getChildSubmissionContext = async (
 
 /**
  * Moderation columns applied when staff send `action: 'approve' | 'reject'`
- * with a kit/release/variant save. Returns null when no action was sent and
- * rejects non-staff or unknown actions.
+ * with a kit/release/variant/colorway save. Returns null when no action was
+ * sent and rejects non-staff or unknown actions.
  */
 export const getModerationOverride = (
   action: unknown,
   userId: string,
   isStaff: boolean,
+  statusColumn = 'review_status',
 ) => {
   if (action === undefined || action === null || action === 'update') {
     return null
@@ -130,11 +159,20 @@ export const getModerationOverride = (
   }
 
   return {
-    review_status: action === 'approve' ? 'Approved' : 'Rejected',
+    [statusColumn]: action === 'approve' ? 'Approved' : 'Rejected',
     verified_by: userId,
     verified_at: new Date().toISOString(),
   }
 }
+
+/**
+ * Editing your own Rejected record sends it back to the Pending queue.
+ */
+export const getResubmissionPatch = (statusColumn = 'review_status') => ({
+  [statusColumn]: 'Pending',
+  verified_at: null,
+  verified_by: null,
+})
 
 /**
  * Parents are listed through their children by filtering on a status that
@@ -196,6 +234,57 @@ export const cascadeKeysetReview = async (
       verified_at: new Date().toISOString(),
     })
     .eq('profile_keyset_id', keysetKey)
+
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+}
+
+/**
+ * Approving a colorway also approves its sculpt when that sculpt is still
+ * under review (Pending/Rejected), as there's no separate moderation queue for
+ * sculpts. Rejecting a colorway only rejects a Pending sculpt once none of its
+ * colorways is left alive, so one rejected colorway doesn't take down its
+ * siblings.
+ */
+export const cascadeSculptReview = async (
+  client: Awaited<ReturnType<typeof getActorProfile>>['client'],
+  makerId: string,
+  sculptId: string,
+  action: 'approve' | 'reject',
+  userId: string,
+) => {
+  const { data: sculpt } = await client
+    .from('artisan_sculpts')
+    .select('review_status')
+    .eq('maker_id', makerId)
+    .eq('sculpt_id', sculptId)
+    .maybeSingle()
+
+  if (!sculpt?.review_status || sculpt.review_status === 'Approved') return
+
+  if (action === 'reject') {
+    if (sculpt.review_status !== 'Pending') return
+
+    const { count } = await client
+      .from('artisan_colorways')
+      .select('id', { count: 'exact', head: true })
+      .eq('maker_id', makerId)
+      .eq('sculpt_id', sculptId)
+      .or('status.is.null,status.neq.Rejected')
+
+    if (count) return
+  }
+
+  const { error } = await client
+    .from('artisan_sculpts')
+    .update({
+      review_status: action === 'approve' ? 'Approved' : 'Rejected',
+      verified_by: userId,
+      verified_at: new Date().toISOString(),
+    })
+    .eq('maker_id', makerId)
+    .eq('sculpt_id', sculptId)
 
   if (error) {
     throw createError({ statusCode: 500, statusMessage: error.message })

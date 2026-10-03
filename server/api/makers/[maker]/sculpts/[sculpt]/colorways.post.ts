@@ -1,86 +1,123 @@
 import { crc32 } from 'crc'
-import omit from 'lodash.omit'
 import slugify from 'slugify'
 
 const selfMakers = ['alpha-keycaps', 'gooey-keys']
 
-// Moderation fields are only ever set by the server, never trusted from the client.
-// TODO: drop this `Record<string, unknown>` cast once the submission-status
-// migration has been applied and `bun run generate:table-fields` regenerated.
-const MODERATION_ONLY_FIELDS = [
-  'status',
-  'submitted_by',
-  'verified_at',
-  'verified_by',
-]
-
 export default defineEventHandler(async (event) => {
-  const { client, user, profile } = await getActorProfile(event)
-  const body = pickTableFields('artisan_colorways', await readBody(event))
-  const rest: Record<string, unknown> = omit(body, MODERATION_ONLY_FIELDS)
-  const makerId = String(rest.maker_id || '')
+  const { maker, sculpt } = getRouterParams(event)
+  const makerSculptId = `${maker}/${sculpt}`
 
-  const isModerator = canModerateAssignment(profile, makerId)
-
-  if (rest.id) {
-    if (!isModerator) {
-      // The original submitter may still edit their own submission, but only
-      // while it's awaiting review.
-      const { data: existing, error: existingError } = await client
-        .from('artisan_colorways')
-        .select('submitted_by, status')
-        .eq('id', rest.id)
-        .single()
-
-      if (
-        existingError ||
-        !existing ||
-        existing.submitted_by !== user.sub ||
-        existing.status !== 'Pending'
-      ) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-      }
-    }
-  } else if (isModerator) {
-    // Staff submitting through the community form don't need to self-approve.
-    rest.status = 'Approved'
-    rest.submitted_by = user.sub
-    rest.verified_by = user.sub
-    rest.verified_at = new Date().toISOString()
-    rest.source = 'keebdex'
-    rest.overridden_fields = []
-  } else {
-    // Community submission: mark as pending and record the submitter.
-    rest.status = 'Pending'
-    rest.submitted_by = user.sub
-    rest.source = 'keebdex'
-    rest.overridden_fields = []
+  const { client, user, parent, isStaff, attribute } =
+    await getChildSubmissionContext(event, 'artisan', makerSculptId)
+  const body = await readBody(event)
+  // Staff reviewing a colorway can approve/reject it while saving.
+  const moderation = getModerationOverride(
+    body?.action,
+    user.sub,
+    isStaff,
+    'status',
+  )
+  const colorway: Record<string, unknown> = {
+    ...pickTableFields('artisan_colorways', body),
+    maker_id: maker,
+    sculpt_id: sculpt,
+    maker_sculpt_id: makerSculptId,
   }
 
-  if (!rest.colorway_id || selfMakers.includes(makerId)) {
-    const slug = slugify(String(rest.name), { lower: true })
-    rest.colorway_id = crc32(
-      `${rest.maker_id}-${rest.sculpt_id}-${slug}-${rest.order}`,
+  // A sparse body (e.g. a quick approve) has no name to derive the id from.
+  if (
+    colorway.name !== undefined &&
+    (!colorway.colorway_id || selfMakers.includes(String(maker)))
+  ) {
+    const slug = slugify(String(colorway.name), { lower: true })
+    colorway.colorway_id = crc32(
+      `${maker}-${sculpt}-${slug}-${colorway.order}`,
     ).toString(16)
   }
 
-  const sqlQuery = rest.id
-    ? client.from('artisan_colorways').update(rest).eq('id', rest.id)
-    : client
+  let result
+
+  if (colorway.id) {
+    const payload: Record<string, unknown> = {
+      ...omitModerationFields(colorway, 'status'),
+      ...moderation,
+    }
+
+    // Editing your own rejected colorway (and its sculpt) sends it back to review.
+    let resubmitted = false
+
+    if (!isStaff) {
+      const { data: current } = await client
         .from('artisan_colorways')
-        .upsert(rest)
-        .eq('colorway_id', rest.colorway_id)
-        .eq('maker_id', rest.maker_id)
-        .eq('sculpt_id', rest.sculpt_id)
+        .select('status, submitted_by')
+        .eq('id', colorway.id as number)
+        .eq('maker_id', maker)
+        .eq('sculpt_id', sculpt)
+        .maybeSingle()
 
-  const { data, error } = await sqlQuery.select()
+      if (current?.submitted_by === user.sub && current.status === 'Rejected') {
+        Object.assign(payload, getResubmissionPatch('status'))
+        resubmitted = true
+      }
+    }
 
-  if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
+    const { data, error } = await client
+      .from('artisan_colorways')
+      .update(payload)
+      .eq('id', colorway.id as number)
+      .eq('maker_id', maker)
+      .eq('sculpt_id', sculpt)
+      .select()
+
+    if (error) {
+      throw createError({ statusCode: 500, statusMessage: error.message })
+    }
+
+    if (!data?.length) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "You can't edit this colorway in its current state",
+      })
+    }
+
+    if (resubmitted && parent.review_status === 'Rejected') {
+      const { error: resubmitError } = await client
+        .from('artisan_sculpts')
+        .update(getResubmissionPatch())
+        .eq('maker_sculpt_id', makerSculptId)
+
+      if (resubmitError) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: resubmitError.message,
+        })
+      }
+    }
+
+    result = data
+  } else {
+    const { data, error } = await client
+      .from('artisan_colorways')
+      .upsert({
+        ...attribute({
+          ...colorway,
+          source: 'keebdex',
+          overridden_fields: [],
+        }),
+        ...moderation,
+      })
+      .select()
+
+    if (error) {
+      throw createError({ statusCode: 500, statusMessage: error.message })
+    }
+
+    result = data
   }
 
-  return data
+  if (moderation) {
+    await cascadeSculptReview(client, maker, sculpt, body.action, user.sub)
+  }
+
+  return result
 })

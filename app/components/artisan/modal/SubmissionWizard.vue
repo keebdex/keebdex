@@ -36,11 +36,11 @@
           />
 
           <p
-            v-if="mode === 'review' && sculptReviewStatus === 'Pending'"
+            v-if="mode === 'review' && sculptReviewStatus"
             class="text-sm text-muted"
           >
             This sculpt was proposed together with the colorway below and is
-            still Pending — review and edit it here before approving.
+            still under review — review and edit it here before approving.
           </p>
 
           <USelectMenu
@@ -129,16 +129,25 @@
       />
 
       <div
-        v-else-if="mode === 'review' && userStore.isModerator"
+        v-else-if="mode === 'review'"
         class="flex flex-wrap items-center justify-end gap-2"
       >
         <UButton
+          v-if="canSave && !userStore.isModerator"
+          label="Save Changes"
+          color="primary"
+          :loading="savingAction === 'update'"
+          :disabled="!reviewLoaded || !!savingAction"
+          @click="onReviewAction('update')"
+        />
+        <UButton
+          v-if="userStore.isModerator"
           label="Save & Approve"
           color="success"
           icon="hugeicons:checkmark-circle-02"
           :loading="savingAction === 'approve'"
           :disabled="!reviewLoaded || !!savingAction"
-          @click="onSaveAndApprove"
+          @click="onReviewAction('approve')"
         />
         <UButton
           v-if="canDelete"
@@ -147,7 +156,7 @@
           variant="soft"
           icon="hugeicons:delete-02"
           :disabled="!reviewLoaded || !!savingAction"
-          @click="confirmAction = 'delete'"
+          @click="deleteVisible = true"
         />
       </div>
       <UButton
@@ -159,22 +168,14 @@
       />
     </div>
 
-    <UModal
+    <SharedConfirmModal
       v-if="mode === 'review'"
-      v-model:open="confirmVisible"
-      title="Delete Submission"
-      :description="`Are you sure you want to delete ${colorways[0]?.name || 'this submission'}?`"
-    >
-      <template #footer="{ close }">
-        <UButton label="Cancel" @click="close" />
-        <UButton
-          label="Delete"
-          color="error"
-          :loading="savingAction === confirmAction"
-          @click="onConfirmAction(close)"
-        />
-      </template>
-    </UModal>
+      v-model:open="deleteVisible"
+      title="Delete Colorway"
+      :description="`Are you sure you want to delete ${colorways[0]?.name || 'this colorway'}? This action cannot be undone.`"
+      :loading="savingAction === 'delete'"
+      @confirm="onDeleteConfirm"
+    />
   </div>
 </template>
 
@@ -216,10 +217,12 @@ const {
   colorways,
   addColorway,
   removeColorway,
+  reviewStatus,
   sculptReviewStatus,
+  canSave,
   canDelete,
   load,
-  moderate,
+  save,
   remove,
   uploading,
   canAdvance,
@@ -269,7 +272,7 @@ onMounted(async () => {
   if (props.mode === 'review') {
     try {
       await load()
-      active.value = sculptReviewStatus.value === 'Pending' ? 1 : 2
+      active.value = sculptReviewStatus.value ? 1 : 2
       reviewLoaded.value = true
     } catch (error) {
       toast.add(handleError(error, { showOriginalMessage: true }))
@@ -288,25 +291,28 @@ const onNext = () => {
 }
 
 const savingAction = ref(null)
-const confirmAction = ref(null)
-const confirmVisible = computed({
-  get: () => !!confirmAction.value,
-  set: (value) => {
-    if (!value) confirmAction.value = null
-  },
-})
+const deleteVisible = ref(false)
 
-const onSaveAndApprove = async () => {
-  if (!userStore.isModerator || !reviewLoaded.value || savingAction.value) return
+const onReviewAction = async (action) => {
+  if (!reviewLoaded.value || savingAction.value) return
   if (!validateStep(1) || !validateStep(2)) return
 
-  savingAction.value = 'approve'
+  savingAction.value = action
 
   try {
-    await moderate('approve')
+    await save(action)
 
-    toast.add(handleSuccess('save', colorways.value[0]?.name, 'Colorway'))
-    emit('onSuccess')
+    toast.add(
+      handleSuccess(
+        action === 'approve' ? 'approve' : 'save',
+        colorways.value[0]?.name,
+        'Colorway',
+      ),
+    )
+    // A submitter's edit sends a rejected colorway back to the Pending queue.
+    emit('onSuccess', {
+      resubmitted: !userStore.isModerator && reviewStatus.value === 'Rejected',
+    })
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
@@ -314,19 +320,17 @@ const onSaveAndApprove = async () => {
   }
 }
 
-const onConfirmAction = async (close) => {
-  if (!userStore.isModerator || !confirmAction.value || savingAction.value) return
+const onDeleteConfirm = async () => {
+  if (savingAction.value) return
 
-  const action = confirmAction.value
-  savingAction.value = action
+  savingAction.value = 'delete'
 
   try {
     await remove()
-    toast.add(handleSuccess('delete', colorways.value[0]?.name))
-    emit('onDelete')
 
-    confirmAction.value = null
-    close()
+    toast.add(handleSuccess('delete', colorways.value[0]?.name, 'Colorway'))
+    deleteVisible.value = false
+    emit('onDelete')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {

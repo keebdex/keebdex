@@ -139,18 +139,18 @@ export const useArtisanSubmissionWizard = ({
     colorways.value = [{ ...submission, _key: colorwayKeySeed++ }]
     originalColorwayIds.value = [submission.id]
 
-    // The sculpt may itself be a Pending proposal submitted alongside this
-    // colorway (see server/api/makers/[maker]/sculpts/[sculpt].post.ts) — if
-    // so, render it as an editable form instead of a locked "existing" select
-    // so the moderator can actually review/edit it before approving.
-    if (submission.sculpt?.review_status === 'Pending') {
+    // The sculpt may itself be a proposal submitted alongside this colorway
+    // (see server/api/makers/[maker]/sculpts/[sculpt].post.ts) — while it's
+    // still under review, render it as an editable form instead of a locked
+    // "existing" select so it can be reviewed/edited together with the colorway.
+    if (['Pending', 'Rejected'].includes(submission.sculpt?.review_status)) {
       try {
         const sculptDetail: any = await $fetch(
           `/api/makers/${submission.maker_id}/sculpts/${submission.sculpt_id}`,
         )
 
         sculptMode.value = 'new'
-        sculptReviewStatus.value = 'Pending'
+        sculptReviewStatus.value = submission.sculpt.review_status
         Object.assign(sculpt.value, {
           id: sculptDetail.id,
           name: sculptDetail.name,
@@ -168,10 +168,19 @@ export const useArtisanSubmissionWizard = ({
     }
   }
 
-  const canDelete = computed(() => isReview && userStore.isModerator)
+  // Staff can edit anything; submitters only while it's Pending or Rejected
+  // (editing a rejected colorway sends it back to review).
+  const canSave = computed(
+    () =>
+      isReview &&
+      (userStore.isModerator ||
+        ['Pending', 'Rejected'].includes(reviewStatus.value || '')),
+  )
 
-  const save = async () => {
-    if (sculptReviewStatus.value === 'Pending') {
+  const canDelete = computed(() => canSave.value)
+
+  const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    if (sculptReviewStatus.value) {
       await $fetch(
         `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}`,
         {
@@ -201,7 +210,13 @@ export const useArtisanSubmissionWizard = ({
       const { _key, ...colorwayData } = colorway
       const [saved] = await $fetch<any[]>(
         `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways`,
-        { method: 'post', body: colorwayData },
+        {
+          method: 'post',
+          body: {
+            ...colorwayData,
+            ...(action === 'update' ? {} : { action }),
+          },
+        },
       )
       if (!colorway.id) colorway.id = saved.id
     }
@@ -209,17 +224,6 @@ export const useArtisanSubmissionWizard = ({
     originalColorwayIds.value = colorways.value
       .map((item) => item.id)
       .filter(Boolean)
-  }
-
-  const moderate = async (action: 'approve' | 'reject') => {
-    const colorwayId = submission?.id
-    if (!colorwayId) return
-
-    await save()
-    await $fetch(`/api/submissions/artisan/${colorwayId}`, {
-      method: 'post',
-      body: { action },
-    })
   }
 
   const remove = async () => {
@@ -367,10 +371,10 @@ export const useArtisanSubmissionWizard = ({
     removeColorway,
     reviewStatus,
     sculptReviewStatus,
+    canSave,
     canDelete,
     load,
     save,
-    moderate,
     remove,
     uploading,
     canAdvance,

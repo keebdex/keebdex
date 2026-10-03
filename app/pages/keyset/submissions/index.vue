@@ -116,6 +116,16 @@
                 :disabled="processingId !== null"
                 @click="editSubmission(row.original)"
               />
+              <UButton
+                v-if="canDelete(row.original)"
+                label="Delete"
+                size="xs"
+                color="error"
+                variant="soft"
+                icon="hugeicons:delete-02"
+                :disabled="processingId !== null"
+                @click="deleteTarget = row.original"
+              />
             </div>
           </template>
         </UTable>
@@ -154,6 +164,14 @@
           />
         </template>
       </UModal>
+
+      <SharedConfirmModal
+        v-model:open="deleteOpen"
+        title="Delete Kit"
+        :description="`Are you sure you want to delete ${kitLabel(deleteTarget || {})}? This action cannot be undone.`"
+        :loading="deleting"
+        @confirm="confirmDelete"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -238,6 +256,41 @@ const moderateSubmission = async (kit, action) => {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
     processingId.value = null
+  }
+}
+
+const deleteTarget = ref(null)
+const deleting = ref(false)
+const deleteOpen = computed({
+  get: () => !!deleteTarget.value,
+  set: (value) => {
+    if (!value && !deleting.value) deleteTarget.value = null
+  },
+})
+
+// Staff can delete anything; submitters only while it's Pending or Rejected.
+const canDelete = (kit) =>
+  isModerator.value || ['Pending', 'Rejected'].includes(kit.status)
+
+const confirmDelete = async () => {
+  const kit = deleteTarget.value
+
+  if (!kit || deleting.value) return
+
+  deleting.value = true
+
+  try {
+    await $fetch(`/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`, {
+      method: 'delete',
+    })
+
+    toast.add(handleSuccess('delete', kitLabel(kit), 'Kit'))
+    deleteTarget.value = null
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    deleting.value = false
   }
 }
 

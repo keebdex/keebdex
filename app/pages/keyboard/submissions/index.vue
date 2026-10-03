@@ -119,6 +119,16 @@
                 :disabled="processingId !== null"
                 @click="editSubmission(row.original)"
               />
+              <UButton
+                v-if="canDelete(row.original)"
+                label="Delete"
+                size="xs"
+                color="error"
+                variant="soft"
+                icon="hugeicons:delete-02"
+                :disabled="processingId !== null"
+                @click="deleteTarget = row.original"
+              />
             </div>
           </template>
         </UTable>
@@ -157,6 +167,14 @@
           />
         </template>
       </UModal>
+
+      <SharedConfirmModal
+        v-model:open="deleteOpen"
+        title="Delete Variant"
+        :description="`Are you sure you want to delete ${variantLabel(deleteTarget || {})}? This action cannot be undone.`"
+        :loading="deleting"
+        @confirm="confirmDelete"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -247,6 +265,42 @@ const moderateSubmission = async (variant, action) => {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
     processingId.value = null
+  }
+}
+
+const deleteTarget = ref(null)
+const deleting = ref(false)
+const deleteOpen = computed({
+  get: () => !!deleteTarget.value,
+  set: (value) => {
+    if (!value && !deleting.value) deleteTarget.value = null
+  },
+})
+
+// Staff can delete anything; submitters only while it's Pending or Rejected.
+const canDelete = (variant) =>
+  isModerator.value || ['Pending', 'Rejected'].includes(variant.status)
+
+const confirmDelete = async () => {
+  const variant = deleteTarget.value
+
+  if (!variant || deleting.value) return
+
+  deleting.value = true
+
+  try {
+    await $fetch(
+      `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+      { method: 'delete' },
+    )
+
+    toast.add(handleSuccess('delete', variantLabel(variant), 'Variant'))
+    deleteTarget.value = null
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    deleting.value = false
   }
 }
 

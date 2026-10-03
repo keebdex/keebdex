@@ -105,12 +105,23 @@
                 />
               </template>
               <UButton
+                v-if="canEdit(row.original)"
                 label="Edit"
                 size="xs"
                 variant="soft"
                 icon="hugeicons:file-edit"
                 :disabled="processingId !== null"
                 @click="editSubmission(row.original)"
+              />
+              <UButton
+                v-if="canDelete(row.original)"
+                label="Delete"
+                size="xs"
+                color="error"
+                variant="soft"
+                icon="hugeicons:delete-02"
+                :disabled="processingId !== null"
+                @click="deleteTarget = row.original"
               />
             </div>
           </template>
@@ -145,11 +156,19 @@
             v-if="selectedSubmission"
             mode="review"
             :submission="selectedSubmission"
-            @on-success="() => onEditSuccess(close)"
+            @on-success="(result) => onEditSuccess(close, result)"
             @on-delete="() => onDeleteSuccess(close)"
           />
         </template>
       </UModal>
+
+      <SharedConfirmModal
+        v-model:open="deleteOpen"
+        title="Delete Colorway"
+        :description="`Are you sure you want to delete ${deleteTarget?.name || 'this colorway'}? This action cannot be undone.`"
+        :loading="deleting"
+        @confirm="confirmDelete"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -166,7 +185,7 @@ const { isModerator } = storeToRefs(userStore)
 const pageDescription = computed(() =>
   isModerator.value
     ? 'Review colorways submitted by the community and approve, reject, or edit them before they become official records.'
-    : "Track the colorways you've submitted. You can edit or delete a submission while it's pending review, and delete a rejected submission.",
+    : "Track the colorways you've submitted. You can edit or delete a colorway while it's pending review or after it was rejected; editing a rejected colorway sends it back for review.",
 )
 
 const columns = [
@@ -235,18 +254,27 @@ const processingId = ref(null)
 
 const editorTitle = 'Edit Colorway'
 
+// Submitters can only act on colorways that are still in (or back in) review.
+const canEdit = (colorway) =>
+  isModerator.value || ['Pending', 'Rejected'].includes(colorway.status)
+
+const canDelete = canEdit
+
+const colorwayUrl = (colorway) =>
+  `/api/makers/${colorway.maker_id}/sculpts/${colorway.sculpt_id}/colorways`
+
 const moderateSubmission = async (colorway, action) => {
   if (!isModerator.value || processingId.value !== null) return
 
   processingId.value = colorway.id
 
   try {
-    await $fetch(`/api/submissions/artisan/${colorway.id}`, {
+    await $fetch(colorwayUrl(colorway), {
       method: 'post',
-      body: { action },
+      body: { id: colorway.id, action },
     })
 
-    toast.add(handleSuccess('save', colorway.name, 'Colorway'))
+    toast.add(handleSuccess(action, colorway.name, 'Colorway'))
     await refresh()
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
@@ -255,22 +283,55 @@ const moderateSubmission = async (colorway, action) => {
   }
 }
 
+const deleteTarget = ref(null)
+const deleting = ref(false)
+const deleteOpen = computed({
+  get: () => !!deleteTarget.value,
+  set: (value) => {
+    if (!value && !deleting.value) deleteTarget.value = null
+  },
+})
+
+const confirmDelete = async () => {
+  const colorway = deleteTarget.value
+
+  if (!colorway || deleting.value) return
+
+  deleting.value = true
+
+  try {
+    await $fetch(`${colorwayUrl(colorway)}/${colorway.id}`, {
+      method: 'delete',
+    })
+
+    toast.add(handleSuccess('delete', colorway.name, 'Colorway'))
+    deleteTarget.value = null
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    deleting.value = false
+  }
+}
+
 const editSubmission = (colorway) => {
   selectedSubmission.value = colorway
   editorOpen.value = true
 }
 
-const onEditSuccess = async (close) => {
+const closeEditor = async (close) => {
   await refresh()
   close()
   editorOpen.value = false
   selectedSubmission.value = null
 }
 
-const onDeleteSuccess = async (close) => {
-  await refresh()
-  close()
-  editorOpen.value = false
-  selectedSubmission.value = null
+const onEditSuccess = async (close, result) => {
+  // A rejected colorway that was edited is Pending again, so follow it there.
+  if (result?.resubmitted) statusFilter.value = 'Pending'
+
+  await closeEditor(close)
 }
+
+const onDeleteSuccess = (close) => closeEditor(close)
 </script>
