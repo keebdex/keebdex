@@ -39,7 +39,21 @@
       </template>
 
       <template #keyset>
-        <div class="space-y-4">
+        <div v-if="childrenOnly" class="space-y-2">
+          <p class="text-sm text-muted">
+            This keyset is already published. Only the kits proposed for it are
+            reviewed here.
+          </p>
+
+          <NuxtLink
+            :to="`/keyset/${existingKeyset.id}`"
+            class="text-sm font-medium text-primary hover:underline"
+          >
+            {{ keyset.name }}
+          </NuxtLink>
+        </div>
+
+        <div v-else class="space-y-4">
           <UTabs
             v-if="mode === 'create' && keysetOptions.length"
             v-model="keysetMode"
@@ -71,7 +85,11 @@
       <template #kit>
         <div class="space-y-4">
           <p class="text-sm text-muted">
-            Add one or more kits for this keyset.
+            {{
+              childrenOnly
+                ? 'Review and edit the kits proposed for this keyset.'
+                : 'Add one or more kits for this keyset.'
+            }}
           </p>
 
           <div
@@ -80,9 +98,19 @@
             class="space-y-4 rounded-lg border border-default p-4"
           >
             <div class="flex items-center justify-between">
-              <p class="text-xs font-medium text-dimmed">
-                Kit #{{ index + 1 }}
-              </p>
+              <div class="flex items-center gap-2">
+                <p class="text-xs font-medium text-dimmed">
+                  Kit #{{ index + 1 }}
+                </p>
+
+                <UBadge
+                  v-if="kit.review_status"
+                  :label="kit.review_status"
+                  variant="subtle"
+                  size="xs"
+                  :color="statusColorMap[kit.review_status] || 'neutral'"
+                />
+              </div>
 
               <UButton
                 aria-label="Remove kit"
@@ -179,7 +207,11 @@
       v-if="mode === 'review'"
       v-model:open="deleteVisible"
       title="Delete Submission"
-      :description="`Are you sure you want to delete ${keyset.name}? This action cannot be undone.`"
+      :description="
+        childrenOnly
+          ? `Are you sure you want to delete the kits proposed for ${keyset.name}? The keyset itself is kept. This action cannot be undone.`
+          : `Are you sure you want to delete ${keyset.name}? This action cannot be undone.`
+      "
     >
       <template #footer="{ close }">
         <UButton label="Cancel" @click="close" />
@@ -204,6 +236,16 @@ const props = defineProps({
   submissionId: {
     type: [String, Number],
     default: null,
+  },
+  // Review only the kits proposed for an already-published keyset.
+  childrenOnly: {
+    type: Boolean,
+    default: false,
+  },
+  // `profile_keyset_id` of that published keyset (required with childrenOnly).
+  parentKey: {
+    type: String,
+    default: '',
   },
 })
 
@@ -243,6 +285,8 @@ const {
 } = useKeysetSubmissionWizard({
   mode: props.mode,
   submissionId: props.submissionId,
+  childrenOnly: props.childrenOnly,
+  parentKey: props.parentKey,
 })
 
 const selectedProfileLabel = computed(
@@ -283,7 +327,8 @@ const items = computed(() => [
 onMounted(async () => {
   if (props.mode === 'review') {
     await load()
-    active.value = 1
+    // A published keyset isn't under review, so land on its proposed kits.
+    active.value = props.childrenOnly ? 2 : 1
     return
   }
 
@@ -328,7 +373,13 @@ const onReviewAction = async (action) => {
 
   try {
     await save(action)
-    toast.add(handleSuccess('save', keyset.value.name, 'Keyset'))
+    toast.add(
+      handleSuccess(
+        'save',
+        keyset.value.name,
+        props.childrenOnly ? 'Kit' : 'Keyset',
+      ),
+    )
     emit('onSuccess')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))

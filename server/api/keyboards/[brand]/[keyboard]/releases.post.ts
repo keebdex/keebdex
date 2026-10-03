@@ -1,12 +1,23 @@
-import { serverSupabaseClient } from '#supabase/server'
 import { omitSensitive, toNullableNumber } from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
-  const body = pickTableFields('keyboard_releases', await readBody(event))
+  const { brand, keyboard } = getRouterParams(event)
+  const brandKeyboardSlug = `${brand}/${keyboard}`
+
+  const { client, user, isStaff, attribute } = await getChildSubmissionContext(
+    event,
+    'keyboard',
+    brandKeyboardSlug,
+  )
+  const rawBody = await readBody(event)
+  const body = pickTableFields('keyboard_releases', rawBody)
+  // Staff reviewing a proposal can approve/reject it while saving.
+  const moderation = getModerationOverride(rawBody?.action, user.sub, isStaff)
 
   const payload = {
-    ...body,
+    ...omitModerationFields(body),
+    brand_slug: brand,
+    brand_keyboard_slug: brandKeyboardSlug,
     release_year: toNullableNumber(body.release_year),
     msrp_price: toNullableNumber(body.msrp_price),
     currency: body.currency || null,
@@ -29,15 +40,15 @@ export default defineEventHandler(async (event) => {
   if (body.id) {
     result = await client
       .from('keyboard_releases')
-      .update(payload)
-      .eq('id', body.id)
-      .eq('brand_keyboard_slug', body.brand_keyboard_slug)
+      .update({ ...payload, ...moderation })
+      .eq('id', body.id as number)
+      .eq('brand_keyboard_slug', brandKeyboardSlug)
       .select()
       .single()
   } else {
     result = await client
       .from('keyboard_releases')
-      .insert(payload)
+      .insert({ ...attribute(payload), ...moderation })
       .select()
       .single()
   }

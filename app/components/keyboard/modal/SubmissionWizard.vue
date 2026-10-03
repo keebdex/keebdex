@@ -27,7 +27,21 @@
       </template>
 
       <template #keyboard>
-        <div class="space-y-4">
+        <div v-if="childrenOnly" class="space-y-2">
+          <p class="text-sm text-muted">
+            This keyboard is already published. Only the releases and variants
+            proposed for it are reviewed here.
+          </p>
+
+          <NuxtLink
+            :to="`/keyboard/brand/${existingKeyboard.id}`"
+            class="text-sm font-medium text-primary hover:underline"
+          >
+            {{ keyboard.name }}
+          </NuxtLink>
+        </div>
+
+        <div v-else class="space-y-4">
           <UTabs
             v-if="mode === 'create' && keyboardOptions.length"
             v-model="keyboardMode"
@@ -135,8 +149,11 @@
       <template #releases>
         <div class="space-y-4">
           <p class="text-sm text-muted">
-            Review and edit the releases and variants included in this
-            submission.
+            {{
+              childrenOnly
+                ? 'Review and edit the releases and variants proposed for this keyboard.'
+                : 'Review and edit the releases and variants included in this submission.'
+            }}
           </p>
 
           <div
@@ -145,11 +162,24 @@
             class="space-y-4 rounded-lg border border-default p-4"
           >
             <div class="flex items-center justify-between">
-              <p class="text-xs font-medium text-dimmed">
-                Release #{{ index + 1 }}
-              </p>
+              <div class="flex items-center gap-2">
+                <p class="text-xs font-medium text-dimmed">
+                  Release #{{ index + 1 }}
+                </p>
+
+                <UBadge
+                  v-if="releaseEntry.review_status"
+                  :label="releaseEntry.review_status"
+                  variant="subtle"
+                  size="xs"
+                  :color="
+                    statusColorMap[releaseEntry.review_status] || 'neutral'
+                  "
+                />
+              </div>
 
               <UButton
+                v-if="!releaseEntry._locked"
                 aria-label="Remove release"
                 size="xs"
                 color="error"
@@ -160,7 +190,13 @@
               />
             </div>
 
+            <p v-if="releaseEntry._locked" class="text-sm">
+              <strong>{{ releaseEntry.name }}</strong>
+              <span class="text-muted"> is already published.</span>
+            </p>
+
             <KeyboardModalReleaseForm
+              v-else
               v-model="releases[index]"
               :keyboard="{ releases: [] }"
               mode="embedded"
@@ -175,9 +211,21 @@
                 class="space-y-2 rounded-lg border border-dashed border-default p-3"
               >
                 <div class="flex items-center justify-between">
-                  <p class="text-xs text-dimmed">
-                    Variant #{{ variantIndex + 1 }}
-                  </p>
+                  <div class="flex items-center gap-2">
+                    <p class="text-xs text-dimmed">
+                      Variant #{{ variantIndex + 1 }}
+                    </p>
+
+                    <UBadge
+                      v-if="variant.review_status"
+                      :label="variant.review_status"
+                      variant="subtle"
+                      size="xs"
+                      :color="
+                        statusColorMap[variant.review_status] || 'neutral'
+                      "
+                    />
+                  </div>
 
                   <UButton
                     aria-label="Remove variant"
@@ -185,7 +233,10 @@
                     color="error"
                     variant="ghost"
                     icon="hugeicons:delete-02"
-                    :disabled="releaseEntry.variants.length === 1"
+                    :disabled="
+                      !releaseEntry._locked &&
+                      releaseEntry.variants.length === 1
+                    "
                     @click="removeReleaseVariant(releaseEntry, variantIndex)"
                   />
                 </div>
@@ -209,6 +260,7 @@
           </div>
 
           <UButton
+            v-if="!childrenOnly"
             label="Add Release"
             size="xs"
             variant="soft"
@@ -289,7 +341,11 @@
       v-if="mode === 'review'"
       v-model:open="deleteVisible"
       title="Delete Submission"
-      :description="`Are you sure you want to delete ${keyboard.name}? This action cannot be undone.`"
+      :description="
+        childrenOnly
+          ? `Are you sure you want to delete the releases and variants proposed for ${keyboard.name}? The keyboard itself is kept. This action cannot be undone.`
+          : `Are you sure you want to delete ${keyboard.name}? This action cannot be undone.`
+      "
     >
       <template #footer="{ close }">
         <UButton label="Cancel" @click="close" />
@@ -314,6 +370,16 @@ const props = defineProps({
   submissionId: {
     type: [String, Number],
     default: null,
+  },
+  // Review only the releases/variants proposed for an already-published keyboard.
+  childrenOnly: {
+    type: Boolean,
+    default: false,
+  },
+  // `brand_keyboard_slug` of that published keyboard (required with childrenOnly).
+  parentKey: {
+    type: String,
+    default: '',
   },
 })
 
@@ -371,6 +437,8 @@ const {
 } = useKeyboardSubmissionWizard({
   mode: props.mode,
   submissionId: props.submissionId,
+  childrenOnly: props.childrenOnly,
+  parentKey: props.parentKey,
 })
 
 const selectedBrandLabel = computed(
@@ -451,7 +519,8 @@ const items = computed(() =>
 onMounted(async () => {
   if (props.mode === 'review') {
     await load()
-    active.value = 1
+    // A published keyboard isn't under review, so land on its proposed releases.
+    active.value = props.childrenOnly ? 2 : 1
     return
   }
 
@@ -498,7 +567,13 @@ const onReviewAction = async (action) => {
 
   try {
     await save(action)
-    toast.add(handleSuccess('save', keyboard.value.name, 'Keyboard'))
+    toast.add(
+      handleSuccess(
+        'save',
+        keyboard.value.name,
+        props.childrenOnly ? 'Release' : 'Keyboard',
+      ),
+    )
     emit('onSuccess')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))

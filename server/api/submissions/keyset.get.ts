@@ -10,29 +10,63 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
-  const status = String(query.status || 'Pending').trim()
+  const status = parseReviewStatus(query.status)
 
   const from = (page - 1) * size
   const to = from + size - 1
 
+  const assignments =
+    isModerator && profile && profile.role !== 'admin'
+      ? profile.assignments
+      : null
+
+  // Kits proposed for an already-official keyset surface their parent in the
+  // queue too, flagged as `child_submission` so review only touches the kits.
+  let childRequest = client
+    .from('keyset_kits')
+    .select('profile_keyset_id')
+    .eq('review_status', status)
+
+  if (!isModerator) {
+    childRequest = childRequest.eq('submitted_by', user.sub)
+  } else if (assignments?.length) {
+    childRequest = childRequest.in('profile_keyset_id', assignments)
+  }
+
+  const { data: childRows, error: childError } = await childRequest
+
+  if (childError) {
+    throw createError({ statusCode: 500, statusMessage: childError.message })
+  }
+
+  const childKeys = [
+    ...new Set((childRows || []).map((row) => row.profile_keyset_id)),
+  ]
+
   // Keysets added directly by staff have a null review_status (implicitly
-  // approved) and never enter the moderation queue.
+  // approved) and never enter the moderation queue on their own.
   let request = client
     .from('keysets')
     .select(
-      '*, profile:keyset_profiles(name), kits:keyset_kits(id), submitter:users!keysets_submitted_by_fkey(email, full_name)',
+      '*, profile:keyset_profiles(name), kits:keyset_kits(id, review_status), submitter:users!keysets_submitted_by_fkey(email, full_name)',
       { count: 'exact' },
     )
-    .not('review_status', 'is', null)
-    .eq('review_status', status)
     .order('created_at', { ascending: false })
     .range(from, to)
 
+  const ownFilter = isModerator
+    ? `review_status.eq.${status}`
+    : `and(review_status.eq.${status},submitted_by.eq.${user.sub})`
+
+  request = childKeys.length
+    ? request.or(`${ownFilter},${inFilter('profile_keyset_id', childKeys)}`)
+    : request.not('review_status', 'is', null).eq('review_status', status)
+
   if (isModerator) {
-    if (profile && profile.role !== 'admin' && profile.assignments?.length) {
-      request = request.in('profile_keyset_id', profile.assignments)
+    if (assignments?.length) {
+      request = request.in('profile_keyset_id', assignments)
     }
-  } else {
+  } else if (!childKeys.length) {
     // Regular users only see the submissions they've personally sent in.
     request = request.eq('submitted_by', user.sub)
   }
@@ -47,11 +81,19 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    data: (data || []).map((row: any) => ({
-      ...omitSensitive(row),
-      kits_count: row.kits?.length || 0,
-      kits: undefined,
-    })),
+    data: (data || []).map((row: any) => {
+      const childSubmission = row.review_status !== status
+
+      return {
+        ...omitSensitive(row),
+        child_submission: childSubmission,
+        kits_count: childSubmission
+          ? row.kits?.filter((kit: any) => kit.review_status === status)
+              .length || 0
+          : row.kits?.length || 0,
+        kits: undefined,
+      }
+    }),
     count: count || 0,
     page,
     size,

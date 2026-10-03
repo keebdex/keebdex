@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
 
   if (kitsInput.length) {
     const kitsPayload = kitsInput.map((kit: unknown) => ({
-      ...pickTableFields('keyset_kits', kit),
+      ...omitModerationFields(pickTableFields('keyset_kits', kit)),
       profile_keyset_id,
     }))
 

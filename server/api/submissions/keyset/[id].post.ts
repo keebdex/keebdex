@@ -95,7 +95,7 @@ export default defineEventHandler(async (event) => {
 
     for (const kit of kitsInput) {
       const kitPayload = {
-        ...pickTableFields('keyset_kits', kit),
+        ...omitModerationFields(pickTableFields('keyset_kits', kit)),
         profile_keyset_id: existing.profile_keyset_id,
       }
 

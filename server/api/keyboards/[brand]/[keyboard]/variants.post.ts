@@ -1,15 +1,24 @@
-import { serverSupabaseClient } from '#supabase/server'
 import { omitSensitive, toNullableNumber } from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
-  const body = pickTableFields('keyboard_variants', await readBody(event))
+  const { brand, keyboard } = getRouterParams(event)
+  const brandKeyboardSlug = `${brand}/${keyboard}`
+
+  const { client, user, isStaff, attribute } = await getChildSubmissionContext(
+    event,
+    'keyboard',
+    brandKeyboardSlug,
+  )
+  const rawBody = await readBody(event)
+  const body = pickTableFields('keyboard_variants', rawBody)
+  // Staff reviewing a proposal can approve/reject it while saving.
+  const moderation = getModerationOverride(rawBody?.action, user.sub, isStaff)
 
   const { error: releaseError } = await client
     .from('keyboard_releases')
     .select('id')
     .eq('id', body.release_id)
-    .eq('brand_keyboard_slug', body.brand_keyboard_slug)
+    .eq('brand_keyboard_slug', brandKeyboardSlug)
     .single()
 
   if (releaseError) {
@@ -41,8 +50,8 @@ export default defineEventHandler(async (event) => {
     weight_materials: Array.isArray(body.weight_materials)
       ? body.weight_materials
       : null,
-    brand_slug: body.brand_slug,
-    brand_keyboard_slug: body.brand_keyboard_slug,
+    brand_slug: brand,
+    brand_keyboard_slug: brandKeyboardSlug,
   }
 
   let result
@@ -50,15 +59,15 @@ export default defineEventHandler(async (event) => {
   if (body.id) {
     result = await client
       .from('keyboard_variants')
-      .update(payload)
-      .eq('id', body.id)
-      .eq('brand_keyboard_slug', body.brand_keyboard_slug)
+      .update({ ...payload, ...moderation })
+      .eq('id', body.id as number)
+      .eq('brand_keyboard_slug', brandKeyboardSlug)
       .select()
       .single()
   } else {
     result = await client
       .from('keyboard_variants')
-      .insert(payload)
+      .insert({ ...attribute(payload), ...moderation })
       .select()
       .single()
   }

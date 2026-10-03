@@ -11,18 +11,30 @@ type KeysetsResponse = {
 // then create the kit. Reuses existing single-entity APIs; creating a new keyset
 // reuses the submission endpoint (with an empty kits array) so the keyset is owned
 // and Pending, which is required for the follow-up kit create call to pass RLS.
+// Kits added to an already-published keyset skip that step: the kit endpoint
+// stores them as Pending proposals owned by the submitter.
 //
 // Also drives the staff "review a keyset submission" flow via the same wizard
 // (`mode: 'review'`): the keyset step is always the pre-filled edit form (the
 // submission row *is* the keyset being reviewed) and the kit step already supports
 // a repeatable list, so it's reused as-is to review/edit/add/remove every kit
 // accumulated on a Pending submission.
+//
+// A kit proposed for an already-published keyset is reviewed with
+// `childrenOnly: true` and the keyset's `parentKey`: the keyset stays locked (never
+// edited or deleted) and the kit step lists only the community-proposed kits, each
+// carrying its own review status. Loading, saving, approving, rejecting and deleting
+// go through the keyset detail and per-kit endpoints, so only those kits are touched.
 export const useKeysetSubmissionWizard = ({
   mode = 'create',
   submissionId = null,
+  childrenOnly = false,
+  parentKey = '',
 }: {
   mode?: 'create' | 'review'
   submissionId?: string | number | null
+  childrenOnly?: boolean
+  parentKey?: string
 } = {}) => {
   const route = useRoute()
   const toast = useToast()
@@ -88,9 +100,22 @@ export const useKeysetSubmissionWizard = ({
   const loadingDetail = ref(false)
   const reviewStatus = ref<string | null>(null)
 
+  const submissionUrl = `/api/submissions/keyset/${submissionId}`
+
+  // Proposed kits as loaded, to detect which ones the reviewer removed.
+  let originalKits: { id: number; review_status: string | null }[] = []
+
+  // Staff can edit any proposal; submitters only their own Pending ones.
+  const canEditKit = (kit: { review_status?: string | null }) =>
+    userStore.isModerator || kit.review_status === 'Pending'
+
   const canDelete = computed(
     () =>
-      isReview && (userStore.isModerator || reviewStatus.value !== 'Approved'),
+      isReview &&
+      (userStore.isModerator ||
+        (childrenOnly
+          ? kits.value.some((kit: any) => kit.review_status === 'Pending')
+          : reviewStatus.value !== 'Approved')),
   )
 
   const load = async () => {
@@ -99,7 +124,9 @@ export const useKeysetSubmissionWizard = ({
     loadingDetail.value = true
 
     try {
-      const data: any = await $fetch(`/api/submissions/keyset/${submissionId}`)
+      const data: any = await $fetch(
+        childrenOnly ? `/api/keysets/${parentKey}` : submissionUrl,
+      )
 
       profile.value = { id: data.profile_id }
       await nextTick()
@@ -126,9 +153,16 @@ export const useKeysetSubmissionWizard = ({
         end: data.end_date ? parseDate(data.end_date) : undefined,
       }
 
-      kits.value = (data.kits || []).map((kit: any) => ({
-        ...newKit(),
-        ...kit,
+      kits.value = (data.kits || [])
+        .filter((kit: any) => !childrenOnly || kit.review_status)
+        .map((kit: any) => ({
+          ...newKit(),
+          ...kit,
+        }))
+
+      originalKits = kits.value.map((kit: any) => ({
+        id: kit.id,
+        review_status: kit.review_status,
       }))
 
       if (!kits.value.length) kits.value.push(newKit())
@@ -142,7 +176,43 @@ export const useKeysetSubmissionWizard = ({
       .filter((kit) => kit.name || kit.img || kit.description)
       .map(({ _key, ...kit }) => kit)
 
+  const saveProposedKits = async (action: 'update' | 'approve' | 'reject') => {
+    const payload: any[] = buildKitsPayload()
+    const target = { approve: 'Approved', reject: 'Rejected' }[action as string]
+
+    if (action !== 'update' && !payload.length) {
+      throw createError({ statusCode: 400, statusMessage: 'No kits to review' })
+    }
+
+    for (const kit of payload) {
+      if (kit.id && !canEditKit(kit)) continue
+
+      await $fetch(`/api/keysets/${parentKey}/kits`, {
+        method: 'post',
+        body: {
+          ...kit,
+          profile_keyset_id: parentKey,
+          ...(target && kit.review_status !== target ? { action } : {}),
+        },
+      })
+    }
+
+    const keptIds = new Set(payload.map((kit) => kit.id).filter(Boolean))
+
+    await removeKits(originalKits.filter((kit) => !keptIds.has(kit.id)))
+  }
+
+  const removeKits = async (list: typeof originalKits) => {
+    for (const kit of list.filter(canEditKit)) {
+      await $fetch(`/api/keysets/${parentKey}/kits/${kit.id}`, {
+        method: 'delete',
+      })
+    }
+  }
+
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    if (childrenOnly) return saveProposedKits(action)
+
     const payload: any = { ...keyset.value }
 
     if (action === 'update') payload.review_status = 'Pending'
@@ -157,7 +227,7 @@ export const useKeysetSubmissionWizard = ({
       payload.end_date = toISODate(dateRange.value.end as CalendarDate)
     }
 
-    return $fetch(`/api/submissions/keyset/${submissionId}`, {
+    return $fetch(submissionUrl, {
       method: 'post',
       body: { action, keyset: payload, kits: buildKitsPayload() },
     })
@@ -166,7 +236,9 @@ export const useKeysetSubmissionWizard = ({
   const approve = () => save('approve')
   const reject = () => save('reject')
   const remove = () =>
-    $fetch(`/api/submissions/keyset/${submissionId}`, { method: 'delete' })
+    childrenOnly
+      ? removeKits(originalKits)
+      : $fetch(submissionUrl, { method: 'delete' })
 
   const uploading = ref(false)
 
@@ -232,12 +304,14 @@ export const useKeysetSubmissionWizard = ({
   const stepSchemas = [
     () => entitySelectionSchema.safeParse(profile.value),
     () =>
-      keysetMode.value === 'existing'
-        ? entitySelectionSchema.safeParse(existingKeyset.value)
-        : createKeysetSchema(manufacturers).safeParse({
-            ...keyset.value,
-            profile_id: profile.value.id,
-          }),
+      childrenOnly
+        ? { success: true as const }
+        : keysetMode.value === 'existing'
+          ? entitySelectionSchema.safeParse(existingKeyset.value)
+          : createKeysetSchema(manufacturers).safeParse({
+              ...keyset.value,
+              profile_id: profile.value.id,
+            }),
     () => {
       for (const kit of kits.value) {
         const result = keysetKitSchema.safeParse(kit)
@@ -298,21 +372,7 @@ export const useKeysetSubmissionWizard = ({
 
       toast.add(handleSuccess('add', `${kits.value.length} kit(s)`, 'Kit'))
     } catch (error: any) {
-      const status = error?.statusCode || error?.status
-
-      if (
-        keysetMode.value === 'existing' &&
-        (status === 403 || status === 500)
-      ) {
-        toast.add({
-          title: 'Unable to add kit',
-          description:
-            "This keyset isn't part of your pending submissions, so only a moderator can add kits to it. Try creating a new keyset instead.",
-          color: 'error',
-        })
-      } else {
-        toast.add(handleError(error, { showOriginalMessage: true }))
-      }
+      toast.add(handleError(error, { showOriginalMessage: true }))
 
       throw error
     } finally {

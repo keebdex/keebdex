@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
 
     for (const release of releasesInput) {
       const releasePayload = {
-        ...pickTableFields('keyboard_releases', release),
+        ...omitModerationFields(pickTableFields('keyboard_releases', release)),
         release_year: toNullableNumber(release.release_year),
         msrp_price: toNullableNumber(release.msrp_price),
         brand_slug: existing.brand_slug,
@@ -162,7 +162,9 @@ export default defineEventHandler(async (event) => {
 
       for (const variant of variantsInput) {
         const variantPayload = {
-          ...pickTableFields('keyboard_variants', variant),
+          ...omitModerationFields(
+            pickTableFields('keyboard_variants', variant),
+          ),
           release_id: releaseId,
           brand_slug: existing.brand_slug,
           brand_keyboard_slug: existing.brand_keyboard_slug,

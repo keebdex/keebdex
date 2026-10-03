@@ -1,0 +1,149 @@
+import { createError } from 'h3'
+import type { H3Event } from 'h3'
+import omit from 'lodash.omit'
+import { getActorProfile } from './admin'
+import {
+  canManageAnyAssignment,
+  canManageAssignment,
+} from '~/utils/permissions'
+
+export type ChildSubmissionDomain = 'keyset' | 'keyboard'
+
+const MODERATION_FIELDS = [
+  'review_status',
+  'submitted_by',
+  'verified_at',
+  'verified_by',
+]
+
+/**
+ * Child payloads come from the client, so moderation fields are always dropped
+ * here and re-applied server-side by `getChildSubmissionContext().attribute`.
+ */
+export const omitModerationFields = <T extends Record<string, unknown>>(
+  record: T,
+) => omit(record, MODERATION_FIELDS) as Partial<T>
+
+/**
+ * Resolves who is adding/editing a kit, release, or variant on an existing
+ * keyset/keyboard, and what moderation state a newly created child gets:
+ * - official (null/Approved) parent + staff for it: auto-approved;
+ * - official parent + anyone else: a Pending community proposal;
+ * - Pending/Rejected parent: no state of its own, the parent's lifecycle owns it.
+ */
+export const getChildSubmissionContext = async (
+  event: H3Event,
+  domain: ChildSubmissionDomain,
+  parentKey: string,
+) => {
+  const { client, user, profile } = await getActorProfile(event)
+
+  const parentQuery =
+    domain === 'keyset'
+      ? client
+          .from('keysets')
+          .select('profile_keyset_id, review_status, submitted_by')
+          .eq('profile_keyset_id', parentKey)
+          .maybeSingle()
+      : client
+          .from('keyboards')
+          .select(
+            'brand_slug, brand_keyboard_slug, review_status, submitted_by',
+          )
+          .eq('brand_keyboard_slug', parentKey)
+          .maybeSingle()
+
+  const { data: parent, error } = await parentQuery
+
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+
+  if (!parent) {
+    throw createError({
+      statusCode: 404,
+      statusMessage:
+        domain === 'keyset' ? 'Keyset not found' : 'Keyboard not found',
+    })
+  }
+
+  const scope =
+    'profile_keyset_id' in parent ? parent.profile_keyset_id : parent.brand_slug
+  const isStaff =
+    canManageAnyAssignment(profile) && canManageAssignment(profile, scope)
+  const isOfficial =
+    !parent.review_status || parent.review_status === 'Approved'
+
+  const attribute = <T extends Record<string, unknown>>(record: T) => {
+    const base = omitModerationFields(record)
+
+    if (!isOfficial) return base
+
+    return {
+      ...base,
+      review_status: isStaff ? 'Approved' : 'Pending',
+      submitted_by: user.sub,
+      verified_at: isStaff ? new Date().toISOString() : null,
+      verified_by: isStaff ? user.sub : null,
+    }
+  }
+
+  return {
+    client,
+    user,
+    profile,
+    parent,
+    isStaff,
+    isOfficial,
+    attribute,
+  }
+}
+
+/**
+ * Moderation columns applied when staff send `action: 'approve' | 'reject'`
+ * with a kit/release/variant save. Returns null when no action was sent and
+ * rejects non-staff or unknown actions.
+ */
+export const getModerationOverride = (
+  action: unknown,
+  userId: string,
+  isStaff: boolean,
+) => {
+  if (action === undefined || action === null || action === 'update') {
+    return null
+  }
+
+  if (action !== 'approve' && action !== 'reject') {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid action' })
+  }
+
+  if (!isStaff) {
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+  }
+
+  return {
+    review_status: action === 'approve' ? 'Approved' : 'Rejected',
+    verified_by: userId,
+    verified_at: new Date().toISOString(),
+  }
+}
+
+/**
+ * Parents are listed through their children by filtering on a status that
+ * ends up inside a PostgREST `or()` expression, so it must be whitelisted.
+ */
+export const parseReviewStatus = (value: unknown) => {
+  const status = String(value || 'Pending').trim()
+
+  if (!['Pending', 'Approved', 'Rejected'].includes(status)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid status' })
+  }
+
+  return status
+}
+
+/**
+ * Builds a PostgREST `column.in.(...)` condition with quoted values.
+ */
+export const inFilter = (column: string, values: string[]) =>
+  `${column}.in.(${values.map((value) => `"${value.replace(/"/g, '')}"`).join(',')})`

@@ -26,7 +26,7 @@
               v-for="row in data.data"
               :key="row.id"
               :title="row.name"
-              :description="`${row.brand?.name || row.brand_slug} • ${row.releases_count} release(s)`"
+              :description="rowDescription(row)"
               spotlight
               reverse
               class="cursor-pointer"
@@ -48,12 +48,21 @@
                         : formatDate(row.created_at)
                     }}
                   </p>
-                  <UBadge
-                    :label="row.review_status"
-                    variant="subtle"
-                    size="xs"
-                    :color="statusColorMap[row.review_status] || 'neutral'"
-                  />
+                  <div class="flex items-center gap-1">
+                    <UBadge
+                      :label="rowStatus(row)"
+                      variant="subtle"
+                      size="xs"
+                      :color="statusColorMap[rowStatus(row)] || 'neutral'"
+                    />
+                    <UBadge
+                      v-if="row.child_submission"
+                      label="New releases/variants"
+                      variant="outline"
+                      size="xs"
+                      color="neutral"
+                    />
+                  </div>
                 </div>
               </div>
             </UPageCard>
@@ -79,9 +88,11 @@
         <UPageCard variant="subtle" class="min-w-0">
           <template v-if="selectedId">
             <KeyboardModalSubmissionWizard
-              :key="selectedId"
+              :key="`${selectedId}-${childrenOnly}`"
               mode="review"
               :submission-id="selectedId"
+              :children-only="childrenOnly"
+              :parent-key="parentKey"
               @on-success="onDetailSuccess"
               @on-delete="onDetailDelete"
             />
@@ -129,10 +140,31 @@ watch(statusFilter, () => {
   selectedId.value = null
 })
 
+// Rows listed only because of proposed releases/variants show their status.
+const rowStatus = (row) =>
+  row.child_submission ? statusFilter.value : row.review_status
+
+const rowDescription = (row) => {
+  const brand = row.brand?.name || row.brand_slug
+  const counts = [
+    (!row.child_submission || row.releases_count) &&
+      `${row.releases_count} release(s)`,
+    row.child_submission && row.variants_count
+      ? `${row.variants_count} variant(s)`
+      : null,
+  ].filter(Boolean)
+
+  return [brand, ...counts].join(' • ')
+}
+
 const selectedId = ref(null)
+const childrenOnly = ref(false)
+const parentKey = ref('')
 
 const selectSubmission = (row) => {
   selectedId.value = row.id
+  childrenOnly.value = !!row.child_submission
+  parentKey.value = row.brand_keyboard_slug
 }
 
 const onDetailSuccess = async () => {
