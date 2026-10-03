@@ -4,10 +4,10 @@
 
 ### ✨ What's New
 
-- **Community Submissions Wizard** — Signed-in users can now contribute new keyboards, keysets, and artisan colorways using a 3-tier multi-step submission wizard at `/submissions/submit` that toggles between selecting existing entities and proposing new ones, powered by pure atomic forms and Zod schemas.
-- **Contextual Submission Links** — Submitting directly from an existing entity page pre-fills parent steps in the wizard and jumps straight to the target creation step.
-- **Moderation & Review Pages** — Added dedicated review pages (`/keyboard/submissions`, `/keyset/submissions`, `/artisan/submissions`) with a master-detail layout to filter by status (`Pending`/`Approved`/`Rejected`) and let staff approve, reject, or edit pending entries.
-- **Submission Security & Self-Management** — Enforced RLS policies on submissions so only the submitter and staff can view unapproved entries, auto-approving staff contributions while allowing submitters and staff to delete pending or rejected entries.
+- **Community Submission Wizards** — Signed-in users can propose keyboards, keysets, and artisan colorways at `/{domain}/submissions/submit` using shared atomic forms, Zod validation, and stepper context: Maker → Sculpt → Colorway, Profile → Keyset → Kit, and Brand → Keyboard → Release → Variant. The same wizard handles create and review; child creation remains subject to parent ownership and staff permissions.
+- **Contextual Submission Links** — Detail-page entry points for colorways, kits, releases, and variants preselect existing parents and jump to the relevant step, preserving those selections while options load.
+- **Moderation & Review Pages** — Status-filtered lists at `/keyboard/submissions`, `/keyset/submissions`, and `/artisan/submissions` provide scoped staff review and submitter views. Keyboard/keyset review starts with entity details, supports nested Releases/Variants or Kits, and offers Save & Approve, Reject, and Delete; non-moderators retain Save Changes where permitted.
+- **Staff Auto-Approval** — Shared submission create endpoints auto-approve contributions by staff authorized for the relevant assignment; non-staff submissions enter Pending review.
 - **Trading Card Colorway Preview** — Redesigned the colorway preview into a Yu-Gi-Oh!/Pokémon-style trading card, with a selector to switch between the two styles directly in the preview modal.
 - **Theme Preset System** — Users can now switch between theme presets (Default, Carbon, Parchment, Taro) from the profile menu or the Appearance settings tab. Each preset controls colors, fonts, component defaults, and CSS custom properties for semantic tokens; themes persist via cookie and apply immediately without reload.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
