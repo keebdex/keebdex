@@ -7,9 +7,8 @@ import { entitySelectionSchema } from '~/utils/schemas/common'
 
 // Drives the public "submit a keyboard" wizard: pick a brand, pick/create a keyboard,
 // then create the release + variant. Reuses existing single-entity APIs; creating a new
-// keyboard reuses the submission endpoint (with an empty releases array) so the keyboard
-// is owned and Pending, which is required for the follow-up release/variant create calls
-// to pass RLS. Releases/variants added to an already-published keyboard skip that step:
+// keyboard reuses the submission endpoint so the keyboard is owned and Pending, which
+// is required for the follow-up release/variant create calls to pass RLS. Releases/variants added to an already-published keyboard skip that step:
 // the release/variant endpoints store them as Pending proposals owned by the submitter.
 //
 // Also drives the "review a variant" flow via the same wizard (`mode: 'review'`),
@@ -188,7 +187,6 @@ export const useKeyboardSubmissionWizard = ({
     },
   )
 
-  const loadingDetail = ref(false)
   // Status of the variant being reviewed, of its release and of its keyboard.
   const reviewStatus = ref<string | null>(null)
   const releaseReviewStatus = ref<string | null>(null)
@@ -222,69 +220,63 @@ export const useKeyboardSubmissionWizard = ({
   const load = async () => {
     if (!isReview || !submission) return
 
-    loadingDetail.value = true
+    const rel = submission.release || {}
+    const kb = rel.keyboard || {}
 
-    try {
-      const rel = submission.release || {}
-      const kb = rel.keyboard || {}
+    brand.value = { id: submissionKey.split('/')[0] || '' }
+    await nextTick()
+    keyboardMode.value = 'existing'
+    existingKeyboard.value = { id: submissionKey }
+    reviewStatus.value = submission.status ?? submission.review_status
+    releaseReviewStatus.value = rel.review_status ?? null
+    keyboardReviewStatus.value = kb.review_status ?? null
+    keyboard.value.name = kb.name || ''
+    release.value.name = rel.name || ''
 
-      brand.value = { id: submissionKey.split('/')[0] || '' }
-      await nextTick()
-      keyboardMode.value = 'existing'
-      existingKeyboard.value = { id: submissionKey }
-      reviewStatus.value = submission.status ?? submission.review_status
-      releaseReviewStatus.value = rel.review_status ?? null
-      keyboardReviewStatus.value = kb.review_status ?? null
-      keyboard.value.name = kb.name || ''
-      release.value.name = rel.name || ''
+    const {
+      release: _release,
+      submitter: _submitter,
+      status: _status,
+      ...variantFields
+    } = submission
 
-      const {
-        release: _release,
-        submitter: _submitter,
-        status: _status,
-        ...variantFields
-      } = submission
+    // Variants keep the synthetic 'draft' release option (see
+    // keyboardForVariantForm); the real release id is resolved on save.
+    variants.value = [
+      { ...newVariant(), ...variantFields, release_id: 'draft' },
+    ]
 
-      // Variants keep the synthetic 'draft' release option (see
-      // keyboardForVariantForm); the real release id is resolved on save.
-      variants.value = [
-        { ...newVariant(), ...variantFields, release_id: 'draft' },
-      ]
+    if (keyboardUnderReview.value || releaseUnderReview.value) {
+      const data: any = await $fetch(`/api/keyboards/${submissionKey}`)
 
-      if (keyboardUnderReview.value || releaseUnderReview.value) {
-        const data: any = await $fetch(`/api/keyboards/${submissionKey}`)
-
-        if (keyboardUnderReview.value) {
-          Object.assign(keyboard.value, {
-            id: data.id,
-            name: data.name,
-            brand_slug: data.brand_slug,
-            form_factor: data.form_factor,
-            top_case_styles: Array.isArray(data.top_case_styles)
-              ? data.top_case_styles
-              : data.top_case_styles
-                ? [data.top_case_styles]
-                : [],
-            mount_styles: Array.isArray(data.mount_styles)
-              ? data.mount_styles
-              : data.mount_styles
-                ? [data.mount_styles]
-                : [],
-            typing_angle: data.typing_angle,
-            derived_from: data.derived_from,
-            description: data.description,
-          })
-        }
-
-        if (releaseUnderReview.value) {
-          const { variants: _variants, ...releaseData } =
-            (data.releases || []).find((r: any) => r.id === rel.id) || rel
-
-          Object.assign(release.value, releaseData)
-        }
+      if (keyboardUnderReview.value) {
+        Object.assign(keyboard.value, {
+          id: data.id,
+          name: data.name,
+          brand_slug: data.brand_slug,
+          form_factor: data.form_factor,
+          top_case_styles: Array.isArray(data.top_case_styles)
+            ? data.top_case_styles
+            : data.top_case_styles
+              ? [data.top_case_styles]
+              : [],
+          mount_styles: Array.isArray(data.mount_styles)
+            ? data.mount_styles
+            : data.mount_styles
+              ? [data.mount_styles]
+              : [],
+          typing_angle: data.typing_angle,
+          derived_from: data.derived_from,
+          description: data.description,
+        })
       }
-    } finally {
-      loadingDetail.value = false
+
+      if (releaseUnderReview.value) {
+        const { variants: _variants, ...releaseData } =
+          (data.releases || []).find((r: any) => r.id === rel.id) || rel
+
+        Object.assign(release.value, releaseData)
+      }
     }
   }
 
@@ -421,7 +413,6 @@ export const useKeyboardSubmissionWizard = ({
           method: 'post',
           body: {
             keyboard: { ...keyboard.value, brand_slug: brand.value.id },
-            releases: [],
           },
         })
 
@@ -487,7 +478,6 @@ export const useKeyboardSubmissionWizard = ({
     addVariant,
     removeVariant,
     keyboardForVariantForm,
-    loadingDetail,
     reviewStatus,
     keyboardUnderReview,
     releaseUnderReview,

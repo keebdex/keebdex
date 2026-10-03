@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   const keyboardInput = pickTableFields('keyboards', body?.keyboard || {})
-  const releasesInput = Array.isArray(body?.releases) ? body.releases : []
 
   if (!keyboardInput.name || !keyboardInput.brand_slug) {
     throw createError({
@@ -51,58 +50,6 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
       statusMessage: keyboardError.message,
     })
-  }
-
-  for (const release of releasesInput) {
-    const releasePayload = {
-      ...omitModerationFields(pickTableFields('keyboard_releases', release)),
-      release_year: toNullableNumber(release.release_year),
-      msrp_price: toNullableNumber(release.msrp_price),
-      brand_slug: keyboardInput.brand_slug,
-      brand_keyboard_slug,
-    }
-
-    const { data: createdRelease, error: releaseError } = await client
-      .from('keyboard_releases')
-      .insert(releasePayload)
-      .select()
-      .single()
-
-    if (releaseError) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: releaseError.message,
-      })
-    }
-
-    const variantsInput = Array.isArray(release.variants)
-      ? release.variants
-      : []
-
-    if (variantsInput.length) {
-      const variantsPayload = variantsInput.map((variant: unknown) => ({
-        ...omitModerationFields(pickTableFields('keyboard_variants', variant)),
-        // Each variant carries its own status so it can be reviewed on its own.
-        review_status: keyboardPayload.review_status,
-        submitted_by: user.sub,
-        verified_at: keyboardPayload.verified_at,
-        verified_by: keyboardPayload.verified_by,
-        release_id: createdRelease.id,
-        brand_slug: keyboardInput.brand_slug,
-        brand_keyboard_slug,
-      }))
-
-      const { error: variantsError } = await client
-        .from('keyboard_variants')
-        .insert(variantsPayload)
-
-      if (variantsError) {
-        throw createError({
-          statusCode: 500,
-          statusMessage: variantsError.message,
-        })
-      }
-    }
   }
 
   return keyboard

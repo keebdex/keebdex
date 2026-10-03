@@ -62,7 +62,3 @@ export const colorwaySchema = z.object({
   sculpt_id: z.string().min(1),
   maker_sculpt_id: z.string().min(1),
 })
-
-export const artisanSubmissionCompositeSchema = z.object({
-  colorway: colorwaySchema,
-})

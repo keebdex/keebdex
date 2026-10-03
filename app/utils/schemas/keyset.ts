@@ -49,11 +49,3 @@ export const keysetColorLinkSchema = z.object({
   profile_keyset_id: z.string(),
   color_ids: z.number().array().min(1),
 })
-
-export const createKeysetSubmissionCompositeSchema = (manufacturers) =>
-  z.object({
-    keyset: createKeysetSchema(manufacturers, {
-      profileMessage: 'Please choose a profile',
-    }),
-    kits: z.array(keysetKitSchema),
-  })

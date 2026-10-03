@@ -227,7 +227,7 @@ const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
 const toast = useToast()
 const currencies = Constants.public.Enums.currency
 const saleFormatEnums = Constants.public.Enums.sale_format
-const specialFormats = ['Giveaway', 'Commission', 'Auction']
+const specialFormats = ['Giveaway', 'Commission', 'Auction', 'Friends & Family']
 const saleFormats = [
   {
     type: 'label',

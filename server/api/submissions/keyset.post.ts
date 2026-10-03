@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   const keysetInput = pickTableFields('keysets', body?.keyset || {})
-  const kitsInput = Array.isArray(body?.kits) ? body.kits : []
 
   if (!keysetInput.name || !keysetInput.profile_id) {
     throw createError({
@@ -45,26 +44,6 @@ export default defineEventHandler(async (event) => {
 
   if (keysetError) {
     throw createError({ statusCode: 500, statusMessage: keysetError.message })
-  }
-
-  if (kitsInput.length) {
-    // Each kit carries its own status so it can be reviewed on its own.
-    const kitsPayload = kitsInput.map((kit: unknown) => ({
-      ...omitModerationFields(pickTableFields('keyset_kits', kit)),
-      profile_keyset_id,
-      review_status: keysetPayload.review_status,
-      submitted_by: user.sub,
-      verified_at: keysetPayload.verified_at,
-      verified_by: keysetPayload.verified_by,
-    }))
-
-    const { error: kitsError } = await client
-      .from('keyset_kits')
-      .insert(kitsPayload)
-
-    if (kitsError) {
-      throw createError({ statusCode: 500, statusMessage: kitsError.message })
-    }
   }
 
   return keyset

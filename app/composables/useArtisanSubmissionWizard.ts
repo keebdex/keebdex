@@ -126,7 +126,6 @@ export const useArtisanSubmissionWizard = ({
 
   const reviewStatus = ref<string | null>(null)
   const sculptReviewStatus = ref<string | null>(null)
-  const originalColorwayIds = ref<number[]>([])
 
   const load = async () => {
     if (!isReview || !submission) return
@@ -137,7 +136,6 @@ export const useArtisanSubmissionWizard = ({
     existingSculpt.value = { id: submission.sculpt_id }
     reviewStatus.value = submission.review_status
     colorways.value = [{ ...submission, _key: colorwayKeySeed++ }]
-    originalColorwayIds.value = [submission.id]
 
     // The sculpt may itself be a proposal submitted alongside this colorway
     // (see server/api/makers/[maker]/sculpts/[sculpt].post.ts) — while it's
@@ -194,21 +192,9 @@ export const useArtisanSubmissionWizard = ({
       )
     }
 
-    const currentIds = colorways.value.map((item) => item.id).filter(Boolean)
-    const removedIds = originalColorwayIds.value.filter(
-      (id) => !currentIds.includes(id),
-    )
-
-    for (const id of removedIds) {
-      await $fetch(
-        `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways/${id}`,
-        { method: 'delete' },
-      )
-    }
-
     for (const colorway of colorways.value) {
       const { _key, ...colorwayData } = colorway
-      const [saved] = await $fetch<any[]>(
+      await $fetch<any[]>(
         `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways`,
         {
           method: 'post',
@@ -218,12 +204,7 @@ export const useArtisanSubmissionWizard = ({
           },
         },
       )
-      if (!colorway.id) colorway.id = saved.id
     }
-
-    originalColorwayIds.value = colorways.value
-      .map((item) => item.id)
-      .filter(Boolean)
   }
 
   const remove = async () => {

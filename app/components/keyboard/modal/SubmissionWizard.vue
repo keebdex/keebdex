@@ -250,22 +250,14 @@
       />
     </div>
 
-    <UModal
+    <SharedConfirmModal
       v-if="mode === 'review'"
       v-model:open="deleteVisible"
       title="Delete Variant"
       :description="`Are you sure you want to delete ${variantLabel}? This action cannot be undone.`"
-    >
-      <template #footer="{ close }">
-        <UButton label="Cancel" @click="close" />
-        <UButton
-          label="Delete"
-          color="error"
-          :loading="savingAction === 'delete'"
-          @click="onDeleteConfirm(close)"
-        />
-      </template>
-    </UModal>
+      :loading="savingAction === 'delete'"
+      @confirm="onDeleteConfirm"
+    />
   </div>
 </template>
 
@@ -473,7 +465,9 @@ const onReviewAction = async (action) => {
   }
 }
 
-const onDeleteConfirm = async (close) => {
+const onDeleteConfirm = async () => {
+  if (savingAction.value) return
+
   savingAction.value = 'delete'
 
   try {
@@ -481,7 +475,6 @@ const onDeleteConfirm = async (close) => {
 
     toast.add(handleSuccess('delete', variantLabel.value, 'Variant'))
     deleteVisible.value = false
-    close()
     emit('onDelete')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))

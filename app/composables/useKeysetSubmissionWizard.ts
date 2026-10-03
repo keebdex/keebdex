@@ -9,8 +9,8 @@ type KeysetsResponse = {
 
 // Drives the public "submit a keyset" wizard: pick a profile, pick/create a keyset,
 // then create the kit. Reuses existing single-entity APIs; creating a new keyset
-// reuses the submission endpoint (with an empty kits array) so the keyset is owned
-// and Pending, which is required for the follow-up kit create call to pass RLS.
+// reuses the submission endpoint so the keyset is owned and Pending, which is
+// required for the follow-up kit create call to pass RLS.
 // Kits added to an already-published keyset skip that step: the kit endpoint
 // stores them as Pending proposals owned by the submitter.
 //
@@ -88,7 +88,6 @@ export const useKeysetSubmissionWizard = ({
     if (kits.value.length > 1) kits.value.splice(index, 1)
   }
 
-  const loadingDetail = ref(false)
   // Status of the kit being reviewed and of its keyset.
   const reviewStatus = ref<string | null>(null)
   const keysetReviewStatus = ref<string | null>(null)
@@ -113,53 +112,47 @@ export const useKeysetSubmissionWizard = ({
   const load = async () => {
     if (!isReview || !submission) return
 
-    loadingDetail.value = true
+    profile.value = { id: submissionKey.split('/')[0] || '' }
+    await nextTick()
+    keysetMode.value = 'existing'
+    existingKeyset.value = { id: submissionKey }
+    reviewStatus.value = submission.status ?? submission.review_status
+    keysetReviewStatus.value = submission.keyset?.review_status ?? null
+    keyset.value.name = submission.keyset?.name || ''
 
-    try {
-      profile.value = { id: submissionKey.split('/')[0] || '' }
-      await nextTick()
-      keysetMode.value = 'existing'
-      existingKeyset.value = { id: submissionKey }
-      reviewStatus.value = submission.status ?? submission.review_status
-      keysetReviewStatus.value = submission.keyset?.review_status ?? null
-      keyset.value.name = submission.keyset?.name || ''
+    const {
+      keyset: _keyset,
+      submitter: _submitter,
+      category: _category,
+      status: _status,
+      ...kitFields
+    } = submission
 
-      const {
-        keyset: _keyset,
-        submitter: _submitter,
-        category: _category,
-        status: _status,
-        ...kitFields
-      } = submission
+    kits.value = [{ ...newKit(), ...kitFields }]
 
-      kits.value = [{ ...newKit(), ...kitFields }]
+    if (keysetUnderReview.value) {
+      const data: any = await $fetch(`/api/keysets/${submissionKey}`)
 
-      if (keysetUnderReview.value) {
-        const data: any = await $fetch(`/api/keysets/${submissionKey}`)
+      keysetMode.value = 'new'
 
-        keysetMode.value = 'new'
+      Object.assign(keyset.value, {
+        id: data.id,
+        name: data.name,
+        designer: data.designer,
+        sculpt: data.sculpt,
+        url: data.url,
+        img: data.img,
+        description: data.description,
+        profile_id: data.profile_id,
+        status: data.status,
+        review_status: data.review_status,
+        ic_date: data.ic_date ? parseDate(data.ic_date) : undefined,
+      })
 
-        Object.assign(keyset.value, {
-          id: data.id,
-          name: data.name,
-          designer: data.designer,
-          sculpt: data.sculpt,
-          url: data.url,
-          img: data.img,
-          description: data.description,
-          profile_id: data.profile_id,
-          status: data.status,
-          review_status: data.review_status,
-          ic_date: data.ic_date ? parseDate(data.ic_date) : undefined,
-        })
-
-        dateRange.value = {
-          start: data.start_date ? parseDate(data.start_date) : undefined,
-          end: data.end_date ? parseDate(data.end_date) : undefined,
-        }
+      dateRange.value = {
+        start: data.start_date ? parseDate(data.start_date) : undefined,
+        end: data.end_date ? parseDate(data.end_date) : undefined,
       }
-    } finally {
-      loadingDetail.value = false
     }
   }
 
@@ -323,7 +316,6 @@ export const useKeysetSubmissionWizard = ({
           method: 'post',
           body: {
             keyset: payload,
-            kits: [],
           },
         })
 
@@ -360,7 +352,6 @@ export const useKeysetSubmissionWizard = ({
     kits,
     addKit,
     removeKit,
-    loadingDetail,
     reviewStatus,
     keysetUnderReview,
     canSave,
