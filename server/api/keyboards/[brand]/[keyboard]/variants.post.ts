@@ -57,17 +57,48 @@ export default defineEventHandler(async (event) => {
   let result
 
   if (body.id) {
+    // Editing your own rejected variant sends it back to review.
+    const resubmission: Record<string, unknown> = {}
+
+    if (!isStaff) {
+      const { data: current } = await client
+        .from('keyboard_variants')
+        .select('review_status, submitted_by')
+        .eq('id', body.id as number)
+        .eq('brand_keyboard_slug', brandKeyboardSlug)
+        .maybeSingle()
+
+      if (
+        current?.submitted_by === user.sub &&
+        current.review_status === 'Rejected'
+      ) {
+        Object.assign(resubmission, {
+          review_status: 'Pending',
+          verified_at: null,
+          verified_by: null,
+        })
+      }
+    }
+
     result = await client
       .from('keyboard_variants')
-      .update({ ...payload, ...moderation })
+      .update({ ...payload, ...moderation, ...resubmission })
       .eq('id', body.id as number)
       .eq('brand_keyboard_slug', brandKeyboardSlug)
       .select()
-      .single()
+      .maybeSingle()
+
+    // RLS filters rows silently, so no row back means the edit was refused.
+    if (!result.error && !result.data) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "You can't edit this variant in its current state",
+      })
+    }
   } else {
     result = await client
       .from('keyboard_variants')
-      .insert({ ...attribute(payload), ...moderation })
+      .insert({ ...attribute(payload, { own: true }), ...moderation })
       .select()
       .single()
   }
@@ -77,6 +108,16 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
       statusMessage: result.error.message,
     })
+  }
+
+  if (moderation) {
+    await cascadeKeyboardReview(
+      client,
+      brandKeyboardSlug,
+      Number(result.data.release_id),
+      rawBody.action,
+      user.sub,
+    )
   }
 
   return omitSensitive(result.data)

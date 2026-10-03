@@ -18,13 +18,11 @@ export type CRUDAction =
   | 'remove'
   | 'save'
   | 'move'
+  | 'approve'
+  | 'reject'
 
 export type SystemAction =
-  | 'copy'
-  | 'login'
-  | 'logout'
-  | 'pin_update'
-  | 'order_save'
+  'copy' | 'login' | 'logout' | 'pin_update' | 'order_save'
 
 interface ToastMessage {
   title: string
@@ -135,19 +133,13 @@ export function handleSuccess(
   targetName?: string,
 ): ToastMessage {
   // 1. Determine the subject
-  let subject = ''
-  if (itemName && entityName) {
-    subject = `${entityName} [${itemName}]`
-  } else if (itemName) {
-    subject = itemName
-  } else if (entityName) {
-    subject = entityName
-  } else {
-    subject = action === 'save' ? 'Your changes' : 'Action'
-  }
+  const subject =
+    itemName && entityName
+      ? `${entityName} [${itemName}]`
+      : itemName || entityName || (action === 'save' ? 'Your changes' : 'Action')
 
   // 2. Determine the verb and suffixes
-  let verb = ''
+  let verb: string
   let suffix = ''
 
   switch (action) {
@@ -164,6 +156,12 @@ export function handleSuccess(
     case 'delete':
     case 'remove':
       verb = 'removed'
+      break
+    case 'approve':
+      verb = 'approved'
+      break
+    case 'reject':
+      verb = 'rejected'
       break
     case 'move':
       verb = 'moved'

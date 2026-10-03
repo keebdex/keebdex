@@ -14,27 +14,18 @@ type KeysetsResponse = {
 // Kits added to an already-published keyset skip that step: the kit endpoint
 // stores them as Pending proposals owned by the submitter.
 //
-// Also drives the staff "review a keyset submission" flow via the same wizard
-// (`mode: 'review'`): the keyset step is always the pre-filled edit form (the
-// submission row *is* the keyset being reviewed) and the kit step already supports
-// a repeatable list, so it's reused as-is to review/edit/add/remove every kit
-// accumulated on a Pending submission.
-//
-// A kit proposed for an already-published keyset is reviewed with
-// `childrenOnly: true` and the keyset's `parentKey`: the keyset stays locked (never
-// edited or deleted) and the kit step lists only the community-proposed kits, each
-// carrying its own review status. Loading, saving, approving, rejecting and deleting
-// go through the keyset detail and per-kit endpoints, so only those kits are touched.
+// Also drives the "review a kit" flow via the same wizard (`mode: 'review'`),
+// mirroring how artisan reviews one colorway per row: `submission` is a row of
+// `GET /api/submissions/keyset` (a kit plus its keyset). The kit is always
+// editable; the keyset is only editable while it's still under review (Pending or
+// Rejected, like a Pending sculpt) and is a locked summary once published.
+// Approving the kit also approves its keyset (server side).
 export const useKeysetSubmissionWizard = ({
   mode = 'create',
-  submissionId = null,
-  childrenOnly = false,
-  parentKey = '',
+  submission = null,
 }: {
   mode?: 'create' | 'review'
-  submissionId?: string | number | null
-  childrenOnly?: boolean
-  parentKey?: string
+  submission?: Record<string, any> | null
 } = {}) => {
   const route = useRoute()
   const toast = useToast()
@@ -98,147 +89,127 @@ export const useKeysetSubmissionWizard = ({
   }
 
   const loadingDetail = ref(false)
+  // Status of the kit being reviewed and of its keyset.
   const reviewStatus = ref<string | null>(null)
+  const keysetReviewStatus = ref<string | null>(null)
 
-  const submissionUrl = `/api/submissions/keyset/${submissionId}`
+  const submissionKey: string = submission?.profile_keyset_id || ''
 
-  // Proposed kits as loaded, to detect which ones the reviewer removed.
-  let originalKits: { id: number; review_status: string | null }[] = []
+  const keysetUnderReview = computed(
+    () => !!keysetReviewStatus.value && keysetReviewStatus.value !== 'Approved',
+  )
 
-  // Staff can edit any proposal; submitters only their own Pending ones.
-  const canEditKit = (kit: { review_status?: string | null }) =>
-    userStore.isModerator || kit.review_status === 'Pending'
-
-  const canDelete = computed(
+  // Staff can edit anything; submitters only while it's Pending or Rejected
+  // (editing a rejected kit sends it back to review).
+  const canSave = computed(
     () =>
       isReview &&
       (userStore.isModerator ||
-        (childrenOnly
-          ? kits.value.some((kit: any) => kit.review_status === 'Pending')
-          : reviewStatus.value !== 'Approved')),
+        ['Pending', 'Rejected'].includes(reviewStatus.value || '')),
   )
 
+  const canDelete = computed(() => canSave.value)
+
   const load = async () => {
-    if (!isReview || !submissionId) return
+    if (!isReview || !submission) return
 
     loadingDetail.value = true
 
     try {
-      const data: any = await $fetch(
-        childrenOnly ? `/api/keysets/${parentKey}` : submissionUrl,
-      )
-
-      profile.value = { id: data.profile_id }
+      profile.value = { id: submissionKey.split('/')[0] || '' }
       await nextTick()
-      keysetMode.value = 'new'
-      existingKeyset.value = { id: data.profile_keyset_id }
-      reviewStatus.value = data.review_status
+      keysetMode.value = 'existing'
+      existingKeyset.value = { id: submissionKey }
+      reviewStatus.value = submission.status ?? submission.review_status
+      keysetReviewStatus.value = submission.keyset?.review_status ?? null
+      keyset.value.name = submission.keyset?.name || ''
 
-      Object.assign(keyset.value, {
-        id: data.id,
-        name: data.name,
-        designer: data.designer,
-        sculpt: data.sculpt,
-        url: data.url,
-        img: data.img,
-        description: data.description,
-        profile_id: data.profile_id,
-        status: data.status,
-        review_status: data.review_status,
-        ic_date: data.ic_date ? parseDate(data.ic_date) : undefined,
-      })
+      const {
+        keyset: _keyset,
+        submitter: _submitter,
+        category: _category,
+        status: _status,
+        ...kitFields
+      } = submission
 
-      dateRange.value = {
-        start: data.start_date ? parseDate(data.start_date) : undefined,
-        end: data.end_date ? parseDate(data.end_date) : undefined,
+      kits.value = [{ ...newKit(), ...kitFields }]
+
+      if (keysetUnderReview.value) {
+        const data: any = await $fetch(`/api/keysets/${submissionKey}`)
+
+        keysetMode.value = 'new'
+
+        Object.assign(keyset.value, {
+          id: data.id,
+          name: data.name,
+          designer: data.designer,
+          sculpt: data.sculpt,
+          url: data.url,
+          img: data.img,
+          description: data.description,
+          profile_id: data.profile_id,
+          status: data.status,
+          review_status: data.review_status,
+          ic_date: data.ic_date ? parseDate(data.ic_date) : undefined,
+        })
+
+        dateRange.value = {
+          start: data.start_date ? parseDate(data.start_date) : undefined,
+          end: data.end_date ? parseDate(data.end_date) : undefined,
+        }
       }
-
-      kits.value = (data.kits || [])
-        .filter((kit: any) => !childrenOnly || kit.review_status)
-        .map((kit: any) => ({
-          ...newKit(),
-          ...kit,
-        }))
-
-      originalKits = kits.value.map((kit: any) => ({
-        id: kit.id,
-        review_status: kit.review_status,
-      }))
-
-      if (!kits.value.length) kits.value.push(newKit())
     } finally {
       loadingDetail.value = false
     }
   }
 
-  const buildKitsPayload = () =>
-    kits.value
-      .filter((kit) => kit.name || kit.img || kit.description)
-      .map(({ _key, ...kit }) => kit)
-
-  const saveProposedKits = async (action: 'update' | 'approve' | 'reject') => {
-    const payload: any[] = buildKitsPayload()
-    const target = { approve: 'Approved', reject: 'Rejected' }[action as string]
-
-    if (action !== 'update' && !payload.length) {
-      throw createError({ statusCode: 400, statusMessage: 'No kits to review' })
-    }
-
-    for (const kit of payload) {
-      if (kit.id && !canEditKit(kit)) continue
-
-      await $fetch(`/api/keysets/${parentKey}/kits`, {
-        method: 'post',
-        body: {
-          ...kit,
-          profile_keyset_id: parentKey,
-          ...(target && kit.review_status !== target ? { action } : {}),
-        },
-      })
-    }
-
-    const keptIds = new Set(payload.map((kit) => kit.id).filter(Boolean))
-
-    await removeKits(originalKits.filter((kit) => !keptIds.has(kit.id)))
-  }
-
-  const removeKits = async (list: typeof originalKits) => {
-    for (const kit of list.filter(canEditKit)) {
-      await $fetch(`/api/keysets/${parentKey}/kits/${kit.id}`, {
-        method: 'delete',
-      })
-    }
-  }
-
+  // Saves the keyset (only while under review) and then the kit; approving or
+  // rejecting rides on the kit save so the server can cascade to the keyset.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
-    if (childrenOnly) return saveProposedKits(action)
+    if (keysetUnderReview.value) {
+      const payload: any = { ...keyset.value }
 
-    const payload: any = { ...keyset.value }
+      if (payload.ic_date) {
+        payload.ic_date = toISODate(payload.ic_date)
+      }
+      if (dateRange.value.start) {
+        payload.start_date = toISODate(dateRange.value.start as CalendarDate)
+      }
+      if (dateRange.value.end) {
+        payload.end_date = toISODate(dateRange.value.end as CalendarDate)
+      }
 
-    if (action === 'update') payload.review_status = 'Pending'
+      // A submitter's edit puts a rejected keyset back in the review queue.
+      if (!userStore.isModerator) {
+        Object.assign(payload, {
+          review_status: 'Pending',
+          verified_at: null,
+          verified_by: null,
+        })
+      }
 
-    if (payload.ic_date) {
-      payload.ic_date = toISODate(payload.ic_date)
+      await $fetch(`/api/keysets/${submissionKey}`, {
+        method: 'post',
+        body: payload,
+      })
     }
-    if (dateRange.value.start) {
-      payload.start_date = toISODate(dateRange.value.start as CalendarDate)
-    }
-    if (dateRange.value.end) {
-      payload.end_date = toISODate(dateRange.value.end as CalendarDate)
-    }
 
-    return $fetch(submissionUrl, {
+    const { _key, ...kit } = kits.value[0]!
+
+    await $fetch(`/api/keysets/${submissionKey}/kits`, {
       method: 'post',
-      body: { action, keyset: payload, kits: buildKitsPayload() },
+      body: {
+        ...kit,
+        profile_keyset_id: submissionKey,
+        ...(action === 'update' ? {} : { action }),
+      },
     })
   }
 
-  const approve = () => save('approve')
-  const reject = () => save('reject')
   const remove = () =>
-    childrenOnly
-      ? removeKits(originalKits)
-      : $fetch(submissionUrl, { method: 'delete' })
+    $fetch(`/api/keysets/${submissionKey}/kits/${submission?.id}`, {
+      method: 'delete',
+    })
 
   const uploading = ref(false)
 
@@ -304,14 +275,12 @@ export const useKeysetSubmissionWizard = ({
   const stepSchemas = [
     () => entitySelectionSchema.safeParse(profile.value),
     () =>
-      childrenOnly
-        ? { success: true as const }
-        : keysetMode.value === 'existing'
-          ? entitySelectionSchema.safeParse(existingKeyset.value)
-          : createKeysetSchema(manufacturers).safeParse({
-              ...keyset.value,
-              profile_id: profile.value.id,
-            }),
+      keysetMode.value === 'existing'
+        ? entitySelectionSchema.safeParse(existingKeyset.value)
+        : createKeysetSchema(manufacturers).safeParse({
+            ...keyset.value,
+            profile_id: profile.value.id,
+          }),
     () => {
       for (const kit of kits.value) {
         const result = keysetKitSchema.safeParse(kit)
@@ -393,11 +362,11 @@ export const useKeysetSubmissionWizard = ({
     removeKit,
     loadingDetail,
     reviewStatus,
+    keysetUnderReview,
+    canSave,
     canDelete,
     load,
     save,
-    approve,
-    reject,
     remove,
     uploading,
     canAdvance,

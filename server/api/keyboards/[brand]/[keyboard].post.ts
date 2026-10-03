@@ -18,13 +18,21 @@ export default defineEventHandler(async (event) => {
         .update(payload)
         .eq('id', payload.id)
         .select()
-        .single()
+        .maybeSingle()
     : await client.from('keyboards').insert(payload).select().single()
 
   if (error) {
     throw createError({
       statusCode: 500,
       statusMessage: error.message,
+    })
+  }
+
+  // RLS filters rows silently, so no row back means the edit was refused.
+  if (payload.id && !data) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "You can't edit this keyboard in its current state",
     })
   }
 

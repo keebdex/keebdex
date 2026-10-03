@@ -11,8 +11,6 @@ export default defineEventHandler(async (event) => {
   )
   const rawBody = await readBody(event)
   const body = pickTableFields('keyboard_releases', rawBody)
-  // Staff reviewing a proposal can approve/reject it while saving.
-  const moderation = getModerationOverride(rawBody?.action, user.sub, isStaff)
 
   const payload = {
     ...omitModerationFields(body),
@@ -38,17 +36,48 @@ export default defineEventHandler(async (event) => {
   let result
 
   if (body.id) {
+    // Editing your own rejected release sends it back to review.
+    const resubmission: Record<string, unknown> = {}
+
+    if (!isStaff) {
+      const { data: current } = await client
+        .from('keyboard_releases')
+        .select('review_status, submitted_by')
+        .eq('id', body.id as number)
+        .eq('brand_keyboard_slug', brandKeyboardSlug)
+        .maybeSingle()
+
+      if (
+        current?.submitted_by === user.sub &&
+        current.review_status === 'Rejected'
+      ) {
+        Object.assign(resubmission, {
+          review_status: 'Pending',
+          verified_at: null,
+          verified_by: null,
+        })
+      }
+    }
+
     result = await client
       .from('keyboard_releases')
-      .update({ ...payload, ...moderation })
+      .update({ ...payload, ...resubmission })
       .eq('id', body.id as number)
       .eq('brand_keyboard_slug', brandKeyboardSlug)
       .select()
-      .single()
+      .maybeSingle()
+
+    // RLS filters rows silently, so no row back means the edit was refused.
+    if (!result.error && !result.data) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "You can't edit this release in its current state",
+      })
+    }
   } else {
     result = await client
       .from('keyboard_releases')
-      .insert({ ...attribute(payload), ...moderation })
+      .insert(attribute(payload))
       .select()
       .single()
   }

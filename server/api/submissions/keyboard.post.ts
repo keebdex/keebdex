@@ -82,6 +82,11 @@ export default defineEventHandler(async (event) => {
     if (variantsInput.length) {
       const variantsPayload = variantsInput.map((variant: unknown) => ({
         ...omitModerationFields(pickTableFields('keyboard_variants', variant)),
+        // Each variant carries its own status so it can be reviewed on its own.
+        review_status: keyboardPayload.review_status,
+        submitted_by: user.sub,
+        verified_at: keyboardPayload.verified_at,
+        verified_by: keyboardPayload.verified_by,
         release_id: createdRelease.id,
         brand_slug: keyboardInput.brand_slug,
         brand_keyboard_slug,

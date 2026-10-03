@@ -48,9 +48,14 @@ export default defineEventHandler(async (event) => {
   }
 
   if (kitsInput.length) {
+    // Each kit carries its own status so it can be reviewed on its own.
     const kitsPayload = kitsInput.map((kit: unknown) => ({
       ...omitModerationFields(pickTableFields('keyset_kits', kit)),
       profile_keyset_id,
+      review_status: keysetPayload.review_status,
+      submitted_by: user.sub,
+      verified_at: keysetPayload.verified_at,
+      verified_by: keysetPayload.verified_by,
     }))
 
     const { error: kitsError } = await client

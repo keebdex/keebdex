@@ -3,6 +3,10 @@ import { getActorProfile } from '../../utils/admin'
 import { omitSensitive } from '../../utils'
 import { canManageAnyAssignment } from '~/utils/permissions'
 
+// One row per variant (keyboard > release > variant), like artisan lists one
+// row per colorway. A variant's status is its own review_status, falling back
+// to its keyboard's for variants that were created under a Pending keyboard
+// before variants carried their own status.
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
   const isModerator = canManageAnyAssignment(profile)
@@ -20,92 +24,65 @@ export default defineEventHandler(async (event) => {
       ? profile.assignments
       : null
 
-  // Releases/variants proposed for an already-official keyboard surface their
-  // parent in the queue too, flagged as `child_submission` so review only
-  // touches the proposed releases/variants.
-  const childKeys = new Set<string>()
+  let keyboardRequest = client
+    .from('keyboards')
+    .select('brand_keyboard_slug')
+    .eq('review_status', status)
 
-  for (const table of ['keyboard_releases', 'keyboard_variants'] as const) {
-    let childRequest = client
-      .from(table)
-      .select('brand_keyboard_slug')
-      .eq('review_status', status)
-
-    if (!isModerator) {
-      childRequest = childRequest.eq('submitted_by', user.sub)
-    } else if (assignments?.length) {
-      childRequest = childRequest.in('brand_slug', assignments)
-    }
-
-    const { data: childRows, error: childError } = await childRequest
-
-    if (childError) {
-      throw createError({ statusCode: 500, statusMessage: childError.message })
-    }
-
-    childRows?.forEach((row) => childKeys.add(row.brand_keyboard_slug))
+  if (!isModerator) {
+    keyboardRequest = keyboardRequest.eq('submitted_by', user.sub)
+  } else if (assignments?.length) {
+    keyboardRequest = keyboardRequest.in('brand_slug', assignments)
   }
 
-  // Keyboards added directly by staff have a null review_status (implicitly
-  // approved) and never enter the moderation queue on their own.
-  let request = client
-    .from('keyboards')
-    .select(
-      '*, brand:keyboard_brands(name), releases:keyboard_releases(id, review_status, variants:keyboard_variants(id, review_status)), submitter:users!keyboards_submitted_by_fkey(email, full_name)',
-      { count: 'exact' },
-    )
-    .order('created_at', { ascending: false })
-    .range(from, to)
+  const { data: keyboards, error: keyboardError } = await keyboardRequest
+
+  if (keyboardError) {
+    throw createError({ statusCode: 500, statusMessage: keyboardError.message })
+  }
 
   const ownFilter = isModerator
     ? `review_status.eq.${status}`
     : `and(review_status.eq.${status},submitted_by.eq.${user.sub})`
+  const filters = [ownFilter]
 
-  request = childKeys.size
-    ? request.or(
-        `${ownFilter},${inFilter('brand_keyboard_slug', [...childKeys])}`,
-      )
-    : request.not('review_status', 'is', null).eq('review_status', status)
+  if (keyboards?.length) {
+    filters.push(
+      `and(review_status.is.null,${inFilter(
+        'brand_keyboard_slug',
+        keyboards.map((keyboard) => keyboard.brand_keyboard_slug),
+      )})`,
+    )
+  }
 
-  if (isModerator) {
-    if (assignments?.length) {
-      request = request.in('brand_slug', assignments)
-    }
-  } else if (!childKeys.size) {
-    // Regular users only see the submissions they've personally sent in.
-    request = request.eq('submitted_by', user.sub)
+  // Variants added directly by staff have a null status under an official
+  // keyboard and never enter the moderation queue.
+  let request = client
+    .from('keyboard_variants')
+    .select(
+      '*, release:keyboard_releases(id, name, review_status, submitted_by, keyboard:keyboards(brand_keyboard_slug, name, brand_slug, review_status, brand:keyboard_brands(name), submitter:users!keyboards_submitted_by_fkey(email, full_name))), submitter:users!keyboard_variants_submitted_by_fkey(email, full_name)',
+      { count: 'exact' },
+    )
+    .or(filters.join(','))
+    .order('created_at', { ascending: false })
+    .range(from, to)
+
+  if (assignments?.length) {
+    request = request.in('brand_slug', assignments)
   }
 
   const { data, count, error } = await request
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
+    throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
   return {
-    data: (data || []).map((row: any) => {
-      const childSubmission = row.review_status !== status
-      const releases = (row.releases || []).filter(
-        (release: any) => !childSubmission || release.review_status === status,
-      )
-      const variants = (row.releases || []).flatMap((release: any) =>
-        (release.variants || []).filter(
-          (variant: any) =>
-            !childSubmission || variant.review_status === status,
-        ),
-      )
-
-      return {
-        ...omitSensitive(row),
-        child_submission: childSubmission,
-        releases_count: releases.length,
-        variants_count: variants.length,
-        releases: undefined,
-      }
-    }),
+    data: (data || []).map((row: any) => ({
+      ...omitSensitive(row),
+      status: row.review_status ?? row.release?.keyboard?.review_status,
+      submitter: row.submitter ?? row.release?.keyboard?.submitter,
+    })),
     count: count || 0,
     page,
     size,
