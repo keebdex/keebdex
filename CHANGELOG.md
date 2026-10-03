@@ -10,7 +10,7 @@
 - **Staff Auto-Approval** — Contributions by staff authorized for the relevant brand, profile, or maker are approved immediately; everyone else's enter the Pending queue.
 - **Unified Submission Backend** — Colorways, kits, releases, and variants share one moderation layer (`server/utils/child-submissions.ts`) for ownership, approve/reject, cascade to parents, resubmission, and delete handling. `artisan_colorways.status` is renamed to `review_status` to match the other submission tables.
 - **Trading Card Colorway Preview** — Redesigned the colorway preview into a Yu-Gi-Oh!/Pokémon-style trading card, with a selector to switch between the two styles directly in the preview modal.
-- **Theme Preset System** — Users can now switch between theme presets (Default, Carbon, Parchment, Taro) from the profile menu or the Appearance settings tab. Each preset controls colors, fonts, component defaults, and CSS custom properties for semantic tokens; themes persist via cookie and apply immediately without reload.
+- **Theme Preset System** — Users can now switch between theme presets (Default, Carbon, EVA-01, Parchment, Taro) from the profile menu or the Appearance settings tab. Each preset controls colors, fonts, component defaults, and CSS custom properties for semantic tokens; themes persist via cookie and apply immediately without reload.
 - Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
 - Migrated images to a CDN for faster loading.
 - Added Google Docs sync override tracking for sculpts, mirroring the existing colorway override tracking.

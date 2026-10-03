@@ -373,7 +373,6 @@ onMounted(() => {
         'Anyone can now submit keyboards, keysets, and artisan colorways for review.',
       icon: 'hugeicons:file-verified',
       color: 'primary',
-      duration: 0,
       close: false,
       actions: [
         {
@@ -399,7 +398,6 @@ onMounted(() => {
         'Join the new Keebdex Discord server to chat, share ideas, and help shape future improvements.',
       icon: 'hugeicons:discord',
       color: 'info',
-      duration: 0,
       close: false,
       actions: [
         {
@@ -452,6 +450,29 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenCollectionGuide),
+          ui: {
+            label: 'block',
+          },
+        },
+      ],
+    })
+  }
+
+  const seenThemeAnnouncement = persistentCookie('seen-theme-announcement')
+
+  if (seenThemeAnnouncement.value !== 'acknowledged') {
+    toast.add({
+      title: 'Choose Your Theme',
+      description: `Keebdex now supports multiple themes: Carbon, EVA-01, Parchment, Taro. Choose your favorite in Account Settings.`,
+      icon: 'hugeicons:colors',
+      color: 'primary',
+      close: false,
+      actions: [
+        {
+          label: 'Dismiss',
+          color: 'neutral',
+          variant: 'ghost',
+          onClick: () => acknowledge(seenThemeAnnouncement),
           ui: {
             label: 'block',
           },
