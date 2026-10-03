@@ -190,8 +190,8 @@ const { isModerator } = storeToRefs(userStore)
 
 const pageDescription = computed(() =>
   isModerator.value
-    ? 'Review variants submitted by the community and approve, reject, or edit them before they become official records.'
-    : "Track the variants you've submitted. You can edit or delete a variant while it's pending review or after it was rejected; editing a rejected variant sends it back for review.",
+    ? 'Review keyboards submitted by the community and approve, reject, or edit them before they become official records.'
+    : "Track the keyboards you've submitted. You can edit or delete a keyboard while it's pending review or after it was rejected; editing a rejected keyboard sends it back for review.",
 )
 
 const columns = [

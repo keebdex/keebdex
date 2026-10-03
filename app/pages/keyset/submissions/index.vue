@@ -187,8 +187,8 @@ const { isModerator } = storeToRefs(userStore)
 
 const pageDescription = computed(() =>
   isModerator.value
-    ? 'Review kits submitted by the community and approve, reject, or edit them before they become official records.'
-    : "Track the kits you've submitted. You can edit or delete a kit while it's pending review or after it was rejected; editing a rejected kit sends it back for review.",
+    ? 'Review keysets submitted by the community and approve, reject, or edit them before they become official records.'
+    : "Track the keysets you've submitted. You can edit or delete a keyset while it's pending review or after it was rejected; editing a rejected keyset sends it back for review.",
 )
 
 const columns = [

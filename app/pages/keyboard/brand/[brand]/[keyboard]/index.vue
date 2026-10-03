@@ -350,11 +350,11 @@
         </UPageCard>
       </UPageList>
 
-      <SharedContributeSection
+      <UPageSection
         v-else
         icon="hugeicons:keyboard"
         title="No Releases Yet"
-        description="Please check back later or contribute by adding releases for this keyboard."
+        description="Know a release of this keyboard? Submit it and our staff will review it before it appears publicly."
       />
     </template>
   </UDashboardPanel>
