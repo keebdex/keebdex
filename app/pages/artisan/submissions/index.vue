@@ -60,11 +60,11 @@
             {{ row.original.sculpt?.name || row.original.sculpt_id }}
           </template>
 
-          <template #status-cell="{ row }">
+          <template #review_status-cell="{ row }">
             <UBadge
-              :label="row.original.status"
+              :label="row.original.review_status"
               variant="subtle"
-              :color="statusColorMap[row.original.status] || 'neutral'"
+              :color="statusColorMap[row.original.review_status] || 'neutral'"
             />
           </template>
 
@@ -84,7 +84,7 @@
             <div class="flex flex-wrap items-center gap-2">
               <template v-if="isModerator">
                 <UButton
-                  v-if="row.original.status !== 'Approved'"
+                  v-if="row.original.review_status !== 'Approved'"
                   label="Approve"
                   size="xs"
                   color="success"
@@ -94,7 +94,7 @@
                   @click="moderateSubmission(row.original, 'approve')"
                 />
                 <UButton
-                  v-if="row.original.status !== 'Rejected'"
+                  v-if="row.original.review_status !== 'Rejected'"
                   label="Reject"
                   size="xs"
                   color="error"
@@ -195,7 +195,7 @@ const columns = [
   { accessorKey: 'sculpt', header: 'Sculpt' },
   { accessorKey: 'release', header: 'Release' },
   { accessorKey: 'qty', header: 'Qty' },
-  { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'review_status', header: 'Status' },
   // { accessorKey: 'created_at', header: 'Submitted' },
   { id: 'action' },
 ]
@@ -256,7 +256,8 @@ const editorTitle = 'Edit Colorway'
 
 // Submitters can only act on colorways that are still in (or back in) review.
 const canEdit = (colorway) =>
-  isModerator.value || ['Pending', 'Rejected'].includes(colorway.status)
+  isModerator.value ||
+  ['Pending', 'Rejected'].includes(colorway.review_status)
 
 const canDelete = canEdit
 

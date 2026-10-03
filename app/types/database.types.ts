@@ -33,11 +33,11 @@ export type Database = {
           price: number | null
           qty: number | null
           release: string | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
           sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source: string | null
           source_document_id: string | null
-          status: Database["public"]["Enums"]["review_status"] | null
           stem: string[] | null
           submitted_by: string | null
           verified_at: string | null
@@ -61,11 +61,11 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source?: string | null
           source_document_id?: string | null
-          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -89,11 +89,11 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
           source?: string | null
           source_document_id?: string | null
-          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -1190,6 +1190,7 @@ export type Database = {
         Args: {
           child_status: Database["public"]["Enums"]["review_status"]
           child_submitted_by: string
+          parent_rejected_ok?: boolean
           parent_status: Database["public"]["Enums"]["review_status"]
           parent_submitted_by: string
           scope: string
@@ -1212,6 +1213,8 @@ export type Database = {
           child_submitted_by: string
           child_verified_at: string
           child_verified_by: string
+          own_pending_parent_ok?: boolean
+          parent_rejected_ok?: boolean
           parent_status: Database["public"]["Enums"]["review_status"]
           parent_submitted_by: string
           proposal_extra_ok?: boolean

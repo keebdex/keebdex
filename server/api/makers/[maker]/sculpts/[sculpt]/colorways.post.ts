@@ -11,12 +11,7 @@ export default defineEventHandler(async (event) => {
     await getChildSubmissionContext(event, 'artisan', makerSculptId)
   const body = await readBody(event)
   // Staff reviewing a colorway can approve/reject it while saving.
-  const moderation = getModerationOverride(
-    body?.action,
-    user.sub,
-    isStaff,
-    'status',
-  )
+  const moderation = getModerationOverride(body?.action, user.sub, isStaff)
   const colorway: Record<string, unknown> = {
     ...pickTableFields('artisan_colorways', body),
     maker_id: maker,
@@ -39,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
   if (colorway.id) {
     const payload: Record<string, unknown> = {
-      ...omitModerationFields(colorway, 'status'),
+      ...omitModerationFields(colorway),
       ...moderation,
     }
 
@@ -49,14 +44,17 @@ export default defineEventHandler(async (event) => {
     if (!isStaff) {
       const { data: current } = await client
         .from('artisan_colorways')
-        .select('status, submitted_by')
+        .select('review_status, submitted_by')
         .eq('id', colorway.id as number)
         .eq('maker_id', maker)
         .eq('sculpt_id', sculpt)
         .maybeSingle()
 
-      if (current?.submitted_by === user.sub && current.status === 'Rejected') {
-        Object.assign(payload, getResubmissionPatch('status'))
+      if (
+        current?.submitted_by === user.sub &&
+        current.review_status === 'Rejected'
+      ) {
+        Object.assign(payload, getResubmissionPatch())
         resubmitted = true
       }
     }

@@ -135,7 +135,7 @@ export const useArtisanSubmissionWizard = ({
     await nextTick()
     sculptMode.value = 'existing'
     existingSculpt.value = { id: submission.sculpt_id }
-    reviewStatus.value = submission.status
+    reviewStatus.value = submission.review_status
     colorways.value = [{ ...submission, _key: colorwayKeySeed++ }]
     originalColorwayIds.value = [submission.id]
 
@@ -330,7 +330,11 @@ export const useArtisanSubmissionWizard = ({
         createdColorways.push(created)
       }
 
-      if (createdColorways.some((colorway) => colorway?.status === 'Pending')) {
+      if (
+        createdColorways.some(
+          (colorway) => colorway?.review_status === 'Pending',
+        )
+      ) {
         toast.add({
           title: 'Thanks for your contribution!',
           description:

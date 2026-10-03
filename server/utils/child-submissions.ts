@@ -16,23 +16,13 @@ const MODERATION_FIELDS = [
   'verified_by',
 ]
 
-// Artisan colorways keep their historical `status` column instead of
-// `review_status`.
-const getStatusColumn = (domain: ChildSubmissionDomain) =>
-  domain === 'artisan' ? 'status' : 'review_status'
-
 /**
  * Child payloads come from the client, so moderation fields are always dropped
  * here and re-applied server-side by `getChildSubmissionContext().attribute`.
  */
 export const omitModerationFields = <T extends Record<string, unknown>>(
   record: T,
-  statusColumn = 'review_status',
-) =>
-  omit(record, [
-    statusColumn,
-    ...MODERATION_FIELDS.filter((field) => field !== 'review_status'),
-  ]) as Partial<T>
+) => omit(record, MODERATION_FIELDS) as Partial<T>
 
 /**
  * Resolves who is adding/editing a kit, release, variant, or colorway on an
@@ -102,8 +92,6 @@ export const getChildSubmissionContext = async (
   const isOfficial =
     !parent.review_status || parent.review_status === 'Approved'
 
-  const statusColumn = getStatusColumn(domain)
-
   // `own` children (keyset kits, keyboard variants, artisan colorways) always
   // carry their own status so each can be reviewed alone; others (keyboard
   // releases) follow a Pending parent's lifecycle.
@@ -111,13 +99,13 @@ export const getChildSubmissionContext = async (
     record: T,
     { own = domain !== 'keyboard' }: { own?: boolean } = {},
   ) => {
-    const base = omitModerationFields(record, statusColumn)
+    const base = omitModerationFields(record)
 
     if (!isOfficial && !own) return base
 
     return {
       ...base,
-      [statusColumn]: isStaff ? 'Approved' : 'Pending',
+      review_status: isStaff ? 'Approved' : 'Pending',
       submitted_by: user.sub,
       verified_at: isStaff ? new Date().toISOString() : null,
       verified_by: isStaff ? user.sub : null,
@@ -144,7 +132,6 @@ export const getModerationOverride = (
   action: unknown,
   userId: string,
   isStaff: boolean,
-  statusColumn = 'review_status',
 ) => {
   if (action === undefined || action === null || action === 'update') {
     return null
@@ -159,7 +146,7 @@ export const getModerationOverride = (
   }
 
   return {
-    [statusColumn]: action === 'approve' ? 'Approved' : 'Rejected',
+    review_status: action === 'approve' ? 'Approved' : 'Rejected',
     verified_by: userId,
     verified_at: new Date().toISOString(),
   }
@@ -168,8 +155,8 @@ export const getModerationOverride = (
 /**
  * Editing your own Rejected record sends it back to the Pending queue.
  */
-export const getResubmissionPatch = (statusColumn = 'review_status') => ({
-  [statusColumn]: 'Pending',
+export const getResubmissionPatch = () => ({
+  review_status: 'Pending',
   verified_at: null,
   verified_by: null,
 })
@@ -271,7 +258,7 @@ export const cascadeSculptReview = async (
       .select('id', { count: 'exact', head: true })
       .eq('maker_id', makerId)
       .eq('sculpt_id', sculptId)
-      .or('status.is.null,status.neq.Rejected')
+      .or('review_status.is.null,review_status.neq.Rejected')
 
     if (count) return
   }

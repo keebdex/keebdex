@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const from = (page - 1) * size
   const to = from + size - 1
 
-  // Colorways added directly by staff have a null status (implicitly
+  // Colorways added directly by staff have a null review_status (implicitly
   // approved) and never enter the moderation queue.
   let request = client
     .from('artisan_colorways')
@@ -25,8 +25,8 @@ export default defineEventHandler(async (event) => {
         count: 'exact',
       },
     )
-    .not('status', 'is', null)
-    .eq('status', status)
+    .not('review_status', 'is', null)
+    .eq('review_status', status)
     .order('created_at', { ascending: false })
     .range(from, to)
 
