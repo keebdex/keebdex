@@ -33,11 +33,11 @@ export type Database = {
           price: number | null
           qty: number | null
           release: string | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
           sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source: string | null
           source_document_id: string | null
-          status: Database["public"]["Enums"]["review_status"] | null
           stem: string[] | null
           submitted_by: string | null
           verified_at: string | null
@@ -61,11 +61,11 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
           source?: string | null
           source_document_id?: string | null
-          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -89,11 +89,11 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
           source?: string | null
           source_document_id?: string | null
-          status?: Database["public"]["Enums"]["review_status"] | null
           stem?: string[] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -207,10 +207,14 @@ export type Database = {
           overridden_fields: string[]
           profile: string | null
           release: string | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
           sculpt_id: string
           source: string
           source_document_id: string | null
           story: string | null
+          submitted_by: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           cast?: string | null
@@ -228,10 +232,14 @@ export type Database = {
           overridden_fields?: string[]
           profile?: string | null
           release?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt_id: string
           source: string
           source_document_id?: string | null
           story?: string | null
+          submitted_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           cast?: string | null
@@ -249,10 +257,14 @@ export type Database = {
           overridden_fields?: string[]
           profile?: string | null
           release?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sculpt_id?: string
           source?: string
           source_document_id?: string | null
           story?: string | null
+          submitted_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -388,7 +400,11 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
           release_year: number | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
+          submitted_by: string | null
           variant_specs: boolean | null
+          verified_at: string | null
+          verified_by: string | null
           weight_materials:
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
@@ -410,7 +426,11 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
           release_year?: number | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
+          submitted_by?: string | null
           variant_specs?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
           weight_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
@@ -432,7 +452,11 @@ export type Database = {
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
           release_year?: number | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
+          submitted_by?: string | null
           variant_specs?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
           weight_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
@@ -451,6 +475,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "keyboard_brands"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "keyboard_releases_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keyboard_releases_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -476,9 +514,13 @@ export type Database = {
             | null
           release_id: number | null
           release_year: number | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
           sale_type: Database["public"]["Enums"]["sale_format"] | null
+          submitted_by: string | null
           units_produced: number | null
           variant_name: string
+          verified_at: string | null
+          verified_by: string | null
           weight_materials:
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
@@ -504,9 +546,13 @@ export type Database = {
             | null
           release_id?: number | null
           release_year?: number | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
+          submitted_by?: string | null
           units_produced?: number | null
           variant_name: string
+          verified_at?: string | null
+          verified_by?: string | null
           weight_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
@@ -532,9 +578,13 @@ export type Database = {
             | null
           release_id?: number | null
           release_year?: number | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
+          submitted_by?: string | null
           units_produced?: number | null
           variant_name?: string
+          verified_at?: string | null
+          verified_by?: string | null
           weight_materials?:
             | Database["public"]["Enums"]["keyboard_material"][]
             | null
@@ -559,6 +609,20 @@ export type Database = {
             columns: ["release_id"]
             isOneToOne: false
             referencedRelation: "keyboard_releases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keyboard_variants_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keyboard_variants_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -712,6 +776,10 @@ export type Database = {
           price: number | null
           profile_keyset_id: string
           qty: number | null
+          review_status: Database["public"]["Enums"]["review_status"] | null
+          submitted_by: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           cancelled?: boolean
@@ -724,6 +792,10 @@ export type Database = {
           price?: number | null
           profile_keyset_id: string
           qty?: number | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
+          submitted_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           cancelled?: boolean
@@ -736,6 +808,10 @@ export type Database = {
           price?: number | null
           profile_keyset_id?: string
           qty?: number | null
+          review_status?: Database["public"]["Enums"]["review_status"] | null
+          submitted_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -751,6 +827,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "keysets"
             referencedColumns: ["profile_keyset_id"]
+          },
+          {
+            foreignKeyName: "keyset_kits_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "keyset_kits_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1096,6 +1186,46 @@ export type Database = {
     }
     Functions: {
       can_manage: { Args: { scope: string }; Returns: boolean }
+      child_submission_can_modify: {
+        Args: {
+          child_status: Database["public"]["Enums"]["review_status"]
+          child_submitted_by: string
+          parent_rejected_ok?: boolean
+          parent_status: Database["public"]["Enums"]["review_status"]
+          parent_submitted_by: string
+          scope: string
+        }
+        Returns: boolean
+      }
+      child_submission_can_view: {
+        Args: {
+          child_status: Database["public"]["Enums"]["review_status"]
+          child_submitted_by: string
+          parent_status: Database["public"]["Enums"]["review_status"]
+          parent_submitted_by: string
+          scope: string
+        }
+        Returns: boolean
+      }
+      child_submission_write_is_valid: {
+        Args: {
+          child_status: Database["public"]["Enums"]["review_status"]
+          child_submitted_by: string
+          child_verified_at: string
+          child_verified_by: string
+          own_pending_parent_ok?: boolean
+          parent_rejected_ok?: boolean
+          parent_status: Database["public"]["Enums"]["review_status"]
+          parent_submitted_by: string
+          proposal_extra_ok?: boolean
+          scope: string
+        }
+        Returns: boolean
+      }
+      is_official_review_status: {
+        Args: { s: Database["public"]["Enums"]["review_status"] }
+        Returns: boolean
+      }
     }
     Enums: {
       currency:
@@ -1191,6 +1321,7 @@ export type Database = {
         | "Giveaway"
         | "Commission"
         | "Auction"
+        | "Friends & Family"
       user_role: "admin" | "editor" | "maker" | "designer" | "donator"
     }
     CompositeTypes: {
@@ -1420,6 +1551,7 @@ export const Constants = {
         "Giveaway",
         "Commission",
         "Auction",
+        "Friends & Family",
       ],
       user_role: ["admin", "editor", "maker", "designer", "donator"],
     },

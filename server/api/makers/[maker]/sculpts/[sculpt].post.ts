@@ -1,3 +1,8 @@
+import {
+  canManageAnyAssignment,
+  canManageAssignment,
+} from '~/utils/permissions'
+
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
   const { maker: makerId, sculpt: sculptId } = event.context.params || {}
@@ -12,13 +17,14 @@ export default defineEventHandler(async (event) => {
 
   body.maker_sculpt_id = `${body.maker_id}/${body.sculpt_id}`
 
+  const isStaff =
+    canManageAnyAssignment(profile) &&
+    canManageAssignment(profile, String(body.maker_id || makerId || ''))
+
   // Moderation fields are only ever set by the server, never trusted from
-  // the client, and only apply to a brand-new sculpt — editing an existing
-  // one (by its owner while Pending, or by staff) never resets its status.
+  // the client.
   if (!body.id) {
-    if (
-      canModerateAssignment(profile, String(body.maker_id || makerId || ''))
-    ) {
+    if (isStaff) {
       body.review_status = 'Approved'
       body.submitted_by = user.sub
       body.verified_by = user.sub
@@ -29,11 +35,32 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  // Editing an existing sculpt never changes its status, except that its
+  // submitter resubmits a rejected one for review.
+  let record = body
+
+  if (body.id) {
+    const { data: current } = await client
+      .from('artisan_sculpts')
+      .select('review_status, submitted_by')
+      .eq('id', body.id as number)
+      .maybeSingle()
+    const resubmitted =
+      !isStaff &&
+      current?.submitted_by === user.sub &&
+      current.review_status === 'Rejected'
+
+    record = {
+      ...omitModerationFields(body),
+      ...(resubmitted ? getResubmissionPatch() : {}),
+    }
+  }
+
   const query = body.id
     ? client
         .from('artisan_sculpts')
-        .update(body)
-        .eq('id', body.id)
+        .update(record)
+        .eq('id', body.id as number)
         .select()
         .single()
     : client.from('artisan_sculpts').insert(body).select().single()

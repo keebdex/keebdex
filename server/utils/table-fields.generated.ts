@@ -26,11 +26,11 @@ export const TABLE_FIELDS = {
     "price",
     "qty",
     "release",
+    "review_status",
     "sale_type",
     "sculpt_id",
     "source",
     "source_document_id",
-    "status",
     "stem",
     "submitted_by",
     "verified_at",
@@ -71,10 +71,14 @@ export const TABLE_FIELDS = {
     "overridden_fields",
     "profile",
     "release",
+    "review_status",
     "sculpt_id",
     "source",
     "source_document_id",
-    "story"
+    "story",
+    "submitted_by",
+    "verified_at",
+    "verified_by"
   ],
   "colors": [
     "code",
@@ -121,7 +125,11 @@ export const TABLE_FIELDS = {
     "pcb_types",
     "plate_materials",
     "release_year",
+    "review_status",
+    "submitted_by",
     "variant_specs",
+    "verified_at",
+    "verified_by",
     "weight_materials"
   ],
   "keyboard_variants": [
@@ -141,9 +149,13 @@ export const TABLE_FIELDS = {
     "plate_materials",
     "release_id",
     "release_year",
+    "review_status",
     "sale_type",
+    "submitted_by",
     "units_produced",
     "variant_name",
+    "verified_at",
+    "verified_by",
     "weight_materials"
   ],
   "keyboards": [
@@ -181,7 +193,11 @@ export const TABLE_FIELDS = {
     "name",
     "price",
     "profile_keyset_id",
-    "qty"
+    "qty",
+    "review_status",
+    "submitted_by",
+    "verified_at",
+    "verified_by"
   ],
   "keyset_profiles": [
     "description",

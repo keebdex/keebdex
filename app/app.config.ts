@@ -22,7 +22,7 @@ export default defineAppConfig({
       file: 'hugeicons:file-01',
       folder: 'hugeicons:folder-01',
       folderOpen: 'hugeicons:folder-02',
-      loading: 'hugeicons:loading-03',
+      loading: 'hugeicons:loader',
       minus: 'hugeicons:minus-sign',
       plus: 'hugeicons:plus-sign',
       upload: 'hugeicons:upload-03',

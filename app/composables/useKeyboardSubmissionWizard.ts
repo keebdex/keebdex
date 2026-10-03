@@ -1,4 +1,3 @@
-import { Constants } from '~/types/database.types'
 import {
   keyboardReleaseSchema,
   keyboardSchema,
@@ -8,21 +7,23 @@ import { entitySelectionSchema } from '~/utils/schemas/common'
 
 // Drives the public "submit a keyboard" wizard: pick a brand, pick/create a keyboard,
 // then create the release + variant. Reuses existing single-entity APIs; creating a new
-// keyboard reuses the submission endpoint (with an empty releases array) so the keyboard
-// is owned and Pending, which is required for the follow-up release/variant create calls
-// to pass RLS.
+// keyboard reuses the submission endpoint so the keyboard is owned and Pending, which
+// is required for the follow-up release/variant create calls to pass RLS. Releases/variants added to an already-published keyboard skip that step:
+// the release/variant endpoints store them as Pending proposals owned by the submitter.
 //
-// Also drives the staff "review a keyboard submission" flow via the same wizard
-// (`mode: 'review'`): the keyboard step is always the pre-filled edit form (the
-// submission row *is* the keyboard being reviewed), and the release/variant steps
-// collapse into a single repeatable "releases" step so every release + its variants
-// accumulated on a Pending submission can be reviewed, edited, added, or removed at once.
+// Also drives the "review a variant" flow via the same wizard (`mode: 'review'`),
+// mirroring how keysets review one kit and artisan one colorway per row, with one more
+// level: `submission` is a row of `GET /api/submissions/keyboard` (a variant plus its
+// release and keyboard). The variant is always editable; the release and the keyboard
+// are only editable while they are under review (Pending/Rejected, or a release that
+// follows its Pending keyboard) and are locked summaries once published. Approving the
+// variant also approves its release and keyboard (server side).
 export const useKeyboardSubmissionWizard = ({
   mode = 'create',
-  submissionId = null,
+  submission = null,
 }: {
   mode?: 'create' | 'review'
-  submissionId?: string | number | null
+  submission?: Record<string, any> | null
 } = {}) => {
   const route = useRoute()
   const toast = useToast()
@@ -93,7 +94,7 @@ export const useKeyboardSubmissionWizard = ({
   // real release id (existing or newly created) is only resolved at submit time.
   const keyboardForVariantForm = computed(() => {
     const releaseLabel =
-      releaseMode.value === 'existing'
+      !isReview && releaseMode.value === 'existing'
         ? releaseOptions.value.find(
             (r: any) => r.value === existingRelease.value.id,
           )?.label
@@ -186,150 +187,162 @@ export const useKeyboardSubmissionWizard = ({
     },
   )
 
-  // Review-only repeatable "releases" step: each release owns its own nested
-  // variants list, mirroring what a Pending submission can accumulate over time.
-  let reviewReleaseKeySeed = 0
-  let reviewVariantKeySeed = 0
-
-  const newReviewVariant = () => ({
-    _key: reviewVariantKeySeed++,
-    release_id: 'draft',
-    variant_name: '',
-    finish_type: Constants.public.Enums.keyboard_finish_type[0],
-    units_produced: null,
-    release_year: null,
-    img_front: '',
-    img_back: '',
-    photo_credit: '',
-    currency: 'USD',
-    msrp_price: null,
-  })
-
-  const newReviewRelease = () => ({
-    _key: reviewReleaseKeySeed++,
-    name: '',
-    release_year: null,
-    currency: 'USD',
-    msrp_price: null,
-    description: '',
-    variant_specs: false,
-    variants: [] as any[],
-  })
-
-  const releases = ref<any[]>([])
-
-  const addRelease = () => {
-    releases.value.push(newReviewRelease())
-  }
-
-  const removeRelease = (index: number) => {
-    releases.value.splice(index, 1)
-  }
-
-  const addReleaseVariant = (release: any) => {
-    release.variants.push(newReviewVariant())
-  }
-
-  const removeReleaseVariant = (release: any, index: number) => {
-    release.variants.splice(index, 1)
-  }
-
-  // Fed into VariantForm's required `keyboard` prop, locked to the single release
-  // it belongs to so its Release dropdown only offers that one option.
-  const releaseKeyboardFor = (release: any) => ({
-    releases: [
-      { id: release.id || 'draft', name: release.name || 'New Release' },
-    ],
-    brand_slug: brand.value.id,
-    brand_keyboard_slug: existingKeyboard.value.id || brand.value.id,
-  })
-
-  const loadingDetail = ref(false)
+  // Status of the variant being reviewed, of its release and of its keyboard.
   const reviewStatus = ref<string | null>(null)
+  const releaseReviewStatus = ref<string | null>(null)
+  const keyboardReviewStatus = ref<string | null>(null)
 
-  const canDelete = computed(
+  const submissionKey: string = submission?.brand_keyboard_slug || ''
+
+  const keyboardUnderReview = computed(
     () =>
-      isReview && (userStore.isModerator || reviewStatus.value !== 'Approved'),
+      !!keyboardReviewStatus.value && keyboardReviewStatus.value !== 'Approved',
   )
 
+  // A release without a status of its own follows its keyboard.
+  const releaseUnderReview = computed(() =>
+    releaseReviewStatus.value
+      ? releaseReviewStatus.value !== 'Approved'
+      : keyboardUnderReview.value,
+  )
+
+  // Staff can edit anything; submitters only while it's Pending or Rejected
+  // (editing a rejected variant sends it back to review).
+  const canSave = computed(
+    () =>
+      isReview &&
+      (userStore.isModerator ||
+        ['Pending', 'Rejected'].includes(reviewStatus.value || '')),
+  )
+
+  const canDelete = computed(() => canSave.value)
+
   const load = async () => {
-    if (!isReview || !submissionId) return
+    if (!isReview || !submission) return
 
-    loadingDetail.value = true
+    const rel = submission.release || {}
+    const kb = rel.keyboard || {}
 
-    try {
-      const data: any = await $fetch(
-        `/api/submissions/keyboard/${submissionId}`,
-      )
+    brand.value = { id: submissionKey.split('/')[0] || '' }
+    await nextTick()
+    keyboardMode.value = 'existing'
+    existingKeyboard.value = { id: submissionKey }
+    reviewStatus.value = submission.status ?? submission.review_status
+    releaseReviewStatus.value = rel.review_status ?? null
+    keyboardReviewStatus.value = kb.review_status ?? null
+    keyboard.value.name = kb.name || ''
+    release.value.name = rel.name || ''
 
-      brand.value = { id: data.brand_slug }
-      keyboardMode.value = 'new'
-      existingKeyboard.value = { id: data.brand_keyboard_slug }
-      reviewStatus.value = data.review_status
+    const {
+      release: _release,
+      submitter: _submitter,
+      status: _status,
+      ...variantFields
+    } = submission
 
-      Object.assign(keyboard.value, {
-        id: data.id,
-        name: data.name,
-        brand_slug: data.brand_slug,
-        form_factor: data.form_factor,
-        top_case_styles: Array.isArray(data.top_case_styles)
-          ? data.top_case_styles
-          : data.top_case_styles
-            ? [data.top_case_styles]
-            : [],
-        mount_styles: Array.isArray(data.mount_styles)
-          ? data.mount_styles
-          : data.mount_styles
-            ? [data.mount_styles]
-            : [],
-        typing_angle: data.typing_angle,
-        derived_from: data.derived_from,
-        description: data.description,
-      })
+    // Variants keep the synthetic 'draft' release option (see
+    // keyboardForVariantForm); the real release id is resolved on save.
+    variants.value = [
+      { ...newVariant(), ...variantFields, release_id: 'draft' },
+    ]
 
-      releases.value = (data.releases || []).map((r: any) => ({
-        ...newReviewRelease(),
-        ...r,
-        variants: (r.variants || []).map((v: any) => ({
-          ...newReviewVariant(),
-          ...v,
-        })),
-      }))
+    if (keyboardUnderReview.value || releaseUnderReview.value) {
+      const data: any = await $fetch(`/api/keyboards/${submissionKey}`)
 
-      if (!releases.value.length) releases.value.push(newReviewRelease())
-    } finally {
-      loadingDetail.value = false
+      if (keyboardUnderReview.value) {
+        Object.assign(keyboard.value, {
+          id: data.id,
+          name: data.name,
+          brand_slug: data.brand_slug,
+          form_factor: data.form_factor,
+          top_case_styles: Array.isArray(data.top_case_styles)
+            ? data.top_case_styles
+            : data.top_case_styles
+              ? [data.top_case_styles]
+              : [],
+          mount_styles: Array.isArray(data.mount_styles)
+            ? data.mount_styles
+            : data.mount_styles
+              ? [data.mount_styles]
+              : [],
+          typing_angle: data.typing_angle,
+          derived_from: data.derived_from,
+          description: data.description,
+        })
+      }
+
+      if (releaseUnderReview.value) {
+        const { variants: _variants, ...releaseData } =
+          (data.releases || []).find((r: any) => r.id === rel.id) || rel
+
+        Object.assign(release.value, releaseData)
+      }
     }
   }
 
-  const buildReviewReleasesPayload = () =>
-    releases.value
-      .filter((r) => r.name)
-      .map(({ _key, variants, ...r }) => ({
-        ...r,
-        variants: variants
-          .filter((v: any) => v.variant_name)
-          .map(({ _key: variantKey, ...v }: any) => v),
-      }))
+  // Saves the keyboard and release (only while under review) and then the
+  // variant; approving or rejecting rides on the variant save so the server can
+  // cascade to the release and keyboard.
+  const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    const [brandSlug = '', keyboardSlug = ''] = submissionKey.split('/')
 
-  const save = async (action: 'update' | 'approve' | 'reject' = 'update') =>
-    $fetch(`/api/submissions/keyboard/${submissionId}`, {
+    if (keyboardUnderReview.value) {
+      const payload: any = {
+        ...keyboard.value,
+        slug: keyboardSlug,
+        brand_slug: brandSlug,
+        brand_keyboard_slug: submissionKey,
+      }
+
+      // A submitter's edit puts a rejected keyboard back in the review queue.
+      if (!userStore.isModerator) {
+        Object.assign(payload, {
+          review_status: 'Pending',
+          verified_at: null,
+          verified_by: null,
+        })
+      }
+
+      await $fetch(`/api/keyboards/${brandSlug}/${keyboardSlug}`, {
+        method: 'post',
+        body: payload,
+      })
+    }
+
+    if (releaseUnderReview.value) {
+      await $fetch(`/api/keyboards/${submissionKey}/releases`, {
+        method: 'post',
+        body: {
+          ...release.value,
+          id: submission?.release_id,
+          brand_slug: brandSlug,
+          brand_keyboard_slug: submissionKey,
+        },
+      })
+    }
+
+    const { _key, ...variant } = variants.value[0]!
+
+    await $fetch(`/api/keyboards/${submissionKey}/variants`, {
       method: 'post',
       body: {
-        action,
-        keyboard: keyboard.value,
-        releases: buildReviewReleasesPayload(),
+        ...variant,
+        release_id: submission?.release_id,
+        brand_slug: brandSlug,
+        brand_keyboard_slug: submissionKey,
+        ...(action === 'update' ? {} : { action }),
       },
     })
+  }
 
-  const approve = () => save('approve')
-  const reject = () => save('reject')
   const remove = () =>
-    $fetch(`/api/submissions/keyboard/${submissionId}`, { method: 'delete' })
+    $fetch(`/api/keyboards/${submissionKey}/variants/${submission?.id}`, {
+      method: 'delete',
+    })
 
   const canAdvance = computed(() =>
     isReview
-      ? [!!brand.value.id, !!keyboard.value.name?.trim(), true]
+      ? [!!brand.value.id, true, true, true]
       : [
           !!brand.value.id,
           keyboardMode.value === 'existing'
@@ -342,51 +355,41 @@ export const useKeyboardSubmissionWizard = ({
         ],
   )
 
-  const stepSchemas = isReview
-    ? [
-        () => entitySelectionSchema.safeParse(brand.value),
-        () => keyboardSchema.safeParse(keyboard.value),
-        () => {
-          for (const r of releases.value) {
-            const releaseResult = keyboardReleaseSchema.safeParse(r)
-            if (!releaseResult.success) return releaseResult
+  const ok = { success: true as const }
 
-            for (const v of r.variants) {
-              const variantResult = keyboardVariantSchema
-                .omit({ release_id: true })
-                .safeParse(v)
-              if (!variantResult.success) return variantResult
-            }
-          }
+  const stepSchemas = [
+    () => entitySelectionSchema.safeParse(brand.value),
+    () =>
+      isReview
+        ? keyboardUnderReview.value
+          ? keyboardSchema.safeParse(keyboard.value)
+          : ok
+        : keyboardMode.value === 'existing'
+          ? entitySelectionSchema.safeParse(existingKeyboard.value)
+          : keyboardSchema.safeParse(keyboard.value),
+    () =>
+      isReview
+        ? releaseUnderReview.value
+          ? keyboardReleaseSchema.safeParse(release.value)
+          : ok
+        : releaseMode.value === 'existing'
+          ? entitySelectionSchema.safeParse({
+              id: existingRelease.value.id
+                ? String(existingRelease.value.id)
+                : '',
+            })
+          : keyboardReleaseSchema.safeParse(release.value),
+    () => {
+      const schema = keyboardVariantSchema.omit({ release_id: true })
 
-          return { success: true as const }
-        },
-      ]
-    : [
-        () => entitySelectionSchema.safeParse(brand.value),
-        () =>
-          keyboardMode.value === 'existing'
-            ? entitySelectionSchema.safeParse(existingKeyboard.value)
-            : keyboardSchema.safeParse(keyboard.value),
-        () =>
-          releaseMode.value === 'existing'
-            ? entitySelectionSchema.safeParse({
-                id: existingRelease.value.id
-                  ? String(existingRelease.value.id)
-                  : '',
-              })
-            : keyboardReleaseSchema.safeParse(release.value),
-        () => {
-          const schema = keyboardVariantSchema.omit({ release_id: true })
+      for (const variant of variants.value) {
+        const result = schema.safeParse(variant)
+        if (!result.success) return result
+      }
 
-          for (const variant of variants.value) {
-            const result = schema.safeParse(variant)
-            if (!result.success) return result
-          }
-
-          return { success: true as const }
-        },
-      ]
+      return ok
+    },
+  ]
 
   const validateStep = (index: number) => {
     const result = stepSchemas[index]?.()
@@ -410,7 +413,6 @@ export const useKeyboardSubmissionWizard = ({
           method: 'post',
           body: {
             keyboard: { ...keyboard.value, brand_slug: brand.value.id },
-            releases: [],
           },
         })
 
@@ -449,21 +451,7 @@ export const useKeyboardSubmissionWizard = ({
         handleSuccess('add', `${variants.value.length} variant(s)`, 'Variant'),
       )
     } catch (error: any) {
-      const status = error?.statusCode || error?.status
-
-      if (
-        keyboardMode.value === 'existing' &&
-        (status === 403 || status === 404 || status === 500)
-      ) {
-        toast.add({
-          title: 'Unable to add release',
-          description:
-            "This keyboard isn't part of your pending submissions, so only a moderator can add releases to it. Try creating a new keyboard instead.",
-          color: 'error',
-        })
-      } else {
-        toast.add(handleError(error, { showOriginalMessage: true }))
-      }
+      toast.add(handleError(error, { showOriginalMessage: true }))
 
       throw error
     } finally {
@@ -490,19 +478,13 @@ export const useKeyboardSubmissionWizard = ({
     addVariant,
     removeVariant,
     keyboardForVariantForm,
-    releases,
-    addRelease,
-    removeRelease,
-    addReleaseVariant,
-    removeReleaseVariant,
-    releaseKeyboardFor,
-    loadingDetail,
     reviewStatus,
+    keyboardUnderReview,
+    releaseUnderReview,
+    canSave,
     canDelete,
     load,
     save,
-    approve,
-    reject,
     remove,
     uploading,
     canAdvance,

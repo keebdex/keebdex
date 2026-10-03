@@ -88,11 +88,18 @@
         </UPageCard>
       </UPageGrid>
 
-      <SharedContributeSection
+      <UPageSection
         v-else
         icon="hugeicons:keyboard"
         title="No Keyboards Yet"
-        description="Please check back later or contribute by adding keyboards from this brand."
+        description="Know a keyboard from this brand? Submit it and our staff will review it before it appears publicly."
+        :links="[
+          {
+            label: 'Submit a Keyboard',
+            icon: 'hugeicons:add-square',
+            to: { path: '/keyboard/submissions/submit', query: { brand } },
+          },
+        ]"
       />
     </template>
   </UDashboardPanel>

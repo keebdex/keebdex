@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   const keysetInput = pickTableFields('keysets', body?.keyset || {})
-  const kitsInput = Array.isArray(body?.kits) ? body.kits : []
 
   if (!keysetInput.name || !keysetInput.profile_id) {
     throw createError({
@@ -45,21 +44,6 @@ export default defineEventHandler(async (event) => {
 
   if (keysetError) {
     throw createError({ statusCode: 500, statusMessage: keysetError.message })
-  }
-
-  if (kitsInput.length) {
-    const kitsPayload = kitsInput.map((kit: unknown) => ({
-      ...pickTableFields('keyset_kits', kit),
-      profile_keyset_id,
-    }))
-
-    const { error: kitsError } = await client
-      .from('keyset_kits')
-      .insert(kitsPayload)
-
-    if (kitsError) {
-      throw createError({ statusCode: 500, statusMessage: kitsError.message })
-    }
   }
 
   return keyset

@@ -1,44 +1,58 @@
 export default defineEventHandler(async (event) => {
-  const { client, user, profile } = await getActorProfile(event)
-  const { maker, sculpt, id } = event.context.params || {}
+  const { maker, sculpt, id } = getRouterParams(event)
+  const makerSculptId = `${maker}/${sculpt}`
 
   if (!id) {
     throw createError({ statusCode: 400, statusMessage: 'Missing colorway id' })
   }
 
-  const { data: existing, error: existingError } = await client
-    .from('artisan_colorways')
-    .select('submitted_by, status')
-    .eq('id', id)
-    .eq('maker_id', maker)
-    .eq('sculpt_id', sculpt)
-    .single()
+  const { client, parent, isOfficial } = await getChildSubmissionContext(
+    event,
+    'artisan',
+    makerSculptId,
+  )
 
-  if (existingError || !existing) {
-    throw createError({ statusCode: 404, statusMessage: 'Colorway not found' })
-  }
-
-  const isModerator = canModerateAssignment(profile, String(maker || ''))
-  // The submitter may delete their own submission unless it's already approved.
-  const isOwnerDeletable =
-    existing.submitted_by === user.sub && existing.status !== 'Approved'
-
-  if (!isModerator && !isOwnerDeletable) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
-
-  const { error } = await client
+  const { data, error } = await client
     .from('artisan_colorways')
     .delete()
     .eq('id', id)
     .eq('maker_id', maker)
     .eq('sculpt_id', sculpt)
+    .select('id')
 
   if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+
+  // RLS filters rows silently, so an empty result means nothing was allowed.
+  if (!data?.length) {
     throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
+      statusCode: 403,
+      statusMessage: "You can't delete this colorway in its current state",
     })
+  }
+
+  // A sculpt under review with no colorways left has nothing to review anymore.
+  if (!isOfficial && parent.review_status) {
+    const { count } = await client
+      .from('artisan_colorways')
+      .select('id', { count: 'exact', head: true })
+      .eq('maker_id', maker)
+      .eq('sculpt_id', sculpt)
+
+    if (!count) {
+      const { error: sculptError } = await client
+        .from('artisan_sculpts')
+        .delete()
+        .eq('maker_sculpt_id', makerSculptId)
+
+      if (sculptError) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: sculptError.message,
+        })
+      }
+    }
   }
 
   return { success: true }

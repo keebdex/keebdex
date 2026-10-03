@@ -39,7 +39,25 @@
       </template>
 
       <template #keyset>
-        <div class="space-y-4">
+        <div v-if="mode === 'review' && !keysetUnderReview" class="space-y-2">
+          <p class="text-sm text-muted">
+            This keyset is already published. Only the kit is reviewed here.
+          </p>
+
+          <NuxtLink
+            :to="`/keyset/${existingKeyset.id}`"
+            class="text-sm font-medium text-primary hover:underline"
+          >
+            {{ keyset.name }}
+          </NuxtLink>
+        </div>
+
+        <div v-else class="space-y-4">
+          <p v-if="mode === 'review'" class="text-sm text-muted">
+            This keyset is still under review — review and edit it here before
+            approving.
+          </p>
+
           <UTabs
             v-if="mode === 'create' && keysetOptions.length"
             v-model="keysetMode"
@@ -71,7 +89,11 @@
       <template #kit>
         <div class="space-y-4">
           <p class="text-sm text-muted">
-            Add one or more kits for this keyset.
+            {{
+              mode === 'review'
+                ? 'Review and edit this kit.'
+                : 'Add one or more kits for this keyset.'
+            }}
           </p>
 
           <div
@@ -80,11 +102,22 @@
             class="space-y-4 rounded-lg border border-default p-4"
           >
             <div class="flex items-center justify-between">
-              <p class="text-xs font-medium text-dimmed">
-                Kit #{{ index + 1 }}
-              </p>
+              <div class="flex items-center gap-2">
+                <p class="text-xs font-medium text-dimmed">
+                  Kit #{{ index + 1 }}
+                </p>
+
+                <UBadge
+                  v-if="mode === 'review' && reviewStatus"
+                  :label="reviewStatus"
+                  variant="subtle"
+                  size="xs"
+                  :color="statusColorMap[reviewStatus] || 'neutral'"
+                />
+              </div>
 
               <UButton
+                v-if="mode === 'create'"
                 aria-label="Remove kit"
                 size="xs"
                 color="error"
@@ -99,6 +132,7 @@
           </div>
 
           <UButton
+            v-if="mode === 'create'"
             label="Add Kit"
             size="xs"
             variant="soft"
@@ -122,7 +156,7 @@
         v-if="stepper?.hasNext"
         label="Next"
         trailing-icon="hugeicons:arrow-right-02"
-        :disabled="!canAdvance[active]"
+        :disabled="!canAdvance[active] || (mode === 'review' && !reviewLoaded)"
         @click="onNext"
       />
 
@@ -131,30 +165,23 @@
         class="flex flex-wrap items-center justify-end gap-2"
       >
         <UButton
-          v-if="!userStore.isModerator"
+          v-if="canSave && !userStore.isModerator"
           label="Save Changes"
           color="primary"
           :loading="savingAction === 'update'"
+          :disabled="!reviewLoaded || !!savingAction"
           @click="onReviewAction('update')"
         />
 
-        <template v-if="userStore.isModerator">
-          <UButton
-            label="Save & Approve"
-            color="success"
-            icon="hugeicons:checkmark-circle-02"
-            :loading="savingAction === 'approve'"
-            @click="onReviewAction('approve')"
-          />
-
-          <UButton
-            label="Reject"
-            color="error"
-            icon="hugeicons:cancel-circle"
-            :loading="savingAction === 'reject'"
-            @click="onReviewAction('reject')"
-          />
-        </template>
+        <UButton
+          v-if="userStore.isModerator"
+          label="Save & Approve"
+          color="success"
+          icon="hugeicons:checkmark-circle-02"
+          :loading="savingAction === 'approve'"
+          :disabled="!reviewLoaded || !!savingAction"
+          @click="onReviewAction('approve')"
+        />
 
         <UButton
           v-if="canDelete"
@@ -162,6 +189,7 @@
           color="error"
           variant="soft"
           icon="hugeicons:delete-02"
+          :disabled="!reviewLoaded || !!savingAction"
           @click="deleteVisible = true"
         />
       </div>
@@ -175,22 +203,14 @@
       />
     </div>
 
-    <UModal
+    <SharedConfirmModal
       v-if="mode === 'review'"
       v-model:open="deleteVisible"
-      title="Delete Submission"
-      :description="`Are you sure you want to delete ${keyset.name}? This action cannot be undone.`"
-    >
-      <template #footer="{ close }">
-        <UButton label="Cancel" @click="close" />
-        <UButton
-          label="Delete"
-          color="error"
-          :loading="savingAction === 'delete'"
-          @click="onDeleteConfirm(close)"
-        />
-      </template>
-    </UModal>
+      title="Delete Kit"
+      :description="`Are you sure you want to delete ${kitLabel}? This action cannot be undone.`"
+      :loading="savingAction === 'delete'"
+      @confirm="onDeleteConfirm"
+    />
   </div>
 </template>
 
@@ -201,8 +221,9 @@ const props = defineProps({
     default: 'create',
     validator: (value) => ['create', 'review'].includes(value),
   },
-  submissionId: {
-    type: [String, Number],
+  // In review mode: the kit row from GET /api/submissions/keyset.
+  submission: {
+    type: Object,
     default: null,
   },
 })
@@ -232,6 +253,9 @@ const {
   kits,
   addKit,
   removeKit,
+  reviewStatus,
+  keysetUnderReview,
+  canSave,
   canDelete,
   load,
   save,
@@ -242,7 +266,7 @@ const {
   submit,
 } = useKeysetSubmissionWizard({
   mode: props.mode,
-  submissionId: props.submissionId,
+  submission: props.submission,
 })
 
 const selectedProfileLabel = computed(
@@ -280,10 +304,24 @@ const items = computed(() => [
   },
 ])
 
+const kitLabel = computed(() =>
+  [keyset.value.name, kits.value[0]?.name || kits.value[0]?.kit_id]
+    .filter(Boolean)
+    .join(' - '),
+)
+
+const reviewLoaded = ref(false)
+
 onMounted(async () => {
   if (props.mode === 'review') {
-    await load()
-    active.value = 1
+    try {
+      await load()
+      // A published keyset isn't under review, so land on the kit itself.
+      active.value = keysetUnderReview.value ? 1 : 2
+      reviewLoaded.value = true
+    } catch (error) {
+      toast.add(handleError(error, { showOriginalMessage: true }))
+    }
     return
   }
 
@@ -308,28 +346,29 @@ const onSubmit = async () => {
   }
 }
 
-const validateAllSteps = () => {
-  for (let i = 0; i < items.value.length; i++) {
-    if (!validateStep(i)) return false
-  }
-
-  return true
-}
-
 const savingAction = ref(null)
 const deleteVisible = ref(false)
 
 const onReviewAction = async (action) => {
-  if ((action === 'update' || action === 'approve') && !validateAllSteps()) {
-    return
-  }
+  if (!reviewLoaded.value || savingAction.value) return
+  if (!validateStep(1) || !validateStep(2)) return
 
   savingAction.value = action
 
   try {
     await save(action)
-    toast.add(handleSuccess('save', keyset.value.name, 'Keyset'))
-    emit('onSuccess')
+
+    toast.add(
+      handleSuccess(
+        action === 'approve' ? 'approve' : 'save',
+        kitLabel.value,
+        'Kit',
+      ),
+    )
+    // A submitter's edit sends a rejected kit back to the Pending queue.
+    emit('onSuccess', {
+      resubmitted: !userStore.isModerator && reviewStatus.value === 'Rejected',
+    })
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
@@ -337,15 +376,16 @@ const onReviewAction = async (action) => {
   }
 }
 
-const onDeleteConfirm = async (close) => {
+const onDeleteConfirm = async () => {
+  if (savingAction.value) return
+
   savingAction.value = 'delete'
 
   try {
     await remove()
 
-    toast.add(handleSuccess('delete', keyset.value.name))
+    toast.add(handleSuccess('delete', kitLabel.value, 'Kit'))
     deleteVisible.value = false
-    close()
     emit('onDelete')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))

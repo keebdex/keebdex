@@ -67,10 +67,10 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 
 ### Nested submission wizards
 
-- Wizards live in `app/components/{artisan,keyset,keyboard}/modal/SubmissionWizard.vue`, use `UStepper`, and embed the same atomic forms in create and review. Domain-specific steps and actions are documented below; do not assume identical review behavior across domains.
+- Wizards live in `app/components/{artisan,keyset,keyboard}/modal/SubmissionWizard.vue`, use `UStepper`, and embed the same atomic forms in create and review. Per-domain steps and review behavior are in "Community Submission Workflows".
 - Maker/Profile/Brand is select-existing only and locked in review. In create mode, reusable intermediate entities (Sculpt/Keyset/Keyboard/Release) use a step-level `UTabs` toggle between `'existing'` and `'new'`, never a toggle inside an atomic form.
 - Render that toggle only when options are loaded and non-empty. Treat only a successful empty response as evidence for proposing a new entity; never discard a preselected existing entity because options are empty, paginated, pending, or failed.
-- Create mode supports repeatable Colorways/Kits/Variants. Keyset review retains repeatable Kits; keyboard review groups repeatable Releases with their Variants; artisan review edits one colorway with no Add/Remove controls.
+- Create mode supports repeatable Colorways/Kits/Variants. Artisan, keyset, and keyboard review each edit exactly one colorway/kit/variant (the table row) with no Add/Remove controls.
 - Validate each step before advancing and validate the applicable entity/child data before saving or approving. Reuse existing create APIs in parent-to-child order; creating a Pending parent establishes ownership for subsequent child inserts.
 - Selection context belongs in computed `StepperItem.description` values using selected option labels or in-progress entity names. Do not add redundant "Selected: ..." paragraphs next to pickers or repeat context inside step slots.
 
@@ -101,47 +101,53 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 
 ## Community Submission Workflows
 
-Keebdex supports community-submitted content that waits for staff review before becoming public, using a shared `submitted_by` / `verified_at` / `verified_by` + status pattern:
+Signed-in users can propose artisan colorways, keyset kits, and keyboard variants; staff review them before they become public. Every domain uses the same pieces:
 
-- Create routes are `/{domain}/submissions/submit`; review pages are `/{domain}/submissions` for artisan, keyset, and keyboard. Review APIs share `server/api/submissions/`. Lists are scoped to the submitter or authorized staff assignments and reuse `statusOptions` / `statusColorMap` from `app/utils/index.ts`.
+- **Routes**: create at `/{domain}/submissions/submit`, review at `/{domain}/submissions` (`artisan`, `keyset`, `keyboard`), both linked from the module's sidebar section in `app/layouts/default.vue` behind `authenticated.value`. Public create/contribute buttons route to the submit page; standalone modals are only for admin CRUD and sub-entity quick edits. Detail-page "Submit a …" links pass the query params described in "Direct links and response contracts".
+- **UI**: `SubmissionWizard.vue` + its `use*SubmissionWizard` composable handle both create and review. Review pages are `UTable`s with one row per leaf entity and a status filter (`statusOptions` / `statusColorMap` from `app/utils/index.ts`), scoped to the submitter or to staff for the relevant assignment.
+- **Status model**: `review_status` (`Pending` / `Approved` / `Rejected`, plus `submitted_by`, `verified_at`, `verified_by`) lives on every submittable table. A `null` status means a record added directly by staff; it is implicitly approved and never appears in review queues.
 
-| Domain   | Create steps / APIs                                                                                                           | Review hydration and entry                                                                                          | Final moderator actions                 |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| Artisan  | Maker → Sculpt → Colorway; existing sculpt/colorway create APIs                                                               | Selected colorway row via `submission`; Sculpt (index 1) only when Pending, otherwise Colorway (index 2)            | Back / Save & Approve / Delete          |
-| Keyset   | Profile → Keyset → Kit; `POST /api/submissions/keyset` for a new keyset, then its `/kits` endpoint                            | `submissionId` via `GET /api/submissions/keyset/[id]`; Keyset (index 1), then repeatable Kits                       | Back / Save & Approve / Reject / Delete |
-| Keyboard | Brand → Keyboard → Release → Variant; `POST /api/submissions/keyboard` for a new keyboard, then its release/variant endpoints | `submissionId` via `GET /api/submissions/keyboard/[id]`; Keyboard (index 1), then repeatable Releases with Variants | Back / Save & Approve / Reject / Delete |
+| Domain   | Create steps and APIs                                                                                            | Review row (list endpoint)                                              | Review wizard lands on                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Artisan  | Maker → Sculpt → Colorway; existing sculpt and colorway create APIs                                              | Colorway (`GET /api/submissions/artisan`) with its sculpt               | Sculpt (1) while Pending/Rejected, else Colorway (2)            |
+| Keyset   | Profile → Keyset → Kit; `POST /api/submissions/keyset` for a new keyset, then `.../kits`                         | Kit (`GET /api/submissions/keyset`) with its keyset                     | Keyset (1) while Pending/Rejected, else Kit (2)                 |
+| Keyboard | Brand → Keyboard → Release → Variant; `POST /api/submissions/keyboard` for a new keyboard, then release/variants | Variant (`GET /api/submissions/keyboard`) with its release and keyboard | Keyboard (1) / Release (2) while under review, else Variant (3) |
 
-- Artisan list actions are Edit and moderator quick Approve/Reject, with Release/Qty details. Pending sculpt proposals are hydrated into the embedded Sculpt form and resolved with their colorway; there is no separate sculpt queue.
-- Artisan Save & Approve saves sculpt/colorway changes before calling moderation. Keyboard/keyset submit the entity and nested children with `action: 'approve'` or `'reject'`; do not describe these multi-write handlers as atomic transactions. Non-moderators retain Save Changes for keyboard/keyset where permitted.
-- `null` review status denotes an implicitly approved direct staff record, excluded from moderation queues. Preserve `artisan_colorways.status`; other submission entities use `review_status`.
+### Create flow
 
-### Pending database work: independent kit submissions
+- Picking an existing, published (null/Approved) sculpt/keyset/keyboard lets any signed-in user add colorways, kits, or releases/variants to it without creating or re-moderating the parent. The proposal is stored `Pending` and is visible only to its submitter and staff.
+- Proposing a new parent creates it first (`Pending`, owned by the submitter), which satisfies the RLS ownership needed for the child inserts that follow. The wizard calls the existing single-entity endpoints sequentially; do not describe these multi-write flows as atomic.
 
-- Current kit/release/variant ownership derives from the parent submission. Adding children to an existing Approved/null parent is staff-only; a detail-page "Submit" link does not bypass that restriction.
-- The local draft `supabase/migrations/20261003000000_keyset_kit_submission_status.sql` proposes independent Pending kits on existing keysets, with kit-level ownership/moderation columns and RLS. It is not a completed application feature: review/apply the migration manually, refresh generated types externally, then wire kit-specific submission/review APIs, queue UI, and pending-review notifications before deployment.
-- The sculpt proposal migration `supabase/migrations/20261001000000_artisan_sculpt_submission_status.sql` is also a local schema draft. Wizard support exists, but verify the deployed schema rather than assuming local drafts have been applied.
+### Review flow
+
+- Each review table row is one leaf entity (colorway / kit / variant) with its parents resolved alongside it. Row actions: Edit (opens the review wizard with `mode="review"` and `:submission`), moderator-only Approve/Reject (each hidden when the row already has that status), and Delete (moderators, or the submitter while the row is Pending/Rejected) behind `SharedConfirmModal`. Toasts name the row and use the `approve` / `reject` / `delete` actions of `handleSuccess`.
+- The wizard edits exactly one leaf (no Add/Remove). Parent levels (sculpt, keyset, keyboard, release) are editable only while under review (Pending/Rejected, or a status-less release following its Pending keyboard) and render as locked summaries once published. Footer actions: Back, Save Changes (submitter), Save & Approve (moderator), Delete.
+- Save & Approve saves each parent still under review (keyboard → release, then the leaf) and then the leaf with `action: 'approve'`; approval of the parents rides on the leaf save. Row Approve/Reject post the leaf to its existing endpoint with `action` (the variant endpoint rewrites every field, so send the whole variant row, never a partial body); there are no `/api/submissions/{domain}/[id]` endpoints, only the three list endpoints and the two create endpoints above.
+- Server-side cascade (`cascadeSculptReview`, `cascadeKeysetReview`, `cascadeKeyboardReview`): approving a leaf approves its Pending/Rejected parents; rejecting a leaf rejects a Pending parent only once none of its children is still alive. Deleting the last leaf of a parent under review deletes that parent (variant → release → keyboard), so no orphan Pending parents remain.
+- A submitter editing their own `Rejected` leaf/parent resets it to `Pending` (server-side), and the page switches its filter to Pending via `onSuccess({ resubmitted })`.
+
+### Shared server contract (`server/utils/child-submissions.ts`)
+
+- Kit, release, variant, and colorway endpoints call `getChildSubmissionContext(event, domain, parentKey)` (parent keys: `profile_keyset_id`, `brand_keyboard_slug`, `maker_sculpt_id`). Client moderation fields are always stripped (`omitModerationFields`) and re-applied by `attribute()`: official parent + staff → `Approved` with `verified_*`; otherwise `Pending` owned by `auth.uid()`. Keyset kits, keyboard variants, and artisan colorways always carry their own status; keyboard releases only when the parent keyboard is published, otherwise they follow their Pending keyboard.
+- Staff may send `action: 'approve' | 'reject'` (`getModerationOverride`); non-staff get 403. Resubmission after rejection uses `getResubmissionPatch()`. `parseReviewStatus` / `inFilter` whitelist the list endpoints' status filter.
+- Updates and deletes must check the affected row count: RLS filters silently, so return a 403 with a message when nothing changed.
+- Artisan colorways use `review_status` like every other table (the former `status` column was renamed); sculpt proposals live in `artisan_sculpts` and have no separate queue.
 
 ### Database & RLS conventions for submissions
 
-- Any table that supports community submissions must carry the four control columns: `review_status` (or `status` on `artisan_colorways`, for historical reasons — don't rename it), `submitted_by`, `verified_at`, `verified_by`. Add these via a migration under `supabase/migrations/`, never by hand-editing generated types.
-- Target RLS rules: public reads of Approved/null rows; submitters read their own Pending/Rejected rows; authorized staff read/manage their scope. Non-staff inserts must be Pending and attributed to `auth.uid()`; only staff may insert implicitly approved/null records or change moderation fields. Submitters edit Pending records and delete Pending/Rejected records, never Approved or implicitly approved records. Verify actual deployed policies; do not assume draft migrations enforce these rules.
-- Bundled child records currently derive permissions from the parent via `exists` checks. Independent child submissions require their own ownership/status and a review flow; do not broaden child INSERT permissions without controlling visibility and moderation.
+- A table that supports submissions needs the four control columns, added through a migration under `supabase/migrations/` (never by hand-editing generated types).
+- Target RLS: public reads Approved/null rows; submitters read their own Pending/Rejected rows; authorized staff read and manage their scope. Non-staff inserts must be `Pending`, attributed to `auth.uid()`, with null `verified_*`; only staff may insert null/approved rows or change moderation fields. Submitters update their rows while `Pending` (also `Rejected`, which resubmits as `Pending`) and delete while `Pending`/`Rejected`, never `Approved` or `null`.
+- Child tables combine the parent's state (via `exists` subqueries) with their own: community inserts need an official parent, or the submitter's own Pending parent (kits → own Pending keyset; variants → own Pending keyboard plus an official release or own Pending release). Staff scope comes from `can_manage` (keyset: `profile_keyset_id`; keyboard: the parent's `brand_slug`, not the child's column; artisan: `maker_id`). Never broaden child INSERT permissions without controlling visibility and moderation. Verify the deployed policies; local migration drafts are not proof they are applied.
 
 ### Auto-approve rule for staff submissions
 
-- When the authenticated actor is staff for the relevant assignment (`canManageAnyAssignment(profile) && canManageAssignment(profile, assignment)`, e.g. `brand_slug` for keyboards, `profile_keyset_id` for keysets, `maker_id` for artisan colorways), a **create** through the shared submission form must auto-approve instead of entering the Pending queue: set `review_status`/`status = 'Approved'`, `verified_by = user.sub`, and `verified_at = new Date().toISOString()` in the same insert, rather than requiring the moderator to review/approve their own submission afterwards.
-- Regular (non-staff) users always get `review_status = 'Pending'` with `verified_at`/`verified_by` left `null`.
-- This check only applies to the shared `/api/submissions/*` create endpoints (and the shared artisan colorway create endpoint used by both the admin and community forms). Existing admin-only creation endpoints (e.g. `server/api/keyboards/[brand]/[keyboard].post.ts`) are unaffected — they never set these columns and stay implicitly approved via `null`.
+- When the actor is staff for the relevant assignment (`canManageAnyAssignment(profile) && canManageAssignment(profile, assignment)`: `brand_slug`, `profile_keyset_id`, `maker_id`), creates through the shared endpoints (`/api/submissions/*`, and the kit/release/variant/colorway create endpoints used by admin and community forms) are written as `Approved` with `verified_by = user.sub` and `verified_at = new Date().toISOString()` in the same insert. Non-staff always get `Pending` with null `verified_*`.
+- Admin-only creation endpoints (e.g. `server/api/keyboards/[brand]/[keyboard].post.ts`) never set these columns and stay implicitly approved via `null`.
 
 ### Delete cascade rule for submissions
 
-- Delete child rows before the parent while parent-scoped RLS still applies: keyboard Variants → Releases → Keyboard; keyset Kits → Keyset. Check every delete result instead of relying solely on `ON DELETE CASCADE`.
-- Delete rights belong to authorized staff or the owner of a Pending/Rejected submission. Do not treat `null` as an unapproved submission or allow owners to delete Approved records.
-
-### Submissions route naming convention
-
-- Each module's moderation/review page lives at `/{module}/submissions` (e.g. `/keyboard/submissions`, `/keyset/submissions`, `/artisan/submissions`) and is linked from the sidebar under that module's section in `app/layouts/default.vue`, gated behind `authenticated.value`.
-- The "create a new submission" page lives at `/{module}/submissions/submit` for keyboard, keyset, and artisan (a nested route under the review page). Public user create/contribute buttons for main entities should route there. Standalone modals are reserved for admin dashboard direct CRUD and quick-create/edit of sub-entities inside admin/detail contexts.
+- Delete children before the parent while parent-scoped RLS still applies, using the per-item delete endpoints (never a published parent): keyboard variants → releases → keyboard; keyset kits → keyset; artisan colorways → sculpt. Check every delete result instead of relying on `ON DELETE CASCADE`.
+- Delete rights belong to authorized staff or the owner of a `Pending`/`Rejected` submission; never to an owner of an `Approved` or `null` record.
 
 ## Generated Data and Database Types
 

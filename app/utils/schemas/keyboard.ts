@@ -138,12 +138,3 @@ export const keyboardVariantSchema = z.object({
 export const keyboardVariantStandaloneSchema = keyboardVariantSchema.extend({
   release_id: z.coerce.number().min(1),
 })
-
-export const keyboardSubmissionCompositeSchema = z.object({
-  keyboard: keyboardSubmissionSchema,
-  releases: z.array(
-    keyboardReleaseSchema.extend({
-      variants: z.array(keyboardVariantSchema.omit({ release_id: true })),
-    }),
-  ),
-})

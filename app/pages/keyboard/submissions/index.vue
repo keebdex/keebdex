@@ -13,89 +13,168 @@
     </template>
 
     <template #body>
-      <div class="grid grid-cols-1 lg:grid-cols-[22rem_1fr] gap-4 h-full">
-        <div class="space-y-3">
+      <UPageCard
+        variant="subtle"
+        class="space-y-4 mx-auto min-w-0 w-full lg:max-w-6xl"
+        :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
+      >
+        <template #header>
+          {{ pageDescription }}
+        </template>
+
+        <div class="flex justify-end px-4 py-3.5 border-b border-accented">
           <USelect
             v-model="statusFilter"
             :items="statusOptions"
-            class="w-full"
+            class="w-full sm:w-52"
           />
+        </div>
 
-          <div class="space-y-2">
-            <UPageCard
-              v-for="row in data.data"
-              :key="row.id"
-              :title="row.name"
-              :description="`${row.brand?.name || row.brand_slug} • ${row.releases_count} release(s)`"
-              spotlight
-              reverse
-              class="cursor-pointer"
-              :class="selectedId === row.id ? 'ring-2 ring-primary' : ''"
-              :ui="{
-                root: 'h-full',
-                container: 'py-3 gap-3',
-                title: 'text-sm truncate',
-                description: 'text-xs truncate',
-              }"
-              @click="selectSubmission(row)"
-            >
-              <div class="flex items-center gap-3">
-                <div class="min-w-0">
-                  <p class="text-xs text-dimmed truncate">
-                    {{
-                      isModerator
-                        ? row.submitter?.full_name || row.submitter?.email
-                        : formatDate(row.created_at)
-                    }}
-                  </p>
-                  <UBadge
-                    :label="row.review_status"
-                    variant="subtle"
-                    size="xs"
-                    :color="statusColorMap[row.review_status] || 'neutral'"
-                  />
-                </div>
-              </div>
-            </UPageCard>
+        <UTable
+          sticky
+          :loading="status === 'pending'"
+          :data="data.data"
+          :columns="columns"
+          class="min-w-0 max-w-full"
+        >
+          <template #img-cell="{ row }">
+            <NuxtImg
+              v-if="row.original.img_front || row.original.img_back"
+              :src="row.original.img_front || row.original.img_back"
+              :alt="row.original.variant_name"
+              class="size-12 rounded object-cover"
+            />
+          </template>
 
-            <p
-              v-if="!data.data.length"
-              class="text-sm text-dimmed text-center py-8"
-            >
-              No {{ statusFilter.toLowerCase() }} submissions.
-            </p>
-          </div>
+          <template #keyboard-cell="{ row }">
+            <div class="font-medium truncate max-w-48">
+              {{
+                row.original.release?.keyboard?.name ||
+                row.original.brand_keyboard_slug
+              }}
+            </div>
+          </template>
+
+          <template #brand-cell="{ row }">
+            {{
+              row.original.release?.keyboard?.brand?.name ||
+              row.original.brand_slug
+            }}
+          </template>
+
+          <template #release-cell="{ row }">
+            {{ row.original.release?.name || '-' }}
+          </template>
+
+          <template #variant-cell="{ row }">
+            {{ row.original.variant_name }}
+          </template>
+
+          <template #price-cell="{ row }">
+            {{
+              row.original.msrp_price
+                ? `${row.original.currency || ''} ${row.original.msrp_price}`.trim()
+                : '-'
+            }}
+          </template>
+
+          <template #status-cell="{ row }">
+            <UBadge
+              :label="row.original.status"
+              variant="subtle"
+              :color="statusColorMap[row.original.status] || 'neutral'"
+            />
+          </template>
+
+          <template #action-cell="{ row }">
+            <div class="flex flex-wrap items-center gap-2">
+              <template v-if="isModerator">
+                <UButton
+                  v-if="row.original.status !== 'Approved'"
+                  label="Approve"
+                  size="xs"
+                  color="success"
+                  icon="hugeicons:checkmark-circle-02"
+                  :loading="processingId === row.original.id"
+                  :disabled="processingId !== null"
+                  @click="moderateSubmission(row.original, 'approve')"
+                />
+                <UButton
+                  v-if="row.original.status !== 'Rejected'"
+                  label="Reject"
+                  size="xs"
+                  color="error"
+                  icon="hugeicons:cancel-circle"
+                  :loading="processingId === row.original.id"
+                  :disabled="processingId !== null"
+                  @click="moderateSubmission(row.original, 'reject')"
+                />
+              </template>
+              <UButton
+                v-if="canEdit(row.original)"
+                label="Edit"
+                size="xs"
+                variant="soft"
+                icon="hugeicons:file-edit"
+                :disabled="processingId !== null"
+                @click="editSubmission(row.original)"
+              />
+              <UButton
+                v-if="canDelete(row.original)"
+                label="Delete"
+                size="xs"
+                color="error"
+                variant="soft"
+                icon="hugeicons:delete-02"
+                :disabled="processingId !== null"
+                @click="deleteTarget = row.original"
+              />
+            </div>
+          </template>
+        </UTable>
+
+        <div
+          class="border-t border-default pt-4 mt-auto px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p class="text-toned text-sm text-center sm:text-left">
+            Showing {{ paginationMeta.from }} to {{ paginationMeta.to }} of
+            <span class="font-semibold text-highlighted">{{
+              paginationMeta.total
+            }}</span>
+          </p>
 
           <UPagination
             v-if="data.count > size"
             :page="page"
             :items-per-page="size"
             :total="data.count"
-            :ui="{ list: 'flex-wrap justify-center' }"
+            :ui="{
+              list: 'flex-wrap justify-center sm:justify-end',
+            }"
             @update:page="setPage"
           />
         </div>
+      </UPageCard>
 
-        <UPageCard variant="subtle" class="min-w-0">
-          <template v-if="selectedId">
-            <KeyboardModalSubmissionWizard
-              :key="selectedId"
-              mode="review"
-              :submission-id="selectedId"
-              @on-success="onDetailSuccess"
-              @on-delete="onDetailDelete"
-            />
-          </template>
+      <UModal v-model:open="editorOpen" title="Edit Variant">
+        <template #body="{ close }">
+          <KeyboardModalSubmissionWizard
+            v-if="selectedSubmission"
+            mode="review"
+            :submission="selectedSubmission"
+            @on-success="(result) => onEditSuccess(close, result)"
+            @on-delete="() => onDeleteSuccess(close)"
+          />
+        </template>
+      </UModal>
 
-          <div
-            v-else
-            class="flex flex-col items-center justify-center gap-2 py-16 text-center text-dimmed"
-          >
-            <UIcon name="hugeicons:cursor-pointer-01" class="size-8" />
-            <p class="text-sm">Select a submission to review its details.</p>
-          </div>
-        </UPageCard>
-      </div>
+      <SharedConfirmModal
+        v-model:open="deleteOpen"
+        title="Delete Variant"
+        :description="`Are you sure you want to delete ${variantLabel(deleteTarget || {})}? This action cannot be undone.`"
+        :loading="deleting"
+        @confirm="confirmDelete"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -106,41 +185,143 @@ definePageMeta({
 })
 
 const userStore = useUserStore()
+const toast = useToast()
 const { isModerator } = storeToRefs(userStore)
+
+const pageDescription = computed(() =>
+  isModerator.value
+    ? 'Review keyboards submitted by the community and approve, reject, or edit them before they become official records.'
+    : "Track the keyboards you've submitted. You can edit or delete a keyboard while it's pending review or after it was rejected; editing a rejected keyboard sends it back for review.",
+)
+
+const columns = [
+  { accessorKey: 'img', header: 'Image' },
+  { accessorKey: 'keyboard', header: 'Keyboard' },
+  { accessorKey: 'brand', header: 'Brand' },
+  { accessorKey: 'release', header: 'Release' },
+  { accessorKey: 'variant', header: 'Variant' },
+  { accessorKey: 'price', header: 'Price' },
+  { accessorKey: 'status', header: 'Status' },
+  { id: 'action' },
+]
 
 const statusFilter = ref('Pending')
 
-const formatDate = (value) => {
-  if (!value) return '-'
-  return new Date(value).toLocaleDateString()
-}
-
 const { page, size, setPage, resetPage } = usePagination(10)
-const { data, refresh } = useAdvancedSearch('/api/submissions/keyboard', {
-  key: 'keyboard-submissions',
-  term: ref(''),
-  minLength: 0,
-  pagination: { page, size },
-  filters: { status: statusFilter },
+const { data, status, refresh } = useAdvancedSearch(
+  '/api/submissions/keyboard',
+  {
+    key: 'keyboard-submissions',
+    term: ref(''),
+    minLength: 0,
+    pagination: { page, size },
+    filters: { status: statusFilter },
+  },
+)
+
+watch(statusFilter, resetPage)
+
+const paginationMeta = computed(() => {
+  const total = data.value?.count || 0
+  const visibleOnPage = data.value?.data?.length || 0
+
+  if (!total || !visibleOnPage) return { total, from: 0, to: 0 }
+
+  const from = (page.value - 1) * size + 1
+
+  return { total, from, to: from + visibleOnPage - 1 }
 })
 
-watch(statusFilter, () => {
-  resetPage()
-  selectedId.value = null
+const editorOpen = ref(false)
+const selectedSubmission = ref(null)
+const processingId = ref(null)
+
+// Submitters can only act on variants that are still in (or back in) review.
+const canEdit = (variant) =>
+  isModerator.value || ['Pending', 'Rejected'].includes(variant.status)
+
+const variantLabel = (variant) =>
+  [variant.release?.keyboard?.name, variant.release?.name, variant.variant_name]
+    .filter(Boolean)
+    .join(' - ')
+
+const moderateSubmission = async (variant, action) => {
+  if (!isModerator.value || processingId.value !== null) return
+
+  processingId.value = variant.id
+
+  try {
+    // The variant endpoint rewrites every field, so send the whole row back.
+    const { release, submitter, status: _status, ...fields } = variant
+
+    await $fetch(`/api/keyboards/${variant.brand_keyboard_slug}/variants`, {
+      method: 'post',
+      body: { ...fields, action },
+    })
+
+    toast.add(handleSuccess(action, variantLabel(variant), 'Variant'))
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    processingId.value = null
+  }
+}
+
+const deleteTarget = ref(null)
+const deleting = ref(false)
+const deleteOpen = computed({
+  get: () => !!deleteTarget.value,
+  set: (value) => {
+    if (!value && !deleting.value) deleteTarget.value = null
+  },
 })
 
-const selectedId = ref(null)
+// Staff can delete anything; submitters only while it's Pending or Rejected.
+const canDelete = (variant) =>
+  isModerator.value || ['Pending', 'Rejected'].includes(variant.status)
 
-const selectSubmission = (row) => {
-  selectedId.value = row.id
+const confirmDelete = async () => {
+  const variant = deleteTarget.value
+
+  if (!variant || deleting.value) return
+
+  deleting.value = true
+
+  try {
+    await $fetch(
+      `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+      { method: 'delete' },
+    )
+
+    toast.add(handleSuccess('delete', variantLabel(variant), 'Variant'))
+    deleteTarget.value = null
+    await refresh()
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+  } finally {
+    deleting.value = false
+  }
 }
 
-const onDetailSuccess = async () => {
+const editSubmission = (variant) => {
+  selectedSubmission.value = variant
+  editorOpen.value = true
+}
+
+const closeEditor = async (close) => {
   await refresh()
+  close()
+  editorOpen.value = false
+  selectedSubmission.value = null
 }
 
-const onDetailDelete = async () => {
-  selectedId.value = null
-  await refresh()
+const onEditSuccess = async (close, result) => {
+  // A rejected variant that was edited is Pending again, so follow it there.
+  if (result?.resubmitted) statusFilter.value = 'Pending'
+
+  await closeEditor(close)
 }
+
+const onDeleteSuccess = (close) => closeEditor(close)
 </script>

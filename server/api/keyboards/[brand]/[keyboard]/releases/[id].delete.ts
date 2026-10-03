@@ -31,12 +31,24 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { error } = await client.from('keyboard_releases').delete().eq('id', id)
+  const { data, error } = await client
+    .from('keyboard_releases')
+    .delete()
+    .eq('id', id)
+    .select('id')
 
   if (error) {
     throw createError({
       statusCode: 500,
       statusMessage: error.message,
+    })
+  }
+
+  // RLS filters rows silently, so an empty result means nothing was allowed.
+  if (!data?.length) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "You can't delete this release in its current state",
     })
   }
 

@@ -27,7 +27,26 @@
       </template>
 
       <template #keyboard>
-        <div class="space-y-4">
+        <div v-if="mode === 'review' && !keyboardUnderReview" class="space-y-2">
+          <p class="text-sm text-muted">
+            This keyboard is already published. Only the variant is reviewed
+            here.
+          </p>
+
+          <NuxtLink
+            :to="`/keyboard/brand/${existingKeyboard.id}`"
+            class="text-sm font-medium text-primary hover:underline"
+          >
+            {{ keyboard.name }}
+          </NuxtLink>
+        </div>
+
+        <div v-else class="space-y-4">
+          <p v-if="mode === 'review'" class="text-sm text-muted">
+            This keyboard is still under review — review and edit it here before
+            approving.
+          </p>
+
           <UTabs
             v-if="mode === 'create' && keyboardOptions.length"
             v-model="keyboardMode"
@@ -49,13 +68,36 @@
           <KeyboardModalKeyboardForm
             v-if="mode === 'review' || keyboardMode === 'new'"
             v-model="keyboard"
+            :is-edit="mode === 'review'"
             mode="embedded"
           />
         </div>
       </template>
 
       <template #release>
-        <div class="space-y-4">
+        <div v-if="mode === 'review'" class="space-y-4">
+          <p v-if="!releaseUnderReview" class="text-sm">
+            <strong>{{ release.name }}</strong>
+            <span class="text-muted">
+              is already published. Only the variant is reviewed here.
+            </span>
+          </p>
+
+          <template v-else>
+            <p class="text-sm text-muted">
+              This release is still under review — review and edit it here
+              before approving.
+            </p>
+
+            <KeyboardModalReleaseForm
+              v-model="release"
+              :keyboard="{ releases: [] }"
+              mode="embedded"
+            />
+          </template>
+        </div>
+
+        <div v-else class="space-y-4">
           <UTabs
             v-if="
               keyboardMode === 'existing' &&
@@ -90,7 +132,11 @@
       <template #variant>
         <div class="space-y-4">
           <p class="text-sm text-muted">
-            Add one or more variants for this release.
+            {{
+              mode === 'review'
+                ? 'Review and edit this variant.'
+                : 'Add one or more variants for this release.'
+            }}
           </p>
 
           <div
@@ -99,11 +145,22 @@
             class="space-y-4 rounded-lg border border-default p-4"
           >
             <div class="flex items-center justify-between">
-              <p class="text-xs font-medium text-dimmed">
-                Variant #{{ index + 1 }}
-              </p>
+              <div class="flex items-center gap-2">
+                <p class="text-xs font-medium text-dimmed">
+                  Variant #{{ index + 1 }}
+                </p>
+
+                <UBadge
+                  v-if="mode === 'review' && reviewStatus"
+                  :label="reviewStatus"
+                  variant="subtle"
+                  size="xs"
+                  :color="statusColorMap[reviewStatus] || 'neutral'"
+                />
+              </div>
 
               <UButton
+                v-if="mode === 'create'"
                 aria-label="Remove variant"
                 size="xs"
                 color="error"
@@ -122,99 +179,13 @@
           </div>
 
           <UButton
+            v-if="mode === 'create'"
             label="Add Variant"
             size="xs"
             variant="soft"
             icon="hugeicons:plus-sign"
             block
             @click="addVariant"
-          />
-        </div>
-      </template>
-
-      <template #releases>
-        <div class="space-y-4">
-          <p class="text-sm text-muted">
-            Review and edit the releases and variants included in this
-            submission.
-          </p>
-
-          <div
-            v-for="(releaseEntry, index) in releases"
-            :key="releaseEntry._key"
-            class="space-y-4 rounded-lg border border-default p-4"
-          >
-            <div class="flex items-center justify-between">
-              <p class="text-xs font-medium text-dimmed">
-                Release #{{ index + 1 }}
-              </p>
-
-              <UButton
-                aria-label="Remove release"
-                size="xs"
-                color="error"
-                variant="ghost"
-                icon="hugeicons:delete-02"
-                :disabled="releases.length === 1"
-                @click="removeRelease(index)"
-              />
-            </div>
-
-            <KeyboardModalReleaseForm
-              v-model="releases[index]"
-              :keyboard="{ releases: [] }"
-              mode="embedded"
-            />
-
-            <div class="space-y-3 border-t border-dashed border-default pt-3">
-              <p class="text-xs font-medium text-dimmed">Variants</p>
-
-              <div
-                v-for="(variant, variantIndex) in releaseEntry.variants"
-                :key="variant._key"
-                class="space-y-2 rounded-lg border border-dashed border-default p-3"
-              >
-                <div class="flex items-center justify-between">
-                  <p class="text-xs text-dimmed">
-                    Variant #{{ variantIndex + 1 }}
-                  </p>
-
-                  <UButton
-                    aria-label="Remove variant"
-                    size="xs"
-                    color="error"
-                    variant="ghost"
-                    icon="hugeicons:delete-02"
-                    :disabled="releaseEntry.variants.length === 1"
-                    @click="removeReleaseVariant(releaseEntry, variantIndex)"
-                  />
-                </div>
-
-                <KeyboardModalVariantForm
-                  v-model="releaseEntry.variants[variantIndex]"
-                  :keyboard="releaseKeyboardFor(releaseEntry)"
-                  mode="embedded"
-                />
-              </div>
-
-              <UButton
-                label="Add Variant"
-                size="xs"
-                variant="soft"
-                icon="hugeicons:plus-sign"
-                block
-                @click="addReleaseVariant(releaseEntry)"
-              />
-            </div>
-          </div>
-
-          <UButton
-            label="Add Release"
-            size="xs"
-            variant="soft"
-            icon="hugeicons:plus-sign"
-            block
-            @click="addRelease"
           />
         </div>
       </template>
@@ -232,7 +203,7 @@
         v-if="stepper?.hasNext"
         label="Next"
         trailing-icon="hugeicons:arrow-right-02"
-        :disabled="!canAdvance[active]"
+        :disabled="!canAdvance[active] || (mode === 'review' && !reviewLoaded)"
         @click="onNext"
       />
 
@@ -241,30 +212,23 @@
         class="flex flex-wrap items-center justify-end gap-2"
       >
         <UButton
-          v-if="!userStore.isModerator"
+          v-if="canSave && !userStore.isModerator"
           label="Save Changes"
           color="primary"
           :loading="savingAction === 'update'"
+          :disabled="!reviewLoaded || !!savingAction"
           @click="onReviewAction('update')"
         />
 
-        <template v-if="userStore.isModerator">
-          <UButton
-            label="Save & Approve"
-            color="success"
-            icon="hugeicons:checkmark-circle-02"
-            :loading="savingAction === 'approve'"
-            @click="onReviewAction('approve')"
-          />
-
-          <UButton
-            label="Reject"
-            color="error"
-            icon="hugeicons:cancel-circle"
-            :loading="savingAction === 'reject'"
-            @click="onReviewAction('reject')"
-          />
-        </template>
+        <UButton
+          v-if="userStore.isModerator"
+          label="Save & Approve"
+          color="success"
+          icon="hugeicons:checkmark-circle-02"
+          :loading="savingAction === 'approve'"
+          :disabled="!reviewLoaded || !!savingAction"
+          @click="onReviewAction('approve')"
+        />
 
         <UButton
           v-if="canDelete"
@@ -272,6 +236,7 @@
           color="error"
           variant="soft"
           icon="hugeicons:delete-02"
+          :disabled="!reviewLoaded || !!savingAction"
           @click="deleteVisible = true"
         />
       </div>
@@ -285,22 +250,14 @@
       />
     </div>
 
-    <UModal
+    <SharedConfirmModal
       v-if="mode === 'review'"
       v-model:open="deleteVisible"
-      title="Delete Submission"
-      :description="`Are you sure you want to delete ${keyboard.name}? This action cannot be undone.`"
-    >
-      <template #footer="{ close }">
-        <UButton label="Cancel" @click="close" />
-        <UButton
-          label="Delete"
-          color="error"
-          :loading="savingAction === 'delete'"
-          @click="onDeleteConfirm(close)"
-        />
-      </template>
-    </UModal>
+      title="Delete Variant"
+      :description="`Are you sure you want to delete ${variantLabel}? This action cannot be undone.`"
+      :loading="savingAction === 'delete'"
+      @confirm="onDeleteConfirm"
+    />
   </div>
 </template>
 
@@ -311,8 +268,9 @@ const props = defineProps({
     default: 'create',
     validator: (value) => ['create', 'review'].includes(value),
   },
-  submissionId: {
-    type: [String, Number],
+  // In review mode: the variant row from GET /api/submissions/keyboard.
+  submission: {
+    type: Object,
     default: null,
   },
 })
@@ -354,12 +312,10 @@ const {
   addVariant,
   removeVariant,
   keyboardForVariantForm,
-  releases,
-  addRelease,
-  removeRelease,
-  addReleaseVariant,
-  removeReleaseVariant,
-  releaseKeyboardFor,
+  reviewStatus,
+  keyboardUnderReview,
+  releaseUnderReview,
+  canSave,
   canDelete,
   load,
   save,
@@ -370,7 +326,7 @@ const {
   submit,
 } = useKeyboardSubmissionWizard({
   mode: props.mode,
-  submissionId: props.submissionId,
+  submission: props.submission,
 })
 
 const selectedBrandLabel = computed(
@@ -396,62 +352,60 @@ const selectedKeyboardContextLabel = computed(() =>
 )
 
 const selectedReleaseContextLabel = computed(() =>
-  releaseMode.value === 'new' ? release.value.name : selectedReleaseLabel.value,
+  props.mode === 'review' || releaseMode.value === 'new'
+    ? release.value.name
+    : selectedReleaseLabel.value,
 )
 
-const items = computed(() =>
-  props.mode === 'review'
-    ? [
-        {
-          slot: 'brand',
-          title: 'Brand',
-          description: selectedBrandLabel.value,
-          icon: 'hugeicons:user-multiple',
-        },
-        {
-          slot: 'keyboard',
-          title: 'Keyboard',
-          icon: 'hugeicons:keyboard',
-          description: selectedKeyboardContextLabel.value,
-        },
-        {
-          slot: 'releases',
-          title: 'Releases',
-          icon: 'hugeicons:package',
-          description: selectedReleaseContextLabel.value,
-        },
-      ]
-    : [
-        {
-          slot: 'brand',
-          title: 'Brand',
-          description: selectedBrandLabel.value,
-          icon: 'hugeicons:user-multiple',
-        },
-        {
-          slot: 'keyboard',
-          title: 'Keyboard',
-          icon: 'hugeicons:keyboard',
-          description: selectedKeyboardContextLabel.value,
-        },
-        {
-          slot: 'release',
-          title: 'Release',
-          icon: 'hugeicons:package',
-          description: selectedReleaseContextLabel.value,
-        },
-        {
-          slot: 'variant',
-          title: 'Variant',
-          icon: 'hugeicons:layers-01',
-        },
-      ],
+const items = computed(() => [
+  {
+    slot: 'brand',
+    title: 'Brand',
+    description: selectedBrandLabel.value,
+    icon: 'hugeicons:user-multiple',
+  },
+  {
+    slot: 'keyboard',
+    title: 'Keyboard',
+    icon: 'hugeicons:keyboard',
+    description: selectedKeyboardContextLabel.value,
+  },
+  {
+    slot: 'release',
+    title: 'Release',
+    icon: 'hugeicons:package',
+    description: selectedReleaseContextLabel.value,
+  },
+  {
+    slot: 'variant',
+    title: 'Variant',
+    icon: 'hugeicons:layers-01',
+  },
+])
+
+const variantLabel = computed(() =>
+  [keyboard.value.name, release.value.name, variants.value[0]?.variant_name]
+    .filter(Boolean)
+    .join(' - '),
 )
+
+const reviewLoaded = ref(false)
 
 onMounted(async () => {
   if (props.mode === 'review') {
-    await load()
-    active.value = 1
+    try {
+      await load()
+      // Land on the highest level that is still under review; a published
+      // keyboard and release leave just the variant.
+      active.value = keyboardUnderReview.value
+        ? 1
+        : releaseUnderReview.value
+          ? 2
+          : 3
+      reviewLoaded.value = true
+    } catch (error) {
+      toast.add(handleError(error, { showOriginalMessage: true }))
+    }
     return
   }
 
@@ -478,28 +432,32 @@ const onSubmit = async () => {
   }
 }
 
-const validateAllSteps = () => {
-  for (let i = 0; i < items.value.length; i++) {
-    if (!validateStep(i)) return false
-  }
-
-  return true
-}
-
 const savingAction = ref(null)
 const deleteVisible = ref(false)
 
 const onReviewAction = async (action) => {
-  if ((action === 'update' || action === 'approve') && !validateAllSteps()) {
-    return
+  if (!reviewLoaded.value || savingAction.value) return
+
+  for (let i = 1; i < items.value.length; i++) {
+    if (!validateStep(i)) return
   }
 
   savingAction.value = action
 
   try {
     await save(action)
-    toast.add(handleSuccess('save', keyboard.value.name, 'Keyboard'))
-    emit('onSuccess')
+
+    toast.add(
+      handleSuccess(
+        action === 'approve' ? 'approve' : 'save',
+        variantLabel.value,
+        'Variant',
+      ),
+    )
+    // A submitter's edit sends a rejected variant back to the Pending queue.
+    emit('onSuccess', {
+      resubmitted: !userStore.isModerator && reviewStatus.value === 'Rejected',
+    })
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
@@ -507,15 +465,16 @@ const onReviewAction = async (action) => {
   }
 }
 
-const onDeleteConfirm = async (close) => {
+const onDeleteConfirm = async () => {
+  if (savingAction.value) return
+
   savingAction.value = 'delete'
 
   try {
     await remove()
 
-    toast.add(handleSuccess('delete', keyboard.value.name))
+    toast.add(handleSuccess('delete', variantLabel.value, 'Variant'))
     deleteVisible.value = false
-    close()
     emit('onDelete')
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
