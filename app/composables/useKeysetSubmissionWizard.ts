@@ -1,6 +1,11 @@
-import { parseDate } from '@internationalized/date'
+import { parseDate, type CalendarDate } from '@internationalized/date'
+import type { Tables } from '~/types/database.types'
 import { createKeysetSchema, keysetKitSchema } from '~/utils/schemas/keyset'
 import { entitySelectionSchema } from '~/utils/schemas/common'
+
+type KeysetsResponse = {
+  keysets: Pick<Tables<'keysets'>, 'name' | 'profile_keyset_id'>[]
+}
 
 // Drives the public "submit a keyset" wizard: pick a profile, pick/create a keyset,
 // then create the kit. Reuses existing single-entity APIs; creating a new keyset
@@ -146,10 +151,10 @@ export const useKeysetSubmissionWizard = ({
       payload.ic_date = toISODate(payload.ic_date)
     }
     if (dateRange.value.start) {
-      payload.start_date = toISODate(dateRange.value.start)
+      payload.start_date = toISODate(dateRange.value.start as CalendarDate)
     }
     if (dateRange.value.end) {
-      payload.end_date = toISODate(dateRange.value.end)
+      payload.end_date = toISODate(dateRange.value.end as CalendarDate)
     }
 
     return $fetch(`/api/submissions/keyset/${submissionId}`, {
@@ -165,26 +170,33 @@ export const useKeysetSubmissionWizard = ({
 
   const uploading = ref(false)
 
-  const { data: keysetsData, status: keysetsStatus } = useAsyncData<any>(
-    () => `keyset-submission-keysets-${profile.value.id}`,
-    () =>
-      (profile.value.id
-        ? $fetch('/api/keysets', {
-            query: { profile_id: profile.value.id, page: 1, size: 100 },
-          })
-        : null) as Promise<any>,
-    { watch: [() => profile.value.id], default: () => null },
-  )
+  const { data: keysetsData, status: keysetsStatus } =
+    useAsyncData<KeysetsResponse | null>(
+      () => `keyset-submission-keysets-${profile.value.id}`,
+      async () =>
+        profile.value.id
+          ? await $fetch<KeysetsResponse>('/api/keysets', {
+              query: { profile_id: profile.value.id, page: 1, size: 100 },
+            })
+          : null,
+      { watch: [() => profile.value.id], default: () => null },
+    )
 
   const keysetOptions = computed(() =>
-    (keysetsData.value?.data || []).map((k: any) => ({
+    (keysetsData.value?.keysets || []).map((k) => ({
       label: k.name,
       value: k.profile_keyset_id,
     })),
   )
 
   watch([keysetOptions, keysetsStatus], ([options, status]) => {
-    if (status !== 'pending' && profile.value.id && !options.length) {
+    if (
+      !isReview &&
+      status === 'success' &&
+      profile.value.id &&
+      !existingKeyset.value.id &&
+      !options.length
+    ) {
       keysetMode.value = 'new'
     }
   })
@@ -258,10 +270,10 @@ export const useKeysetSubmissionWizard = ({
           payload.ic_date = toISODate(payload.ic_date)
         }
         if (dateRange.value.start) {
-          payload.start_date = toISODate(dateRange.value.start)
+          payload.start_date = toISODate(dateRange.value.start as CalendarDate)
         }
         if (dateRange.value.end) {
-          payload.end_date = toISODate(dateRange.value.end)
+          payload.end_date = toISODate(dateRange.value.end as CalendarDate)
         }
 
         const created: any = await $fetch('/api/submissions/keyset', {

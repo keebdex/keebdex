@@ -241,6 +241,7 @@
         class="flex flex-wrap items-center justify-end gap-2"
       >
         <UButton
+          v-if="!userStore.isModerator"
           label="Save Changes"
           color="primary"
           :loading="savingAction === 'update'"
@@ -249,7 +250,7 @@
 
         <template v-if="userStore.isModerator">
           <UButton
-            label="Approve"
+            label="Save & Approve"
             color="success"
             icon="hugeicons:checkmark-circle-02"
             :loading="savingAction === 'approve'"
