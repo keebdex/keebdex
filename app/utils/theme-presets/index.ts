@@ -1,4 +1,4 @@
-import defaultTheme from './default'
+import aurora from './aurora'
 import taro from './taro'
 import carbon from './carbon'
 import eva01 from './eva-01'
@@ -8,9 +8,9 @@ export type { ThemePreset } from './types'
 export { presetToCss } from './types'
 
 export const THEME_COOKIE = 'app-theme'
-export const DEFAULT_THEME_ID = 'default'
+export const DEFAULT_THEME_ID = 'aurora'
 
-export const themePresets = [defaultTheme, carbon, eva01, parchment, taro]
+export const themePresets = [aurora, carbon, eva01, parchment, taro]
 
 export function findPreset(id?: string | null) {
   return (

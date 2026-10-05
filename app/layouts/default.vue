@@ -273,8 +273,8 @@ const links = computed(() => [
       active: route.path === '/about',
     },
     {
-      label: 'Updates',
-      icon: 'hugeicons:megaphone-02',
+      label: 'Changelog',
+      icon: 'hugeicons:scroll-text',
       to: '/changelog',
       active: route.path === '/changelog',
     },

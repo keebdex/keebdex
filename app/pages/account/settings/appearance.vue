@@ -152,18 +152,10 @@ function paletteColor(
   alias: 'primary' | 'neutral',
   shade: number,
 ) {
-  const paletteName = preset.ui.colors?.[alias] || appConfig.ui.colors?.[alias]
-  const customColor = paletteName
-    ? preset.css.root?.[`--color-${paletteName}-${shade}`]
-    : undefined
+  const paletteName = preset.ui?.colors?.[alias] || appConfig.ui.colors?.[alias]
+  const key = `--color-${paletteName}-${shade}`
 
-  if (customColor) return customColor
-
-  const paletteColor = paletteName
-    ? `var(--color-${paletteName}-${shade}, `
-    : ''
-
-  return `${paletteColor}var(--ui-color-${alias}-${shade})${paletteName ? ')' : ''}`
+  return preset.css?.root?.[key] ?? `var(${key})`
 }
 
 function previewStyle(preset: ThemePreset, mode: 'light' | 'dark') {
