@@ -42,6 +42,7 @@
           label="Click to browse or drag & drop an image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
           :ui="{ base: 'aspect-video' }"
+          :disabled="uploadingImage"
         />
       </div>
     </UFormField>
@@ -82,6 +83,7 @@
       color="primary"
       type="submit"
       loading-auto
+      :disabled="uploadingImage || imageUploadFailed"
     >
       Save
     </UButton>
@@ -91,7 +93,11 @@
 <script setup>
 import { keysetKitSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits(['onSuccess', 'update:modelValue'])
+const emit = defineEmits([
+  'onSuccess',
+  'update:modelValue',
+  'update:uploading',
+])
 
 const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
@@ -123,6 +129,8 @@ const kit = ref({
 })
 
 const uploadedFile = ref(null)
+const uploadingImage = ref(false)
+const imageUploadFailed = ref(false)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 
 onBeforeMount(() => {
@@ -146,20 +154,37 @@ watch(
   { deep: true },
 )
 
-const onSubmit = async () => {
-  if (mode !== 'standalone') return
+watch(uploadedFile, async (file) => {
+  if (!file) return
 
-  if (uploadedFile.value) {
-    try {
-      kit.value.img = await uploadImageToCloudflare({
-        file: uploadedFile.value,
-        assignment: kit.value.profile_keyset_id,
-        category: 'keyset',
-      })
-    } catch (e) {
-      toast.add(handleError(e))
-      return
-    }
+  imageUploadFailed.value = false
+  uploadingImage.value = true
+  emit('update:uploading', true)
+
+  try {
+    kit.value.img = await uploadImageToCloudflare({
+      file,
+      assignment:
+        kit.value.profile_keyset_id ||
+        `${route.params.profile || 'pending'}/pending-${Date.now()}`,
+      category: 'keyset',
+    })
+  } catch (error) {
+    toast.add(handleError(error))
+    imageUploadFailed.value = true
+  } finally {
+    uploadingImage.value = false
+    emit('update:uploading', imageUploadFailed.value)
+  }
+})
+
+const onSubmit = async () => {
+  if (
+    mode !== 'standalone' ||
+    uploadingImage.value ||
+    imageUploadFailed.value
+  ) {
+    return
   }
 
   await $fetch(`/api/keysets/${kit.value.profile_keyset_id}/kits`, {

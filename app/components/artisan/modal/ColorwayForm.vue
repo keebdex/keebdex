@@ -86,6 +86,7 @@
           label="Click to browse or drag & drop an image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
           :ui="{ base: 'aspect-video' }"
+          :disabled="uploadingImage"
         />
       </div>
     </UFormField>
@@ -103,7 +104,8 @@
       block
       color="primary"
       type="submit"
-      :loading="uploading"
+      :loading="uploading || uploadingImage"
+      :disabled="uploadingImage || imageUploadFailed"
     >
       {{ moderator || colorway.id ? 'Save' : 'Submit for Review' }}
     </UButton>
@@ -118,7 +120,11 @@ import {
   colorwaySchema,
 } from '~/utils/schemas/artisan'
 
-const emit = defineEmits(['onSuccess', 'update:modelValue'])
+const emit = defineEmits([
+  'onSuccess',
+  'update:modelValue',
+  'update:uploading',
+])
 
 const props = defineProps({
   metadata: {
@@ -194,6 +200,8 @@ const colorway = ref(defaultColorway())
 
 const maxUploadSizeMb = getMaxUploadSizeMb('artisan')
 const uploading = ref(false)
+const uploadingImage = ref(false)
+const imageUploadFailed = ref(false)
 const uploadedFile = ref(null)
 
 // Fields sourced from the Google Doc sync; editing them locally overrides the sync
@@ -230,7 +238,9 @@ watch(
 watch(uploadedFile, async (file) => {
   if (!file) return
 
-  uploading.value = true
+  imageUploadFailed.value = false
+  uploadingImage.value = true
+  emit('update:uploading', true)
 
   try {
     colorway.value.img = await uploadImageToCloudflare({
@@ -240,8 +250,10 @@ watch(uploadedFile, async (file) => {
     })
   } catch (e) {
     toast.add(handleError(e))
+    imageUploadFailed.value = true
   } finally {
-    uploading.value = false
+    uploadingImage.value = false
+    emit('update:uploading', imageUploadFailed.value)
   }
 })
 
@@ -254,7 +266,13 @@ watch(
 )
 
 const onSubmit = async () => {
-  if (!isStandalone.value) return
+  if (
+    !isStandalone.value ||
+    uploadingImage.value ||
+    imageUploadFailed.value
+  ) {
+    return
+  }
 
   try {
     uploading.value = true

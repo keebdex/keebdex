@@ -144,6 +144,7 @@
           layout="grid"
           label="Click to browse or drag & drop an image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
+          :disabled="isUploadingImage"
           :ui="{
             base: 'aspect-video',
           }"
@@ -170,6 +171,7 @@
           layout="grid"
           label="Click to browse or drag & drop a back image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
+          :disabled="isUploadingImage"
           :ui="{
             base: 'aspect-video',
           }"
@@ -190,7 +192,8 @@
       block
       color="primary"
       type="submit"
-      :loading="uploading"
+      :loading="saving || isUploadingImage"
+      :disabled="isUploadingImage || hasFailedImage"
     >
       Save
     </UButton>
@@ -201,7 +204,11 @@
 import { Constants } from '~/types/database.types'
 import { keyboardVariantStandaloneSchema } from '~/utils/schemas/keyboard'
 
-const emit = defineEmits(['onSuccess', 'update:modelValue'])
+const emit = defineEmits([
+  'onSuccess',
+  'update:modelValue',
+  'update:uploading',
+])
 
 const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
   metadata: {
@@ -263,9 +270,19 @@ const variant = ref({
 })
 
 const maxUploadSizeMb = getMaxUploadSizeMb('keyboard')
-const uploading = ref(false)
+const saving = ref(false)
+const uploadingFileFront = ref(false)
+const uploadingFileBack = ref(false)
+const failedFileFront = ref(false)
+const failedFileBack = ref(false)
 const uploadedFileFront = ref(null)
 const uploadedFileBack = ref(null)
+const isUploadingImage = computed(
+  () => uploadingFileFront.value || uploadingFileBack.value,
+)
+const hasFailedImage = computed(
+  () => failedFileFront.value || failedFileBack.value,
+)
 const overrideReleaseSpecs = ref(false)
 
 const specsPerVariant = computed(() => {
@@ -356,8 +373,45 @@ const releaseOptions = computed(() => {
   }))
 })
 
+const uploadImage = async (file, field, uploadState) => {
+  if (!file) return
+
+  const failedState =
+    field === 'img_front' ? failedFileFront : failedFileBack
+  failedState.value = false
+  uploadState.value = true
+  emit('update:uploading', true)
+
+  try {
+    variant.value[field] = await uploadImageToCloudflare({
+      file,
+      assignment: String(keyboard.brand_slug || ''),
+      category: 'keyboard',
+    })
+  } catch (error) {
+    toast.add(handleError(error, { showOriginalMessage: true }))
+    failedState.value = true
+  } finally {
+    uploadState.value = false
+    emit('update:uploading', isUploadingImage.value || hasFailedImage.value)
+  }
+}
+
+watch(uploadedFileFront, (file) =>
+  uploadImage(file, 'img_front', uploadingFileFront),
+)
+watch(uploadedFileBack, (file) =>
+  uploadImage(file, 'img_back', uploadingFileBack),
+)
+
 const onSubmit = async () => {
-  if (mode !== 'standalone') return
+  if (
+    mode !== 'standalone' ||
+    isUploadingImage.value ||
+    hasFailedImage.value
+  ) {
+    return
+  }
 
   if (!keyboard.brand_keyboard_slug) {
     toast.add(
@@ -370,7 +424,7 @@ const onSubmit = async () => {
   }
 
   try {
-    uploading.value = true
+    saving.value = true
 
     const payload = {
       ...variant.value,
@@ -381,22 +435,6 @@ const onSubmit = async () => {
       payload.pcb_types = null
       payload.plate_materials = null
       payload.weight_materials = null
-    }
-
-    if (uploadedFileFront.value) {
-      payload.img_front = await uploadImageToCloudflare({
-        file: uploadedFileFront.value,
-        assignment: String(keyboard.brand_slug || ''),
-        category: 'keyboard',
-      })
-    }
-
-    if (uploadedFileBack.value) {
-      payload.img_back = await uploadImageToCloudflare({
-        file: uploadedFileBack.value,
-        assignment: String(keyboard.brand_slug || ''),
-        category: 'keyboard',
-      })
     }
 
     const data = await $fetch(
@@ -420,7 +458,7 @@ const onSubmit = async () => {
   } catch (error) {
     toast.add(handleError(error, { showOriginalMessage: true }))
   } finally {
-    uploading.value = false
+    saving.value = false
   }
 }
 </script>

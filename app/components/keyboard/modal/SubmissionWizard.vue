@@ -175,6 +175,12 @@
               v-model="variants[index]"
               :keyboard="keyboardForVariantForm"
               mode="embedded"
+              @update:uploading="
+                setImageUploading(
+                  `variant-${variants[index]._key ?? variants[index].id ?? index}`,
+                  $event,
+                )
+              "
             />
           </div>
 
@@ -216,7 +222,7 @@
           label="Save Changes"
           color="primary"
           :loading="savingAction === 'update'"
-          :disabled="!reviewLoaded || !!savingAction"
+          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
           @click="onReviewAction('update')"
         />
 
@@ -226,7 +232,7 @@
           color="success"
           icon="hugeicons:checkmark-circle-02"
           :loading="savingAction === 'approve'"
-          :disabled="!reviewLoaded || !!savingAction"
+          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
           @click="onReviewAction('approve')"
         />
 
@@ -236,7 +242,7 @@
           color="error"
           variant="soft"
           icon="hugeicons:delete-02"
-          :disabled="!reviewLoaded || !!savingAction"
+          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
           @click="deleteVisible = true"
         />
       </div>
@@ -246,6 +252,7 @@
         label="Submit Variants"
         color="primary"
         :loading="uploading"
+        :disabled="hasUploadingImages"
         @click="onSubmit"
       />
     </div>
@@ -328,6 +335,13 @@ const {
   mode: props.mode,
   submission: props.submission,
 })
+
+const uploadingImageKeys = reactive(new Set())
+const hasUploadingImages = computed(() => uploadingImageKeys.size > 0)
+const setImageUploading = (key, isUploading) => {
+  if (isUploading) uploadingImageKeys.add(key)
+  else uploadingImageKeys.delete(key)
+}
 
 const selectedBrandLabel = computed(
   () => brandOptions.value.find((o) => o.value === brand.value.id)?.label,
@@ -422,7 +436,7 @@ const onNext = () => {
 }
 
 const onSubmit = async () => {
-  if (!validateStep(3)) return
+  if (hasUploadingImages.value || !validateStep(3)) return
 
   try {
     await submit()
@@ -436,7 +450,13 @@ const savingAction = ref(null)
 const deleteVisible = ref(false)
 
 const onReviewAction = async (action) => {
-  if (!reviewLoaded.value || savingAction.value) return
+  if (
+    !reviewLoaded.value ||
+    savingAction.value ||
+    hasUploadingImages.value
+  ) {
+    return
+  }
 
   for (let i = 1; i < items.value.length; i++) {
     if (!validateStep(i)) return

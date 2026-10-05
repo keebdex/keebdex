@@ -89,6 +89,7 @@
           label="Click to browse or drag & drop an image to upload"
           :description="`Maximum file size: ${maxUploadSizeMb}MB`"
           :ui="{ base: 'aspect-video' }"
+          :disabled="uploadingImage"
         />
       </div>
     </UFormField>
@@ -176,6 +177,7 @@
       color="primary"
       type="submit"
       loading-auto
+      :disabled="uploadingImage || imageUploadFailed"
     >
       Save
     </UButton>
@@ -188,7 +190,12 @@ import slugify from 'slugify'
 import { Constants } from '~/types/database.types'
 import { createKeysetSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:dateRange'])
+const emit = defineEmits([
+  'onSuccess',
+  'update:modelValue',
+  'update:dateRange',
+  'update:uploading',
+])
 
 const props = defineProps({
   metadata: {
@@ -259,6 +266,7 @@ const keyset = ref(defaultKeyset())
 const range = shallowRef({ start: undefined, end: undefined })
 const uploadedFile = ref(null)
 const uploadingImage = ref(false)
+const imageUploadFailed = ref(false)
 const maxUploadSizeMb = getMaxUploadSizeMb('keyset')
 
 onBeforeMount(() => {
@@ -332,11 +340,13 @@ watch(
 watch(uploadedFile, async (file) => {
   if (!file) return
 
+  imageUploadFailed.value = false
   const assignment =
     keyset.value.profile_keyset_id ||
     `${keyset.value.profile_id || 'pending'}/pending-${Date.now()}`
 
   uploadingImage.value = true
+  emit('update:uploading', true)
 
   try {
     keyset.value.img = await uploadImageToCloudflare({
@@ -346,13 +356,21 @@ watch(uploadedFile, async (file) => {
     })
   } catch (e) {
     toast.add(handleError(e))
+    imageUploadFailed.value = true
   } finally {
     uploadingImage.value = false
+    emit('update:uploading', imageUploadFailed.value)
   }
 })
 
 const onSubmit = async () => {
-  if (!isStandalone.value) return
+  if (
+    !isStandalone.value ||
+    uploadingImage.value ||
+    imageUploadFailed.value
+  ) {
+    return
+  }
 
   const slug = slugify(keyset.value.name, { lower: true })
   keyset.value.profile_keyset_id = `${keyset.value.profile_id}/${slug}`

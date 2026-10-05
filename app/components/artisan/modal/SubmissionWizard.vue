@@ -96,6 +96,9 @@
               v-model="colorways[index]"
               :maker-id="maker.id"
               mode="embedded"
+              @update:uploading="
+                setImageUploading(String(colorway._key ?? index), $event)
+              "
             />
           </div>
 
@@ -137,7 +140,7 @@
           label="Save Changes"
           color="primary"
           :loading="savingAction === 'update'"
-          :disabled="!reviewLoaded || !!savingAction"
+          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
           @click="onReviewAction('update')"
         />
         <UButton
@@ -146,7 +149,7 @@
           color="success"
           icon="hugeicons:checkmark-circle-02"
           :loading="savingAction === 'approve'"
-          :disabled="!reviewLoaded || !!savingAction"
+          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
           @click="onReviewAction('approve')"
         />
         <UButton
@@ -155,7 +158,7 @@
           color="error"
           variant="soft"
           icon="hugeicons:delete-02"
-          :disabled="!reviewLoaded || !!savingAction"
+          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
           @click="deleteVisible = true"
         />
       </div>
@@ -164,6 +167,7 @@
         label="Submit Colorway"
         color="primary"
         :loading="uploading"
+        :disabled="hasUploadingImages"
         @click="onSubmit"
       />
     </div>
@@ -233,6 +237,13 @@ const {
   submission: props.submission,
 })
 
+const uploadingImageKeys = reactive(new Set())
+const hasUploadingImages = computed(() => uploadingImageKeys.size > 0)
+const setImageUploading = (key, isUploading) => {
+  if (isUploading) uploadingImageKeys.add(key)
+  else uploadingImageKeys.delete(key)
+}
+
 const selectedMakerLabel = computed(
   () => makerOptions.value.find((o) => o.value === maker.value.id)?.label,
 )
@@ -294,7 +305,13 @@ const savingAction = ref(null)
 const deleteVisible = ref(false)
 
 const onReviewAction = async (action) => {
-  if (!reviewLoaded.value || savingAction.value) return
+  if (
+    !reviewLoaded.value ||
+    savingAction.value ||
+    hasUploadingImages.value
+  ) {
+    return
+  }
   if (!validateStep(1) || !validateStep(2)) return
 
   savingAction.value = action
@@ -339,7 +356,7 @@ const onDeleteConfirm = async () => {
 }
 
 const onSubmit = async () => {
-  if (!validateStep(2)) return
+  if (hasUploadingImages.value || !validateStep(2)) return
 
   try {
     await submit()

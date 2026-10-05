@@ -41,7 +41,7 @@ export default defineNuxtConfig({
     families: [
       { name: 'Reddit Sans', global: true },
       { name: 'Reddit Mono', global: true },
-      { name: 'Dosis', weights: [700, 800], global: true },
+      { name: 'Dosis', weights: [500, 700, 800], global: true },
       { name: 'Cinzel', global: true },
       { name: 'Outfit', global: true },
       { name: 'Source Serif 4', global: true },
