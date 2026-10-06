@@ -58,6 +58,10 @@ export default defineNuxtConfig({
     redirect: false,
   },
 
+  colorMode: {
+    storage: 'cookie',
+  },
+
   buildId: `v${app.version} (${revision})`,
 
   runtimeConfig: {

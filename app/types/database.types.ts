@@ -1146,6 +1146,7 @@ export type Database = {
       }
       users: {
         Row: {
+          appearance: Json
           assignments: string[] | null
           discord: string | null
           email: string
@@ -1157,6 +1158,7 @@ export type Database = {
           role: string | null
         }
         Insert: {
+          appearance?: Json
           assignments?: string[] | null
           discord?: string | null
           email: string
@@ -1168,6 +1170,7 @@ export type Database = {
           role?: string | null
         }
         Update: {
+          appearance?: Json
           assignments?: string[] | null
           discord?: string | null
           email?: string

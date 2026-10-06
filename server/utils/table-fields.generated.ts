@@ -272,6 +272,7 @@ export const TABLE_FIELDS = {
     "uid"
   ],
   "users": [
+    "appearance",
     "assignments",
     "discord",
     "email",
