@@ -27,11 +27,7 @@ export function useSyncAppearance() {
 
     const resolvedTheme = themeId.value
     const resolvedColorMode = colorMode.preference
-    if (
-      !hasTheme ||
-      theme !== resolvedTheme ||
-      !hasColorMode
-    ) {
+    if (!hasTheme || theme !== resolvedTheme || !hasColorMode) {
       userStore.saveAppearance({
         theme: resolvedTheme,
         colorMode: resolvedColorMode,

@@ -2,39 +2,28 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    })
-  }
-
   const id = event.context.params?.id
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Missing user id',
-    })
-  }
-
-  if (user.sub !== id) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Forbidden',
-    })
-  }
+  if (!user)
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+  if (!id)
+    throw createError({ statusCode: 400, statusMessage: 'Missing user id' })
+  if (user.sub !== id)
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
   const body = await readBody(event)
-  if (
-    body &&
-    typeof body === 'object' &&
-    !Array.isArray(body) &&
-    ('role' in body || 'assignments' in body)
-  ) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Role and assignments can only be changed by admins',
-    })
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    if ('role' in body || 'assignments' in body) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Role and assignments can only be changed by admins',
+      })
+    }
+    if ('appearance' in body) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Use the appearance endpoint to update appearance',
+      })
+    }
   }
 
   const client = await serverSupabaseClient(event)
