@@ -26,14 +26,17 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `app/middleware/`: route guards such as authentication and admin access.
 - `app/types/database.types.ts`: generated Supabase database types; treat this as generated source and do not edit it manually.
 - `app/utils/`: client-side helpers and utilities.
-- `app/utils/theme-presets/`: theme preset system with registry, type definitions, and preset configs (default, carbon, parchment).
+- `app/utils/theme-presets/`: theme preset system with registry, type definitions, and preset configs (see `index.ts` for the registered presets).
 - `app/composables/useAppTheme.ts`: reactive theme management with cookie persistence.
+- `app/composables/useSyncAppearance.ts`: synchronizes the signed-in user's appearance preferences with the profile API and refreshes them when the tab becomes visible.
 - `app/plugins/theme.ts`: runtime theme application engine; merges preset UI config into `appConfig`, generates CSS, and handles font variables.
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
 - `server/utils/`: server-side database, authorization, grouping, and response helpers.
 - `scripts/`: repository maintenance scripts, including table-field metadata generation.
 - `supabase/`: Supabase project configuration and database-related files (gitignored; not tracked in this repo).
 - `public/`: static assets.
+- `.ai/plan/`: task plan files (Markdown) written for agents; see "Plans, PR Notes, and Keeping Instructions Current".
+- `.ai/pr/`: pull request notes (title and summary), one file per executed plan.
 
 Preserve Nuxt file-based routing paths when moving or renaming pages and API handlers.
 
@@ -55,7 +58,9 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - The CSS shape supports `root`, `html`, `body`, and `headings` blocks plus `light`/`dark` mode variants. The `presetToCss()` function serializes these into inline style blocks injected at runtime via the theme plugin.
 - `useAppTheme()` composable persists the selected theme to a cookie (`app-theme`) and provides `themeId`, `preset`, `presets`, and `setTheme(id)` for reactive switching.
 - The theme plugin (`app/plugins/theme.ts`) watches the preset and applies its UI overrides to `appConfig`, merging font/color/variant defaults while preserving the app's base icon pack and component config. Font variables from the preset are applied as CSS custom properties and referenced by Nuxt Fonts configuration.
-- Theme switching does not reload the page; all state is client-side and persisted across sessions via cookie.
+- `useAppTheme()` resolves ids through `findPreset()`, so an unknown or removed id falls back to `DEFAULT_THEME_ID`. Apply themes only through `setTheme(id)`; both the Appearance settings tab and the profile menu (`ProfileMenu.vue`) switch themes with `setTheme` and color mode with `useColorMode().preference` (`system | light | dark`), so new theme or color-mode behavior should hook into those two values rather than into each component.
+- Theme switching does not reload the page; the selected theme is persisted in the `app-theme` cookie. Color mode uses `useColorMode().preference` and is persisted in a cookie through `colorMode.storage`.
+- Signed-in appearance preferences are stored in `public.users.appearance` as a JSON object with optional `theme` and `colorMode` keys. `app.vue` invokes `useSyncAppearance()` once; it applies server values after `GET /api/users/:id`, seeds the server from local preferences when empty, and refreshes on tab visibility. Changes are saved by `userStore.saveAppearance()` through `PATCH /api/users/:id/appearance` with a 500 ms debounce. The endpoint validates both fields and merges into the existing JSON object. Store `system` as the preference, not a resolved light/dark value.
 - When adding a new preset: create a `.ts` file in `theme-presets/`, export a `ThemePreset` satisfying the interface, register it in `index.ts`, and ensure `presetToCss()` generates valid CSS for all your root/headings/light/dark blocks.
 
 ## Form Architecture
@@ -87,6 +92,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 
 - Define API handlers with `defineEventHandler` and use H3 helpers such as `getQuery`, `readBody`, and `createError` consistently with nearby code.
 - Obtain the server Supabase client with `serverSupabaseClient(event)` and the authenticated user with `serverSupabaseUser(event)`.
+- `GET /api/users/:id` selects the profile row, including `appearance`. `PATCH /api/users/:id/appearance` is session-owner-only and accepts only registered theme ids and `system | light | dark`; it merges into the existing JSON value. The general `POST /api/users/:id` profile endpoint is also session-owner-only and must not accept `role` or `assignments`; admin changes use the separate admin endpoint.
 - Use `requireAdminClient(event)` for admin-only server-side operations. For staff operations scoped to a specific assignment (editor/maker restricted to their assigned pages), use `getActorProfile(event)` plus `canManageAssignment`/`canManageAnyAssignment` from `~/utils/permissions` (also re-exported as `canModerateAssignment` in `server/utils/admin.ts`) instead of duplicating role checks.
 - Preserve the existing middleware checks for protected pages (`app/middleware/admin.ts` for admin-only routes). For staff-but-not-admin pages, follow the existing pattern of a client-side guard (`<SharedRedirectPage v-if="!canX" to="..." />`) backed by a Pinia getter, rather than adding new route middleware.
 - For insert, update, or patch payloads, use `pickTableFields(table, body)` from `server/utils/database.ts`. It validates that the body is an object and whitelists fields from generated metadata.
@@ -157,7 +163,7 @@ Keep database relationships and table names aligned with the generated `Database
 
 ## State and Auth
 
-Use the existing Pinia user store and composables before adding new global state. Role/assignment rules (`admin`, `editor`, `maker`, `designer`) are centralized in `app/utils/permissions.ts` (`canManageAssignment`, `canManageAnyAssignment`) and reused by both the client (`userStore.isEditable()`, `userStore.isModerator`) and server (`server/utils/admin.ts`). Do not reimplement role branching inline; extend or call the shared utility instead. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned. Form components that need to know whether the current user is staff should read `useUserStore().isModerator` directly instead of accepting a `moderator` prop threaded down from the page — the prop is redundant since every call site already sourced it from the same store, and skipping it removes a layer of prop-drilling.
+Use the existing Pinia user store and composables before adding new global state. The user store (`app/stores/user.js`, plain JavaScript) holds `user`, `role`, `assignments`, `collections`, `favorites`, `social`, and `appearance`; `setCurrentUser()` runs after sign-in and `fetchUserPreferences(uid)` loads the profile row from `GET /api/users/:uid` (including appearance). `appearanceLoaded` distinguishes an empty server value from preferences that have not loaded; `saveAppearance(patch)` updates state immediately and debounces persistence by 500 ms. Sign-out calls `userStore.$reset()`; theme and color-mode cookies remain untouched. `app/composables/useSyncAppearance.ts` is invoked once from `app/app.vue` and owns server-to-client application, local seeding, change watching, and tab-focus refresh. Role/assignment rules (`admin`, `editor`, `maker`, `designer`) are centralized in `app/utils/permissions.ts` (`canManageAssignment`, `canManageAnyAssignment`) and reused by both the client (`userStore.isEditable()`, `userStore.isModerator`) and server (`server/utils/admin.ts`). Do not reimplement role branching inline; extend or call the shared utility instead. Keep `app/middleware/auth.ts`, `app/middleware/admin.ts`, and server-side authorization checks aligned. Form components that need to know whether the current user is staff should read `useUserStore().isModerator` directly instead of accepting a `moderator` prop threaded down from the page — the prop is redundant since every call site already sourced it from the same store, and skipping it removes a layer of prop-drilling.
 
 Site-wide announcements/notices (cookie consent, feature announcements, guides) use persistent toasts added in `app/layouts/default.vue`'s `onMounted`, not a banner component: gate each with its own `useCookie(...)`, set `duration: 0` and `close: false`, and only mark the cookie as acknowledged inside an action's `onClick` so the toast keeps reappearing until the user explicitly dismisses it.
 
@@ -172,4 +178,23 @@ Site-wide announcements/notices (cookie consent, feature announcements, guides) 
 
 ## Git and Documentation
 
-Commit messages follow Conventional Commits through commitlint. Fold the `[Unreleased]` entries into a new dated version section in `CHANGELOG.md` along with the release notes when cutting a release. Do not create commits or branches unless explicitly requested.
+Commit messages follow Conventional Commits through commitlint. Fold the `[Unreleased]` entries into a new dated version section in `CHANGELOG.md` along with the release notes when cutting a release. Do not create commits, branches, or pull requests unless explicitly requested; writing the PR notes file described below is not a commit.
+
+## Plans, PR Notes, and Keeping Instructions Current
+
+- Task plans live in `.ai/plan/`, one Markdown file per task. Read this file and the relevant plan before starting, follow the plan steps in order, and tick each completed step.
+- Whenever you execute a plan file, also create (or update) a PR notes file at `.ai/pr/<plan-file-name>.md` with the pull request title and summary:
+
+  ```md
+  # <PR title>
+
+  ## Summary
+
+  <what changed and why, notable decisions, manual steps for the user (e.g. migrations to apply), and the checks that were actually run>
+  ```
+
+  Write the title in Conventional Commits style. Do not claim tests, lint, or builds passed unless they were run. Keep the PR notes in sync if the work deviates from the plan.
+
+- After finishing a task, update this file so it reflects the latest state of the code (schema, endpoints, stores, composables, file paths, conventions). Fix anything outdated or conflicting instead of appending contradictory notes.
+- Also update the plan file: tick completed steps and record deviations in its notes section.
+- This file is written in English and stays in English.

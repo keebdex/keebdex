@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import sortBy from 'lodash.sortby'
 import { defineStore } from 'pinia'
 import { canManageAnyAssignment, canManageAssignment } from '~/utils/permissions'
@@ -10,6 +11,9 @@ export const useUserStore = defineStore('user', {
     collections: [],
     favorites: [],
     social: {},
+    appearance: {},
+    appearanceLoaded: false,
+    appearanceSaveTimer: null,
   }),
   getters: {
     authenticated: (state) => state.user && state.user.email_verified,
@@ -18,6 +22,11 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     setCurrentUser(authUser) {
+      if (this.appearanceSaveTimer) {
+        clearTimeout(this.appearanceSaveTimer)
+        this.appearanceSaveTimer = null
+      }
+
       const {
         app_metadata: { providers },
         id: uid,
@@ -34,6 +43,9 @@ export const useUserStore = defineStore('user', {
         providers,
       }
 
+      this.appearance = {}
+      this.appearanceLoaded = false
+
       const discord = identities.find((i) => i.provider === 'discord')
       if (discord) {
         this.social.discord = discord.name
@@ -46,10 +58,14 @@ export const useUserStore = defineStore('user', {
       try {
         const { data } = await $fetch(`/api/users/${uid}`)
 
+        if (this.user.uid !== uid) return
+
         if (!data) {
           this.favorites = []
           this.role = null
           this.assignments = []
+          this.appearance = {}
+          this.appearanceLoaded = true
           return
         }
 
@@ -63,9 +79,45 @@ export const useUserStore = defineStore('user', {
 
         this.role = data.role
         this.assignments = data.assignments
+        this.appearance =
+          data.appearance &&
+            typeof data.appearance === 'object' &&
+            !Array.isArray(data.appearance)
+            ? data.appearance
+            : {}
+        this.appearanceLoaded = true
       } catch (error) {
         console.error('fetch user error', uid, error)
       }
+    },
+    saveAppearance(patch) {
+      this.appearance = {
+        ...this.appearance,
+        ...patch,
+      }
+
+      if (!this.user.uid) return
+
+      if (this.appearanceSaveTimer) {
+        clearTimeout(this.appearanceSaveTimer)
+      }
+
+      this.appearanceSaveTimer = setTimeout(async () => {
+        this.appearanceSaveTimer = null
+        if (!this.user.uid || !this.appearanceLoaded) return
+
+        try {
+          await $fetch(`/api/users/${this.user.uid}/appearance`, {
+            method: 'patch',
+            body: {
+              theme: this.appearance.theme,
+              colorMode: this.appearance.colorMode,
+            },
+          })
+        } catch (error) {
+          console.error('save appearance error', this.user.uid, error)
+        }
+      }, 500)
     },
     async fetchUserCollections(uid) {
       try {

@@ -14,6 +14,8 @@ import 'flag-icons/css/flag-icons.min.css'
 const config = useRuntimeConfig()
 const userStore = useUserStore()
 
+useSyncAppearance()
+
 const client = useSupabaseClient()
 
 client.auth.getUser().then(({ data }) => {
