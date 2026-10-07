@@ -355,9 +355,6 @@ onMounted(() => {
           onClick: () => {
             cookieConsent.value = 'accepted'
           },
-          ui: {
-            label: 'block',
-          },
         },
       ],
     })
@@ -380,9 +377,6 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenCommunitySubmissions),
-          ui: {
-            label: 'block',
-          },
         },
       ],
     })
@@ -415,9 +409,6 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenDiscordAnnouncement),
-          ui: {
-            label: 'block',
-          },
         },
       ],
     })
@@ -450,9 +441,6 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenCollectionGuide),
-          ui: {
-            label: 'block',
-          },
         },
       ],
     })
@@ -473,9 +461,6 @@ onMounted(() => {
           color: 'neutral',
           variant: 'ghost',
           onClick: () => acknowledge(seenThemeAnnouncement),
-          ui: {
-            label: 'block',
-          },
         },
       ],
     })

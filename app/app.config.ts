@@ -64,6 +64,15 @@ export default defineAppConfig({
         base: 'cursor-pointer',
         label: 'hidden md:block',
       },
+      compoundVariants: [
+        {
+          leading: false,
+          trailing: false,
+          class: {
+            label: 'block',
+          },
+        },
+      ],
       defaultVariants: {
         color: 'neutral',
         variant: 'soft',
