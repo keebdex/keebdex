@@ -121,9 +121,9 @@
           :key="colorway.colorway_id"
           :title="colorway.name"
           reverse
-          spotlight
+          :spotlight="!copying"
           :ui="{
-            root: 'h-full cursor-pointer flex flex-col',
+            root: 'colorway-card h-full cursor-pointer flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
           }"
           @click="openColorwayCard(colorway)"
@@ -137,8 +137,15 @@
             />
           </div>
 
-          <template #footer>
+          <template v-if="!copying" #footer>
             <div class="flex items-center gap-2" @click.stop>
+              <UTooltip text="Copy Card" :delay-duration="0">
+                <UButton
+                  icon="hugeicons:copy-02"
+                  @click="copyColorwayCard(colorway, $event)"
+                />
+              </UTooltip>
+
               <UModal v-if="editable" title="Edit Colorway">
                 <UTooltip text="Edit" :delay-duration="0">
                   <UButton
@@ -173,11 +180,13 @@
                 title="Delete"
                 :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
               >
-                <UButton
-                  v-if="user.email_verified"
-                  icon="hugeicons:file-remove"
-                  color="error"
-                />
+                <UTooltip text="Delete" :delay-duration="0">
+                  <UButton
+                    v-if="user.email_verified"
+                    icon="hugeicons:file-remove"
+                    color="error"
+                  />
+                </UTooltip>
 
                 <template #footer="{ close }">
                   <UButton label="Cancel" @click="close" />
@@ -189,6 +198,9 @@
                 </template>
               </UModal>
             </div>
+          </template>
+          <template v-else #footer>
+            <AppWordmark size="sm" />
           </template>
         </UPageCard>
       </UPageGrid>
@@ -401,6 +413,27 @@ const openColorwayCard = (colorway) => {
 
   if (colorwayCid.value !== colorway.colorway_id) {
     updateColorwayQuery(colorway.colorway_id)
+  }
+}
+
+const copying = ref(false)
+const copyColorwayCard = async (colorway, event) => {
+  copying.value = true
+
+  const card = event.currentTarget.closest('.colorway-card')
+
+  if (!card) {
+    toast.add(handleError(new Error('Colorway card element was not found')))
+    return
+  }
+
+  try {
+    await nextTick()
+    await copyScreenshot(card, toast)
+  } catch (error) {
+    toast.add(handleError(error))
+  } finally {
+    copying.value = false
   }
 }
 
