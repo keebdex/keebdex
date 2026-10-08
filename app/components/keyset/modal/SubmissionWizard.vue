@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <UStepper
       ref="stepper"
-      v-model="active"
+      v-model="wizard.active"
       :items="items"
       disabled
       class="w-full"
@@ -82,7 +82,7 @@
             v-model:date-range="dateRange"
             :is-edit="mode === 'review'"
             mode="embedded"
-            @update:uploading="setImageUploading('keyset', $event)"
+            @update:uploading="wizard.setImageUploading('keyset', $event)"
           />
         </div>
       </template>
@@ -97,128 +97,29 @@
             }}
           </p>
 
-          <div
-            v-for="(kit, index) in kits"
-            :key="kit._key"
-            class="space-y-4 rounded-lg border border-default p-4"
+          <SharedSubmissionItemList
+            :items="kits"
+            entity="Kit"
+            :editable="mode === 'create'"
+            :status="reviewStatus"
+            @add="addKit"
+            @remove="removeKit"
           >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <p class="text-xs font-medium text-dimmed">
-                  Kit #{{ index + 1 }}
-                </p>
-
-                <UBadge
-                  v-if="mode === 'review' && reviewStatus"
-                  :label="reviewStatus"
-                  variant="subtle"
-                  size="xs"
-                  :color="statusColorMap[reviewStatus] || 'neutral'"
-                />
-              </div>
-
-              <UButton
-                v-if="mode === 'create'"
-                aria-label="Remove kit"
-                size="xs"
-                color="error"
-                variant="ghost"
-                icon="hugeicons:delete-02"
-                :disabled="kits.length === 1"
-                @click="removeKit(index)"
+            <template #default="{ item, index }">
+              <KeysetModalKeysetKitForm
+                v-model="kits[index]"
+                mode="embedded"
+                @update:uploading="
+                  wizard.setImageUploading(`kit-${item._key}`, $event)
+                "
               />
-            </div>
-
-            <KeysetModalKeysetKitForm
-              v-model="kits[index]"
-              mode="embedded"
-              @update:uploading="
-                setImageUploading(`kit-${kits[index]._key ?? index}`, $event)
-              "
-            />
-          </div>
-
-          <UButton
-            v-if="mode === 'create'"
-            label="Add Kit"
-            size="xs"
-            variant="soft"
-            icon="hugeicons:plus-sign"
-            block
-            @click="addKit"
-          />
+            </template>
+          </SharedSubmissionItemList>
         </div>
       </template>
     </UStepper>
 
-    <div class="flex items-center justify-between gap-2">
-      <UButton
-        label="Back"
-        variant="soft"
-        :disabled="!stepper?.hasPrev"
-        @click="stepper?.prev()"
-      />
-
-      <UButton
-        v-if="stepper?.hasNext"
-        label="Next"
-        trailing-icon="hugeicons:arrow-right-02"
-        :disabled="!canAdvance[active] || (mode === 'review' && !reviewLoaded)"
-        @click="onNext"
-      />
-
-      <div
-        v-else-if="mode === 'review'"
-        class="flex flex-wrap items-center justify-end gap-2"
-      >
-        <UButton
-          v-if="canSave && !userStore.isModerator"
-          label="Save Changes"
-          color="primary"
-          :loading="savingAction === 'update'"
-          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
-          @click="onReviewAction('update')"
-        />
-
-        <UButton
-          v-if="userStore.isModerator"
-          label="Save & Approve"
-          color="success"
-          icon="hugeicons:checkmark-circle-02"
-          :loading="savingAction === 'approve'"
-          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
-          @click="onReviewAction('approve')"
-        />
-
-        <UButton
-          v-if="canDelete"
-          label="Delete"
-          color="error"
-          variant="soft"
-          icon="hugeicons:delete-02"
-          :disabled="!reviewLoaded || !!savingAction || hasUploadingImages"
-          @click="deleteVisible = true"
-        />
-      </div>
-
-      <UButton
-        v-else
-        label="Submit Kits"
-        color="primary"
-        :loading="uploading"
-        :disabled="hasUploadingImages"
-        @click="onSubmit"
-      />
-    </div>
-
-    <SharedConfirmModal
-      v-if="mode === 'review'"
-      v-model:open="deleteVisible"
-      title="Delete Kit"
-      :description="`Are you sure you want to delete ${kitLabel}? This action cannot be undone.`"
-      :loading="savingAction === 'delete'"
-      @confirm="onDeleteConfirm"
-    />
+    <SharedSubmissionWizardFooter :wizard="wizard" submit-label="Submit Kits" />
   </div>
 </template>
 
@@ -238,17 +139,17 @@ const props = defineProps({
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const toast = useToast()
-const userStore = useUserStore()
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
-
-const stepper = useTemplateRef('stepper')
-const active = ref(0)
 
 const keysetModeTabs = [
   { label: 'Choose Existing Keyset', value: 'existing' },
   { label: 'Propose New Keyset', value: 'new' },
 ]
+
+const submissionWizard = useKeysetSubmissionWizard({
+  mode: props.mode,
+  submission: props.submission,
+})
 
 const {
   profile,
@@ -263,54 +164,45 @@ const {
   removeKit,
   reviewStatus,
   keysetUnderReview,
-  canSave,
-  canDelete,
-  load,
-  save,
-  remove,
-  uploading,
-  canAdvance,
-  validateStep,
-  submit,
-} = useKeysetSubmissionWizard({
+} = submissionWizard
+
+const kitLabel = () =>
+  [keyset.value.name, kits.value[0]?.name || kits.value[0]?.kit_id]
+    .filter(Boolean)
+    .join(' - ')
+
+const wizard = useSubmissionWizardActions({
   mode: props.mode,
-  submission: props.submission,
+  entity: 'Kit',
+  label: kitLabel,
+  stepCount: 3,
+  // A published keyset isn't under review, so land on the kit itself.
+  reviewStep: () => (keysetUnderReview.value ? 1 : 2),
+  createStep: () => (profile.value.id && existingKeyset.value.id ? 2 : 0),
+  wizard: submissionWizard,
+  emit,
 })
-
-const uploadingImageKeys = reactive(new Set())
-const hasUploadingImages = computed(() => uploadingImageKeys.size > 0)
-const setImageUploading = (key, isUploading) => {
-  if (isUploading) uploadingImageKeys.add(key)
-  else uploadingImageKeys.delete(key)
-}
-
-const selectedProfileLabel = computed(
-  () => manufacturers.value[profile.value.id],
-)
 
 const selectedKeysetLabel = computed(
   () =>
     keysetOptions.value.find((o) => o.value === existingKeyset.value.id)?.label,
 )
 
-const selectedKeysetContextLabel = computed(() =>
-  props.mode === 'review' || keysetMode.value === 'new'
-    ? keyset.value.name
-    : selectedKeysetLabel.value,
-)
-
 const items = computed(() => [
   {
     slot: 'profile',
     title: 'Profile',
-    description: selectedProfileLabel.value,
+    description: manufacturers.value[profile.value.id],
     icon: 'hugeicons:grid-view',
   },
   {
     slot: 'keyset',
     title: 'Keyset',
     icon: 'hugeicons:keyboard',
-    description: selectedKeysetContextLabel.value,
+    description:
+      props.mode === 'review' || keysetMode.value === 'new'
+        ? keyset.value.name
+        : selectedKeysetLabel.value,
   },
   {
     slot: 'kit',
@@ -318,100 +210,4 @@ const items = computed(() => [
     icon: 'hugeicons:package',
   },
 ])
-
-const kitLabel = computed(() =>
-  [keyset.value.name, kits.value[0]?.name || kits.value[0]?.kit_id]
-    .filter(Boolean)
-    .join(' - '),
-)
-
-const reviewLoaded = ref(false)
-
-onMounted(async () => {
-  if (props.mode === 'review') {
-    try {
-      await load()
-      // A published keyset isn't under review, so land on the kit itself.
-      active.value = keysetUnderReview.value ? 1 : 2
-      reviewLoaded.value = true
-    } catch (error) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
-    }
-    return
-  }
-
-  if (profile.value.id && existingKeyset.value.id) {
-    active.value = 2
-  }
-})
-
-const onNext = () => {
-  if (!validateStep(active.value)) return
-  stepper.value?.next()
-}
-
-const onSubmit = async () => {
-  if (hasUploadingImages.value || !validateStep(2)) return
-
-  try {
-    await submit()
-    emit('onSuccess')
-  } catch {
-    // toasted inside the composable
-  }
-}
-
-const savingAction = ref(null)
-const deleteVisible = ref(false)
-
-const onReviewAction = async (action) => {
-  if (
-    !reviewLoaded.value ||
-    savingAction.value ||
-    hasUploadingImages.value
-  ) {
-    return
-  }
-  if (!validateStep(1) || !validateStep(2)) return
-
-  savingAction.value = action
-
-  try {
-    await save(action)
-
-    toast.add(
-      handleSuccess(
-        action === 'approve' ? 'approve' : 'save',
-        kitLabel.value,
-        'Kit',
-      ),
-    )
-    // A submitter's edit sends a rejected kit back to the Pending queue.
-    emit('onSuccess', {
-      resubmitted: !userStore.isModerator && reviewStatus.value === 'Rejected',
-    })
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    savingAction.value = null
-  }
-}
-
-const onDeleteConfirm = async () => {
-  if (savingAction.value) return
-
-  savingAction.value = 'delete'
-
-  try {
-    await remove()
-
-    toast.add(handleSuccess('delete', kitLabel.value, 'Kit'))
-    deleteVisible.value = false
-    emit('onDelete')
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    savingAction.value = null
-  }
-}
 </script>
