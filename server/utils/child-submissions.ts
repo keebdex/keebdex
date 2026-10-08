@@ -272,8 +272,9 @@ export const updateChildSubmission = async ({
     isStaff,
   )
 
+  // The row is targeted by `match`; identity `id` columns can't be updated.
   const { data, error } = await matchRows(
-    from(client, table).update({ ...payload, ...resubmission }),
+    from(client, table).update({ ...omit(payload, 'id'), ...resubmission }),
     match,
   ).select()
 
