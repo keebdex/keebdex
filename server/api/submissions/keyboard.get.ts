@@ -3,10 +3,14 @@ import { getActorProfile } from '../../utils/admin'
 import { omitSensitive } from '../../utils'
 import { canManageAnyAssignment } from '~/utils/permissions'
 
-// One row per variant (keyboard > release > variant), like artisan lists one
-// row per colorway. A variant's status is its own review_status, falling back
-// to its keyboard's for variants that were created under a Pending keyboard
-// before variants carried their own status.
+const VARIANT_SELECT =
+  '*, release:keyboard_releases(id, name, review_status, submitted_by, keyboard:keyboards(brand_keyboard_slug, name, brand_slug, form_factor, review_status, brand:keyboard_brands(name), submitter:users!keyboards_submitted_by_fkey(email, full_name))), submitter:users!keyboard_variants_submitted_by_fkey(email, full_name)'
+
+// One group per keyboard, each holding its variants (keyboard > release >
+// variant) that match the status filter, and paginated by keyboard. A
+// variant's status is its own review_status, falling back to its keyboard's
+// for variants that were created under a Pending keyboard before variants
+// carried their own status.
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
   const isModerator = canManageAnyAssignment(profile)
@@ -17,7 +21,6 @@ export default defineEventHandler(async (event) => {
   const status = parseReviewStatus(query.status)
 
   const from = (page - 1) * size
-  const to = from + size - 1
 
   const assignments =
     isModerator && profile && profile.role !== 'admin'
@@ -57,33 +60,79 @@ export default defineEventHandler(async (event) => {
 
   // Variants added directly by staff have a null status under an official
   // keyboard and never enter the moderation queue.
-  let request = client
-    .from('keyboard_variants')
-    .select(
-      '*, release:keyboard_releases(id, name, review_status, submitted_by, keyboard:keyboards(brand_keyboard_slug, name, brand_slug, review_status, brand:keyboard_brands(name), submitter:users!keyboards_submitted_by_fkey(email, full_name))), submitter:users!keyboard_variants_submitted_by_fkey(email, full_name)',
-      { count: 'exact' },
-    )
-    .or(filters.join(','))
-    .order('created_at', { ascending: false })
-    .range(from, to)
+  const variantRequest = (columns: string) => {
+    let request = client
+      .from('keyboard_variants')
+      .select(columns)
+      .or(filters.join(','))
+      .order('created_at', { ascending: false })
 
-  if (assignments?.length) {
-    request = request.in('brand_slug', assignments)
+    if (assignments?.length) {
+      request = request.in('brand_slug', assignments)
+    }
+
+    return request
   }
 
-  const { data, count, error } = await request
+  // Groups are ordered by their most recently submitted variant. The queue is
+  // small enough to resolve the keyboard order from the variant keys first.
+  const { data: keys, error: keysError } = await variantRequest(
+    'brand_keyboard_slug',
+  )
+
+  if (keysError) {
+    throw createError({ statusCode: 500, statusMessage: keysError.message })
+  }
+
+  const keyboardSlugs = [
+    ...new Set(
+      ((keys || []) as { brand_keyboard_slug: string }[]).map(
+        (variant) => variant.brand_keyboard_slug,
+      ),
+    ),
+  ]
+  const pageSlugs = keyboardSlugs.slice(from, from + size)
+
+  if (!pageSlugs.length) {
+    return { data: [], count: keyboardSlugs.length, page, size }
+  }
+
+  const { data, error } = await variantRequest(VARIANT_SELECT).in(
+    'brand_keyboard_slug',
+    pageSlugs,
+  )
 
   if (error) {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
-  return {
-    data: (data || []).map((row: any) => ({
+  const groups = new Map(
+    pageSlugs.map((slug) => [
+      slug,
+      {
+        brand_keyboard_slug: slug,
+        keyboard: null as any,
+        variants: [] as any[],
+      },
+    ]),
+  )
+
+  for (const row of (data || []) as any[]) {
+    const group = groups.get(row.brand_keyboard_slug)
+
+    if (!group) continue
+
+    group.keyboard ??= row.release?.keyboard
+    group.variants.push({
       ...omitSensitive(row),
       status: row.review_status ?? row.release?.keyboard?.review_status,
       submitter: row.submitter ?? row.release?.keyboard?.submitter,
-    })),
-    count: count || 0,
+    })
+  }
+
+  return {
+    data: [...groups.values()],
+    count: keyboardSlugs.length,
     page,
     size,
   }

@@ -361,11 +361,46 @@ export const cascadeKeyboardReview = async (
 
   const { data: keyboard } = await client
     .from('keyboards')
-    .select('review_status')
+    .select('review_status, submitted_by')
     .eq('brand_keyboard_slug', keyboardKey)
     .maybeSingle()
 
   if (await shouldResolve(keyboard, 'brand_keyboard_slug')) {
+    // Other releases and variants without a status of their own follow the
+    // keyboard, so publishing it would publish them unreviewed. Give them their
+    // own Pending status first so they stay in the review queue. The reviewed
+    // variant's own release keeps following the keyboard.
+    if (action === 'approve') {
+      const pending = {
+        review_status: 'Pending' as const,
+        submitted_by: keyboard!.submitted_by,
+        verified_at: null,
+        verified_by: null,
+      }
+
+      const [releases, variants] = await Promise.all([
+        client
+          .from('keyboard_releases')
+          .update(pending)
+          .eq('brand_keyboard_slug', keyboardKey)
+          .neq('id', releaseId)
+          .is('review_status', null),
+        client
+          .from('keyboard_variants')
+          .update(pending)
+          .eq('brand_keyboard_slug', keyboardKey)
+          .is('review_status', null),
+      ])
+      const pendingError = releases.error || variants.error
+
+      if (pendingError) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: pendingError.message,
+        })
+      }
+    }
+
     const { error } = await client
       .from('keyboards')
       .update(moderation())
