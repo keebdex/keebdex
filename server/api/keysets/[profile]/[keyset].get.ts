@@ -22,8 +22,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // Submitters and staff can read kits still under review, but the keyset page
+  // only lists official ones (null/Approved); the rest live in the review queue.
   if (data && Array.isArray(data.kits)) {
-    data.kits = sortBy(data.kits, 'id')
+    data.kits = sortBy(
+      data.kits.filter(
+        (kit: any) => !kit.review_status || kit.review_status === 'Approved',
+      ),
+      'id',
+    )
   }
 
   // // get unique maker_id
