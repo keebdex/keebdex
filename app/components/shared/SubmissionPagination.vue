@@ -4,10 +4,8 @@
   >
     <p class="text-toned text-sm text-center sm:text-left">
       Showing {{ meta.from }} to {{ meta.to }} of
-      <span class="font-semibold text-highlighted">{{ meta.total }}</span>
-      <template v-if="nouns">
-        {{ nouns[meta.total === 1 ? 0 : 1] }}
-      </template>
+      <span class="font-semibold text-highlighted">{{ meta.total }}</span
+      >{{ nouns ? ` ${nouns[meta.total === 1 ? 0 : 1]}` : '' }}
     </p>
 
     <UPagination
