@@ -353,6 +353,6 @@ const tradingText = computed(() => {
 
 const copyToClipboard = () => {
   navigator.clipboard.writeText(tradingText.value)
-  toast.add(handleNotice('copy'))
+  toast.add(noticeToast('copied'))
 }
 </script>

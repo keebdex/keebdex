@@ -279,11 +279,11 @@ const saveShareOption = (close) => {
   })
     .then(() => {
       refresh()
-      toast.add(handleSuccess('update', data.value?.name, 'Collection'))
+      toast.add(successToast('update', { entity: 'Collection', name: data.value?.name }))
       if (!published) close()
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 
@@ -292,7 +292,7 @@ const copyShareUrl = async () => {
     await saveShareOption(() => {})
   }
   navigator.clipboard.writeText(shareUrl.value)
-  toast.add(handleNotice('copy'))
+  toast.add(noticeToast('copied'))
 }
 
 const sort = computed(

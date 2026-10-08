@@ -218,10 +218,10 @@ const onSubmit = async () => {
 
   if (!keyboard.brand_keyboard_slug) {
     toast.add(
-      handleError({
-        statusMessage:
-          'Please save the keyboard details before adding a release.',
-      }),
+      validationToast(
+        'Please save the keyboard details before adding a release.',
+        'Keyboard Not Saved',
+      ),
     )
     return
   }
@@ -232,12 +232,12 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        handleSuccess(isEdit ? 'update' : 'add', release.value.name, 'Release'),
+        successToast(isEdit ? 'update' : 'add', { entity: 'Release', name: release.value.name }),
       )
       emit('onSuccess', data)
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

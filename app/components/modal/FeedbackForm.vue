@@ -85,16 +85,11 @@ const onSubmit = async () => {
     },
   })
     .then(() => {
-      toast.add({
-        color: 'success',
-        title: 'Feedback Submitted',
-        detail:
-          'Your feedback is valuable to us. We appreciate you taking the time to share it!',
-      })
+      toast.add(noticeToast('feedback_sent'))
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

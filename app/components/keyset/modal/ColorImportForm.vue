@@ -66,10 +66,10 @@ watch(importFile, async (val) => {
 
   if (file.size > MAX_CSV_SIZE_BYTES) {
     toast.add(
-      handleError({
-        statusCode: 413,
-        statusMessage: 'CSV file is too large. Maximum size is 2MB.',
-      }),
+      validationToast(
+        'CSV file is too large. Maximum size is 2MB.',
+        'File Too Large',
+      ),
     )
     importFile.value = null
     return
@@ -82,10 +82,10 @@ watch(importFile, async (val) => {
 
   if (errors.length) {
     toast.add(
-      handleError({
-        statusCode: 400,
-        statusMessage: `CSV preview parse error: ${errors[0]?.message ?? 'Unknown error'}`,
-      }),
+      validationToast(
+        `CSV preview parse error: ${errors[0]?.message ?? 'Unknown error'}`,
+        'Invalid CSV File',
+      ),
     )
     return
   }
@@ -119,20 +119,20 @@ const importColors = async (close) => {
 
   if (!file) {
     toast.add(
-      handleError({
-        statusCode: 400,
-        statusMessage: 'Please select a CSV file before importing.',
-      }),
+      validationToast(
+        'Please select a CSV file before importing.',
+        'No File Selected',
+      ),
     )
     return
   }
 
   if (file.size > MAX_CSV_SIZE_BYTES) {
     toast.add(
-      handleError({
-        statusCode: 413,
-        statusMessage: 'CSV file is too large. Maximum size is 2MB.',
-      }),
+      validationToast(
+        'CSV file is too large. Maximum size is 2MB.',
+        'File Too Large',
+      ),
     )
     return
   }
@@ -147,14 +147,14 @@ const importColors = async (close) => {
     body: formData,
   })
     .then((result) => {
-      toast.add(handleSuccess('add', `${result?.inserted || 0} colors`))
+      toast.add(successToast('add', { entity: countLabel(result?.inserted || 0, 'color') }))
       importFile.value = null
       preview.value = { headers: [], columns: [], rows: [], total: 0 }
       close()
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
     })
     .finally(() => {
       isImporting.value = false

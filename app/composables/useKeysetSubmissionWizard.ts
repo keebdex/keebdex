@@ -279,9 +279,9 @@ export const useKeysetSubmissionWizard = ({
         })
       }
 
-      toast.add(handleSuccess('add', `${kits.value.length} kit(s)`, 'Kit'))
+      toast.add(successToast('add', { entity: countLabel(kits.value.length, 'kit') }))
     } catch (error: any) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
 
       throw error
     } finally {

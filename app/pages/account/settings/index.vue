@@ -73,10 +73,10 @@ const onSubmit = async () => {
     body: social.value,
   })
     .then(() => {
-      toast.add(handleSuccess('save', 'Profile'))
+      toast.add(successToast('update', { entity: 'Profile' }))
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 

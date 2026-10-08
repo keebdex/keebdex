@@ -93,7 +93,7 @@ const loadPage = async (nextPage = 1) => {
       status.value = 'error'
     }
 
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     loadingMore.value = false
   }

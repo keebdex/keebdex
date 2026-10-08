@@ -223,10 +223,10 @@ const fetchColorFromSystem = async ({ silent = false } = {}) => {
     if (silent) return
 
     toast.add(
-      handleError({
-        statusCode: 400,
-        statusMessage: 'Please enter a valid RAL code (000 00 00).',
-      }),
+      validationToast(
+        'Please enter a valid RAL code (000 00 00).',
+        'Invalid RAL Code',
+      ),
     )
     return
   }
@@ -250,17 +250,13 @@ const fetchColorFromSystem = async ({ silent = false } = {}) => {
 
       if (!silent) {
         toast.add(
-          handleSuccess(
-            'update',
-            `${result.system} ${result.code}`,
-            'Color Data',
-          ),
+          noticeToast('color_fetched', `${result.system} ${result.code}`),
         )
       }
     })
     .catch((error) => {
       if (!silent) {
-        toast.add(handleError(error, { showOriginalMessage: true }))
+        toast.add(errorToast(error, { showOriginalMessage: true }))
       }
     })
     .finally(() => {
@@ -308,13 +304,13 @@ const onSubmit = async () => {
   })
     .then(() => {
       toast.add(
-        handleSuccess(isEdit ? 'update' : 'add', color.value.name, 'Color'),
+        successToast(isEdit ? 'update' : 'add', { entity: 'Color', name: color.value.name }),
       )
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

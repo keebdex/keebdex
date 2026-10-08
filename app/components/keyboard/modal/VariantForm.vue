@@ -389,7 +389,7 @@ const uploadImage = async (file, field, uploadState) => {
       category: 'keyboard',
     })
   } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
+    toast.add(errorToast(error, { showOriginalMessage: true }))
     failedState.value = true
   } finally {
     uploadState.value = false
@@ -415,10 +415,10 @@ const onSubmit = async () => {
 
   if (!keyboard.brand_keyboard_slug) {
     toast.add(
-      handleError({
-        statusMessage:
-          'Please save the keyboard details before adding a variant.',
-      }),
+      validationToast(
+        'Please save the keyboard details before adding a variant.',
+        'Keyboard Not Saved',
+      ),
     )
     return
   }
@@ -446,17 +446,13 @@ const onSubmit = async () => {
     )
 
     toast.add(
-      handleSuccess(
-        isEdit ? 'update' : 'add',
-        variant.value.variant_name,
-        'Variant',
-      ),
+      successToast(isEdit ? 'update' : 'add', { entity: 'Variant', name: variant.value.variant_name }),
     )
     uploadedFileFront.value = null
     uploadedFileBack.value = null
     emit('onSuccess', data)
   } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
+    toast.add(errorToast(error, { showOriginalMessage: true }))
   } finally {
     saving.value = false
   }

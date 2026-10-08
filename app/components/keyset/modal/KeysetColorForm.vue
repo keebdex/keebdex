@@ -162,12 +162,12 @@ const onSubmit = async () => {
     body: color.value,
   })
     .then(() => {
-      toast.add(handleSuccess('save', 'Colors'))
+      toast.add(successToast('update', { entity: 'Keyset colors', plural: true }))
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

@@ -407,10 +407,10 @@ export const useKeyboardSubmissionWizard = ({
       }
 
       toast.add(
-        handleSuccess('add', `${variants.value.length} variant(s)`, 'Variant'),
+        successToast('add', { entity: countLabel(variants.value.length, 'variant') }),
       )
     } catch (error: any) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
 
       throw error
     } finally {

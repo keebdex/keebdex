@@ -81,7 +81,7 @@ export const useSubmissionWizardActions = ({
       active.value = reviewStep()
       reviewLoaded.value = true
     } catch (error) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
     }
   })
 
@@ -116,20 +116,14 @@ export const useSubmissionWizardActions = ({
     try {
       await wizard.save(action)
 
-      toast.add(
-        handleSuccess(
-          action === 'approve' ? 'approve' : 'save',
-          label(),
-          entity,
-        ),
-      )
+      toast.add(successToast(action, { entity, name: label() }))
       // A submitter's edit sends a rejected submission back to Pending.
       emit('onSuccess', {
         resubmitted:
           !userStore.isModerator && wizard.reviewStatus.value === 'Rejected',
       })
     } catch (error) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
     } finally {
       savingAction.value = null
     }
@@ -144,11 +138,11 @@ export const useSubmissionWizardActions = ({
     try {
       await wizard.remove()
 
-      toast.add(handleSuccess('delete', label(), entity))
+      toast.add(successToast('delete', { entity, name: label() }))
       emit('onDelete')
       return true
     } catch (error) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
       return false
     } finally {
       savingAction.value = null

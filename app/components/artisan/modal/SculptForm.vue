@@ -218,7 +218,7 @@ const onSubmit = async () => {
   })
     .then(() => {
       toast.add(
-        handleSuccess(isEdit ? 'update' : 'add', sculpt.value.name, 'Sculpt'),
+        successToast(isEdit ? 'update' : 'add', { entity: 'Sculpt', name: sculpt.value.name }),
       )
 
       if (isEdit && sculptId !== slug) {
@@ -228,7 +228,7 @@ const onSubmit = async () => {
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

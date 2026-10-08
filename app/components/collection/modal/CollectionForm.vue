@@ -178,13 +178,13 @@ const onSubmit = async () => {
   await $fetch(url, { method: 'post', body: rest })
     .then(() => {
       toast.add(
-        handleSuccess(isEdit ? 'update' : 'add', rest.name, 'Collection'),
+        successToast(isEdit ? 'update' : 'add', { entity: 'Collection', name: rest.name }),
       )
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 
   await userStore.fetchUserCollections(user.value.uid)

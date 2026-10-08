@@ -511,12 +511,12 @@ const deleteVariant = async (variant, close) => {
       { method: 'delete' },
     )
 
-    toast.add(handleSuccess('delete', variant.variant_name, 'Variant'))
+    toast.add(successToast('delete', { entity: 'Variant', name: variant.variant_name }))
 
     if (typeof close === 'function') close()
     refresh()
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     visible.value.deleteVariant = false
     clearSelectedVariant()
@@ -530,12 +530,12 @@ const deleteRelease = async (release, close) => {
       { method: 'delete' },
     )
 
-    toast.add(handleSuccess('delete', release.name, 'Release'))
+    toast.add(successToast('delete', { entity: 'Release', name: release.name }))
 
     if (typeof close === 'function') close()
     refresh()
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     visible.value.deleteRelease = false
     clearSelectedRelease()

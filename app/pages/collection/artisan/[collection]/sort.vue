@@ -130,10 +130,10 @@ const saveCustomSorting = async () => {
   )
     .then(() => {
       refresh()
-      toast.add(handleNotice('order_save'))
+      toast.add(noticeToast('order_saved'))
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 
   await $fetch(
@@ -145,7 +145,7 @@ const saveCustomSorting = async () => {
       },
     },
   ).catch((error) => {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   })
 }
 </script>
