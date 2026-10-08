@@ -4,7 +4,7 @@
       <UButton label="Cancel" :disabled="loading" @click="close" />
       <UButton
         :label="confirmLabel"
-        color="error"
+        :color="confirmColor"
         :loading="loading"
         @click="emit('confirm')"
       />
@@ -18,9 +18,15 @@ withDefaults(
     title: string
     description?: string
     confirmLabel?: string
+    confirmColor?: 'error' | 'success' | 'primary'
     loading?: boolean
   }>(),
-  { description: undefined, confirmLabel: 'Delete', loading: false },
+  {
+    description: undefined,
+    confirmLabel: 'Delete',
+    confirmColor: 'error',
+    loading: false,
+  },
 )
 
 const emit = defineEmits<{ confirm: [] }>()

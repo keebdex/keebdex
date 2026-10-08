@@ -183,7 +183,8 @@ export const inFilter = (column: string, values: string[]) =>
 
 /**
  * Approving a kit also approves its keyset when that keyset is still under
- * review (Pending/Rejected), like approving a colorway resolves its sculpt.
+ * review (Pending/Rejected), like approving a colorway resolves its sculpt;
+ * its status-less sibling kits become Pending instead of being published.
  * Rejecting a kit only rejects a Pending keyset once none of its kits is left
  * alive, so one rejected kit doesn't take down its siblings.
  */
@@ -195,11 +196,31 @@ export const cascadeKeysetReview = async (
 ) => {
   const { data: keyset } = await client
     .from('keysets')
-    .select('review_status')
+    .select('review_status, submitted_by')
     .eq('profile_keyset_id', keysetKey)
     .maybeSingle()
 
   if (!keyset?.review_status || keyset.review_status === 'Approved') return
+
+  // Kits without a status of their own follow their keyset, so publishing the
+  // keyset would publish them unreviewed. Give them their own Pending status
+  // first so they stay in the review queue and off the public keyset page.
+  if (action === 'approve') {
+    const { error: kitsError } = await client
+      .from('keyset_kits')
+      .update({
+        review_status: 'Pending',
+        submitted_by: keyset.submitted_by,
+        verified_at: null,
+        verified_by: null,
+      })
+      .eq('profile_keyset_id', keysetKey)
+      .is('review_status', null)
+
+    if (kitsError) {
+      throw createError({ statusCode: 500, statusMessage: kitsError.message })
+    }
+  }
 
   if (action === 'reject') {
     if (keyset.review_status !== 'Pending') return
@@ -340,11 +361,46 @@ export const cascadeKeyboardReview = async (
 
   const { data: keyboard } = await client
     .from('keyboards')
-    .select('review_status')
+    .select('review_status, submitted_by')
     .eq('brand_keyboard_slug', keyboardKey)
     .maybeSingle()
 
   if (await shouldResolve(keyboard, 'brand_keyboard_slug')) {
+    // Other releases and variants without a status of their own follow the
+    // keyboard, so publishing it would publish them unreviewed. Give them their
+    // own Pending status first so they stay in the review queue. The reviewed
+    // variant's own release keeps following the keyboard.
+    if (action === 'approve') {
+      const pending = {
+        review_status: 'Pending' as const,
+        submitted_by: keyboard!.submitted_by,
+        verified_at: null,
+        verified_by: null,
+      }
+
+      const [releases, variants] = await Promise.all([
+        client
+          .from('keyboard_releases')
+          .update(pending)
+          .eq('brand_keyboard_slug', keyboardKey)
+          .neq('id', releaseId)
+          .is('review_status', null),
+        client
+          .from('keyboard_variants')
+          .update(pending)
+          .eq('brand_keyboard_slug', keyboardKey)
+          .is('review_status', null),
+      ])
+      const pendingError = releases.error || variants.error
+
+      if (pendingError) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: pendingError.message,
+        })
+      }
+    }
+
     const { error } = await client
       .from('keyboards')
       .update(moderation())

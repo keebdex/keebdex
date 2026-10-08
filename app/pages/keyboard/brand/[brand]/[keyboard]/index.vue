@@ -420,8 +420,20 @@ const keyboard = computed(() => {
   return rest
 })
 
+// Submitters and staff can read releases/variants still under review, but the
+// keyboard page only lists official ones (null/Approved); the rest live in the
+// review queue.
+const isOfficial = (row) =>
+  !row.review_status || row.review_status === 'Approved'
+
 const sortedReleases = computed(() => {
-  const releases = sortBy(data.value?.releases || [], 'order')
+  const releases = sortBy(
+    (data.value?.releases || []).filter(isOfficial).map((release) => ({
+      ...release,
+      variants: (release.variants || []).filter(isOfficial),
+    })),
+    'order',
+  )
   const [, direction = 'desc'] = String(sort.value || 'order|desc').split('|')
 
   return direction === 'asc' ? releases : releases.reverse()
