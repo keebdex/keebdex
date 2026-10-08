@@ -9,6 +9,17 @@ import {
 
 export type ChildSubmissionDomain = 'keyset' | 'keyboard' | 'artisan'
 
+type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
+
+export type SubmittableTable =
+  | 'keysets'
+  | 'keyset_kits'
+  | 'keyboards'
+  | 'keyboard_releases'
+  | 'keyboard_variants'
+  | 'artisan_sculpts'
+  | 'artisan_colorways'
+
 const MODERATION_FIELDS = [
   'review_status',
   'submitted_by',
@@ -23,6 +34,46 @@ const MODERATION_FIELDS = [
 export const omitModerationFields = <T extends Record<string, unknown>>(
   record: T,
 ) => omit(record, MODERATION_FIELDS) as Partial<T>
+
+/**
+ * Moderation columns for a record created by `userId`: staff for the record's
+ * assignment are auto-approved, everyone else submits a Pending proposal.
+ */
+export const getSubmissionAttribution = (isStaff: boolean, userId: string) => ({
+  review_status: isStaff ? 'Approved' : 'Pending',
+  submitted_by: userId,
+  verified_at: isStaff ? new Date().toISOString() : null,
+  verified_by: isStaff ? userId : null,
+})
+
+/**
+ * Editing your own Rejected record sends it back to the Pending queue. Returns
+ * that patch for a non-staff edit of the actor's own Rejected row matching
+ * `match`, otherwise null (staff edits and other states never change status).
+ */
+export const getOwnResubmission = async (
+  client: SupabaseClient,
+  table: SubmittableTable,
+  match: Record<string, string | number>,
+  userId: string,
+  isStaff: boolean,
+) => {
+  if (isStaff) return null
+
+  let query = (client as any)
+    .from(table)
+    .select('review_status, submitted_by')
+
+  for (const [column, value] of Object.entries(match)) {
+    query = query.eq(column, value)
+  }
+
+  const { data } = await query.maybeSingle()
+
+  return data?.submitted_by === userId && data.review_status === 'Rejected'
+    ? getResubmissionPatch()
+    : null
+}
 
 /**
  * Resolves who is adding/editing a kit, release, variant, or colorway on an
@@ -103,13 +154,7 @@ export const getChildSubmissionContext = async (
 
     if (!isOfficial && !own) return base
 
-    return {
-      ...base,
-      review_status: isStaff ? 'Approved' : 'Pending',
-      submitted_by: user.sub,
-      verified_at: isStaff ? new Date().toISOString() : null,
-      verified_by: isStaff ? user.sub : null,
-    }
+    return { ...base, ...getSubmissionAttribution(isStaff, user.sub) }
   }
 
   return {

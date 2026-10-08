@@ -135,8 +135,15 @@ export const useKeyboardSubmissionWizard = ({
     })),
   )
 
+  // Only a successful empty response means there's nothing to pick from.
   watch([keyboardOptions, keyboardsStatus], ([options, status]) => {
-    if (status !== 'pending' && brand.value.id && !options.length) {
+    if (
+      !isReview &&
+      status === 'success' &&
+      brand.value.id &&
+      !existingKeyboard.value.id &&
+      !options.length
+    ) {
       keyboardMode.value = 'new'
     }
   })
@@ -169,7 +176,13 @@ export const useKeyboardSubmissionWizard = ({
   )
 
   watch([releaseOptions, releasesStatus], ([options, status]) => {
-    if (status !== 'pending' && existingKeyboard.value.id && !options.length) {
+    if (
+      !isReview &&
+      status === 'success' &&
+      existingKeyboard.value.id &&
+      !existingRelease.value.id &&
+      !options.length
+    ) {
       releaseMode.value = 'new'
     }
   })
@@ -287,25 +300,15 @@ export const useKeyboardSubmissionWizard = ({
     const [brandSlug = '', keyboardSlug = ''] = submissionKey.split('/')
 
     if (keyboardUnderReview.value) {
-      const payload: any = {
-        ...keyboard.value,
-        slug: keyboardSlug,
-        brand_slug: brandSlug,
-        brand_keyboard_slug: submissionKey,
-      }
-
-      // A submitter's edit puts a rejected keyboard back in the review queue.
-      if (!userStore.isModerator) {
-        Object.assign(payload, {
-          review_status: 'Pending',
-          verified_at: null,
-          verified_by: null,
-        })
-      }
-
+      // The server sends a submitter's rejected keyboard back to review.
       await $fetch(`/api/keyboards/${brandSlug}/${keyboardSlug}`, {
         method: 'post',
-        body: payload,
+        body: {
+          ...keyboard.value,
+          slug: keyboardSlug,
+          brand_slug: brandSlug,
+          brand_keyboard_slug: submissionKey,
+        },
       })
     }
 

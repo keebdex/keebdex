@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const page = Math.max(Number(query.page) || 1, 1)
   const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
-  const status = String(query.status || 'Pending').trim()
+  const status = parseReviewStatus(query.status)
 
   const from = (page - 1) * size
   const to = from + size - 1
@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
         count: 'exact',
       },
     )
-    .not('review_status', 'is', null)
     .eq('review_status', status)
     .order('created_at', { ascending: false })
     .range(from, to)

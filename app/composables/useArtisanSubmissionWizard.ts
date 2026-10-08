@@ -65,8 +65,15 @@ export const useArtisanSubmissionWizard = ({
     })),
   )
 
+  // Only a successful empty response means there's nothing to pick from.
   watch([sculptOptions, sculptsStatus], ([options, status]) => {
-    if (status !== 'pending' && maker.value.id && !options.length) {
+    if (
+      !isReview &&
+      status === 'success' &&
+      maker.value.id &&
+      !existingSculpt.value.id &&
+      !options.length
+    ) {
       sculptMode.value = 'new'
     }
   })

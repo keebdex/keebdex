@@ -172,15 +172,7 @@ export const useKeysetSubmissionWizard = ({
         payload.end_date = toISODate(dateRange.value.end as CalendarDate)
       }
 
-      // A submitter's edit puts a rejected keyset back in the review queue.
-      if (!userStore.isModerator) {
-        Object.assign(payload, {
-          review_status: 'Pending',
-          verified_at: null,
-          verified_by: null,
-        })
-      }
-
+      // The server sends a submitter's rejected keyset back to review.
       await $fetch(`/api/keysets/${submissionKey}`, {
         method: 'post',
         body: payload,

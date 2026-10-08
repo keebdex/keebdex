@@ -5,7 +5,7 @@ import {
 
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
-  const { maker: makerId, sculpt: sculptId } = event.context.params || {}
+  const { maker: makerId, sculpt: sculptId } = getRouterParams(event)
 
   // TODO: drop this `Record<string, unknown>` cast once the artisan sculpt
   // submission-status migration has been applied and
@@ -22,50 +22,33 @@ export default defineEventHandler(async (event) => {
     canManageAssignment(profile, String(body.maker_id || makerId || ''))
 
   // Moderation fields are only ever set by the server, never trusted from
-  // the client.
-  if (!body.id) {
-    if (isStaff) {
-      body.review_status = 'Approved'
-      body.submitted_by = user.sub
-      body.verified_by = user.sub
-      body.verified_at = new Date().toISOString()
-    } else {
-      body.review_status = 'Pending'
-      body.submitted_by = user.sub
-    }
+  // the client. Editing an existing sculpt never changes its status, except
+  // that its submitter resubmits a rejected one for review.
+  const record = {
+    ...omitModerationFields(body),
+    ...(body.id
+      ? await getOwnResubmission(
+          client,
+          'artisan_sculpts',
+          { id: body.id as number },
+          user.sub,
+          isStaff,
+        )
+      : getSubmissionAttribution(isStaff, user.sub)),
   }
 
-  // Editing an existing sculpt never changes its status, except that its
-  // submitter resubmits a rejected one for review.
-  let record = body
-
-  if (body.id) {
-    const { data: current } = await client
-      .from('artisan_sculpts')
-      .select('review_status, submitted_by')
-      .eq('id', body.id as number)
-      .maybeSingle()
-    const resubmitted =
-      !isStaff &&
-      current?.submitted_by === user.sub &&
-      current.review_status === 'Rejected'
-
-    record = {
-      ...omitModerationFields(body),
-      ...(resubmitted ? getResubmissionPatch() : {}),
-    }
-  }
-
-  const query = body.id
-    ? client
+  const { data, error } = body.id
+    ? await client
         .from('artisan_sculpts')
         .update(record)
         .eq('id', body.id as number)
         .select()
+        .maybeSingle()
+    : await client
+        .from('artisan_sculpts')
+        .insert(record as any)
+        .select()
         .single()
-    : client.from('artisan_sculpts').insert(body).select().single()
-
-  const { data, error } = await query
 
   if (error) {
     throw createError({
@@ -74,12 +57,20 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // RLS filters rows silently, so no row back means the edit was refused.
+  if (!data) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "You can't edit this sculpt in its current state",
+    })
+  }
+
   if (body.sculpt_id !== sculptId) {
     await client
       .from('artisan_colorways')
-      .update({ sculpt_id: body.sculpt_id })
-      .eq('maker_id', makerId)
-      .eq('sculpt_id', sculptId)
+      .update({ sculpt_id: body.sculpt_id as string })
+      .eq('maker_id', makerId!)
+      .eq('sculpt_id', sculptId!)
   }
 
   return data
