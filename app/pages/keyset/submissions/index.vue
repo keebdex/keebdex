@@ -22,31 +22,20 @@
           {{ pageDescription }}
         </template>
 
-        <div
-          class="flex flex-col-reverse gap-3 px-4 py-3.5 border-b border-accented sm:flex-row sm:items-center sm:justify-between"
-        >
-          <UButton
-            :label="allExpanded ? 'Collapse All' : 'Expand All'"
-            :icon="
-              allExpanded ? 'hugeicons:arrow-up-01' : 'hugeicons:arrow-down-01'
-            "
-            variant="ghost"
-            :disabled="!groups.length"
-            @click="toggleAll"
-          />
-          <USelect
-            v-model="statusFilter"
-            :items="statusOptions"
-            class="w-full sm:w-52"
-          />
-        </div>
+        <SharedSubmissionToolbar
+          v-model:status="statusFilter"
+          expandable
+          :all-expanded="allExpanded"
+          :disabled="!rows.length"
+          @toggle-all="toggleAll"
+        />
 
         <UTable
           v-model:expanded="expanded"
           :get-row-id="(group) => group.profile_keyset_id"
           sticky
           :loading="status === 'pending'"
-          :data="groups"
+          :data="rows"
           :columns="groupColumns"
           :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }"
           class="min-w-0 max-w-full"
@@ -99,29 +88,13 @@
           </template>
 
           <template #action-cell="{ row }">
-            <div
-              v-if="isModerator && pendingKits(row.original).length"
-              class="flex flex-wrap items-center gap-2"
-            >
-              <UButton
-                label="Approve All"
-                size="xs"
-                color="success"
-                icon="hugeicons:checkmark-circle-02"
-                :loading="isBulkRunning(row.original, 'approve')"
-                :disabled="busy"
-                @click="bulkTarget = { group: row.original, action: 'approve' }"
-              />
-              <UButton
-                label="Reject All"
-                size="xs"
-                color="error"
-                icon="hugeicons:cancel-circle"
-                :loading="isBulkRunning(row.original, 'reject')"
-                :disabled="busy"
-                @click="bulkTarget = { group: row.original, action: 'reject' }"
-              />
-            </div>
+            <SharedSubmissionBulkActions
+              v-if="isModerator && pendingLeaves(row.original).length"
+              :running="bulkActionFor(row.original)"
+              :disabled="busy"
+              @approve="bulkTarget = { group: row.original, action: 'approve' }"
+              @reject="bulkTarget = { group: row.original, action: 'reject' }"
+            />
           </template>
 
           <template #expanded="{ row }">
@@ -176,76 +149,29 @@
               </template>
 
               <template #action-cell="{ row: kitRow }">
-                <div class="flex flex-wrap items-center gap-2">
-                  <template v-if="isModerator">
-                    <UButton
-                      v-if="kitRow.original.status !== 'Approved'"
-                      label="Approve"
-                      size="xs"
-                      color="success"
-                      icon="hugeicons:checkmark-circle-02"
-                      :loading="processingId === kitRow.original.id"
-                      :disabled="busy"
-                      @click="moderateSubmission(kitRow.original, 'approve')"
-                    />
-                    <UButton
-                      v-if="kitRow.original.status !== 'Rejected'"
-                      label="Reject"
-                      size="xs"
-                      color="error"
-                      icon="hugeicons:cancel-circle"
-                      :loading="processingId === kitRow.original.id"
-                      :disabled="busy"
-                      @click="moderateSubmission(kitRow.original, 'reject')"
-                    />
-                  </template>
-                  <UButton
-                    v-if="canEdit(kitRow.original)"
-                    label="Edit"
-                    size="xs"
-                    variant="soft"
-                    icon="hugeicons:file-edit"
-                    :disabled="busy"
-                    @click="editSubmission(kitRow.original)"
-                  />
-                  <UButton
-                    v-if="canDelete(kitRow.original)"
-                    label="Delete"
-                    size="xs"
-                    color="error"
-                    variant="soft"
-                    icon="hugeicons:delete-02"
-                    :disabled="busy"
-                    @click="deleteTarget = kitRow.original"
-                  />
-                </div>
+                <SharedSubmissionRowActions
+                  :status="kitRow.original.status"
+                  :loading="processingId === kitRow.original.id"
+                  :disabled="busy"
+                  :can-edit="canEdit(kitRow.original)"
+                  :can-delete="canDelete(kitRow.original)"
+                  @approve="moderate(kitRow.original, 'approve')"
+                  @reject="moderate(kitRow.original, 'reject')"
+                  @edit="edit(kitRow.original)"
+                  @delete="deleteTarget = kitRow.original"
+                />
               </template>
             </UTable>
           </template>
         </UTable>
 
-        <div
-          class="border-t border-default pt-4 mt-auto px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <p class="text-toned text-sm text-center sm:text-left">
-            Showing {{ paginationMeta.from }} to {{ paginationMeta.to }} of
-            <span class="font-semibold text-highlighted">{{
-              paginationMeta.total
-            }}</span>
-            {{ paginationMeta.total === 1 ? 'keyset' : 'keysets' }}
-          </p>
-
-          <UPagination
-            v-if="data.count > size"
-            :page="page"
-            :items-per-page="size"
-            :total="data.count"
-            :ui="{
-              list: 'flex-wrap justify-center sm:justify-end',
-            }"
-            @update:page="setPage"
-          />
-        </div>
+        <SharedSubmissionPagination
+          :meta="paginationMeta"
+          :page="page"
+          :size="size"
+          :nouns="['keyset', 'keysets']"
+          @update:page="setPage"
+        />
       </UPageCard>
 
       <UModal v-model:open="editorOpen" title="Edit Kit">
@@ -286,16 +212,6 @@ definePageMeta({
   middleware: 'auth',
 })
 
-const userStore = useUserStore()
-const toast = useToast()
-const { isModerator } = storeToRefs(userStore)
-
-const pageDescription = computed(() =>
-  isModerator.value
-    ? 'Review keysets submitted by the community and approve, reject, or edit them before they become official records.'
-    : "Track the keysets you've submitted. You can edit or delete a keyset while it's pending review or after it was rejected; editing a rejected keyset sends it back for review.",
-)
-
 const groupColumns = [
   { id: 'expand' },
   { id: 'img', header: 'Image' },
@@ -315,54 +231,6 @@ const kitColumns = [
   { id: 'action' },
 ]
 
-const statusFilter = ref('Pending')
-
-const { page, size, setPage, resetPage } = usePagination(10)
-const { data, status, refresh } = useAdvancedSearch('/api/submissions/keyset', {
-  key: 'keyset-submissions',
-  term: ref(''),
-  minLength: 0,
-  pagination: { page, size },
-  filters: { status: statusFilter },
-})
-
-watch(statusFilter, resetPage)
-
-// One row per keyset; each group carries the kits matching the status filter.
-const groups = computed(() => data.value?.data || [])
-
-// Keyed by profile_keyset_id, so a group stays open across refreshes.
-const expanded = ref({})
-const allExpanded = computed(
-  () =>
-    expanded.value === true ||
-    (groups.value.length > 0 &&
-      groups.value.every((group) => expanded.value?.[group.profile_keyset_id])),
-)
-
-const toggleAll = () => {
-  expanded.value = allExpanded.value ? {} : true
-}
-
-const paginationMeta = computed(() => {
-  const total = data.value?.count || 0
-  const visibleOnPage = groups.value.length
-
-  if (!total || !visibleOnPage) return { total, from: 0, to: 0 }
-
-  const from = (page.value - 1) * size + 1
-
-  return { total, from, to: from + visibleOnPage - 1 }
-})
-
-const editorOpen = ref(false)
-const selectedSubmission = ref(null)
-const processingId = ref(null)
-
-// Submitters can only act on kits that are still in (or back in) review.
-const canEdit = (kit) =>
-  isModerator.value || ['Pending', 'Rejected'].includes(kit.status)
-
 const kitName = (kit) => kit.name || kit.category?.name || kit.kit_id
 
 const kitLabel = (kit) =>
@@ -376,164 +244,58 @@ const groupLabel = (group) =>
         .join(' ')
     : group?.profile_keyset_id
 
-const pendingKits = (group) =>
-  group.kits.filter((kit) => kit.status === 'Pending')
-
-const moderateSubmission = async (kit, action) => {
-  if (!isModerator.value || busy.value) return
-
-  processingId.value = kit.id
-
-  try {
-    await $fetch(`/api/keysets/${kit.profile_keyset_id}/kits`, {
-      method: 'post',
-      body: { id: kit.id, action },
-    })
-
-    toast.add(handleSuccess(action, kitLabel(kit), 'Kit'))
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    processingId.value = null
-  }
-}
-
-// Approve/Reject all acts on a keyset's Pending kits only. Kits are posted one
-// at a time so the keyset cascade sees each previous result (a keyset is only
-// rejected once none of its kits is left alive).
-const bulkTarget = ref(null)
-const bulkRunning = ref(false)
-const bulkOpen = computed({
-  get: () => !!bulkTarget.value,
-  set: (value) => {
-    if (!value && !bulkRunning.value) bulkTarget.value = null
+// One row per keyset; each group carries the kits matching the status filter.
+const {
+  isModerator,
+  statusFilter,
+  page,
+  size,
+  setPage,
+  status,
+  rows,
+  paginationMeta,
+  canEdit,
+  canDelete,
+  processingId,
+  busy,
+  moderate,
+  deleteTarget,
+  deleteOpen,
+  deleting,
+  confirmDelete,
+  editorOpen,
+  selectedSubmission,
+  edit,
+  onEditSuccess,
+  onDeleteSuccess,
+  expanded,
+  allExpanded,
+  toggleAll,
+  pendingLeaves,
+  bulkTarget,
+  bulkOpen,
+  bulkRunning,
+  bulkActionFor,
+  bulkTitle,
+  bulkDescription,
+  confirmBulk,
+} = useSubmissionReviewQueue({
+  endpoint: '/api/submissions/keyset',
+  key: 'keyset-submissions',
+  entity: 'Kit',
+  label: kitLabel,
+  leafUrl: (kit) => `/api/keysets/${kit.profile_keyset_id}/kits`,
+  grouping: {
+    idKey: 'profile_keyset_id',
+    leavesKey: 'kits',
+    label: groupLabel,
+    nouns: ['kit', 'kits'],
   },
 })
 
-const busy = computed(() => processingId.value !== null || bulkRunning.value)
-
-const isBulkRunning = (group, action) =>
-  bulkRunning.value &&
-  bulkTarget.value?.group.profile_keyset_id === group.profile_keyset_id &&
-  bulkTarget.value?.action === action
-
-const bulkTitle = computed(() =>
-  bulkTarget.value?.action === 'approve' ? 'Approve All' : 'Reject All',
+const pageDescription = computed(() =>
+  isModerator.value
+    ? 'Review keysets submitted by the community and approve, reject, or edit them before they become official records.'
+    : "Track the keysets you've submitted. You can edit or delete a keyset while it's pending review or after it was rejected; editing a rejected keyset sends it back for review.",
 )
-
-const bulkDescription = computed(() => {
-  const group = bulkTarget.value?.group
-
-  if (!group) return ''
-
-  const count = pendingKits(group).length
-  const verb = bulkTarget.value.action === 'approve' ? 'approve' : 'reject'
-
-  return `Are you sure you want to ${verb} ${count} pending ${
-    count === 1 ? 'kit' : 'kits'
-  } of ${groupLabel(group)}?`
-})
-
-const confirmBulk = async () => {
-  const target = bulkTarget.value
-
-  if (!target || !isModerator.value || busy.value) return
-
-  const { group, action } = target
-  const kits = pendingKits(group)
-
-  bulkRunning.value = true
-
-  let done = 0
-  let lastError = null
-
-  try {
-    for (const kit of kits) {
-      try {
-        await $fetch(`/api/keysets/${kit.profile_keyset_id}/kits`, {
-          method: 'post',
-          body: { id: kit.id, action },
-        })
-        done++
-      } catch (error) {
-        lastError = error
-      }
-    }
-
-    if (done) {
-      toast.add(
-        handleSuccess(
-          action,
-          `${done} ${done === 1 ? 'kit' : 'kits'} of ${groupLabel(group)}`,
-        ),
-      )
-    }
-
-    if (lastError) {
-      toast.add(handleError(lastError, { showOriginalMessage: true }))
-    }
-
-    bulkTarget.value = null
-    await refresh()
-  } finally {
-    bulkRunning.value = false
-  }
-}
-
-const deleteTarget = ref(null)
-const deleting = ref(false)
-const deleteOpen = computed({
-  get: () => !!deleteTarget.value,
-  set: (value) => {
-    if (!value && !deleting.value) deleteTarget.value = null
-  },
-})
-
-// Staff can delete anything; submitters only while it's Pending or Rejected.
-const canDelete = (kit) =>
-  isModerator.value || ['Pending', 'Rejected'].includes(kit.status)
-
-const confirmDelete = async () => {
-  const kit = deleteTarget.value
-
-  if (!kit || deleting.value) return
-
-  deleting.value = true
-
-  try {
-    await $fetch(`/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`, {
-      method: 'delete',
-    })
-
-    toast.add(handleSuccess('delete', kitLabel(kit), 'Kit'))
-    deleteTarget.value = null
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    deleting.value = false
-  }
-}
-
-const editSubmission = (kit) => {
-  selectedSubmission.value = kit
-  editorOpen.value = true
-}
-
-const closeEditor = async (close) => {
-  await refresh()
-  close()
-  editorOpen.value = false
-  selectedSubmission.value = null
-}
-
-const onEditSuccess = async (close, result) => {
-  // A rejected kit that was edited is Pending again, so follow it there.
-  if (result?.resubmitted) statusFilter.value = 'Pending'
-
-  await closeEditor(close)
-}
-
-const onDeleteSuccess = (close) => closeEditor(close)
 </script>
