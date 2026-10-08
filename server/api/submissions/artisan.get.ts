@@ -1,19 +1,10 @@
-import { createError, defineEventHandler, getQuery } from 'h3'
-import { getActorProfile } from '../../utils/admin'
+import { createError, defineEventHandler } from 'h3'
 import { omitSensitive } from '../../utils'
-import { canManageAnyAssignment } from '~/utils/permissions'
+import { getReviewQueueContext } from '../../utils/submission-queue'
 
 export default defineEventHandler(async (event) => {
-  const { client, user, profile } = await getActorProfile(event)
-  const isModerator = canManageAnyAssignment(profile)
-
-  const query = getQuery(event)
-  const page = Math.max(Number(query.page) || 1, 1)
-  const size = Math.min(Math.max(Number(query.size) || 20, 1), 100)
-  const status = parseReviewStatus(query.status)
-
-  const from = (page - 1) * size
-  const to = from + size - 1
+  const { client, user, isModerator, scope, status, page, size, from } =
+    await getReviewQueueContext(event)
 
   // Colorways added directly by staff have a null review_status (implicitly
   // approved) and never enter the moderation queue.
@@ -21,31 +12,24 @@ export default defineEventHandler(async (event) => {
     .from('artisan_colorways')
     .select(
       '*, maker:artisan_makers(id, name), sculpt:artisan_sculpts(name, review_status)',
-      {
-        count: 'exact',
-      },
+      { count: 'exact' },
     )
     .eq('review_status', status)
     .order('created_at', { ascending: false })
-    .range(from, to)
+    .range(from, from + size - 1)
 
-  if (isModerator) {
-    // Editors and Makers with specific assignments only moderate their own makers.
-    if (profile && profile.role !== 'admin' && profile.assignments?.length) {
-      request = request.in('maker_id', profile.assignments)
-    }
-  } else {
+  if (!isModerator) {
     // Regular users only see the submissions they've personally sent in.
     request = request.eq('submitted_by', user.sub)
+  } else if (scope) {
+    // Editors and Makers with specific assignments only moderate their own makers.
+    request = request.in('maker_id', scope)
   }
 
   const { data, count, error } = await request
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
+    throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
   return {
