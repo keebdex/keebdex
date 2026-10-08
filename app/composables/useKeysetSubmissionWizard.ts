@@ -1,11 +1,14 @@
 import { parseDate, type CalendarDate } from '@internationalized/date'
 import type { Tables } from '~/types/database.types'
 import { createKeysetSchema, keysetKitSchema } from '~/utils/schemas/keyset'
-import { entitySelectionSchema } from '~/utils/schemas/common'
+import { entitySelectionSchema, validateEach } from '~/utils/schemas/common'
 
 type KeysetsResponse = {
   keysets: Pick<Tables<'keysets'>, 'name' | 'profile_keyset_id'>[]
 }
+
+const toCalendarDate = (value?: string | null) =>
+  value ? parseDate(value) : undefined
 
 // Drives the public "submit a keyset" wizard: pick a profile, pick/create a keyset,
 // then create the kit. Reuses existing single-entity APIs; creating a new keyset
@@ -23,16 +26,12 @@ type KeysetsResponse = {
 export const useKeysetSubmissionWizard = ({
   mode = 'create',
   submission = null,
-}: {
-  mode?: 'create' | 'review'
-  submission?: Record<string, any> | null
-} = {}) => {
+}: SubmissionWizardOptions = {}) => {
   const route = useRoute()
   const toast = useToast()
-  const userStore = useUserStore()
   const { manufacturers } = useKeysetProfiles()
-
-  const isReview = mode === 'review'
+  const { isReview, reviewStatus, canSave, canDelete } =
+    useSubmissionReview(mode)
 
   const queryKeyset = String(route.query.keyset || '')
   // Fall back to the profile embedded in `profile_keyset_id` (e.g.
@@ -67,9 +66,28 @@ export const useKeysetSubmissionWizard = ({
     end: undefined as ReturnType<typeof parseDate> | undefined,
   })
 
-  let kitKeySeed = 0
-  const newKit = () => ({
-    _key: kitKeySeed++,
+  // The keyset body for the API, with CalendarDate values as ISO dates.
+  const toKeysetPayload = () => {
+    const payload: Record<string, any> = { ...keyset.value }
+
+    if (payload.ic_date) payload.ic_date = toISODate(payload.ic_date)
+    if (dateRange.value.start) {
+      payload.start_date = toISODate(dateRange.value.start as CalendarDate)
+    }
+    if (dateRange.value.end) {
+      payload.end_date = toISODate(dateRange.value.end as CalendarDate)
+    }
+
+    return payload
+  }
+
+  const {
+    items: kits,
+    create: createKit,
+    add: addKit,
+    remove: removeKit,
+    toPayload,
+  } = useRepeatableItems<Record<string, any>>(() => ({
     kit_id: 'base',
     name: '',
     img: '',
@@ -77,19 +95,9 @@ export const useKeysetSubmissionWizard = ({
     qty: null,
     description: '',
     cancelled: false,
-  })
-  const kits = ref([newKit()])
+  }))
 
-  const addKit = () => {
-    kits.value.push(newKit())
-  }
-
-  const removeKit = (index: number) => {
-    if (kits.value.length > 1) kits.value.splice(index, 1)
-  }
-
-  // Status of the kit being reviewed and of its keyset.
-  const reviewStatus = ref<string | null>(null)
+  // Status of the kit's keyset (the kit's own is `reviewStatus`).
   const keysetReviewStatus = ref<string | null>(null)
 
   const submissionKey: string = submission?.profile_keyset_id || ''
@@ -97,17 +105,6 @@ export const useKeysetSubmissionWizard = ({
   const keysetUnderReview = computed(
     () => !!keysetReviewStatus.value && keysetReviewStatus.value !== 'Approved',
   )
-
-  // Staff can edit anything; submitters only while it's Pending or Rejected
-  // (editing a rejected kit sends it back to review).
-  const canSave = computed(
-    () =>
-      isReview &&
-      (userStore.isModerator ||
-        ['Pending', 'Rejected'].includes(reviewStatus.value || '')),
-  )
-
-  const canDelete = computed(() => canSave.value)
 
   const load = async () => {
     if (!isReview || !submission) return
@@ -128,7 +125,7 @@ export const useKeysetSubmissionWizard = ({
       ...kitFields
     } = submission
 
-    kits.value = [{ ...newKit(), ...kitFields }]
+    kits.value = [createKit(kitFields)]
 
     if (keysetUnderReview.value) {
       const data: any = await $fetch(`/api/keysets/${submissionKey}`)
@@ -136,55 +133,43 @@ export const useKeysetSubmissionWizard = ({
       keysetMode.value = 'new'
 
       Object.assign(keyset.value, {
-        id: data.id,
-        name: data.name,
-        designer: data.designer,
-        sculpt: data.sculpt,
-        url: data.url,
-        img: data.img,
-        description: data.description,
-        profile_id: data.profile_id,
-        status: data.status,
-        review_status: data.review_status,
-        ic_date: data.ic_date ? parseDate(data.ic_date) : undefined,
+        ...pickKeys(data, [
+          'id',
+          'name',
+          'designer',
+          'sculpt',
+          'url',
+          'img',
+          'description',
+          'profile_id',
+          'status',
+          'review_status',
+        ]),
+        ic_date: toCalendarDate(data.ic_date),
       })
 
       dateRange.value = {
-        start: data.start_date ? parseDate(data.start_date) : undefined,
-        end: data.end_date ? parseDate(data.end_date) : undefined,
+        start: toCalendarDate(data.start_date),
+        end: toCalendarDate(data.end_date),
       }
     }
   }
 
   // Saves the keyset (only while under review) and then the kit; approving or
   // rejecting rides on the kit save so the server can cascade to the keyset.
+  // The server sends a submitter's rejected keyset back to review.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
     if (keysetUnderReview.value) {
-      const payload: any = { ...keyset.value }
-
-      if (payload.ic_date) {
-        payload.ic_date = toISODate(payload.ic_date)
-      }
-      if (dateRange.value.start) {
-        payload.start_date = toISODate(dateRange.value.start as CalendarDate)
-      }
-      if (dateRange.value.end) {
-        payload.end_date = toISODate(dateRange.value.end as CalendarDate)
-      }
-
-      // The server sends a submitter's rejected keyset back to review.
       await $fetch(`/api/keysets/${submissionKey}`, {
         method: 'post',
-        body: payload,
+        body: toKeysetPayload(),
       })
     }
-
-    const { _key, ...kit } = kits.value[0]!
 
     await $fetch(`/api/keysets/${submissionKey}/kits`, {
       method: 'post',
       body: {
-        ...kit,
+        ...toPayload(kits.value[0]!),
         profile_keyset_id: submissionKey,
         ...(action === 'update' ? {} : { action }),
       },
@@ -217,6 +202,7 @@ export const useKeysetSubmissionWizard = ({
     })),
   )
 
+  // Only a successful empty response means there's nothing to pick from.
   watch([keysetOptions, keysetsStatus], ([options, status]) => {
     if (
       !isReview &&
@@ -257,7 +243,7 @@ export const useKeysetSubmissionWizard = ({
     true,
   ])
 
-  const stepSchemas = [
+  const validateStep = useStepValidation([
     () => entitySelectionSchema.safeParse(profile.value),
     () =>
       keysetMode.value === 'existing'
@@ -266,24 +252,8 @@ export const useKeysetSubmissionWizard = ({
             ...keyset.value,
             profile_id: profile.value.id,
           }),
-    () => {
-      for (const kit of kits.value) {
-        const result = keysetKitSchema.safeParse(kit)
-        if (!result.success) return result
-      }
-
-      return { success: true as const }
-    },
-  ]
-
-  const validateStep = (index: number) => {
-    const result = stepSchemas[index]?.()
-
-    if (!result || result.success) return true
-
-    toast.add(handleError({ statusMessage: result.error.issues[0]?.message }))
-    return false
-  }
+    () => validateEach(keysetKitSchema, kits.value),
+  ])
 
   const submit = async () => {
     uploading.value = true
@@ -292,22 +262,10 @@ export const useKeysetSubmissionWizard = ({
       let profileKeysetId = existingKeyset.value.id
 
       if (keysetMode.value === 'new') {
-        const payload: any = { ...keyset.value, profile_id: profile.value.id }
-
-        if (payload.ic_date) {
-          payload.ic_date = toISODate(payload.ic_date)
-        }
-        if (dateRange.value.start) {
-          payload.start_date = toISODate(dateRange.value.start as CalendarDate)
-        }
-        if (dateRange.value.end) {
-          payload.end_date = toISODate(dateRange.value.end as CalendarDate)
-        }
-
         const created: any = await $fetch('/api/submissions/keyset', {
           method: 'post',
           body: {
-            keyset: payload,
+            keyset: { ...toKeysetPayload(), profile_id: profile.value.id },
           },
         })
 
@@ -315,11 +273,9 @@ export const useKeysetSubmissionWizard = ({
       }
 
       for (const kit of kits.value) {
-        const { _key, ...kitData } = kit
-
         await $fetch(`/api/keysets/${profileKeysetId}/kits`, {
           method: 'post',
-          body: { ...kitData, profile_keyset_id: profileKeysetId },
+          body: { ...toPayload(kit), profile_keyset_id: profileKeysetId },
         })
       }
 

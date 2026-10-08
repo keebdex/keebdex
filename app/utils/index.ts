@@ -133,3 +133,8 @@ export const squareGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
 
 export const SEARCH_TERM_MIN_LENGTH = 3
+
+// Copies `keys` from `source` (missing keys become undefined), e.g. to hydrate
+// a form model from an API record.
+export const pickKeys = (source: Record<string, any>, keys: string[]) =>
+  Object.fromEntries(keys.map((key) => [key, source?.[key]]))

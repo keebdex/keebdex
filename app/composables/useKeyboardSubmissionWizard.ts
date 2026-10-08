@@ -3,7 +3,11 @@ import {
   keyboardSchema,
   keyboardVariantSchema,
 } from '~/utils/schemas/keyboard'
-import { entitySelectionSchema } from '~/utils/schemas/common'
+import { entitySelectionSchema, validateEach } from '~/utils/schemas/common'
+
+// Older keyboards may store a single style instead of an array.
+const toArray = (value: unknown) =>
+  Array.isArray(value) ? value : value ? [value] : []
 
 // Drives the public "submit a keyboard" wizard: pick a brand, pick/create a keyboard,
 // then create the release + variant. Reuses existing single-entity APIs; creating a new
@@ -21,15 +25,11 @@ import { entitySelectionSchema } from '~/utils/schemas/common'
 export const useKeyboardSubmissionWizard = ({
   mode = 'create',
   submission = null,
-}: {
-  mode?: 'create' | 'review'
-  submission?: Record<string, any> | null
-} = {}) => {
+}: SubmissionWizardOptions = {}) => {
   const route = useRoute()
   const toast = useToast()
-  const userStore = useUserStore()
-
-  const isReview = mode === 'review'
+  const { isReview, reviewStatus, canSave, canDelete } =
+    useSubmissionReview(mode)
 
   const queryKeyboard = String(route.query.keyboard || '')
   // Fall back to the brand embedded in `brand_keyboard_slug` (e.g.
@@ -65,9 +65,13 @@ export const useKeyboardSubmissionWizard = ({
     description: '',
   })
 
-  let variantKeySeed = 0
-  const newVariant = () => ({
-    _key: variantKeySeed++,
+  const {
+    items: variants,
+    create: createVariant,
+    add: addVariant,
+    remove: removeVariant,
+    toPayload,
+  } = useRepeatableItems<Record<string, any>>(() => ({
     release_id: 'draft',
     variant_name: '',
     units_produced: null,
@@ -77,20 +81,11 @@ export const useKeyboardSubmissionWizard = ({
     photo_credit: '',
     currency: 'USD',
     msrp_price: null,
-  })
-  const variants = ref([newVariant()])
-
-  const addVariant = () => {
-    variants.value.push(newVariant())
-  }
-
-  const removeVariant = (index: number) => {
-    if (variants.value.length > 1) variants.value.splice(index, 1)
-  }
+  }))
 
   // Fed into VariantForm's required `keyboard` prop so its Release dropdown shows
   // the chosen/typed release name. Variants always default to `release_id: 'draft'`
-  // (see newVariant below), so the option must always be keyed 'draft' too — the
+  // (see useRepeatableItems above), so the option must always be keyed 'draft' too — the
   // real release id (existing or newly created) is only resolved at submit time.
   const keyboardForVariantForm = computed(() => {
     const releaseLabel =
@@ -200,8 +195,8 @@ export const useKeyboardSubmissionWizard = ({
     },
   )
 
-  // Status of the variant being reviewed, of its release and of its keyboard.
-  const reviewStatus = ref<string | null>(null)
+  // Status of the variant's release and keyboard (the variant's own is
+  // `reviewStatus`).
   const releaseReviewStatus = ref<string | null>(null)
   const keyboardReviewStatus = ref<string | null>(null)
 
@@ -218,17 +213,6 @@ export const useKeyboardSubmissionWizard = ({
       ? releaseReviewStatus.value !== 'Approved'
       : keyboardUnderReview.value,
   )
-
-  // Staff can edit anything; submitters only while it's Pending or Rejected
-  // (editing a rejected variant sends it back to review).
-  const canSave = computed(
-    () =>
-      isReview &&
-      (userStore.isModerator ||
-        ['Pending', 'Rejected'].includes(reviewStatus.value || '')),
-  )
-
-  const canDelete = computed(() => canSave.value)
 
   const load = async () => {
     if (!isReview || !submission) return
@@ -255,32 +239,24 @@ export const useKeyboardSubmissionWizard = ({
 
     // Variants keep the synthetic 'draft' release option (see
     // keyboardForVariantForm); the real release id is resolved on save.
-    variants.value = [
-      { ...newVariant(), ...variantFields, release_id: 'draft' },
-    ]
+    variants.value = [createVariant({ ...variantFields, release_id: 'draft' })]
 
     if (keyboardUnderReview.value || releaseUnderReview.value) {
       const data: any = await $fetch(`/api/keyboards/${submissionKey}`)
 
       if (keyboardUnderReview.value) {
         Object.assign(keyboard.value, {
-          id: data.id,
-          name: data.name,
-          brand_slug: data.brand_slug,
-          form_factor: data.form_factor,
-          top_case_styles: Array.isArray(data.top_case_styles)
-            ? data.top_case_styles
-            : data.top_case_styles
-              ? [data.top_case_styles]
-              : [],
-          mount_styles: Array.isArray(data.mount_styles)
-            ? data.mount_styles
-            : data.mount_styles
-              ? [data.mount_styles]
-              : [],
-          typing_angle: data.typing_angle,
-          derived_from: data.derived_from,
-          description: data.description,
+          ...pickKeys(data, [
+            'id',
+            'name',
+            'brand_slug',
+            'form_factor',
+            'typing_angle',
+            'derived_from',
+            'description',
+          ]),
+          top_case_styles: toArray(data.top_case_styles),
+          mount_styles: toArray(data.mount_styles),
         })
       }
 
@@ -324,12 +300,10 @@ export const useKeyboardSubmissionWizard = ({
       })
     }
 
-    const { _key, ...variant } = variants.value[0]!
-
     await $fetch(`/api/keyboards/${submissionKey}/variants`, {
       method: 'post',
       body: {
-        ...variant,
+        ...toPayload(variants.value[0]!),
         release_id: submission?.release_id,
         brand_slug: brandSlug,
         brand_keyboard_slug: submissionKey,
@@ -360,7 +334,7 @@ export const useKeyboardSubmissionWizard = ({
 
   const ok = { success: true as const }
 
-  const stepSchemas = [
+  const validateStep = useStepValidation([
     () => entitySelectionSchema.safeParse(brand.value),
     () =>
       isReview
@@ -382,28 +356,12 @@ export const useKeyboardSubmissionWizard = ({
                 : '',
             })
           : keyboardReleaseSchema.safeParse(release.value),
-    () => {
-      const schema = keyboardVariantSchema.omit({ release_id: true })
-
-      for (const variant of variants.value) {
-        const result = schema.safeParse(variant)
-        if (!result.success) return result
-      }
-
-      return ok
-    },
-  ]
-
-  const validateStep = (index: number) => {
-    const result = stepSchemas[index]?.()
-
-    if (!result || result.success) return true
-
-    const statusMessage =
-      'error' in result ? result.error.issues[0]?.message : undefined
-    toast.add(handleError({ statusMessage }))
-    return false
-  }
+    () =>
+      validateEach(
+        keyboardVariantSchema.omit({ release_id: true }),
+        variants.value,
+      ),
+  ])
 
   const submit = async () => {
     uploading.value = true
@@ -437,12 +395,10 @@ export const useKeyboardSubmissionWizard = ({
       }
 
       for (const variant of variants.value) {
-        const { _key, ...variantData } = variant
-
         await $fetch(`/api/keyboards/${brandKeyboardSlug}/variants`, {
           method: 'post',
           body: {
-            ...variantData,
+            ...toPayload(variant),
             release_id: releaseId,
             brand_slug: brandKeyboardSlug.split('/')[0],
             brand_keyboard_slug: brandKeyboardSlug,
