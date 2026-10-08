@@ -1,16 +1,41 @@
-import { serverSupabaseClient } from '#supabase/server'
+import {
+  canManageAnyAssignment,
+  canManageAssignment,
+} from '~/utils/permissions'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
+  const { profile: profileId, keyset: keysetSlug } = getRouterParams(event)
+  const { client, user, profile } = await getActorProfile(event)
   const body = pickTableFields('keysets', await readBody(event))
+
+  const isStaff =
+    canManageAnyAssignment(profile) &&
+    canManageAssignment(profile, `${profileId}/${keysetSlug}`)
+
+  // Only staff may set moderation fields; a submitter editing their own
+  // rejected keyset sends it back to review.
+  const payload = isStaff
+    ? body
+    : {
+        ...omitModerationFields(body),
+        ...(body.id
+          ? await getOwnResubmission(
+              client,
+              'keysets',
+              { id: body.id as number },
+              user.sub,
+              false,
+            )
+          : getSubmissionAttribution(false, user.sub)),
+      }
 
   const { data, error } = body.id
     ? await client
         .from('keysets')
-        .update(body)
+        .update(payload)
         .eq('id', body.id as number)
         .select('id')
-    : await client.from('keysets').insert(body)
+    : await client.from('keysets').insert(payload as any)
 
   if (error) {
     throw createError({

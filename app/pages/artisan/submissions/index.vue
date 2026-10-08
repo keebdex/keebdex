@@ -22,18 +22,12 @@
           {{ pageDescription }}
         </template>
 
-        <div class="flex justify-end px-4 py-3.5 border-b border-accented">
-          <USelect
-            v-model="statusFilter"
-            :items="statusOptions"
-            class="w-full sm:w-52"
-          />
-        </div>
+        <SharedSubmissionToolbar v-model:status="statusFilter" />
 
         <UTable
           sticky
           :loading="status === 'pending'"
-          :data="data.data"
+          :data="rows"
           :columns="columns"
           class="min-w-0 max-w-full"
         >
@@ -76,81 +70,30 @@
             {{ row.original.qty ?? '-' }}
           </template>
 
-          <!-- <template #created_at-cell="{ row }">
-            {{ formatDate(row.original.created_at) }}
-          </template> -->
-
           <template #action-cell="{ row }">
-            <div class="flex flex-wrap items-center gap-2">
-              <template v-if="isModerator">
-                <UButton
-                  v-if="row.original.review_status !== 'Approved'"
-                  label="Approve"
-                  size="xs"
-                  color="success"
-                  icon="hugeicons:checkmark-circle-02"
-                  :loading="processingId === row.original.id"
-                  :disabled="processingId !== null"
-                  @click="moderateSubmission(row.original, 'approve')"
-                />
-                <UButton
-                  v-if="row.original.review_status !== 'Rejected'"
-                  label="Reject"
-                  size="xs"
-                  color="error"
-                  icon="hugeicons:cancel-circle"
-                  :loading="processingId === row.original.id"
-                  :disabled="processingId !== null"
-                  @click="moderateSubmission(row.original, 'reject')"
-                />
-              </template>
-              <UButton
-                v-if="canEdit(row.original)"
-                label="Edit"
-                size="xs"
-                variant="soft"
-                icon="hugeicons:file-edit"
-                :disabled="processingId !== null"
-                @click="editSubmission(row.original)"
-              />
-              <UButton
-                v-if="canDelete(row.original)"
-                label="Delete"
-                size="xs"
-                color="error"
-                variant="soft"
-                icon="hugeicons:delete-02"
-                :disabled="processingId !== null"
-                @click="deleteTarget = row.original"
-              />
-            </div>
+            <SharedSubmissionRowActions
+              :status="row.original.review_status"
+              :loading="processingId === row.original.id"
+              :disabled="busy"
+              :can-edit="canEdit(row.original)"
+              :can-delete="canDelete(row.original)"
+              @approve="moderate(row.original, 'approve')"
+              @reject="moderate(row.original, 'reject')"
+              @edit="edit(row.original)"
+              @delete="deleteTarget = row.original"
+            />
           </template>
         </UTable>
 
-        <div
-          class="border-t border-default pt-4 mt-auto px-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <p class="text-toned text-sm text-center sm:text-left">
-            Showing {{ paginationMeta.from }} to {{ paginationMeta.to }} of
-            <span class="font-semibold text-highlighted">{{
-              paginationMeta.total
-            }}</span>
-          </p>
-
-          <UPagination
-            v-if="data.count > size"
-            :page="page"
-            :items-per-page="size"
-            :total="data.count"
-            :ui="{
-              list: 'flex-wrap justify-center sm:justify-end',
-            }"
-            @update:page="setPage"
-          />
-        </div>
+        <SharedSubmissionPagination
+          :meta="paginationMeta"
+          :page="page"
+          :size="size"
+          @update:page="setPage"
+        />
       </UPageCard>
 
-      <UModal v-model:open="editorOpen" :title="editorTitle">
+      <UModal v-model:open="editorOpen" title="Edit Colorway">
         <template #body="{ close }">
           <ArtisanModalSubmissionWizard
             v-if="selectedSubmission"
@@ -178,16 +121,6 @@ definePageMeta({
   middleware: 'auth',
 })
 
-const userStore = useUserStore()
-const toast = useToast()
-const { isModerator } = storeToRefs(userStore)
-
-const pageDescription = computed(() =>
-  isModerator.value
-    ? 'Review colorways submitted by the community and approve, reject, or edit them before they become official records.'
-    : "Track the colorways you've submitted. You can edit or delete a colorway while it's pending review or after it was rejected; editing a rejected colorway sends it back for review.",
-)
-
 const columns = [
   { accessorKey: 'img', header: 'Image' },
   { accessorKey: 'name', header: 'Name' },
@@ -196,143 +129,45 @@ const columns = [
   { accessorKey: 'release', header: 'Release' },
   { accessorKey: 'qty', header: 'Qty' },
   { accessorKey: 'review_status', header: 'Status' },
-  // { accessorKey: 'created_at', header: 'Submitted' },
   { id: 'action' },
 ]
 
-const statusFilter = ref('Pending')
+const {
+  isModerator,
+  statusFilter,
+  page,
+  size,
+  setPage,
+  status,
+  rows,
+  paginationMeta,
+  canEdit,
+  canDelete,
+  processingId,
+  busy,
+  moderate,
+  deleteTarget,
+  deleteOpen,
+  deleting,
+  confirmDelete,
+  editorOpen,
+  selectedSubmission,
+  edit,
+  onEditSuccess,
+  onDeleteSuccess,
+} = useSubmissionReviewQueue({
+  endpoint: '/api/submissions/artisan',
+  key: 'artisan-submissions',
+  entity: 'Colorway',
+  label: (colorway) => colorway.name,
+  leafUrl: (colorway) =>
+    `/api/makers/${colorway.maker_id}/sculpts/${colorway.sculpt_id}/colorways`,
+  statusOf: (colorway) => colorway.review_status,
+})
 
-// const formatDate = (value) => {
-//   if (!value) return '-'
-//   return new Date(value).toLocaleDateString()
-// }
-
-const { page, size, setPage, resetPage } = usePagination(10)
-const { data, status, refresh } = useAdvancedSearch(
-  '/api/submissions/artisan',
-  {
-    key: 'artisan-submissions',
-    term: ref(''),
-    minLength: 0,
-    pagination: {
-      page,
-      size,
-    },
-    filters: {
-      status: statusFilter,
-    },
-  },
+const pageDescription = computed(() =>
+  isModerator.value
+    ? 'Review colorways submitted by the community and approve, reject, or edit them before they become official records.'
+    : "Track the colorways you've submitted. You can edit or delete a colorway while it's pending review or after it was rejected; editing a rejected colorway sends it back for review.",
 )
-
-watch(statusFilter, resetPage)
-
-const paginationMeta = computed(() => {
-  const total = data.value?.count || 0
-  const visibleOnPage = data.value?.data?.length || 0
-
-  if (!total || !visibleOnPage) {
-    return {
-      total,
-      from: 0,
-      to: 0,
-    }
-  }
-
-  const from = (page.value - 1) * size + 1
-  const to = from + visibleOnPage - 1
-
-  return {
-    total,
-    from,
-    to,
-  }
-})
-
-const editorOpen = ref(false)
-const selectedSubmission = ref(null)
-const processingId = ref(null)
-
-const editorTitle = 'Edit Colorway'
-
-// Submitters can only act on colorways that are still in (or back in) review.
-const canEdit = (colorway) =>
-  isModerator.value ||
-  ['Pending', 'Rejected'].includes(colorway.review_status)
-
-const canDelete = canEdit
-
-const colorwayUrl = (colorway) =>
-  `/api/makers/${colorway.maker_id}/sculpts/${colorway.sculpt_id}/colorways`
-
-const moderateSubmission = async (colorway, action) => {
-  if (!isModerator.value || processingId.value !== null) return
-
-  processingId.value = colorway.id
-
-  try {
-    await $fetch(colorwayUrl(colorway), {
-      method: 'post',
-      body: { id: colorway.id, action },
-    })
-
-    toast.add(handleSuccess(action, colorway.name, 'Colorway'))
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    processingId.value = null
-  }
-}
-
-const deleteTarget = ref(null)
-const deleting = ref(false)
-const deleteOpen = computed({
-  get: () => !!deleteTarget.value,
-  set: (value) => {
-    if (!value && !deleting.value) deleteTarget.value = null
-  },
-})
-
-const confirmDelete = async () => {
-  const colorway = deleteTarget.value
-
-  if (!colorway || deleting.value) return
-
-  deleting.value = true
-
-  try {
-    await $fetch(`${colorwayUrl(colorway)}/${colorway.id}`, {
-      method: 'delete',
-    })
-
-    toast.add(handleSuccess('delete', colorway.name, 'Colorway'))
-    deleteTarget.value = null
-    await refresh()
-  } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
-  } finally {
-    deleting.value = false
-  }
-}
-
-const editSubmission = (colorway) => {
-  selectedSubmission.value = colorway
-  editorOpen.value = true
-}
-
-const closeEditor = async (close) => {
-  await refresh()
-  close()
-  editorOpen.value = false
-  selectedSubmission.value = null
-}
-
-const onEditSuccess = async (close, result) => {
-  // A rejected colorway that was edited is Pending again, so follow it there.
-  if (result?.resubmitted) statusFilter.value = 'Pending'
-
-  await closeEditor(close)
-}
-
-const onDeleteSuccess = (close) => closeEditor(close)
 </script>

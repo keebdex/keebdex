@@ -1,24 +1,21 @@
 import slugify from 'slugify'
 import { colorwaySchema, sculptSchema } from '~/utils/schemas/artisan'
-import { entitySelectionSchema } from '~/utils/schemas/common'
+import { entitySelectionSchema, validateEach } from '~/utils/schemas/common'
 
 export const useArtisanSubmissionWizard = ({
   mode = 'create',
   submission,
-}: {
-  mode?: 'create' | 'review'
-  submission?: Record<string, any> | null
-} = {}) => {
+}: SubmissionWizardOptions = {}) => {
   const route = useRoute()
   const toast = useToast()
-  const userStore = useUserStore()
-  const isReview = mode === 'review'
+  const { isReview, reviewStatus, canSave, canDelete } =
+    useSubmissionReview(mode)
 
   const maker = ref({ id: String(route.query.maker || '') })
   const sculptMode = ref('existing')
   const existingSculpt = ref({ id: String(route.query.sculpt || '') })
 
-  const sculpt = ref({
+  const sculpt = ref<Record<string, any>>({
     name: '',
     release: '',
     profile: null,
@@ -28,6 +25,7 @@ export const useArtisanSubmissionWizard = ({
     is_revision_of: null,
     story: '',
   })
+  const sculptFields = ['id', ...Object.keys(sculpt.value)]
 
   const uploading = ref(false)
 
@@ -65,8 +63,15 @@ export const useArtisanSubmissionWizard = ({
     })),
   )
 
+  // Only a successful empty response means there's nothing to pick from.
   watch([sculptOptions, sculptsStatus], ([options, status]) => {
-    if (status !== 'pending' && maker.value.id && !options.length) {
+    if (
+      !isReview &&
+      status === 'success' &&
+      maker.value.id &&
+      !existingSculpt.value.id &&
+      !options.length
+    ) {
       sculptMode.value = 'new'
     }
   })
@@ -102,30 +107,34 @@ export const useArtisanSubmissionWizard = ({
     return 0
   })
 
-  let colorwayKeySeed = 0
-  const colorways = ref<any[]>([])
-
-  const newColorway = () => ({
-    _key: colorwayKeySeed++,
+  const {
+    items: colorways,
+    create: createColorway,
+    add: addColorway,
+    remove: removeColorway,
+    toPayload,
+  } = useRepeatableItems<Record<string, any>>((index) => ({
     name: '',
     img: '',
-    order: baseOrder.value + colorways.value.length + 1,
+    order: baseOrder.value + index + 1,
     currency: 'USD',
     sale_type: 'Raffle',
+  }))
+
+  // Re-sync colorways still on their auto-computed order when baseOrder
+  // changes; anything the user has edited manually is left alone.
+  watch(baseOrder, (next, prev) => {
+    colorways.value.forEach((colorway, index) => {
+      if (colorway.order === prev + index + 1) {
+        colorway.order = next + index + 1
+      }
+    })
   })
 
-  colorways.value.push(newColorway())
-
-  const addColorway = () => {
-    colorways.value.push(newColorway())
-  }
-
-  const removeColorway = (index: number) => {
-    if (colorways.value.length > 1) colorways.value.splice(index, 1)
-  }
-
-  const reviewStatus = ref<string | null>(null)
   const sculptReviewStatus = ref<string | null>(null)
+
+  const colorwaysUrl = (sculptId = existingSculpt.value.id) =>
+    `/api/makers/${maker.value.id}/sculpts/${sculptId}/colorways`
 
   const load = async () => {
     if (!isReview || !submission) return
@@ -135,7 +144,7 @@ export const useArtisanSubmissionWizard = ({
     sculptMode.value = 'existing'
     existingSculpt.value = { id: submission.sculpt_id }
     reviewStatus.value = submission.review_status
-    colorways.value = [{ ...submission, _key: colorwayKeySeed++ }]
+    colorways.value = [createColorway(submission)]
 
     // The sculpt may itself be a proposal submitted alongside this colorway
     // (see server/api/makers/[maker]/sculpts/[sculpt].post.ts) — while it's
@@ -149,34 +158,15 @@ export const useArtisanSubmissionWizard = ({
 
         sculptMode.value = 'new'
         sculptReviewStatus.value = submission.sculpt.review_status
-        Object.assign(sculpt.value, {
-          id: sculptDetail.id,
-          name: sculptDetail.name,
-          release: sculptDetail.release,
-          profile: sculptDetail.profile,
-          cast: sculptDetail.cast,
-          design: sculptDetail.design,
-          collection: sculptDetail.collection,
-          is_revision_of: sculptDetail.is_revision_of,
-          story: sculptDetail.story,
-        })
+        Object.assign(sculpt.value, pickKeys(sculptDetail, sculptFields))
       } catch {
         // Fall back to the locked existing-sculpt select below.
       }
     }
   }
 
-  // Staff can edit anything; submitters only while it's Pending or Rejected
-  // (editing a rejected colorway sends it back to review).
-  const canSave = computed(
-    () =>
-      isReview &&
-      (userStore.isModerator ||
-        ['Pending', 'Rejected'].includes(reviewStatus.value || '')),
-  )
-
-  const canDelete = computed(() => canSave.value)
-
+  // Saves the sculpt (only while under review) and then the colorway;
+  // approving rides on the colorway save so the server can cascade.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
     if (sculptReviewStatus.value) {
       await $fetch(
@@ -192,40 +182,20 @@ export const useArtisanSubmissionWizard = ({
       )
     }
 
-    for (const colorway of colorways.value) {
-      const { _key, ...colorwayData } = colorway
-      await $fetch<any[]>(
-        `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways`,
-        {
-          method: 'post',
-          body: {
-            ...colorwayData,
-            ...(action === 'update' ? {} : { action }),
-          },
-        },
-      )
-    }
+    await $fetch(colorwaysUrl(), {
+      method: 'post',
+      body: {
+        ...toPayload(colorways.value[0]!),
+        ...(action === 'update' ? {} : { action }),
+      },
+    })
   }
 
   const remove = async () => {
-    const colorwayId = submission?.id
-    if (!colorwayId) return
+    if (!submission?.id) return
 
-    await $fetch(
-      `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}/colorways/${colorwayId}`,
-      { method: 'delete' },
-    )
+    await $fetch(`${colorwaysUrl()}/${submission.id}`, { method: 'delete' })
   }
-
-  // Re-sync colorways still on their auto-computed order when baseOrder
-  // changes; anything the user has edited manually is left alone.
-  watch(baseOrder, (next, prev) => {
-    colorways.value.forEach((colorway, index) => {
-      if (colorway.order === prev + index + 1) {
-        colorway.order = next + index + 1
-      }
-    })
-  })
 
   // Drives the Next button's disabled state so the wizard can't advance
   // past a step whose entity hasn't been picked yet.
@@ -237,36 +207,20 @@ export const useArtisanSubmissionWizard = ({
     true,
   ])
 
-  const stepSchemas = [
+  const colorwayStepSchema = colorwaySchema.omit({
+    maker_id: true,
+    sculpt_id: true,
+    maker_sculpt_id: true,
+  })
+
+  const validateStep = useStepValidation([
     () => entitySelectionSchema.safeParse(maker.value),
     () =>
       sculptMode.value === 'existing'
         ? entitySelectionSchema.safeParse(existingSculpt.value)
         : sculptSchema.safeParse(sculpt.value),
-    () => {
-      const schema = colorwaySchema.omit({
-        maker_id: true,
-        sculpt_id: true,
-        maker_sculpt_id: true,
-      })
-
-      for (const colorway of colorways.value) {
-        const result = schema.safeParse(colorway)
-        if (!result.success) return result
-      }
-
-      return { success: true as const }
-    },
-  ]
-
-  const validateStep = (index: number) => {
-    const result = stepSchemas[index]?.()
-
-    if (!result || result.success) return true
-
-    toast.add(handleError({ statusMessage: result.error.issues[0]?.message }))
-    return false
-  }
+    () => validateEach(colorwayStepSchema, colorways.value),
+  ])
 
   const submit = async () => {
     uploading.value = true
@@ -294,20 +248,17 @@ export const useArtisanSubmissionWizard = ({
       const createdColorways = []
 
       for (const colorway of colorways.value) {
-        const { _key, ...colorwayData } = colorway
-        const payload = {
-          ...colorwayData,
-          maker_id: maker.value.id,
-          sculpt_id: sculptId,
-          maker_sculpt_id: `${maker.value.id}/${sculptId}`,
-          source: 'keebdex',
-          overridden_fields: [],
-        }
-
-        const [created] = await $fetch<any[]>(
-          `/api/makers/${maker.value.id}/sculpts/${sculptId}/colorways`,
-          { method: 'post', body: payload },
-        )
+        const [created] = await $fetch<any[]>(colorwaysUrl(sculptId), {
+          method: 'post',
+          body: {
+            ...toPayload(colorway),
+            maker_id: maker.value.id,
+            sculpt_id: sculptId,
+            maker_sculpt_id: `${maker.value.id}/${sculptId}`,
+            source: 'keebdex',
+            overridden_fields: [],
+          },
+        })
         createdColorways.push(created)
       }
 

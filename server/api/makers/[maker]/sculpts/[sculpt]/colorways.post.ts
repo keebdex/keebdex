@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const { maker, sculpt } = getRouterParams(event)
   const makerSculptId = `${maker}/${sculpt}`
 
-  const { client, user, parent, isStaff, attribute } =
+  const { client, user, isStaff, attribute } =
     await getChildSubmissionContext(event, 'artisan', makerSculptId)
   const body = await readBody(event)
   // Staff reviewing a colorway can approve/reject it while saving.
@@ -33,66 +33,28 @@ export default defineEventHandler(async (event) => {
   let result
 
   if (colorway.id) {
-    const payload: Record<string, unknown> = {
-      ...omitModerationFields(colorway),
-      ...moderation,
-    }
+    const { data, resubmitted } = await updateChildSubmission({
+      client,
+      table: 'artisan_colorways',
+      match: {
+        id: colorway.id as number,
+        maker_id: maker!,
+        sculpt_id: sculpt!,
+      },
+      payload: { ...omitModerationFields(colorway), ...moderation },
+      userId: user.sub,
+      isStaff,
+      label: 'colorway',
+    })
 
-    // Editing your own rejected colorway (and its sculpt) sends it back to review.
-    let resubmitted = false
-
-    if (!isStaff) {
-      const { data: current } = await client
-        .from('artisan_colorways')
-        .select('review_status, submitted_by')
-        .eq('id', colorway.id as number)
-        .eq('maker_id', maker)
-        .eq('sculpt_id', sculpt)
-        .maybeSingle()
-
-      if (
-        current?.submitted_by === user.sub &&
-        current.review_status === 'Rejected'
-      ) {
-        Object.assign(payload, getResubmissionPatch())
-        resubmitted = true
-      }
-    }
-
-    const { data, error } = await client
-      .from('artisan_colorways')
-      .update(payload)
-      .eq('id', colorway.id as number)
-      .eq('maker_id', maker)
-      .eq('sculpt_id', sculpt)
-      .select()
-
-    if (error) {
-      throw createError({ statusCode: 500, statusMessage: error.message })
-    }
-
-    if (!data?.length) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: "You can't edit this colorway in its current state",
+    // Editing your own rejected colorway sends its rejected sculpt back too.
+    if (resubmitted) {
+      await resubmitRejectedParent(client, 'artisan_sculpts', {
+        maker_sculpt_id: makerSculptId,
       })
     }
 
-    if (resubmitted && parent.review_status === 'Rejected') {
-      const { error: resubmitError } = await client
-        .from('artisan_sculpts')
-        .update(getResubmissionPatch())
-        .eq('maker_sculpt_id', makerSculptId)
-
-      if (resubmitError) {
-        throw createError({
-          statusCode: 500,
-          statusMessage: resubmitError.message,
-        })
-      }
-    }
-
-    result = data
+    result = [data]
   } else {
     const { data, error } = await client
       .from('artisan_colorways')

@@ -33,10 +33,7 @@ export default defineEventHandler(async (event) => {
     slug,
     brand_keyboard_slug,
     typing_angle: toNullableNumber(keyboardInput.typing_angle),
-    review_status: isModerator ? 'Approved' : 'Pending',
-    submitted_by: user.sub,
-    verified_at: isModerator ? new Date().toISOString() : null,
-    verified_by: isModerator ? user.sub : null,
+    ...getSubmissionAttribution(isModerator, user.sub),
   }
 
   const { data: keyboard, error: keyboardError } = await client
