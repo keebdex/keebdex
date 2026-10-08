@@ -56,9 +56,17 @@ const { authenticated, user, role, isAdmin } = storeToRefs(userStore)
 const client = useSupabaseClient()
 const toast = useToast()
 
-const appConfig = useAppConfig()
-const colorMode = useColorMode()
-const { themeId, presets, setTheme } = useAppTheme()
+const { colorModeItems, paletteItems } = useThemeMenu()
+
+// Keep the dropdown open so users can compare several options in a row.
+const keepOpen = (items) =>
+  items.map((item) => ({
+    ...item,
+    onSelect(e) {
+      e.preventDefault()
+      item.onSelect()
+    },
+  }))
 
 const items = computed(() => {
   const managementItems = []
@@ -98,49 +106,13 @@ const items = computed(() => {
   const theme = {
     label: 'Theme',
     icon: 'hugeicons:dark-mode',
-    children: [
-      {
-        label: 'System',
-        icon: appConfig.ui.icons.system,
-        active: colorMode.preference === 'system',
-        onSelect(e) {
-          e.preventDefault()
-          colorMode.preference = 'system'
-        },
-      },
-      {
-        label: 'Light',
-        icon: appConfig.ui.icons.light,
-        active: colorMode.preference === 'light',
-        onSelect(e) {
-          e.preventDefault()
-          colorMode.preference = 'light'
-        },
-      },
-      {
-        label: 'Dark',
-        icon: appConfig.ui.icons.dark,
-        active: colorMode.preference === 'dark',
-        onSelect(e) {
-          e.preventDefault()
-          colorMode.preference = 'dark'
-        },
-      },
-    ],
+    children: keepOpen(colorModeItems.value),
   }
 
   const palette = {
     label: 'Palette',
     icon: 'hugeicons:paint-board',
-    children: presets.map((preset) => ({
-      label: preset.label,
-      icon: preset.icon,
-      active: themeId.value === preset.id,
-      onSelect(e) {
-        e.preventDefault()
-        setTheme(preset.id)
-      },
-    })),
+    children: keepOpen(paletteItems.value),
   }
 
   return authenticated.value

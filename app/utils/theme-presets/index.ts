@@ -7,6 +7,7 @@ import parchment from './parchment'
 
 export type { ThemePreset } from './types'
 export { presetToCss } from './types'
+export { resolvePresetToken } from './preview'
 
 export const THEME_COOKIE = 'app-theme'
 export const DEFAULT_THEME_ID = 'aurora'

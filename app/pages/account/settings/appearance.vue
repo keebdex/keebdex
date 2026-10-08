@@ -6,7 +6,7 @@
     />
 
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold text-highlighted">Color mode</h2>
+      <h2 class="text-lg font-semibold text-highlighted">Theme</h2>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
         <USelect
           v-model="colorMode.preference"
@@ -22,9 +22,9 @@
 
     <section class="space-y-4">
       <div>
-        <h2 class="text-lg font-semibold text-highlighted">Theme</h2>
+        <h2 class="text-lg font-semibold text-highlighted">Palette</h2>
         <p class="text-sm text-muted">
-          Select a theme to apply it immediately.
+          Select a palette to apply it immediately.
         </p>
       </div>
 
@@ -42,8 +42,12 @@
           @click="setTheme(preset.id)"
         >
           <div
-            class="flex items-center justify-between border-b border-default px-4 py-3"
-            :style="previewStyle(preset, previewMode)"
+            class="flex items-center justify-between border-b px-4 py-3"
+            :style="{
+              ...previewStyle(preset, previewMode),
+              background: 'var(--preview-bg)',
+              borderColor: 'var(--preview-border)',
+            }"
           >
             <span
               class="flex items-center gap-2 font-semibold text-[var(--preview-text)]"
@@ -62,6 +66,7 @@
             class="p-4"
             :style="{
               ...previewStyle(preset, previewMode),
+              background: 'var(--preview-bg)',
             }"
           >
             <div
@@ -123,16 +128,18 @@
 </template>
 
 <script setup lang="ts">
-import type { ThemePreset } from '~/utils/theme-presets'
+import {
+  resolvePresetToken,
+  type ThemePreset,
+} from '~/utils/theme-presets'
 
-const appConfig = useAppConfig()
 const colorMode = useColorMode()
 const { themeId, presets, setTheme } = useAppTheme()
 
 const modeItems = [
   { label: 'Sync with system', value: 'system' },
-  { label: 'Light theme', value: 'light' },
-  { label: 'Dark theme', value: 'dark' },
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' },
 ]
 
 const modeDescription = computed(() => {
@@ -147,26 +154,15 @@ const previewMode = computed(() =>
   colorMode.value === 'dark' ? 'dark' : 'light',
 )
 
-function paletteColor(
-  preset: ThemePreset,
-  alias: 'primary' | 'neutral',
-  shade: number,
-) {
-  const paletteName = preset.ui?.colors?.[alias] || appConfig.ui.colors?.[alias]
-  const key = `--color-${paletteName}-${shade}`
-
-  return preset.css?.root?.[key] ?? `var(${key})`
-}
-
 function previewStyle(preset: ThemePreset, mode: 'light' | 'dark') {
-  const dark = mode === 'dark'
+  const token = (name: string) => resolvePresetToken(preset, mode, name)
 
   return {
-    '--preview-bg': paletteColor(preset, 'neutral', dark ? 900 : 50),
-    '--preview-surface': paletteColor(preset, 'neutral', dark ? 800 : 100),
-    '--preview-border': paletteColor(preset, 'neutral', dark ? 700 : 300),
-    '--preview-primary': paletteColor(preset, 'primary', dark ? 400 : 500),
-    '--preview-text': paletteColor(preset, 'neutral', dark ? 50 : 900),
+    '--preview-bg': token('--ui-bg'),
+    '--preview-surface': token('--ui-bg-elevated'),
+    '--preview-border': token('--ui-border'),
+    '--preview-primary': token('--ui-primary'),
+    '--preview-text': token('--ui-text-highlighted'),
     '--preview-radius': preset.css.root?.['--ui-radius'] || 'var(--ui-radius)',
   }
 }

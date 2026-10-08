@@ -88,7 +88,7 @@ const open = ref(false)
 const collapsed = ref(false)
 const routesMenuKey = ref(0)
 const { groupedProfiles } = useKeysetProfiles()
-const { themeId, presets, setTheme } = useAppTheme()
+const { paletteItems } = useThemeMenu()
 
 const wrapSection = ({
   collapsed,
@@ -307,12 +307,7 @@ const groups = computed(() => [
   {
     id: 'palette',
     label: 'Palette',
-    items: presets.map((preset) => ({
-      label: preset.label,
-      icon: preset.icon,
-      active: themeId.value === preset.id,
-      onSelect: () => setTheme(preset.id),
-    })),
+    items: paletteItems.value,
   },
 ])
 
