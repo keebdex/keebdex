@@ -1,3 +1,4 @@
+import analog from './analog-dreams'
 import aurora from './aurora'
 import taro from './taro'
 import carbon from './carbon'
@@ -10,7 +11,7 @@ export { presetToCss } from './types'
 export const THEME_COOKIE = 'app-theme'
 export const DEFAULT_THEME_ID = 'aurora'
 
-export const themePresets = [aurora, carbon, eva01, parchment, taro]
+export const themePresets = [aurora, analog, carbon, eva01, parchment, taro]
 
 export function findPreset(id?: string | null) {
   return (

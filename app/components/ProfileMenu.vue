@@ -95,8 +95,8 @@ const items = computed(() => {
       ]
     : []
 
-  const appearance = {
-    label: 'Appearance',
+  const theme = {
+    label: 'Theme',
     icon: 'hugeicons:dark-mode',
     children: [
       {
@@ -129,8 +129,8 @@ const items = computed(() => {
     ],
   }
 
-  const themes = {
-    label: 'Theme',
+  const palette = {
+    label: 'Palette',
     icon: 'hugeicons:paint-board',
     children: presets.map((preset) => ({
       label: preset.label,
@@ -161,8 +161,8 @@ const items = computed(() => {
             icon: 'hugeicons:settings-02',
             to: '/account/settings',
           },
-          appearance,
-          themes,
+          theme,
+          palette,
         ],
         ...adminActions,
         [
@@ -185,7 +185,7 @@ const items = computed(() => {
             },
           },
         ],
-        [appearance, themes],
+        [theme, palette],
       ]
 })
 

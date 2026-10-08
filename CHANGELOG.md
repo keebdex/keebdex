@@ -2,16 +2,17 @@
 
 ## [Unreleased]
 
+Throw the **doors open** — anyone signed in can now contribute to the catalog. This release adds community submissions for keyboards, keysets, and artisan colorways, with full moderation tools behind them, plus theme presets, a trading-card colorway preview, and a batch of fixes.
+
 ### ✨ What's New
 
-- **Community Submissions** — Signed-in users can propose artisan colorways, keyset kits, and keyboard variants at `/artisan/submissions/submit`, `/keyset/submissions/submit`, and `/keyboard/submissions/submit`. Each flow is a stepper wizard (Maker → Sculpt → Colorway, Profile → Keyset → Kit, Brand → Keyboard → Release → Variant) built on the shared atomic forms and Zod schemas. Every step either picks an existing record or proposes a new one, so users can also add a colorway, kit, release, or variant to an already-published sculpt, keyset, or keyboard without touching it. Proposals stay Pending (visible only to their submitter and staff) until reviewed.
-- **Contextual Submission Links** — "Submit a Colorway/Kit/Release/Variant" buttons on detail pages preselect the existing parents and jump straight to the relevant step.
-- **Moderation & Review Tables** — `/artisan/submissions`, `/keyset/submissions`, and `/keyboard/submissions` list one row per colorway, kit, or variant with a Pending/Approved/Rejected filter, scoped to the submitter or to the staff assigned to that content. Moderators get quick Approve/Reject, and an Edit wizard that lets them review the leaf together with any parent (sculpt, keyset, keyboard, release) still under review; approving the leaf approves those parents. Submitters can edit or delete their Pending/Rejected entries (editing a rejected one sends it back to Pending), and every row has a Delete action with confirmation.
-- **Staff Auto-Approval** — Contributions by staff authorized for the relevant brand, profile, or maker are approved immediately; everyone else's enter the Pending queue.
-- **Unified Submission Backend** — Colorways, kits, releases, and variants share one moderation layer (`server/utils/child-submissions.ts`) for ownership, approve/reject, cascade to parents, resubmission, and delete handling. `artisan_colorways.status` is renamed to `review_status` to match the other submission tables.
-- **Trading Card Colorway Preview** — Redesigned the colorway preview into a Yu-Gi-Oh!/Pokémon-style trading card, with a selector to switch between the two styles directly in the preview modal.
-- **Theme Preset System** — Users can now switch between theme presets (Default, Carbon, EVA-01, Parchment, Taro) from the profile menu or the Appearance settings tab. Each preset controls colors, fonts, component defaults, and CSS custom properties for semantic tokens; themes persist via cookie and apply immediately without reload.
-- Added conditional top case styles selection for 60% and TKL keyboards with support for multiple choices.
+- **Community Submissions** — Signed-in users can now propose **artisan colorways**, **keyset kits**, and **keyboard variants** through guided step-by-step wizards. Each step either picks an existing record or proposes a new one, so you can extend an already-published sculpt, keyset, or keyboard without recreating it. Submissions stay _Pending_ — visible only to you and staff — until reviewed.
+- **Contextual Submission Links** — "Submit a Colorway/Kit/Release/Variant" buttons on detail pages preselect the parent items and jump straight to the right step.
+- **Moderation & Review** — Dedicated review pages for artisans, keysets, and keyboards with _Pending / Approved / Rejected_ filtering. Moderators get quick Approve/Reject plus an edit wizard, and submitters can edit or delete their own pending or rejected entries.
+- **Staff Auto-Approval** — Contributions from staff authorized for the relevant brand, profile, or maker go live immediately; everyone else enters the review queue.
+- **Trading Card Colorway Preview** — Redesigned the colorway preview into a Yu-Gi-Oh!/Pokémon-style trading card, with a selector to switch between the two styles in the preview modal.
+- **Theme Presets** — Switch between presets (_Aurora_, _Carbon_, _EVA-01_, _Parchment_, _Taro_) from the profile menu or Appearance settings. Each controls colors, fonts, and component defaults, and applies instantly without a reload.
+- Added conditional top case styles for 60% and TKL keyboards, with multiple-choice support.
 - Migrated images to a CDN for faster loading.
 - Added Google Docs sync override tracking for sculpts, mirroring the existing colorway override tracking.
 
