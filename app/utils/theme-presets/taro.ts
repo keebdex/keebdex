@@ -63,6 +63,7 @@ export default {
     // neutral buttons use a darker lavender for contrast.
     light: {
       '--ui-primary': 'var(--ui-color-primary-600)',
+      '--ui-warning': 'var(--ui-color-warning-700)',
       '--ui-bg': 'var(--ui-color-neutral-200)',
       '--ui-bg-muted': 'var(--ui-color-neutral-100)',
       '--ui-bg-elevated': 'var(--ui-color-neutral-300)',
