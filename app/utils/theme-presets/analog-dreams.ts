@@ -97,7 +97,7 @@ export default {
       '--ui-bg-elevated': 'var(--ui-color-neutral-200)',
       '--ui-bg-accented': 'var(--ui-color-neutral-200)',
       '--ui-bg-inverted': 'var(--ui-color-neutral-800)',
-      '--ui-text-dimmed': 'var(--ui-color-primary-300)',
+      '--ui-text-dimmed': 'var(--ui-color-primary-400)',
       '--ui-text-muted': 'var(--ui-color-primary-500)',
       '--ui-text-toned': 'var(--ui-color-primary-600)',
       '--ui-text': 'var(--ui-color-primary-500)',

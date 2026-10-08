@@ -42,7 +42,7 @@ const features = ref([
     icon: 'solar:stars-bold-duotone',
     title: 'Beautiful, Intuitive Design',
     description:
-      'Experience a sleek, modern interface built with cutting-edge technology. Every interaction is thoughtfully designed for collectors.',
+      'Experience a sleek, modern interface designed for collectors, with theme presets and light or dark mode to make it your own.',
   },
   {
     icon: 'solar:login-2-bold-duotone',
@@ -54,7 +54,7 @@ const features = ref([
     icon: 'solar:devices-bold-duotone',
     title: 'Seamless Cross-Device Sync',
     description:
-      'Access your collection anywhere. Changes sync instantly across all your devices.',
+      'Access your collection anywhere. Your collections and appearance preferences sync across all your devices.',
   },
   {
     icon: 'solar:bookmark-square-bold-duotone',
@@ -66,19 +66,19 @@ const features = ref([
     icon: 'solar:gallery-add-bold-duotone',
     title: 'Community Submissions',
     description:
-      'Signed-in collectors can contribute new keyboards, keysets, and artisan colorways through a guided step-by-step wizard. Submissions are reviewed by moderators before they go live.',
+      'Signed-in collectors can propose artisan colorways, keyset kits, and keyboard variants, either for existing entries or alongside a new sculpt, keyset, or keyboard, through a guided step-by-step wizard. Submissions are reviewed by moderators before they go live.',
   },
   {
     icon: 'solar:share-circle-bold-duotone',
     title: 'Share Your Passion',
     description:
-      'Generate eye-catching wishlist images and share your dream keyboard setups and collection targets with the community in seconds.',
+      'Generate eye-catching artisan wishlist images and trading-card colorway previews, and share your collection targets with the community in seconds.',
   },
   {
     icon: 'solar:cart-large-2-bold-duotone',
     title: 'Built-In Trading Community',
     description:
-      'Connect directly with buyers and sellers through wishlists and tools built for the full keyboard community, from artisans to keysets and boards.',
+      'Connect directly with artisan buyers and sellers through the Trading Hub, built on your collections and wishlists.',
   },
 ])
 

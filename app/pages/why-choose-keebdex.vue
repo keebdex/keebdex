@@ -121,7 +121,7 @@ const sections = ref([
         title: 'Editing & Community Submissions',
         tiers: {
           keebdex:
-            'Edit instantly through an intuitive web interface, and any signed-in collector can submit new keyboards, keysets, and colorways through a guided step-by-step wizard, reviewed by moderators',
+            'Staff edit instantly through an intuitive web interface, and any signed-in collector can propose colorways, kits, and keyboard variants (with new sculpts, keysets, or keyboards when needed) through a guided wizard, reviewed by moderators',
           keycaplendar:
             'Site content is actively curated by editors for keyset listings',
           archivist:
@@ -156,7 +156,7 @@ const sections = ref([
         title: 'Saved Preferences',
         tiers: {
           keebdex:
-            'Collections and account tools help organize your setup across devices',
+            'Collections, theme presets, and light or dark mode sync across devices with your account',
           keycaplendar:
             'Supports favourites, hidden sets, saved filter presets, and synced theme or density settings',
           archivist: 'Minimal personalization and syncing options',
@@ -165,7 +165,8 @@ const sections = ref([
       {
         title: 'Wishlist Sharing',
         tiers: {
-          keebdex: 'Create and share beautiful wishlist images instantly',
+          keebdex:
+            'Create and share beautiful artisan wishlist images and trading-card colorway previews instantly',
           keycaplendar:
             'Favourites and hidden-set tools help triage sets, but not as a visual wishlist system',
           archivist: 'Static images generated server-side',
@@ -175,7 +176,7 @@ const sections = ref([
         title: 'Trading Community',
         tiers: {
           keebdex:
-            'Dedicated trading hub to connect buyers and sellers directly for artisans at the moment',
+            'Dedicated Trading Hub that connects artisan buyers and sellers directly',
           keycaplendar: false,
           archivist: false,
         },
