@@ -60,10 +60,7 @@
                 alt: maker.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
-                  image:
-                    maker.invertible_logo &&
-                    $colorMode.value === 'dark' &&
-                    'invert',
+                  image: maker.invertible_logo && 'dark:invert',
                 },
               }"
             />
@@ -82,7 +79,7 @@
         :links="[
           {
             label: 'Explore Keysets',
-            to: '/keyset?status=live',
+            to: '/keyset/group-buy?status=live',
             icon: 'solar:layers-bold-duotone',
             color: 'primary',
             variant: 'ghost',
@@ -126,7 +123,7 @@
                 alt: keyset.profile.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
-                  image: $colorMode.value === 'dark' && 'invert',
+                  image: 'dark:invert',
                 },
               }"
             />

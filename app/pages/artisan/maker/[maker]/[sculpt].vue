@@ -36,7 +36,7 @@
               v-else-if="authenticated"
               icon="hugeicons:paint-board"
               color="primary"
-              label="Submit Colorway"
+              label="Submit a Colorway"
               :to="{
                 path: '/artisan/submissions/submit',
                 query: {
@@ -237,7 +237,6 @@
 
 <script setup>
 const appConfig = useAppConfig()
-const colorMode = useColorMode()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -316,8 +315,8 @@ const breadcrumbs = computed(() => {
         ui: {
           root: 'bg-transparent',
           image:
-            sculpt.value.invertible_logo && colorMode.value === 'dark'
-              ? 'rounded-none invert'
+            sculpt.value.invertible_logo
+              ? 'rounded-none dark:invert'
               : 'rounded-none',
         },
       },

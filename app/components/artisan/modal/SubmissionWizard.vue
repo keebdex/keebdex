@@ -93,7 +93,7 @@
 
     <SharedSubmissionWizardFooter
       :wizard="wizard"
-      submit-label="Submit Colorway"
+      submit-label="Submit Colorways"
     />
   </div>
 </template>

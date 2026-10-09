@@ -19,8 +19,7 @@
             size="xs"
             :ui="{
               root: 'rounded-none bg-transparent',
-              image:
-                item.invertible_logo && $colorMode.value === 'dark' && 'invert',
+              image: item.invertible_logo && 'dark:invert',
             }"
           />
         </template>

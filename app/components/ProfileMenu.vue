@@ -115,6 +115,19 @@ const items = computed(() => {
     children: keepOpen(paletteItems.value),
   }
 
+  const about = [
+    {
+      label: 'About',
+      icon: 'hugeicons:badge-info',
+      to: '/about',
+    },
+    {
+      label: 'Changelog',
+      icon: 'hugeicons:scroll-text',
+      to: '/changelog',
+    },
+  ]
+
   return authenticated.value
     ? [
         [
@@ -137,6 +150,7 @@ const items = computed(() => {
           palette,
         ],
         ...adminActions,
+        about,
         [
           {
             label: 'Sign Out',
@@ -158,6 +172,7 @@ const items = computed(() => {
           },
         ],
         [theme, palette],
+        about,
       ]
 })
 

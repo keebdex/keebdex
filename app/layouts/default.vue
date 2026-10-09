@@ -87,7 +87,6 @@ const { authenticated } = storeToRefs(userStore)
 const open = ref(false)
 const collapsed = ref(false)
 const routesMenuKey = ref(0)
-const { groupedProfiles } = useKeysetProfiles()
 const { paletteItems } = useThemeMenu()
 
 const wrapSection = ({
@@ -114,35 +113,6 @@ const wrapSection = ({
 
 const routes = computed(() => {
   const isCollapsed = collapsed.value
-
-  let profiles = Object.entries(groupedProfiles.value)
-    .map(([profile, profileManufacturers]) => {
-      return [
-        {
-          label: profile,
-          type: 'label',
-        },
-        ...Object.entries(profileManufacturers).map(([id, name]) => ({
-          label: name,
-          to: `/keyset/${id}`,
-          exact: true,
-          active: route.path.includes(`/keyset/${id}`),
-        })),
-      ]
-    })
-    .flat()
-
-  if (isCollapsed) {
-    profiles = profiles.filter((p) => p.type !== 'label')
-  }
-
-  const statuses = Object.entries(keysetStatusMap).map(([status, meta]) => ({
-    label: meta.title,
-    icon: meta.icon,
-    to: `/keyset?status=${status}`,
-    active: route.path === '/keyset' && route.query.status === status,
-    exact: true,
-  }))
 
   const artisanChildren = [
     {
@@ -195,20 +165,25 @@ const routes = computed(() => {
   }
 
   const keysetChildren = [
-    ...statuses,
     {
-      label: 'Sets by Profile',
-      icon: 'hugeicons:grid-view',
-      ...(isCollapsed ? {} : { type: 'trigger' }),
-      defaultOpen: false,
+      label: 'Profiles',
+      icon: 'hugeicons:cross',
+      to: '/keyset',
+      exact: true,
       active:
-        route.path.startsWith('/keyset/') &&
-        !route.path.endsWith('color') &&
-        !route.path.includes('submissions'),
-      children: profiles,
+        route.path === '/keyset' ||
+        (route.path.startsWith('/keyset/') &&
+          !['/keyset/group-buy', '/keyset/color'].includes(route.path) &&
+          !route.path.startsWith('/keyset/submissions')),
     },
     {
-      label: 'Color Swatches',
+      label: 'Group Buys',
+      icon: 'hugeicons:live-streaming-02',
+      to: '/keyset/group-buy',
+      active: route.path === '/keyset/group-buy',
+    },
+    {
+      label: 'Colors',
       icon: 'hugeicons:colors',
       to: '/keyset/color',
       active: route.path === '/keyset/color',
@@ -268,18 +243,6 @@ const links = computed(() => [
       },
     },
     {
-      label: 'About',
-      icon: 'hugeicons:badge-info',
-      to: '/about',
-      active: route.path === '/about',
-    },
-    {
-      label: 'Changelog',
-      icon: 'hugeicons:scroll-text',
-      to: '/changelog',
-      active: route.path === '/changelog',
-    },
-    {
       label: 'Donate',
       icon: 'hugeicons:paypal',
       class: 'cursor-pointer text-donator hover:text-donator',
@@ -302,7 +265,12 @@ const groups = computed(() => [
   {
     id: 'help',
     label: 'Links',
-    items: links.value.flat(),
+    items: [
+      ...links.value.flat(),
+      // About and Changelog live in the profile menu, not the sidebar
+      { label: 'About', icon: 'hugeicons:badge-info', to: '/about' },
+      { label: 'Changelog', icon: 'hugeicons:scroll-text', to: '/changelog' },
+    ],
   },
   {
     id: 'palette',

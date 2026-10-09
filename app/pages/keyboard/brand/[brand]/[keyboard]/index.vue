@@ -363,7 +363,6 @@
 <script setup>
 import sortBy from 'lodash.sortby'
 
-const colorMode = useColorMode()
 const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
@@ -472,8 +471,8 @@ const breadcrumbs = computed(() => {
         ui: {
           root: 'bg-transparent',
           image:
-            data.value?.brand?.invertible_logo && colorMode.value === 'dark'
-              ? 'rounded-none invert'
+            data.value?.brand?.invertible_logo
+              ? 'rounded-none dark:invert'
               : 'rounded-none',
         },
       },
