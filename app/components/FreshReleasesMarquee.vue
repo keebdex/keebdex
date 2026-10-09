@@ -82,7 +82,7 @@
         :links="[
           {
             label: 'Explore Keysets',
-            to: '/keyset?status=live',
+            to: '/keyset/group-buy?status=live',
             icon: 'solar:layers-bold-duotone',
             color: 'primary',
             variant: 'ghost',

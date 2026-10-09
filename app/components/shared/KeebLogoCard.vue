@@ -16,9 +16,9 @@
         :alt="title"
         class="mx-auto my-auto overflow-hidden object-contain h-auto w-full"
         :class="{
-          invert:
-            $colorMode.value === 'dark' &&
-            (invertible || imageSrc === '/not-found.png'),
+          // `dark:` follows the `.dark` class, so SSR with a `system` color
+          // mode still renders the right class instead of a hydration mismatch
+          'dark:invert': invertible || imageSrc === fallbackSrc,
           [`aspect-${props.aspect}`]: props.aspect,
         }"
         @error="handleError"

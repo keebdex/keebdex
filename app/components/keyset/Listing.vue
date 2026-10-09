@@ -25,6 +25,8 @@
           </UModal>
         </template>
       </UDashboardNavbar>
+
+      <slot name="toolbar" />
     </template>
 
     <template #body>
