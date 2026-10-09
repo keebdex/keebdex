@@ -350,9 +350,8 @@
         </UPageCard>
       </UPageList>
 
-      <UPageSection
+      <UPageCTA
         v-else
-        icon="hugeicons:keyboard"
         title="No Releases Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it appears publicly."
       />
@@ -511,7 +510,9 @@ const deleteVariant = async (variant, close) => {
       { method: 'delete' },
     )
 
-    toast.add(successToast('delete', { entity: 'Variant', name: variant.variant_name }))
+    toast.add(
+      successToast('delete', { entity: 'Variant', name: variant.variant_name }),
+    )
 
     if (typeof close === 'function') close()
     refresh()

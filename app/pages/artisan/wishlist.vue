@@ -4,11 +4,9 @@
       <UDashboardNavbar title="Wishlist" />
     </template>
     <template #body>
-      <UPageSection
-        icon="hugeicons:computer"
+      <UPageCTA
         title="Desktop Only Feature"
         description="The Wishlist Builder is designed for desktop use. Please switch to a desktop device for the best experience."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

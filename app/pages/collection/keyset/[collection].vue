@@ -100,12 +100,10 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageSection
+      <UPageCTA
         v-else-if="status === 'success'"
-        icon="hugeicons:grid-view"
         title="No Keysets Yet"
         description="Save keysets from their respective pages to start building this collection."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

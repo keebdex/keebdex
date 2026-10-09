@@ -4,6 +4,7 @@
     :groups="groups"
     :loading="status === 'pending'"
     :fuse="{
+      // applies per group; server groups are already capped
       resultLimit: 48,
     }"
   />
@@ -18,6 +19,7 @@ const { routes } = defineProps({
 })
 
 const colorMode = useColorMode()
+const appConfig = useAppConfig()
 
 const term = ref('')
 
@@ -50,6 +52,20 @@ const addAvatarUi = (item) => {
   return nextItem
 }
 
+// last row of a capped group, linking to the page with every result
+const viewAllRow = ({ id, label, items, total, viewAllTo }) => {
+  if (!viewAllTo || !total || total <= items.length) return []
+
+  return [
+    {
+      id: `${id}-view-all`,
+      label: `View all ${total} ${label.toLowerCase()}`,
+      icon: appConfig.ui.icons.arrowRight,
+      to: { path: viewAllTo, query: { q: term.value.trim() } },
+    },
+  ]
+}
+
 const fetchedGroups = computed(() => {
   const raw = data.value
   const groups = Array.isArray(raw)
@@ -58,10 +74,14 @@ const fetchedGroups = computed(() => {
       ? raw.data
       : []
 
-  return groups.map((group) => ({
-    ...group,
-    items: (group.items || []).map(addAvatarUi),
-  }))
+  return groups.map(({ total, viewAllTo, ...group }) => {
+    const items = (group.items || []).map(addAvatarUi)
+
+    return {
+      ...group,
+      items: items.concat(viewAllRow({ ...group, items, total, viewAllTo })),
+    }
+  })
 })
 
 const groups = computed(() => routes.concat(fetchedGroups.value))

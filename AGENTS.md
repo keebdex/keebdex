@@ -41,7 +41,7 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `app/composables/useSyncAppearance.ts`: synchronizes the signed-in user's appearance preferences with the profile API and refreshes them when the tab becomes visible.
 - `app/plugins/theme.ts`: runtime theme application engine; merges preset UI config into `appConfig`, generates CSS, and handles font variables.
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
-- `server/utils/`: server-side database, authorization, grouping, and response helpers.
+- `server/utils/`: server-side database, authorization, search, grouping, and response helpers.
 - `scripts/`: repository maintenance scripts, including table-field metadata generation.
 - `supabase/`: Supabase project configuration and database-related files (gitignored; not tracked in this repo).
 - `public/`: static assets.
@@ -111,6 +111,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Use `omitSensitive()` and existing response helpers when returning database records so internal fields such as `fts` are not exposed.
 - Follow the existing pagination convention with `getQuery(event)` and Supabase `.range(from, to)`.
 - Preserve existing full-text search behavior using Supabase `.textSearch()` where the endpoint already uses it.
+- Artisan colorway search lives in `server/utils/colorway-search.ts` and matches colorways by their own name only (every word of the term, `deleted` excluded); maker/sculpt-only matches are left to their own palette groups. `GET /api/search` (the `KeebSearch` palette) returns the 24 most relevant colorways (`searchPaletteColorways`: exact → prefix → phrase) with `total` and `viewAllTo`, and the palette appends a "View all N artisan colorways" row when `total` exceeds the shown items. `GET /api/search/colorways?q=&page=&size=&exact=` backs the `/artisan/search` results page, ordered by maker then sculpt (`size` capped at 72), returning `{ data, total }` and an empty page with the real total when `page` is past the end; `exact=1` keeps names containing the whole term as separate words (Postgres `imatch` with `\m`/`\M`, applied through `.filter()` because the client has no `imatch` helper). The page searches as the user types (400 ms debounce, `router.replace`), keeps `q`, `page`, `exact=1`, and `group=maker` in the URL, groups the current page by maker client-side, and offers Save to Collection for signed-in users. Other palette groups stay palette-only.
 - Use `createError({ statusCode, statusMessage })` for expected API errors and match nearby status codes and messages.
 - Do not expose service-role credentials or bypass authorization checks from client code.
 - For submitter-owned records (e.g. `artisan_colorways.submitted_by`), grant the original submitter limited edit/delete rights in addition to staff permissions, scoped by the record's status (e.g. only while still `Pending`, or not once `Approved`). Always re-check ownership and status server-side; never trust a client-supplied owner id.
