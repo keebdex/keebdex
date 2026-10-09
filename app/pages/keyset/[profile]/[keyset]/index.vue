@@ -183,7 +183,7 @@
               <div class="flex items-center gap-1.5 text-xs text-muted">
                 <UIcon name="hugeicons:package" class="size-4" />
                 <span class="tabular-nums">
-                  {{ formatNumber(kit.qty) }} sold
+                  {{ formatNumber(kit.qty) }} units
                 </span>
               </div>
             </template>
