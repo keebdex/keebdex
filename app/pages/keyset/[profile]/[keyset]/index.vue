@@ -57,35 +57,29 @@
     </template>
 
     <template #body>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Smaller cover share on wide screens; the page stays full width -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 2xl:grid-cols-2 gap-8">
         <!-- Left: cover image -->
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-3 2xl:col-span-1">
           <NuxtImg
             :src="coverImg"
             :alt="fullName"
-            class="w-full rounded-lg border border-default object-contain cursor-zoom-in"
+            class="w-full aspect-video rounded-lg border border-default object-cover cursor-zoom-in"
             @click="openPreview({ title: fullName, url: coverImg })"
           />
         </div>
 
         <!-- Right: identity, catalog details, group buy history, links -->
-        <div class="space-y-6">
+        <div class="space-y-6 lg:col-span-2 2xl:col-span-1">
           <UPageHeader
             :title="fullName"
             :description="data.description"
             :ui="{
               root: 'pt-0 pb-4',
-              headline: 'mb-1',
               title: 'text-2xl',
               description: 'text-sm',
             }"
-          >
-            <template #headline>
-              <ULink :to="`/keyset/${profile}`" class="text-primary">
-                {{ manufacturers[profile] || data.profile?.name }}
-              </ULink>
-            </template>
-          </UPageHeader>
+          />
 
           <section class="space-y-3">
             <h2 class="text-xs uppercase tracking-widest text-muted">
@@ -192,7 +186,6 @@
           />
         </div>
       </section>
-
       <UModal
         v-model:open="preview.open"
         :title="preview.title"
@@ -312,12 +305,6 @@ const details = computed(() =>
   [
     { term: 'Designer', description: data.value.designer },
     { term: 'Sculpt', description: data.value.sculpt },
-    {
-      term: 'Kits',
-      description: kits.value.length
-        ? countLabel(kits.value.length, 'kit')
-        : undefined,
-    },
   ].filter((item) => item.description),
 )
 

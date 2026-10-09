@@ -8,6 +8,7 @@
       <USelect
         v-model="collection.category"
         :items="categoryItems"
+        :disabled="lockCategory"
         value-key="value"
         class="w-full"
       />
@@ -90,9 +91,11 @@ const appConfig = useAppConfig()
 
 const emit = defineEmits(['onSuccess'])
 
-const { metadata, isEdit } = defineProps({
+const { metadata, isEdit, lockCategory } = defineProps({
   metadata: { type: Object, default: () => ({}) },
   isEdit: Boolean,
+  // Fixed when the form is opened for a specific kind of item, e.g. Save
+  lockCategory: Boolean,
 })
 
 const userStore = useUserStore()
