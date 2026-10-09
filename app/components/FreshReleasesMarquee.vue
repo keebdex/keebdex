@@ -60,10 +60,7 @@
                 alt: maker.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
-                  image:
-                    maker.invertible_logo &&
-                    $colorMode.value === 'dark' &&
-                    'invert',
+                  image: maker.invertible_logo && 'dark:invert',
                 },
               }"
             />
@@ -126,7 +123,7 @@
                 alt: keyset.profile.name,
                 ui: {
                   root: 'rounded-none bg-transparent',
-                  image: $colorMode.value === 'dark' && 'invert',
+                  image: 'dark:invert',
                 },
               }"
             />

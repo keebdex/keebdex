@@ -145,7 +145,6 @@ const props = defineProps({
 
 const route = useRoute()
 const toast = useToast()
-const colorMode = useColorMode()
 
 const {
   public: { imgUrl },
@@ -221,7 +220,7 @@ const originalKeyboardOptions = computed(() => {
               ...item.avatar,
               ui: {
                 root: 'bg-transparent rounded-none',
-                image: invertible && colorMode.value === 'dark' && 'invert',
+                image: invertible && 'dark:invert',
               },
             }
           : undefined,
@@ -255,9 +254,7 @@ onBeforeMount(() => {
         ui: {
           root: 'bg-transparent rounded-none',
           image:
-            props.metadata?.original?.brand?.invertible_logo &&
-            colorMode.value === 'dark' &&
-            'invert',
+            props.metadata?.original?.brand?.invertible_logo && 'dark:invert',
         },
       },
     }

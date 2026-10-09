@@ -11,13 +11,8 @@
   >
     <template #toolbar>
       <UDashboardToolbar>
-        <UTabs
-          v-model="status"
-          :items="tabs"
-          :content="false"
-          variant="link"
-          size="sm"
-        />
+        <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
       </UDashboardToolbar>
     </template>
   </KeysetListing>
@@ -29,21 +24,19 @@ const router = useRouter()
 
 const validStatuses = Object.keys(keysetStatusMap)
 
-const tabs = Object.entries(keysetStatusMap).map(([value, meta]) => ({
-  label: meta.title,
-  icon: meta.icon,
-  value,
-}))
-
-const status = computed({
-  get: () => {
-    const s = route.query.status
-    return validStatuses.includes(s) ? s : 'live'
-  },
-  set: (value) => {
-    router.replace({ query: { ...route.query, status: value, page: undefined } })
-  },
+const status = computed(() => {
+  const s = route.query.status
+  return validStatuses.includes(s) ? s : 'live'
 })
+
+const links = computed(() =>
+  Object.entries(keysetStatusMap).map(([value, meta]) => ({
+    label: meta.label,
+    icon: meta.icon,
+    to: { path: route.path, query: { status: value } },
+    active: status.value === value,
+  })),
+)
 
 // redirect invalid or missing → live
 if (!validStatuses.includes(route.query.status)) {

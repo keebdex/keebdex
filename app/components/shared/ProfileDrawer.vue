@@ -21,7 +21,7 @@
             image: 'h-full w-auto',
           }"
           :class="{
-            invert: invertible && $colorMode.value === 'dark',
+            'dark:invert': invertible,
           }"
         />
 

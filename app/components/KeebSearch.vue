@@ -18,7 +18,6 @@ const { routes } = defineProps({
   },
 })
 
-const colorMode = useColorMode()
 const appConfig = useAppConfig()
 
 const term = ref('')
@@ -38,7 +37,7 @@ const addAvatarUi = (item) => {
       ...nextItem.avatar,
       ui: {
         root: 'bg-transparent rounded-none',
-        image: invertible && colorMode.value === 'dark' && 'invert',
+        image: invertible && 'dark:invert',
       },
     }
 

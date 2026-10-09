@@ -63,10 +63,7 @@
               size="sm"
               :ui="{
                 root: 'bg-transparent rounded-none',
-                image:
-                  group.maker.invertible_logo && colorMode.value === 'dark'
-                    ? 'invert'
-                    : '',
+                image: group.maker.invertible_logo ? 'dark:invert' : '',
               }"
             />
             {{ group.maker.name }}
@@ -129,7 +126,6 @@
 import { watchDebounced } from '@vueuse/core'
 
 const appConfig = useAppConfig()
-const colorMode = useColorMode()
 const route = useRoute()
 const router = useRouter()
 
