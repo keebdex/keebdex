@@ -170,7 +170,7 @@ watch(uploadedFile, async (file) => {
       category: 'keyset',
     })
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
     imageUploadFailed.value = true
   } finally {
     uploadingImage.value = false
@@ -192,12 +192,12 @@ const onSubmit = async () => {
     body: kit.value,
   })
     .then(() => {
-      toast.add(handleSuccess(isEdit ? 'update' : 'add', kit.value.name, 'Kit'))
+      toast.add(successToast(isEdit ? 'update' : 'add', { entity: 'Kit', name: kit.value.name }))
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

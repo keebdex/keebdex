@@ -108,7 +108,7 @@ const screenshot = async (download = false) => {
       await copyScreenshot(card, toast, !isDesktop)
     }
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     // Restore layout and effects, even if the screenshot fails.
     card.classList.add('flex-1')

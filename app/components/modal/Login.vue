@@ -15,7 +15,8 @@ const client = useSupabaseClient()
 const toast = useToast()
 
 const login = async (provider) => {
-  const { user, error } = await client.auth.signInWithOAuth({
+  // On success the browser redirects to the provider, so only errors toast.
+  const { error } = await client.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo: window.location.origin,
@@ -23,9 +24,7 @@ const login = async (provider) => {
   })
 
   if (error) {
-    toast.add(handleError(error))
-  } else if (user) {
-    toast.add(handleNotice('login', user.name))
+    toast.add(errorToast(error))
   }
 }
 

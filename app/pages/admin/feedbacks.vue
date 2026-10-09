@@ -257,10 +257,10 @@ const markResolved = async (id) => {
       },
     })
 
-    toast.add(handleSuccess('save', 'Feedback status'))
+    toast.add(successToast('update', { entity: 'Feedback status' }))
     await refresh()
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     resolvingId.value = null
   }
@@ -292,7 +292,7 @@ const completeFeedbackMove = async () => {
 
     await refresh()
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
     throw error
   } finally {
     movingId.value = null

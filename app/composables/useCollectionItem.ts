@@ -28,11 +28,11 @@ export const useCollectionItem = (
         if (result?.message) {
           toast.add({ color: 'info', title: result.message })
         } else {
-          toast.add(handleSuccess('add', label, entityName, collection.name))
+          toast.add(successToast('add', { entity: entityName, name: label, target: collection.name }))
         }
       })
       .catch((error: any) => {
-        toast.add(handleError(error))
+        toast.add(errorToast(error))
       })
   }
 
@@ -47,10 +47,10 @@ export const useCollectionItem = (
     )
       .then(() => {
         onMutate?.()
-        toast.add(handleSuccess('delete', label, entityName))
+        toast.add(successToast('remove', { entity: entityName, name: label }))
       })
       .catch((error: any) => {
-        toast.add(handleError(error))
+        toast.add(errorToast(error))
       })
   }
 
@@ -72,11 +72,11 @@ export const useCollectionItem = (
       .then(() => {
         onMutate?.()
         toast.add(
-          handleSuccess('move', label, undefined, targetCollection.name),
+          successToast('move', { name: label, target: targetCollection.name }),
         )
       })
       .catch((error: any) => {
-        toast.add(handleError(error))
+        toast.add(errorToast(error))
       })
   }
 

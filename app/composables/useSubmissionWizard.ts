@@ -44,7 +44,9 @@ export const useStepValidation = (steps: (() => StepResult)[]) => {
 
     if (!result || result.success) return true
 
-    toast.add(handleError({ statusMessage: result.error?.issues[0]?.message }))
+    toast.add(validationToast(
+        result.error?.issues[0]?.message,
+      ))
     return false
   }
 }

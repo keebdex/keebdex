@@ -249,7 +249,7 @@ watch(uploadedFile, async (file) => {
       category: 'artisan',
     })
   } catch (e) {
-    toast.add(handleError(e))
+    toast.add(errorToast(e))
     imageUploadFailed.value = true
   } finally {
     uploadingImage.value = false
@@ -308,24 +308,15 @@ const onSubmit = async () => {
     )
 
     if (!moderator.value && created?.review_status === 'Pending') {
-      toast.add({
-        title: 'Thanks for your contribution!',
-        description:
-          'Your colorway is now pending review and will display a Pending Review badge.',
-        color: 'success',
-      })
+      toast.add(noticeToast('submission_pending'))
     } else {
       toast.add(
-        handleSuccess(
-          colorway.value.id ? 'update' : 'add',
-          payload.name,
-          'Colorway',
-        ),
+        successToast(colorway.value.id ? 'update' : 'add', { entity: 'Colorway', name: payload.name }),
       )
     }
     emit('onSuccess')
   } catch (error) {
-    toast.add(handleError(error, { showOriginalMessage: true }))
+    toast.add(errorToast(error, { showOriginalMessage: true }))
   } finally {
     uploading.value = false
   }

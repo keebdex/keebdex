@@ -157,12 +157,12 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        handleSuccess(isEdit ? 'update' : 'add', brand.value.name, 'Brand'),
+        successToast(isEdit ? 'update' : 'add', { entity: 'Brand', name: brand.value.name }),
       )
       emit('onSuccess', data)
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

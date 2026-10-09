@@ -355,7 +355,7 @@ watch(uploadedFile, async (file) => {
       category: 'keyset',
     })
   } catch (e) {
-    toast.add(handleError(e))
+    toast.add(errorToast(e))
     imageUploadFailed.value = true
   } finally {
     uploadingImage.value = false
@@ -394,14 +394,14 @@ const onSubmit = async () => {
   )
     .then(() => {
       if (isEdit.value) {
-        toast.add(handleSuccess('update', keyset.value.name, 'Keyset'))
+        toast.add(successToast('update', { entity: 'Keyset', name: keyset.value.name }))
 
         if (route.params.keyset !== slug) {
           navigateTo(`/keyset/${keyset.value.profile_keyset_id}`)
         }
       } else {
         toast.add({
-          ...handleSuccess('add', keyset.value.name, 'Keyset'),
+          ...successToast('add', { entity: 'Keyset', name: keyset.value.name }),
           actions: [
             {
               label: 'View',
@@ -414,7 +414,7 @@ const onSubmit = async () => {
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

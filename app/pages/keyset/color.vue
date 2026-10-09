@@ -196,12 +196,12 @@ const confirmDelete = (color) => {
     method: 'delete',
   })
     .then(() => {
-      toast.add(handleSuccess('delete', color.name))
+      toast.add(successToast('delete', { entity: 'Color', name: color.name }))
 
       refresh()
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 

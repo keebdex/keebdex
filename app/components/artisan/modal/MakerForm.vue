@@ -244,12 +244,12 @@ const onSubmit = async () => {
     },
   })
     .then(() => {
-      toast.add(handleSuccess(isEdit ? 'update' : 'add', rest.name, 'Maker'))
+      toast.add(successToast(isEdit ? 'update' : 'add', { entity: 'Maker', name: rest.name }))
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

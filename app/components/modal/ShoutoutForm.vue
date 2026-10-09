@@ -103,10 +103,12 @@ const onSubmit = async () => {
       })
     }
 
-    toast.add(handleSuccess('save', 'Shoutout'))
+    toast.add(successToast(isEdit && metadata?.id ? 'update' : 'add', {
+        entity: 'Shoutout',
+      }))
     emit('onSuccess')
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     saving.value = false
   }

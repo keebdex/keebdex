@@ -317,11 +317,11 @@ const onSubmit = async () => {
       },
     })
 
-    toast.add(handleSuccess('save', 'User access'))
+    toast.add(successToast('update', { entity: 'User access' }))
     editVisible.value = false
     await refresh()
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     saving.value = false
   }

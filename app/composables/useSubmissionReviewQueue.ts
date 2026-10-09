@@ -88,10 +88,10 @@ export const useSubmissionReviewQueue = ({
     try {
       await postModeration(leaf, action)
 
-      toast.add(handleSuccess(action, label(leaf), entity))
+      toast.add(successToast(action, { entity, name: label(leaf) }))
       await refresh()
     } catch (error) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
     } finally {
       processingId.value = null
     }
@@ -116,11 +116,11 @@ export const useSubmissionReviewQueue = ({
     try {
       await $fetch(`${leafUrl(leaf)}/${leaf.id}`, { method: 'delete' })
 
-      toast.add(handleSuccess('delete', label(leaf), entity))
+      toast.add(successToast('delete', { entity, name: label(leaf) }))
       deleteTarget.value = null
       await refresh()
     } catch (error) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
     } finally {
       deleting.value = false
     }
@@ -176,9 +176,6 @@ export const useSubmissionReviewQueue = ({
     (group[grouping!.leavesKey] || []).filter(
       (leaf: Leaf) => statusOf(leaf) === 'Pending',
     )
-
-  const countLabel = (count: number) =>
-    `${count} ${grouping!.nouns[count === 1 ? 0 : 1]}`
 
   // Approve/Reject All acts on a group's Pending leaves only. Leaves are
   // posted one at a time so the parent cascade sees each previous result (a
@@ -242,15 +239,15 @@ export const useSubmissionReviewQueue = ({
 
       if (done) {
         toast.add(
-          handleSuccess(
-            action,
-            `${countLabel(done)} of ${grouping!.label(group)}`,
-          ),
+          successToast(action, {
+            entity: countLabel(done, ...grouping!.nouns),
+            scope: grouping!.label(group),
+          }),
         )
       }
 
       if (lastError) {
-        toast.add(handleError(lastError, { showOriginalMessage: true }))
+        toast.add(errorToast(lastError, { showOriginalMessage: true }))
       }
 
       bulkTarget.value = null

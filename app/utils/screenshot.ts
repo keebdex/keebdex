@@ -21,16 +21,13 @@ export const copyScreenshot = async (
         })
         await navigator.clipboard.write([clipItem])
 
-        toast.add({
-          color: 'success',
-          title: 'Image copied to clipboard!',
-        })
+        toast.add(noticeToast('image_copied'))
       }
     } else {
       toast.add({
         color: 'error',
-        title: 'Image Save Failed',
-        detail: 'Could not create image, blob is null',
+        title: 'Image Copy Failed',
+        description: 'Could not create image, blob is null',
       })
     }
   } catch (error) {
@@ -41,7 +38,7 @@ export const copyScreenshot = async (
         toast.add({
           color: 'info',
           title: 'Firefox Configuration',
-          detail:
+          description:
             'On Firefox you can enable the asyncClipboard.clipboardItem permission in about:config to enable copying straight to the clipboard',
         })
       }
@@ -49,7 +46,7 @@ export const copyScreenshot = async (
       toast.add({
         color: 'info',
         title: 'Clipboard Access Denied',
-        detail:
+        description:
           'Could not save image to clipboard. Opening in new tab instead (make sure popups are allowed)',
       })
 
@@ -57,8 +54,8 @@ export const copyScreenshot = async (
     } else {
       toast.add({
         color: 'error',
-        title: 'Image Save Failed',
-        detail: 'Error while saving image to clipboard',
+        title: 'Image Copy Failed',
+        description: 'Error while saving image to clipboard',
       })
     }
   }

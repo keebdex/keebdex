@@ -248,7 +248,7 @@ const copyKeyboardCard = async () => {
   try {
     await copyScreenshot(card, toast)
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   }
 
   copying.value = false

@@ -24,11 +24,11 @@ export const useCollection = (collectionId: MaybeRefOrGetter<string>) => {
           (c: any) => c.id !== data.value?.id,
         )
         userStore.$patch({ collections: collections.value })
-        toast.add(handleSuccess('delete', data.value?.name, 'Collection'))
+        toast.add(successToast('delete', { entity: 'Collection', name: data.value?.name }))
         router.go(-1)
       })
       .catch((error: any) => {
-        toast.add(handleError(error))
+        toast.add(errorToast(error))
       })
   }
 

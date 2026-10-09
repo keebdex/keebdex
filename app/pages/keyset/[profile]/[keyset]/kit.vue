@@ -188,12 +188,12 @@ const confirmDelete = (kit) => {
     method: 'delete',
   })
     .then(() => {
-      toast.add(handleSuccess('delete', kit.name))
+      toast.add(successToast('delete', { entity: 'Kit', name: kit.name }))
 
       refresh()
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

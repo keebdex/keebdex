@@ -23,6 +23,7 @@ Throw the **doors open** — anyone signed in can now contribute to the catalog.
 - Saving a colorway, keyset, kit, or variant now waits until its images finish uploading.
 - Fixed adding a new sculpt from the sculpt form.
 - Fixed artisan statistics being off by one day.
+- Form validation toasts now show the actual problem instead of a generic "Something went wrong", and notification messages use consistent wording across the app.
 - Fixed horizontal overflow on management pages and missing button labels on mobile.
 - Fixed the order graph/order history preview on keyset pages.
 - Fixed the autocomplete component after a Nuxt UI breaking change.

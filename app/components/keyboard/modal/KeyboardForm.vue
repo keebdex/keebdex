@@ -321,11 +321,7 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        handleSuccess(
-          isEdit.value ? 'update' : 'add',
-          keyboard.value.name,
-          'Keyboard',
-        ),
+        successToast(isEdit.value ? 'update' : 'add', { entity: 'Keyboard', name: keyboard.value.name }),
       )
 
       if (isEdit.value && String(route.params.keyboard || '') !== slug) {
@@ -335,7 +331,7 @@ const onSubmit = async () => {
       emit('onSuccess', data)
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

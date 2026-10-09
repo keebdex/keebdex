@@ -267,25 +267,18 @@ export const useArtisanSubmissionWizard = ({
           (colorway) => colorway?.review_status === 'Pending',
         )
       ) {
-        toast.add({
-          title: 'Thanks for your contribution!',
-          description:
-            'Your colorways are now pending review and will display a Pending Review badge.',
-          color: 'success',
-        })
+        toast.add(noticeToast('submission_pending'))
       } else {
         toast.add(
-          handleSuccess(
-            'add',
-            `${createdColorways.length} colorway(s)`,
-            'Colorway',
-          ),
+          successToast('add', {
+            entity: countLabel(createdColorways.length, 'colorway'),
+          }),
         )
       }
 
       return createdColorways
     } catch (error: any) {
-      toast.add(handleError(error, { showOriginalMessage: true }))
+      toast.add(errorToast(error, { showOriginalMessage: true }))
       throw error
     } finally {
       uploading.value = false

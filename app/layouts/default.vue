@@ -348,7 +348,7 @@ onMounted(() => {
   // Show cookie consent if not accepted
   if (cookieConsent.value !== 'accepted') {
     toast.add({
-      title: 'We use cookies',
+      title: 'We Use Cookies',
       description:
         'To improve your experience. By using our site, you agree to our use of cookies.',
       icon: 'hugeicons:cookie',

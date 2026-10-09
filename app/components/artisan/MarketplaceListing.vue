@@ -113,6 +113,6 @@ const trades = computed(() => {
 
 const copyToClipboard = (discord) => {
   navigator.clipboard.writeText(discord)
-  toast.add(handleNotice('copy'))
+  toast.add(noticeToast('copied'))
 }
 </script>

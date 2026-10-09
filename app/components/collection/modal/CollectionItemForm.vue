@@ -87,12 +87,12 @@ const onSubmit = async () => {
     { method: 'post', body: { asking_price, exchange, priority } },
   )
     .then(() => {
-      toast.add(handleSuccess('save', 'Changes'))
+      toast.add(successToast('update', { entity: 'Collection item' }))
 
       emit('onSuccess')
     })
     .catch((error) => {
-      toast.add(handleError(error))
+      toast.add(errorToast(error))
     })
 }
 </script>

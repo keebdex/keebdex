@@ -423,7 +423,7 @@ const copyColorwayCard = async (colorway, event) => {
   const card = event.currentTarget.closest('.colorway-card')
 
   if (!card) {
-    toast.add(handleError(new Error('Colorway card element was not found')))
+    toast.add(errorToast(new Error('Colorway card element was not found')))
     return
   }
 
@@ -431,7 +431,7 @@ const copyColorwayCard = async (colorway, event) => {
     await nextTick()
     await copyScreenshot(card, toast)
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   } finally {
     copying.value = false
   }
@@ -488,12 +488,12 @@ const deleteSculpt = async (closeModal) => {
       { method: 'delete' },
     )
 
-    toast.add(handleSuccess('delete', sculpt.value.name, 'Sculpt'))
+    toast.add(successToast('delete', { entity: 'Sculpt', name: sculpt.value.name }))
 
     closeModal()
     navigateTo(`/artisan/maker/${route.params.maker}`)
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   }
 }
 
@@ -504,12 +504,12 @@ const deleteColorway = async (colorway, closeModal) => {
       { method: 'delete' },
     )
 
-    toast.add(handleSuccess('delete', colorway.name))
+    toast.add(successToast('delete', { entity: 'Colorway', name: colorway.name }))
 
     closeModal()
     refresh()
   } catch (error) {
-    toast.add(handleError(error))
+    toast.add(errorToast(error))
   }
 }
 </script>
