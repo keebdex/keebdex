@@ -187,11 +187,9 @@
       </div>
     </template>
     <template v-else #body>
-      <UPageSection
-        icon="hugeicons:zoom-in-area"
+      <UPageCTA
         title="No Collection Selected"
         description="Start by choosing a collection to generate your wishlist. Once selected, you can preview, edit, and share it easily."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

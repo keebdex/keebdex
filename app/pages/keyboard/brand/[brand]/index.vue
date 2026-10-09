@@ -88,9 +88,8 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageSection
+      <UPageCTA
         v-else
-        icon="hugeicons:keyboard"
         title="No Keyboards Yet"
         description="Know a keyboard from this brand? Submit it and our staff will review it before it appears publicly."
         :links="[

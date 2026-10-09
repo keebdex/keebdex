@@ -49,11 +49,10 @@
           </UPageGrid>
         </UPageCard>
       </UPageList>
-      <UPageSection
+      <UPageCTA
         v-else
         title="No Collections Yet"
         description="Create a collection to organize and showcase your items."
-        icon="hugeicons:collections-bookmark"
       />
     </template>
   </UDashboardPanel>

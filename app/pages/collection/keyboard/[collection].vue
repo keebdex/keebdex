@@ -106,12 +106,10 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageSection
+      <UPageCTA
         v-else-if="status === 'success'"
-        icon="hugeicons:keyboard"
         title="No Keyboards Yet"
         description="Save keyboard variants from their respective pages to start building this collection."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>

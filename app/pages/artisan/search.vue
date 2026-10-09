@@ -40,17 +40,10 @@
     </template>
 
     <template #body>
-      <UPageSection
+      <UPageCTA
         v-if="emptyState"
-        :icon="appConfig.ui.icons.search"
         :title="emptyState.title"
         :description="emptyState.description"
-        :ui="{
-          container: 'py-12 sm:py-16 lg:py-20',
-          leadingIcon: 'size-8',
-          title: 'text-xl sm:text-2xl lg:text-2xl',
-          description: 'text-sm sm:text-base mt-3',
-        }"
       />
 
       <div

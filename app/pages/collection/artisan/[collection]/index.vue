@@ -205,12 +205,10 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageSection
+      <UPageCTA
         v-else-if="status === 'success'"
-        icon="hugeicons:alien-01"
         title="No Artisans Yet"
         description="Save artisan items from their respective pages to start building this collection."
-        class="mx-auto"
       />
     </template>
   </UDashboardPanel>
@@ -279,7 +277,12 @@ const saveShareOption = (close) => {
   })
     .then(() => {
       refresh()
-      toast.add(successToast('update', { entity: 'Collection', name: data.value?.name }))
+      toast.add(
+        successToast('update', {
+          entity: 'Collection',
+          name: data.value?.name,
+        }),
+      )
       if (!published) close()
     })
     .catch((error) => {
