@@ -1,12 +1,14 @@
 type Leaf = Record<string, any>
 type Group = Record<string, any>
 type ModerationAction = 'approve' | 'reject'
+type BulkAction = ModerationAction | 'delete'
 
 /**
  * State and actions of a submission review page (`/{domain}/submissions`):
  * status filter, pagination, per-leaf Approve/Reject/Edit/Delete, the review
  * wizard modal, and, for grouped queues (keysets, keyboards), expandable
- * groups with Approve All / Reject All on their Pending leaves.
+ * groups with Approve All / Reject All on their Pending leaves and Delete All
+ * on their Rejected ones.
  *
  * Leaves are saved through `leafUrl(leaf)` (POST, with `action` to moderate)
  * and deleted through `${leafUrl(leaf)}/${leaf.id}`.
@@ -162,9 +164,7 @@ export const useSubmissionReviewQueue = ({
       (rows.value.length > 0 &&
         rows.value.every(
           (group) =>
-            (expanded.value as Record<string, boolean>)[
-              group[grouping!.idKey]
-            ],
+            (expanded.value as Record<string, boolean>)[group[grouping!.idKey]],
         )),
   )
 
@@ -177,12 +177,21 @@ export const useSubmissionReviewQueue = ({
       (leaf: Leaf) => statusOf(leaf) === 'Pending',
     )
 
-  // Approve/Reject All acts on a group's Pending leaves only. Leaves are
-  // posted one at a time so the parent cascade sees each previous result (a
-  // parent is only rejected once none of its children is left alive).
-  const bulkTarget = ref<{ group: Group; action: ModerationAction } | null>(
-    null,
-  )
+  // Rejected leaves the current user may delete (all of them for staff, the
+  // submitter's own otherwise).
+  const rejectedLeaves = (group: Group): Leaf[] =>
+    (group[grouping!.leavesKey] || []).filter(
+      (leaf: Leaf) => statusOf(leaf) === 'Rejected' && canManage(leaf),
+    )
+
+  const bulkLeaves = (group: Group, action: BulkAction) =>
+    action === 'delete' ? rejectedLeaves(group) : pendingLeaves(group)
+
+  // Approve/Reject All acts on a group's Pending leaves, Delete All on its
+  // Rejected ones. Leaves are sent one at a time so the parent cascade sees
+  // each previous result (a parent is only rejected or deleted once none of
+  // its children is left alive).
+  const bulkTarget = ref<{ group: Group; action: BulkAction } | null>(null)
   const bulkOpen = computed({
     get: () => !!bulkTarget.value,
     set: (value) => {
@@ -200,25 +209,33 @@ export const useSubmissionReviewQueue = ({
       : null
   }
 
+  const BULK_TITLES: Record<BulkAction, string> = {
+    approve: 'Approve All',
+    reject: 'Reject All',
+    delete: 'Delete All',
+  }
+
   const bulkTitle = computed(() =>
-    bulkTarget.value?.action === 'approve' ? 'Approve All' : 'Reject All',
+    bulkTarget.value ? BULK_TITLES[bulkTarget.value.action] : '',
   )
 
   const bulkDescription = computed(() => {
     if (!bulkTarget.value) return ''
 
     const { group, action } = bulkTarget.value
-    const count = pendingLeaves(group).length
+    const count = bulkLeaves(group, action).length
+    const noun = grouping!.nouns[count === 1 ? 0 : 1]
 
-    return `Are you sure you want to ${action} ${count} pending ${
-      grouping!.nouns[count === 1 ? 0 : 1]
-    } of ${grouping!.label(group)}?`
+    return action === 'delete'
+      ? `Are you sure you want to delete ${count} rejected ${noun} of ${grouping!.label(group)}? This action cannot be undone.`
+      : `Are you sure you want to ${action} ${count} pending ${noun} of ${grouping!.label(group)}?`
   })
 
   const confirmBulk = async () => {
     const target = bulkTarget.value
 
-    if (!target || !isModerator.value || busy.value) return
+    if (!target || busy.value) return
+    if (target.action !== 'delete' && !isModerator.value) return
 
     const { group, action } = target
 
@@ -228,9 +245,13 @@ export const useSubmissionReviewQueue = ({
     let lastError: unknown = null
 
     try {
-      for (const leaf of pendingLeaves(group)) {
+      for (const leaf of bulkLeaves(group, action)) {
         try {
-          await postModeration(leaf, action)
+          if (action === 'delete') {
+            await $fetch(`${leafUrl(leaf)}/${leaf.id}`, { method: 'delete' })
+          } else {
+            await postModeration(leaf, action)
+          }
           done++
         } catch (error) {
           lastError = error
@@ -285,6 +306,7 @@ export const useSubmissionReviewQueue = ({
     allExpanded,
     toggleAll,
     pendingLeaves,
+    rejectedLeaves,
     bulkTarget,
     bulkOpen,
     bulkRunning,

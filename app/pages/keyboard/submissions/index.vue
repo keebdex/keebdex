@@ -89,11 +89,15 @@
 
           <template #action-cell="{ row }">
             <SharedSubmissionBulkActions
-              v-if="isModerator && pendingLeaves(row.original).length"
+              :moderatable="
+                isModerator && pendingLeaves(row.original).length > 0
+              "
+              :deletable="rejectedLeaves(row.original).length > 0"
               :running="bulkActionFor(row.original)"
               :disabled="busy"
               @approve="bulkTarget = { group: row.original, action: 'approve' }"
               @reject="bulkTarget = { group: row.original, action: 'reject' }"
+              @delete="bulkTarget = { group: row.original, action: 'delete' }"
             />
           </template>
 
@@ -296,6 +300,7 @@ const {
   allExpanded,
   toggleAll,
   pendingLeaves,
+  rejectedLeaves,
   bulkTarget,
   bulkOpen,
   bulkRunning,

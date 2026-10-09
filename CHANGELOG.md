@@ -8,7 +8,7 @@ Throw the **doors open** — anyone signed in can now contribute to the catalog.
 
 - Signed-in users can now propose artisan colorways, keyset kits, and keyboard variants through step-by-step **community submission** wizards that extend an existing sculpt, keyset, or keyboard or propose a new one, and submissions stay _Pending_ (visible only to you and staff) until reviewed.
 - **Contextual submission links** ("Submit a Colorway/Kit/Release/Variant") on detail pages preselect the parent items and jump straight to the right step.
-- New **moderation and review** pages for artisans, keysets, and keyboards filter by _Pending / Approved / Rejected_, group keyset and keyboard submissions under their parent with _Approve All_ / _Reject All_, and let submitters edit or delete their own pending or rejected entries (editing a rejected one sends it back for review).
+- New **moderation and review** pages for artisans, keysets, and keyboards filter by _Pending / Approved / Rejected_, group keyset and keyboard submissions under their parent with _Approve All_ / _Reject All_ (and _Delete All_ to clear a group's rejected entries in one go), and let submitters edit or delete their own pending or rejected entries (editing a rejected one sends it back for review).
 - Contributions from staff authorized for the relevant brand, profile, or maker are **auto-approved** and go live immediately, while everyone else's enter the review queue.
 - The colorway preview is now a Yu-Gi-Oh!- or Pokémon-style **trading card**, switchable in the preview modal.
 - **Theme presets** (_Analog Dreams_, _Aurora_, _Carbon_, _EVA-01_, _Parchment_, _Taro_) can be switched from the profile menu or Appearance settings and apply instantly without a reload.
