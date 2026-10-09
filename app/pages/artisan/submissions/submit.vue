@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel id="artisan-submit">
     <template #header>
-      <UDashboardNavbar title="Submit a Colorway" />
+      <UDashboardNavbar title="Submit an Artisan" />
     </template>
 
     <template #body>

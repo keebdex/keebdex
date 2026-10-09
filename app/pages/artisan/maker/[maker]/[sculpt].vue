@@ -36,7 +36,7 @@
               v-else-if="authenticated"
               icon="hugeicons:paint-board"
               color="primary"
-              label="Submit Colorway"
+              label="Submit a Colorway"
               :to="{
                 path: '/artisan/submissions/submit',
                 query: {

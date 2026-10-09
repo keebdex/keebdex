@@ -1,10 +1,10 @@
 <template>
   <UDashboardPanel id="artisan-submissions">
     <template #header>
-      <UDashboardNavbar title="Colorway Submissions">
+      <UDashboardNavbar title="Artisan Submissions">
         <template #right>
           <UButton
-            label="Submit a Colorway"
+            label="Submit an Artisan"
             icon="hugeicons:plus-sign"
             to="/artisan/submissions/submit"
           />
