@@ -167,13 +167,13 @@ const routes = computed(() => {
   const keysetChildren = [
     {
       label: 'Profiles',
-      icon: 'hugeicons:user-multiple',
+      icon: 'hugeicons:cross',
       to: '/keyset',
       exact: true,
       active:
         route.path === '/keyset' ||
         (route.path.startsWith('/keyset/') &&
-        !['/keyset/group-buy', '/keyset/color'].includes(route.path) &&
+          !['/keyset/group-buy', '/keyset/color'].includes(route.path) &&
           !route.path.startsWith('/keyset/submissions')),
     },
     {
@@ -243,18 +243,6 @@ const links = computed(() => [
       },
     },
     {
-      label: 'About',
-      icon: 'hugeicons:badge-info',
-      to: '/about',
-      active: route.path === '/about',
-    },
-    {
-      label: 'Changelog',
-      icon: 'hugeicons:scroll-text',
-      to: '/changelog',
-      active: route.path === '/changelog',
-    },
-    {
       label: 'Donate',
       icon: 'hugeicons:paypal',
       class: 'cursor-pointer text-donator hover:text-donator',
@@ -277,7 +265,12 @@ const groups = computed(() => [
   {
     id: 'help',
     label: 'Links',
-    items: links.value.flat(),
+    items: [
+      ...links.value.flat(),
+      // About and Changelog live in the profile menu, not the sidebar
+      { label: 'About', icon: 'hugeicons:badge-info', to: '/about' },
+      { label: 'Changelog', icon: 'hugeicons:scroll-text', to: '/changelog' },
+    ],
   },
   {
     id: 'palette',

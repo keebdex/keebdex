@@ -30,6 +30,7 @@ There is no test script or test suite currently defined in `package.json`. Do no
 ## Repository Layout
 
 - `app/pages/`: Nuxt file-based pages and routes.
+- `app/layouts/default.vue`: the sidebar footer keeps only Feedback and Donate; About and Changelog live in `ProfileMenu.vue` (for guests and signed-in users) and stay in the search palette's Links group.
 - `app/pages/keyset/`: the Keysets sidebar section lists Profiles (`/keyset`, the catalog of profile families from `useKeysetProfiles().groupedProfiles`, linking to `/keyset/[profile]`), Group Buys (`/keyset/group-buy?status=ic|live|ended`, a toolbar `UNavigationMenu` built from `keysetStatusMap`), Colors, and Submissions. `/keyset?status=…` (legacy links) redirects to the matching group buy tab. Keyset profile logos have no `invertible_logo` column and are always inverted in dark mode (card `invertible`, search palette, marquee). Static pages here must not be named `profile.vue`, which would collide with the `keyset-profile` route name of `[profile]/index.vue`.
 - `app/components/`: Vue components, organized by domain (`artisan`, `keyboard`, `keyset`, `collection`, `brand`, `shared`, and `modal`).
 - `app/composables/`: reusable reactive application logic.
