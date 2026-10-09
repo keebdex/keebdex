@@ -1,11 +1,6 @@
 import { parseDate, type CalendarDate } from '@internationalized/date'
-import type { Tables } from '~/types/database.types'
 import { createKeysetSchema, keysetKitSchema } from '~/utils/schemas/keyset'
 import { entitySelectionSchema, validateEach } from '~/utils/schemas/common'
-
-type KeysetsResponse = {
-  keysets: Pick<Tables<'keysets'>, 'name' | 'profile_keyset_id'>[]
-}
 
 const toCalendarDate = (value?: string | null) =>
   value ? parseDate(value) : undefined
@@ -101,6 +96,10 @@ export const useKeysetSubmissionWizard = ({
   const keysetReviewStatus = ref<string | null>(null)
 
   const submissionKey: string = submission?.profile_keyset_id || ''
+  // `profile_keyset_id` is "<profile>/<keyset>"; split it so each segment fills
+  // its own route param and $fetch resolves the right typed route.
+  const [submissionProfile = '', submissionKeyset = ''] =
+    submissionKey.split('/')
 
   const keysetUnderReview = computed(
     () => !!keysetReviewStatus.value && keysetReviewStatus.value !== 'Approved',
@@ -109,7 +108,7 @@ export const useKeysetSubmissionWizard = ({
   const load = async () => {
     if (!isReview || !submission) return
 
-    profile.value = { id: submissionKey.split('/')[0] || '' }
+    profile.value = { id: submissionProfile }
     await nextTick()
     keysetMode.value = 'existing'
     existingKeyset.value = { id: submissionKey }
@@ -128,7 +127,9 @@ export const useKeysetSubmissionWizard = ({
     kits.value = [createKit(kitFields)]
 
     if (keysetUnderReview.value) {
-      const data: any = await $fetch(`/api/keysets/${submissionKey}`)
+      const data: any = await $fetch(
+        `/api/keysets/${submissionProfile}/${submissionKeyset}`,
+      )
 
       keysetMode.value = 'new'
 
@@ -160,13 +161,13 @@ export const useKeysetSubmissionWizard = ({
   // The server sends a submitter's rejected keyset back to review.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
     if (keysetUnderReview.value) {
-      await $fetch(`/api/keysets/${submissionKey}`, {
+      await $fetch(`/api/keysets/${submissionProfile}/${submissionKeyset}`, {
         method: 'post',
         body: toKeysetPayload(),
       })
     }
 
-    await $fetch(`/api/keysets/${submissionKey}/kits`, {
+    await $fetch(`/api/keysets/${submissionProfile}/${submissionKeyset}/kits`, {
       method: 'post',
       body: {
         ...toPayload(kits.value[0]!),
@@ -177,43 +178,73 @@ export const useKeysetSubmissionWizard = ({
   }
 
   const remove = () =>
-    $fetch(`/api/keysets/${submissionKey}/kits/${submission?.id}`, {
-      method: 'delete',
-    })
+    $fetch(
+      `/api/keysets/${submissionProfile}/${submissionKeyset}/kits/${submission?.id}`,
+      {
+        method: 'delete',
+      },
+    )
 
   const uploading = ref(false)
 
-  const { data: keysetsData, status: keysetsStatus } =
-    useAsyncData<KeysetsResponse | null>(
-      () => `keyset-submission-keysets-${profile.value.id}`,
-      async () =>
-        profile.value.id
-          ? await $fetch<KeysetsResponse>('/api/keysets', {
-              query: { profile_id: profile.value.id, page: 1, size: 100 },
-            })
-          : null,
-      { watch: [() => profile.value.id], default: () => null },
-    )
+  // Keysets are searched as the user types (reusing the global search, like
+  // KeyboardForm's original-keyboard picker) instead of preloading a capped
+  // page, so every keyset of the profile stays reachable.
+  const keysetTerm = ref('')
 
-  const keysetOptions = computed(() =>
-    (keysetsData.value?.keysets || []).map((k) => ({
-      label: k.name,
-      value: k.profile_keyset_id,
-    })),
+  const { data: keysetsData, status: keysetsStatus } = useGuardedSearch(
+    '/api/search',
+    {
+      key: 'keyset-submission-keyset-search',
+      term: keysetTerm,
+      module: 'keyset',
+    },
   )
 
-  // Only a successful empty response means there's nothing to pick from.
-  watch([keysetOptions, keysetsStatus], ([options, status]) => {
-    if (
-      !isReview &&
-      status === 'success' &&
-      profile.value.id &&
-      !existingKeyset.value.id &&
-      !options.length
-    ) {
-      keysetMode.value = 'new'
-    }
+  // Label of the picked keyset, kept apart from the search results so it still
+  // shows after the term changes or when it came from a direct link.
+  const selectedKeyset = ref<{ label: string; value: string } | null>(null)
+
+  const keysetOptions = computed(() => {
+    const groups = Array.isArray(keysetsData.value) ? keysetsData.value : []
+    const prefix = `/keyset/${profile.value.id}/`
+    const results = groups
+      .filter((group: any) => group.id === 'keyset')
+      .flatMap((group: any) => group.items || [])
+      .filter((item: any) => item.to?.startsWith(prefix))
+      .map((item: any) => ({
+        label: item.label as string,
+        value: item.to.replace('/keyset/', '') as string,
+      }))
+    const selected = selectedKeyset.value
+
+    return selected && !results.some((o) => o.value === selected.value)
+      ? [selected, ...results]
+      : results
   })
+
+  watch(
+    () => existingKeyset.value.id,
+    (id) => {
+      const option = keysetOptions.value.find((o) => o.value === id)
+      if (option) selectedKeyset.value = option
+      else if (!id) selectedKeyset.value = null
+    },
+  )
+
+  // A direct "Submit a Kit" link only carries the id; resolve its name once.
+  if (!isReview && queryKeyset) {
+    $fetch<any>(`/api/keysets/${queryKeyset}`)
+      .then((data) => {
+        if (existingKeyset.value.id === queryKeyset) {
+          selectedKeyset.value = {
+            label: [data.profile?.name, data.name].filter(Boolean).join(' '),
+            value: queryKeyset,
+          }
+        }
+      })
+      .catch(() => {})
+  }
 
   // KeysetForm always renders its own Profile field; keep it in sync with step 1.
   // Runs immediately so a new-keyset form pre-fills profile_id on first mount too.
@@ -232,6 +263,7 @@ export const useKeysetSubmissionWizard = ({
     () => profile.value.id,
     () => {
       existingKeyset.value = { id: '' }
+      keysetTerm.value = ''
     },
   )
 
@@ -279,7 +311,9 @@ export const useKeysetSubmissionWizard = ({
         })
       }
 
-      toast.add(successToast('add', { entity: countLabel(kits.value.length, 'kit') }))
+      toast.add(
+        successToast('add', { entity: countLabel(kits.value.length, 'kit') }),
+      )
     } catch (error: any) {
       toast.add(errorToast(error, { showOriginalMessage: true }))
 
@@ -295,6 +329,8 @@ export const useKeysetSubmissionWizard = ({
     existingKeyset,
     keysetOptions,
     keysetsStatus,
+    keysetTerm,
+    selectedKeyset,
     keyset,
     dateRange,
     kits,

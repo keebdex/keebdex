@@ -59,7 +59,7 @@
           </p>
 
           <UTabs
-            v-if="mode === 'create' && keysetOptions.length"
+            v-if="mode === 'create'"
             v-model="keysetMode"
             :items="keysetModeTabs"
             size="sm"
@@ -68,11 +68,16 @@
           <USelectMenu
             v-if="mode === 'create' && keysetMode === 'existing'"
             v-model="existingKeyset.id"
+            v-model:search-term="keysetTerm"
             :items="keysetOptions"
             :loading="keysetsStatus === 'pending'"
             value-key="value"
             label-key="label"
+            ignore-filter
             placeholder="Select a keyset"
+            :search-input="{
+              placeholder: 'Type at least 3 characters to search...',
+            }"
             class="w-full"
           />
 
@@ -157,6 +162,8 @@ const {
   existingKeyset,
   keysetOptions,
   keysetsStatus,
+  keysetTerm,
+  selectedKeyset,
   keyset,
   dateRange,
   kits,
@@ -183,11 +190,6 @@ const wizard = useSubmissionWizardActions({
   emit,
 })
 
-const selectedKeysetLabel = computed(
-  () =>
-    keysetOptions.value.find((o) => o.value === existingKeyset.value.id)?.label,
-)
-
 const items = computed(() => [
   {
     slot: 'profile',
@@ -202,7 +204,7 @@ const items = computed(() => [
     description:
       props.mode === 'review' || keysetMode.value === 'new'
         ? keyset.value.name
-        : selectedKeysetLabel.value,
+        : selectedKeyset.value?.label,
   },
   {
     slot: 'kit',
