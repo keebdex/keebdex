@@ -37,9 +37,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (exist?.length) {
-    return {
-      message: 'This item is already in your collection. You have great taste!',
-    }
+    return { duplicate: true }
   }
 
   const { data, error } = await client

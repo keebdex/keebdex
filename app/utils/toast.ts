@@ -79,7 +79,8 @@ export const countLabel = (
 
 /**
  * Title `Kit Added`, description `Kit "Base" has been added.`;
- * `"Base" has been moved to "Wishlist".`; `3 kits in "GMK Olivia" have been approved.`
+ * `"Base" has been moved to "Wishlist".`; title `Kits Approved`, description
+ * `3 kits in "GMK Olivia" have been approved.` (counts stay out of titles).
  */
 export function successToast(
   action: SuccessAction,
@@ -100,8 +101,11 @@ export function successToast(
         ? ' from your collection'
         : ''
 
+  // `3 kits` -> `Kits`; the count is only shown in the description.
+  const titleEntity = entity?.replace(/^\d+ /, '') || 'Item'
+
   return {
-    title: titleCase(`${entity || 'Item'} ${verb}`),
+    title: titleCase(`${titleEntity} ${verb}`),
     description: `${capitalize(subject)} ${isPlural ? 'have' : 'has'} been ${verb}${destination}.`,
     color: 'success',
   }
@@ -116,6 +120,7 @@ export type NoticeKey =
   | 'feedback_sent'
   | 'submission_pending'
   | 'color_fetched'
+  | 'already_in_collection'
 
 const NOTICES: Record<NoticeKey, (detail?: string) => ToastMessage> = {
   copied: () => ({
@@ -159,6 +164,11 @@ const NOTICES: Record<NoticeKey, (detail?: string) => ToastMessage> = {
     title: 'Color Data Loaded',
     description: `The name and hex value${detail ? ` for ${detail}` : ''} have been filled in from the source.`,
     color: 'success',
+  }),
+  already_in_collection: (detail) => ({
+    title: 'Already in Collection',
+    description: `This item is already in ${detail ? `"${detail}"` : 'your collection'}. You have great taste!`,
+    color: 'info',
   }),
 }
 

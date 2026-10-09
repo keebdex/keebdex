@@ -25,8 +25,8 @@ export const useCollectionItem = (
       },
     )
       .then((result: any) => {
-        if (result?.message) {
-          toast.add({ color: 'info', title: result.message })
+        if (result?.duplicate) {
+          toast.add(noticeToast('already_in_collection', collection.name))
         } else {
           toast.add(successToast('add', { entity: entityName, name: label, target: collection.name }))
         }
