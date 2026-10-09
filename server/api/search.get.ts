@@ -46,6 +46,9 @@ const runCombinedSearch = async ({
   return mergeById(ftsResult.data || [], likeResult.data || [])
 }
 
+// colorways shown in the palette; the rest are on the results page
+const PALETTE_COLORWAY_LIMIT = 24
+
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
@@ -76,6 +79,7 @@ export default defineEventHandler(async (event) => {
   const queryText = searchTerm.toString().trim()
 
   const searchTasks: Array<{ key: string; search: Promise<any[]> }> = []
+  let colorwaySearch: ReturnType<typeof searchPaletteColorways> | undefined
 
   if (isIncluded('artisan')) {
     searchTasks.push({
@@ -118,30 +122,11 @@ export default defineEventHandler(async (event) => {
       }),
     })
 
-    searchTasks.push({
-      key: 'artisanColorways',
-      search: runCombinedSearch({
-        label: 'Artisan Colorways',
-        ftsQuery: client
-          .from('artisan_colorways')
-          .select(
-            '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)',
-          )
-          .textSearch('fts', `${fts}`)
-          .order('maker_sculpt_id')
-          .limit(200),
-        likeQuery: client
-          .from('artisan_colorways')
-          .select(
-            '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)',
-          )
-          .or(
-            `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%,colorway_id.ilike.%${queryText}%`,
-          )
-          .order('maker_sculpt_id')
-          .limit(200),
-      }),
-    })
+    colorwaySearch = searchPaletteColorways(
+      client,
+      queryText,
+      PALETTE_COLORWAY_LIMIT,
+    )
   }
 
   if (isIncluded('keyset')) {
@@ -255,9 +240,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const resolvedSearches = await Promise.all(
-    searchTasks.map(({ search }) => search),
-  )
+  const [resolvedSearches, colorways] = await Promise.all([
+    Promise.all(searchTasks.map(({ search }) => search)),
+    colorwaySearch,
+  ])
 
   const searchResults = searchTasks.reduce(
     (acc, task, index) => {
@@ -270,7 +256,6 @@ export default defineEventHandler(async (event) => {
   const {
     artisanMakers = [],
     artisanSculpts = [],
-    artisanColorways = [],
     keysets = [],
     keyboardBrands = [],
     keyboards = [],
@@ -314,36 +299,20 @@ export default defineEventHandler(async (event) => {
       id: 'artisan-colorway',
       label: 'Artisan Colorways',
       ignoreFilter: true,
-      items: groupByMakerWithChunks(artisanColorways).map((group, idx) => {
-        const { first, last, makers } = group
-        const label = `${typeof first === 'number' ? 'Numeric Makers' : 'Alphabet Makers'}: ${first}-${last}`
-
-        return {
-          id: `artisan-colorway-${idx}`,
-          label,
-          icon:
-            typeof first === 'number'
-              ? 'hugeicons:zero-square'
-              : 'hugeicons:text-square',
-          children: makers.map(({ maker, items }) => {
-            return {
-              id: maker.id,
-              label: maker.name,
-              avatar: {
-                src: `${imgUrl}/logo/${maker.id}.png`,
-                alt: maker.name,
-                invertible: maker.invertible_logo,
-              },
-              children: items.map((c: any) => ({
-                id: c.id,
-                label: c.sculpt.name,
-                suffix: c.name,
-                to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
-              })),
-            }
-          }),
-        }
-      }),
+      // lets the palette link to the full results page
+      total: colorways?.total ?? 0,
+      viewAllTo: '/artisan/search',
+      items: (colorways?.items || []).map((c: any) => ({
+        id: c.id,
+        label: c.name,
+        suffix: `${c.maker.name} ${c.sculpt.name}`,
+        to: `/artisan/maker/${c.maker_id}/${c.sculpt_id}?cid=${c.colorway_id}`,
+        avatar: {
+          src: `${imgUrl}/logo/${c.maker_id}.png`,
+          alt: c.maker.name,
+          invertible: c.maker.invertible_logo,
+        },
+      })),
     },
     {
       id: 'keyset',
