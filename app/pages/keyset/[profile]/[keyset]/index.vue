@@ -57,56 +57,80 @@
     </template>
 
     <template #body>
-      <!-- Smaller cover share on wide screens; the page stays full width -->
-      <div class="grid grid-cols-1 lg:grid-cols-5 2xl:grid-cols-2 gap-8">
+      <!-- Smaller cover share on wide screens; the page stays full width.
+           Without a usable cover the details spread across the row instead. -->
+      <div
+        :class="
+          showCover && 'grid grid-cols-1 lg:grid-cols-5 2xl:grid-cols-2 gap-8'
+        "
+      >
         <!-- Left: cover image -->
-        <div class="lg:col-span-3 2xl:col-span-1">
+        <div v-if="showCover" class="lg:col-span-3 2xl:col-span-1">
           <NuxtImg
             :src="coverImg"
             :alt="fullName"
             class="w-full aspect-video rounded-lg border border-default object-cover cursor-zoom-in"
+            @error="coverFailed = true"
             @click="openPreview({ title: fullName, url: coverImg })"
           />
         </div>
 
-        <!-- Right: identity, catalog details, group buy history, links -->
-        <div class="space-y-6 lg:col-span-2 2xl:col-span-1">
+        <!-- Right: identity, catalog details, group buy history -->
+        <div
+          :class="['space-y-6', showCover && 'lg:col-span-2 2xl:col-span-1']"
+        >
           <UPageHeader
             :title="fullName"
             :description="data.description"
             :ui="{
               root: 'pt-0 pb-4',
+              // Keep the icon links on the title row at every width
+              wrapper: 'flex-row items-center justify-between',
+              links: 'shrink-0',
               title: 'text-2xl',
               description: 'text-sm',
             }"
-          />
+          >
+            <!-- Icon-only reference links beside the title; the tooltip and
+                 aria-label carry the name -->
+            <template v-if="externalLinks.length" #links>
+              <UTooltip
+                v-for="{ label, ...link } in externalLinks"
+                :key="label"
+                :text="label"
+              >
+                <UButton v-bind="link" :aria-label="label" />
+              </UTooltip>
+            </template>
+          </UPageHeader>
 
-          <section class="space-y-3">
-            <h2 class="text-xs uppercase tracking-widest text-muted">
-              Details
-            </h2>
-            <SharedDescriptionList
-              :columns="1"
-              orientation="horizontal"
-              :items="details"
-            />
-          </section>
+          <div
+            :class="
+              showCover ? 'space-y-6' : 'grid grid-cols-1 sm:grid-cols-2 gap-6'
+            "
+          >
+            <section v-if="details.length" class="space-y-3">
+              <h2 class="text-xs uppercase tracking-widest text-muted">
+                Details
+              </h2>
+              <SharedDescriptionList
+                :columns="1"
+                orientation="horizontal"
+                :items="details"
+              />
+            </section>
 
-          <section v-if="groupBuy.length" class="space-y-3">
-            <h2 class="text-xs uppercase tracking-widest text-muted">
-              Group Buy
-            </h2>
-            <SharedDescriptionList
-              :columns="1"
-              orientation="horizontal"
-              :items="groupBuy"
-            />
-          </section>
-
-          <section v-if="externalLinks.length" class="space-y-3">
-            <h2 class="text-xs uppercase tracking-widest text-muted">Links</h2>
-            <UPageLinks :links="externalLinks" />
-          </section>
+            <section v-if="groupBuy.length" class="space-y-3">
+              <h2 class="text-xs uppercase tracking-widest text-muted">
+                Group Buy
+              </h2>
+              <SharedDescriptionList
+                :columns="1"
+                orientation="horizontal"
+                :items="groupBuy"
+              />
+            </section>
+          </div>
         </div>
       </div>
 
@@ -128,7 +152,11 @@
             reverse
             spotlight
             class="cursor-zoom-in"
-            :ui="{ description: 'line-clamp-2' }"
+            :ui="{
+              body: 'w-full',
+              description: 'line-clamp-2',
+              footer: 'pt-3',
+            }"
             @click="
               openPreview({
                 title: kitLabel(kit),
@@ -137,6 +165,29 @@
               })
             "
           >
+            <!-- Name with its group buy price, catalog style -->
+            <template #title>
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="truncate">{{ kitLabel(kit) }}</span>
+                <span
+                  v-if="kit.price"
+                  class="shrink-0 tabular-nums"
+                  :class="kit.cancelled && 'line-through text-muted'"
+                >
+                  {{ formatPrice(kit.price, 'USD', { stripZeros: true }) }}
+                </span>
+              </div>
+            </template>
+
+            <template v-if="kit.qty" #footer>
+              <div class="flex items-center gap-1.5 text-xs text-muted">
+                <UIcon name="hugeicons:package" class="size-4" />
+                <span class="tabular-nums">
+                  {{ formatNumber(kit.qty) }} sold
+                </span>
+              </div>
+            </template>
+
             <div class="relative">
               <NuxtImg
                 loading="lazy"
@@ -295,10 +346,18 @@ const kits = computed(() => data.value?.kits || [])
 
 const kitLabel = (kit) => kit.name || kit.category?.name || 'Kit'
 
-// Prefer the keyset's own cover, then the base kit render
+// Prefer the keyset's own cover, then the first kit render; no placeholder
 const coverImg = computed(
-  () => data.value?.img || kits.value[0]?.img || '/keyset.png',
+  () => data.value?.img || kits.value.find((kit) => kit.img)?.img || '',
 )
+
+// NuxtImg also reports an image that failed during SSR once it mounts
+const coverFailed = ref(false)
+const showCover = computed(() => !!coverImg.value && !coverFailed.value)
+
+watch(coverImg, () => {
+  coverFailed.value = false
+})
 
 // What the set is: stays true long after the group buy ends
 const details = computed(() =>

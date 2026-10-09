@@ -146,16 +146,6 @@ const title = computed(() => {
   ])
 })
 
-const formatPrice = (amount, currency = 'USD') => {
-  if (!amount || isNaN(amount)) return null
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount)
-}
-
 const specs = computed(() => {
   const price = variant.msrp_price
     ? formatPrice(variant.msrp_price, variant.currency)

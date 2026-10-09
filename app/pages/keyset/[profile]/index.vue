@@ -22,7 +22,9 @@ const { page, size, setPage } = usePagination(36)
 
 const query = computed(() => {
   return {
-    profile_id: manufacturers.value[profile] && profile,
+    // The profile list may still be loading during SSR; the API 404s on an
+    // unknown profile, so pass the route param as is
+    profile_id: profile,
     page: page.value,
     size,
   }
@@ -38,11 +40,13 @@ const { data, refresh } = await useAsyncData(
 
 const keysets = computed(() => data.value?.keysets || [])
 
-const title = computed(() => manufacturers.value[profile])
-const description = data.value?.profile?.description
+const title = computed(
+  () => keysetProfileLabel(data.value?.profile) || manufacturers.value[profile],
+)
+const description = computed(() => data.value?.profile?.description)
 
 useSeoMeta({
-  title: title.value,
+  title: computed(() => (title.value ? `${title.value} Keysets` : 'Keysets')),
   description,
   ogDescription: description,
   twitterDescription: description,

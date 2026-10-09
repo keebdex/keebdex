@@ -20,6 +20,25 @@ export const formatDateRange = (fromDate: string, toDate: string) => {
     : ''
 }
 
+export const formatPrice = (
+  amount: number | null | undefined,
+  currency: string | null = 'USD',
+  { stripZeros = false } = {},
+) => {
+  if (!amount || isNaN(amount)) return ''
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency || 'USD',
+    maximumFractionDigits: 2,
+    // $169 rather than $169.00 where cents never apply
+    ...(stripZeros && { trailingZeroDisplay: 'stripIfInteger' as const }),
+  }).format(amount)
+}
+
+export const formatNumber = (value: number | null | undefined) =>
+  value || value === 0 ? new Intl.NumberFormat('en-US').format(value) : ''
+
 export const keysetStatusColors: Record<
   Database['public']['Enums']['keyset_status'],
   string
@@ -31,6 +50,21 @@ export const keysetStatusColors: Record<
   'In Production': 'warning',
   Shipping: 'info',
   Complete: 'success',
+}
+
+// Profile rows hold a short name (CYL, SA) apart from the manufacturer (GMK,
+// Signature Plastics); show both unless they say the same thing (JTK JTK)
+export const keysetProfileLabel = (
+  profile?: { name?: string | null; manufacturer?: string | null } | null,
+) => {
+  const name = profile?.name || ''
+  const manufacturer = profile?.manufacturer || ''
+
+  if (!manufacturer || manufacturer.toLowerCase() === name.toLowerCase()) {
+    return name || manufacturer
+  }
+
+  return name ? `${manufacturer} ${name}` : manufacturer
 }
 
 export const keysetStatusMap = {
