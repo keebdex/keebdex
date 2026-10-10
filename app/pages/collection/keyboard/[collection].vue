@@ -106,10 +106,11 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageCTA
+      <UEmpty
         v-else-if="status === 'success'"
-        title="No Keyboards Yet"
-        description="Save keyboard variants from their respective pages to start building this collection."
+        icon="hugeicons:keyboard"
+        title="No Boards on the Bench"
+        description="Save keyboard variants from their pages to fill this collection."
       />
     </template>
   </UDashboardPanel>

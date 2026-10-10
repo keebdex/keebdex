@@ -9,12 +9,14 @@ export default {
       primary: 'eva-purple',
       secondary: 'eva-green',
       warning: 'eva-orange',
+      error: 'eva-red',
+      success: 'eva-green',
+      info: 'eva-cyan',
       neutral: 'eva-ink',
     },
   },
   css: {
     root: {
-      '--ui-radius': '0.25rem',
       // Pantone PQ-267C #60249e
       ...palette('eva-purple', {
         50: '#F6F0FC',
@@ -57,6 +59,34 @@ export default {
         900: '#763116',
         950: '#401607',
       }),
+      // #dd1126, the EVA-01 keyset red
+      ...palette('eva-red', {
+        50: '#FEF2F0',
+        100: '#FEE2DF',
+        200: '#FEC6C0',
+        300: '#FB9B92',
+        400: '#F8625C',
+        500: '#DD1126',
+        600: '#BE011C',
+        700: '#9D0015',
+        800: '#7F0712',
+        900: '#650E11',
+        950: '#3B0607',
+      }),
+      // Cyan for info, apart from both the purple and the green
+      ...palette('eva-cyan', {
+        50: '#EEF7F9',
+        100: '#D8EEF4',
+        200: '#B4DEE9',
+        300: '#81C7D8',
+        400: '#38ACC4',
+        500: '#0090A8',
+        600: '#04778B',
+        700: '#016374',
+        800: '#02515F',
+        900: '#00414D',
+        950: '#00232A',
+      }),
       // Derived from #60249e with a purple tint
       ...palette('eva-ink', {
         50: '#F8F5FC',
@@ -74,22 +104,19 @@ export default {
     },
     light: {
       '--ui-primary': 'var(--ui-color-primary-700)',
+      '--ui-success': 'var(--ui-color-success-600)',
+      '--ui-info': 'var(--ui-color-info-600)',
       '--ui-bg': 'var(--ui-color-neutral-50)',
       '--ui-bg-muted': 'var(--ui-color-neutral-100)',
-      '--ui-bg-elevated': 'var(--ui-color-neutral-100)',
-      '--ui-bg-accented': 'var(--ui-color-neutral-200)',
       '--ui-text-dimmed': 'var(--ui-color-secondary-600)',
       '--ui-text-muted': 'var(--ui-color-secondary-700)',
       '--ui-text-toned': 'var(--ui-color-secondary-800)',
       '--ui-text': 'var(--ui-color-secondary-800)',
       '--ui-text-highlighted': 'var(--ui-color-secondary-900)',
       '--ui-border': 'var(--ui-color-neutral-300)',
-      '--ui-border-muted': 'var(--ui-color-neutral-200)',
       '--ui-border-accented': 'var(--ui-color-neutral-400)',
     },
     dark: {
-      '--ui-primary': 'var(--ui-color-primary-400)',
-      '--ui-secondary': 'var(--ui-color-secondary-400)',
       '--ui-bg': 'var(--ui-color-neutral-950)',
       '--ui-bg-muted': 'var(--ui-color-neutral-900)',
       '--ui-bg-elevated': 'var(--ui-color-neutral-900)',
@@ -100,9 +127,7 @@ export default {
       '--ui-text': 'var(--ui-color-secondary-400)',
       '--ui-text-highlighted': 'var(--ui-color-secondary-300)',
       '--ui-text-inverted': 'var(--ui-color-neutral-950)',
-      '--ui-border': 'var(--ui-color-neutral-800)',
       '--ui-border-muted': 'var(--ui-color-neutral-900)',
-      '--ui-border-accented': 'var(--ui-color-neutral-700)',
     },
   },
 } satisfies ThemePreset

@@ -1,3 +1,5 @@
+import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
+
 type Leaf = Record<string, any>
 type Group = Record<string, any>
 type ModerationAction = 'approve' | 'reject'
@@ -8,7 +10,8 @@ type BulkAction = ModerationAction | 'delete'
  * status filter, pagination, per-leaf Approve/Reject/Edit/Delete, the review
  * wizard modal, and, for grouped queues (keysets, keyboards), expandable
  * groups with Approve All / Reject All on their Pending leaves and Delete All
- * on their Rejected ones.
+ * on their Rejected ones. Reject (one leaf or all) asks for a note, which the
+ * submitter reads in the notification sent by the database trigger.
  *
  * Leaves are saved through `leafUrl(leaf)` (POST, with `action` to moderate)
  * and deleted through `${leafUrl(leaf)}/${leaf.id}`.
@@ -38,7 +41,7 @@ export const useSubmissionReviewQueue = ({
   }
 }) => {
   const toast = useToast()
-  const { isModerator } = storeToRefs(useUserStore())
+  const { isModerator, user } = storeToRefs(useUserStore())
 
   const statusFilter = ref('Pending')
 
@@ -72,25 +75,46 @@ export const useSubmissionReviewQueue = ({
   const canManage = (leaf: Leaf) =>
     isModerator.value || ['Pending', 'Rejected'].includes(statusOf(leaf) || '')
 
-  const postModeration = (leaf: Leaf, action: ModerationAction) =>
+  const postModeration = (
+    leaf: Leaf,
+    action: ModerationAction,
+    note?: string,
+  ) =>
     $fetch(leafUrl(leaf), {
       method: 'post',
-      body: { id: leaf.id, action },
+      body: { id: leaf.id, action, note },
     })
 
   const processingId = ref<number | null>(null)
   const bulkRunning = ref(false)
   const busy = computed(() => processingId.value !== null || bulkRunning.value)
 
-  const moderate = async (leaf: Leaf, action: ModerationAction) => {
+  // Leaf waiting for a reject note, and the note shared by single and bulk
+  // rejects.
+  const rejectTarget = ref<Leaf | null>(null)
+  const rejectNote = ref('')
+
+  const moderate = async (
+    leaf: Leaf,
+    action: ModerationAction,
+    note?: string,
+  ) => {
     if (!isModerator.value || busy.value) return
+
+    // Rejecting asks for a note first; confirmReject() comes back here.
+    if (action === 'reject' && note === undefined) {
+      rejectNote.value = ''
+      rejectTarget.value = leaf
+      return
+    }
 
     processingId.value = leaf.id
 
     try {
-      await postModeration(leaf, action)
+      await postModeration(leaf, action, note)
 
       toast.add(successToast(action, { entity, name: label(leaf) }))
+      rejectTarget.value = null
       await refresh()
     } catch (error) {
       toast.add(errorToast(error, { showOriginalMessage: true }))
@@ -108,15 +132,45 @@ export const useSubmissionReviewQueue = ({
     },
   })
 
+  // Staff deleting someone else's proposal can tell them why; the submitter
+  // is notified either way (notify_submission_deleted).
+  const deleteNote = ref('')
+  const deleteAsksReason = computed(
+    () =>
+      isModerator.value &&
+      !!deleteTarget.value?.submitted_by &&
+      deleteTarget.value.submitted_by !== user.value?.uid,
+  )
+
+  watch(deleteTarget, () => {
+    deleteNote.value = ''
+  })
+
   const confirmDelete = async () => {
     const leaf = deleteTarget.value
 
     if (!leaf || deleting.value) return
 
+    let note: string | undefined
+
+    if (deleteAsksReason.value && deleteNote.value.trim()) {
+      const result = deletionNoteSchema.safeParse(deleteNote.value)
+
+      if (!result.success) {
+        toast.add(validationToast(result.error.issues[0]?.message))
+        return
+      }
+
+      note = result.data
+    }
+
     deleting.value = true
 
     try {
-      await $fetch(`${leafUrl(leaf)}/${leaf.id}`, { method: 'delete' })
+      await $fetch(`${leafUrl(leaf)}/${leaf.id}`, {
+        method: 'delete',
+        body: note ? { note } : undefined,
+      })
 
       toast.add(successToast('delete', { entity, name: label(leaf) }))
       deleteTarget.value = null
@@ -192,12 +246,20 @@ export const useSubmissionReviewQueue = ({
   // each previous result (a parent is only rejected or deleted once none of
   // its children is left alive).
   const bulkTarget = ref<{ group: Group; action: BulkAction } | null>(null)
+  // Reject All opens the reject modal instead, to ask for a note.
   const bulkOpen = computed({
-    get: () => !!bulkTarget.value,
+    get: () => !!bulkTarget.value && bulkTarget.value.action !== 'reject',
     set: (value) => {
       if (!value && !bulkRunning.value) bulkTarget.value = null
     },
   })
+
+  watch(
+    () => bulkTarget.value?.action,
+    (action) => {
+      if (action === 'reject') rejectNote.value = ''
+    },
+  )
 
   // The bulk action running for `group`, if any.
   const bulkActionFor = (group: Group) => {
@@ -250,7 +312,11 @@ export const useSubmissionReviewQueue = ({
           if (action === 'delete') {
             await $fetch(`${leafUrl(leaf)}/${leaf.id}`, { method: 'delete' })
           } else {
-            await postModeration(leaf, action)
+            await postModeration(
+              leaf,
+              action,
+              action === 'reject' ? rejectNote.value : undefined,
+            )
           }
           done++
         } catch (error) {
@@ -278,6 +344,52 @@ export const useSubmissionReviewQueue = ({
     }
   }
 
+  const isBulkReject = computed(() => bulkTarget.value?.action === 'reject')
+
+  const rejecting = computed(
+    () =>
+      processingId.value !== null || (isBulkReject.value && bulkRunning.value),
+  )
+
+  const rejectOpen = computed({
+    get: () => !!rejectTarget.value || isBulkReject.value,
+    set: (value) => {
+      if (value || rejecting.value) return
+
+      rejectTarget.value = null
+      if (isBulkReject.value) bulkTarget.value = null
+    },
+  })
+
+  const rejectTitle = computed(() =>
+    isBulkReject.value ? BULK_TITLES.reject : `Reject ${entity}`,
+  )
+
+  const rejectDescription = computed(() =>
+    isBulkReject.value
+      ? bulkDescription.value
+      : rejectTarget.value
+        ? `Tell the submitter why ${label(rejectTarget.value)} is rejected.`
+        : '',
+  )
+
+  const confirmReject = async () => {
+    const result = reviewNoteSchema.safeParse(rejectNote.value)
+
+    if (!result.success) {
+      toast.add(validationToast(result.error.issues[0]?.message))
+      return
+    }
+
+    rejectNote.value = result.data
+
+    if (isBulkReject.value) {
+      await confirmBulk()
+    } else if (rejectTarget.value) {
+      await moderate(rejectTarget.value, 'reject', result.data)
+    }
+  }
+
   return {
     isModerator,
     statusFilter,
@@ -296,6 +408,8 @@ export const useSubmissionReviewQueue = ({
     deleteTarget,
     deleteOpen,
     deleting,
+    deleteNote,
+    deleteAsksReason,
     confirmDelete,
     editorOpen,
     selectedSubmission,
@@ -314,5 +428,11 @@ export const useSubmissionReviewQueue = ({
     bulkTitle,
     bulkDescription,
     confirmBulk,
+    rejectOpen,
+    rejectNote,
+    rejecting,
+    rejectTitle,
+    rejectDescription,
+    confirmReject,
   }
 }

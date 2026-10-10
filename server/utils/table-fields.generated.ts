@@ -26,6 +26,7 @@ export const TABLE_FIELDS = {
     "price",
     "qty",
     "release",
+    "review_note",
     "review_status",
     "sale_type",
     "sculpt_id",
@@ -95,7 +96,11 @@ export const TABLE_FIELDS = {
     "id",
     "message",
     "name",
-    "resolved"
+    "resolution_note",
+    "resolved",
+    "resolved_at",
+    "resolved_by",
+    "submitted_by"
   ],
   "keyboard_brands": [
     "bio",
@@ -149,6 +154,7 @@ export const TABLE_FIELDS = {
     "plate_materials",
     "release_id",
     "release_year",
+    "review_note",
     "review_status",
     "sale_type",
     "submitted_by",
@@ -194,6 +200,7 @@ export const TABLE_FIELDS = {
     "price",
     "profile_keyset_id",
     "qty",
+    "review_note",
     "review_status",
     "submitted_by",
     "verified_at",
@@ -236,6 +243,24 @@ export const TABLE_FIELDS = {
     "name",
     "slug",
     "sort_order"
+  ],
+  "notification_preferences": [
+    "enabled",
+    "preference",
+    "updated_at",
+    "user_id"
+  ],
+  "notifications": [
+    "actor_id",
+    "created_at",
+    "data",
+    "entity_id",
+    "entity_type",
+    "group_key",
+    "id",
+    "read_at",
+    "type",
+    "user_id"
   ],
   "testimonials": [
     "avatar_url",

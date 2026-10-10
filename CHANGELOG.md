@@ -4,16 +4,22 @@
 
 ### ✨ What's New
 
+- **Notifications**: get notified when your submissions are approved, rejected, or deleted (with the moderator's note), when your feedback is resolved, and when your role changes. Moderators hear when a submission they rejected is resubmitted, and bulk reviews arrive as one notification. Find them under _Notifications_ in the sidebar.
+- Feedback sent while signed in no longer asks for your name and email.
+- **Notification settings** in Account Settings let you choose what you are notified about.
 - Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.
 
 ### 🐛 Bug Fixes
 
+- Sidebar items no longer sometimes show another item's icon and color after loading the page signed in.
 - Keyset pages with no kits now still show the set's details instead of an empty page.
 - Paging past the last page of a keyset list now shows an empty page instead of a server error.
 - Keyset profile pages no longer show _Not Found_ when opened directly, and their title now names the manufacturer and profile (e.g. _GMK CYL Keysets_).
 
 ### 🚀 Improvements
 
+- Error, success, and info colors now match each theme's palette instead of bright defaults.
+- Empty pages now show an icon and friendlier copy.
 - Artisan colorways in the search palette are now a single list with the closest name matches first, instead of nested groups by maker.
 - Colorway search now matches the colorway's own name (every word you type) and hides deleted colorways; makers and sculpts keep their own result groups.
 - **About** and **Changelog** moved from the sidebar into the profile menu.

@@ -350,10 +350,11 @@
         </UPageCard>
       </UPageList>
 
-      <UPageCTA
+      <UEmpty
         v-else
-        title="No Releases Yet"
-        description="Know a release of this keyboard? Submit it and our staff will review it before it appears publicly."
+        icon="hugeicons:package"
+        title="Nothing Has Shipped Yet"
+        description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
       />
     </template>
   </UDashboardPanel>
@@ -470,10 +471,9 @@ const breadcrumbs = computed(() => {
         alt: data.value?.brand?.name,
         ui: {
           root: 'bg-transparent',
-          image:
-            data.value?.brand?.invertible_logo
-              ? 'rounded-none dark:invert'
-              : 'rounded-none',
+          image: data.value?.brand?.invertible_logo
+            ? 'rounded-none dark:invert'
+            : 'rounded-none',
         },
       },
     },

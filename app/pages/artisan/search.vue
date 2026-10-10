@@ -40,8 +40,9 @@
     </template>
 
     <template #body>
-      <UPageCTA
+      <UEmpty
         v-if="emptyState"
+        :icon="emptyState.icon"
         :title="emptyState.title"
         :description="emptyState.description"
       />
@@ -216,15 +217,17 @@ const total = computed(() => data.value?.total || 0)
 const emptyState = computed(() => {
   if (term.value.length < SEARCH_TERM_MIN_LENGTH) {
     return {
-      title: 'Search Colorways',
+      icon: 'hugeicons:search-01',
+      title: 'Hunt for a Colorway',
       description: `Type at least ${SEARCH_TERM_MIN_LENGTH} characters of a colorway name. Results update as you type.`,
     }
   }
 
   if (status.value === 'success' && !total.value) {
     return {
-      title: 'No Colorways Found',
-      description: `No colorway names match “${term.value}”.`,
+      icon: 'hugeicons:search-remove',
+      title: 'This Colorway Is a Unicorn',
+      description: `No colorway names match “${term.value}”. Try another spelling or fewer words.`,
     }
   }
 

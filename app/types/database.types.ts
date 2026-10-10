@@ -33,6 +33,7 @@ export type Database = {
           price: number | null
           qty: number | null
           release: string | null
+          review_note: string | null
           review_status: Database["public"]["Enums"]["review_status"] | null
           sale_type: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
@@ -61,6 +62,7 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
+          review_note?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id: string
@@ -89,6 +91,7 @@ export type Database = {
           price?: number | null
           qty?: number | null
           release?: string | null
+          review_note?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           sculpt_id?: string
@@ -320,7 +323,11 @@ export type Database = {
           id: number
           message: string | null
           name: string | null
+          resolution_note: string | null
           resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          submitted_by: string | null
         }
         Insert: {
           created_at?: string
@@ -328,7 +335,11 @@ export type Database = {
           id?: number
           message?: string | null
           name?: string | null
+          resolution_note?: string | null
           resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          submitted_by?: string | null
         }
         Update: {
           created_at?: string
@@ -336,9 +347,28 @@ export type Database = {
           id?: number
           message?: string | null
           name?: string | null
+          resolution_note?: string | null
           resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          submitted_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       keyboard_brands: {
         Row: {
@@ -514,6 +544,7 @@ export type Database = {
             | null
           release_id: number | null
           release_year: number | null
+          review_note: string | null
           review_status: Database["public"]["Enums"]["review_status"] | null
           sale_type: Database["public"]["Enums"]["sale_format"] | null
           submitted_by: string | null
@@ -546,6 +577,7 @@ export type Database = {
             | null
           release_id?: number | null
           release_year?: number | null
+          review_note?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           submitted_by?: string | null
@@ -578,6 +610,7 @@ export type Database = {
             | null
           release_id?: number | null
           release_year?: number | null
+          review_note?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           sale_type?: Database["public"]["Enums"]["sale_format"] | null
           submitted_by?: string | null
@@ -776,6 +809,7 @@ export type Database = {
           price: number | null
           profile_keyset_id: string
           qty: number | null
+          review_note: string | null
           review_status: Database["public"]["Enums"]["review_status"] | null
           submitted_by: string | null
           verified_at: string | null
@@ -792,6 +826,7 @@ export type Database = {
           price?: number | null
           profile_keyset_id: string
           qty?: number | null
+          review_note?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -808,6 +843,7 @@ export type Database = {
           price?: number | null
           profile_keyset_id?: string
           qty?: number | null
+          review_note?: string | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           submitted_by?: string | null
           verified_at?: string | null
@@ -988,6 +1024,89 @@ export type Database = {
           sort_order?: number | null
         }
         Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          enabled: boolean
+          preference: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          enabled?: boolean
+          preference: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          enabled?: boolean
+          preference?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          data: Json
+          entity_id: string | null
+          entity_type: string | null
+          group_key: string | null
+          id: string
+          read_at: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          group_key?: string | null
+          id?: string
+          read_at?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          group_key?: string | null
+          id?: string
+          read_at?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {
@@ -1229,6 +1348,25 @@ export type Database = {
         Args: { s: Database["public"]["Enums"]["review_status"] }
         Returns: boolean
       }
+      mark_all_notifications_read: { Args: never; Returns: number }
+      push_notification: {
+        Args: {
+          p_actor_id: string
+          p_data?: Json
+          p_entity_id: string
+          p_entity_type: string
+          p_group_key?: string
+          p_preference?: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      submission_details: {
+        Args: { p_row: Json; p_table: string }
+        Returns: Json
+      }
+      unread_count: { Args: never; Returns: number }
     }
     Enums: {
       currency:

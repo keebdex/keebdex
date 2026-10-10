@@ -100,10 +100,11 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageCTA
+      <UEmpty
         v-else-if="status === 'success'"
-        title="No Keysets Yet"
-        description="Save keysets from their respective pages to start building this collection."
+        icon="hugeicons:grid-view"
+        title="Not a Single Keycap Here"
+        description="Save keysets from their pages to start building this collection."
       />
     </template>
   </UDashboardPanel>

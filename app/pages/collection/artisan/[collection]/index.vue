@@ -205,10 +205,11 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageCTA
+      <UEmpty
         v-else-if="status === 'success'"
-        title="No Artisans Yet"
-        description="Save artisan items from their respective pages to start building this collection."
+        icon="hugeicons:alien-01"
+        title="No Artisans Have Moved In Yet"
+        description="Save artisans from their pages and they will settle in right here."
       />
     </template>
   </UDashboardPanel>

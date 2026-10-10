@@ -14,9 +14,13 @@ export default defineEventHandler(async (event) => {
 
   let request = client
     .from('feedbacks')
-    .select('*', {
-      count: 'exact',
-    })
+    // Signed-in authors' name and email come from their profile.
+    .select(
+      '*, submitter:users!feedbacks_submitted_by_fkey(full_name, email)',
+      {
+        count: 'exact',
+      },
+    )
     .order('id', { ascending: false })
     .range(from, to)
 

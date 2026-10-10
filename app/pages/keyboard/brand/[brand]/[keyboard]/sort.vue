@@ -56,10 +56,11 @@
         </template>
       </draggable>
 
-      <UPageCTA
+      <UEmpty
         v-else
-        title="No Releases Yet"
-        description="Know a release of this keyboard? Submit it and our staff will review it before it appears publicly."
+        icon="hugeicons:package"
+        title="Nothing Has Shipped Yet"
+        description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
       />
     </template>
   </UDashboardPanel>

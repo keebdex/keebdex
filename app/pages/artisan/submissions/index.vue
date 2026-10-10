@@ -105,12 +105,40 @@
         </template>
       </UModal>
 
+      <SharedNoteModal
+        v-if="deleteAsksReason"
+        v-model:open="deleteOpen"
+        v-model:note="deleteNote"
+        title="Delete Colorway"
+        :description="`Are you sure you want to delete ${deleteTarget?.name || 'this colorway'}? This action cannot be undone.`"
+        confirm-label="Delete"
+        confirm-color="error"
+        label="Reason"
+        help="Optional. The submitter gets a notification, with your reason if you add one."
+        placeholder="e.g. This colorway is already listed."
+        optional
+        :loading="deleting"
+        @confirm="confirmDelete"
+      />
       <SharedConfirmModal
+        v-else
         v-model:open="deleteOpen"
         title="Delete Colorway"
         :description="`Are you sure you want to delete ${deleteTarget?.name || 'this colorway'}? This action cannot be undone.`"
         :loading="deleting"
         @confirm="confirmDelete"
+      />
+      <SharedNoteModal
+        v-model:open="rejectOpen"
+        v-model:note="rejectNote"
+        :title="rejectTitle"
+        :description="rejectDescription"
+        :confirm-label="rejectTitle"
+        confirm-color="error"
+        label="Note to submitter"
+        placeholder="e.g. The photo shows a different colorway."
+        :loading="rejecting"
+        @confirm="confirmReject"
       />
     </template>
   </UDashboardPanel>
@@ -149,12 +177,20 @@ const {
   deleteTarget,
   deleteOpen,
   deleting,
+  deleteNote,
+  deleteAsksReason,
   confirmDelete,
   editorOpen,
   selectedSubmission,
   edit,
   onEditSuccess,
   onDeleteSuccess,
+  rejectOpen,
+  rejectNote,
+  rejecting,
+  rejectTitle,
+  rejectDescription,
+  confirmReject,
 } = useSubmissionReviewQueue({
   endpoint: '/api/submissions/artisan',
   key: 'artisan-submissions',

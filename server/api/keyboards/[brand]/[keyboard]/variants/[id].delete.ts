@@ -9,11 +9,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { client, parent, isOfficial } = await getChildSubmissionContext(
-    event,
-    'keyboard',
-    brandKeyboardSlug,
-  )
+  const { client, parent, isOfficial, isStaff } =
+    await getChildSubmissionContext(event, 'keyboard', brandKeyboardSlug)
   const keyboardUnderReview = !isOfficial && !!parent.review_status
   const keyboardMatch = { brand_keyboard_slug: brandKeyboardSlug }
 
@@ -22,6 +19,7 @@ export default defineEventHandler(async (event) => {
     table: 'keyboard_variants',
     match: { ...keyboardMatch, id },
     label: 'variant',
+    note: await readDeletionNote(event, isStaff),
     select: 'release_id',
   })
 

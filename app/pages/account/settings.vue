@@ -37,6 +37,11 @@ const links = [
     icon: 'hugeicons:paint-board',
     to: '/account/settings/appearance',
   },
+  {
+    label: 'Notifications',
+    icon: 'hugeicons:notification-01',
+    to: '/account/settings/notifications',
+  },
 ]
 
 useSeoMeta({

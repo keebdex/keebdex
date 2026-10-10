@@ -12,7 +12,12 @@ export default defineEventHandler(async (event) => {
   const rawBody = await readBody(event)
   const body = pickTableFields('keyboard_variants', rawBody)
   // Staff reviewing a proposal can approve/reject it while saving.
-  const moderation = getModerationOverride(rawBody?.action, user.sub, isStaff)
+  const moderation = getModerationOverride(
+    rawBody?.action,
+    user.sub,
+    isStaff,
+    rawBody?.note,
+  )
 
   // A sparse edit (e.g. a quick approve) keeps the variant's current release.
   if (!body.id || body.release_id !== undefined) {

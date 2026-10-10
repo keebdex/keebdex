@@ -11,7 +11,12 @@ export default defineEventHandler(async (event) => {
     await getChildSubmissionContext(event, 'artisan', makerSculptId)
   const body = await readBody(event)
   // Staff reviewing a colorway can approve/reject it while saving.
-  const moderation = getModerationOverride(body?.action, user.sub, isStaff)
+  const moderation = getModerationOverride(
+    body?.action,
+    user.sub,
+    isStaff,
+    body?.note,
+  )
   const colorway: Record<string, unknown> = {
     ...pickTableFields('artisan_colorways', body),
     maker_id: maker,
