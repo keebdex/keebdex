@@ -36,7 +36,7 @@
           />
         </div>
 
-        <UPageSection
+        <UEmpty
           v-else-if="!visible.length && !hasMore"
           :icon="
             filter === 'unread'

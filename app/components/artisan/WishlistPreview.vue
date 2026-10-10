@@ -187,7 +187,8 @@
       </div>
     </template>
     <template v-else #body>
-      <UPageCTA
+      <UEmpty
+        icon="hugeicons:collections-bookmark"
         title="No Collection Selected"
         description="Start by choosing a collection to generate your wishlist. Once selected, you can preview, edit, and share it easily."
       />

@@ -350,8 +350,9 @@
         </UPageCard>
       </UPageList>
 
-      <UPageCTA
+      <UEmpty
         v-else
+        icon="hugeicons:package"
         title="No Releases Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it appears publicly."
       />
@@ -470,10 +471,9 @@ const breadcrumbs = computed(() => {
         alt: data.value?.brand?.name,
         ui: {
           root: 'bg-transparent',
-          image:
-            data.value?.brand?.invertible_logo
-              ? 'rounded-none dark:invert'
-              : 'rounded-none',
+          image: data.value?.brand?.invertible_logo
+            ? 'rounded-none dark:invert'
+            : 'rounded-none',
         },
       },
     },

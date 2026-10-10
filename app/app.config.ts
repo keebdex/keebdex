@@ -102,6 +102,11 @@ export default defineAppConfig({
         container: 'p-3 sm:p-4',
       },
     },
+    empty: {
+      defaultVariants: {
+        variant: 'naked',
+      },
+    },
     pageColumns: {
       base: 'gap-4',
     },

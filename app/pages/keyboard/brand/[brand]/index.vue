@@ -88,11 +88,12 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageCTA
+      <UEmpty
         v-else
+        icon="hugeicons:keyboard"
         title="No Keyboards Yet"
         description="Know a keyboard from this brand? Submit it and our staff will review it before it appears publicly."
-        :links="[
+        :actions="[
           {
             label: 'Submit a Keyboard',
             icon: 'hugeicons:add-square',

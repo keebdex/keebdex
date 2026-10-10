@@ -49,8 +49,9 @@
           </UPageGrid>
         </UPageCard>
       </UPageList>
-      <UPageCTA
+      <UEmpty
         v-else
+        icon="hugeicons:collections-bookmark"
         title="No Collections Yet"
         description="Create a collection to organize and showcase your items."
       />

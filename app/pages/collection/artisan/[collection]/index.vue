@@ -205,8 +205,9 @@
         </UPageCard>
       </UPageGrid>
 
-      <UPageCTA
+      <UEmpty
         v-else-if="status === 'success'"
+        icon="hugeicons:alien-01"
         title="No Artisans Yet"
         description="Save artisan items from their respective pages to start building this collection."
       />
