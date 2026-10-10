@@ -10,7 +10,12 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const kit = pickTableFields('keyset_kits', body)
   // Staff reviewing a kit can approve/reject it while saving.
-  const moderation = getModerationOverride(body?.action, user.sub, isStaff)
+  const moderation = getModerationOverride(
+    body?.action,
+    user.sub,
+    isStaff,
+    body?.note,
+  )
 
   if (kit.id) {
     const { resubmitted } = await updateChildSubmission({

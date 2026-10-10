@@ -112,6 +112,15 @@
         :loading="deleting"
         @confirm="confirmDelete"
       />
+      <SharedRejectModal
+        v-model:open="rejectOpen"
+        v-model:note="rejectNote"
+        :title="rejectTitle"
+        :description="rejectDescription"
+        :confirm-label="rejectTitle"
+        :loading="rejecting"
+        @confirm="confirmReject"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -155,6 +164,12 @@ const {
   edit,
   onEditSuccess,
   onDeleteSuccess,
+  rejectOpen,
+  rejectNote,
+  rejecting,
+  rejectTitle,
+  rejectDescription,
+  confirmReject,
 } = useSubmissionReviewQueue({
   endpoint: '/api/submissions/artisan',
   key: 'artisan-submissions',

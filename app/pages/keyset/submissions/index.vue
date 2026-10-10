@@ -207,6 +207,15 @@
         :loading="bulkRunning"
         @confirm="confirmBulk"
       />
+      <SharedRejectModal
+        v-model:open="rejectOpen"
+        v-model:note="rejectNote"
+        :title="rejectTitle"
+        :description="rejectDescription"
+        :confirm-label="rejectTitle"
+        :loading="rejecting"
+        @confirm="confirmReject"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -284,6 +293,12 @@ const {
   bulkTitle,
   bulkDescription,
   confirmBulk,
+  rejectOpen,
+  rejectNote,
+  rejecting,
+  rejectTitle,
+  rejectDescription,
+  confirmReject,
 } = useSubmissionReviewQueue({
   endpoint: '/api/submissions/keyset',
   key: 'keyset-submissions',

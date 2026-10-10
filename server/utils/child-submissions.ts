@@ -7,6 +7,7 @@ import {
   canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
+import { reviewNoteSchema } from '~/utils/schemas/common'
 
 export type ChildSubmissionDomain = 'keyset' | 'keyboard' | 'artisan'
 
@@ -35,6 +36,7 @@ const MODERATION_FIELDS = [
   'submitted_by',
   'verified_at',
   'verified_by',
+  'review_note',
 ]
 
 // Children that are neither rejected nor missing a status of their own.
@@ -219,13 +221,15 @@ export const getChildSubmissionContext = async (
 
 /**
  * Moderation columns applied when staff send `action: 'approve' | 'reject'`
- * with a kit/release/variant/colorway save. Returns null when no action was
- * sent and rejects non-staff or unknown actions.
+ * with a kit/variant/colorway save. Returns null when no action was sent and
+ * rejects non-staff or unknown actions. Rejecting requires a `note`, stored
+ * as `review_note` and sent to the submitter by the notification trigger.
  */
 export const getModerationOverride = (
   action: unknown,
   userId: string,
   isStaff: boolean,
+  note?: unknown,
 ) => {
   if (action === undefined || action === null || action === 'update') {
     return null
@@ -239,7 +243,20 @@ export const getModerationOverride = (
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 
-  return getReviewPatch(action, userId)
+  const patch = getReviewPatch(action, userId)
+
+  if (action === 'approve') return patch
+
+  const parsed = reviewNoteSchema.safeParse(note ?? '')
+
+  if (!parsed.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: parsed.error.issues[0]?.message || 'Invalid note',
+    })
+  }
+
+  return { ...patch, review_note: parsed.data }
 }
 
 /**

@@ -5,6 +5,7 @@
  *
  * - `successToast`: a record was changed (`Kit Added`).
  * - `noticeToast`: a fixed app event that is not a record change.
+ * - `notificationToast`: a notification arrived in realtime.
  * - `validationToast`: a client-side check failed; shows the message as is.
  * - `errorToast`: a request or runtime error; logs it and maps it by status.
  */
@@ -175,6 +176,44 @@ const NOTICES: Record<NoticeKey, (detail?: string) => ToastMessage> = {
 /** Fixed app events that are not record changes (clipboard, auth, etc.). */
 export function noticeToast(key: NoticeKey, detail?: string): ToastMessage {
   return NOTICES[key](detail)
+}
+
+/**
+ * A notification that arrived in realtime, from `renderNotification()`; links
+ * to its target when it has one.
+ */
+export function notificationToast({
+  title,
+  description,
+  icon,
+  color,
+  to,
+  onView,
+}: {
+  title: string
+  description: string
+  icon: string
+  color: ToastColor
+  to?: string
+  onView?: () => void
+}) {
+  return {
+    title,
+    description,
+    icon,
+    color,
+    actions: to
+      ? [
+          {
+            label: 'View',
+            to,
+            onClick: onView,
+            color: 'neutral' as const,
+            variant: 'outline' as const,
+          },
+        ]
+      : undefined,
+  }
 }
 
 /** A client-side check failed; the message is shown verbatim. */

@@ -55,8 +55,6 @@
       <slot />
     </div>
 
-    <!-- <NotificationsSlideover /> -->
-
     <UModal
       v-model:open="visible.feedback"
       title="Share your thoughts!"
@@ -83,6 +81,7 @@ const toast = useToast()
 const userStore = useUserStore()
 
 const { authenticated } = storeToRefs(userStore)
+const { unread } = useNotifications()
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -232,8 +231,33 @@ const routes = computed(() => {
   ]
 })
 
+// Signed-in users only; the dot icon and badge flag unread notifications.
+const notificationsLink = computed(() =>
+  authenticated.value
+    ? [
+        {
+          label: 'Notifications',
+          icon: unread.value
+            ? 'hugeicons:bell-dot'
+            : 'hugeicons:notification-01',
+          to: '/notifications',
+          active: route.path === '/notifications',
+          badge: unread.value
+            ? {
+                label: unread.value > 9 ? '9+' : String(unread.value),
+                color: 'error',
+                variant: 'solid',
+                size: 'sm',
+              }
+            : undefined,
+        },
+      ]
+    : [],
+)
+
 const links = computed(() => [
   [
+    ...notificationsLink.value,
     {
       label: 'Feedback',
       icon: 'hugeicons:message-question',
