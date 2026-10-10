@@ -553,16 +553,6 @@ const saveToCollection = (collection, variant) => {
   addItem(collection, { keyboard_item_id: variant.id }, contextName, 'Keyboard')
 }
 
-const formatPrice = (amount, currency = 'USD') => {
-  if (!amount || isNaN(amount)) return ''
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount)
-}
-
 const getReleaseSpecs = (release) => {
   const items = [
     {

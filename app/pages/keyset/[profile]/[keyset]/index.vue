@@ -42,173 +42,214 @@
             v-else-if="authenticated"
             label="Submit a Kit"
             icon="hugeicons:cells"
-            :to="{
-              path: '/keyset/submissions/submit',
-              query: { profile, keyset: data.profile_keyset_id },
-            }"
+            :to="submitKitLink"
+          />
+
+          <SharedSaveToCollection
+            v-if="authenticated"
+            :item="data"
+            category="keyset"
+            label="Save"
+            @on-select="saveTo"
           />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <UPageHeader v-if="data.description" :description="data.description" />
-
-      <div v-if="data.kits.length" class="grid grid-cols-3 gap-8">
-        <!-- Left: image carousel + thumbnail strip -->
-        <div
-          class="col-span-3 lg:col-span-2 space-y-4 max-w-7xl mx-auto w-full"
-        >
-          <UCarousel
-            ref="carousel"
-            v-slot="{ item }"
-            :items="data.kits"
-            loop
-            :autoplay="{ delay: 3000 }"
-            @select="onSelectKit"
-          >
-            <UPageCard
-              :title="
-                activeKit.description
-                  ? activeKit.name || activeKit.category?.name
-                  : undefined
-              "
-              :description="activeKit.description"
-              reverse
-              variant="naked"
-              :ui="{
-                wrapper: 'items-center text-center',
-                title: 'text-muted italic',
-                description: 'text-sm',
-              }"
-            >
-              <NuxtImg
-                loading="lazy"
-                :alt="item.name"
-                :src="item.img"
-                class="w-full"
-              />
-            </UPageCard>
-          </UCarousel>
-
-          <UPageGrid
-            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 3xl:grid-cols-6 gap-2 pt-2"
-          >
-            <UButton
-              v-for="(kit, idx) in data.kits"
-              :key="kit.id"
-              class="relative rounded overflow-hidden ring-2 transition-all !p-0"
-              :class="
-                activeIndex === idx
-                  ? 'ring-primary opacity-100'
-                  : 'ring-transparent opacity-60 hover:opacity-90'
-              "
-              variant="naked"
-              @click="onSelectKit(idx)"
-            >
-              <NuxtImg
-                loading="lazy"
-                :src="kit.img"
-                :alt="kit.name || kit.category?.name"
-                class="w-full aspect-video object-cover"
-              />
-              <div
-                class="absolute inset-x-0 bottom-0 bg-black/70 px-1 py-0.5 text-[10px] text-white text-center truncate leading-tight"
-              >
-                {{ kit.name || kit.category?.name }}
-              </div>
-              <div
-                v-if="kit.cancelled"
-                class="absolute inset-0 bg-error/20 flex items-center justify-center"
-              >
-                <UIcon
-                  name="hugeicons:unavailable"
-                  class="text-error h-8 w-8"
-                />
-              </div>
-            </UButton>
-          </UPageGrid>
+      <!-- Smaller cover share on wide screens; the page stays full width.
+           Without a usable cover the details spread across the row instead. -->
+      <div
+        :class="
+          showCover && 'grid grid-cols-1 lg:grid-cols-5 2xl:grid-cols-2 gap-8'
+        "
+      >
+        <!-- Left: cover image -->
+        <div v-if="showCover" class="lg:col-span-3 2xl:col-span-1">
+          <NuxtImg
+            :src="coverImg"
+            :alt="fullName"
+            class="w-full aspect-video rounded-lg border border-default object-cover cursor-zoom-in"
+            @error="coverFailed = true"
+            @click="openPreview({ title: fullName, url: coverImg })"
+          />
         </div>
 
-        <!-- Right: specs + colors + references -->
-        <div class="col-span-3 lg:col-span-1 space-y-6">
-          <UAccordion
-            v-model="activeKey"
-            :items="accordions"
-            type="multiple"
+        <!-- Right: identity, catalog details, group buy history -->
+        <div
+          :class="['space-y-6', showCover && 'lg:col-span-2 2xl:col-span-1']"
+        >
+          <UPageHeader
+            :title="fullName"
+            :description="data.description"
             :ui="{
-              label: 'uppercase tracking-widest text-muted',
+              root: 'pt-0 pb-4',
+              // Keep the icon links on the title row at every width
+              wrapper: 'flex-row items-center justify-between',
+              links: 'shrink-0',
+              title: 'text-2xl',
+              description: 'text-sm',
             }"
           >
-            <template #specifications>
+            <!-- Icon-only reference links beside the title; the tooltip and
+                 aria-label carry the name -->
+            <template v-if="externalLinks.length" #links>
+              <UTooltip
+                v-for="{ label, ...link } in externalLinks"
+                :key="label"
+                :text="label"
+              >
+                <UButton v-bind="link" :aria-label="label" />
+              </UTooltip>
+            </template>
+          </UPageHeader>
+
+          <div
+            :class="
+              showCover ? 'space-y-6' : 'grid grid-cols-1 sm:grid-cols-2 gap-6'
+            "
+          >
+            <section v-if="details.length" class="space-y-3">
+              <h2 class="text-xs uppercase tracking-widest text-muted">
+                Details
+              </h2>
               <SharedDescriptionList
                 :columns="1"
                 orientation="horizontal"
-                :items="[
-                  { term: 'Designer', description: data.designer },
-                  { term: 'Sculpt', description: data.sculpt },
-                  { term: 'IC Date', description: formatDate(data.ic_date) },
-                  {
-                    term: 'Timeline',
-                    description: formatDateRange(
-                      data.start_date,
-                      data.end_date,
-                    ),
-                  },
-                  {
-                    term: 'Status',
-                    badge: {
-                      label: data.status,
-                      color: keysetStatusColors[data.status],
-                    },
-                  },
-                ]"
-                class="mb-2"
+                :items="details"
               />
-            </template>
+            </section>
 
-            <template v-if="data.colors?.length" #colors>
-              <div class="text-muted text-sm text-info mb-4">
-                Colors displayed on screen are for reference only - use a
-                physical color fan for accurate matching. Some codes are from
-                the designer and may differ from official references (RAL,
-                Pantone, etc.).
-              </div>
-
-              <UPageGrid
-                class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 2xl:grid-cols-3 gap-4 mb-2"
-              >
-                <KeysetColorCard
-                  v-for="color in data.colors"
-                  :key="color.id"
-                  v-bind="color.color"
-                />
-              </UPageGrid>
-            </template>
-
-            <template v-if="externalLinks.length" #links>
-              <UPageLinks :links="externalLinks" />
-            </template>
-          </UAccordion>
+            <section v-if="groupBuy.length" class="space-y-3">
+              <h2 class="text-xs uppercase tracking-widest text-muted">
+                Group Buy
+              </h2>
+              <SharedDescriptionList
+                :columns="1"
+                orientation="horizontal"
+                :items="groupBuy"
+              />
+            </section>
+          </div>
         </div>
       </div>
 
-      <UModal
-        v-model:open="imagePreviewOpen"
-        :title="imagePreviewTitle"
-        :ui="{
-          content: 'max-w-4xl',
-        }"
-      >
-        <template #content>
-          <UPageCard description="Created by dvorcol" reverse>
-            <NuxtImg
-              v-if="imagePreviewUrl"
-              :src="imagePreviewUrl"
-              :alt="imagePreviewTitle"
-              class="w-full rounded-lg border border-default object-contain"
-            />
+      <!-- Kits -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-highlighted">
+          Kits
+          <span v-if="kits.length" class="text-muted font-normal">
+            ({{ kits.length }})
+          </span>
+        </h2>
+
+        <UPageGrid v-if="kits.length">
+          <UPageCard
+            v-for="kit in kits"
+            :key="kit.id"
+            :title="kitLabel(kit)"
+            :description="kit.description || undefined"
+            reverse
+            spotlight
+            class="cursor-zoom-in"
+            :ui="{
+              body: 'w-full',
+              description: 'text-sm line-clamp-2',
+              footer: 'pt-3',
+            }"
+            @click="
+              openPreview({
+                title: kitLabel(kit),
+                url: kit.img,
+                description: kit.description,
+              })
+            "
+          >
+            <!-- Name with its group buy price, catalog style -->
+            <template #title>
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="truncate">{{ kitLabel(kit) }}</span>
+                <span
+                  v-if="kit.price"
+                  class="shrink-0 tabular-nums"
+                  :class="kit.cancelled && 'line-through text-muted'"
+                >
+                  {{ formatPrice(kit.price, 'USD', { stripZeros: true }) }}
+                </span>
+              </div>
+            </template>
+
+            <template v-if="kit.qty" #footer>
+              <div class="flex items-center gap-1.5 text-xs text-muted">
+                <UIcon name="hugeicons:package" class="size-4" />
+                <span class="tabular-nums">
+                  {{ formatNumber(kit.qty) }} units
+                </span>
+              </div>
+            </template>
+
+            <div class="relative">
+              <NuxtImg
+                loading="lazy"
+                :src="kit.img || '/keyset.png'"
+                :alt="kitLabel(kit)"
+                class="w-full aspect-video object-cover rounded"
+              />
+              <UBadge
+                v-if="kit.cancelled"
+                label="Cancelled"
+                color="error"
+                variant="solid"
+                class="absolute top-2 right-2"
+              />
+            </div>
           </UPageCard>
+        </UPageGrid>
+
+        <p v-else class="text-sm text-muted">
+          No kits have been added yet.
+          <ULink
+            v-if="authenticated && !editable"
+            :to="submitKitLink"
+            class="text-primary"
+          >
+            Submit a kit
+          </ULink>
+        </p>
+      </section>
+
+      <!-- Colors -->
+      <section v-if="data.colors?.length" class="space-y-4">
+        <h2 class="text-lg font-semibold text-highlighted">Color Palette</h2>
+        <p class="text-sm text-muted">
+          Colors displayed on screen are for reference only - use a physical
+          color fan for accurate matching. Some codes are from the designer and
+          may differ from official references (RAL, Pantone, etc.).
+        </p>
+
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
+        >
+          <KeysetColorCard
+            v-for="color in data.colors"
+            :key="color.id"
+            v-bind="color.color"
+          />
+        </div>
+      </section>
+      <UModal
+        v-model:open="preview.open"
+        :title="preview.title"
+        :description="preview.description || undefined"
+        :ui="{ content: 'max-w-5xl' }"
+      >
+        <template #body>
+          <NuxtImg
+            v-if="preview.url"
+            :src="preview.url"
+            :alt="preview.title"
+            class="w-full rounded-lg object-contain"
+          />
         </template>
       </UModal>
     </template>
@@ -216,8 +257,6 @@
 </template>
 
 <script setup>
-import groupBy from 'lodash.groupby'
-
 const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
@@ -227,15 +266,9 @@ const { manufacturers } = useKeysetProfiles()
 const { profile, keyset } = route.params
 const editable = computed(() => userStore.isEditable(`${profile}/${keyset}`))
 
-const activeKey = ref(['0', '1', '2', '3'])
-
 const { data, refresh } = await useAsyncData(
   `keyset/${profile}/${keyset}`,
-  () =>
-    $fetch(`/api/keysets/${profile}/${keyset}`).then((data) => {
-      data.artisans = groupBy(data.artisans, 'maker_name')
-      return data
-    }),
+  () => $fetch(`/api/keysets/${profile}/${keyset}`),
   {
     watch: [() => profile, () => keyset],
   },
@@ -280,11 +313,12 @@ const externalLinks = computed(() => {
     links.push({
       label: 'Order Graph',
       icon: 'hugeicons:chart-bar-big',
-      onClick: () => {
-        imagePreviewTitle.value = 'Order Graph'
-        imagePreviewUrl.value = data.value.order_graph
-        imagePreviewOpen.value = true
-      },
+      onClick: () =>
+        openPreview({
+          title: 'Order Graph',
+          url: data.value.order_graph,
+          description: 'Created by dvorcol',
+        }),
     })
   }
 
@@ -292,48 +326,93 @@ const externalLinks = computed(() => {
     links.push({
       label: 'Order History',
       icon: 'hugeicons:chart-line-data-02',
-      onClick: () => {
-        imagePreviewTitle.value = 'Order History'
-        imagePreviewUrl.value = data.value.order_history
-        imagePreviewOpen.value = true
-      },
+      onClick: () =>
+        openPreview({
+          title: 'Order History',
+          url: data.value.order_history,
+          description: 'Created by dvorcol',
+        }),
     })
   }
 
   return links
 })
 
-const accordions = [
-  {
-    label: 'Specifications',
-    // icon: 'hugeicons:information-circle',
-    slot: 'specifications',
-  },
-  {
-    label: 'Color Palette',
-    // icon: 'hugeicons:colors',
-    slot: 'colors',
-    content: 'No color codes have been added yet. Check back soon!',
-  },
-  {
-    label: 'Links',
-    // icon: 'hugeicons:link-square-02',
-    slot: 'links',
-  },
-]
+const fullName = computed(() =>
+  [data.value.profile?.name, data.value.name].filter(Boolean).join(' '),
+)
+
+const kits = computed(() => data.value?.kits || [])
+
+const kitLabel = (kit) => kit.name || kit.category?.name || 'Kit'
+
+// Prefer the keyset's own cover, then the first kit render; no placeholder
+const coverImg = computed(
+  () => data.value?.img || kits.value.find((kit) => kit.img)?.img || '',
+)
+
+// NuxtImg also reports an image that failed during SSR once it mounts
+const coverFailed = ref(false)
+const showCover = computed(() => !!coverImg.value && !coverFailed.value)
+
+watch(coverImg, () => {
+  coverFailed.value = false
+})
+
+// What the set is: stays true long after the group buy ends
+const details = computed(() =>
+  [
+    { term: 'Designer', description: data.value.designer },
+    { term: 'Sculpt', description: data.value.sculpt },
+  ].filter((item) => item.description),
+)
+
+// When and how it was sold: secondary history for collectors
+const groupBuy = computed(() => {
+  const items = [
+    { term: 'IC Date', description: formatDate(data.value.ic_date) },
+    {
+      term: 'Timeline',
+      description: formatDateRange(data.value.start_date, data.value.end_date),
+    },
+  ].filter((item) => item.description)
+
+  if (data.value.status) {
+    items.push({
+      term: 'Status',
+      badge: {
+        label: data.value.status,
+        color: keysetStatusColors[data.value.status],
+      },
+    })
+  }
+
+  return items
+})
+
+const submitKitLink = computed(() => ({
+  path: '/keyset/submissions/submit',
+  query: { profile, keyset: data.value.profile_keyset_id },
+}))
 
 const visible = ref(false)
-const imagePreviewOpen = ref(false)
-const imagePreviewUrl = ref('')
-const imagePreviewTitle = ref('')
 
-const activeIndex = ref(0)
-const carousel = useTemplateRef('carousel')
-const activeKit = computed(() => data.value?.kits?.[activeIndex.value])
+const preview = reactive({
+  open: false,
+  title: '',
+  url: '',
+  description: '',
+})
 
-function onSelectKit(index) {
-  activeIndex.value = index
-  carousel.value?.emblaApi?.scrollTo(index)
+function openPreview({ title, url, description = '' }) {
+  if (!url) return
+  Object.assign(preview, { open: true, title, url, description })
+}
+
+const { addItem } = useCollectionItem()
+
+const saveTo = (collection, item) => {
+  addItem(collection, { keyset_item_id: item.profile_keyset_id }, item.name)
 }
 
 const meta = computed(() => {

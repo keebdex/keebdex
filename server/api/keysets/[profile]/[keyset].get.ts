@@ -33,6 +33,14 @@ export default defineEventHandler(async (event) => {
     )
   }
 
+  // Nested colors come back whole; strip their search vectors as well
+  if (data && Array.isArray(data.colors)) {
+    data.colors = data.colors.map((item: any) => ({
+      ...item,
+      color: item.color && omitSensitive(item.color),
+    }))
+  }
+
   // // get unique maker_id
   // const makerIds = [...new Set(data.artisans.map((a) => a.maker_id))]
 
