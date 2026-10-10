@@ -36,18 +36,22 @@
           />
         </div>
 
-        <UEmpty
+        <UPageSection
           v-else-if="!visible.length && !hasMore"
-          icon="hugeicons:notification-01"
+          :icon="
+            filter === 'unread'
+              ? 'hugeicons:checkmark-circle-02'
+              : 'hugeicons:notification-01'
+          "
           :title="
             filter === 'unread'
-              ? 'No unread notifications'
-              : 'No notifications yet'
+              ? 'No Unread Notifications'
+              : 'No Notifications Yet'
           "
           :description="
             filter === 'unread'
-              ? 'You have read every notification.'
-              : 'We will let you know here when your submissions are reviewed.'
+              ? 'You are all caught up.'
+              : 'Your notifications will show up here.'
           "
         />
 
@@ -70,8 +74,8 @@
                 v-for="notification in group.items"
                 :key="notification.id"
                 :notification="notification"
-                @open="markRead"
                 @toggle-read="toggleRead"
+                @delete="remove"
               />
             </UPageCard>
           </section>
@@ -122,6 +126,7 @@ const {
   markRead,
   markUnread,
   markAllRead,
+  remove,
 } = useNotifications()
 
 const route = useRoute()
@@ -134,13 +139,11 @@ const filter = computed(() =>
 const links = computed(() => [
   {
     label: 'All',
-    icon: 'hugeicons:notification-01',
     to: '/notifications',
     active: filter.value === 'all',
   },
   {
     label: 'Unread',
-    icon: 'hugeicons:bell-dot',
     to: { path: '/notifications', query: { filter: 'unread' } },
     active: filter.value === 'unread',
     badge: unread.value

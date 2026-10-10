@@ -4,7 +4,7 @@ import type { AppNotification } from '~/utils/notifications'
  * Notifications of the signed-in user, shared by the sidebar link (unread
  * badge) and the `/notifications` page: the newest loaded notifications (paged by
  * `created_at`), the unread count from `unread_count()`, and optimistic
- * read/unread actions that roll back on failure. The realtime subscription
+ * read/unread/delete actions that roll back on failure. The realtime subscription
  * and sign-in/sign-out lifecycle live in `plugins/notifications.client.ts`.
  */
 export const useNotifications = () => {
@@ -137,6 +137,29 @@ export const useNotifications = () => {
     }
   }
 
+  const remove = async (notification: AppNotification) => {
+    const index = items.value.findIndex(({ id }) => id === notification.id)
+
+    if (index === -1) return
+
+    const [item] = items.value.splice(index, 1)
+
+    if (!item!.read_at) unread.value = Math.max(unread.value - 1, 0)
+
+    try {
+      const result = await $fetch<{ unread: number }>(
+        `/api/notifications/${item!.id}`,
+        { method: 'delete' },
+      )
+
+      unread.value = result.unread
+    } catch (error) {
+      merge([item!])
+      if (!item!.read_at) unread.value += 1
+      toast.add(errorToast(error))
+    }
+  }
+
   // A notification inserted for this user (realtime).
   const receive = (notification: AppNotification) => {
     if (items.value.some(({ id }) => id === notification.id)) return
@@ -186,6 +209,7 @@ export const useNotifications = () => {
     markRead,
     markUnread,
     markAllRead,
+    remove,
     receive,
     sync,
     reset,

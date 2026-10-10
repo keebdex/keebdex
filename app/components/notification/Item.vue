@@ -10,22 +10,24 @@
 
     <div class="min-w-0 flex-1 space-y-0.5">
       <p class="flex items-center gap-2 text-sm">
-        <NuxtLink
-          v-if="view.to"
-          :to="view.to"
-          class="font-medium text-highlighted truncate focus:outline-none after:absolute after:inset-0 after:rounded-md focus-visible:after:ring-2 focus-visible:after:ring-primary"
-          @click="emit('open', notification)"
+        <span
+          v-if="!notification.read_at"
+          class="size-2 shrink-0 rounded-full bg-primary"
+        />
+        <span class="sr-only">{{
+          notification.read_at ? 'Read:' : 'Unread:'
+        }}</span>
+        <span
+          class="truncate text-highlighted"
+          :class="notification.read_at ? 'font-medium' : 'font-semibold'"
         >
-          {{ view.title }}
-        </NuxtLink>
-        <span v-else class="font-medium text-highlighted truncate">
           {{ view.title }}
         </span>
 
         <time
           :datetime="notification.created_at"
           :title="formatDate(notification.created_at)"
-          class="ms-auto shrink-0 text-xs text-dimmed"
+          class="ms-auto shrink-0 text-xs text-dimmed group-hover:invisible group-focus-within:invisible [@media(hover:none)]:visible"
         >
           {{ formatTimeAgo(notification.created_at) }}
         </time>
@@ -41,44 +43,52 @@
       </p>
     </div>
 
-    <UTooltip
-      :text="notification.read_at ? 'Mark as unread' : 'Mark as read'"
-      :content="{ side: 'left' }"
+    <!-- Shown on hover or keyboard focus; always visible on touch screens. -->
+    <div
+      class="absolute end-2 top-1.5 flex items-center gap-0.5 rounded-md bg-default p-0.5 shadow-xs ring ring-default opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:self-start [@media(hover:none)]:opacity-100"
     >
-      <UButton
-        variant="ghost"
-        color="neutral"
-        size="xs"
-        class="relative z-10 shrink-0 self-start"
-        :aria-label="notification.read_at ? 'Mark as unread' : 'Mark as read'"
-        @click="emit('toggle-read', notification)"
-      >
-        <span
-          class="size-2 rounded-full"
-          :class="
+      <UTooltip :text="readLabel">
+        <UButton
+          :icon="
             notification.read_at
-              ? 'ring-1 ring-inset ring-(--ui-border-accented)'
-              : 'bg-primary'
+              ? 'hugeicons:mail-01'
+              : 'hugeicons:mail-open-01'
           "
+          variant="ghost"
+          color="neutral"
+          size="xs"
+          :aria-label="readLabel"
+          @click="emit('toggle-read', notification)"
         />
-      </UButton>
-    </UTooltip>
+      </UTooltip>
+
+      <UTooltip text="Delete">
+        <UButton
+          icon="hugeicons:delete-02"
+          variant="ghost"
+          color="error"
+          size="xs"
+          aria-label="Delete notification"
+          @click="emit('delete', notification)"
+        />
+      </UTooltip>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { AppNotification, NotificationColor } from '~/utils/notifications'
 
-// One notification row on /notifications. The title links to the
-// notification's target (the whole row is clickable); the dot on the right
-// toggles read/unread.
+// One notification row on /notifications. Rows don't navigate; hovering (or
+// focusing) a row reveals Mark as read/unread and Delete. Unread rows show a
+// dot and a bolder title.
 const props = defineProps<{
   notification: AppNotification
 }>()
 
 const emit = defineEmits<{
-  open: [notification: AppNotification]
   'toggle-read': [notification: AppNotification]
+  delete: [notification: AppNotification]
 }>()
 
 const ICON_CLASSES: Record<NotificationColor, string> = {
@@ -89,4 +99,8 @@ const ICON_CLASSES: Record<NotificationColor, string> = {
 }
 
 const view = computed(() => renderNotification(props.notification))
+
+const readLabel = computed(() =>
+  props.notification.read_at ? 'Mark as unread' : 'Mark as read',
+)
 </script>
