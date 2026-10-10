@@ -35,9 +35,17 @@
 
       <p class="text-sm text-muted">{{ view.description }}</p>
 
+      <blockquote
+        v-if="view.quote"
+        class="text-sm text-muted italic border-s-2 border-default ps-2 whitespace-pre-line break-words line-clamp-3"
+      >
+        {{ view.quote }}
+      </blockquote>
+
       <p
         v-if="view.note"
-        class="text-sm text-default border-s-2 border-error/50 ps-2 whitespace-pre-line break-words"
+        class="text-sm text-default border-s-2 ps-2 whitespace-pre-line break-words"
+        :class="NOTE_BORDER_CLASSES[view.color]"
       >
         {{ view.note }}
       </p>
@@ -96,6 +104,14 @@ const ICON_CLASSES: Record<NotificationColor, string> = {
   error: 'text-error',
   warning: 'text-warning',
   info: 'text-info',
+}
+
+// Tailwind needs the full class names, so they can't be built from the color.
+const NOTE_BORDER_CLASSES: Record<NotificationColor, string> = {
+  success: 'border-success/50',
+  error: 'border-error/50',
+  warning: 'border-warning/50',
+  info: 'border-info/50',
 }
 
 const view = computed(() => renderNotification(props.notification))

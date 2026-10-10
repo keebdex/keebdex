@@ -41,6 +41,20 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
       },
     ],
   },
+  {
+    id: 'feedback',
+    label: 'Feedback',
+    description: 'Follow-ups on the feedback you send us while signed in.',
+    icon: 'hugeicons:message-question',
+    items: [
+      {
+        key: 'feedback_resolved',
+        label: 'Resolved',
+        description:
+          'We resolve your feedback, with a comment when there is something to add.',
+      },
+    ],
+  },
 ]
 
 export const NOTIFICATION_PREFERENCE_KEYS =

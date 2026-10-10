@@ -5,6 +5,7 @@
 ### ✨ What's New
 
 - **Notifications**: you now get notified when a moderator approves or rejects one of your submissions. A _Notifications_ item in the sidebar shows your unread count, toasts appear as reviews happen, and the _Notifications_ page lists everything by day with All / Unread views, read/unread toggles, and _Mark all as read_.
+- **Feedback** sent while signed in no longer asks for your name and email, and you get a notification quoting your feedback when we resolve it, with a comment when there is something to add.
 - New **Notification settings** under Account Settings let you choose which notifications you get, e.g. only rejections for your submissions.
 - Moderators now write a short note (up to 280 characters) when rejecting a submission, and the submitter reads it in the notification.
 - Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.

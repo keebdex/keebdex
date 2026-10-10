@@ -43,7 +43,7 @@
               class="font-medium truncate cursor-pointer"
               @click="toggleExpand(row.original.id)"
             >
-              {{ row.original.name || 'Anonymous' }}
+              {{ authorName(row.original) }}
             </div>
           </template>
 
@@ -52,7 +52,7 @@
               class="truncate cursor-pointer"
               @click="toggleExpand(row.original.id)"
             >
-              {{ row.original.email || '-' }}
+              {{ authorEmail(row.original) }}
             </div>
           </template>
 
@@ -71,21 +71,38 @@
               >
                 {{ row.original.message || '-' }}
               </p>
+              <p
+                v-if="
+                  isExpanded(row.original.id) && row.original.resolution_note
+                "
+                class="mt-2 text-sm text-muted border-s-2 border-success/50 ps-2 whitespace-pre-wrap"
+              >
+                {{ row.original.resolution_note }}
+              </p>
             </div>
           </template>
 
           <template #action-cell="{ row }">
             <div class="flex flex-wrap items-center gap-2">
-              <UButton
-                v-if="!resolvedFilter"
-                :label="row.original.resolved ? 'Resolved' : 'Resolve'"
-                size="xs"
-                color="primary"
-                icon="hugeicons:checkmark-circle-02"
-                :loading="resolvingId === row.original.id"
-                :disabled="row.original.resolved"
-                @click="markResolved(row.original.id)"
-              />
+              <template v-if="!row.original.resolved">
+                <UButton
+                  label="Resolve"
+                  size="xs"
+                  color="primary"
+                  icon="hugeicons:checkmark-circle-02"
+                  :loading="resolvingId === row.original.id && !commentTarget"
+                  :disabled="resolvingId !== null"
+                  @click="resolve(row.original)"
+                />
+                <UButton
+                  label="Comment"
+                  size="xs"
+                  variant="soft"
+                  icon="hugeicons:message-edit-01"
+                  :disabled="resolvingId !== null"
+                  @click="openComment(row.original)"
+                />
+              </template>
 
               <UButton
                 v-if="!row.original.resolved"
@@ -122,6 +139,22 @@
         </div>
       </UPageCard>
 
+      <SharedNoteModal
+        v-model:open="commentOpen"
+        v-model:note="commentNote"
+        title="Resolve with Comment"
+        :description="
+          commentTarget?.submitted_by
+            ? `${authorName(commentTarget)} gets a notification with your comment.`
+            : 'This feedback was sent by a guest, so your comment is saved with it but not sent to anyone.'
+        "
+        confirm-label="Resolve"
+        label="Comment"
+        placeholder="e.g. Thanks! This is fixed in the latest release."
+        :loading="resolvingId !== null"
+        @confirm="confirmComment"
+      />
+
       <UModal v-model:open="editorOpen" :title="editorTitle">
         <template #body="{ close }">
           <ModalShoutoutForm
@@ -142,6 +175,8 @@
 </template>
 
 <script setup>
+import { resolutionNoteSchema } from '~/utils/schemas/common'
+
 const userStore = useUserStore()
 const { isAdmin } = storeToRefs(userStore)
 const toast = useToast()
@@ -246,24 +281,57 @@ const paginationMeta = computed(() => {
   }
 })
 
-const markResolved = async (id) => {
-  resolvingId.value = id
+// Signed-in authors' name and email come from their profile.
+const authorName = (feedback) =>
+  feedback.submitter?.full_name || feedback.name || 'Anonymous'
+
+const authorEmail = (feedback) =>
+  feedback.submitter?.email || feedback.email || '-'
+
+// Resolving notifies a signed-in author (database trigger), with the
+// comment when there is one.
+const resolve = async (feedback, note) => {
+  resolvingId.value = feedback.id
 
   try {
-    await $fetch(`/api/admin/feedbacks/${id}`, {
+    await $fetch(`/api/admin/feedbacks/${feedback.id}`, {
       method: 'post',
-      body: {
-        resolved: true,
-      },
+      body: { resolved: true, note },
     })
 
     toast.add(successToast('update', { entity: 'Feedback status' }))
+    commentTarget.value = null
     await refresh()
   } catch (error) {
-    toast.add(errorToast(error))
+    toast.add(errorToast(error, { showOriginalMessage: true }))
   } finally {
     resolvingId.value = null
   }
+}
+
+const commentTarget = ref(null)
+const commentNote = ref('')
+const commentOpen = computed({
+  get: () => !!commentTarget.value,
+  set: (value) => {
+    if (!value && resolvingId.value === null) commentTarget.value = null
+  },
+})
+
+const openComment = (feedback) => {
+  commentNote.value = ''
+  commentTarget.value = feedback
+}
+
+const confirmComment = () => {
+  const result = resolutionNoteSchema.safeParse(commentNote.value)
+
+  if (!result.success) {
+    toast.add(validationToast(result.error.issues[0]?.message))
+    return
+  }
+
+  resolve(commentTarget.value, result.data)
 }
 
 const clearSelectedFeedback = () => {

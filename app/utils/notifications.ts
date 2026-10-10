@@ -22,7 +22,9 @@ export type NotificationColor = 'success' | 'error' | 'warning' | 'info'
 export interface NotificationView {
   title: string
   description: string
-  // Free text written by a moderator (e.g. a reject note).
+  // The user's own text the notification is about (e.g. their feedback).
+  quote?: string | null
+  // Free text written by staff (e.g. a reject note, a resolution comment).
   note?: string | null
   icon: string
   color: NotificationColor
@@ -79,6 +81,17 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       to: paths?.queue,
     }
   },
+  // data: { message (excerpt of the feedback), note }
+  feedback_resolved: ({ data }) => ({
+    title: 'Feedback Resolved',
+    description: data.note
+      ? 'We resolved your feedback and left you a comment. Thanks for helping improve Keebdex!'
+      : 'We resolved your feedback. Thanks for helping improve Keebdex!',
+    quote: data.message,
+    note: data.note,
+    icon: 'hugeicons:message-done-02',
+    color: 'success',
+  }),
 }
 
 const fallback: NotificationRenderer = () => ({

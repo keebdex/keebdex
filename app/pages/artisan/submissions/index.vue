@@ -112,12 +112,15 @@
         :loading="deleting"
         @confirm="confirmDelete"
       />
-      <SharedRejectModal
+      <SharedNoteModal
         v-model:open="rejectOpen"
         v-model:note="rejectNote"
         :title="rejectTitle"
         :description="rejectDescription"
         :confirm-label="rejectTitle"
+        confirm-color="error"
+        label="Note to submitter"
+        placeholder="e.g. The photo shows a different colorway."
         :loading="rejecting"
         @confirm="confirmReject"
       />

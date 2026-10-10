@@ -1,18 +1,14 @@
 <template>
   <UModal v-model:open="open" :title="title" :description="description">
     <template #body>
-      <UFormField
-        label="Note to submitter"
-        help="The submitter reads this note in their notification."
-        required
-      >
+      <UFormField :label="label" :help="help" required>
         <UTextarea
           v-model="note"
           :maxlength="REVIEW_NOTE_MAX_LENGTH"
           :rows="3"
           autoresize
           autofocus
-          placeholder="e.g. The photo shows a different colorway."
+          :placeholder="placeholder"
           class="w-full"
           :disabled="loading"
         />
@@ -29,7 +25,7 @@
       <UButton label="Cancel" :disabled="loading" @click="close" />
       <UButton
         :label="confirmLabel"
-        color="error"
+        :color="confirmColor"
         :loading="loading"
         :disabled="!note.trim()"
         @click="emit('confirm')"
@@ -41,18 +37,26 @@
 <script setup lang="ts">
 import { REVIEW_NOTE_MAX_LENGTH } from '~/utils/schemas/common'
 
-// Confirms a reject (one submission or all of a group's pending ones) and
-// collects the note the submitter reads in their notification.
+// Confirms an action that needs a note for the person it affects, who reads
+// it in their notification: rejecting submissions, resolving feedback with a
+// comment. The confirm button stays disabled until the note has text.
 withDefaults(
   defineProps<{
     title: string
     description?: string
-    confirmLabel?: string
+    confirmLabel: string
+    confirmColor?: 'error' | 'success' | 'primary'
+    label?: string
+    help?: string
+    placeholder?: string
     loading?: boolean
   }>(),
   {
     description: undefined,
-    confirmLabel: 'Reject',
+    confirmColor: 'primary',
+    label: 'Note',
+    help: 'They read this note in their notification.',
+    placeholder: undefined,
     loading: false,
   },
 )

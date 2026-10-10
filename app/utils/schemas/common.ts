@@ -22,13 +22,22 @@ export const validateEach = (schema: SafeParser, items: unknown[]) => {
 
 export const REVIEW_NOTE_MAX_LENGTH = 280
 
-// Note a moderator writes when rejecting a submission; the submitter reads it
-// in their notification.
-export const reviewNoteSchema = z
-  .string()
-  .trim()
-  .min(1, 'Add a note explaining why this submission is rejected.')
-  .max(
-    REVIEW_NOTE_MAX_LENGTH,
-    `The note can be at most ${REVIEW_NOTE_MAX_LENGTH} characters.`,
-  )
+// A note staff write for the person who submitted something (a reject
+// reason, a resolution comment); they read it in their notification.
+const noteSchema = (requiredMessage: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, requiredMessage)
+    .max(
+      REVIEW_NOTE_MAX_LENGTH,
+      `The note can be at most ${REVIEW_NOTE_MAX_LENGTH} characters.`,
+    )
+
+export const reviewNoteSchema = noteSchema(
+  'Add a note explaining why this submission is rejected.',
+)
+
+export const resolutionNoteSchema = noteSchema(
+  'Add a comment for the person who sent this feedback.',
+)
