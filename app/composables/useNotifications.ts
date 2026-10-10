@@ -174,19 +174,23 @@ export const useNotifications = () => {
     )
   }
 
-  // A notification changed elsewhere, e.g. read in another tab (realtime).
+  // A notification changed elsewhere (realtime): read in another tab, or a
+  // grouped notification that merged another event (new data.count, moved to
+  // the top). Toasts are only for inserts.
   const sync = (notification: AppNotification) => {
     const item = items.value.find(({ id }) => id === notification.id)
 
     if (!item) {
+      merge([notification])
       refreshUnread()
       return
     }
 
-    if (!!item.read_at === !!notification.read_at) return
+    if (!!item.read_at !== !!notification.read_at) {
+      unread.value = Math.max(unread.value + (notification.read_at ? -1 : 1), 0)
+    }
 
-    item.read_at = notification.read_at
-    unread.value = Math.max(unread.value + (notification.read_at ? -1 : 1), 0)
+    merge([notification])
   }
 
   const reset = () => {

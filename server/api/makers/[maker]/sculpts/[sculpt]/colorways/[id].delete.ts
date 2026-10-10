@@ -6,11 +6,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing colorway id' })
   }
 
-  const { client, parent, isOfficial } = await getChildSubmissionContext(
-    event,
-    'artisan',
-    makerSculptId,
-  )
+  const { client, parent, isOfficial, isStaff } =
+    await getChildSubmissionContext(event, 'artisan', makerSculptId)
   const match = { maker_id: maker!, sculpt_id: sculpt! }
 
   await deleteChildSubmission({
@@ -18,6 +15,7 @@ export default defineEventHandler(async (event) => {
     table: 'artisan_colorways',
     match: { ...match, id },
     label: 'colorway',
+    note: await readDeletionNote(event, isStaff),
   })
 
   // A sculpt under review with no colorways left has nothing to review anymore.

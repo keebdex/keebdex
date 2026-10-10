@@ -5,11 +5,7 @@
       description="Choose which notifications you receive. Changes apply immediately."
     />
 
-    <section
-      v-for="group in NOTIFICATION_PREFERENCE_GROUPS"
-      :key="group.id"
-      class="space-y-3"
-    >
+    <section v-for="group in groups" :key="group.id" class="space-y-3">
       <UPageFeature
         :icon="group.icon"
         :title="group.label"
@@ -50,6 +46,14 @@ useSeoMeta({
 })
 
 const toast = useToast()
+const { isModerator } = storeToRefs(useUserStore())
+
+// Staff-only groups (e.g. Moderation) are hidden from everyone else.
+const groups = computed(() =>
+  NOTIFICATION_PREFERENCE_GROUPS.filter(
+    (group) => !group.staffOnly || isModerator.value,
+  ),
+)
 
 const { data } = useFetch<{ preferences: NotificationPreferences }>(
   '/api/notifications/preferences',

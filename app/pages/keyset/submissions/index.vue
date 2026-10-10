@@ -190,7 +190,23 @@
         </template>
       </UModal>
 
+      <SharedNoteModal
+        v-if="deleteAsksReason"
+        v-model:open="deleteOpen"
+        v-model:note="deleteNote"
+        title="Delete Kit"
+        :description="`Are you sure you want to delete ${kitLabel(deleteTarget || {})}? This action cannot be undone.`"
+        confirm-label="Delete"
+        confirm-color="error"
+        label="Reason"
+        help="Optional. The submitter gets a notification, with your reason if you add one."
+        placeholder="e.g. This kit is already listed."
+        optional
+        :loading="deleting"
+        @confirm="confirmDelete"
+      />
       <SharedConfirmModal
+        v-else
         v-model:open="deleteOpen"
         title="Delete Kit"
         :description="`Are you sure you want to delete ${kitLabel(deleteTarget || {})}? This action cannot be undone.`"
@@ -278,6 +294,8 @@ const {
   deleteTarget,
   deleteOpen,
   deleting,
+  deleteNote,
+  deleteAsksReason,
   confirmDelete,
   editorOpen,
   selectedSubmission,

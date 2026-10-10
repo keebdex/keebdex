@@ -51,20 +51,43 @@ const SUBMISSION_PATHS: Record<
   },
 }
 
+// "kit "GMK Olivia - Base"" for one submission; "3 kits in "GMK Olivia""
+// once grouped notifications have merged several (data.count).
+const submissionSubject = (data: Record<string, any>) => {
+  const entity = data.entity || 'submission'
+  const count = Number(data.count) || 1
+
+  if (count > 1) {
+    const plural = `${count} ${entity}s`
+
+    return data.parent_name ? `${plural} in "${data.parent_name}"` : plural
+  }
+
+  return data.submission_name ? `${entity} "${data.submission_name}"` : entity
+}
+
+const isPlural = (data: Record<string, any>) => (Number(data.count) || 1) > 1
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'an Administrator',
+  editor: 'an Editor',
+  maker: 'a Maker',
+  designer: 'a Designer',
+  donator: 'a Donator',
+}
+
 const REGISTRY: Record<string, NotificationRenderer> = {
-  // data: { status: 'approved' | 'rejected', note, submission_name, entity,
-  // domain, parent_key }
+  // data: { status: 'approved' | 'rejected', note, submission_name,
+  // parent_name, entity, domain, parent_key, count }
   submission_status: ({ data }) => {
     const paths = SUBMISSION_PATHS[data.domain]
-    const entity = data.entity || 'submission'
-    const subject = data.submission_name
-      ? `${entity} "${data.submission_name}"`
-      : entity
+    const subject = submissionSubject(data)
+    const verb = isPlural(data) ? 'have' : 'has'
 
     if (data.status === 'approved') {
       return {
         title: 'Submission Approved',
-        description: `Your ${subject} has been approved and is now public.`,
+        description: `Your ${subject} ${verb} been approved and ${isPlural(data) ? 'are' : 'is'} now public.`,
         icon: 'hugeicons:checkmark-circle-02',
         color: 'success',
         to:
@@ -74,11 +97,65 @@ const REGISTRY: Record<string, NotificationRenderer> = {
 
     return {
       title: 'Submission Rejected',
-      description: `Your ${subject} has been rejected. Edit it to send it back for review.`,
+      description: `Your ${subject} ${verb} been rejected. Edit to send ${isPlural(data) ? 'them' : 'it'} back for review.`,
       note: data.note,
       icon: 'hugeicons:cancel-circle',
       color: 'error',
       to: paths?.queue,
+    }
+  },
+  // Sent to the moderator who rejected the submission.
+  // data: { submission_name, parent_name, entity, domain, parent_key, count }
+  submission_resubmitted: ({ data }) => {
+    // "A kit "GMK Olivia - Base" you rejected is" / "3 kits in "GMK Olivia"
+    // you rejected are"
+    const lead = isPlural(data)
+      ? `${submissionSubject(data)} you rejected are`
+      : `A ${submissionSubject(data)} you rejected is`
+
+    return {
+      title: 'Submission Resubmitted',
+      description: `${lead} back for review.`,
+      icon: 'hugeicons:file-verified',
+      color: 'info',
+      to: SUBMISSION_PATHS[data.domain]?.queue,
+    }
+  },
+  // data: { note (reason), submission_name, parent_name, entity, domain,
+  // parent_key, count }
+  submission_deleted: ({ data }) => ({
+    title: 'Submission Deleted',
+    description: `Your ${submissionSubject(data)} ${isPlural(data) ? 'have' : 'has'} been deleted by a moderator.`,
+    note: data.note,
+    icon: 'hugeicons:delete-02',
+    color: 'warning',
+    to: SUBMISSION_PATHS[data.domain]?.queue,
+  }),
+  // data: { role, previous_role, assignments_added, assignments_removed }
+  account_role_changed: ({ data }) => {
+    const added = data.assignments_added?.length || 0
+    const removed = data.assignments_removed?.length || 0
+    const pages = (count: number) => `${count} page${count === 1 ? '' : 's'}`
+    const changes = [
+      added && `added ${pages(added)}`,
+      removed && `removed ${pages(removed)}`,
+    ].filter(Boolean)
+
+    let description: string
+
+    if (data.role !== data.previous_role) {
+      description = data.role
+        ? `You are now ${ROLE_LABELS[data.role] || data.role} on Keebdex.`
+        : 'Your staff access on Keebdex has been removed.'
+    } else {
+      description = `Your assignments changed: ${changes.join(' and ')}.`
+    }
+
+    return {
+      title: 'Account Access Updated',
+      description,
+      icon: 'hugeicons:user-shield-01',
+      color: 'info',
     }
   },
   // data: { message (excerpt of the feedback), note }

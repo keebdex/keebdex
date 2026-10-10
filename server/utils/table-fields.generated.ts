@@ -256,6 +256,7 @@ export const TABLE_FIELDS = {
     "data",
     "entity_id",
     "entity_type",
+    "group_key",
     "id",
     "read_at",
     "type",

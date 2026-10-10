@@ -1,4 +1,4 @@
-import { createError } from 'h3'
+import { createError, readBody } from 'h3'
 import type { H3Event } from 'h3'
 import omit from 'lodash.omit'
 import { getActorProfile } from './admin'
@@ -7,7 +7,7 @@ import {
   canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
-import { reviewNoteSchema } from '~/utils/schemas/common'
+import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
 
 export type ChildSubmissionDomain = 'keyset' | 'keyboard' | 'artisan'
 
@@ -85,7 +85,9 @@ export const getSubmissionAttribution = (isStaff: boolean, userId: string) => ({
  * Moderation columns written when staff approve or reject a record.
  */
 export const getReviewPatch = (action: ReviewAction, userId: string) => ({
-  review_status: (action === 'approve' ? 'Approved' : 'Rejected') as ReviewStatus,
+  review_status: (action === 'approve'
+    ? 'Approved'
+    : 'Rejected') as ReviewStatus,
   verified_by: userId,
   verified_at: new Date().toISOString(),
 })
@@ -325,8 +327,34 @@ export const resubmitRejectedParent = async (
 }
 
 /**
+ * Optional reason staff send when deleting someone's submission
+ * (`{ note }` in the DELETE body). Ignored for non-staff.
+ */
+export const readDeletionNote = async (event: H3Event, isStaff: boolean) => {
+  if (!isStaff) return undefined
+
+  const body = await readBody(event).catch(() => null)
+  const note = body?.note
+
+  if (note === undefined || note === null || note === '') return undefined
+
+  const parsed = deletionNoteSchema.safeParse(note)
+
+  if (!parsed.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: parsed.error.issues[0]?.message || 'Invalid note',
+    })
+  }
+
+  return parsed.data
+}
+
+/**
  * Deletes one child row. RLS filters rows silently, so an empty result means
- * nothing was allowed (403).
+ * nothing was allowed (403). A `note` (staff's reason) is saved to
+ * `review_note` first, so the notify_submission_deleted trigger can send it
+ * to the submitter.
  */
 export const deleteChildSubmission = async ({
   client,
@@ -334,13 +362,24 @@ export const deleteChildSubmission = async ({
   match,
   label,
   select = 'id',
+  note,
 }: {
   client: SupabaseClient
   table: SubmittableTable
   match: RowMatch
   label: string
   select?: string
+  note?: string
 }) => {
+  if (note) {
+    const { error: noteError } = await matchRows(
+      from(client, table).update({ review_note: note }),
+      match,
+    )
+
+    fail(noteError)
+  }
+
   const { data, error } = await matchRows(
     from(client, table).delete(),
     match,

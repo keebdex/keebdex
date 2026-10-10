@@ -4,7 +4,7 @@
 
 ### ✨ What's New
 
-- **Notifications**: get notified when your submissions are approved or rejected (with the moderator's note) and when your feedback is resolved. Find them under _Notifications_ in the sidebar.
+- **Notifications**: get notified when your submissions are approved, rejected, or deleted (with the moderator's note), when your feedback is resolved, and when your role changes. Moderators hear when a submission they rejected is resubmitted, and bulk reviews arrive as one notification. Find them under _Notifications_ in the sidebar.
 - Feedback sent while signed in no longer asks for your name and email.
 - **Notification settings** in Account Settings let you choose what you are notified about.
 - Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.

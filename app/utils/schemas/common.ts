@@ -38,6 +38,10 @@ export const reviewNoteSchema = noteSchema(
   'Add a note explaining why this submission is rejected.',
 )
 
+export const deletionNoteSchema = noteSchema(
+  'Add a reason for deleting this submission.',
+)
+
 export const resolutionNoteSchema = noteSchema(
   'Add a comment for the person who sent this feedback.',
 )

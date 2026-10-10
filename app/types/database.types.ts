@@ -1061,6 +1061,7 @@ export type Database = {
           data: Json
           entity_id: string | null
           entity_type: string | null
+          group_key: string | null
           id: string
           read_at: string | null
           type: string
@@ -1072,6 +1073,7 @@ export type Database = {
           data?: Json
           entity_id?: string | null
           entity_type?: string | null
+          group_key?: string | null
           id?: string
           read_at?: string | null
           type: string
@@ -1083,6 +1085,7 @@ export type Database = {
           data?: Json
           entity_id?: string | null
           entity_type?: string | null
+          group_key?: string | null
           id?: string
           read_at?: string | null
           type?: string
@@ -1352,11 +1355,16 @@ export type Database = {
           p_data?: Json
           p_entity_id: string
           p_entity_type: string
+          p_group_key?: string
           p_preference?: string
           p_type: string
           p_user_id: string
         }
         Returns: string
+      }
+      submission_details: {
+        Args: { p_row: Json; p_table: string }
+        Returns: Json
       }
       unread_count: { Args: never; Returns: number }
     }

@@ -17,6 +17,8 @@ export interface NotificationPreferenceGroup {
   label: string
   description: string
   icon: string
+  // Shown only to staff (moderators of some scope).
+  staffOnly?: boolean
   items: NotificationPreferenceItem[]
 }
 
@@ -39,6 +41,27 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
         description:
           'A moderator rejects one of your submissions, with their note on what to change.',
       },
+      {
+        key: 'submission_deleted',
+        label: 'Deleted',
+        description:
+          'A moderator deletes one of your pending or rejected submissions, with their reason.',
+      },
+    ],
+  },
+  {
+    id: 'moderation',
+    label: 'Moderation',
+    description: 'Submissions you have reviewed.',
+    icon: 'hugeicons:user-shield-01',
+    staffOnly: true,
+    items: [
+      {
+        key: 'submission_resubmitted',
+        label: 'Resubmitted',
+        description:
+          'A submission you rejected is edited and sent back for review.',
+      },
     ],
   },
   {
@@ -52,6 +75,20 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
         label: 'Resolved',
         description:
           'We resolve your feedback, with a comment when there is something to add.',
+      },
+    ],
+  },
+  {
+    id: 'account',
+    label: 'Account',
+    description: 'Changes to your account made by an administrator.',
+    icon: 'hugeicons:user-circle-02',
+    items: [
+      {
+        key: 'account_role_changed',
+        label: 'Role and assignments',
+        description:
+          'An administrator changes your role or the pages you manage.',
       },
     ],
   },

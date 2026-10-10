@@ -1,4 +1,4 @@
-import { reviewNoteSchema } from '~/utils/schemas/common'
+import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
 
 type Leaf = Record<string, any>
 type Group = Record<string, any>
@@ -41,7 +41,7 @@ export const useSubmissionReviewQueue = ({
   }
 }) => {
   const toast = useToast()
-  const { isModerator } = storeToRefs(useUserStore())
+  const { isModerator, user } = storeToRefs(useUserStore())
 
   const statusFilter = ref('Pending')
 
@@ -132,15 +132,45 @@ export const useSubmissionReviewQueue = ({
     },
   })
 
+  // Staff deleting someone else's proposal can tell them why; the submitter
+  // is notified either way (notify_submission_deleted).
+  const deleteNote = ref('')
+  const deleteAsksReason = computed(
+    () =>
+      isModerator.value &&
+      !!deleteTarget.value?.submitted_by &&
+      deleteTarget.value.submitted_by !== user.value?.uid,
+  )
+
+  watch(deleteTarget, () => {
+    deleteNote.value = ''
+  })
+
   const confirmDelete = async () => {
     const leaf = deleteTarget.value
 
     if (!leaf || deleting.value) return
 
+    let note: string | undefined
+
+    if (deleteAsksReason.value && deleteNote.value.trim()) {
+      const result = deletionNoteSchema.safeParse(deleteNote.value)
+
+      if (!result.success) {
+        toast.add(validationToast(result.error.issues[0]?.message))
+        return
+      }
+
+      note = result.data
+    }
+
     deleting.value = true
 
     try {
-      await $fetch(`${leafUrl(leaf)}/${leaf.id}`, { method: 'delete' })
+      await $fetch(`${leafUrl(leaf)}/${leaf.id}`, {
+        method: 'delete',
+        body: note ? { note } : undefined,
+      })
 
       toast.add(successToast('delete', { entity, name: label(leaf) }))
       deleteTarget.value = null
@@ -378,6 +408,8 @@ export const useSubmissionReviewQueue = ({
     deleteTarget,
     deleteOpen,
     deleting,
+    deleteNote,
+    deleteAsksReason,
     confirmDelete,
     editorOpen,
     selectedSubmission,
