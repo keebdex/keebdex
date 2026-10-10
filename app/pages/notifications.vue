@@ -1,26 +1,28 @@
 <template>
   <UDashboardPanel id="notifications">
     <template #header>
-      <UDashboardNavbar title="Notifications" />
-
-      <UDashboardToolbar>
-        <template #left>
-          <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
-          <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
-        </template>
-
+      <UDashboardNavbar title="Notifications">
         <template #right>
           <UButton
             label="Mark all as read"
             aria-label="Mark all as read"
-            icon="hugeicons:checkmark-circle-02"
-            color="neutral"
-            variant="ghost"
+            icon="hugeicons:check-check"
             :disabled="!unread"
-            :ui="{ label: 'hidden sm:inline' }"
             @click="markAllRead"
           />
+
+          <UButton
+            icon="hugeicons:settings-02"
+            aria-label="Notification Settings"
+            label="Settings"
+            to="/account/settings/notifications"
+          />
         </template>
+      </UDashboardNavbar>
+
+      <UDashboardToolbar>
+        <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
       </UDashboardToolbar>
     </template>
 
@@ -45,13 +47,13 @@
           "
           :title="
             filter === 'unread'
-              ? 'No Unread Notifications'
-              : 'No Notifications Yet'
+              ? 'Inbox Zero, Endgame Achieved'
+              : 'Quiet as a Lubed Linear'
           "
           :description="
             filter === 'unread'
-              ? 'You are all caught up.'
-              : 'Your notifications will show up here.'
+              ? 'You have read everything. Go type on something nice.'
+              : 'Nothing here yet. We will ping you when something happens.'
           "
         />
 
