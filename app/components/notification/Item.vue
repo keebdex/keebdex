@@ -53,8 +53,20 @@
 
     <!-- Shown on hover or keyboard focus; always visible on touch screens. -->
     <div
-      class="absolute end-2 top-1.5 flex items-center gap-0.5 rounded-md bg-default p-0.5 shadow-xs ring ring-default opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:self-start [@media(hover:none)]:opacity-100"
+      class="absolute end-2 top-1.5 flex items-center gap-1 rounded-md bg-default p-1 shadow-xs ring ring-default opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:self-start [@media(hover:none)]:opacity-100"
     >
+      <UTooltip v-if="view.to" text="Go to">
+        <UButton
+          icon="hugeicons:arrow-right-02"
+          variant="ghost"
+          color="neutral"
+          size="xs"
+          :to="view.to"
+          aria-label="Go to"
+          @click="emit('open', notification)"
+        />
+      </UTooltip>
+
       <UTooltip :text="readLabel">
         <UButton
           :icon="
@@ -88,13 +100,15 @@
 import type { AppNotification, NotificationColor } from '~/utils/notifications'
 
 // One notification row on /notifications. Rows don't navigate; hovering (or
-// focusing) a row reveals Mark as read/unread and Delete. Unread rows show a
-// dot and a bolder title.
+// focusing) a row reveals Go to (when the notification has a target, and
+// marks it read), Mark as read/unread, and Delete. Unread rows show a dot and
+// a bolder title.
 const props = defineProps<{
   notification: AppNotification
 }>()
 
 const emit = defineEmits<{
+  open: [notification: AppNotification]
   'toggle-read': [notification: AppNotification]
   delete: [notification: AppNotification]
 }>()

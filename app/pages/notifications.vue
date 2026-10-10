@@ -4,14 +4,6 @@
       <UDashboardNavbar title="Notifications">
         <template #right>
           <UButton
-            label="Mark all as read"
-            aria-label="Mark all as read"
-            icon="hugeicons:check-check"
-            :disabled="!unread"
-            @click="markAllRead"
-          />
-
-          <UButton
             icon="hugeicons:settings-02"
             aria-label="Notification Settings"
             label="Settings"
@@ -21,8 +13,20 @@
       </UDashboardNavbar>
 
       <UDashboardToolbar>
-        <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
-        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
+        <template #left>
+          <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+          <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
+        </template>
+
+        <template #right>
+          <UButton
+            label="Mark all as read"
+            aria-label="Mark all as read"
+            icon="hugeicons:check-check"
+            :disabled="!unread"
+            @click="markAllRead"
+          />
+        </template>
       </UDashboardToolbar>
     </template>
 
@@ -76,6 +80,7 @@
                 v-for="notification in group.items"
                 :key="notification.id"
                 :notification="notification"
+                @open="markRead"
                 @toggle-read="toggleRead"
                 @delete="remove"
               />
