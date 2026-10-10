@@ -103,8 +103,8 @@
       <UEmpty
         v-else-if="status === 'success'"
         icon="hugeicons:grid-view"
-        title="No Keysets Yet"
-        description="Save keysets from their respective pages to start building this collection."
+        title="Not a Single Keycap Here"
+        description="Save keysets from their pages to start building this collection."
       />
     </template>
   </UDashboardPanel>

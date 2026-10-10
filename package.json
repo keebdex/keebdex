@@ -85,6 +85,6 @@
     "lodash.sortby": "^4.7.0",
     "nuxt": "4.6.1",
     "nuxt-og-image": "^6.10.3",
-    "prettier": "^3.9.9"
+    "prettier": "^3.9.10"
   }
 }

@@ -189,8 +189,8 @@
     <template v-else #body>
       <UEmpty
         icon="hugeicons:collections-bookmark"
-        title="No Collection Selected"
-        description="Start by choosing a collection to generate your wishlist. Once selected, you can preview, edit, and share it easily."
+        title="Your Wishlist Awaits"
+        description="Pick a collection and we will turn it into a wishlist you can tweak and share."
       />
     </template>
   </UDashboardPanel>

@@ -218,7 +218,7 @@ const emptyState = computed(() => {
   if (term.value.length < SEARCH_TERM_MIN_LENGTH) {
     return {
       icon: 'hugeicons:search-01',
-      title: 'Search Colorways',
+      title: 'Hunt for a Colorway',
       description: `Type at least ${SEARCH_TERM_MIN_LENGTH} characters of a colorway name. Results update as you type.`,
     }
   }
@@ -226,8 +226,8 @@ const emptyState = computed(() => {
   if (status.value === 'success' && !total.value) {
     return {
       icon: 'hugeicons:search-remove',
-      title: 'No Colorways Found',
-      description: `No colorway names match “${term.value}”.`,
+      title: 'This Colorway Is a Unicorn',
+      description: `No colorway names match “${term.value}”. Try another spelling or fewer words.`,
     }
   }
 

@@ -52,8 +52,8 @@
       <UEmpty
         v-else
         icon="hugeicons:collections-bookmark"
-        title="No Collections Yet"
-        description="Create a collection to organize and showcase your items."
+        title="An Empty Shelf, Full of Potential"
+        description="Create a collection to start showing off your keebs."
       />
     </template>
   </UDashboardPanel>
