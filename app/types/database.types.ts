@@ -323,7 +323,11 @@ export type Database = {
           id: number
           message: string | null
           name: string | null
+          resolution_note: string | null
           resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          submitted_by: string | null
         }
         Insert: {
           created_at?: string
@@ -331,7 +335,11 @@ export type Database = {
           id?: number
           message?: string | null
           name?: string | null
+          resolution_note?: string | null
           resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          submitted_by?: string | null
         }
         Update: {
           created_at?: string
@@ -339,9 +347,28 @@ export type Database = {
           id?: number
           message?: string | null
           name?: string | null
+          resolution_note?: string | null
           resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          submitted_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       keyboard_brands: {
         Row: {

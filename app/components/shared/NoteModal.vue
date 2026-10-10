@@ -1,7 +1,7 @@
 <template>
   <UModal v-model:open="open" :title="title" :description="description">
     <template #body>
-      <UFormField :label="label" :help="help" required>
+      <UFormField :label="label" :help="help" :required="!optional">
         <UTextarea
           v-model="note"
           :maxlength="REVIEW_NOTE_MAX_LENGTH"
@@ -27,7 +27,7 @@
         :label="confirmLabel"
         :color="confirmColor"
         :loading="loading"
-        :disabled="!note.trim()"
+        :disabled="!optional && !note.trim()"
         @click="emit('confirm')"
       />
     </template>
@@ -37,9 +37,10 @@
 <script setup lang="ts">
 import { REVIEW_NOTE_MAX_LENGTH } from '~/utils/schemas/common'
 
-// Confirms an action that needs a note for the person it affects, who reads
-// it in their notification: rejecting submissions, resolving feedback with a
-// comment. The confirm button stays disabled until the note has text.
+// Confirms an action with a note for the person it affects, who reads it in
+// their notification: rejecting submissions (note required), resolving
+// feedback (`optional` comment). A required note keeps the confirm button
+// disabled until it has text.
 withDefaults(
   defineProps<{
     title: string
@@ -49,6 +50,7 @@ withDefaults(
     label?: string
     help?: string
     placeholder?: string
+    optional?: boolean
     loading?: boolean
   }>(),
   {
@@ -57,6 +59,7 @@ withDefaults(
     label: 'Note',
     help: 'They read this note in their notification.',
     placeholder: undefined,
+    optional: false,
     loading: false,
   },
 )

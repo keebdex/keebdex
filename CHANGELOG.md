@@ -4,21 +4,22 @@
 
 ### ✨ What's New
 
-- **Notifications**: you now get notified when a moderator approves or rejects one of your submissions. A _Notifications_ item in the sidebar shows your unread count, toasts appear as reviews happen, and the _Notifications_ page lists everything by day with All / Unread views, read/unread toggles, and _Mark all as read_.
-- **Feedback** sent while signed in no longer asks for your name and email, and you get a notification quoting your feedback when we resolve it, with a comment when there is something to add.
-- New **Notification settings** under Account Settings let you choose which notifications you get, e.g. only rejections for your submissions.
-- Moderators now write a short note (up to 280 characters) when rejecting a submission, and the submitter reads it in the notification.
+- **Notifications**: get notified when your submissions are approved or rejected (with the moderator's note) and when your feedback is resolved. Find them under _Notifications_ in the sidebar.
+- Feedback sent while signed in no longer asks for your name and email.
+- **Notification settings** in Account Settings let you choose what you are notified about.
 - Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.
 
 ### 🐛 Bug Fixes
 
+- Sidebar items no longer sometimes show another item's icon and color after loading the page signed in.
 - Keyset pages with no kits now still show the set's details instead of an empty page.
 - Paging past the last page of a keyset list now shows an empty page instead of a server error.
 - Keyset profile pages no longer show _Not Found_ when opened directly, and their title now names the manufacturer and profile (e.g. _GMK CYL Keysets_).
 
 ### 🚀 Improvements
 
-- Status colors now match each theme's palette instead of bright default red, green, and blue: error in Carbon, EVA-01, Parchment, and Taro, and success and info in Analog Dreams, Carbon, EVA-01, Parchment, and Taro (where success and info were also hard to tell apart).
+- Error, success, and info colors now match each theme's palette instead of bright defaults.
+- Empty pages now show an icon and friendlier copy.
 - Artisan colorways in the search palette are now a single list with the closest name matches first, instead of nested groups by maker.
 - Colorway search now matches the colorway's own name (every word you type) and hides deleted colorways; makers and sculpts keep their own result groups.
 - **About** and **Changelog** moved from the sidebar into the profile menu.

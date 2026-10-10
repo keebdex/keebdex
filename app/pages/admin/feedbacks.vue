@@ -90,17 +90,8 @@
                   size="xs"
                   color="primary"
                   icon="hugeicons:checkmark-circle-02"
-                  :loading="resolvingId === row.original.id && !commentTarget"
                   :disabled="resolvingId !== null"
-                  @click="resolve(row.original)"
-                />
-                <UButton
-                  label="Comment"
-                  size="xs"
-                  variant="soft"
-                  icon="hugeicons:message-edit-01"
-                  :disabled="resolvingId !== null"
-                  @click="openComment(row.original)"
+                  @click="openResolve(row.original)"
                 />
               </template>
 
@@ -140,19 +131,21 @@
       </UPageCard>
 
       <SharedNoteModal
-        v-model:open="commentOpen"
-        v-model:note="commentNote"
-        title="Resolve with Comment"
+        v-model:open="resolveOpen"
+        v-model:note="resolveNote"
+        title="Resolve Feedback"
         :description="
-          commentTarget?.submitted_by
-            ? `${authorName(commentTarget)} gets a notification with your comment.`
-            : 'This feedback was sent by a guest, so your comment is saved with it but not sent to anyone.'
+          resolveTarget?.submitted_by
+            ? `${authorName(resolveTarget)} gets a notification, with your comment if you add one.`
+            : 'This feedback was sent by a guest, so nobody is notified; a comment is only saved with it.'
         "
-        confirm-label="Resolve"
+        :confirm-label="resolveNote.trim() ? 'Resolve with Comment' : 'Resolve'"
         label="Comment"
+        help="Optional. Add one when there is something to tell them."
         placeholder="e.g. Thanks! This is fixed in the latest release."
+        optional
         :loading="resolvingId !== null"
-        @confirm="confirmComment"
+        @confirm="confirmResolve"
       />
 
       <UModal v-model:open="editorOpen" :title="editorTitle">
@@ -300,7 +293,7 @@ const resolve = async (feedback, note) => {
     })
 
     toast.add(successToast('update', { entity: 'Feedback status' }))
-    commentTarget.value = null
+    resolveTarget.value = null
     await refresh()
   } catch (error) {
     toast.add(errorToast(error, { showOriginalMessage: true }))
@@ -309,29 +302,32 @@ const resolve = async (feedback, note) => {
   }
 }
 
-const commentTarget = ref(null)
-const commentNote = ref('')
-const commentOpen = computed({
-  get: () => !!commentTarget.value,
+// Resolve opens a dialog with an optional comment.
+const resolveTarget = ref(null)
+const resolveNote = ref('')
+const resolveOpen = computed({
+  get: () => !!resolveTarget.value,
   set: (value) => {
-    if (!value && resolvingId.value === null) commentTarget.value = null
+    if (!value && resolvingId.value === null) resolveTarget.value = null
   },
 })
 
-const openComment = (feedback) => {
-  commentNote.value = ''
-  commentTarget.value = feedback
+const openResolve = (feedback) => {
+  resolveNote.value = ''
+  resolveTarget.value = feedback
 }
 
-const confirmComment = () => {
-  const result = resolutionNoteSchema.safeParse(commentNote.value)
+const confirmResolve = () => {
+  if (!resolveNote.value.trim()) return resolve(resolveTarget.value)
+
+  const result = resolutionNoteSchema.safeParse(resolveNote.value)
 
   if (!result.success) {
     toast.add(validationToast(result.error.issues[0]?.message))
     return
   }
 
-  resolve(commentTarget.value, result.data)
+  resolve(resolveTarget.value, result.data)
 }
 
 const clearSelectedFeedback = () => {

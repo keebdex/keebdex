@@ -96,7 +96,11 @@ export const TABLE_FIELDS = {
     "id",
     "message",
     "name",
-    "resolved"
+    "resolution_note",
+    "resolved",
+    "resolved_at",
+    "resolved_by",
+    "submitted_by"
   ],
   "keyboard_brands": [
     "bio",
