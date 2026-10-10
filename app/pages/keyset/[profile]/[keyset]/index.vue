@@ -154,7 +154,7 @@
             class="cursor-zoom-in"
             :ui="{
               body: 'w-full',
-              description: 'line-clamp-2',
+              description: 'text-sm line-clamp-2',
               footer: 'pt-3',
             }"
             @click="
