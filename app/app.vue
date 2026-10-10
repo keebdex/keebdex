@@ -18,12 +18,19 @@ useSyncAppearance()
 
 const client = useSupabaseClient()
 
-client.auth.getUser().then(({ data }) => {
-  if (data.user) {
-    userStore.setCurrentUser(data.user)
-  } else {
-    userStore.$reset()
-  }
+// Restore the user on the client only, after hydration. Run during SSR, the
+// unawaited call could resolve after parts of the page had rendered as a
+// guest but before the store was serialized, so the client hydrated as signed
+// in against guest HTML and Vue left mismatched classes and icons in place.
+// The server always renders the guest view; signed-in UI follows on mount.
+onMounted(() => {
+  client.auth.getUser().then(({ data }) => {
+    if (data.user) {
+      userStore.setCurrentUser(data.user)
+    } else {
+      userStore.$reset()
+    }
+  })
 })
 
 const { name, description, homepage } = config.public.site
