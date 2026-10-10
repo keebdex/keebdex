@@ -7,9 +7,11 @@ export default {
   ui: {
     colors: {
       primary: 'taro',
-      info: 'teal',
+      info: 'taro-teal',
+      success: 'taro-matcha',
       warning: 'taro-gold',
       neutral: 'taro-ink',
+      error: 'taro-berry',
     },
   },
   css: {
@@ -43,6 +45,48 @@ export default {
         900: '#2B1D2E',
         950: '#170B19',
       }),
+      // Dusty raspberry that sits with the taro purples instead of a bright red
+      ...palette('taro-berry', {
+        50: '#FDF2F4',
+        100: '#FCE2E7',
+        200: '#F9C7D0',
+        300: '#F29FAF',
+        400: '#E37389',
+        500: '#CA516B',
+        600: '#AD3E57',
+        700: '#8F3448',
+        800: '#732D3C',
+        900: '#592430',
+        950: '#321018',
+      }),
+      // Matcha green for success, the milk tea companion to taro
+      ...palette('taro-matcha', {
+        50: '#F3F6EF',
+        100: '#E6EDDB',
+        200: '#CFDCBB',
+        300: '#B0C38F',
+        400: '#8CA75B',
+        500: '#708C34',
+        600: '#5B7521',
+        700: '#4B6119',
+        800: '#3E4F18',
+        900: '#313F16',
+        950: '#192209',
+      }),
+      // Dusty teal for info, softer than Tailwind teal and apart from matcha
+      ...palette('taro-teal', {
+        50: '#F0F7F7',
+        100: '#DCEDEF',
+        200: '#BDDDE0',
+        300: '#90C5CC',
+        400: '#5AAAB3',
+        500: '#2B8F9A',
+        600: '#147882',
+        700: '#0D646C',
+        800: '#135157',
+        900: '#134045',
+        950: '#082225',
+      }),
       // 500 = #f8c200
       ...palette('taro-gold', {
         50: '#FFFBE8',
@@ -64,6 +108,9 @@ export default {
     light: {
       '--ui-primary': 'var(--ui-color-primary-600)',
       '--ui-warning': 'var(--ui-color-warning-700)',
+      '--ui-error': 'var(--ui-color-error-600)',
+      '--ui-success': 'var(--ui-color-success-600)',
+      '--ui-info': 'var(--ui-color-info-600)',
       '--ui-bg': 'var(--ui-color-neutral-200)',
       '--ui-bg-muted': 'var(--ui-color-neutral-100)',
       '--ui-bg-elevated': 'var(--ui-color-neutral-300)',
@@ -73,7 +120,6 @@ export default {
       '--ui-text-muted': 'var(--ui-color-neutral-700)',
       '--ui-text-toned': 'var(--ui-color-neutral-800)',
       '--ui-text': 'var(--ui-color-neutral-900)',
-      '--ui-text-highlighted': 'var(--ui-color-neutral-900)',
       '--ui-text-inverted': 'var(--ui-color-neutral-50)',
       '--ui-border': 'var(--ui-color-neutral-400)',
       '--ui-border-muted': 'var(--ui-color-neutral-300)',
@@ -81,7 +127,6 @@ export default {
     },
     // Dark: background #170B19, text #8E71A2
     dark: {
-      '--ui-primary': 'var(--ui-color-primary-400)',
       '--ui-bg': 'var(--ui-color-neutral-950)',
       '--ui-bg-muted': 'var(--ui-color-neutral-900)',
       '--ui-bg-elevated': 'var(--ui-color-neutral-900)',
@@ -93,9 +138,7 @@ export default {
       '--ui-text': 'var(--ui-color-neutral-500)',
       '--ui-text-highlighted': 'var(--ui-color-neutral-300)',
       '--ui-text-inverted': 'var(--ui-color-neutral-950)',
-      '--ui-border': 'var(--ui-color-neutral-800)',
       '--ui-border-muted': 'var(--ui-color-neutral-900)',
-      '--ui-border-accented': 'var(--ui-color-neutral-700)',
     },
   },
 } satisfies ThemePreset

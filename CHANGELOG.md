@@ -16,6 +16,7 @@
 
 ### 🚀 Improvements
 
+- Status colors now match each theme's palette instead of bright default red, green, and blue: error in Carbon, EVA-01, Parchment, and Taro, and success and info in Analog Dreams, Carbon, EVA-01, Parchment, and Taro (where success and info were also hard to tell apart).
 - Artisan colorways in the search palette are now a single list with the closest name matches first, instead of nested groups by maker.
 - Colorway search now matches the colorway's own name (every word you type) and hides deleted colorways; makers and sculpts keep their own result groups.
 - **About** and **Changelog** moved from the sidebar into the profile menu.

@@ -17,7 +17,6 @@ export default {
   },
   css: {
     root: {
-      '--ui-radius': '0.25rem',
       // Keep these Tailwind slate overrides so Aurora's preview resolves the
       // intended shades: https://tailwindcss.com/docs/colors#overriding-default-colors
       ...palette('slate', {
