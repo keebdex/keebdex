@@ -3,8 +3,8 @@
     <template #body>
       <UPageSection
         icon="solar:chat-round-like-bold-duotone"
-        headline="What Collectors Are Saying"
         title="Shoutouts"
+        description="What the community is saying about us"
       >
         <div
           v-if="status === 'pending'"
