@@ -2,20 +2,20 @@
   <UPageCard reverse class="mx-auto">
     <ArtisanYugiohCard
       v-if="cardType === 'yugioh'"
+      ref="tradingCard"
       :colorway="colorway"
       :stars="classify.stars"
       :rarity="displayRarity"
-      class="artisan-trading-card"
     />
     <ArtisanPokemonCard
       v-if="cardType === 'pokemon'"
+      ref="tradingCard"
       :colorway="colorway"
       :stars="classify.stars"
       :rarity="displayRarity"
-      class="artisan-trading-card"
     />
 
-    <template v-if="!copying" #footer>
+    <template #footer>
       <div class="flex items-center justify-center gap-2 w-full">
         <USelect
           v-model="cardType"
@@ -23,9 +23,9 @@
           class="mr-auto w-40"
         />
 
-        <UButton icon="hugeicons:copy-02" @click="screenshot()"> Copy </UButton>
+        <UButton icon="hugeicons:copy-02" @click="copyImage"> Copy </UButton>
 
-        <UButton icon="hugeicons:image-download-02" @click="screenshot(true)">
+        <UButton icon="hugeicons:image-download-02" @click="downloadImage">
           Download
         </UButton>
       </div>
@@ -43,7 +43,6 @@ const { colorway } = defineProps({
   },
 })
 
-const { isDesktop } = useDevice()
 const toast = useToast()
 
 const cardType = ref('yugioh') // 'yugioh' | 'pokemon'
@@ -90,29 +89,30 @@ const displayRarity = computed(() =>
   copying.value ? '' : classify.value.rarity,
 )
 
-const screenshot = async (download = false) => {
+const tradingCard = useTemplateRef('tradingCard')
+
+// The trading card has a fixed size, so it is captured in place, without the
+// foil effect.
+const capture = async () => {
   copying.value = true
 
-  await nextTick()
-
-  const card = document.getElementsByClassName('artisan-trading-card')[0]
-
-  // remove 'flex-1' class to eliminate unnecessary spacing
-  card.classList.remove('flex-1')
-
   try {
-    if (download) {
-      const filename = slugify(colorwayTitle(colorway), { lower: true })
-      await downloadScreenshot(card, filename)
-    } else {
-      await copyScreenshot(card, toast, !isDesktop)
-    }
+    await nextTick()
+    return await captureScreenshot(tradingCard.value.$el)
+  } finally {
+    copying.value = false
+  }
+}
+
+// The capture promise goes straight into the clipboard write (Safari).
+const copyImage = () => copyBlob(capture(), toast)
+
+const downloadImage = async () => {
+  try {
+    const filename = slugify(colorwayTitle(colorway), { lower: true })
+    downloadBlob(await capture(), filename)
   } catch (error) {
     toast.add(errorToast(error))
-  } finally {
-    // Restore layout and effects, even if the screenshot fails.
-    card.classList.add('flex-1')
-    copying.value = false
   }
 }
 </script>

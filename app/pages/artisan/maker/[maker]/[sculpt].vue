@@ -121,7 +121,7 @@
           :key="colorway.colorway_id"
           :title="colorway.name"
           reverse
-          :spotlight="!copying"
+          spotlight
           :ui="{
             root: 'colorway-card h-full cursor-pointer flex flex-col',
             container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
@@ -137,12 +137,12 @@
             />
           </div>
 
-          <template v-if="!copying" #footer>
+          <template #footer>
             <div class="flex items-center gap-2" @click.stop>
               <UTooltip text="Copy Card" :delay-duration="0">
                 <UButton
                   icon="hugeicons:copy-02"
-                  @click="copyColorwayCard(colorway, $event)"
+                  @click="copyColorwayCard(colorway)"
                 />
               </UTooltip>
 
@@ -199,11 +199,32 @@
               </UModal>
             </div>
           </template>
-          <template v-else #footer>
+        </UPageCard>
+      </UPageGrid>
+
+      <SharedSnapshot ref="snapshot" width="18rem">
+        <UPageCard
+          v-if="snapshotColorway"
+          :title="snapshotColorway.name"
+          reverse
+          :ui="{
+            root: 'h-full flex flex-col',
+            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+          }"
+        >
+          <div class="aspect-square overflow-hidden relative">
+            <NuxtImg
+              :alt="snapshotColorway.name"
+              :src="snapshotColorway.img"
+              class="w-full h-full object-cover rounded"
+            />
+          </div>
+
+          <template #footer>
             <AppWordmark size="sm" />
           </template>
         </UPageCard>
-      </UPageGrid>
+      </SharedSnapshot>
 
       <UModal
         v-model:open="visible.card"
@@ -415,25 +436,15 @@ const openColorwayCard = (colorway) => {
   }
 }
 
-const copying = ref(false)
-const copyColorwayCard = async (colorway, event) => {
-  copying.value = true
+// Copied cards are rendered off screen at a fixed width, so the image is the
+// same on every screen size. The capture promise goes straight into the
+// clipboard write (Safari).
+const snapshot = useTemplateRef('snapshot')
+const snapshotColorway = ref()
 
-  const card = event.currentTarget.closest('.colorway-card')
-
-  if (!card) {
-    toast.add(errorToast(new Error('Colorway card element was not found')))
-    return
-  }
-
-  try {
-    await nextTick()
-    await copyScreenshot(card, toast)
-  } catch (error) {
-    toast.add(errorToast(error))
-  } finally {
-    copying.value = false
-  }
+const copyColorwayCard = (colorway) => {
+  snapshotColorway.value = colorway
+  copyBlob(snapshot.value.capture(), toast)
 }
 
 const syncColorwayCardFromQuery = () => {

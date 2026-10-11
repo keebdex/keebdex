@@ -1,14 +1,20 @@
 <template>
   <UDashboardPanel id="protected-page">
     <template v-if="$device.isMobileOrTablet" #header>
-      <UDashboardNavbar :title="title" />
+      <UDashboardNavbar :title="navTitle || title" />
     </template>
 
     <template #body>
-      <UPageSection v-bind="props" class="mx-auto">
+      <UPageSection
+        :icon="icon"
+        :title="title"
+        :description="description"
+        :features="features"
+        class="mx-auto"
+      >
         <template #links>
           <UButton icon="hugeicons:login-01" @click="visible = true">
-            Sign In to Continue
+            {{ signInLabel }}
           </UButton>
         </template>
       </UPageSection>
@@ -25,7 +31,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   icon: {
     type: String,
     default: undefined,
@@ -37,6 +43,21 @@ const props = defineProps({
   description: {
     type: String,
     default: undefined,
+  },
+  // `UPageSection` features (`{ icon, title, description }`) to show what
+  // signing in unlocks.
+  features: {
+    type: Array,
+    default: undefined,
+  },
+  // Page name in the mobile navbar when the headline is a pitch.
+  navTitle: {
+    type: String,
+    default: undefined,
+  },
+  signInLabel: {
+    type: String,
+    default: 'Sign In to Continue',
   },
 })
 const visible = ref(false)

@@ -44,6 +44,11 @@
       <UFormField
         :label="trading ? 'Want Collection' : 'Collection'"
         name="want_collection"
+        :help="
+          tradingConfig.buying.collection
+            ? undefined
+            : 'Start here: pick the collection to turn into a wishlist.'
+        "
       >
         <USelect
           v-model="tradingConfig.buying.collection"
@@ -114,21 +119,24 @@
         />
       </UFormField>
 
-      <USeparator label="Preferences" />
+      <!-- Seller preferences; buying lists have none. -->
+      <template v-if="tradingConfig.type !== 'buying'">
+        <USeparator label="Preferences" />
 
-      <UFormField v-if="tradingConfig.type !== 'buying'">
-        <UCheckbox
-          v-model="tradingConfig.fnf_only"
-          label="I do not accept PayPal G&S"
-        />
-      </UFormField>
+        <UFormField>
+          <UCheckbox
+            v-model="tradingConfig.fnf_only"
+            label="I do not accept PayPal G&S"
+          />
+        </UFormField>
 
-      <UFormField v-if="tradingConfig.type !== 'buying'">
-        <UCheckbox
-          v-model="tradingConfig.shipping_included"
-          label="Shipping included"
-        />
-      </UFormField>
+        <UFormField>
+          <UCheckbox
+            v-model="tradingConfig.shipping_included"
+            label="Shipping included"
+          />
+        </UFormField>
+      </template>
     </UForm>
   </USidebar>
 </template>

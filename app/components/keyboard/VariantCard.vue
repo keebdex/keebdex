@@ -2,7 +2,6 @@
   <UPageCard
     :title="title"
     reverse
-    class="keyboard-details-card"
     :ui="{
       body: 'w-full',
       description: 'flex flex-col gap-4',
@@ -20,7 +19,7 @@
         class="aspect-video w-full object-cover rounded"
       />
       <UButton
-        v-if="variant.img_front && variant.img_back && !copying"
+        v-if="variant.img_front && variant.img_back && !snapshot"
         size="xs"
         class="absolute top-2 right-2 z-10"
         icon="hugeicons:flip-horizontal"
@@ -28,7 +27,7 @@
         @click="showBack = !showBack"
       />
       <UButton
-        v-if="variant.img_front && variant.img_back && !copying"
+        v-if="variant.img_front && variant.img_back && !snapshot"
         size="xs"
         class="absolute top-2 left-2 z-10"
         icon="hugeicons:layout-grid"
@@ -54,7 +53,7 @@
         <div class="text-xs text-center italic mt-2">Back</div>
       </div>
       <UButton
-        v-if="!copying"
+        v-if="!snapshot"
         size="xs"
         class="absolute top-6 right-6 z-10"
         icon="hugeicons:border-all-02"
@@ -65,7 +64,8 @@
 
     <template #description>
       <SharedDescriptionList
-        :columns="$device.isMobile ? 1 : 3"
+        :columns="$device.isMobile && !snapshot ? 1 : 3"
+        :responsive="!snapshot"
         :items="specs"
       />
     </template>
@@ -97,7 +97,7 @@
       />
     </template>
 
-    <template v-if="!copying" #footer>
+    <template v-if="!snapshot" #footer>
       <UButton icon="hugeicons:copy-02" @click="copyKeyboardCard">
         Copy
       </UButton>
@@ -114,15 +114,23 @@
       <AppWordmark size="sm" />
     </template>
   </UPageCard>
+
+  <!-- Copied image: the same card at a fixed width, in the current view. -->
+  <SharedSnapshot v-if="!snapshot" ref="snapshotRef" width="48rem">
+    <VariantCard
+      :keyboard="keyboard"
+      :release="release"
+      :variant="variant"
+      :view="{ viewMode, showBack }"
+      snapshot
+    />
+  </SharedSnapshot>
 </template>
 
 <script setup>
-const showBack = ref(false)
-const viewMode = ref('single')
-// 'single' or 'side'
 const emit = defineEmits(['saveTo'])
 
-const { keyboard, release, variant, authenticated } = defineProps({
+const { keyboard, release, variant, authenticated, snapshot, view } = defineProps({
   keyboard: {
     type: Object,
     default: () => ({}),
@@ -136,7 +144,18 @@ const { keyboard, release, variant, authenticated } = defineProps({
     default: () => ({}),
   },
   authenticated: Boolean,
+  // The off-screen copy used for the image: no buttons, a wordmark footer.
+  snapshot: Boolean,
+  // Initial `{ viewMode, showBack }`, so the image matches the visible card.
+  view: {
+    type: Object,
+    default: undefined,
+  },
 })
+
+const showBack = ref(view?.showBack ?? false)
+// 'single' or 'side'
+const viewMode = ref(view?.viewMode ?? 'single')
 
 const title = computed(() => {
   return formatKeyboardDescription([
@@ -228,21 +247,10 @@ const specs = computed(() => {
 })
 
 const toast = useToast()
-const copying = ref(false)
+const snapshotRef = useTemplateRef('snapshotRef')
 
-const copyKeyboardCard = async () => {
-  copying.value = true
-
-  const card = document.getElementsByClassName('keyboard-details-card')[0]
-
-  try {
-    await copyScreenshot(card, toast)
-  } catch (error) {
-    toast.add(errorToast(error))
-  }
-
-  copying.value = false
-}
+// The capture promise goes straight into the clipboard write (Safari).
+const copyKeyboardCard = () => copyBlob(snapshotRef.value.capture(), toast)
 
 const onSelectCollection = (collection, item) => {
   emit('saveTo', collection, item)

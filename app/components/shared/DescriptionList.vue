@@ -13,7 +13,7 @@
       :description="item.description ? item.description.toString() : undefined"
       variant="naked"
       :ui="
-        isMobile || orientation === 'horizontal'
+        rowLayout
           ? {
               body: 'grid grid-cols-[minmax(7rem,10rem)_minmax(0,1fr)] items-start gap-x-4 w-full',
               title: 'text-sm font-medium text-muted',
@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-const { columns, orientation } = defineProps({
+const { columns, orientation, responsive } = defineProps({
   items: {
     type: Array,
     default: () => [],
@@ -46,9 +46,18 @@ const { columns, orientation } = defineProps({
     type: String,
     default: 'vertical',
   },
+  // Switch to term/description rows on phones; off for fixed-width images.
+  responsive: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const { isMobile } = useDevice()
+
+const rowLayout = computed(
+  () => (responsive && isMobile) || orientation === 'horizontal',
+)
 
 const hasFixedColumns = computed(() => Number.isInteger(columns) && columns > 0)
 
@@ -60,7 +69,5 @@ const gridStyle = computed(() => {
   }
 })
 
-const gap = computed(() =>
-  isMobile || orientation === 'horizontal' ? 'gap-x-4 gap-y-2' : 'gap-4',
-)
+const gap = computed(() => (rowLayout.value ? 'gap-x-4 gap-y-2' : 'gap-4'))
 </script>
