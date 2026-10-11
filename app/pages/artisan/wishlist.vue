@@ -1,17 +1,5 @@
 <template>
-  <UDashboardPanel v-if="$device.isMobile" id="wishlist-mobile">
-    <template #header>
-      <UDashboardNavbar title="Wishlist" />
-    </template>
-    <template #body>
-      <UPageCTA
-        title="Desktop Only Feature"
-        description="The Wishlist Builder is designed for desktop use. Please switch to a desktop device for the best experience."
-      />
-    </template>
-  </UDashboardPanel>
-
-  <UDashboardPanel v-else :ui="{ root: 'flex-row' }">
+  <UDashboardPanel :ui="{ root: 'flex-row' }">
     <ArtisanWishlistPreview />
 
     <ArtisanWishlistSettings />

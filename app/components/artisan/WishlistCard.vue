@@ -1,72 +1,26 @@
 <template>
   <draggable
+    v-if="editable"
     :list="data"
     item-key="id"
     group="group"
-    class="grid gap-4"
+    class="grid"
+    :class="compact ? 'gap-3' : 'gap-4'"
     :style="gridStyle"
+    :delay="200"
+    :delay-on-touch-only="true"
+    :touch-start-threshold="5"
   >
     <template #item="{ element: item }">
       <div class="cursor-move">
-        <UPageCard
-          :title="colorwayTitle(item.artisan)"
-          reverse
-          :highlight="buying && item.priority"
-          :ui="{
-            root: 'h-full flex flex-col',
-            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
-            body: 'w-full',
-            description: 'flex items-baseline justify-between',
-            footer: 'flex flex-wrap gap-2',
-          }"
-          :class="buying && item.priority ? 'bg-success/30' : ''"
-        >
-          <div class="relative aspect-square overflow-hidden">
-            <NuxtImg
-              loading="lazy"
-              :alt="item.artisan.name"
-              :src="item.artisan.img"
-              class="w-full h-full object-cover rounded"
-              :class="{
-                grayscale: !item.exchange,
-              }"
-            />
-            <span
-              v-if="!item.exchange"
-              class="absolute inset-0 flex items-center justify-center"
-            >
-              <UIcon
-                v-if="buying"
-                name="hugeicons:tick-double-02"
-                class="text-success text-9xl"
-              />
-              <UIcon
-                v-else
-                name="hugeicons:unavailable"
-                class="text-error text-9xl"
-              />
-            </span>
-          </div>
-
-          <template v-if="item.exchange && item.asking_price" #description>
-            <span
-              class="text-xs font-medium tracking-widest uppercase text-gray-400"
-            >
-              {{ buying ? 'Offering' : 'Asking' }}
-            </span>
-            <span
-              :class="`font-mono text-3xl font-bold ${item.priority ? 'text-error' : 'text-info'} opacity-90`"
-            >
-              {{ item.asking_price }}
-            </span>
-          </template>
-
-          <template v-if="!copying" #footer>
+        <ArtisanWishlistItem :item="item" :buying="buying" :compact="compact">
+          <template #actions>
             <UTooltip text="Priority" :delay-duration="0">
               <UButton
                 v-if="buying && item.exchange"
                 icon="hugeicons:shopping-bag-favorite"
                 :color="item.priority ? 'success' : 'neutral'"
+                :size="compact ? 'sm' : 'md'"
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>
@@ -75,14 +29,25 @@
               <UButton
                 icon="hugeicons:shopping-bag-remove"
                 color="error"
+                :size="compact ? 'sm' : 'md'"
                 @click="$emit('onRemove', item)"
               />
             </UTooltip>
           </template>
-        </UPageCard>
+        </ArtisanWishlistItem>
       </div>
     </template>
   </draggable>
+
+  <div v-else class="grid gap-4" :style="gridStyle">
+    <ArtisanWishlistItem
+      v-for="item in data"
+      :key="item.id"
+      :item="item"
+      :buying="buying"
+      eager
+    />
+  </div>
 </template>
 
 <script setup>
@@ -92,29 +57,36 @@ defineEmits(['onRemove', 'onHighlight'])
 
 const tradingCfg = useTradingConfig()
 
-const { data } = defineProps({
+const { data, editable, compact } = defineProps({
   data: {
     type: Array,
     default: () => [],
   },
-  copying: Boolean,
+  // Drag-and-drop editor with actions; otherwise a static grid for export.
+  editable: Boolean,
+  // Two columns on phones; the exported image keeps the configured columns.
+  compact: Boolean,
   buying: Boolean,
   selling: Boolean,
 })
 
 const gridColumns = computed(() => {
-  const configuredColumns = Math.max(1, tradingCfg.value.columns || 1)
-  const itemCount = data.length
+  if (compact) return 2
 
-  if (itemCount > 0 && itemCount < configuredColumns) {
-    return itemCount
-  }
-
-  return configuredColumns
+  return wishlistColumns(data.length, tradingCfg.value.columns)
 })
 
-const gridStyle = computed(() => ({
-  gridTemplateColumns: `repeat(${gridColumns.value}, minmax(0, 1fr))`,
-  width: `min(100%, calc(${gridColumns.value} * var(--wishlist-card-width) + ${Math.max(gridColumns.value - 1, 0)} * var(--wishlist-grid-gap)))`,
-}))
+const gridStyle = computed(() => {
+  const columns = gridColumns.value
+  const style = {
+    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+  }
+
+  if (compact) return style
+
+  const width = wishlistGridWidth(columns)
+
+  // The editor shrinks with the window; the export keeps its full width.
+  return { ...style, width: editable ? `min(100%, ${width})` : width }
+})
 </script>

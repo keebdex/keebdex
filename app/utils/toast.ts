@@ -115,6 +115,7 @@ export function successToast(
 export type NoticeKey =
   | 'copied'
   | 'image_copied'
+  | 'image_copy_failed'
   | 'signed_out'
   | 'pins_saved'
   | 'order_saved'
@@ -133,6 +134,12 @@ const NOTICES: Record<NoticeKey, (detail?: string) => ToastMessage> = {
     title: 'Image Copied',
     description: 'The image has been copied to your clipboard.',
     color: 'success',
+  }),
+  image_copy_failed: () => ({
+    title: 'Image Copy Failed',
+    description:
+      'Could not copy the image to your clipboard. Save or share it instead.',
+    color: 'error',
   }),
   signed_out: () => ({
     title: 'Signed Out',

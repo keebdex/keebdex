@@ -1,19 +1,15 @@
 <template>
-  <UDashboardPanel
-    v-if="authenticated"
-    id="wishlist-preview"
-    :style="previewVars"
-  >
+  <UDashboardPanel v-if="authenticated" id="wishlist-preview">
     <template #header>
       <UDashboardNavbar title="Wishlist Preview" :toggle="false">
         <template v-if="!isMobile" #right>
           <UButton icon="hugeicons:clipboard" @click="copyToClipboard">
             Copy Text
           </UButton>
-          <UButton icon="hugeicons:album-01" @click="screenshot(false)">
+          <UButton icon="hugeicons:album-01" @click="copyImage">
             Copy Image
           </UButton>
-          <UButton icon="hugeicons:image-download-02" @click="screenshot(true)">
+          <UButton icon="hugeicons:image-download-02" @click="saveImage">
             Save
           </UButton>
 
@@ -25,166 +21,112 @@
         </template>
         <template v-else #right>
           <UButton
-            icon="hugeicons:layout-align-right"
+            icon="hugeicons:settings-02"
+            aria-label="Wishlist Settings"
+            color="neutral"
+            variant="ghost"
             @click="sidebarOpen = !sidebarOpen"
-          >
-            {{ sidebarOpen ? 'Hide Settings' : 'Show Settings' }}
-          </UButton>
+          />
         </template>
       </UDashboardNavbar>
 
-      <UDashboardToolbar v-if="isMobile">
+      <UDashboardToolbar v-if="isMobile && totalItems">
         <UButton block icon="hugeicons:clipboard" @click="copyToClipboard">
           Copy Text
         </UButton>
-        <UButton block icon="hugeicons:album-01" @click="screenshot(false)">
-          Copy Image
-        </UButton>
-        <UButton
-          block
-          icon="hugeicons:image-download-02"
-          @click="screenshot(true)"
-        >
-          Save
+        <UButton block icon="hugeicons:image-upload" @click="openExport">
+          Export Image
         </UButton>
       </UDashboardToolbar>
     </template>
 
     <template v-if="totalItems" #body>
-      <div
-        class="trading-preview bg-(--ui-bg) p-4 mx-auto flex flex-col gap-4"
-        :style="previewStyle"
-      >
-        <UPage v-if="isMobile && !copying">
-          <UAlert
-            title="Actions may not work as expected on mobile devices."
-            icon="hugeicons:alert-02"
-            color="warning"
-          />
-        </UPage>
+      <UAlert
+        v-if="errorText"
+        :description="errorText"
+        variant="subtle"
+        color="error"
+      />
 
-        <UPageHeader
-          :ui="{
-            root: 'border-none',
-          }"
+      <ArtisanWishlistSheet
+        :buying-items="buyingItems"
+        :selling-items="sellingItems"
+        editable
+        :compact="isMobile"
+        @remove="remove"
+        @highlight="changePriority"
+      />
+
+      <!-- Exported image: fixed width on every device, kept off screen. -->
+      <ClientOnly>
+        <div
+          class="fixed top-0 -left-[10000px] pointer-events-none"
+          aria-hidden="true"
         >
-          <template #title>
-            <AppWordmark size="xl" />
-          </template>
+          <ArtisanWishlistSheet
+            ref="exportSheet"
+            :buying-items="buyingItems"
+            :selling-items="sellingItems"
+          />
+        </div>
+      </ClientOnly>
 
-          <template #links>
-            <UBadge
-              v-if="tradingCfg.social.discord"
-              icon="hugeicons:discord"
-              size="xl"
-              class="text-(--color-discord) bg-transparent"
-            >
-              {{ tradingCfg.social.discord }}
-            </UBadge>
+      <UModal
+        v-model:open="exportOpen"
+        title="Export Image"
+        description="Share your wishlist, save it to your photos, or copy it."
+        :ui="{ footer: 'grid grid-cols-2 gap-2' }"
+      >
+        <template #body>
+          <div
+            v-if="exportUrl"
+            class="max-h-[60vh] overflow-auto rounded-md border border-default"
+          >
+            <img :src="exportUrl" alt="Wishlist image" class="w-full" >
+          </div>
+          <UEmpty
+            v-else-if="exportError"
+            icon="hugeicons:image-not-found-01"
+            title="Image Not Created"
+            :description="exportError"
+            :actions="[{ label: 'Try Again', onClick: renderExport }]"
+          />
+          <USkeleton v-else class="aspect-[3/4] w-full" />
+        </template>
 
-            <UBadge
-              v-if="tradingCfg.social.reddit"
-              icon="hugeicons:reddit"
-              size="xl"
-              class="text-(--color-reddit) bg-transparent"
-            >
-              {{ tradingCfg.social.reddit }}
-            </UBadge>
-
-            <UBadge
-              v-if="tradingCfg.social.qq"
-              icon="basil:qq-outline"
-              size="xl"
-              class="text-(--color-qq) bg-transparent"
-            >
-              {{ tradingCfg.social.qq }}
-            </UBadge>
-
-            <UBadge
-              v-if="tradingCfg.shipping_included"
-              icon="hugeicons:package-moving"
-              size="xl"
-              color="info"
-              class="bg-transparent"
-            >
-              Shipping Included
-            </UBadge>
-          </template>
-
-          <template #description>
-            <UAlert
-              v-if="totalItems > 24 && !copying"
-              icon="hugeicons:information-circle"
-              variant="subtle"
-              color="info"
-              class="mt-4"
-            >
-              <template #description>
-                For optimal image display, it's <strong>recommended</strong> to
-                keep your wishlist between 16-24 items.
-              </template>
-            </UAlert>
-
-            <UAlert
-              v-if="tradingCfg.fnf_only"
-              icon="hugeicons:alert-02"
-              title="No PayPal Buyer Protection"
-              description="Please note that the seller does not accept PayPal Goods & Services (G&S). This means that if you choose to proceed with the transaction, you will not have PayPal's buyer protection in place."
-              variant="subtle"
-              color="warning"
-              class="mt-4"
-            />
-          </template>
-        </UPageHeader>
-
-        <UAlert
-          v-if="errorText"
-          :description="errorText"
-          variant="subtle"
-          color="error"
-        />
-
-        <USeparator
-          v-if="buyingItems.length"
-          :label="
-            tradingCfg.buying.title ||
-            (tradingCfg.type === 'selling'
-              ? tradingCfg.selling.placeholder
-              : tradingCfg.buying.placeholder)
-          "
-          :ui="{
-            label: 'text-3xl sm:text-4xl font-bold text-info',
-          }"
-        />
-
-        <ArtisanWishlistCard
-          :data="buyingItems"
-          :copying="copying"
-          :buying="tradingCfg.type !== 'selling'"
-          @on-remove="remove"
-          @on-highlight="changePriority"
-        />
-
-        <USeparator
-          v-if="sellingItems.length && trading"
-          :label="tradingCfg.selling.title || tradingCfg.selling.placeholder"
-          :ui="{
-            label: 'text-3xl sm:text-4xl font-bold text-warning',
-          }"
-        />
-
-        <ArtisanWishlistCard
-          v-if="trading"
-          :data="sellingItems"
-          :copying="copying"
-          :selling="true"
-          @on-remove="remove"
-        />
-
-        <USeparator class="mt-8">
-          <AppWordmark />
-        </USeparator>
-      </div>
+        <template #footer>
+          <UButton
+            v-if="shareSupported"
+            block
+            icon="hugeicons:share-08"
+            :disabled="!exportBlob"
+            class="col-span-2"
+            @click="shareImage"
+          >
+            Share
+          </UButton>
+          <UButton
+            block
+            icon="hugeicons:image-download-02"
+            color="neutral"
+            variant="subtle"
+            :disabled="!exportBlob"
+            @click="downloadBlob(exportBlob, filename)"
+          >
+            Save
+          </UButton>
+          <UButton
+            block
+            icon="hugeicons:album-01"
+            color="neutral"
+            variant="subtle"
+            :disabled="!exportBlob"
+            @click="copyBlob(exportBlob, toast)"
+          >
+            Copy Image
+          </UButton>
+        </template>
+      </UModal>
     </template>
     <template v-else #body>
       <UEmpty
@@ -206,7 +148,7 @@
 import groupBy from 'lodash.groupby'
 import sortBy from 'lodash.sortby'
 
-const { isDesktop, isMobile } = useDevice()
+const { isMobile } = useDevice()
 const toast = useToast()
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
@@ -235,11 +177,6 @@ const { data: collections, refresh } = await useAsyncData(
 const buyingItems = ref([])
 const sellingItems = ref([])
 
-const previewVars = computed(() => ({
-  '--wishlist-card-width': '18rem',
-  '--wishlist-grid-gap': '1rem',
-}))
-
 watchEffect(() => {
   buyingItems.value =
     collections.value[tradingCfg.value.buying.collection] || []
@@ -250,33 +187,6 @@ watchEffect(() => {
 const totalItems = computed(
   () => buyingItems.value.length + sellingItems.value.length,
 )
-
-const configuredColumns = computed(() =>
-  Math.max(1, tradingCfg.value.columns || 1),
-)
-
-const getSectionColumns = (items) => {
-  if (!items.length) return 0
-
-  return Math.min(items.length, configuredColumns.value)
-}
-
-const previewColumns = computed(() => {
-  const buyingColumns = getSectionColumns(buyingItems.value)
-  const sellingColumns = trading.value
-    ? getSectionColumns(sellingItems.value)
-    : 0
-
-  return Math.max(1, buyingColumns, sellingColumns)
-})
-
-const previewStyle = computed(() => {
-  if (isMobile) return undefined
-
-  return {
-    width: `min(100%, calc(${previewColumns.value} * var(--wishlist-card-width) + ${Math.max(previewColumns.value - 1, 0)} * var(--wishlist-grid-gap)))`,
-  }
-})
 
 watch(authenticated, () => refresh())
 
@@ -298,31 +208,75 @@ const remove = (item) => {
 }
 
 const errorText = ref()
-const copying = ref(false)
+const exportSheet = useTemplateRef('exportSheet')
+const filename = computed(() => `wishlist-${tradingCfg.value.type}`)
 
-const screenshot = async (download = false) => {
-  copying.value = true
+const capture = () => captureScreenshot(exportSheet.value.$el)
 
-  await nextTick()
+// The capture promise goes straight into the clipboard write (Safari).
+const copyImage = () => {
+  errorText.value = undefined
+  copyBlob(capture(), toast)
+}
 
-  const card = document.getElementsByClassName('trading-preview')[0]
-
-  // remove 'flex-1' class to eliminate unnecessary spacing
-  card.classList.remove('flex-1')
+const saveImage = async () => {
+  errorText.value = undefined
 
   try {
-    if (download) {
-      await downloadScreenshot(card, tradingCfg.value.type)
-    } else {
-      await copyScreenshot(card, toast, !isDesktop)
-    }
+    downloadBlob(await capture(), filename.value)
   } catch (error) {
     errorText.value = error.message
   }
+}
 
-  card.classList.add('flex-1')
+// Mobile: render the image first, so Share/Save/Copy run on a ready blob
+// inside the tap gesture.
+const exportOpen = ref(false)
+const exportBlob = ref()
+const exportUrl = ref()
+const exportError = ref()
+const shareSupported = ref(false)
 
-  copying.value = false
+onMounted(() => {
+  shareSupported.value = canShareFiles()
+})
+
+const clearExport = () => {
+  if (exportUrl.value) URL.revokeObjectURL(exportUrl.value)
+  exportBlob.value = undefined
+  exportUrl.value = undefined
+  exportError.value = undefined
+}
+
+const renderExport = async () => {
+  clearExport()
+
+  try {
+    const blob = await capture()
+    exportBlob.value = blob
+    exportUrl.value = URL.createObjectURL(blob)
+  } catch (error) {
+    exportError.value = error.message
+  }
+}
+
+const openExport = () => {
+  exportOpen.value = true
+  renderExport()
+}
+
+watch(exportOpen, (open) => {
+  if (!open) clearExport()
+})
+
+onBeforeUnmount(clearExport)
+
+const shareImage = async () => {
+  try {
+    await shareBlob(exportBlob.value, filename.value)
+  } catch (error) {
+    toast.add(errorToast(error))
+  }
 }
 
 const tradingItemText = ({ artisan, exchange, asking_price }) => {
