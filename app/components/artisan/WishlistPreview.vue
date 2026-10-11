@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel v-if="authenticated" id="wishlist-preview">
     <template #header>
-      <UDashboardNavbar title="Wishlist Preview" :toggle="false">
+      <UDashboardNavbar title="Wishlist Preview">
         <template #right>
           <UButton
             v-if="totalItems"
