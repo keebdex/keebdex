@@ -5,7 +5,6 @@ type AnnouncementsPayload = {
   signedIn: boolean
   userId: string | null
   dismissed: string[]
-  seenAt: string | null
   toasts: boolean
 }
 
@@ -85,8 +84,8 @@ const legacyDismissals = () => {
  *   into it yet. Merged keys no longer count locally, so the database decides
  *   (and clearing it shows the announcements again).
  *
- * Unread: not dismissed and started after `announcements_seen_at` (set by
- * Mark all as read). Client-only: dismissals live in localStorage.
+ * Unread (signed in): not dismissed yet; Mark as read dismisses. Client-only:
+ * dismissals live in localStorage.
  */
 export const useAnnouncements = () => {
   const toast = useToast()
@@ -111,7 +110,6 @@ export const useAnnouncements = () => {
 
   const items = computed(() => sortAnnouncements(payload.value?.data || []))
   const signedIn = computed(() => !!payload.value?.signedIn)
-  const seenAt = computed(() => payload.value?.seenAt ?? null)
 
   const dismissed = computed(() => {
     if (!payload.value?.signedIn) return new Set(localDismissed.value)
@@ -132,9 +130,7 @@ export const useAnnouncements = () => {
   )
 
   const isUnread = (item: Announcement) =>
-    signedIn.value &&
-    !isDismissed(item.key) &&
-    (!seenAt.value || item.starts_at > seenAt.value)
+    signedIn.value && !isDismissed(item.key)
 
   const unread = computed(() => items.value.filter(isUnread).length)
 
@@ -225,30 +221,9 @@ export const useAnnouncements = () => {
 
   const dismiss = (key: string) => dismissMany([key])
 
-  // Mark all as read: every unread one is dismissed (no more
-  // toasts either) and the seen mark moves to now.
-  const markAllRead = async () => {
-    if (!payload.value?.signedIn) return
-
-    const state = payload.value
-    const previous = state.seenAt
-
-    await dismissMany(items.value.filter(isUnread).map((item) => item.key))
-
-    state.seenAt = new Date().toISOString()
-
-    try {
-      const result = await $fetch<{ seenAt: string }>(
-        '/api/announcements/seen',
-        { method: 'post' },
-      )
-
-      state.seenAt = result.seenAt
-    } catch (error) {
-      state.seenAt = previous
-      toast.add(errorToast(error))
-    }
-  }
+  // Mark all as read: every unread one is dismissed (no more toasts either).
+  const markAllRead = () =>
+    dismissMany(items.value.filter(isUnread).map((item) => item.key))
 
   // Adds this device's dismissals (and the old toasts' acknowledged keys) to
   // the user's dismissals, once per key and user.
@@ -315,11 +290,11 @@ export const useAnnouncements = () => {
     let landed = false
 
     const stop = watch(
-      () => queue.toasts.value.map(({ id }) => id),
+      () => queue.toasts.value.map(({ id }) => String(id)),
       (current) => {
         // Front first: the toaster draws the last toast in front.
         const front = current.filter((id) => keys.includes(id)).reverse()
-        const present = current.filter((id) => ids.includes(String(id)))
+        const present = current.filter((id) => ids.includes(id))
 
         if (!present.length) {
           if (landed) stop()

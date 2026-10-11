@@ -4,8 +4,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
  * Live announcements for the caller, highest priority first. RLS returns only
  * live rows and hides audience `mods` from non-staff; guests get `all` and
  * `guest`, signed-in users everything but `guest`. Signed-in users also get
- * their dismissed keys, when they last opened the Announcements tab, and
- * whether announcement toasts are on.
+ * their id, their dismissed keys, and whether announcement toasts are on.
  */
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -37,18 +36,13 @@ export default defineEventHandler(async (event) => {
       signedIn: false,
       userId: null,
       dismissed: [],
-      seenAt: null,
       toasts: true,
     }
   }
 
-  const [announcements, dismissals, state, preference] = await Promise.all([
+  const [announcements, dismissals, preference] = await Promise.all([
     request,
     client.from('announcement_dismissals').select('announcement_key'),
-    client
-      .from('notification_state')
-      .select('announcements_seen_at')
-      .maybeSingle(),
     client
       .from('notification_preferences')
       .select('enabled')
@@ -57,7 +51,7 @@ export default defineEventHandler(async (event) => {
   ])
 
   const error =
-    announcements.error || dismissals.error || state.error || preference.error
+    announcements.error || dismissals.error || preference.error
 
   if (error) {
     throw createError({ statusCode: 500, statusMessage: error.message })
@@ -68,7 +62,6 @@ export default defineEventHandler(async (event) => {
     signedIn: true,
     userId: user.sub,
     dismissed: (dismissals.data || []).map((row) => row.announcement_key),
-    seenAt: state.data?.announcements_seen_at ?? null,
     toasts: preference.data?.enabled ?? true,
   }
 })

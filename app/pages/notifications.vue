@@ -39,7 +39,7 @@
     <template #body>
       <div
         v-if="filter === 'announcements'"
-        class="mx-auto w-full lg:max-w-3xl"
+        class="mx-auto w-full lg:max-w-3xl space-y-6"
       >
         <div
           v-if="!announcementsLoaded"
@@ -58,20 +58,32 @@
           description="News about Keebdex shows up here when there is something to share."
         />
 
-        <UPageCard
-          v-else
-          variant="subtle"
-          :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }"
-        >
-          <NotificationAnnouncementItem
-            v-for="announcement in announcementItems"
-            :key="announcement.key"
-            :announcement="announcement"
-            :unread="isAnnouncementUnread(announcement)"
-            @open="dismissAnnouncement(announcement.key)"
-            @read="dismissAnnouncement(announcement.key)"
-          />
-        </UPageCard>
+        <template v-else>
+          <section
+            v-for="group in announcementGroups"
+            :key="group.label"
+            :aria-labelledby="`announcements-${group.id}`"
+            class="space-y-1"
+          >
+            <h2
+              :id="`announcements-${group.id}`"
+              class="px-3 text-xs font-semibold uppercase tracking-wide text-dimmed"
+            >
+              {{ group.label }}
+            </h2>
+
+            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1' }">
+              <NotificationAnnouncementItem
+                v-for="announcement in group.items"
+                :key="announcement.key"
+                :announcement="announcement"
+                :unread="isAnnouncementUnread(announcement)"
+                @open="dismissAnnouncement(announcement.key)"
+                @read="dismissAnnouncement(announcement.key)"
+              />
+            </UPageCard>
+          </section>
+        </template>
       </div>
 
       <div v-else class="mx-auto w-full lg:max-w-3xl space-y-6">
@@ -249,17 +261,14 @@ const GROUP_IDS: Record<NotificationDateGroup, string> = {
   Older: 'older',
 }
 
-// Items are newest first, so each date group is a consecutive run.
-const groups = computed(() => {
+// Splits newest-first items into date groups (each a consecutive run).
+const groupByDate = <T,>(items: T[], date: (item: T) => string) => {
   const now = new Date()
-  const result: {
-    id: string
-    label: NotificationDateGroup
-    items: AppNotification[]
-  }[] = []
+  const result: { id: string; label: NotificationDateGroup; items: T[] }[] =
+    []
 
-  for (const item of visible.value) {
-    const label = notificationDateGroup(item.created_at, now)
+  for (const item of items) {
+    const label = notificationDateGroup(date(item), now)
     const last = result.at(-1)
 
     if (last?.label === label) {
@@ -270,7 +279,21 @@ const groups = computed(() => {
   }
 
   return result
-})
+}
+
+const groups = computed(() =>
+  groupByDate(visible.value, (item) => item.created_at),
+)
+
+// Newest first like notifications; priority only orders the toasts.
+const announcementGroups = computed(() =>
+  groupByDate(
+    [...announcementItems.value].sort((a, b) =>
+      b.starts_at.localeCompare(a.starts_at),
+    ),
+    (item) => item.starts_at,
+  ),
+)
 
 const toggleRead = (notification: AppNotification) =>
   notification.read_at ? markUnread(notification) : markRead(notification)
