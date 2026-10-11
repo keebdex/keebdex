@@ -22,7 +22,7 @@
         :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
       >
         <template #header>
-          Announcements show as toasts on the homepage (top three by priority)
+          Announcements show as toasts when the site opens (top three by priority)
           and in the Announcements tab of Notifications. Changes apply on the
           next page load, without a deploy.
         </template>

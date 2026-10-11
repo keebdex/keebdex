@@ -77,11 +77,20 @@
 
 <script setup>
 const route = useRoute()
+const toast = useToast()
+const announcements = useAnnouncements()
 const cookieConsent = useCookieConsent()
 const userStore = useUserStore()
 
 const { authenticated } = storeToRefs(userStore)
-const { unread } = useNotifications()
+const { unread: unreadNotifications } = useNotifications()
+const { unread: unreadAnnouncements } = useAnnouncements()
+
+// Personal notifications plus announcements not read yet, so a new
+// announcement brings users to the Announcements tab.
+const unread = computed(
+  () => unreadNotifications.value + unreadAnnouncements.value,
+)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -231,7 +240,8 @@ const routes = computed(() => {
   ]
 })
 
-// Signed-in users only; the dot icon and badge flag unread notifications.
+// Signed-in users only; the dot icon and badge flag unread notifications and
+// announcements.
 const notificationsLink = computed(() =>
   authenticated.value
     ? [
@@ -240,7 +250,11 @@ const notificationsLink = computed(() =>
           icon: unread.value
             ? 'hugeicons:bell-dot'
             : 'hugeicons:notification-01',
-          to: '/notifications',
+          // Straight to the Announcements tab when only announcements are new.
+          to:
+            !unreadNotifications.value && unreadAnnouncements.value
+              ? '/notifications?filter=announcements'
+              : '/notifications',
           active: route.path === '/notifications',
           badge: unread.value
             ? {
@@ -318,9 +332,14 @@ watch(collapsed, (isCollapsed, wasCollapsed) => {
   }
 })
 
-// The homepage shows the cookie consent itself, after its announcement
-// toasts, so the consent stays on top.
-onMounted(() => {
-  if (route.path !== '/') cookieConsent.show()
+// Announcement toasts on every page, once per page load (the layout stays
+// mounted across navigation). Everything goes through one toast queue with
+// the cookie consent last, so it stays on top and each toast is measured on
+// its own (see useCookieConsent).
+onMounted(async () => {
+  await announcements.load()
+
+  announcements.showToasts(toast)
+  cookieConsent.show(toast)
 })
 </script>

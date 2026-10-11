@@ -89,7 +89,7 @@
       <UFormField
         label="Priority"
         name="priority"
-        help="Higher shows first. The homepage shows the top three."
+        help="Higher shows first. The top three show as toasts."
       >
         <UInputNumber
           v-model="form.priority"
@@ -116,7 +116,7 @@
     <UFormField name="show_toast">
       <USwitch
         v-model="form.show_toast"
-        label="Show as a toast on the homepage"
+        label="Show as a toast"
         description="It is always listed in the Announcements tab."
       />
     </UFormField>

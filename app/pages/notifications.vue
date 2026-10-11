@@ -20,12 +20,17 @@
 
         <template #right>
           <UButton
-            v-if="filter !== 'announcements'"
             label="Mark all as read"
             aria-label="Mark all as read"
             icon="hugeicons:check-check"
-            :disabled="!unread"
-            @click="markAllRead"
+            :disabled="
+              filter === 'announcements' ? !unreadAnnouncements : !unread
+            "
+            @click="
+              filter === 'announcements'
+                ? markAllAnnouncementsRead()
+                : markAllRead()
+            "
           />
         </template>
       </UDashboardToolbar>
@@ -62,8 +67,9 @@
             v-for="announcement in announcementItems"
             :key="announcement.key"
             :announcement="announcement"
-            :is-new="isNewAnnouncement(announcement, seenBefore)"
+            :unread="isAnnouncementUnread(announcement)"
             @open="dismissAnnouncement(announcement.key)"
+            @read="dismissAnnouncement(announcement.key)"
           />
         </UPageCard>
       </div>
@@ -184,38 +190,19 @@ const filter = computed(() =>
 )
 
 // Announcements have their own tab, so personal notifications don't get lost
-// among them, and their own badge (published since the tab was last opened).
+// among them, and their own unread badge. Reading one (or its CTA) dismisses
+// it, so it no longer shows as a toast either.
 const {
   items: announcementItems,
   loaded: announcementsLoaded,
-  seenAt: announcementsSeenAt,
-  unseen: unseenAnnouncements,
-  isNew: isNewAnnouncement,
+  unread: unreadAnnouncements,
+  isUnread: isAnnouncementUnread,
   load: loadAnnouncements,
   dismiss: dismissAnnouncement,
-  markSeen: markAnnouncementsSeen,
+  markAllRead: markAllAnnouncementsRead,
 } = useAnnouncements()
 
-// The seen mark from before this visit to the tab, so what was new stays
-// highlighted while the tab is open.
-const seenBefore = ref<string | null>(null)
-
-const openAnnouncements = async () => {
-  if (!announcementsLoaded.value) await loadAnnouncements()
-
-  seenBefore.value = announcementsSeenAt.value
-
-  if (unseenAnnouncements.value) markAnnouncementsSeen()
-}
-
-onMounted(() => {
-  if (filter.value === 'announcements') openAnnouncements()
-  else loadAnnouncements()
-})
-
-watch(filter, (value) => {
-  if (value === 'announcements') openAnnouncements()
-})
+onMounted(() => loadAnnouncements())
 
 const links = computed(() => [
   {
@@ -239,9 +226,9 @@ const links = computed(() => [
     label: 'Announcements',
     to: { path: '/notifications', query: { filter: 'announcements' } },
     active: filter.value === 'announcements',
-    badge: unseenAnnouncements.value
+    badge: unreadAnnouncements.value
       ? {
-          label: String(unseenAnnouncements.value),
+          label: String(unreadAnnouncements.value),
           color: 'primary' as const,
           variant: 'subtle' as const,
         }

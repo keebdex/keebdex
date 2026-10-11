@@ -5,7 +5,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
  * live rows and hides audience `mods` from non-staff; guests get `all` and
  * `guest`, signed-in users everything but `guest`. Signed-in users also get
  * their dismissed keys, when they last opened the Announcements tab, and
- * whether homepage toasts are on.
+ * whether announcement toasts are on.
  */
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -35,6 +35,7 @@ export default defineEventHandler(async (event) => {
     return {
       data: data || [],
       signedIn: false,
+      userId: null,
       dismissed: [],
       seenAt: null,
       toasts: true,
@@ -65,6 +66,7 @@ export default defineEventHandler(async (event) => {
   return {
     data: announcements.data || [],
     signedIn: true,
+    userId: user.sub,
     dismissed: (dismissals.data || []).map((row) => row.announcement_key),
     seenAt: state.data?.announcements_seen_at ?? null,
     toasts: preference.data?.enabled ?? true,

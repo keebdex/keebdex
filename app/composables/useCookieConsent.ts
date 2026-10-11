@@ -1,67 +1,34 @@
 const COOKIE_CONSENT_TOAST_ID = 'cookie-consent'
 
-// Stops the watcher that keeps the consent on top (one per page load).
-let stopKeepingOnTop: (() => void) | null = null
+type Toaster = ReturnType<typeof useToast>
 
 /**
- * The cookie consent toast, shown until accepted, and always on top of the
- * toast stack so it stays in front and tappable on phones. Toasts added later
- * stack above earlier ones, and every `useToast()` call queues its own adds,
- * so the order of `add()` calls across composables is not reliable; instead
- * the consent is moved back to the top whenever another toast lands above it.
- * Pages that add their own toasts (the homepage announcements) still call
- * `show()` after them, so it does not flash below them first.
+ * The cookie consent toast, shown until accepted.
+ *
+ * Toasts added later stack on top, and the toaster measures each toast once,
+ * when it mounts, to lay out the stack. Every `useToast()` call has its own
+ * add queue, so toasts added through two instances can mount in the same tick
+ * and get measured at the collapsed height (overlapping once the stack
+ * expands on hover). Code that adds its own toasts (the layout's
+ * announcements) therefore pass their instance to `show()` and call it last,
+ * so the consent mounts after them, on top and tappable on phones.
  */
 export const useCookieConsent = () => {
   const toast = useToast()
   const consent = useCookie('cookie-consent', { maxAge: 60 * 60 * 24 * 365 })
 
-  const keepOnTop = () => {
-    stopKeepingOnTop?.()
-
-    // add() is queued, so the consent may land after other toasts.
-    let landed = false
-
-    stopKeepingOnTop = watch(
-      () => toast.toasts.value.map(({ id }) => id),
-      (ids) => {
-        const index = ids.indexOf(COOKIE_CONSENT_TOAST_ID)
-
-        if (index === -1) {
-          // Accepted (or otherwise removed): nothing left to keep on top.
-          if (landed) {
-            stopKeepingOnTop?.()
-            stopKeepingOnTop = null
-          }
-          return
-        }
-
-        landed = true
-
-        if (index === ids.length - 1) return
-
-        const consentToast = toast.toasts.value[index]!
-
-        toast.toasts.value = [
-          ...toast.toasts.value.filter(
-            ({ id }) => id !== COOKIE_CONSENT_TOAST_ID,
-          ),
-          consentToast,
-        ]
-      },
-      { flush: 'sync' },
-    )
-  }
-
-  const show = () => {
+  const show = (queue: Toaster = toast) => {
     if (consent.value === 'accepted') return
 
-    // Already showing, and already kept on top.
-    if (toast.toasts.value.some(({ id }) => id === COOKIE_CONSENT_TOAST_ID)) {
-      return
-    }
+    // A consent shown earlier (e.g. by the layout on another page) is dropped
+    // at once and added again, so it lands on top of the newer toasts.
+    // (toast.remove() waits for the exit animation, and add() would merge
+    // into the old one in place.)
+    queue.toasts.value = queue.toasts.value.filter(
+      ({ id }) => id !== COOKIE_CONSENT_TOAST_ID,
+    )
 
-    toast.add({
+    queue.add({
       id: COOKIE_CONSENT_TOAST_ID,
       title: 'We Use Cookies',
       description:
@@ -79,8 +46,6 @@ export const useCookieConsent = () => {
         },
       ],
     })
-
-    keepOnTop()
   }
 
   return { show }

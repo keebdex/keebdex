@@ -6,7 +6,7 @@ import type { NotificationColor } from '~/utils/notifications'
  * in the database; a key that is not stored counts as on. To add a kind of
  * notification, add its key here (in an existing or new group) and pass it
  * to `push_notification()` from its trigger. `announcement_toasts` is the
- * exception: `GET /api/announcements` reads it to skip homepage toasts.
+ * exception: `GET /api/announcements` reads it to skip announcement toasts.
  */
 
 export interface NotificationPreferenceItem {
@@ -36,9 +36,9 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
     id: 'announcements',
     label: 'Announcements',
     description:
-      'News about Keebdex as toasts on the homepage. The Announcements tab always lists them.',
+      'News about Keebdex as toasts when you open the site. The Announcements tab always lists them.',
     icon: 'hugeicons:megaphone-01',
-    items: [{ key: 'announcement_toasts', label: 'Homepage toasts' }],
+    items: [{ key: 'announcement_toasts', label: 'Toasts' }],
   },
   {
     id: 'submissions',

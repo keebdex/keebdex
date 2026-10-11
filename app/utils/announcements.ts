@@ -4,9 +4,9 @@ import type {
 } from '~/utils/schemas/announcement'
 
 /**
- * Site-wide announcements (`public.announcements`), shown as homepage toasts
+ * Site-wide announcements (`public.announcements`), shown as toasts on page load
  * and in the Announcements tab of /notifications. `useAnnouncements()` loads
- * and filters them; this file holds what the homepage, the tab, and the admin
+ * and filters them; this file holds what the toasts, the tab, and the admin
  * preview share.
  */
 
@@ -32,6 +32,21 @@ export interface Announcement {
 export const ANNOUNCEMENT_TOAST_LIMIT = 3
 
 export const ANNOUNCEMENT_SUMMARY_TOAST_ID = 'announcements-more'
+
+/**
+ * When the toast stack expands (hover), the toaster puts 16px between every
+ * toast. Announcements sit closer together (8px), so they read as one group
+ * between the cookie consent and the "+N more updates" toast. Each one is
+ * moved toward the front by 8px per announcement in front of it, through the
+ * `translate` property, which adds to the toaster's own `transform`. Indexed
+ * by that count (at most `ANNOUNCEMENT_TOAST_LIMIT - 1`); written out in full
+ * for Tailwind. Assumes the toaster's default bottom position.
+ */
+export const ANNOUNCEMENT_STACK_CLASSES = [
+  '',
+  'data-[expanded=true]:translate-y-2',
+  'data-[expanded=true]:translate-y-4',
+]
 
 export const ANNOUNCEMENT_DEFAULT_ICON = 'hugeicons:megaphone-01'
 
@@ -73,7 +88,7 @@ export const announcementLink = (url: string) =>
   isExternalUrl(url) ? { to: url, target: '_blank' } : { to: url }
 
 /**
- * The homepage toast of an announcement: no close button and no timeout, so it
+ * The toast of an announcement: no close button and no timeout, so it
  * stays until the CTA or Dismiss is clicked. The key is the toast id, so the
  * same announcement is never shown twice.
  */
