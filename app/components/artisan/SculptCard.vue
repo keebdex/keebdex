@@ -7,7 +7,7 @@
     :to="`/artisan/maker/${sculpt.maker_id}/${sculpt.sculpt_id}`"
     :ui="{
       root: 'h-full flex flex-col',
-      container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+      container: imageCardContainerClass,
     }"
   >
     <div class="aspect-square overflow-hidden">

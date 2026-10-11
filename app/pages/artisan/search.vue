@@ -71,7 +71,7 @@
             <UBadge :label="group.items.length" size="sm" />
           </ULink>
 
-          <UPageGrid :class="squareGridClass">
+          <UPageGrid :class="artisanGridClass">
             <UPageCard
               v-for="colorway in group.items"
               :key="colorway.id"
@@ -86,7 +86,7 @@
               spotlight
               :ui="{
                 root: 'h-full',
-                container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                container: imageCardContainerClass,
                 // keep the footer buttons above the card's link overlay
                 footer: 'relative z-10',
               }"

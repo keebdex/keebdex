@@ -49,7 +49,7 @@
           spotlight
           :ui="{
             root: 'h-full flex flex-col',
-            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            container: imageCardContainerClass,
             // wrapper: 'h-full min-h-0 flex flex-col',
             // body: 'flex-1 min-h-0',
             footer: 'mt-auto',

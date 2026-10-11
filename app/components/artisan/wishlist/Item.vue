@@ -6,8 +6,8 @@
     :ui="{
       root: 'h-full flex flex-col',
       container: compact
-        ? 'h-full grid grid-rows-[auto_minmax(0,1fr)] p-3 sm:p-3 gap-y-2'
-        : 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+        ? `${imageCardContainerClass} p-3 sm:p-3 gap-y-2`
+        : imageCardContainerClass,
       title: compact ? 'text-sm' : undefined,
       body: 'w-full',
       description: 'flex items-baseline justify-between gap-2',

@@ -42,7 +42,7 @@
               spotlight
               :ui="{
                 root: 'h-full flex flex-col',
-                container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                container: imageCardContainerClass,
               }"
             >
               <NuxtImg

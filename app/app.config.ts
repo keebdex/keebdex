@@ -108,7 +108,8 @@ export default defineAppConfig({
     },
     pageCard: {
       slots: {
-        footer: 'flex gap-2',
+        // Wrap actions instead of widening narrow grid cards
+        footer: 'flex flex-wrap gap-2',
         container: 'p-3 sm:p-4',
       },
     },

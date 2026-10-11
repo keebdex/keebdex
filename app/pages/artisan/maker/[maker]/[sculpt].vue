@@ -115,7 +115,7 @@
     </template>
 
     <template #body>
-      <UPageGrid :class="squareGridClass">
+      <UPageGrid :class="artisanGridClass">
         <UPageCard
           v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"
@@ -124,7 +124,7 @@
           spotlight
           :ui="{
             root: 'colorway-card h-full cursor-pointer flex flex-col',
-            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            container: imageCardContainerClass,
           }"
           @click="openColorwayCard(colorway)"
         >
@@ -139,7 +139,7 @@
           </div>
 
           <template #footer>
-            <div class="flex items-center gap-2" @click.stop>
+            <div class="flex flex-wrap items-center gap-2" @click.stop>
               <UTooltip text="Copy Card" :delay-duration="0">
                 <UButton
                   icon="hugeicons:copy-02"
@@ -210,7 +210,7 @@
           reverse
           :ui="{
             root: 'h-full flex flex-col',
-            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            container: imageCardContainerClass,
           }"
         >
           <div class="aspect-square overflow-hidden relative">

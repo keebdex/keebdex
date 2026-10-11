@@ -31,7 +31,7 @@
         :list="items"
         item-key="id"
         group="group"
-        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4"
+        :class="artisanGridClass"
       >
         <template #item="{ element: item }">
           <div class="cursor-move">
@@ -42,7 +42,7 @@
               spotlight
               :ui="{
                 root: 'h-full flex flex-col',
-                container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                container: imageCardContainerClass,
               }"
             >
               <div class="relative aspect-square overflow-hidden">

@@ -211,7 +211,7 @@
                 spotlight
                 :ui="{
                   root: 'h-full cursor-pointer flex flex-col',
-                  container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                  container: imageCardContainerClass,
                 }"
               >
                 <NuxtImg
@@ -234,7 +234,7 @@
 
                 <template #footer>
                   <div
-                    class="flex items-center justify-between gap-2"
+                    class="flex flex-wrap items-center justify-between gap-2"
                     @click.stop
                   >
                     <SharedSaveToCollection

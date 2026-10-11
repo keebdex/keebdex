@@ -14,6 +14,7 @@
 
 ### 🐛 Bug Fixes
 
+- Colorway cards on narrow phones no longer stretch their photo past the card edge when they show several action buttons; the buttons wrap onto a second line instead.
 - Trading wishlists no longer let a card be dragged between the Want and Have lists, which left it impossible to remove.
 - Sidebar items no longer sometimes show another item's icon and color after loading the page signed in.
 - Keyset pages with no kits now still show the set's details instead of an empty page.

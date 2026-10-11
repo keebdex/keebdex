@@ -166,8 +166,15 @@ export const getRoleLabel = (
   return mapping ? mapping.label : role.charAt(0).toUpperCase() + role.slice(1)
 }
 
-export const squareGridClass =
+// Artisan grids (colorways, sculpts, makers); colorway images use the
+// `square` image preset sized for these columns
+export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
+
+// UPageCard container for cards with an image above the title. The column is
+// pinned to the card so a long footer cannot widen it (and the image with it)
+export const imageCardContainerClass =
+  'h-full grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)]'
 
 export const SEARCH_TERM_MIN_LENGTH = 3
 
