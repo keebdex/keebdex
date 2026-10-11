@@ -48,6 +48,45 @@ export default defineNuxtConfig({
     ],
   },
 
+  // Cloudflare Images URLs are resized through flexible variants wherever a
+  // preset or `sizes` applies; the provider returns every other source as is.
+  // Preset sizes are the widest share of the viewport an image takes in each
+  // range, measured in the app. NuxtImg sizes a range from its lower
+  // breakpoint, so the grids add x3 to give retina screens a large enough pick
+  image: {
+    provider: 'cloudflare',
+    providers: {
+      cloudflare: { provider: '~/providers/cloudflare-images.ts' },
+    },
+    screens: {
+      'xs': 320,
+      'sm': 640,
+      'md': 768,
+      'lg': 1024,
+      'xl': 1280,
+      '2xl': 1536,
+      '3xl': 1792,
+      '4xl': 2048,
+    },
+    presets: {
+      // squareGridClass: 2 / md 3 / lg 4 / 2xl 6 / 4xl 9 columns
+      square: {
+        sizes: 'xs:42vw md:28vw lg:18vw 2xl:13vw 4xl:8vw',
+        densities: 'x1 x2 x3',
+      },
+      // Keyset and keyboard covers in UPageGrid: 1 / sm 2 / lg 3 / 2xl 4 /
+      // 3xl 6 columns
+      cover: {
+        sizes: 'xs:92vw sm:44vw lg:25vw 2xl:19vw 3xl:13vw',
+        densities: 'x1 x2 x3',
+      },
+      // Review queue thumbnails (size-10 / size-12)
+      thumb: {
+        sizes: '48px',
+      },
+    },
+  },
+
   // icon: {
   //   clientBundle: {
   //     icons: ['hugeicons', 'simple-icons', 'solar'],

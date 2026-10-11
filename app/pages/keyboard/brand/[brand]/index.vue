@@ -80,6 +80,7 @@
           }"
         >
           <NuxtImg
+            preset="cover"
             loading="lazy"
             :alt="keyboard.name"
             :src="keyboard.cover_image || '/keyboard.png'"

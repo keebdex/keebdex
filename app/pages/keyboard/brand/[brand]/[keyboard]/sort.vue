@@ -46,6 +46,7 @@
               }"
             >
               <NuxtImg
+                preset="cover"
                 loading="lazy"
                 :alt="item.name"
                 :src="item.cover_image || '/keyboard.png'"

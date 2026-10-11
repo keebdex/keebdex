@@ -47,6 +47,7 @@
             >
               <div class="relative aspect-square overflow-hidden">
                 <NuxtImg
+                  preset="square"
                   loading="lazy"
                   :alt="item.artisan.name"
                   :src="item.artisan.img"

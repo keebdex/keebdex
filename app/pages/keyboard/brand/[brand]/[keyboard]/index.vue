@@ -215,6 +215,7 @@
                 }"
               >
                 <NuxtImg
+                  preset="cover"
                   loading="lazy"
                   :alt="variant.variant_name"
                   :src="

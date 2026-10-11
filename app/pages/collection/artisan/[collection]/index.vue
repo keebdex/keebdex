@@ -118,6 +118,7 @@
         >
           <div class="relative aspect-square overflow-hidden">
             <NuxtImg
+              preset="square"
               loading="lazy"
               :alt="artisan.name"
               :src="artisan.img"

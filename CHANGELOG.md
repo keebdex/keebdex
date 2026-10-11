@@ -22,6 +22,7 @@
 
 ### 🚀 Improvements
 
+- Artisan, keyset, and keyboard grids now load images sized for your screen instead of full-size photos, so pages load faster and scroll more smoothly, especially on phones.
 - Error, success, and info colors now match each theme's palette instead of bright defaults.
 - Empty pages now show an icon and friendlier copy.
 - Artisan colorways in the search palette are now a single list with the closest name matches first, instead of nested groups by maker.

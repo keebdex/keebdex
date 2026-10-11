@@ -12,6 +12,7 @@
   >
     <div class="aspect-square overflow-hidden">
       <NuxtImg
+        preset="square"
         loading="lazy"
         :alt="sculpt.name"
         :src="sculpt.img"

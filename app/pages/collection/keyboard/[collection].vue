@@ -66,6 +66,7 @@
           reverse
         >
           <NuxtImg
+            preset="cover"
             loading="lazy"
             :alt="keyboard.variant_name"
             :src="keyboard.img_front || keyboard.img_back || '/keyboard.png'"

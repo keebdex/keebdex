@@ -93,6 +93,7 @@
             >
               <div class="aspect-square overflow-hidden relative">
                 <NuxtImg
+                  preset="square"
                   loading="lazy"
                   :alt="colorway.name"
                   :src="colorway.img"

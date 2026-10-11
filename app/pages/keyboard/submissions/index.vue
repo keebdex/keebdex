@@ -117,6 +117,7 @@
                     variantRow.original.img_front ||
                     variantRow.original.img_back
                   "
+                  preset="thumb"
                   :src="
                     variantRow.original.img_front ||
                     variantRow.original.img_back

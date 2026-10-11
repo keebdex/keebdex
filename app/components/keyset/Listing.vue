@@ -67,6 +67,7 @@
           />
 
           <NuxtImg
+            preset="cover"
             loading="lazy"
             :alt="keyset.name"
             :src="keyset.img || '/keyset.png'"
