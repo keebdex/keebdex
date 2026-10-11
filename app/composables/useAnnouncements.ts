@@ -265,7 +265,7 @@ export const useAnnouncements = () => {
       queue.add(
         announcementSummaryToast(
           rest,
-          signedIn.value ? '/notifications?filter=announcements' : '/changelog',
+          signedIn.value ? '/notifications?tab=announcements' : '/changelog',
         ),
       )
       ids.push(ANNOUNCEMENT_SUMMARY_TOAST_ID)

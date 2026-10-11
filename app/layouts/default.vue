@@ -253,7 +253,7 @@ const notificationsLink = computed(() =>
           // Straight to the Announcements tab when only announcements are new.
           to:
             !unreadNotifications.value && unreadAnnouncements.value
-              ? '/notifications?filter=announcements'
+              ? '/notifications?tab=announcements'
               : '/notifications',
           active: route.path === '/notifications',
           badge: unread.value

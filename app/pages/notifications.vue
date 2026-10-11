@@ -19,15 +19,21 @@
         </template>
 
         <template #right>
+          <UTabs
+            v-model="readFilter"
+            :items="readFilterItems"
+            :content="false"
+            size="xs"
+            aria-label="Show"
+          />
+
           <UButton
             label="Mark all as read"
             aria-label="Mark all as read"
             icon="hugeicons:check-check"
-            :disabled="
-              filter === 'announcements' ? !unreadAnnouncements : !unread
-            "
+            :disabled="tab === 'announcements' ? !unreadAnnouncements : !unread"
             @click="
-              filter === 'announcements'
+              tab === 'announcements'
                 ? markAllAnnouncementsRead()
                 : markAllRead()
             "
@@ -38,7 +44,7 @@
 
     <template #body>
       <div
-        v-if="filter === 'announcements'"
+        v-if="tab === 'announcements'"
         class="mx-auto w-full lg:max-w-3xl space-y-6"
       >
         <div
@@ -52,10 +58,18 @@
         </div>
 
         <UEmpty
-          v-else-if="!announcementItems.length"
-          icon="hugeicons:megaphone-01"
-          title="No Announcements Right Now"
-          description="News about Keebdex shows up here when there is something to share."
+          v-else-if="!visibleAnnouncements.length"
+          :icon="
+            unreadOnly
+              ? 'hugeicons:checkmark-circle-02'
+              : 'hugeicons:megaphone-01'
+          "
+          :title="unreadOnly ? 'All Caught Up' : 'No Announcements Right Now'"
+          :description="
+            unreadOnly
+              ? 'You have read every announcement.'
+              : 'News about Keebdex shows up here when there is something to share.'
+          "
         />
 
         <template v-else>
@@ -100,17 +114,17 @@
         <UEmpty
           v-else-if="!visible.length && !hasMore"
           :icon="
-            filter === 'unread'
+            unreadOnly
               ? 'hugeicons:checkmark-circle-02'
               : 'hugeicons:notification-01'
           "
           :title="
-            filter === 'unread'
+            unreadOnly
               ? 'Inbox Zero, Endgame Achieved'
               : 'Quiet as a Lubed Linear'
           "
           :description="
-            filter === 'unread'
+            unreadOnly
               ? 'You have read everything. Go type on something nice.'
               : 'Nothing here yet. We will ping you when something happens.'
           "
@@ -192,14 +206,38 @@ const {
 } = useNotifications()
 
 const route = useRoute()
+const router = useRouter()
 
-// All / Unread / Announcements live in the URL (`?filter=unread`) so the
-// menu links work.
-const filter = computed(() =>
-  route.query.filter === 'unread' || route.query.filter === 'announcements'
-    ? route.query.filter
-    : 'all',
+// The tab (Notifications / Announcements) and the All / Unread filter live in
+// the URL (`?tab=announcements&filter=unread`) so links and reloads keep
+// them. `?filter=announcements` is the earlier link to the Announcements tab.
+const tab = computed(() =>
+  route.query.tab === 'announcements' ||
+  route.query.filter === 'announcements'
+    ? 'announcements'
+    : 'notifications',
 )
+
+const unreadOnly = computed(() => route.query.filter === 'unread')
+
+const tabQuery = (value: string, unread = unreadOnly.value) => ({
+  ...(value === 'announcements' ? { tab: value } : {}),
+  ...(unread ? { filter: 'unread' } : {}),
+})
+
+const readFilterItems = [
+  { label: 'All', value: 'all' },
+  { label: 'Unread', value: 'unread' },
+]
+
+const readFilter = computed({
+  get: () => (unreadOnly.value ? 'unread' : 'all'),
+  set: (value) =>
+    router.replace({
+      path: '/notifications',
+      query: tabQuery(tab.value, value === 'unread'),
+    }),
+})
 
 // Announcements have their own tab, so personal notifications don't get lost
 // among them, and their own unread badge. Reading one (or its CTA) dismisses
@@ -218,14 +256,9 @@ onMounted(() => loadAnnouncements())
 
 const links = computed(() => [
   {
-    label: 'All',
-    to: '/notifications',
-    active: filter.value === 'all',
-  },
-  {
-    label: 'Unread',
-    to: { path: '/notifications', query: { filter: 'unread' } },
-    active: filter.value === 'unread',
+    label: 'Notifications',
+    to: { path: '/notifications', query: tabQuery('notifications') },
+    active: tab.value === 'notifications',
     badge: unread.value
       ? {
           label: String(unread.value),
@@ -236,8 +269,8 @@ const links = computed(() => [
   },
   {
     label: 'Announcements',
-    to: { path: '/notifications', query: { filter: 'announcements' } },
-    active: filter.value === 'announcements',
+    to: { path: '/notifications', query: tabQuery('announcements') },
+    active: tab.value === 'announcements',
     badge: unreadAnnouncements.value
       ? {
           label: String(unreadAnnouncements.value),
@@ -249,7 +282,7 @@ const links = computed(() => [
 ])
 
 const visible = computed(() =>
-  filter.value === 'unread'
+  unreadOnly.value
     ? items.value.filter((item) => !item.read_at)
     : items.value,
 )
@@ -286,9 +319,15 @@ const groups = computed(() =>
 )
 
 // Newest first like notifications; priority only orders the toasts.
+const visibleAnnouncements = computed(() =>
+  unreadOnly.value
+    ? announcementItems.value.filter(isAnnouncementUnread)
+    : announcementItems.value,
+)
+
 const announcementGroups = computed(() =>
   groupByDate(
-    [...announcementItems.value].sort((a, b) =>
+    [...visibleAnnouncements.value].sort((a, b) =>
       b.starts_at.localeCompare(a.starts_at),
     ),
     (item) => item.starts_at,
