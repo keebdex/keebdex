@@ -14,6 +14,7 @@
       <NuxtImg
         preset="square"
         loading="lazy"
+        decoding="async"
         :alt="sculpt.name"
         :src="sculpt.img"
         class="w-full h-full object-cover rounded"

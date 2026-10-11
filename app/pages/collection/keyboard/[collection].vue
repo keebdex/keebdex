@@ -68,6 +68,7 @@
           <NuxtImg
             preset="cover"
             loading="lazy"
+            decoding="async"
             :alt="keyboard.variant_name"
             :src="keyboard.img_front || keyboard.img_back || '/keyboard.png'"
             class="aspect-[16/9] w-full object-cover"

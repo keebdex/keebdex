@@ -217,6 +217,7 @@
                 <NuxtImg
                   preset="cover"
                   loading="lazy"
+                  decoding="async"
                   :alt="variant.variant_name"
                   :src="
                     variant.img_front || variant.img_back || '/keyboard.png'

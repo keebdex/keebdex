@@ -49,6 +49,7 @@
                 <NuxtImg
                   preset="square"
                   loading="lazy"
+                  decoding="async"
                   :alt="item.artisan.name"
                   :src="item.artisan.img"
                   class="w-full h-full object-cover rounded"

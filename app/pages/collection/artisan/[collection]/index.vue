@@ -121,6 +121,7 @@
             <NuxtImg
               preset="square"
               loading="lazy"
+              decoding="async"
               :alt="artisan.name"
               :src="artisan.img"
               class="h-full object-cover rounded"

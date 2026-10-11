@@ -132,6 +132,7 @@
             <NuxtImg
               preset="square"
               loading="lazy"
+              decoding="async"
               :alt="colorway.name"
               :src="colorway.img"
               class="w-full h-full object-cover rounded"
