@@ -1,72 +1,31 @@
 <template>
-  <div
-    class="group relative flex gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-elevated/50 focus-within:bg-elevated/50"
+  <NotificationRow
+    :icon="view.icon"
+    :icon-class="ICON_CLASSES[view.color]"
+    :title="view.title"
+    :description="view.description"
+    :time="notification.created_at"
+    :unread="!notification.read_at"
+    :to="view.to"
+    to-label="View"
+    @go="emit('open', notification)"
   >
-    <UIcon
-      :name="view.icon"
-      class="size-5 shrink-0 mt-0.5"
-      :class="ICON_CLASSES[view.color]"
-    />
-
-    <div class="min-w-0 flex-1 space-y-0.5">
-      <p class="flex items-center gap-2 text-sm">
-        <span
-          v-if="!notification.read_at"
-          class="size-2 shrink-0 rounded-full bg-primary"
-        />
-        <span class="sr-only">{{
-          notification.read_at ? 'Read:' : 'Unread:'
-        }}</span>
-        <span
-          class="truncate text-highlighted"
-          :class="notification.read_at ? 'font-medium' : 'font-semibold'"
-        >
-          {{ view.title }}
-        </span>
-
-        <time
-          :datetime="notification.created_at"
-          :title="formatDate(notification.created_at)"
-          class="ms-auto shrink-0 text-xs text-dimmed group-hover:invisible group-focus-within:invisible [@media(hover:none)]:visible"
-        >
-          {{ formatTimeAgo(notification.created_at) }}
-        </time>
-      </p>
-
-      <p class="text-sm text-muted">{{ view.description }}</p>
-
-      <blockquote
-        v-if="view.quote"
-        class="text-sm text-muted italic border-s-2 border-default ps-2 whitespace-pre-line break-words line-clamp-3"
-      >
-        {{ view.quote }}
-      </blockquote>
-
-      <p
-        v-if="view.note"
-        class="text-sm text-default border-s-2 ps-2 whitespace-pre-line break-words"
-        :class="NOTE_BORDER_CLASSES[view.color]"
-      >
-        {{ view.note }}
-      </p>
-    </div>
-
-    <!-- Shown on hover or keyboard focus; always visible on touch screens. -->
-    <div
-      class="absolute end-2 top-1.5 flex items-center gap-1 rounded-md bg-default p-1 shadow-xs ring ring-default opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:self-start [@media(hover:none)]:opacity-100"
+    <blockquote
+      v-if="view.quote"
+      class="text-sm text-muted italic border-s-2 border-default ps-2 whitespace-pre-line break-words line-clamp-3"
     >
-      <UTooltip v-if="view.to" text="Go to">
-        <UButton
-          icon="hugeicons:arrow-right-02"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-          :to="view.to"
-          aria-label="Go to"
-          @click="emit('open', notification)"
-        />
-      </UTooltip>
+      {{ view.quote }}
+    </blockquote>
 
+    <p
+      v-if="view.note"
+      class="text-sm text-default border-s-2 ps-2 whitespace-pre-line break-words"
+      :class="NOTE_BORDER_CLASSES[view.color]"
+    >
+      {{ view.note }}
+    </p>
+
+    <template #actions>
       <UTooltip :text="readLabel">
         <UButton
           :icon="
@@ -92,17 +51,16 @@
           @click="emit('delete', notification)"
         />
       </UTooltip>
-    </div>
-  </div>
+    </template>
+  </NotificationRow>
 </template>
 
 <script setup lang="ts">
 import type { AppNotification, NotificationColor } from '~/utils/notifications'
 
-// One notification row on /notifications. Rows don't navigate; hovering (or
-// focusing) a row reveals Go to (when the notification has a target, and
-// marks it read), Mark as read/unread, and Delete. Unread rows show a dot and
-// a bolder title.
+// One notification row on /notifications (layout in NotificationRow). A View
+// button below the content goes to the target and marks it read; hovering
+// (or focusing) the row reveals Mark as read/unread and Delete.
 const props = defineProps<{
   notification: AppNotification
 }>()

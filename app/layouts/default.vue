@@ -78,10 +78,19 @@
 <script setup>
 const route = useRoute()
 const toast = useToast()
+const announcements = useAnnouncements()
+const cookieConsent = useCookieConsent()
 const userStore = useUserStore()
 
 const { authenticated } = storeToRefs(userStore)
-const { unread } = useNotifications()
+const { unread: unreadNotifications } = useNotifications()
+const { unread: unreadAnnouncements } = useAnnouncements()
+
+// Personal notifications plus announcements not read yet, so a new
+// announcement brings users to the Announcements tab.
+const unread = computed(
+  () => unreadNotifications.value + unreadAnnouncements.value,
+)
 
 const open = ref(false)
 const collapsed = ref(false)
@@ -231,7 +240,8 @@ const routes = computed(() => {
   ]
 })
 
-// Signed-in users only; the dot icon and badge flag unread notifications.
+// Signed-in users only; the dot icon and badge flag unread notifications and
+// announcements.
 const notificationsLink = computed(() =>
   authenticated.value
     ? [
@@ -240,7 +250,11 @@ const notificationsLink = computed(() =>
           icon: unread.value
             ? 'hugeicons:bell-dot'
             : 'hugeicons:notification-01',
-          to: '/notifications',
+          // Straight to the Announcements tab when only announcements are new.
+          to:
+            !unreadNotifications.value && unreadAnnouncements.value
+              ? '/notifications?tab=announcements'
+              : '/notifications',
           active: route.path === '/notifications',
           badge: unread.value
             ? {
@@ -318,182 +332,14 @@ watch(collapsed, (isCollapsed, wasCollapsed) => {
   }
 })
 
-const acknowledge = (cookie) => {
-  cookie.value = 'acknowledged'
-}
+// Announcement toasts on every page, once per page load (the layout stays
+// mounted across navigation). Everything goes through one toast queue with
+// the cookie consent last, so it stays on top and each toast is measured on
+// its own (see useCookieConsent).
+onMounted(async () => {
+  await announcements.load()
 
-onMounted(() => {
-  const persistentCookie = (name) =>
-    useCookie(name, { maxAge: 60 * 60 * 24 * 365 })
-
-  const cookieConsent = persistentCookie('cookie-consent')
-
-  const persistentLocal = (name) => ({
-    get value() {
-      return localStorage.getItem(name)
-    },
-    set value(newValue) {
-      localStorage.setItem(name, newValue)
-    },
-  })
-
-  // Show cookie consent if not accepted
-  if (cookieConsent.value !== 'accepted') {
-    toast.add({
-      title: 'We Use Cookies',
-      description:
-        'To improve your experience. By using our site, you agree to our use of cookies.',
-      icon: 'hugeicons:cookie',
-      duration: 0,
-      close: false,
-      actions: [
-        {
-          label: 'Accept',
-          color: 'info',
-          onClick: () => {
-            cookieConsent.value = 'accepted'
-          },
-        },
-      ],
-    })
-  }
-
-  const seenCommunitySubmissions = persistentLocal('seen-community-submissions')
-
-  // Announce community submissions (keyboards, keysets, artisan colorways) until acknowledged.
-  if (seenCommunitySubmissions.value !== 'acknowledged') {
-    toast.add({
-      title: 'New: Community Submissions',
-      description:
-        'Anyone can now submit keyboards, keysets, and artisan colorways for review.',
-      icon: 'hugeicons:file-verified',
-      color: 'primary',
-      close: false,
-      actions: [
-        {
-          label: 'Dismiss',
-          color: 'neutral',
-          variant: 'ghost',
-          onClick: () => acknowledge(seenCommunitySubmissions),
-        },
-      ],
-    })
-  }
-
-  const seenDiscordAnnouncement = persistentLocal('seen-discord-announcement')
-
-  // Announce the new Keebdex Discord server for community chat, development, ideas, and feedback.
-  if (seenDiscordAnnouncement.value !== 'acknowledged') {
-    toast.add({
-      title: 'New: Keebdex Discord',
-      description:
-        'Join the new Keebdex Discord server to chat, share ideas, and help shape future improvements.',
-      icon: 'hugeicons:discord',
-      color: 'info',
-      close: false,
-      actions: [
-        {
-          label: 'Join Discord',
-          to: 'https://keebdex.org/discord',
-          target: '_blank',
-          trailingIcon: 'hugeicons:arrow-right-02',
-          onClick: () => acknowledge(seenDiscordAnnouncement),
-          ui: {
-            label: 'block',
-          },
-        },
-        {
-          label: 'Dismiss',
-          color: 'neutral',
-          variant: 'ghost',
-          onClick: () => acknowledge(seenDiscordAnnouncement),
-        },
-      ],
-    })
-  }
-
-  const seenMobileWishlist = persistentLocal('seen-mobile-wishlist')
-
-  // Announce that the Wishlist Image builder now works on phones.
-  if (seenMobileWishlist.value !== 'acknowledged') {
-    toast.add({
-      title: 'New: Wishlists on Your Phone',
-      description:
-        'Build your wishlist image on the go, then save it or share it straight to Discord, Reddit, or the group chat.',
-      icon: 'hugeicons:smart-phone-01',
-      color: 'primary',
-      duration: 0,
-      close: false,
-      actions: [
-        {
-          label: 'Try It',
-          to: '/artisan/wishlist',
-          trailingIcon: 'hugeicons:arrow-right-02',
-          onClick: () => acknowledge(seenMobileWishlist),
-          ui: {
-            label: 'block',
-          },
-        },
-        {
-          label: 'Dismiss',
-          color: 'neutral',
-          variant: 'ghost',
-          onClick: () => acknowledge(seenMobileWishlist),
-        },
-      ],
-    })
-  }
-
-  const seenCollectionGuide = persistentLocal('seen-collection-guide')
-
-  // Point new users to the collection walkthrough video until acknowledged.
-  if (seenCollectionGuide.value !== 'acknowledged') {
-    toast.add({
-      title: 'Manage Your Collection',
-      description: 'Watch how to track your items and generate wishlists.',
-      icon: 'hugeicons:collections-bookmark',
-      color: 'info',
-      duration: 0,
-      close: false,
-      actions: [
-        {
-          label: 'Watch',
-          to: 'https://www.loom.com/share/660fe9bd026640788b2d0d8a6fe9b6b8',
-          target: '_blank',
-          trailingIcon: 'hugeicons:arrow-right-02',
-          onClick: () => acknowledge(seenCollectionGuide),
-          ui: {
-            label: 'block',
-          },
-        },
-        {
-          label: 'Dismiss',
-          color: 'neutral',
-          variant: 'ghost',
-          onClick: () => acknowledge(seenCollectionGuide),
-        },
-      ],
-    })
-  }
-
-  const seenThemeAnnouncement = persistentCookie('seen-theme-announcement')
-
-  if (seenThemeAnnouncement.value !== 'acknowledged') {
-    toast.add({
-      title: 'Choose Your Theme',
-      description: `Keebdex now supports multiple themes: Carbon, EVA-01, Parchment, Taro. Choose your favorite in Account Settings.`,
-      icon: 'hugeicons:colors',
-      color: 'primary',
-      close: false,
-      actions: [
-        {
-          label: 'Dismiss',
-          color: 'neutral',
-          variant: 'ghost',
-          onClick: () => acknowledge(seenThemeAnnouncement),
-        },
-      ],
-    })
-  }
+  announcements.showToasts(toast)
+  cookieConsent.show(toast)
 })
 </script>

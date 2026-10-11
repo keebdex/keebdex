@@ -88,6 +88,11 @@ const items = computed(() => {
         icon: 'hugeicons:quote-up',
         to: '/admin/shoutouts',
       },
+      {
+        label: 'Announcements',
+        icon: 'hugeicons:megaphone-01',
+        to: '/admin/announcements',
+      },
     )
   }
 

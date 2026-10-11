@@ -1,5 +1,5 @@
 <template>
-  <UApp :toaster="{ max: 5 }">
+  <UApp :toaster="{ max: 5, expand: false }">
     <NuxtLayout>
       <NuxtLoadingIndicator />
       <NuxtPage />
