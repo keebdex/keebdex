@@ -11,14 +11,15 @@
             Save & Share
           </UButton>
 
+          <!-- Before a collection is picked, the empty state's button opens them. -->
           <UButton
-            v-if="isMobile"
+            v-if="isMobile && hasCollection"
             icon="hugeicons:settings-02"
             aria-label="Wishlist Settings"
             @click="sidebarOpen = !sidebarOpen"
           />
           <UButton
-            v-else
+            v-else-if="!isMobile"
             icon="hugeicons:layout-align-right"
             :label="sidebarOpen ? 'Hide Settings' : 'Show Settings'"
             @click="sidebarOpen = !sidebarOpen"
@@ -28,6 +29,22 @@
     </template>
 
     <template v-if="totalItems" #body>
+      <UAlert
+        v-if="!dragHintSeen"
+        icon="hugeicons:drag-drop"
+        color="info"
+        variant="subtle"
+        title="Make It Yours"
+        :description="
+          isMobile
+            ? 'Press and hold a card, then drag it to reorder your list.'
+            : 'Drag cards to reorder your list.'
+        "
+        close
+        class="mx-auto max-w-3xl shrink-0"
+        @update:open="dragHintSeen = true"
+      />
+
       <ArtisanWishlistSheet
         :buying-items="buyingItems"
         :selling-items="sellingItems"
@@ -53,9 +70,39 @@
     </template>
     <template v-else #body>
       <UEmpty
+        v-if="hasCollection"
+        icon="hugeicons:package-open"
+        title="Nothing on This List Yet"
+        description="This collection has no artisans yet. Add a few caps, or pick another collection."
+        :actions="[
+          {
+            label: 'Pick Another Collection',
+            icon: 'hugeicons:settings-02',
+            onClick: () => (sidebarOpen = true),
+            ui: { label: 'block' },
+          },
+          {
+            label: 'Browse Makers',
+            icon: 'hugeicons:search-01',
+            color: 'neutral',
+            to: '/artisan/maker',
+            ui: { label: 'block' },
+          },
+        ]"
+      />
+      <UEmpty
+        v-else
         icon="hugeicons:collections-bookmark"
         title="Your Wishlist Awaits"
-        description="Pick a collection and we will turn it into a wishlist you can tweak and share."
+        description="Pick a collection, and we will turn it into a wishlist you can tweak and share."
+        :actions="[
+          {
+            label: 'Pick a Collection',
+            icon: 'hugeicons:settings-02',
+            onClick: () => (sidebarOpen = true),
+            ui: { label: 'block' },
+          },
+        ]"
       />
     </template>
   </UDashboardPanel>
@@ -130,6 +177,14 @@ watchEffect(() => {
   sellingItems.value =
     collections.value[tradingCfg.value.selling.collection] || []
 })
+
+// Shown once the wishlist has items, until dismissed.
+const dragHintSeen = useCookie('wishlist-drag-hint-seen', {
+  default: () => false,
+  maxAge: 60 * 60 * 24 * 365,
+})
+
+const hasCollection = computed(() => !!tradingCfg.value.buying.collection)
 
 const totalItems = computed(
   () => buyingItems.value.length + sellingItems.value.length,

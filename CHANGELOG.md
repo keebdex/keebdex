@@ -32,3 +32,4 @@
 - Copied and downloaded images (wishlists, colorway cards, artisan trading cards, keyboard cards) now have the same size on every device instead of following the screen width, are sharper on high-resolution screens, and copy in Safari too.
 - The signed-out **Wishlist Image** and **My Collection** pages now show what you can do there before you sign in.
 - Wishlist settings no longer show an empty _Preferences_ section for buying lists.
+- Empty wishlists now explain what to do next, with a button that opens the settings for you, and a dismissible tip shows how to drag cards into a new order.

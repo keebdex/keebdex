@@ -44,6 +44,11 @@
       <UFormField
         :label="trading ? 'Want Collection' : 'Collection'"
         name="want_collection"
+        :help="
+          tradingConfig.buying.collection
+            ? undefined
+            : 'Start here: pick the collection to turn into a wishlist.'
+        "
       >
         <USelect
           v-model="tradingConfig.buying.collection"
