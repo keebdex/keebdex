@@ -9,7 +9,8 @@
 export interface NotificationPreferenceItem {
   key: string
   label: string
-  description: string
+  // Only when it adds something the label and group don't already say.
+  description?: string
 }
 
 export interface NotificationPreferenceGroup {
@@ -26,71 +27,36 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
   {
     id: 'submissions',
     label: 'Submissions',
-    description:
-      'Reviews of the artisan colorways, keyset kits, and keyboard variants you submit.',
+    description: 'Reviews of the colorways, kits, and variants you submit.',
     icon: 'hugeicons:file-verified',
     items: [
-      {
-        key: 'submission_approved',
-        label: 'Approved',
-        description: 'A moderator approves one of your submissions.',
-      },
+      { key: 'submission_approved', label: 'Approved' },
       {
         key: 'submission_rejected',
         label: 'Rejected',
-        description:
-          'A moderator rejects one of your submissions, with their note on what to change.',
+        description: "With the moderator's note.",
       },
       {
         key: 'submission_deleted',
         label: 'Deleted',
-        description:
-          'A moderator deletes one of your pending or rejected submissions, with their reason.',
+        description: "With the moderator's reason, if any.",
       },
     ],
   },
   {
     id: 'moderation',
     label: 'Moderation',
-    description: 'Submissions you have reviewed.',
+    description: 'Submissions you rejected that come back for review.',
     icon: 'hugeicons:user-shield-01',
     staffOnly: true,
-    items: [
-      {
-        key: 'submission_resubmitted',
-        label: 'Resubmitted',
-        description:
-          'A submission you rejected is edited and sent back for review.',
-      },
-    ],
+    items: [{ key: 'submission_resubmitted', label: 'Resubmitted' }],
   },
   {
     id: 'feedback',
     label: 'Feedback',
-    description: 'Follow-ups on the feedback you send us while signed in.',
+    description: 'Feedback you send while signed in, once we resolve it.',
     icon: 'hugeicons:message-question',
-    items: [
-      {
-        key: 'feedback_resolved',
-        label: 'Resolved',
-        description:
-          'We resolve your feedback, with a comment when there is something to add.',
-      },
-    ],
-  },
-  {
-    id: 'account',
-    label: 'Account',
-    description: 'Changes to your account made by an administrator.',
-    icon: 'hugeicons:user-circle-02',
-    items: [
-      {
-        key: 'account_role_changed',
-        label: 'Role and assignments',
-        description:
-          'An administrator changes your role or the pages you manage.',
-      },
-    ],
+    items: [{ key: 'feedback_resolved', label: 'Resolved' }],
   },
 ]
 

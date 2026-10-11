@@ -6,13 +6,30 @@
     />
 
     <section v-for="group in groups" :key="group.id" class="space-y-3">
-      <UPageFeature
-        :icon="group.icon"
-        :title="group.label"
-        :description="group.description"
-      />
+      <!-- A group with a single preference puts its switch in the header;
+           the group title and description serve as its label. The end
+           margin matches the card padding so every switch lines up. -->
+      <div class="flex items-start justify-between gap-4">
+        <UPageFeature
+          :icon="group.icon"
+          :title="group.label"
+          :description="group.description"
+        />
+
+        <USwitch
+          v-if="group.items.length === 1"
+          :model-value="preferences?.[group.items[0]!.key] ?? true"
+          :aria-label="`${group.label} ${group.items[0]!.label.toLowerCase()} notifications`"
+          :disabled="!preferences"
+          class="shrink-0 mt-0.5 me-3 sm:me-4"
+          @update:model-value="
+            (enabled) => save({ [group.items[0]!.key]: !!enabled })
+          "
+        />
+      </div>
 
       <UPageCard
+        v-if="group.items.length > 1"
         variant="subtle"
         :ui="{ container: 'divide-y divide-default' }"
       >
