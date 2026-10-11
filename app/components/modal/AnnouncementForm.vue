@@ -269,15 +269,9 @@ const preview = computed(() => ({
 
 // Adding the same id again updates a preview that is still open.
 const previewToast = () => {
-  toast.add({
-    ...announcementToast(
-      { ...preview.value, key: PREVIEW_TOAST_ID },
-      () => {},
-    ),
-    // A preview must not stay on screen like the real one.
-    duration: 8000,
-    close: true,
-  })
+  toast.add(
+    announcementToast({ ...preview.value, key: PREVIEW_TOAST_ID }, () => {}),
+  )
 }
 
 const saving = ref(false)

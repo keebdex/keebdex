@@ -239,15 +239,12 @@ const formatDateTime = (iso: string) =>
   })
 
 const previewToast = (announcement: Announcement) => {
-  toast.add({
-    ...announcementToast(
+  toast.add(
+    announcementToast(
       { ...announcement, key: `preview-${announcement.key}` },
       () => {},
     ),
-    // A preview must not stay on screen like the real one.
-    duration: 8000,
-    close: true,
-  })
+  )
 }
 
 const editorOpen = ref(false)

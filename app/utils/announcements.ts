@@ -88,9 +88,11 @@ export const announcementLink = (url: string) =>
   isExternalUrl(url) ? { to: url, target: '_blank' } : { to: url }
 
 /**
- * The toast of an announcement: no close button and no timeout, so it
- * stays until the CTA or Dismiss is clicked. The key is the toast id, so the
- * same announcement is never shown twice.
+ * The toast of an announcement. It hides after the toaster's default duration
+ * so it never gets in the way, and comes back on the next page load until the
+ * CTA or Dismiss is clicked (which records the dismissal). No close button:
+ * closing would look like dismissing without being one. The key is the toast
+ * id, so the same announcement is never shown twice.
  */
 export const announcementToast = (
   announcement: Pick<
@@ -104,7 +106,6 @@ export const announcementToast = (
   description: announcement.description || undefined,
   icon: announcement.icon || ANNOUNCEMENT_DEFAULT_ICON,
   color: announcement.color,
-  duration: 0,
   close: false,
   actions: [
     ...(announcement.cta_label && announcement.cta_url
@@ -127,14 +128,13 @@ export const announcementToast = (
   ],
 })
 
-/** The fourth toast when more announcements wait than fit. */
+/** The fourth toast when more announcements wait than fit; hides like them. */
 export const announcementSummaryToast = (count: number, to: string) => ({
   id: ANNOUNCEMENT_SUMMARY_TOAST_ID,
   title: `+${count} more ${count === 1 ? 'update' : 'updates'}`,
   description: 'See every announcement in one place.',
   icon: 'hugeicons:megaphone-01',
   color: 'neutral' as const,
-  duration: 0,
   actions: [
     {
       label: 'View All',
