@@ -34,7 +34,7 @@ const optionalText = (max: number, message?: string) =>
 
 const dateTimeSchema = z.iso.datetime({
   offset: true,
-  error: 'Pick a valid date and time.',
+  error: 'Pick a valid date.',
 })
 
 /** Columns an admin writes; no cross-field checks (see `announcementSchema`). */
@@ -101,7 +101,7 @@ const checkAnnouncement = (
     ctx.addIssue({
       code: 'custom',
       path: ['ends_at'],
-      message: 'The end must be after the start.',
+      message: "The last day can't be before the start.",
     })
   }
 }

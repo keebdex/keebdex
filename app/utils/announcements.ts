@@ -63,8 +63,7 @@ export const ANNOUNCEMENT_AUDIENCE_LABELS: Record<
 /** Highest priority first, then the newest. */
 export const sortAnnouncements = (items: Announcement[]) =>
   [...items].sort(
-    (a, b) =>
-      b.priority - a.priority || b.starts_at.localeCompare(a.starts_at),
+    (a, b) => b.priority - a.priority || b.starts_at.localeCompare(a.starts_at),
   )
 
 export type AnnouncementStatus = 'scheduled' | 'live' | 'ended'
@@ -80,6 +79,17 @@ export const announcementStatus = (
 
   return 'live'
 }
+
+/**
+ * The last day an announcement shows. Admins pick an inclusive last day, stored
+ * as the start of the next day (`ends_at` is exclusive), so a midnight end
+ * belongs to the day before.
+ */
+export const announcementLastDay = (endsAt: string) =>
+  new Date(new Date(endsAt).getTime() - 1)
+
+export const formatAnnouncementDay = (date: Date) =>
+  date.toLocaleDateString(undefined, { dateStyle: 'medium' })
 
 export const isExternalUrl = (url: string) => url.startsWith('https://')
 

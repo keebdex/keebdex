@@ -89,6 +89,16 @@ export default defineAppConfig({
         body: '!pt-0',
         footer: 'justify-end',
       },
+      variants: {
+        // The width lives in this variant, not the content slot; the rest of
+        // the classes repeat the Nuxt UI default (max-w-lg there).
+        fullscreen: {
+          false: {
+            content:
+              'w-[calc(100vw-2rem)] max-w-xl rounded-lg shadow-lg ring ring-default',
+          },
+        },
+      },
     },
     radioGroup: {
       slots: {

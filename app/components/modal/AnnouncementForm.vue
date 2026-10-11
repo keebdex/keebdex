@@ -103,13 +103,54 @@
         label="Starts"
         name="starts_at"
         required
-        help="A future time schedules it."
+        help="A future date schedules it."
       >
-        <UInput v-model="form.starts_at" type="datetime-local" class="w-full" />
+        <UPopover>
+          <UButton
+            icon="hugeicons:calendar-03"
+            color="neutral"
+            variant="outline"
+            class="w-full"
+          >
+            {{ startsOn ? formatDay(startsOn) : 'Pick a date' }}
+          </UButton>
+
+          <template #content>
+            <UCalendar v-model="startsOn" />
+          </template>
+        </UPopover>
       </UFormField>
 
-      <UFormField label="Ends" name="ends_at" help="Empty keeps it live.">
-        <UInput v-model="form.ends_at" type="datetime-local" class="w-full" />
+      <UFormField
+        label="Ends"
+        name="ends_at"
+        help="The last day it shows. Empty keeps it live."
+      >
+        <UFieldGroup class="w-full">
+          <UPopover>
+            <UButton
+              icon="hugeicons:calendar-03"
+              color="neutral"
+              variant="outline"
+              class="flex-1"
+            >
+              {{ endsOn ? formatDay(endsOn) : 'No end' }}
+            </UButton>
+
+            <template #content>
+              <UCalendar v-model="endsOn" :min-value="startsOn" />
+            </template>
+          </UPopover>
+
+          <UButton
+            v-if="endsOn"
+            icon="hugeicons:cancel-01"
+            color="neutral"
+            variant="outline"
+            aria-label="Clear end date"
+            @click="endsOn = undefined"
+          />
+        </UFieldGroup>
       </UFormField>
     </div>
 
@@ -149,6 +190,13 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui'
 import {
+  type DateValue,
+  fromDate,
+  getLocalTimeZone,
+  toCalendarDate,
+  today,
+} from '@internationalized/date'
+import {
   ANNOUNCEMENT_AUDIENCES,
   ANNOUNCEMENT_COLORS,
   announcementPatchSchema,
@@ -182,25 +230,49 @@ const audienceOptions = ANNOUNCEMENT_AUDIENCES.map((value) => ({
   value,
 }))
 
-// `datetime-local` works in the admin's local time without a zone.
-const toLocalInput = (iso?: string | null) => {
-  if (!iso) return ''
+// The schedule is picked by day in the admin's time zone: an announcement
+// starts at the start of its first day and ends after its last day.
+const timeZone = getLocalTimeZone()
 
-  const date = new Date(iso)
-  const pad = (n: number) => String(n).padStart(2, '0')
+const toDay = (date: Date) => toCalendarDate(fromDate(date, timeZone))
 
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
-}
-
-const toIso = (local: string) => {
-  if (!local) return null
-
-  const date = new Date(local)
-
-  return Number.isNaN(date.getTime()) ? local : date.toISOString()
-}
+const formatDay = (day: DateValue) =>
+  formatAnnouncementDay(toCalendarDate(day).toDate(timeZone))
 
 const source = props.announcement
+
+const sourceStart = source ? toDay(new Date(source.starts_at)) : undefined
+const sourceEnd = source?.ends_at
+  ? toDay(announcementLastDay(source.ends_at))
+  : undefined
+
+// An unchanged day keeps the stored time (e.g. the moment it was unpublished).
+const startIso = (value?: DateValue) => {
+  if (!value) return null
+
+  const day = toCalendarDate(value)
+
+  if (sourceStart && day.compare(sourceStart) === 0) return source!.starts_at
+
+  return day.toDate(timeZone).toISOString()
+}
+
+const endIso = (value?: DateValue) => {
+  if (!value) return null
+
+  const day = toCalendarDate(value)
+
+  if (sourceEnd && day.compare(sourceEnd) === 0) return source!.ends_at
+
+  return day.add({ days: 1 }).toDate(timeZone).toISOString()
+}
+
+// Kept out of the reactive form: reactive() unwraps the date classes into
+// plain types that lose their private fields.
+const startsOn = shallowRef<DateValue | undefined>(
+  sourceStart || today(timeZone),
+)
+const endsOn = shallowRef<DateValue | undefined>(sourceEnd)
 
 const form = reactive({
   key: source?.key || '',
@@ -213,8 +285,6 @@ const form = reactive({
   show_toast: source?.show_toast ?? true,
   audience: (source?.audience || 'all') as AnnouncementAudience,
   priority: source?.priority ?? 0,
-  starts_at: toLocalInput(source?.starts_at || new Date().toISOString()),
-  ends_at: toLocalInput(source?.ends_at),
 })
 
 // New announcements take their key from the title until it is typed in.
@@ -235,8 +305,8 @@ const toPayload = () => {
   const { key, ...fields } = form
   const body = {
     ...fields,
-    starts_at: toIso(form.starts_at),
-    ends_at: toIso(form.ends_at),
+    starts_at: startIso(startsOn.value),
+    ends_at: endIso(endsOn.value),
   }
 
   return isEdit.value ? body : { key, ...body }
@@ -264,7 +334,7 @@ const preview = computed(() => ({
   color: form.color,
   cta_label: form.cta_label.trim() || null,
   cta_url: form.cta_url.trim() || null,
-  starts_at: toIso(form.starts_at) || new Date().toISOString(),
+  starts_at: startIso(startsOn.value) || new Date().toISOString(),
 }))
 
 // Adding the same id again updates a preview that is still open.

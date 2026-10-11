@@ -22,9 +22,9 @@
         :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
       >
         <template #header>
-          Announcements show as toasts when the site opens (top three by priority)
-          and in the Announcements tab of Notifications. Changes apply on the
-          next page load, without a deploy.
+          Announcements show as toasts when the site opens (top three by
+          priority) and in the Announcements tab of Notifications. Changes apply
+          on the next page load, without a deploy.
         </template>
 
         <UTable
@@ -78,11 +78,13 @@
 
           <template #schedule-cell="{ row }">
             <div class="text-sm whitespace-nowrap">
-              <p>{{ formatDateTime(row.original.starts_at) }}</p>
+              <p>
+                {{ formatAnnouncementDay(new Date(row.original.starts_at)) }}
+              </p>
               <p class="text-dimmed">
                 {{
                   row.original.ends_at
-                    ? `until ${formatDateTime(row.original.ends_at)}`
+                    ? `until ${formatAnnouncementDay(announcementLastDay(row.original.ends_at))}`
                     : 'No end'
                 }}
               </p>
@@ -123,7 +125,12 @@
                   color="warning"
                   size="sm"
                   aria-label="Unpublish announcement"
-                  @click="confirmTarget = { action: 'unpublish', announcement: row.original }"
+                  @click="
+                    confirmTarget = {
+                      action: 'unpublish',
+                      announcement: row.original,
+                    }
+                  "
                 />
               </UTooltip>
 
@@ -134,7 +141,12 @@
                   color="error"
                   size="sm"
                   aria-label="Delete announcement"
-                  @click="confirmTarget = { action: 'delete', announcement: row.original }"
+                  @click="
+                    confirmTarget = {
+                      action: 'delete',
+                      announcement: row.original,
+                    }
+                  "
                 />
               </UTooltip>
             </div>
@@ -161,7 +173,6 @@
       <UModal
         v-model:open="editorOpen"
         :title="editing ? 'Edit Announcement' : 'New Announcement'"
-        :ui="{ content: 'sm:max-w-2xl' }"
       >
         <template #body>
           <ModalAnnouncementForm
@@ -231,12 +242,6 @@ const columns = [
   { id: 'schedule', header: 'Schedule' },
   { id: 'action' },
 ]
-
-const formatDateTime = (iso: string) =>
-  new Date(iso).toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
 
 const previewToast = (announcement: Announcement) => {
   toast.add(
@@ -316,7 +321,10 @@ const confirm = async () => {
       await $fetch(url, {
         method: 'post',
         body: scheduled
-          ? { starts_at: new Date(Date.now() - 1000).toISOString(), ends_at: nowIso }
+          ? {
+              starts_at: new Date(Date.now() - 1000).toISOString(),
+              ends_at: nowIso,
+            }
           : { ends_at: nowIso },
       })
       toast.add(
