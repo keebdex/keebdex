@@ -1,6 +1,6 @@
 <template>
   <ArtisanTCGCardFrame
-    :rarity="rarity"
+    :foil="foil"
     card-class="border-[12px] border-[#221508] bg-[linear-gradient(145deg,#d27d2d,#8b4513,#b85b14)] text-[#111]"
   >
     <!-- HEADER SECTION -->
@@ -85,9 +85,9 @@ const { colorway } = defineProps({
     type: Number,
     default: null,
   },
-  rarity: {
-    type: String,
-    default: null,
+  foil: {
+    type: Boolean,
+    default: true,
   },
 })
 

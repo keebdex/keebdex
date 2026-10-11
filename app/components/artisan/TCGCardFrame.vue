@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-[var(--card-height)] w-[var(--card-width)] select-none [perspective:1000px]"
+    class="group h-[var(--card-height)] w-[var(--card-width)] select-none [perspective:1000px]"
   >
     <div
       :class="[
@@ -8,15 +8,13 @@
         cardClass,
       ]"
     >
-      <!-- Foil Holo Layer -->
+      <!-- Foil Holo Layer: hidden on hover so the artwork can be seen clearly -->
       <div
         :class="[
-          'pointer-events-none absolute inset-0 z-[25] transition-opacity duration-300',
-          rarity === 'holo-active' &&
-            'animate-[holoShift_4s_linear_infinite] opacity-75 [background-size:250%_250%] [mix-blend-mode:color-dodge] [background-image:linear-gradient(115deg,transparent_20%,rgba(255,0,150,0.4)_35%,rgba(255,230,0,0.5)_45%,rgba(0,255,200,0.5)_55%,rgba(0,150,255,0.4)_65%,transparent_80%)]',
-          rarity === 'secret-rare-active' &&
-            'opacity-85 [mix-blend-mode:overlay] [background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.15)_0px,rgba(255,255,255,0.15)_2px,transparent_2px,transparent_4px),linear-gradient(135deg,rgba(255,0,0,0.4),rgba(0,255,0,0.4),rgba(0,0,255,0.4))]',
-          !rarity && 'opacity-0',
+          'pointer-events-none absolute inset-0 z-[25] transition-opacity duration-300 group-hover:opacity-0',
+          foil
+            ? 'animate-[holoShift_8s_ease-in-out_infinite] bg-no-repeat opacity-75 [background-position:50%_50%] [background-size:250%_250%] motion-reduce:animate-none [mix-blend-mode:color-dodge] [background-image:linear-gradient(115deg,transparent_20%,rgba(255,0,150,0.4)_35%,rgba(255,230,0,0.5)_45%,rgba(0,255,200,0.5)_55%,rgba(0,150,255,0.4)_65%,transparent_80%)]'
+            : 'opacity-0',
         ]"
       />
 
@@ -30,10 +28,9 @@
 
 <script setup>
 defineProps({
-  // 'holo-active' | 'secret-rare-active' | null
-  rarity: {
-    type: String,
-    default: null,
+  foil: {
+    type: Boolean,
+    default: true,
   },
   // Theme-specific border/background/text color, e.g.
   // "border-[12px] border-[#221508] bg-[linear-gradient(...)] text-[#111]"
@@ -50,17 +47,16 @@ defineProps({
   --card-height: 550px;
 }
 
+/* One sweep across the card, then a rest with the band parked off the card
+   (no-repeat, positions past 0-100%) so the artwork stays clear. */
 @keyframes holoShift {
   0% {
-    background-position: 0% 0%;
+    background-position: -50% -50%;
   }
 
-  50% {
-    background-position: 100% 100%;
-  }
-
+  25%,
   100% {
-    background-position: 0% 0%;
+    background-position: 150% 150%;
   }
 }
 </style>

@@ -34,3 +34,4 @@
 - Copied and downloaded images (wishlists, colorway cards, artisan trading cards, keyboard cards) now have the same size on every device instead of following the screen width, are sharper on high-resolution screens, and copy in Safari too.
 - The wishlist builder now guides first steps: empty wishlists point you to the settings, a tip shows how to reorder cards, and buying lists no longer show an empty _Preferences_ section.
 - The signed-out **Wishlist Image** and **My Collection** pages now show what you can do there before you sign in.
+- **Colorway cards** now all share one holographic foil that sweeps across the card and then rests, so the artwork stays clear between sweeps; hover the card to hide the foil entirely. It stays still when your device asks for reduced motion.

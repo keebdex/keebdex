@@ -5,14 +5,14 @@
       ref="tradingCard"
       :colorway="colorway"
       :stars="classify.stars"
-      :rarity="displayRarity"
+      :foil="!copying"
     />
     <ArtisanPokemonCard
       v-if="cardType === 'pokemon'"
       ref="tradingCard"
       :colorway="colorway"
       :stars="classify.stars"
-      :rarity="displayRarity"
+      :foil="!copying"
     />
 
     <template #footer>
@@ -60,35 +60,17 @@ const starTiers = [
   { min: 0, stars: 12, label: 'Ultra Rare' },
 ]
 
-const rarityTiers = [
-  { min: 15, rarity: '', label: 'Normal' },
-  { min: 6, rarity: 'holo-active', label: 'Holographic Foil' },
-  { min: 0, rarity: 'secret-rare-active', label: 'Secret Rare' },
-]
-
 function quantityToStars(qty) {
   return starTiers.find((t) => qty >= t.min)?.stars ?? null
 }
 
-function quantityToRarity(qty) {
-  return rarityTiers.find((t) => qty >= t.min)?.rarity ?? null
-}
-
-const classify = computed(() => {
-  const qty = colorway.qty || 50
-  return {
-    stars: quantityToStars(qty),
-    rarity: quantityToRarity(qty),
-  }
-})
+const classify = computed(() => ({
+  stars: quantityToStars(colorway.qty || 50),
+}))
 
 const copying = ref(false)
 
-// Display the rarity class only when not copying, to ensure the screenshot is clear.
-const displayRarity = computed(() =>
-  copying.value ? '' : classify.value.rarity,
-)
-
+// The foil is hidden while copying, to ensure the screenshot is clear.
 const tradingCard = useTemplateRef('tradingCard')
 
 // The trading card has a fixed size, so it is captured in place, without the
