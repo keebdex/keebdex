@@ -412,6 +412,38 @@ onMounted(() => {
     })
   }
 
+  const seenMobileWishlist = persistentLocal('seen-mobile-wishlist')
+
+  // Announce that the Wishlist Image builder now works on phones.
+  if (seenMobileWishlist.value !== 'acknowledged') {
+    toast.add({
+      title: 'New: Wishlists on Your Phone',
+      description:
+        'Build your wishlist image on the go, then save it or share it straight to Discord, Reddit, or the group chat.',
+      icon: 'hugeicons:smart-phone-01',
+      color: 'primary',
+      duration: 0,
+      close: false,
+      actions: [
+        {
+          label: 'Try It',
+          to: '/artisan/wishlist',
+          trailingIcon: 'hugeicons:arrow-right-02',
+          onClick: () => acknowledge(seenMobileWishlist),
+          ui: {
+            label: 'block',
+          },
+        },
+        {
+          label: 'Dismiss',
+          color: 'neutral',
+          variant: 'ghost',
+          onClick: () => acknowledge(seenMobileWishlist),
+        },
+      ],
+    })
+  }
+
   const seenCollectionGuide = persistentLocal('seen-collection-guide')
 
   // Point new users to the collection walkthrough video until acknowledged.

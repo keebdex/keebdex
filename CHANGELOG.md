@@ -8,8 +8,8 @@
 - Feedback sent while signed in no longer asks for your name and email.
 - **Notification settings** in Account Settings let you choose what you are notified about.
 - Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.
-- The **Wishlist Image** builder now works on phones: edit in a two-column view (press and hold to drag). The image keeps the column count from your settings on every device.
-- A new **Save & Share** window gathers every way to share a wishlist: the image (with a preview) to copy or download, and the trading list as text, shown before you copy it, in Discord/Reddit formatting or plain text. On phones, _Share Image_ also opens your phone's share sheet.
+- The **Wishlist Image** builder now works on phones: edit in a two-column view (press and hold to drag), and the image keeps the column count from your settings on every device.
+- A new **Save & Share** window previews your wishlist image to copy, download, or share from your phone, and shows the trading list as text, in Discord/Reddit formatting or plain text, ready to copy.
 
 ### 🐛 Bug Fixes
 
@@ -31,6 +31,5 @@
 - The _Save_ button is now available to every signed-in user, with a _New Collection_ option (its category fixed to the item's) to start a collection right from the item.
 - Dark logos now invert reliably in dark mode, including when the color mode follows the system setting.
 - Copied and downloaded images (wishlists, colorway cards, artisan trading cards, keyboard cards) now have the same size on every device instead of following the screen width, are sharper on high-resolution screens, and copy in Safari too.
+- The wishlist builder now guides first steps: empty wishlists point you to the settings, a tip shows how to reorder cards, and buying lists no longer show an empty _Preferences_ section.
 - The signed-out **Wishlist Image** and **My Collection** pages now show what you can do there before you sign in.
-- Wishlist settings no longer show an empty _Preferences_ section for buying lists.
-- Empty wishlists now explain what to do next, with a button that opens the settings for you, and a dismissible tip shows how to drag cards into a new order.
