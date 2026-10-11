@@ -45,7 +45,6 @@
       :key="item.id"
       :item="item"
       :buying="buying"
-      eager
     />
   </div>
 </template>

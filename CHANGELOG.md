@@ -8,7 +8,8 @@
 - Feedback sent while signed in no longer asks for your name and email.
 - **Notification settings** in Account Settings let you choose what you are notified about.
 - Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.
-- The **Wishlist Image** builder now works on phones: edit in a two-column view (press and hold to drag), then _Export Image_ to preview the picture and share, save, or copy it. The image keeps the column count from your settings on every device.
+- The **Wishlist Image** builder now works on phones: edit in a two-column view (press and hold to drag). The image keeps the column count from your settings on every device.
+- A new **Share** window gathers every way to share a wishlist: the image (with a preview), and the trading list as text, shown before you copy it, in Discord/Reddit formatting or plain text. On phones, a single _Share Image_ button opens your phone's share sheet; on desktop, _Copy Image_ and _Download_ stay one click away.
 
 ### 🐛 Bug Fixes
 
@@ -28,4 +29,4 @@
 - **Keyset pages** now read like a catalog entry: a fixed cover instead of an autoplay carousel, set details kept apart from group buy history, Geekhack / Order Graph / Order History icon links beside the title, a grid of kits you can click to enlarge, a full-width color palette, and a _Save_ button. Each kit card shows its group buy price beside the name and its unit count below it, and sets without a usable cover image spread their details across the page instead.
 - The _Save_ button is now available to every signed-in user, with a _New Collection_ option (its category fixed to the item's) to start a collection right from the item.
 - Dark logos now invert reliably in dark mode, including when the color mode follows the system setting.
-- Wishlist images no longer shrink with a narrow window, and _Copy Image_ now also works in Safari.
+- Copied and downloaded images (wishlists, colorway cards, artisan trading cards, keyboard cards) now have the same size on every device instead of following the screen width, are sharper on high-resolution screens, and copy in Safari too.

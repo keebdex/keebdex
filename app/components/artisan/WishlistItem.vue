@@ -17,7 +17,7 @@
   >
     <div class="relative aspect-square overflow-hidden">
       <NuxtImg
-        :loading="eager ? 'eager' : 'lazy'"
+        loading="lazy"
         :alt="item.artisan.name"
         :src="item.artisan.img"
         class="w-full h-full object-cover rounded"
@@ -72,8 +72,6 @@ const { item, buying } = defineProps({
   buying: Boolean,
   // Smaller text and icons for the two-column editor on phones.
   compact: Boolean,
-  // The export sheet is rendered offscreen, where lazy images never load.
-  eager: Boolean,
 })
 
 const highlighted = computed(() => buying && !!item.priority)
