@@ -59,9 +59,12 @@
   </UDashboardPanel>
   <SharedProtectedPage
     v-else
-    icon="hugeicons:collections-bookmark"
-    :title="meta.title"
-    :description="meta.description"
+    icon="hugeicons:archive-02"
+    title="Your Keeb Shelf Awaits"
+    description="Artisans, keysets, and keyboards: track every piece you own, hunt, or want to let go, all in one shelf."
+    :features="signedOutFeatures"
+    :nav-title="meta.title"
+    sign-in-label="Sign In to Start Collecting"
   />
 </template>
 
@@ -75,6 +78,27 @@ const meta = {
 }
 
 useSeoMeta(meta)
+
+const signedOutFeatures = [
+  {
+    icon: 'hugeicons:folder-library',
+    title: 'Shelves for Everything',
+    description:
+      'Sort your artisans, keysets, and keyboards into as many collections as you like.',
+  },
+  {
+    icon: 'hugeicons:target-02',
+    title: 'Keep, Hunt, or Let Go',
+    description:
+      'Mark artisan collections as keepers, grails you want, or caps up for sale or trade.',
+  },
+  {
+    icon: 'hugeicons:store-01',
+    title: 'Trade Without the Spreadsheet',
+    description:
+      'Publish your want and sell lists to the Trading Hub, or turn them into a wishlist image in a few clicks.',
+  },
+]
 
 const userStore = useUserStore()
 const { authenticated, user, collections } = storeToRefs(userStore)

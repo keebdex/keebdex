@@ -3,22 +3,13 @@
     <template #header>
       <UDashboardNavbar title="Wishlist Preview" :toggle="false">
         <template #right>
-          <template v-if="totalItems">
-            <template v-if="!isMobile">
-              <UButton icon="hugeicons:album-01" @click="copyImage">
-                Copy Image
-              </UButton>
-              <UButton
-                icon="hugeicons:image-download-02"
-                @click="downloadImage"
-              >
-                Download
-              </UButton>
-            </template>
-            <UButton icon="hugeicons:share-08" @click="shareOpen = true">
-              Share
-            </UButton>
-          </template>
+          <UButton
+            v-if="totalItems"
+            icon="hugeicons:image-download-02"
+            @click="shareOpen = true"
+          >
+            Save & Share
+          </UButton>
 
           <UButton
             v-if="isMobile"
@@ -70,9 +61,12 @@
   </UDashboardPanel>
   <SharedProtectedPage
     v-else
-    icon="hugeicons:creative-market"
-    title="Wishlist Image Builder"
-    description="Quickly generate visual wishlists for buying & selling. Share on Discord, social media, and more."
+    icon="hugeicons:magic-wand-01"
+    title="Flex Your Wishlist"
+    nav-title="Wishlist Image"
+    description="Turn your artisan collections into a slick WTB, WTS, or trade image in seconds, ready to drop in Discord, Reddit, or the group chat."
+    :features="signedOutFeatures"
+    sign-in-label="Sign In to Start Building"
   />
 </template>
 
@@ -81,7 +75,28 @@ import groupBy from 'lodash.groupby'
 import sortBy from 'lodash.sortby'
 
 const { isMobile } = useDevice()
-const toast = useToast()
+
+const signedOutFeatures = [
+  {
+    icon: 'hugeicons:drag-drop',
+    title: 'Drag, Drop, Done',
+    description:
+      'Line up your caps, flag your grails, and mark the ones you already found.',
+  },
+  {
+    icon: 'hugeicons:image-composition',
+    title: 'Crisp on Every Screen',
+    description:
+      'The same sharp grid from your phone or desktop. Download it, copy it, or share it in a tap.',
+  },
+  {
+    icon: 'hugeicons:left-to-right-list-bullet',
+    title: 'Text for the Threads',
+    description:
+      'Prefer words? Grab a ready-to-paste list for Discord and Reddit, or plain text for everywhere else.',
+  },
+]
+
 const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
@@ -143,17 +158,6 @@ const snapshot = useTemplateRef('snapshot')
 const filename = computed(() => `wishlist-${tradingCfg.value.type}`)
 
 const capture = () => snapshot.value.capture()
-
-// The capture promise goes straight into the clipboard write (Safari).
-const copyImage = () => copyBlob(capture(), toast)
-
-const downloadImage = async () => {
-  try {
-    downloadBlob(await capture(), filename.value)
-  } catch (error) {
-    toast.add(errorToast(error))
-  }
-}
 
 const shareOpen = ref(false)
 

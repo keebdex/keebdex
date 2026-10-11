@@ -1,8 +1,9 @@
 <template>
   <UModal
     v-model:open="open"
-    title="Share Wishlist"
-    description="Share your wishlist as an image, or copy it as text for Discord and Reddit."
+    title="Save & Share"
+    description="Download or copy your wishlist image, or copy it as text for Discord and Reddit."
+    :ui="{ content: 'sm:max-w-3xl' }"
   >
     <template #body>
       <UTabs v-model="tab" :items="tabs" :ui="{ content: 'pt-4' }">
@@ -10,7 +11,7 @@
           <div class="space-y-4">
             <div
               v-if="imageUrl"
-              class="max-h-[55vh] overflow-auto rounded-md border border-default"
+              class="max-h-[60vh] overflow-auto rounded-md border border-default"
             >
               <img :src="imageUrl" alt="Wishlist image" class="w-full" >
             </div>
@@ -32,7 +33,7 @@
             >
               Share Image
             </UButton>
-            <div v-else class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2">
               <UButton
                 block
                 icon="hugeicons:album-01"
@@ -59,15 +60,9 @@
             <URadioGroup
               v-model="format"
               :items="formats"
-              v-bind="
-                isMobile
-                  ? {}
-                  : {
-                      orientation: 'horizontal',
-                      variant: 'table',
-                      ui: { fieldset: 'w-full', item: 'flex-1' },
-                    }
-              "
+              variant="table"
+              :orientation="isMobile ? 'vertical' : 'horizontal'"
+              :ui="{ fieldset: 'w-full', item: 'flex-1' }"
             />
 
             <UTextarea
@@ -149,8 +144,7 @@ const format = useCookie('wishlist-text-format', { default: () => 'markdown' })
 
 const text = computed(() => wishlistText(sections, format.value))
 
-// On phones the share sheet already offers Save Image and Copy, so Share is
-// the only image action there; elsewhere Copy and Save stay.
+// Phones with Web Share get Share Image above Copy Image and Download.
 const shareImageSupported = ref(false)
 const shareTextSupported = ref(false)
 
