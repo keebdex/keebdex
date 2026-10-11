@@ -217,23 +217,17 @@ const capture = () => snapshot.value.capture()
 const shareOpen = ref(false)
 
 const textSections = computed(() => {
-  const { type, buying, selling } = tradingCfg.value
+  const titles = wishlistSectionTitles(tradingCfg.value)
   const sections = [
     {
-      title:
-        buying.title ||
-        (type === 'selling' ? selling.placeholder : buying.placeholder),
+      title: titles.buying,
       items: buyingItems.value,
-      buying: type !== 'selling',
+      buying: tradingCfg.value.type !== 'selling',
     },
   ]
 
   if (trading.value) {
-    sections.push({
-      title: selling.title || selling.placeholder,
-      items: sellingItems.value,
-      buying: false,
-    })
+    sections.push({ title: titles.selling, items: sellingItems.value })
   }
 
   return sections

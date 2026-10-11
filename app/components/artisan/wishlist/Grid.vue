@@ -3,7 +3,7 @@
     v-if="editable"
     :list="data"
     item-key="id"
-    group="group"
+    :group="buying ? 'wishlist-want' : 'wishlist-have'"
     class="grid"
     :class="compact ? 'gap-3' : 'gap-4'"
     :style="gridStyle"
@@ -65,8 +65,8 @@ const { data, editable, compact } = defineProps({
   editable: Boolean,
   // Two columns on phones; the exported image keeps the configured columns.
   compact: Boolean,
+  // Want items (priority flag, "found" mark); each section drags on its own.
   buying: Boolean,
-  selling: Boolean,
 })
 
 const gridColumns = computed(() => {

@@ -13,6 +13,7 @@
 
 ### 🐛 Bug Fixes
 
+- Trading wishlists no longer let a card be dragged between the Want and Have lists, which left it impossible to remove.
 - Sidebar items no longer sometimes show another item's icon and color after loading the page signed in.
 - Keyset pages with no kits now still show the set's details instead of an empty page.
 - Paging past the last page of a keyset list now shows an empty page instead of a server error.

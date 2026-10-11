@@ -77,7 +77,7 @@
 
     <USeparator
       v-if="buyingItems.length"
-      :label="buyingTitle"
+      :label="titles.buying"
       :ui="{
         label: compact
           ? 'text-2xl font-bold text-info'
@@ -85,7 +85,7 @@
       }"
     />
 
-    <ArtisanWishlistCard
+    <ArtisanWishlistGrid
       :data="buyingItems"
       :editable="editable"
       :compact="compact"
@@ -96,7 +96,7 @@
 
     <USeparator
       v-if="sellingItems.length && trading"
-      :label="tradingCfg.selling.title || tradingCfg.selling.placeholder"
+      :label="titles.selling"
       :ui="{
         label: compact
           ? 'text-2xl font-bold text-warning'
@@ -104,12 +104,11 @@
       }"
     />
 
-    <ArtisanWishlistCard
+    <ArtisanWishlistGrid
       v-if="trading"
       :data="sellingItems"
       :editable="editable"
       :compact="compact"
-      selling
       @on-remove="$emit('remove', $event)"
     />
 
@@ -140,13 +139,7 @@ const { buyingItems, sellingItems, editable, compact } = defineProps({
 const tradingCfg = useTradingConfig()
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
-const buyingTitle = computed(
-  () =>
-    tradingCfg.value.buying.title ||
-    (tradingCfg.value.type === 'selling'
-      ? tradingCfg.value.selling.placeholder
-      : tradingCfg.value.buying.placeholder),
-)
+const titles = computed(() => wishlistSectionTitles(tradingCfg.value))
 
 const totalItems = computed(
   () => buyingItems.length + (trading.value ? sellingItems.length : 0),

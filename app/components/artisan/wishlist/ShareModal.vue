@@ -171,6 +171,9 @@ const renderImage = async () => {
 
   try {
     const blob = await capture()
+    // Closed while rendering: drop the result instead of leaking its URL.
+    if (!open.value) return
+
     imageBlob.value = blob
     imageUrl.value = URL.createObjectURL(blob)
   } catch (error) {
@@ -194,8 +197,12 @@ const shareImage = async () => {
 }
 
 const copyText = async () => {
-  await navigator.clipboard.writeText(text.value)
-  toast.add(noticeToast('copied'))
+  try {
+    await navigator.clipboard.writeText(text.value)
+    toast.add(noticeToast('copied'))
+  } catch (error) {
+    toast.add(errorToast(error))
+  }
 }
 
 const shareText = async () => {
