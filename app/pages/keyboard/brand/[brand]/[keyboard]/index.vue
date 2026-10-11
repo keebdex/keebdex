@@ -211,11 +211,13 @@
                 spotlight
                 :ui="{
                   root: 'h-full cursor-pointer flex flex-col',
-                  container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+                  container: imageCardContainerClass,
                 }"
               >
                 <NuxtImg
+                  preset="cover"
                   loading="lazy"
+                  decoding="async"
                   :alt="variant.variant_name"
                   :src="
                     variant.img_front || variant.img_back || '/keyboard.png'
@@ -233,7 +235,7 @@
 
                 <template #footer>
                   <div
-                    class="flex items-center justify-between gap-2"
+                    class="flex flex-wrap items-center justify-between gap-2"
                     @click.stop
                   >
                     <SharedSaveToCollection

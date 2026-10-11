@@ -117,6 +117,9 @@
                     variantRow.original.img_front ||
                     variantRow.original.img_back
                   "
+                  preset="thumb"
+                  loading="lazy"
+                  decoding="async"
                   :src="
                     variantRow.original.img_front ||
                     variantRow.original.img_back

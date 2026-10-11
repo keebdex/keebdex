@@ -60,7 +60,9 @@
           reverse
         >
           <NuxtImg
+            preset="cover"
             loading="lazy"
+            decoding="async"
             :alt="keyset.name"
             :src="keyset.img || '/keyset.png'"
             class="aspect-[16/9] w-full object-cover"

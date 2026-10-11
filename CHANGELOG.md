@@ -14,6 +14,7 @@
 
 ### 🐛 Bug Fixes
 
+- Colorway cards on narrow phones no longer stretch their photo past the card edge when they show several action buttons; the buttons wrap onto a second line instead.
 - Trading wishlists no longer let a card be dragged between the Want and Have lists, which left it impossible to remove.
 - Sidebar items no longer sometimes show another item's icon and color after loading the page signed in.
 - Keyset pages with no kits now still show the set's details instead of an empty page.
@@ -22,6 +23,7 @@
 
 ### 🚀 Improvements
 
+- Artisan, keyset, and keyboard grids now load images sized for your screen instead of full-size photos, so pages load faster and scroll more smoothly, especially on phones.
 - Error, success, and info colors now match each theme's palette instead of bright defaults.
 - Empty pages now show an icon and friendlier copy.
 - Artisan colorways in the search palette are now a single list with the closest name matches first, instead of nested groups by maker.

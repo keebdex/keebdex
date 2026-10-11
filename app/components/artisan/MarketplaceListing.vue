@@ -56,13 +56,15 @@
             :highlight="!!priority"
             :ui="{
               root: 'h-full flex flex-col',
-              container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+              container: imageCardContainerClass,
             }"
             variant="soft"
           >
             <div class="aspect-square overflow-hidden">
               <NuxtImg
+                preset="square"
                 loading="lazy"
+                decoding="async"
                 :alt="artisan.name"
                 :src="artisan.img"
                 class="w-full h-full object-cover rounded"

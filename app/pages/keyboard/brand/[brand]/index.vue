@@ -75,12 +75,14 @@
           spotlight
           :ui="{
             root: 'h-full flex flex-col',
-            container: 'h-full grid grid-rows-[auto_minmax(0,1fr)]',
+            container: imageCardContainerClass,
             description: 'line-clamp-3',
           }"
         >
           <NuxtImg
+            preset="cover"
             loading="lazy"
+            decoding="async"
             :alt="keyboard.name"
             :src="keyboard.cover_image || '/keyboard.png'"
             class="aspect-video w-full object-cover"

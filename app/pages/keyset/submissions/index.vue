@@ -57,6 +57,9 @@
           <template #img-cell="{ row }">
             <NuxtImg
               v-if="row.original.keyset?.img"
+              preset="thumb"
+              loading="lazy"
+              decoding="async"
               :src="row.original.keyset.img"
               :alt="row.original.keyset?.name"
               class="size-12 rounded object-cover"
@@ -114,6 +117,9 @@
               <template #img-cell="{ row: kitRow }">
                 <NuxtImg
                   v-if="kitRow.original.img || kitRow.original.keyset?.img"
+                  preset="thumb"
+                  loading="lazy"
+                  decoding="async"
                   :src="kitRow.original.img || kitRow.original.keyset?.img"
                   :alt="kitName(kitRow.original)"
                   class="size-10 rounded object-cover"

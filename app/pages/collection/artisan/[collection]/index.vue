@@ -103,7 +103,7 @@
         color="warning"
       />
 
-      <UPageGrid v-if="sortedCollections.length" :class="squareGridClass">
+      <UPageGrid v-if="sortedCollections.length" :class="artisanGridClass">
         <UPageCard
           v-for="{ artisan, ...rest } in sortedCollections"
           :key="rest.id"
@@ -113,12 +113,15 @@
           spotlight
           :highlight="rest.priority"
           :ui="{
+            container: imageCardContainerClass,
             wrapper: 'flex-1',
           }"
         >
           <div class="relative aspect-square overflow-hidden">
             <NuxtImg
+              preset="square"
               loading="lazy"
+              decoding="async"
               :alt="artisan.name"
               :src="artisan.img"
               class="h-full object-cover rounded"

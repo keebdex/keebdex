@@ -48,6 +48,53 @@ export default defineNuxtConfig({
     ],
   },
 
+  // NuxtImg resizes Cloudflare Images URLs (imagedelivery.net) through
+  // flexible variants wherever a preset or `sizes` applies; every other source,
+  // such as the 500x500 logos on R2 (img.keebdex.org), is returned as is.
+  // Preset sizes are the widest share of the viewport an image takes in each
+  // range, measured in the app. NuxtImg derives srcset widths from each
+  // range's lower breakpoint, so the grids add x3 to keep a candidate large
+  // enough for retina screens
+  image: {
+    // Default for every NuxtImg: presets cannot pick a provider (it is
+    // resolved before the preset is merged), and the provider leaves the
+    // sources it does not handle unchanged
+    provider: 'cloudflare',
+    providers: {
+      // Overrides @nuxt/image's built-in `cloudflare` provider, which targets
+      // Image Resizing (`/cdn-cgi/image/...`), not Cloudflare Images
+      cloudflare: { provider: '~/providers/cloudflare-images.ts' },
+    },
+    screens: {
+      'xs': 320,
+      'sm': 640,
+      'md': 768,
+      'lg': 1024,
+      'xl': 1280,
+      '2xl': 1536,
+      '3xl': 1792,
+      '4xl': 2048,
+    },
+    presets: {
+      // Artisan colorways in artisanGridClass: 2 / md 3 / lg 4 / 2xl 6 / 4xl 9
+      // columns
+      square: {
+        sizes: 'xs:42vw md:28vw lg:18vw 2xl:13vw 4xl:8vw',
+        densities: 'x1 x2 x3',
+      },
+      // Keyset and keyboard covers in UPageGrid: 1 / sm 2 / lg 3 / 2xl 4 /
+      // 3xl 6 columns
+      cover: {
+        sizes: 'xs:92vw sm:44vw lg:25vw 2xl:19vw 3xl:13vw',
+        densities: 'x1 x2 x3',
+      },
+      // Review queue thumbnails (size-10 / size-12)
+      thumb: {
+        sizes: '48px',
+      },
+    },
+  },
+
   // icon: {
   //   clientBundle: {
   //     icons: ['hugeicons', 'simple-icons', 'solar'],

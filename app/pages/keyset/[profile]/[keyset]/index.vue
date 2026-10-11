@@ -67,6 +67,8 @@
         <!-- Left: cover image -->
         <div v-if="showCover" class="lg:col-span-3 2xl:col-span-1">
           <NuxtImg
+            fetchpriority="high"
+            sizes="xs:96vw lg:48vw 2xl:44vw"
             :src="coverImg"
             :alt="fullName"
             class="w-full aspect-video rounded-lg border border-default object-cover cursor-zoom-in"
@@ -190,7 +192,9 @@
 
             <div class="relative">
               <NuxtImg
+                preset="cover"
                 loading="lazy"
+                decoding="async"
                 :src="kit.img || '/keyset.png'"
                 :alt="kitLabel(kit)"
                 class="w-full aspect-video object-cover rounded"

@@ -104,7 +104,9 @@
           class="mx-2 w-[300px] shrink-0 bg-elevated/60"
         >
           <NuxtImg
+            sizes="300px"
             loading="lazy"
+            decoding="async"
             :alt="`${keyset.profile.name} ${keyset.name}`"
             :src="keyset.img || '/keyset.png'"
             class="aspect-[16/9] w-full rounded-lg object-cover"

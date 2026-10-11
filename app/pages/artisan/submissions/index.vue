@@ -34,6 +34,9 @@
           <template #img-cell="{ row }">
             <NuxtImg
               v-if="row.original.img"
+              preset="thumb"
+              loading="lazy"
+              decoding="async"
               :src="row.original.img"
               :alt="row.original.name"
               class="size-12 rounded object-cover"
