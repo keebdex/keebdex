@@ -1,9 +1,12 @@
+import type { NotificationColor } from '~/utils/notifications'
+
 /**
  * Notification preference registry, shared by the settings page and the
  * preferences API. Each key is checked by `push_notification(p_preference)`
  * in the database; a key that is not stored counts as on. To add a kind of
  * notification, add its key here (in an existing or new group) and pass it
- * to `push_notification()` from its trigger.
+ * to `push_notification()` from its trigger. `announcement_toasts` is the
+ * exception: `GET /api/announcements` reads it to skip homepage toasts.
  */
 
 export interface NotificationPreferenceItem {
@@ -11,6 +14,12 @@ export interface NotificationPreferenceItem {
   label: string
   // Only when it adds something the label and group don't already say.
   description?: string
+  // Shown next to the switch in groups with several items; matches the
+  // notification's own icon and color where there is one.
+  icon?: string
+  color?: NotificationColor
+  // Shown only to staff (moderators of some scope).
+  staffOnly?: boolean
 }
 
 export interface NotificationPreferenceGroup {
@@ -18,38 +27,54 @@ export interface NotificationPreferenceGroup {
   label: string
   description: string
   icon: string
-  // Shown only to staff (moderators of some scope).
-  staffOnly?: boolean
   items: NotificationPreferenceItem[]
 }
 
+// Site news first, then the user's own activity.
 export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
+  {
+    id: 'announcements',
+    label: 'Announcements',
+    description:
+      'News about Keebdex as toasts on the homepage. The Announcements tab always lists them.',
+    icon: 'hugeicons:megaphone-01',
+    items: [{ key: 'announcement_toasts', label: 'Homepage toasts' }],
+  },
   {
     id: 'submissions',
     label: 'Submissions',
     description: 'Reviews of the colorways, kits, and variants you submit.',
     icon: 'hugeicons:file-verified',
     items: [
-      { key: 'submission_approved', label: 'Approved' },
+      {
+        key: 'submission_approved',
+        label: 'Approved',
+        icon: 'hugeicons:checkmark-circle-02',
+        color: 'success',
+      },
       {
         key: 'submission_rejected',
         label: 'Rejected',
         description: "With the moderator's note.",
+        icon: 'hugeicons:cancel-circle',
+        color: 'error',
       },
       {
         key: 'submission_deleted',
         label: 'Deleted',
         description: "With the moderator's reason, if any.",
+        icon: 'hugeicons:delete-02',
+        color: 'warning',
+      },
+      {
+        key: 'submission_resubmitted',
+        label: 'Resubmitted',
+        description: 'Submissions you rejected come back for review.',
+        icon: 'hugeicons:arrow-reload-horizontal',
+        color: 'info',
+        staffOnly: true,
       },
     ],
-  },
-  {
-    id: 'moderation',
-    label: 'Moderation',
-    description: 'Submissions you rejected that come back for review.',
-    icon: 'hugeicons:user-shield-01',
-    staffOnly: true,
-    items: [{ key: 'submission_resubmitted', label: 'Resubmitted' }],
   },
   {
     id: 'feedback',

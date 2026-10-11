@@ -14,6 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_dismissals: {
+        Row: {
+          announcement_key: string
+          dismissed_at: string
+          user_id: string
+        }
+        Insert: {
+          announcement_key: string
+          dismissed_at?: string
+          user_id?: string
+        }
+        Update: {
+          announcement_key?: string
+          dismissed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_dismissals_announcement_key_fkey"
+            columns: ["announcement_key"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "announcement_dismissals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcements: {
+        Row: {
+          audience: string
+          color: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_url: string | null
+          description: string | null
+          ends_at: string | null
+          icon: string | null
+          key: string
+          priority: number
+          show_toast: boolean
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          description?: string | null
+          ends_at?: string | null
+          icon?: string | null
+          key: string
+          priority?: number
+          show_toast?: boolean
+          starts_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          description?: string | null
+          ends_at?: string | null
+          icon?: string | null
+          key?: string
+          priority?: number
+          show_toast?: boolean
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisan_colorways: {
         Row: {
           colorway_id: string
@@ -1054,6 +1149,29 @@ export type Database = {
           },
         ]
       }
+      notification_state: {
+        Row: {
+          announcements_seen_at: string | null
+          user_id: string
+        }
+        Insert: {
+          announcements_seen_at?: string | null
+          user_id?: string
+        }
+        Update: {
+          announcements_seen_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -1308,6 +1426,7 @@ export type Database = {
     }
     Functions: {
       can_manage: { Args: { scope: string }; Returns: boolean }
+      can_manage_any: { Args: never; Returns: boolean }
       child_submission_can_modify: {
         Args: {
           child_status: Database["public"]["Enums"]["review_status"]
@@ -1344,11 +1463,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      dismiss_announcement: { Args: { p_key: string }; Returns: undefined }
       is_official_review_status: {
         Args: { s: Database["public"]["Enums"]["review_status"] }
         Returns: boolean
       }
       mark_all_notifications_read: { Args: never; Returns: number }
+      mark_announcements_seen: { Args: never; Returns: string }
+      merge_dismissals: { Args: { p_keys: string[] }; Returns: number }
       push_notification: {
         Args: {
           p_actor_id: string

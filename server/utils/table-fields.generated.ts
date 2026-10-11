@@ -8,6 +8,28 @@ type TableField<T extends PublicTable> = Extract<
 >
 
 export const TABLE_FIELDS = {
+  "announcement_dismissals": [
+    "announcement_key",
+    "dismissed_at",
+    "user_id"
+  ],
+  "announcements": [
+    "audience",
+    "color",
+    "created_at",
+    "created_by",
+    "cta_label",
+    "cta_url",
+    "description",
+    "ends_at",
+    "icon",
+    "key",
+    "priority",
+    "show_toast",
+    "starts_at",
+    "title",
+    "updated_at"
+  ],
   "artisan_colorways": [
     "colorway_id",
     "created_at",
@@ -248,6 +270,10 @@ export const TABLE_FIELDS = {
     "enabled",
     "preference",
     "updated_at",
+    "user_id"
+  ],
+  "notification_state": [
+    "announcements_seen_at",
     "user_id"
   ],
   "notifications": [

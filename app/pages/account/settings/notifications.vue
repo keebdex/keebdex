@@ -33,16 +33,27 @@
         variant="subtle"
         :ui="{ container: 'divide-y divide-default' }"
       >
-        <USwitch
+        <div
           v-for="item in group.items"
           :key="item.key"
-          :model-value="preferences?.[item.key] ?? true"
-          :label="item.label"
-          :description="item.description"
-          :disabled="!preferences"
-          class="flex-row-reverse justify-between gap-4 py-3 first:pt-0 last:pb-0"
-          @update:model-value="(enabled) => save({ [item.key]: !!enabled })"
-        />
+          class="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
+        >
+          <UIcon
+            v-if="item.icon"
+            :name="item.icon"
+            class="size-5 shrink-0"
+            :class="item.color && ICON_CLASSES[item.color]"
+          />
+
+          <USwitch
+            :model-value="preferences?.[item.key] ?? true"
+            :label="item.label"
+            :description="item.description"
+            :disabled="!preferences"
+            class="flex-1 flex-row-reverse justify-between gap-4"
+            @update:model-value="(enabled) => save({ [item.key]: !!enabled })"
+          />
+        </div>
       </UPageCard>
     </section>
   </div>
@@ -53,6 +64,7 @@ import {
   NOTIFICATION_PREFERENCE_GROUPS,
   type NotificationPreferences,
 } from '~/utils/notification-preferences'
+import type { NotificationColor } from '~/utils/notifications'
 
 definePageMeta({
   middleware: 'auth',
@@ -63,13 +75,23 @@ useSeoMeta({
 })
 
 const toast = useToast()
+
+// Tailwind needs the full class names, so they can't be built from the color.
+const ICON_CLASSES: Record<NotificationColor, string> = {
+  success: 'text-success',
+  error: 'text-error',
+  warning: 'text-warning',
+  info: 'text-info',
+}
 const { isModerator } = storeToRefs(useUserStore())
 
-// Staff-only groups (e.g. Moderation) are hidden from everyone else.
+// Staff-only items (e.g. Resubmitted) are hidden from everyone else, and so
+// is a group left without items.
 const groups = computed(() =>
-  NOTIFICATION_PREFERENCE_GROUPS.filter(
-    (group) => !group.staffOnly || isModerator.value,
-  ),
+  NOTIFICATION_PREFERENCE_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.staffOnly || isModerator.value),
+  })).filter((group) => group.items.length),
 )
 
 const { data } = useFetch<{ preferences: NotificationPreferences }>(

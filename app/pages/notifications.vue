@@ -20,6 +20,7 @@
 
         <template #right>
           <UButton
+            v-if="filter !== 'announcements'"
             label="Mark all as read"
             aria-label="Mark all as read"
             icon="hugeicons:check-check"
@@ -31,7 +32,43 @@
     </template>
 
     <template #body>
-      <div class="mx-auto w-full lg:max-w-3xl space-y-6">
+      <div
+        v-if="filter === 'announcements'"
+        class="mx-auto w-full lg:max-w-3xl"
+      >
+        <div
+          v-if="!announcementsLoaded"
+          class="flex justify-center py-16 text-dimmed"
+        >
+          <UIcon
+            :name="appConfig.ui.icons.loading"
+            class="size-6 animate-spin"
+          />
+        </div>
+
+        <UEmpty
+          v-else-if="!announcementItems.length"
+          icon="hugeicons:megaphone-01"
+          title="No Announcements Right Now"
+          description="News about Keebdex shows up here when there is something to share."
+        />
+
+        <UPageCard
+          v-else
+          variant="subtle"
+          :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }"
+        >
+          <NotificationAnnouncementItem
+            v-for="announcement in announcementItems"
+            :key="announcement.key"
+            :announcement="announcement"
+            :is-new="isNewAnnouncement(announcement, seenBefore)"
+            @open="dismissAnnouncement(announcement.key)"
+          />
+        </UPageCard>
+      </div>
+
+      <div v-else class="mx-auto w-full lg:max-w-3xl space-y-6">
         <div
           v-if="!loaded && loading"
           class="flex justify-center py-16 text-dimmed"
@@ -138,10 +175,47 @@ const {
 
 const route = useRoute()
 
-// All / Unread live in the URL (`?filter=unread`) so the menu links work.
+// All / Unread / Announcements live in the URL (`?filter=unread`) so the
+// menu links work.
 const filter = computed(() =>
-  route.query.filter === 'unread' ? 'unread' : 'all',
+  route.query.filter === 'unread' || route.query.filter === 'announcements'
+    ? route.query.filter
+    : 'all',
 )
+
+// Announcements have their own tab, so personal notifications don't get lost
+// among them, and their own badge (published since the tab was last opened).
+const {
+  items: announcementItems,
+  loaded: announcementsLoaded,
+  seenAt: announcementsSeenAt,
+  unseen: unseenAnnouncements,
+  isNew: isNewAnnouncement,
+  load: loadAnnouncements,
+  dismiss: dismissAnnouncement,
+  markSeen: markAnnouncementsSeen,
+} = useAnnouncements()
+
+// The seen mark from before this visit to the tab, so what was new stays
+// highlighted while the tab is open.
+const seenBefore = ref<string | null>(null)
+
+const openAnnouncements = async () => {
+  if (!announcementsLoaded.value) await loadAnnouncements()
+
+  seenBefore.value = announcementsSeenAt.value
+
+  if (unseenAnnouncements.value) markAnnouncementsSeen()
+}
+
+onMounted(() => {
+  if (filter.value === 'announcements') openAnnouncements()
+  else loadAnnouncements()
+})
+
+watch(filter, (value) => {
+  if (value === 'announcements') openAnnouncements()
+})
 
 const links = computed(() => [
   {
@@ -157,6 +231,18 @@ const links = computed(() => [
       ? {
           label: String(unread.value),
           color: 'error' as const,
+          variant: 'subtle' as const,
+        }
+      : undefined,
+  },
+  {
+    label: 'Announcements',
+    to: { path: '/notifications', query: { filter: 'announcements' } },
+    active: filter.value === 'announcements',
+    badge: unseenAnnouncements.value
+      ? {
+          label: String(unseenAnnouncements.value),
+          color: 'primary' as const,
           variant: 'subtle' as const,
         }
       : undefined,

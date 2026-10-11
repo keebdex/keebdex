@@ -45,3 +45,25 @@
     </template>
   </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+const announcements = useAnnouncements()
+const cookieConsent = useCookieConsent()
+
+// Announcements show as toasts on the homepage only: added on arrival,
+// removed on leaving. The cookie consent goes last so it stays on top.
+let toastIds: string[] = []
+let left = false
+
+onMounted(async () => {
+  await announcements.load()
+
+  if (!left) toastIds = announcements.showToasts()
+  cookieConsent.show()
+})
+
+onBeforeUnmount(() => {
+  left = true
+  announcements.hideToasts(toastIds)
+})
+</script>
