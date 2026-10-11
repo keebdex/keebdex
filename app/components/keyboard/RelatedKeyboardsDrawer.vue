@@ -16,7 +16,7 @@
           reverse
         >
           <NuxtImg
-            sizes="xs:100vw sm:448px"
+            preset="cover"
             loading="lazy"
             decoding="async"
             :alt="keyboard.name"
