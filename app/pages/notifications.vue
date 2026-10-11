@@ -26,18 +26,6 @@
             size="xs"
             aria-label="Show"
           />
-
-          <UButton
-            label="Mark all as read"
-            aria-label="Mark all as read"
-            icon="hugeicons:check-check"
-            :disabled="tab === 'announcements' ? !unreadAnnouncements : !unread"
-            @click="
-              tab === 'announcements'
-                ? markAllAnnouncementsRead()
-                : markAllRead()
-            "
-          />
         </template>
       </UDashboardToolbar>
     </template>
@@ -70,23 +58,38 @@
               ? 'You have read every announcement.'
               : 'News about Keebdex shows up here when there is something to share.'
           "
+          :actions="unreadOnly ? showAllActions : undefined"
         />
 
         <template v-else>
           <section
-            v-for="group in announcementGroups"
+            v-for="(group, index) in announcementGroups"
             :key="group.label"
             :aria-labelledby="`announcements-${group.id}`"
-            class="space-y-1"
+            class="space-y-2"
           >
-            <h2
-              :id="`announcements-${group.id}`"
-              class="px-3 text-xs font-semibold uppercase tracking-wide text-dimmed"
-            >
-              {{ group.label }}
-            </h2>
+            <div class="flex items-center justify-between gap-2 px-3">
+              <h2
+                :id="`announcements-${group.id}`"
+                class="text-xs font-semibold uppercase tracking-wide text-dimmed"
+              >
+                {{ group.label }}
+              </h2>
 
-            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1' }">
+              <UButton
+                v-if="!index && currentUnread"
+                label="Mark all as read"
+                icon="hugeicons:check-check"
+                variant="link"
+                color="neutral"
+                size="xs"
+                class="-my-1 px-0"
+                :ui="{ label: 'block' }"
+                @click="markAllCurrentRead"
+              />
+            </div>
+
+            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }">
               <NotificationAnnouncementItem
                 v-for="announcement in group.items"
                 :key="announcement.key"
@@ -128,23 +131,38 @@
               ? 'You have read everything. Go type on something nice.'
               : 'Nothing here yet. We will ping you when something happens.'
           "
+          :actions="unreadOnly ? showAllActions : undefined"
         />
 
         <template v-else>
           <section
-            v-for="group in groups"
+            v-for="(group, index) in groups"
             :key="group.label"
             :aria-labelledby="`notifications-${group.id}`"
-            class="space-y-1"
+            class="space-y-2"
           >
-            <h2
-              :id="`notifications-${group.id}`"
-              class="px-3 text-xs font-semibold uppercase tracking-wide text-dimmed"
-            >
-              {{ group.label }}
-            </h2>
+            <div class="flex items-center justify-between gap-2 px-3">
+              <h2
+                :id="`notifications-${group.id}`"
+                class="text-xs font-semibold uppercase tracking-wide text-dimmed"
+              >
+                {{ group.label }}
+              </h2>
 
-            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1' }">
+              <UButton
+                v-if="!index && currentUnread"
+                label="Mark all as read"
+                icon="hugeicons:check-check"
+                variant="link"
+                color="neutral"
+                size="xs"
+                class="-my-1 px-0"
+                :ui="{ label: 'block' }"
+                @click="markAllCurrentRead"
+              />
+            </div>
+
+            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }">
               <NotificationItem
                 v-for="notification in group.items"
                 :key="notification.id"
@@ -208,9 +226,10 @@ const {
 const route = useRoute()
 const router = useRouter()
 
-// The tab (Notifications / Announcements) and the All / Unread filter live in
-// the URL (`?tab=announcements&filter=unread`) so links and reloads keep
-// them. `?filter=announcements` is the earlier link to the Announcements tab.
+// The tab (Notifications / Announcements) and the Unread / All filter live in
+// the URL (`?tab=announcements&filter=all`) so links and reloads keep them.
+// Unread is the default. `?filter=announcements` is the earlier link to the
+// Announcements tab.
 const tab = computed(() =>
   route.query.tab === 'announcements' ||
   route.query.filter === 'announcements'
@@ -218,16 +237,16 @@ const tab = computed(() =>
     : 'notifications',
 )
 
-const unreadOnly = computed(() => route.query.filter === 'unread')
+const unreadOnly = computed(() => route.query.filter !== 'all')
 
 const tabQuery = (value: string, unread = unreadOnly.value) => ({
   ...(value === 'announcements' ? { tab: value } : {}),
-  ...(unread ? { filter: 'unread' } : {}),
+  ...(unread ? {} : { filter: 'all' }),
 })
 
 const readFilterItems = [
-  { label: 'All', value: 'all' },
   { label: 'Unread', value: 'unread' },
+  { label: 'All', value: 'all' },
 ]
 
 const readFilter = computed({
@@ -257,6 +276,7 @@ onMounted(() => loadAnnouncements())
 const links = computed(() => [
   {
     label: 'Notifications',
+    icon: 'hugeicons:notification-01',
     to: { path: '/notifications', query: tabQuery('notifications') },
     active: tab.value === 'notifications',
     badge: unread.value
@@ -269,6 +289,7 @@ const links = computed(() => [
   },
   {
     label: 'Announcements',
+    icon: 'hugeicons:megaphone-01',
     to: { path: '/notifications', query: tabQuery('announcements') },
     active: tab.value === 'announcements',
     badge: unreadAnnouncements.value
@@ -278,6 +299,24 @@ const links = computed(() => [
           variant: 'subtle' as const,
         }
       : undefined,
+  },
+])
+
+// Unread count and Mark all as read of the open tab; the button sits next to
+// the first day group.
+const currentUnread = computed(() =>
+  tab.value === 'announcements' ? unreadAnnouncements.value : unread.value,
+)
+
+const markAllCurrentRead = () =>
+  tab.value === 'announcements' ? markAllAnnouncementsRead() : markAllRead()
+
+const showAllActions = computed(() => [
+  {
+    label: 'Show All',
+    color: 'neutral' as const,
+    variant: 'subtle' as const,
+    to: { path: '/notifications', query: tabQuery(tab.value, false) },
   },
 ])
 
