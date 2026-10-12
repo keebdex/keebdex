@@ -69,44 +69,35 @@ const keepOpen = (items) =>
   }))
 
 const items = computed(() => {
-  const managementItems = []
-
-  if (isAdmin.value) {
-    managementItems.push(
-      {
-        label: 'Users',
-        icon: 'hugeicons:user-group',
-        to: '/admin/users',
-      },
-      {
-        label: 'Feedback',
-        icon: 'hugeicons:message-question',
-        to: '/admin/feedbacks',
-      },
-      {
-        label: 'Shoutouts',
-        icon: 'hugeicons:quote-up',
-        to: '/admin/shoutouts',
-      },
-      {
-        label: 'Announcements',
-        icon: 'hugeicons:megaphone-01',
-        to: '/admin/announcements',
-      },
-    )
-  }
-
-  const adminActions = managementItems.length
-    ? [
-        [
+  // Admin pages share one submenu so they don't lengthen the profile menu.
+  const management = isAdmin.value
+    ? {
+        label: 'Management',
+        icon: 'hugeicons:dashboard-square-setting',
+        children: [
           {
-            type: 'label',
-            label: 'Management',
+            label: 'Users',
+            icon: 'hugeicons:user-group',
+            to: '/admin/users',
           },
-          ...managementItems,
+          {
+            label: 'Announcements',
+            icon: 'hugeicons:megaphone-01',
+            to: '/admin/announcements',
+          },
+          {
+            label: 'Feedback',
+            icon: 'hugeicons:message-question',
+            to: '/admin/feedbacks',
+          },
+          {
+            label: 'Shoutouts',
+            icon: 'hugeicons:quote-up',
+            to: '/admin/shoutouts',
+          },
         ],
-      ]
-    : []
+      }
+    : null
 
   const theme = {
     label: 'Theme',
@@ -154,7 +145,7 @@ const items = computed(() => {
           theme,
           palette,
         ],
-        ...adminActions,
+        ...(management ? [[management]] : []),
         about,
         [
           {
