@@ -36,49 +36,43 @@ const features = ref([
     icon: 'solar:database-bold-duotone',
     title: 'Unified Trinity Database',
     description:
-      'Move beyond document-based systems. Google Docs handled artisan data only; Keebdex now manages keyboards, keysets, and artisans in one platform, with optional maker sync from legacy tools.',
+      'Keyboards, keysets, and artisans live together in one managed database, moving beyond the artisan-only Google Docs into detailed pages you can browse, search, and collect.',
   },
   {
     icon: 'solar:stars-bold-duotone',
     title: 'Beautiful, Intuitive Design',
     description:
-      'Experience a sleek, modern interface designed for collectors, with theme presets and light or dark mode to make it your own.',
-  },
-  {
-    icon: 'solar:login-2-bold-duotone',
-    title: 'Quick, Secure Login',
-    description:
-      'Sign in instantly with Google, Discord, or your preferred method. Your data is always protected.',
+      'A sleek, modern interface built for collectors, with theme presets, light or dark mode, and images sized for your screen so every page stays fast, even on phones.',
   },
   {
     icon: 'solar:devices-bold-duotone',
-    title: 'Seamless Cross-Device Sync',
+    title: 'Secure Login, Synced Everywhere',
     description:
-      'Access your collection anywhere. Your collections and appearance preferences sync across all your devices.',
+      'Sign in instantly with your Google or Discord account. Your collections, theme, and color mode follow you, so everything looks the same on every device you use.',
   },
   {
     icon: 'solar:bookmark-square-bold-duotone',
     title: 'Powerful Collection Tools',
     description:
-      'Create unlimited collections across keyboards, keysets, and artisans; track status (sold, completed, active), reorganize freely, and never hit a limit.',
+      'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections also track keep, want, or trade intent, asking prices, and custom order.',
+  },
+  {
+    icon: 'solar:magnifer-bold-duotone',
+    title: 'Search Everything',
+    description:
+      'Find any keyboard, keyset, maker, sculpt, or colorway from one search box that updates as you type, with results grouped by category so you can jump straight to its page.',
   },
   {
     icon: 'solar:gallery-add-bold-duotone',
     title: 'Community Submissions',
     description:
-      'Signed-in collectors can propose artisan colorways, keyset kits, and keyboard variants, either for existing entries or alongside a new sculpt, keyset, or keyboard, through a guided step-by-step wizard. Submissions are reviewed by moderators before they go live.',
+      'Propose colorways, kits, and keyboard variants, or a whole new sculpt, keyset, or keyboard, through a guided step-by-step wizard, reviewed by moderators before going live.',
   },
   {
     icon: 'solar:share-circle-bold-duotone',
     title: 'Share Your Passion',
     description:
-      'Generate eye-catching artisan wishlist images and trading-card colorway previews, and share your collection targets with the community in seconds.',
-  },
-  {
-    icon: 'solar:cart-large-2-bold-duotone',
-    title: 'Built-In Trading Community',
-    description:
-      'Connect directly with artisan buyers and sellers through the Trading Hub, built on your collections and wishlists.',
+      'Share artisan collections by link, turn wishlists and colorway or keyboard cards into eye-catching images for any community, and meet buyers and sellers in the Trading Hub.',
   },
 ])
 

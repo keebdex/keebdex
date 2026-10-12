@@ -111,7 +111,7 @@ const sections = ref([
         title: 'Image Support',
         tiers: {
           keebdex:
-            'Rich, high-quality images to showcase keysets, artisans, and keyboard variants',
+            'Rich, high-quality images to showcase keysets, artisans, and keyboard variants, served at the size your screen needs so pages stay fast on phones',
           keycaplendar:
             'Smaller preview images that keep the browsing layout compact',
           archivist: 'Limited preview images only',
@@ -121,7 +121,7 @@ const sections = ref([
         title: 'Editing & Community Submissions',
         tiers: {
           keebdex:
-            'Staff edit instantly through an intuitive web interface, and any signed-in collector can propose colorways, kits, and keyboard variants (with new sculpts, keysets, or keyboards when needed) through a guided wizard, reviewed by moderators',
+            'Staff edit instantly, and any signed-in collector can propose new entries through a guided wizard, reviewed by moderators',
           keycaplendar:
             'Site content is actively curated by editors for keyset listings',
           archivist:
@@ -146,7 +146,7 @@ const sections = ref([
       {
         title: 'Login Methods',
         tiers: {
-          keebdex: 'Google, Discord, and other options for flexibility',
+          keebdex: 'Quick sign-in with Google or Discord',
           keycaplendar:
             'Google, GitHub, and Twitter authentication for account-based features',
           archivist: 'Discord login only',
@@ -166,7 +166,7 @@ const sections = ref([
         title: 'Wishlist Sharing',
         tiers: {
           keebdex:
-            'Create and share beautiful artisan wishlist images and trading-card colorway previews instantly',
+            'Artisan wishlist images or Discord/Reddit-ready text on any device, plus trading-card colorway previews',
           keycaplendar:
             'Favourites and hidden-set tools help triage sets, but not as a visual wishlist system',
           archivist: 'Static images generated server-side',
