@@ -8,7 +8,7 @@
 
         <template #right>
           <UModal
-            v-if="authenticated"
+            v-if="isOwner"
             v-model:visible="visible.share"
             title="Share Collection"
             description="Control the visibility of this collection and generate a shareable link if needed."
@@ -48,13 +48,14 @@
           </UModal>
 
           <UButton
+            v-if="isOwner"
             :icon="appConfig.ui.icons.sortManual"
             label="Manual Sort"
             :to="`/collection/artisan/${route.params.collection}/sort`"
           />
 
           <UModal
-            v-if="authenticated"
+            v-if="isOwner"
             v-model:visible="visible.edit"
             title="Edit Collection"
           >
@@ -80,7 +81,7 @@
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
             <UButton
-              v-if="authenticated"
+              v-if="isOwner"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
@@ -126,11 +127,11 @@
               :src="artisan.img"
               class="h-full object-cover rounded"
               :class="{
-                grayscale: !rest.exchange || artisan.deleted,
+                grayscale: (listing && !rest.exchange) || artisan.deleted,
               }"
             />
             <span
-              v-if="!rest.exchange"
+              v-if="listing && !rest.exchange"
               class="absolute inset-0 flex items-center justify-center"
             >
               <UIcon
@@ -146,7 +147,7 @@
             </span>
           </div>
 
-          <template v-if="authenticated && artisan.deleted" #footer>
+          <template v-if="isOwner && artisan.deleted" #footer>
             <UButton
               icon="hugeicons:clean"
               color="warning"
@@ -155,10 +156,11 @@
               Clear Outdated
             </UButton>
           </template>
-          <template v-else-if="authenticated" #footer>
+          <template v-else-if="isOwner" #footer>
             <UModal
+              v-if="listing"
               v-model:visible="visible.edit_item"
-              :title="`Edit ${colorwayTitle(artisan)} Details`"
+              :title="`Edit ${colorwayTitle(artisan)} Listing`"
             >
               <UTooltip text="Edit Listing" :delay-duration="0">
                 <UButton icon="hugeicons:file-edit" />
@@ -168,7 +170,6 @@
                 <CollectionModalCollectionItemForm
                   :metadata="rest"
                   :buying="buying"
-                  :selling="selling"
                   @on-success="
                     () => {
                       close()
@@ -226,9 +227,7 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const toast = useToast()
 
-const { authenticated } = storeToRefs(useUserStore())
-
-const { data, status, refresh, deleteCollection } = useCollection(
+const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
 )
 
@@ -237,12 +236,13 @@ const { removeItem, moveItem } = useCollectionItem(
   refresh,
 )
 
+// Wishlist and for-sale collections track per-item status and prices
+const listing = computed(() => ['want', 'sell'].includes(data.value?.intent))
 const buying = computed(() => data.value?.intent === 'want')
-const selling = computed(() => data.value?.intent === 'sell')
 
 const shareUrl = computed(() => config.public.site.homepage + route.fullPath)
 const shareOption = ref('private')
-const shareItems = [
+const shareItems = computed(() => [
   {
     label: 'Keep Private',
     description: 'Only you have access',
@@ -251,11 +251,13 @@ const shareItems = [
   },
   {
     label: 'Create Public Link',
-    description: 'Anyone with the link can view',
+    description: listing.value
+      ? 'Anyone with the link can view, and it is listed in the Trading Hub'
+      : 'Anyone with the link can view',
     value: 'public',
     icon: 'hugeicons:global',
   },
-]
+])
 
 const visible = ref({
   share: false,

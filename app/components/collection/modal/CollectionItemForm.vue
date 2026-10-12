@@ -1,25 +1,25 @@
 <template>
   <UForm :schema="schema" :state="item" class="space-y-4" @submit="onSubmit">
     <UFormField
-      v-if="buying"
-      label="Wanted"
-      help="Items you're looking to buy."
+      :label="buying ? 'Still Looking' : 'Available'"
+      :help="
+        buying
+          ? 'Turn off once you have it. It stays here, marked as found, and leaves your Trading Hub listing.'
+          : 'Turn off once it is sold or traded. It stays here, marked as gone, and leaves your Trading Hub listing.'
+      "
     >
-      <USwitch v-model="item.exchange" />
-    </UFormField>
-    <UFormField v-else label="Available" help="Items you're offering for sale.">
       <USwitch v-model="item.exchange" />
     </UFormField>
 
     <UFormField
       v-if="item.exchange"
-      label="Asking / Offer Price (USD)"
+      :label="buying ? 'Offer Price (USD)' : 'Asking Price (USD)'"
       name="asking_price"
     >
       <UInput
         v-model.number="item.asking_price"
         icon="hugeicons:dollar-01"
-        placeholder="Type the price you want…"
+        :placeholder="buying ? 'What you would pay' : 'What you want for it'"
         class="w-full"
       />
     </UFormField>
@@ -27,12 +27,14 @@
     <UFormField
       v-if="buying"
       label="Priority"
-      help="Mark as priority to highlight it in your wishlist image."
+      help="Highlights it on this page, in the Trading Hub, and in your wishlist image."
     >
       <USwitch v-model="item.priority" :disabled="!item.exchange" />
     </UFormField>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+    <UButton block color="primary" type="submit" loading-auto>
+      Save Changes
+    </UButton>
   </UForm>
 </template>
 
@@ -46,6 +48,7 @@ const { metadata, buying } = defineProps({
     type: Object,
     default: () => ({}),
   },
+  // Wishlist collection; otherwise a for-sale-or-trade collection
   buying: Boolean,
 })
 
