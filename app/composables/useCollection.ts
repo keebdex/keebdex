@@ -32,10 +32,18 @@ export const useCollection = (collectionId: MaybeRefOrGetter<string>) => {
       })
   }
 
+  // Shared collections are public: only the owner may edit or delete
+  const isOwner = computed(
+    () =>
+      !!data.value?.uid &&
+      data.value.uid === (userStore.user as { uid?: string }).uid,
+  )
+
   return {
     data,
     status,
     refresh,
     deleteCollection,
+    isOwner,
   }
 }

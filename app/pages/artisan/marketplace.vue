@@ -1,17 +1,19 @@
 <template>
   <UDashboardPanel id="marketplace">
     <template #header>
-      <UDashboardNavbar title="Marketplace" />
+      <UDashboardNavbar title="Trading Hub" />
     </template>
 
     <template #body>
       <UPage>
         <UAlert icon="hugeicons:information-circle" color="info">
           <template #description>
-            To make your collections available in the marketplace, please
-            publish them by visiting
-            <ULink to="/collection" class="underline">Collections</ULink>. This
-            will make them visible to potential buyers/sellers.
+            To list your caps here, create a
+            <span class="font-medium">Wishlist</span> or
+            <span class="font-medium">For Sale or Trade</span> collection in
+            <ULink to="/collection" class="underline">My Collection</ULink>,
+            then choose <span class="font-medium">Create Public Link</span>
+            under Share on its page.
           </template>
         </UAlert>
 
@@ -23,7 +25,7 @@
 
 <script setup>
 useSeoMeta({
-  title: 'Marketplace',
-  description: 'Unlock potential buyers/sellers for your artisan keycaps!',
+  title: 'Trading Hub',
+  description: 'Find buyers and sellers for artisan keycaps.',
 })
 </script>

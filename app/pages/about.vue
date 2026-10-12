@@ -54,7 +54,7 @@ const features = ref([
     icon: 'solar:bookmark-square-bold-duotone',
     title: 'Powerful Collection Tools',
     description:
-      'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections also track keep, want, or trade intent, asking prices, and custom order.',
+      'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections can be a shelf of caps you own, a wishlist, or caps for sale or trade, with prices and a custom order.',
   },
   {
     icon: 'solar:magnifer-bold-duotone',

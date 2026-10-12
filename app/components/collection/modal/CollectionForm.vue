@@ -1,141 +1,183 @@
 <template>
-  <UForm :schema :state="collection" class="space-y-4" @submit="onSubmit">
-    <UFormField label="Name" name="name" required>
-      <UInput v-model="collection.name" class="w-full" />
-    </UFormField>
+  <UForm
+    :schema="collectionSchema"
+    :state="collection"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
+    <div class="flex flex-col gap-4 sm:flex-row">
+      <UFormField label="Name" name="name" required class="flex-1">
+        <UInput
+          v-model="collection.name"
+          placeholder="e.g. Grails, Desk Shelf"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Category" name="category">
-      <USelect
-        v-model="collection.category"
-        :items="categoryItems"
-        :disabled="lockCategory"
-        value-key="value"
-        class="w-full"
-      />
-    </UFormField>
+      <UFormField label="Category" name="category" class="sm:w-36">
+        <USelect
+          v-model="collection.category"
+          :items="categoryItems"
+          :disabled="isEdit || lockCategory"
+          value-key="value"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
-    <UFormField
-      v-if="collection.category === 'artisan'"
-      label="Intent"
-      name="intent"
-      :help="intentExtras[collection.intent]"
-    >
-      <URadioGroup
-        v-model="collection.intent"
-        orientation="horizontal"
-        :items="[
-          { label: 'Keep', value: 'keep' },
-          { label: 'Want', value: 'want' },
-          { label: 'Sell/Trade', value: 'sell' },
-        ]"
-      />
-    </UFormField>
+    <template v-if="isArtisan">
+      <UFormField label="What's This Collection For?" name="intent">
+        <URadioGroup
+          v-model="collection.intent"
+          variant="table"
+          :items="collectionIntentItems"
+        />
+      </UFormField>
 
-    <UFormField
-      v-if="collection.category === 'artisan'"
-      label="Sorting"
-      name="sorting"
-    >
-      <URadioGroup
-        v-model="collection.sort_by"
-        :items="[
-          {
-            label: 'Sculpt Name',
-            description: 'Sort by sculpt artist name, then by colorway name',
-            icon: appConfig.ui.icons.sortAlphaAsc,
-            value: 'artisan.maker_sculpt_id|artisan.name',
-          },
-          {
-            label: 'Colorway Name',
-            description: 'Sort by colorway name, then by sculpt artist name',
-            icon: appConfig.ui.icons.sortAlphaDesc,
-            value: 'artisan.name|artisan.maker_sculpt_id',
-          },
-          {
-            label: 'Custom Order',
-            description: 'Sort manually using drag-and-drop',
-            icon: appConfig.ui.icons.sortNumberAsc,
-            value: 'order|asc',
-          },
-        ]"
-      />
-    </UFormField>
+      <UFormField label="Sort Order" name="sort_by">
+        <URadioGroup
+          v-model="collection.sort_by"
+          variant="table"
+          :items="sortItems"
+        />
+      </UFormField>
+    </template>
 
-    <UFormField
-      v-if="collection.intent !== 'keep'"
-      label="Contact"
-      name="contact"
-      help="Enter your Discord username so buyers/sellers can reach you."
-    >
-      <UInput v-model="collection.contact" type="text" class="w-full" />
-    </UFormField>
+    <template v-if="listable">
+      <USeparator label="Trading Hub Listing" />
 
-    <UFormField
-      v-if="collection.intent !== 'keep'"
-      label="Message"
-      name="message"
-      help="Describe what you're offering or what kind of offers you're looking for."
-    >
-      <UInput v-model="collection.message" type="text" class="w-full" />
-    </UFormField>
+      <p class="text-sm text-muted">
+        Shown in the Trading Hub once you make this collection public from
+        <span class="font-medium text-default">Share</span> on its page.
+      </p>
 
-    <UButton block color="primary" type="submit" loading-auto> Save </UButton>
+      <UFormField
+        label="Discord Username"
+        name="contact"
+        required
+        help="Buyers and sellers will contact you here."
+      >
+        <UInput
+          v-model.trim="collection.contact"
+          icon="hugeicons:discord"
+          placeholder="username"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="Message" name="message">
+        <UTextarea
+          v-model="collection.message"
+          :rows="2"
+          autoresize
+          :placeholder="messagePlaceholder"
+          class="w-full"
+        />
+      </UFormField>
+    </template>
+
+    <UButton block color="primary" type="submit" loading-auto>
+      {{ isEdit ? 'Save Changes' : 'Create Collection' }}
+    </UButton>
   </UForm>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Constants } from '~/types/database.types'
-import { z } from 'zod'
+import {
+  collectionSchema,
+  type CollectionIntent,
+} from '~/utils/schemas/collection'
 
-const appConfig = useAppConfig()
+type CollectionState = {
+  id?: string
+  name: string
+  category: string
+  intent: CollectionIntent
+  sort_by: string
+  contact: string | null
+  message: string | null
+}
 
-const emit = defineEmits(['onSuccess'])
+const emit = defineEmits<{ onSuccess: [] }>()
 
-const { metadata, isEdit, lockCategory } = defineProps({
-  metadata: { type: Object, default: () => ({}) },
-  isEdit: Boolean,
+const {
+  metadata = {},
+  isEdit = false,
+  lockCategory = false,
+} = defineProps<{
+  metadata?: Record<string, any>
+  isEdit?: boolean
   // Fixed when the form is opened for a specific kind of item, e.g. Save
-  lockCategory: Boolean,
-})
+  lockCategory?: boolean
+}>()
 
 const userStore = useUserStore()
 const toast = useToast()
 
 const { user, social } = storeToRefs(userStore)
 
-const intentExtras = {
-  keep: 'Just holding onto it for now.',
-  want: 'On the hunt! Any leads appreciated!',
-  sell: 'Open to offers — but it needs to be the right fit.',
-}
+// The user store is plain JavaScript, so its state carries no field types
+const uid = computed(() => (user.value as { uid?: string }).uid)
+const discord = computed(
+  () => (social.value as { discord?: string | null }).discord || null,
+)
 
 const categoryItems = Constants.public.Enums.module.map((value) => ({
   label: value,
   value: value.toLowerCase(),
-  disabled: isEdit,
 }))
 
-const sortOptions = [
-  'artisan.maker_sculpt_id|artisan.name',
-  'artisan.name|artisan.maker_sculpt_id',
-  'order|asc',
+const sortItems = [
+  {
+    label: 'Maker & Sculpt',
+    description: 'Grouped by maker, then sculpt, then colorway name.',
+    value: 'artisan.maker_sculpt_id|artisan.name',
+  },
+  {
+    label: 'Colorway Name',
+    description: 'Grouped by maker, then colorway name, then sculpt.',
+    value: 'artisan.name|artisan.maker_sculpt_id',
+  },
+  {
+    label: 'Custom Order',
+    description:
+      'Your own order, arranged with Manual Sort on the collection page.',
+    value: 'order|asc',
+  },
 ]
 
-const collection = ref({
+const collection = ref<CollectionState>({
   name: '',
   category: 'artisan',
-  published: false,
   intent: 'keep',
   sort_by: 'artisan.maker_sculpt_id|artisan.name',
-  contact: social.value?.discord || '',
+  contact: discord.value,
   message: null,
-  uid: user.value.uid,
 })
 
 onBeforeMount(() => {
-  const { items, ...rest } = metadata
+  const { items: _items, ...rest } = metadata
   Object.assign(collection.value, rest)
+  // Older rows may have no contact yet; offer the profile's Discord
+  collection.value.contact ||= discord.value
 })
+
+// The profile can finish loading after the form opens
+watch(discord, (value) => {
+  collection.value.contact ||= value
+})
+
+const isArtisan = computed(() => collection.value.category === 'artisan')
+const listable = computed(
+  () => isArtisan.value && collection.value.intent !== 'keep',
+)
+
+const messagePlaceholder = computed(() =>
+  collection.value.intent === 'want'
+    ? 'e.g. Paying in USD, can add caps from my sale list to sweeten trades.'
+    : 'e.g. Prices include shipping in the US, open to trades for my wishlist.',
+)
 
 watch(
   () => collection.value.category,
@@ -148,48 +190,31 @@ watch(
   { immediate: true },
 )
 
-const schema = z
-  .object({
-    name: z.string().min(1),
-    category: z.enum(categoryItems.map((item) => item.value)),
-    published: z.boolean(),
-    sort_by: z.enum(sortOptions),
-    intent: z.enum(['keep', 'want', 'sell']),
-    contact: z.string().optional().nullable(),
-    message: z.string().optional().nullable(),
-  })
-  .refine(
-    (data) => {
-      if (data.intent === 'want' || data.intent === 'sell') {
-        return !!data.contact
-      }
-      return true
-    },
-    {
-      message: 'Contact is required for public buy/sell collections.',
-      path: ['contact'],
-    },
-  )
-
 const onSubmit = async () => {
-  const { items, ...rest } = collection.value
+  const { id, name } = collection.value
+  const body = collectionSchema.parse(collection.value)
 
   const url = isEdit
-    ? `/api/users/${user.value.uid}/collections/${rest.id}`
-    : `/api/users/${user.value.uid}/collections`
+    ? `/api/users/${uid.value}/collections/${id}`
+    : `/api/users/${uid.value}/collections`
 
-  await $fetch(url, { method: 'post', body: rest })
-    .then(() => {
-      toast.add(
-        successToast(isEdit ? 'update' : 'add', { entity: 'Collection', name: rest.name }),
-      )
-
-      emit('onSuccess')
-    })
-    .catch((error) => {
-      toast.add(errorToast(error))
+  try {
+    await $fetch(url, {
+      method: 'POST',
+      body: isEdit ? body : { ...body, published: false },
     })
 
-  await userStore.fetchUserCollections(user.value.uid)
+    toast.add(
+      successToast(isEdit ? 'update' : 'add', {
+        entity: 'Collection',
+        name: name.trim(),
+      }),
+    )
+
+    await userStore.fetchUserCollections(uid.value)
+    emit('onSuccess')
+  } catch (error) {
+    toast.add(errorToast(error))
+  }
 }
 </script>

@@ -8,7 +8,7 @@
 
         <template #right>
           <UModal
-            v-if="authenticated"
+            v-if="isOwner"
             v-model:visible="visible.edit"
             title="Edit Collection"
           >
@@ -34,7 +34,7 @@
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
             <UButton
-              v-if="authenticated"
+              v-if="isOwner"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
@@ -74,7 +74,7 @@
             class="aspect-[16/9] w-full object-cover"
           />
 
-          <template #footer>
+          <template v-if="isOwner" #footer>
             <SharedSaveToCollection
               category="keyboard"
               label="Move"
@@ -123,8 +123,7 @@ import sortBy from 'lodash.sortby'
 
 const route = useRoute()
 
-const { authenticated } = storeToRefs(useUserStore())
-const { data, status, refresh, deleteCollection } = useCollection(
+const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
 )
 const { moveItem, removeItem } = useCollectionItem(

@@ -90,7 +90,7 @@ const signedOutFeatures = [
     icon: 'hugeicons:target-02',
     title: 'Keep, Hunt, or Let Go',
     description:
-      'Mark artisan collections as keepers, grails you want, or caps up for sale or trade.',
+      'Make each artisan collection a shelf of caps you own, a wishlist, or caps for sale or trade.',
   },
   {
     icon: 'hugeicons:store-01',
@@ -104,7 +104,7 @@ const userStore = useUserStore()
 const { authenticated, user, collections } = storeToRefs(userStore)
 
 onBeforeMount(() => {
-  userStore.fetchUserCollections(user.value.uid)
+  if (authenticated.value) userStore.fetchUserCollections(user.value.uid)
 })
 
 const visible = ref(false)
