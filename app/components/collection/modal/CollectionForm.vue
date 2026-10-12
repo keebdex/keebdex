@@ -5,8 +5,8 @@
     class="space-y-4"
     @submit="onSubmit"
   >
-    <div class="flex flex-col gap-4 sm:flex-row">
-      <UFormField label="Name" name="name" required class="flex-1">
+    <div class="grid grid-cols-2 gap-2">
+      <UFormField label="Name" name="name" required>
         <UInput
           v-model="collection.name"
           placeholder="e.g. Grails, Desk Shelf"
@@ -14,7 +14,7 @@
         />
       </UFormField>
 
-      <UFormField label="Category" name="category" class="sm:w-36">
+      <UFormField label="Category" name="category">
         <USelect
           v-model="collection.category"
           :items="categoryItems"

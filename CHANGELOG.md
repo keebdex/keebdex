@@ -4,36 +4,38 @@
 
 ### ✨ What's New
 
-- **Notifications**: get notified when your submissions are approved, rejected, or deleted (with the moderator's note), when your feedback is resolved, and when your role changes. Moderators hear when a submission they rejected is resubmitted, and bulk reviews arrive as one notification. Find them under _Notifications_ in the sidebar.
-- Feedback sent while signed in no longer asks for your name and email.
-- **Notification settings** in Account Settings let you choose what you are notified about.
-- **Announcements**: Keebdex news now has its own _Announcements_ tab under Notifications, and new announcements count toward the Notifications badge in the sidebar. The top three also show as toasts when you open the site (with a link to the rest). Dismiss one or mark it as read and it stays hidden on every device once you sign in. You can turn announcement toasts off in Notification settings.
-- Searches with many artisan colorway matches now offer a _View all_ link to a new **colorway search page** that updates as you type, with exact-term matching, grouping by maker, and _Save to Collection_.
-- The **Wishlist Image** builder now works on phones: edit in a two-column view (press and hold to drag), and the image keeps the column count from your settings on every device.
-- A new **Save & Share** window previews your wishlist image to copy, download, or share from your phone, and shows the trading list as text, in Discord/Reddit formatting or plain text, ready to copy.
+- **Notifications**: get notified when your submissions are approved, rejected, or deleted (with the moderator's note), when your feedback is resolved, and when your role changes. Moderators hear when a submission they rejected is resubmitted, and bulk reviews arrive as one notification. Choose what you hear about in the new **Notification settings** in Account Settings.
+- **Announcements**: Keebdex news has its own _Announcements_ tab under Notifications and counts toward the sidebar badge. The top three also show as toasts when you open the site; dismiss one or mark it as read and its toast stays gone on every device once you sign in. Announcement toasts can be turned off in Notification settings.
+- A new **colorway search page**, opened from _View all_ in the search palette, updates as you type and offers exact-term matching, grouping by maker, and _Save to Collection_.
+- The **Wishlist Image** builder now works on phones: edit in a two-column view (press and hold to drag), and the image keeps your column count on every device.
+- A new **Save & Share** window previews your wishlist image to copy, download, or share from your phone, and gives the trading list as text (Discord/Reddit formatting or plain) ready to copy.
 
 ### 🐛 Bug Fixes
 
-- Colorway cards on narrow phones no longer stretch their photo past the card edge when they show several action buttons; the buttons wrap onto a second line instead.
+- Colorway cards on narrow phones no longer stretch their photo past the card edge; extra action buttons wrap onto a second line.
 - Trading wishlists no longer let a card be dragged between the Want and Have lists, which left it impossible to remove.
 - Sidebar items no longer sometimes show another item's icon and color after loading the page signed in.
 - Keyset pages with no kits now still show the set's details instead of an empty page.
 - Paging past the last page of a keyset list now shows an empty page instead of a server error.
 - Keyset profile pages no longer show _Not Found_ when opened directly, and their title now names the manufacturer and profile (e.g. _GMK CYL Keysets_).
+- Shared collections no longer show _Share_, _Edit_, _Delete_, _Manual Sort_, or item actions to visitors; only the owner sees them.
+- _My Collection_ artisan collections no longer grey out caps as if they were sold, or offer listing details and prices.
 
 ### 🚀 Improvements
 
-- Artisan, keyset, and keyboard grids now load images sized for your screen instead of full-size photos, so pages load faster and scroll more smoothly, especially on phones.
+- Artisan, keyset, and keyboard grids now load images sized for your screen instead of full-size photos, so pages load faster, especially on phones.
 - Error, success, and info colors now match each theme's palette instead of bright defaults.
 - Empty pages now show an icon and friendlier copy.
-- Artisan colorways in the search palette are now a single list with the closest name matches first, instead of nested groups by maker.
-- Colorway search now matches the colorway's own name (every word you type) and hides deleted colorways; makers and sculpts keep their own result groups.
+- The search palette lists artisan colorways in one list, closest name matches first, matching every word you type in the colorway's own name and hiding deleted colorways; makers and sculpts keep their own groups.
 - **About** and **Changelog** moved from the sidebar into the profile menu.
-- The **Keysets** sidebar now leads with the catalog: the Keysets home (`/keyset`) is now a catalog of manufacturers grouped by profile, group buy stages share one _Group Buys_ page with Interest Check / Live / Ended tabs, and _Color Swatches_ is now _Colors_. Old `/keyset?status=…` links redirect to the matching tab.
-- **Keyset pages** now read like a catalog entry: a fixed cover instead of an autoplay carousel, set details kept apart from group buy history, Geekhack / Order Graph / Order History icon links beside the title, a grid of kits you can click to enlarge, a full-width color palette, and a _Save_ button. Each kit card shows its group buy price beside the name and its unit count below it, and sets without a usable cover image spread their details across the page instead.
-- The _Save_ button is now available to every signed-in user, with a _New Collection_ option (its category fixed to the item's) to start a collection right from the item.
+- The **Keysets** section now leads with a catalog of manufacturers grouped by profile. Group buy stages share one _Group Buys_ page with Interest Check / Live / Ended tabs (old `/keyset?status=…` links redirect), and _Color Swatches_ is now _Colors_.
+- **Keyset pages** now read like a catalog entry: a fixed cover instead of a carousel, set details apart from group buy history, Geekhack and order links beside the title, a full-width color palette, a _Save_ button, and a grid of kits (with price and unit count) you can click to enlarge.
+- The _Save_ button is now available to every signed-in user, with a _New Collection_ option to start a collection right from the item.
 - Dark logos now invert reliably in dark mode, including when the color mode follows the system setting.
-- Copied and downloaded images (wishlists, colorway cards, artisan trading cards, keyboard cards) now have the same size on every device instead of following the screen width, are sharper on high-resolution screens, and copy in Safari too.
+- Copied and downloaded images (wishlists, colorway, trading, and keyboard cards) now have the same size on every device, are sharper on high-resolution screens, and copy in Safari too.
 - The wishlist builder now guides first steps: empty wishlists point you to the settings, a tip shows how to reorder cards, and buying lists no longer show an empty _Preferences_ section.
 - The signed-out **Wishlist Image** and **My Collection** pages now show what you can do there before you sign in.
-- **Colorway cards** now all share one holographic foil that sweeps across the card and then rests, so the artwork stays clear between sweeps; hover the card to hide the foil entirely. It stays still when your device asks for reduced motion.
+- Signed-in feedback no longer asks for your name and email.
+- **Colorway cards** share one holographic foil that sweeps across and then rests, so the artwork stays clear; hover to hide it. It stays still when your device asks for reduced motion.
+- The **collection form** now explains each kind of collection: _My Collection_, _Wishlist_, or _For Sale or Trade_. Your Discord username fills in from your profile, and wishlist and for-sale collections note that sharing them publicly lists them in the _Trading Hub_. Item switches now read _Still Looking_ and _Available_.
+- The marketplace page is now titled **Trading Hub**, like the sidebar, and explains how to get listed.
