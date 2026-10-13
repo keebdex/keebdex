@@ -37,6 +37,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "release": "node scripts/release.mjs",
+    "release:publish": "node scripts/publish-release.mjs",
     "prepare": "husky"
   },
   "dependencies": {

@@ -1,5 +1,7 @@
 # Changelog
 
+Released versions live in [`content/changelog/`](./content/changelog) and on [keebdex.org/changelog](https://keebdex.org/changelog).
+
 ## [Unreleased]
 
 **Boost the signal** — Keebdex now tells you when your submissions are reviewed, your feedback is resolved, or there is news worth knowing. This release adds notifications and announcements, brings the wishlist builder to your phone with a new Save & Share window, turns keyset pages into a proper catalog, and makes every grid load faster with images sized for your screen.

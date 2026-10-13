@@ -48,7 +48,8 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `app/plugins/theme.ts`: runtime theme application engine; merges preset UI config into `appConfig`, generates CSS, and handles font variables.
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
 - `server/utils/`: server-side database, authorization, search, grouping, and response helpers.
-- `scripts/`: repository maintenance scripts, including table-field metadata generation.
+- `scripts/`: repository maintenance scripts, including table-field metadata generation and the release scripts (`release.mjs`, `publish-release.mjs`).
+- `content/changelog/`: one Markdown file per release (`v<version>.md`, frontmatter `version`, `title`, `date`, optional `prerelease` and `author`), the Nuxt Content `changelog` collection (`content.config.ts`) that `/changelog` renders. Edit a released version here, not on GitHub.
 - `supabase/`: a separate Git repository (gitignored here) holding the SQL migrations and seed files, with its own `AGENTS.md` and Conventional Commits.
 - `public/`: static assets.
 - `.ai/plan/`: task plan files (Markdown) written for agents; see "Plans, PR Notes, and Keeping Instructions Current". `.ai/` is gitignored, so these files exist only in the working copy where they were written.
@@ -242,7 +243,7 @@ Admins publish site-wide announcements without a deploy. They show as toasts on 
 
 ## Git and Documentation
 
-Commit messages follow Conventional Commits through commitlint. Fold the `[Unreleased]` entries into a new dated version section in `CHANGELOG.md` along with the release notes when cutting a release. Do not create commits, branches, or pull requests unless explicitly requested; writing the PR notes file described below is not a commit.
+Commit messages follow Conventional Commits through commitlint. `CHANGELOG.md` holds only the `[Unreleased]` notes (a bold-led summary paragraph, then What's New / Bug Fixes / Improvements). To cut a release, run `bun run release <version> "<name>"` (moves those notes into `content/changelog/v<version>.md`, empties `[Unreleased]`, bumps `package.json`), commit it as `chore(release): v<version>`, push, then run `bun run release:publish <version>`, which creates the GitHub release (tag `<version>`, title `v<version> - <name>`) from that file, or updates it when it already exists. GitHub releases are copies of the files, never the source. Do not create commits, branches, or pull requests unless explicitly requested; writing the PR notes file described below is not a commit.
 
 ## Plans, PR Notes, and Keeping Instructions Current
 

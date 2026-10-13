@@ -19,7 +19,7 @@
           }"
         >
           <UChangelogVersion
-            v-for="version in versions"
+            v-for="{ page, ...version } in versions"
             :key="version.tag"
             v-bind="version"
             :ui="{
@@ -33,7 +33,7 @@
             }"
           >
             <template #body>
-              <MDC v-if="version.markdown" :value="version.markdown" />
+              <ContentRenderer :value="page" />
             </template>
           </UChangelogVersion>
         </UChangelogVersions>
@@ -46,36 +46,38 @@
 const description =
   'See every update and improvement we ship. Built with your feedback, designed for collectors.'
 
-const { data: versions } = await useFetch(
-  computed(() => `https://ungh.cc/repos/keebdex/keebdex/releases`),
-  {
-    transform: (data) => {
-      return data.releases.map((release) => ({
-        tag: release.tag,
-        title: release.name || release.tag,
-        date: release.publishedAt,
-        markdown: release.markdown,
-        badge: release.prerelease
-          ? {
-              label: 'Pre-release',
-              color: 'warning',
-              variant: 'subtle',
-            }
-          : undefined,
-        authors: [
+// Releases live in content/changelog, one file per version (see
+// content.config.ts), so the page needs no GitHub API at runtime.
+const { data: releases } = await useAsyncData('changelog', () =>
+  queryCollection('changelog').order('date', 'DESC').all(),
+)
+
+const versions = computed(() =>
+  (releases.value || []).map((release) => ({
+    tag: release.version,
+    title: `v${release.version} - ${release.title}`,
+    date: release.date,
+    page: release,
+    badge: release.prerelease
+      ? {
+          label: 'Pre-release',
+          color: 'warning',
+          variant: 'subtle',
+        }
+      : undefined,
+    authors: release.author
+      ? [
           {
             name: release.author,
-            // description: `@${release.author}`,
             avatar: {
               src: `https://github.com/${release.author}.png`,
             },
             to: `https://github.com/${release.author}`,
             target: '_blank',
           },
-        ],
-      }))
-    },
-  },
+        ]
+      : undefined,
+  })),
 )
 
 useSeoMeta({
