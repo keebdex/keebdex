@@ -69,9 +69,12 @@ const { data: releases } = await useAsyncData('changelog', () =>
 )
 
 // Released versions show their number, pre-releases say so, and the notes
-// for the next release (already live, just not versioned) read as Latest.
+// for the next release (already live, just not versioned) show the running
+// build, `v<version>+<commit>` (`buildId` in nuxt.config.ts).
+const { buildId } = useRuntimeConfig().app
+
 const releaseBadge = ({ version, prerelease }) => {
-  if (!version) return { label: 'Latest', color: 'info', variant: 'subtle' }
+  if (!version) return { label: buildId, color: 'info', variant: 'subtle' }
   if (prerelease) {
     return { label: 'Pre-release', color: 'warning', variant: 'subtle' }
   }
@@ -119,12 +122,21 @@ const releaseDot = ({ version, prerelease }) => {
 const glowVisible = ref(false)
 onMounted(() => requestAnimationFrame(() => (glowVisible.value = true)))
 
+// The unreleased notes are titled after the release they follow, so they do
+// not read as unavailable. Releases come newest first.
+const latestVersion = computed(
+  () => releases.value?.find((release) => release.version)?.version,
+)
+
 const versions = computed(() =>
   (releases.value || [])
     .toSorted((a, b) => Number(!!a.version) - Number(!!b.version))
     .map((release) => ({
       tag: release.version || 'unreleased',
-      title: release.title,
+      title:
+        release.version || !latestVersion.value
+          ? release.title
+          : `Since v${latestVersion.value}`,
       date: release.date,
       page: release,
       badge: releaseBadge(release),

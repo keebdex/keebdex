@@ -122,7 +122,9 @@ export default defineNuxtConfig({
     storage: 'cookie',
   },
 
-  buildId: `v${app.version} (${revision})`,
+  // Semver build metadata, also shown as the unreleased notes' badge on
+  // /changelog.
+  buildId: `v${app.version}+${revision}`,
 
   runtimeConfig: {
     cloudflare: {
