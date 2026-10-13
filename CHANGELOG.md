@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+**Boost the signal** — Keebdex now tells you when your submissions are reviewed, your feedback is resolved, or there is news worth knowing. This release adds notifications and announcements, brings the wishlist builder to your phone with a new Save & Share window, turns keyset pages into a proper catalog, and makes every grid load faster with images sized for your screen.
+
 ### ✨ What's New
 
 - **Notifications**: get notified when your submissions are approved, rejected, or deleted (with the moderator's note), when your feedback is resolved, and when your role changes. Moderators hear when a submission they rejected is resubmitted, and bulk reviews arrive as one notification. Choose what you hear about in the new **Notification settings** in Account Settings.
