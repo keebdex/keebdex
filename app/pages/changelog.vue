@@ -9,14 +9,12 @@
         title="What's New"
         :description
         icon="solar:history-bold-duotone"
+        :ui="{ body: 'mt-0' }"
       >
         <UChangelogVersions
           as="main"
           :indicator-motion="false"
-          :ui="{
-            root: 'py-16 sm:py-24 lg:py-32',
-            indicator: 'inset-y-0',
-          }"
+          :ui="{ indicator: 'inset-y-0' }"
         >
           <UChangelogVersion
             v-for="{ page, ...version } in versions"
