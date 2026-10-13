@@ -42,7 +42,13 @@ const features = ref([
     icon: 'solar:stars-bold-duotone',
     title: 'Beautiful, Intuitive Design',
     description:
-      'A sleek, modern interface built for collectors, with theme presets, light or dark mode, and images sized for your screen so every page stays fast, even on phones.',
+      'A sleek, modern interface built for collectors, with clear layouts that work on any screen and images sized for your device so every page stays fast, even on phones.',
+  },
+  {
+    icon: 'solar:palette-round-bold-duotone',
+    title: 'Make It Yours',
+    description:
+      'Pick from a growing set of theme presets, each with its own colors, fonts, and component style, in light, dark, or system mode. Your choice is saved to your account and follows you to every device.',
   },
   {
     icon: 'solar:devices-bold-duotone',

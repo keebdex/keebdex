@@ -108,6 +108,16 @@ const sections = ref([
         },
       },
       {
+        title: 'Themes & Appearance',
+        tiers: {
+          keebdex:
+            'A growing set of theme presets, most inspired by keysets, that restyle colors, fonts, and components, in light, dark, or system mode',
+          keycaplendar:
+            'Light or dark mode with a few color themes for each, not tied to keysets, plus a density setting',
+          archivist: 'Light and dark mode toggle only',
+        },
+      },
+      {
         title: 'Image Support',
         tiers: {
           keebdex:
@@ -158,7 +168,7 @@ const sections = ref([
           keebdex:
             'Collections, theme presets, and light or dark mode sync across devices with your account',
           keycaplendar:
-            'Supports favourites, hidden sets, saved filter presets, and synced theme or density settings',
+            'Favourite, bought, and hidden sets, saved filter presets, and theme or density settings sync with your account',
           archivist: 'Minimal personalization and syncing options',
         },
       },
@@ -168,7 +178,7 @@ const sections = ref([
           keebdex:
             'Artisan wishlist images or Discord/Reddit-ready text on any device, plus trading-card colorway previews',
           keycaplendar:
-            'Favourites and hidden-set tools help triage sets, but not as a visual wishlist system',
+            'Favourite, bought, and hidden marks help track sets, but not as a shareable visual wishlist',
           archivist: 'Static images generated server-side',
         },
       },
