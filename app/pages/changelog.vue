@@ -11,20 +11,37 @@
         icon="solar:history-bold-duotone"
         :ui="{ body: 'mt-0' }"
       >
+        <template #top>
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute -inset-x-4 -top-4 -z-10 h-48 sm:-inset-x-6 sm:-top-6 bg-linear-to-b from-primary/15 to-transparent transition-opacity duration-700 motion-reduce:transition-none"
+            :class="glowVisible ? 'opacity-100' : 'opacity-0'"
+          >
+            <div
+              class="h-px bg-linear-to-r from-transparent via-primary to-transparent"
+            />
+          </div>
+        </template>
+
         <UChangelogVersions
           as="main"
           :indicator-motion="false"
-          :ui="{ indicator: 'inset-y-0' }"
+          :ui="{
+            indicator:
+              'inset-y-0 bg-transparent bg-linear-to-b from-primary/60 via-(--ui-border) via-30% to-transparent',
+          }"
         >
           <UChangelogVersion
-            v-for="{ page, ...version } in versions"
+            v-for="{ page, dot, ...version } in versions"
             :key="version.tag"
             v-bind="version"
             :ui="{
-              root: 'flex items-start',
+              ...dot,
+              root: 'group/version flex items-start',
               container: 'max-w-xl min-w-0',
               header: 'border-b border-default pb-4',
-              title: 'text-3xl',
+              title:
+                'text-3xl transition-colors duration-300 group-hover/version:text-primary',
               date: 'text-xs/9 text-highlighted font-mono',
               indicator:
                 'sticky top-0 pt-16 -mt-16 sm:pt-24 sm:-mt-24 lg:pt-32 lg:-mt-32',
@@ -83,6 +100,25 @@ const toAuthor = (author) =>
         target: author.to ? '_blank' : undefined,
       }
 
+// Timeline dots follow the badge color; the unreleased notes pulse, since
+// those changes are live right now.
+const releaseDot = ({ version, prerelease }) => {
+  if (!version) {
+    return {
+      dot: 'ring-info/50',
+      dotInner: 'bg-info motion-safe:animate-pulse',
+    }
+  }
+  return {
+    dot: 'transition-transform duration-300 group-hover/version:scale-125',
+    dotInner: prerelease ? 'bg-warning' : 'bg-success',
+  }
+}
+
+// The top glow fades in once the page has mounted.
+const glowVisible = ref(false)
+onMounted(() => requestAnimationFrame(() => (glowVisible.value = true)))
+
 const versions = computed(() =>
   (releases.value || [])
     .toSorted((a, b) => Number(!!a.version) - Number(!!b.version))
@@ -92,6 +128,7 @@ const versions = computed(() =>
       date: release.date,
       page: release,
       badge: releaseBadge(release),
+      dot: releaseDot(release),
       authors: release.authors?.map(toAuthor),
     })),
 )

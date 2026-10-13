@@ -6,6 +6,13 @@ const revision = execSync('git rev-parse --short HEAD').toString().trim()
 
 const isProduction = process.env.NODE_ENV === 'production'
 
+// Cloudflare builds (an explicit preset, or Pages / Workers CI, which Nitro
+// detects the same way) store Nuxt Content collections in D1.
+const isCloudflare =
+  process.env.NITRO_PRESET?.includes('cloudflare') ||
+  !!process.env.CF_PAGES ||
+  !!process.env.WORKERS_CI
+
 // https://nuxt.com/docs/api/nuxt-config
 export default defineNuxtConfig({
   build: {
@@ -100,6 +107,12 @@ export default defineNuxtConfig({
   //     icons: ['hugeicons', 'simple-icons', 'solar'],
   //   },
   // },
+
+  // The changelog collection is read from the keebdex-db D1 database, bound
+  // to the Worker as DB. Dev and other hosts use Nuxt Content's SQLite.
+  content: isCloudflare
+    ? { database: { type: 'd1', bindingName: 'DB' } }
+    : {},
 
   supabase: {
     redirect: false,
