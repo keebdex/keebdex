@@ -29,9 +29,15 @@ const match = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
 if (!match) fail(`content/changelog/v${version}.md has no frontmatter.`)
 
 const [, frontmatter, body] = match
+// Reads a plain or quoted YAML scalar; Prettier writes single quotes unless
+// the value contains one.
 const field = (key) => {
-  const value = frontmatter.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'))?.[1]
-  return value?.startsWith('"') ? JSON.parse(value) : value
+  const value = frontmatter
+    .match(new RegExp(`^${key}:\\s*(.+)$`, 'm'))?.[1]
+    ?.trim()
+  if (value?.startsWith('"')) return JSON.parse(value)
+  if (value?.startsWith("'")) return value.slice(1, -1).replaceAll("''", "'")
+  return value
 }
 
 const title = `v${version} - ${field('title')}`

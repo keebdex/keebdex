@@ -1,5 +1,11 @@
 ---
-title: 'Unreleased'
+title: Unreleased
+authors:
+  - anhthang
+  - name: Claude
+    icon: simple-icons:claude
+    color: '#D97757'
+    to: https://claude.com/claude-code
 ---
 
 **Boost the signal** — Keebdex now tells you when your submissions are reviewed, your feedback is resolved, or there is news worth knowing. This release adds notifications and announcements, brings the wishlist builder to your phone with a new Save & Share window, turns keyset pages into a proper catalog, and makes every grid load faster with images sized for your screen.

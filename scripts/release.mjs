@@ -3,8 +3,9 @@
 //   bun run release <version> "<name>" [--prerelease]
 //
 // Turns unreleased.md into content/changelog/v<version>.md (adding version,
-// name, date, and author) and bumps package.json. It does not commit, tag, or
-// publish; review the diff, commit, push, then run `bun run release:publish`.
+// name, and date, and keeping its authors) and bumps package.json. It does
+// not commit, tag, or publish; review the diff, commit, push, then run
+// `bun run release:publish`.
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -37,21 +38,27 @@ if (existsSync(releasePath)) {
 if (!existsSync(draftPath))
   fail('content/changelog/unreleased.md does not exist.')
 
-// Keep only the body; the draft's frontmatter is replaced below.
-const notes = readFileSync(draftPath, 'utf8')
-  .replace(/^---\n[\s\S]*?\n---\n/, '')
-  .trim()
+const draft = readFileSync(draftPath, 'utf8')
+const [, draftFrontmatter = '', body = draft] =
+  draft.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/) || []
+const notes = body.trim()
 if (!notes) fail('content/changelog/unreleased.md has no notes.')
 
-let author
-try {
-  author = execSync('gh api user --jq .login', {
-    stdio: ['ignore', 'pipe', 'ignore'],
-  })
-    .toString()
-    .trim()
-} catch {
-  // Without the GitHub CLI the release is listed without an author.
+// The draft's `authors` block (co-authors included) carries over as is.
+// Without one, the release is credited to the GitHub CLI user, if any.
+const authorsMatch = draftFrontmatter.match(/^authors:.*(?:\n[ \t].*)*/m)
+let authors = authorsMatch?.[0].split('\n')
+if (!authors) {
+  try {
+    const login = execSync('gh api user --jq .login', {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim()
+    authors = ['authors:', `  - ${login}`]
+  } catch {
+    authors = []
+  }
 }
 
 // Local date, so a release cut late in the evening keeps today's date.
@@ -68,7 +75,7 @@ const frontmatter = [
   `title: ${JSON.stringify(name)}`,
   `date: ${date}`,
   ...(prerelease ? ['prerelease: true'] : []),
-  ...(author ? [`author: ${author}`] : []),
+  ...authors,
   '---',
 ]
 

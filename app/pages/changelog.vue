@@ -53,41 +53,48 @@ const { data: releases } = await useAsyncData('changelog', () =>
   queryCollection('changelog').order('date', 'DESC').all(),
 )
 
+// Released versions show their number, pre-releases say so, and the notes
+// for the next release (already live, just not versioned) read as Latest.
+const releaseBadge = ({ version, prerelease }) => {
+  if (!version) return { label: 'Latest', color: 'info', variant: 'subtle' }
+  if (prerelease) {
+    return { label: 'Pre-release', color: 'warning', variant: 'subtle' }
+  }
+  return { label: `v${version}`, color: 'success', variant: 'subtle' }
+}
+
+const toAuthor = (author) =>
+  typeof author === 'string'
+    ? {
+        name: author,
+        avatar: { src: `https://github.com/${author}.png` },
+        to: `https://github.com/${author}`,
+        target: '_blank',
+      }
+    : {
+        name: author.name,
+        avatar: author.avatar
+          ? { src: author.avatar }
+          : {
+              icon: author.icon,
+              text: author.name.charAt(0),
+              style: author.color && { color: author.color },
+              ui: author.color && { icon: 'text-current' },
+            },
+        to: author.to,
+        target: author.to ? '_blank' : undefined,
+      }
+
 const versions = computed(() =>
   (releases.value || [])
     .toSorted((a, b) => Number(!!a.version) - Number(!!b.version))
     .map((release) => ({
       tag: release.version || 'unreleased',
-      title: release.version
-        ? `v${release.version} - ${release.title}`
-        : release.title,
+      title: release.title,
       date: release.date,
       page: release,
-      badge: !release.version
-        ? {
-            label: 'Not Yet Released',
-            color: 'info',
-            variant: 'subtle',
-          }
-        : release.prerelease
-          ? {
-              label: 'Pre-release',
-              color: 'warning',
-              variant: 'subtle',
-            }
-          : undefined,
-      authors: release.author
-        ? [
-            {
-              name: release.author,
-              avatar: {
-                src: `https://github.com/${release.author}.png`,
-              },
-              to: `https://github.com/${release.author}`,
-              target: '_blank',
-            },
-          ]
-        : undefined,
+      badge: releaseBadge(release),
+      authors: release.authors?.map(toAuthor),
     })),
 )
 
