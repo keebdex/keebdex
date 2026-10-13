@@ -1,16 +1,16 @@
-// Cuts a release from the [Unreleased] section of CHANGELOG.md.
+// Cuts a release from the notes drafted in content/changelog/unreleased.md.
 //
 //   bun run release <version> "<name>" [--prerelease]
 //
-// Writes content/changelog/v<version>.md (shown on /changelog), empties the
-// [Unreleased] section, and bumps package.json. It does not commit, tag, or
+// Turns unreleased.md into content/changelog/v<version>.md (adding version,
+// name, date, and author) and bumps package.json. It does not commit, tag, or
 // publish; review the diff, commit, push, then run `bun run release:publish`.
 import { execSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const root = process.cwd()
-const changelogPath = resolve(root, 'CHANGELOG.md')
+const draftPath = resolve(root, 'content/changelog/unreleased.md')
 const packagePath = resolve(root, 'package.json')
 
 const args = process.argv.slice(2)
@@ -34,16 +34,14 @@ if (existsSync(releasePath)) {
   fail(`content/changelog/v${version}.md already exists.`)
 }
 
-const changelog = readFileSync(changelogPath, 'utf8')
-const heading = '## [Unreleased]'
-const start = changelog.indexOf(heading)
-if (start === -1) fail(`CHANGELOG.md has no "${heading}" section.`)
+if (!existsSync(draftPath))
+  fail('content/changelog/unreleased.md does not exist.')
 
-const bodyStart = start + heading.length
-const next = changelog.indexOf('\n## ', bodyStart)
-const bodyEnd = next === -1 ? changelog.length : next
-const notes = changelog.slice(bodyStart, bodyEnd).trim()
-if (!notes) fail('The [Unreleased] section is empty.')
+// Keep only the body; the draft's frontmatter is replaced below.
+const notes = readFileSync(draftPath, 'utf8')
+  .replace(/^---\n[\s\S]*?\n---\n/, '')
+  .trim()
+if (!notes) fail('content/changelog/unreleased.md has no notes.')
 
 let author
 try {
@@ -76,10 +74,7 @@ const frontmatter = [
 
 writeFileSync(releasePath, `${frontmatter.join('\n')}\n\n${notes}\n`)
 
-writeFileSync(
-  changelogPath,
-  `${changelog.slice(0, bodyStart)}\n${changelog.slice(bodyEnd)}`,
-)
+rmSync(draftPath)
 
 const pkg = readFileSync(packagePath, 'utf8')
 writeFileSync(
@@ -88,7 +83,7 @@ writeFileSync(
 )
 
 console.log(`Wrote content/changelog/v${version}.md (v${version} - ${name}).`)
-console.log('Emptied [Unreleased] in CHANGELOG.md and bumped package.json.')
+console.log('Removed content/changelog/unreleased.md and bumped package.json.')
 console.log(
   `Next: review, commit "chore(release): v${version}", push, then run "bun run release:publish ${version}".`,
 )

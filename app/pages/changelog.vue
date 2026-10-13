@@ -47,37 +47,48 @@ const description =
   'See every update and improvement we ship. Built with your feedback, designed for collectors.'
 
 // Releases live in content/changelog, one file per version (see
-// content.config.ts), so the page needs no GitHub API at runtime.
+// content.config.ts), so the page needs no GitHub API at runtime. The notes
+// for the next release (no version yet) come first.
 const { data: releases } = await useAsyncData('changelog', () =>
   queryCollection('changelog').order('date', 'DESC').all(),
 )
 
 const versions = computed(() =>
-  (releases.value || []).map((release) => ({
-    tag: release.version,
-    title: `v${release.version} - ${release.title}`,
-    date: release.date,
-    page: release,
-    badge: release.prerelease
-      ? {
-          label: 'Pre-release',
-          color: 'warning',
-          variant: 'subtle',
-        }
-      : undefined,
-    authors: release.author
-      ? [
-          {
-            name: release.author,
-            avatar: {
-              src: `https://github.com/${release.author}.png`,
+  (releases.value || [])
+    .toSorted((a, b) => Number(!!a.version) - Number(!!b.version))
+    .map((release) => ({
+      tag: release.version || 'unreleased',
+      title: release.version
+        ? `v${release.version} - ${release.title}`
+        : release.title,
+      date: release.date,
+      page: release,
+      badge: !release.version
+        ? {
+            label: 'Not Yet Released',
+            color: 'info',
+            variant: 'subtle',
+          }
+        : release.prerelease
+          ? {
+              label: 'Pre-release',
+              color: 'warning',
+              variant: 'subtle',
+            }
+          : undefined,
+      authors: release.author
+        ? [
+            {
+              name: release.author,
+              avatar: {
+                src: `https://github.com/${release.author}.png`,
+              },
+              to: `https://github.com/${release.author}`,
+              target: '_blank',
             },
-            to: `https://github.com/${release.author}`,
-            target: '_blank',
-          },
-        ]
-      : undefined,
-  })),
+          ]
+        : undefined,
+    })),
 )
 
 useSeoMeta({
