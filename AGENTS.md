@@ -48,7 +48,8 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `app/plugins/theme.ts`: runtime theme application engine; merges preset UI config into `appConfig`, generates CSS, and handles font variables.
 - `server/api/`: Nitro/H3 file-based API handlers. The filename suffix defines the HTTP method, such as `.get.ts`, `.post.ts`, `.patch.ts`, or `.delete.ts`.
 - `server/utils/`: server-side database, authorization, search, grouping, and response helpers.
-- `scripts/`: repository maintenance scripts, including table-field metadata generation.
+- `scripts/`: repository maintenance scripts, including table-field metadata generation and the release scripts (`release.mjs`, `publish-release.mjs`).
+- `content/changelog/`: one Markdown file per release (`v<version>.md`, frontmatter `version`, `title`, `date`, optional `prerelease` and `authors`: GitHub usernames, or `{ name, icon (with optional `color`) | avatar, to }` for co-authors without one, such as Claude), plus `unreleased.md` (title only, `Unreleased`) with the notes for the next release. `/changelog` shows each entry's `title` (the release name) as its heading and one badge: `v<version>` for releases, _Pre-release_ for pre-releases, and _Latest_ for `unreleased.md`, which comes first because those changes are already live. This is the Nuxt Content `changelog` collection (`content.config.ts`). Edit a released version here, not on GitHub. On Cloudflare, Nuxt Content stores the collection in D1 through a binding named `DB` (the `keebdex-db` database); local builds use SQLite.
 - `supabase/`: a separate Git repository (gitignored here) holding the SQL migrations and seed files, with its own `AGENTS.md` and Conventional Commits.
 - `public/`: static assets.
 - `.ai/plan/`: task plan files (Markdown) written for agents; see "Plans, PR Notes, and Keeping Instructions Current". `.ai/` is gitignored, so these files exist only in the working copy where they were written.
@@ -242,7 +243,18 @@ Admins publish site-wide announcements without a deploy. They show as toasts on 
 
 ## Git and Documentation
 
-Commit messages follow Conventional Commits through commitlint. Fold the `[Unreleased]` entries into a new dated version section in `CHANGELOG.md` along with the release notes when cutting a release. Do not create commits, branches, or pull requests unless explicitly requested; writing the PR notes file described below is not a commit.
+Commit messages follow Conventional Commits through commitlint. Write user-facing notes for unreleased changes in `content/changelog/unreleased.md` (a bold-led summary paragraph, then What's New / Bug Fixes / Improvements; create the file with `title: Unreleased` frontmatter when it is missing); `CHANGELOG.md` only points there. To cut a release, run `bun run release <version> "<name>" [--prerelease]` (turns `unreleased.md` into `content/changelog/v<version>.md` with version, name, and date, keeps its `authors` or credits the `gh` user when it has none, and bumps `package.json`), commit it as `chore(release): v<version>`, push, then run `bun run release:publish <version>`, which creates the GitHub release (tag `<version>`, title `v<version> - <name>`, the format of every existing release) from that file, or updates it when it already exists. GitHub releases are copies of the files, never the source. Do not create commits, branches, or pull requests unless explicitly requested; writing the PR notes file described below is not a commit.
+
+Release notes are read by collectors, not developers. Keep every release in the same shape:
+
+- **Summary**: one short paragraph that opens with a bold phrase tied to the release name (e.g. "Throw the **doors open** —" for _Open Doors_), then names the two or three biggest changes.
+- **Sections**, in this order and only when they have entries: `### ✨ What's New`, `### 🐛 Bug Fixes`, `### 🚀 Improvements`, then `### ⚠️ Breaking Changes` for changes users notice (renamed pages, moved addresses). Never write "None".
+- **Entries**: a full, natural sentence each (two when needed), describing what users see or can now do and why it helps, in the present tense, ending with a period. Avoid clipped fragments that read abruptly ("Images load faster."); say enough to give context ("Grids load images sized for your screen, so pages load faster, especially on phones."). Bold the feature name when it leads the entry; italicize UI labels (_Save_, _Group Buys_).
+- **Length**: there is no fixed number of entries; a big release can be long. What must not happen is overlap: merge entries that describe the same feature or area (e.g. several keyset page fixes) into one, and describe a large change once, in What's New, instead of again under Improvements.
+- **Leave out** internal work users never see: composables, refactors, table or column names, lint and dependency updates, RLS or API fixes without a visible symptom. Do not list every label, route, or option; name the feature and its benefit.
+- **Names**: release names are short and evocative, two or three words without a leading article, matching the theme of the release (_First Keystroke_, _Keyboard Era_, _Aurora Borealis_, _Open Doors_).
+- **Authors**: keep `anhthang` first; add Claude as a co-author (`name: Claude`, `icon: simple-icons:claude`, `color: '#D97757'`, `to: https://claude.com/claude-code`) when Claude worked on the release.
+- Before cutting a release, reread `unreleased.md` against these rules: entries added change by change tend to grow too long and to repeat each other.
 
 ## Plans, PR Notes, and Keeping Instructions Current
 
