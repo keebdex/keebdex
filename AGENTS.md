@@ -138,6 +138,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 Production runs on Cloudflare Pages (Free plan: 10 ms of CPU and 128 MB per request; Error 1102 when exceeded), so keep Worker work small:
 
 - `routeRules` in `nuxt.config.ts`: `/about`, `/changelog`, `/privacy`, and `/why-choose-keebdex` are prerendered (served as static files); private pages and tools (`/account/**`, `/admin/**`, `/notifications`, `/collection`, sort pages, submission pages, keyset `kit`/`color` editors, `/artisan/wishlist`, `/artisan/marketplace`, `/artisan/search`) are `ssr: false`. Public catalog pages keep SSR. Do not cache rendered HTML: it depends on the theme and color-mode cookies and the device. Add new private or list-heavy pages to the `ssr: false` group.
+- `flag-icons` CSS is imported only by `MakerForm.vue` and `BrandForm.vue`, and its SVGs are emitted as files (`vite.build.assetsInlineLimit`); imported globally it added ~420 kB of inline CSS to every SSR response.
 
 ## Community Submission Workflows
 

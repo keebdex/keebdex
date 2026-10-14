@@ -186,6 +186,12 @@ export default defineNuxtConfig({
 
   // pre-bundling to avoid page reloads
   vite: {
+    build: {
+      // Keep flag-icons' ~540 SVG flags as files instead of data URIs in its
+      // stylesheet, which otherwise weighs ~420 kB
+      assetsInlineLimit: (filePath) =>
+        filePath.includes('/flag-icons/') ? false : undefined,
+    },
     optimizeDeps: {
       include: [
         '@internationalized/date',
