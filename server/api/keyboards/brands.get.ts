@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await client
     .from('keyboard_brands')
-    .select('*, keyboards(id, keyboard_releases(id))')
+    .select()
     .order('slug', { ascending: true })
 
   if (error) {

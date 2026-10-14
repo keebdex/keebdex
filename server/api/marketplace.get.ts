@@ -24,7 +24,11 @@ export default defineEventHandler(async (event) => {
   if (collections?.length) {
     const { data: items, error: itemsError } = await client
       .from('user_collection_items')
-      .select('*, artisan:artisan_colorways(*, sculpt:artisan_sculpts(name))')
+      .select(
+          // Only what the Trading Hub shows: up to 1000 items come back,
+          // and full colorway rows made the response close to 1 MB
+          'id, collection_id, priority, asking_price, artisan:artisan_colorways(id, name, img, maker_id, sculpt_id, colorway_id, sculpt:artisan_sculpts(name))',
+        )
       .in(
         'collection_id',
         collections.map((c: any) => c.id),

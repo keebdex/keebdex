@@ -78,8 +78,19 @@ useSeoMeta({
   title: 'Artisan Makers',
 })
 
-const { data, refresh } = await useAsyncData('artisan-makers', () =>
-  $fetch('/api/makers'),
+// The grid and the pin modal only read these; the full rows (bios,
+// contributors, links) would triple the SSR payload
+const { data, refresh } = await useAsyncData(
+  'artisan-makers',
+  () => $fetch('/api/makers'),
+  {
+    transform: (makers) =>
+      makers.map(({ id, name, invertible_logo }) => ({
+        id,
+        name,
+        invertible_logo,
+      })),
+  },
 )
 
 const userStore = useUserStore()
