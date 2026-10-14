@@ -156,11 +156,6 @@ useSeoMeta({
   description,
 })
 
-defineOgImage('Base', {
-  title: `${data.value.profile.name} ${data.value.name}`,
-  description,
-})
-
 const visible = ref(false)
 const selectedColor = ref({})
 

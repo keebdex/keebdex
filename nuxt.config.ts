@@ -15,6 +15,8 @@ const isCloudflare =
 
 // https://nuxt.com/docs/api/nuxt-config
 export default defineNuxtConfig({
+  compatibilityDate: '2026-10-14',
+
   build: {
     // fixing @babel/runtime issue in production build
     transpile: [...(isProduction ? ['@babel/runtime'] : [])],
@@ -72,6 +74,10 @@ export default defineNuxtConfig({
   ],
 
   fonts: {
+    // Every family below (and in the theme presets) is a Google Font, so skip
+    // the other providers (bunny, fontshare, fontsource, …), which can fetch
+    // their font lists over the network at startup
+    provider: 'google',
     defaults: { weights: [400, 500, 600, 700] },
     families: [
       { name: 'Reddit Sans', global: true },

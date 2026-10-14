@@ -171,10 +171,6 @@ useSeoMeta({
   description,
 })
 
-defineOgImage('Base', {
-  title: `${data.value.profile.name} ${data.value.name}`,
-})
-
 const visible = ref(false)
 const selectedKit = ref({})
 

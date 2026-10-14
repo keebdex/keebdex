@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^1.0.2",
-    "@takumi-rs/core": "2.14.0",
+    "@takumi-rs/core": "2.15.2",
     "crc": "4.3.2",
     "flag-icons": "^7.5.0",
     "modern-screenshot": "^4.6.8",
@@ -61,12 +61,13 @@
     "@iconify-json/solar": "^1.2.13",
     "@nuxt/content": "^3.16.1",
     "@nuxt/eslint": "^1.17.0",
+    "@nuxt/fonts": "^1.0.1",
     "@nuxt/image": "^2.1.0",
     "@nuxt/ui": "^4.11.3",
     "@nuxtjs/device": "^4.0.0",
     "@nuxtjs/supabase": "2.0.10",
     "@tailwindcss/typography": "^0.5.20",
-    "@takumi-rs/wasm": "2.14.0",
+    "@takumi-rs/wasm": "2.15.2",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.keyby": "^4.6.9",
     "@types/lodash.omit": "^4.5.9",
@@ -84,7 +85,7 @@
     "lodash.omit": "^4.18.0",
     "lodash.sortby": "^4.7.0",
     "nuxt": "4.6.1",
-    "nuxt-og-image": "^6.10.3",
+    "nuxt-og-image": "^7.0.7",
     "prettier": "^3.9.10"
   }
 }
