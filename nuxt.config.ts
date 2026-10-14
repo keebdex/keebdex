@@ -68,8 +68,6 @@ export default defineNuxtConfig({
     '@nuxtjs/device',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
-    '@vercel/analytics',
-    '@vercel/speed-insights',
     'nuxt-og-image',
   ],
 
