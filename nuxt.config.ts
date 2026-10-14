@@ -27,6 +27,36 @@ export default defineNuxtConfig({
     },
   },
 
+  // Each SSR request runs on a Cloudflare Worker with 10 ms of CPU on the
+  // Free plan. Static pages are prerendered, and pages that are private or
+  // tools without search value render on the client, so the Worker only sends
+  // the app shell. Public catalog pages keep SSR for search engines and link
+  // previews. Rendered HTML is not cached: it depends on the theme and color
+  // mode cookies and on the device.
+  routeRules: {
+    '/about': { prerender: true },
+    '/changelog': { prerender: true },
+    '/privacy': { prerender: true },
+    '/why-choose-keebdex': { prerender: true },
+
+    '/account/**': { ssr: false },
+    '/admin/**': { ssr: false },
+    '/notifications': { ssr: false },
+    '/collection': { ssr: false },
+    '/collection/artisan/*/sort': { ssr: false },
+    '/artisan/wishlist': { ssr: false },
+    // Long lists (up to 1000 trade items, 72 search results) take 50-150 ms
+    // to render on the server
+    '/artisan/marketplace': { ssr: false },
+    '/artisan/search': { ssr: false },
+    '/artisan/submissions/**': { ssr: false },
+    '/keyboard/submissions/**': { ssr: false },
+    '/keyset/submissions/**': { ssr: false },
+    '/keyboard/brand/*/*/sort': { ssr: false },
+    '/keyset/*/*/color': { ssr: false },
+    '/keyset/*/*/kit': { ssr: false },
+  },
+
   css: ['~/assets/main.css'],
 
   modules: [
@@ -113,6 +143,12 @@ export default defineNuxtConfig({
   content: isCloudflare
     ? { database: { type: 'd1', bindingName: 'DB' } }
     : {},
+
+  // Absolute og:image URLs for the OG images of prerendered pages, which have
+  // no request host to build them from (NUXT_SITE_URL overrides it)
+  site: {
+    url: app.homepage,
+  },
 
   supabase: {
     redirect: false,

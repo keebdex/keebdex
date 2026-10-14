@@ -133,6 +133,12 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Image uploads (`server/api/images/upload.post.ts`) require staff permission via `canManageAssignment`, except the `artisan` and `keyset` module categories, which any authenticated user may upload to (community colorway/keyset submissions); the underlying record save still enforces its own permission checks.
 - For schema changes, draft an idempotent SQL migration under `supabase/migrations/` for the user to review and run in the Supabase SQL editor. `supabase/` is its own repository: commit there only when asked, following `supabase/AGENTS.md`.
 
+## Cloudflare Worker Budget
+
+Production runs on Cloudflare Pages (Free plan: 10 ms of CPU and 128 MB per request; Error 1102 when exceeded), so keep Worker work small:
+
+- `routeRules` in `nuxt.config.ts`: `/about`, `/changelog`, `/privacy`, and `/why-choose-keebdex` are prerendered (served as static files); private pages and tools (`/account/**`, `/admin/**`, `/notifications`, `/collection`, sort pages, submission pages, keyset `kit`/`color` editors, `/artisan/wishlist`, `/artisan/marketplace`, `/artisan/search`) are `ssr: false`. Public catalog pages keep SSR. Do not cache rendered HTML: it depends on the theme and color-mode cookies and the device. Add new private or list-heavy pages to the `ssr: false` group.
+
 ## Community Submission Workflows
 
 Signed-in users can propose artisan colorways, keyset kits, and keyboard variants; staff review them before they become public. Every domain uses the same pieces:
