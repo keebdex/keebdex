@@ -49,6 +49,24 @@ const runCombinedSearch = async ({
 // colorways shown in the palette; the rest are on the results page
 const PALETTE_COLORWAY_LIMIT = 24
 
+// Only the columns the palette items below are built from: the search runs
+// as the user types, and full rows (with their search vectors) made parsing
+// the responses most of its CPU time
+const SELECT = {
+  makers: 'id, name, invertible_logo',
+  sculpts:
+    'id, name, maker_id, sculpt_id, maker:artisan_makers(name, invertible_logo)',
+  keysets:
+    'id, name, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
+  brands: 'id, name, slug, invertible_logo',
+  keyboards:
+    'id, name, brand_keyboard_slug, brand_slug, brand:keyboard_brands(name, slug, invertible_logo)',
+  releases:
+    'id, name, brand_keyboard_slug, brand_slug, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
+  variants:
+    'id, variant_name, brand_keyboard_slug, brand_slug, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug, invertible_logo)',
+} as const
+
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
@@ -88,13 +106,13 @@ export default defineEventHandler(async (event) => {
         label: 'Artisan Makers',
         ftsQuery: client
           .from('artisan_makers')
-          .select()
+          .select(SELECT.makers)
           .textSearch('fts', `${fts}`)
           .order('id')
           .limit(10),
         likeQuery: client
           .from('artisan_makers')
-          .select()
+          .select(SELECT.makers)
           .or(`name.ilike.%${queryText}%,id.ilike.%${queryText}%`)
           .order('id')
           .limit(10),
@@ -107,13 +125,13 @@ export default defineEventHandler(async (event) => {
         label: 'Artisan Sculpts',
         ftsQuery: client
           .from('artisan_sculpts')
-          .select('*, maker:artisan_makers(name, invertible_logo)')
+          .select(SELECT.sculpts)
           .textSearch('fts', `${fts}`)
           .order('maker_sculpt_id')
           .limit(20),
         likeQuery: client
           .from('artisan_sculpts')
-          .select('*, maker:artisan_makers(name, invertible_logo)')
+          .select(SELECT.sculpts)
           .or(
             `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%`,
           )
@@ -136,13 +154,13 @@ export default defineEventHandler(async (event) => {
         label: 'Keysets',
         ftsQuery: client
           .from('keysets')
-          .select('*, profile:keyset_profiles(name, manufacturer_id)')
+          .select(SELECT.keysets)
           .textSearch('fts', `${fts}`)
           .order('profile_keyset_id')
           .limit(10),
         likeQuery: client
           .from('keysets')
-          .select('*, profile:keyset_profiles(name, manufacturer_id)')
+          .select(SELECT.keysets)
           .or(
             `name.ilike.%${queryText}%,profile_keyset_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
           )
@@ -159,13 +177,13 @@ export default defineEventHandler(async (event) => {
         label: 'Keyboard Brands',
         ftsQuery: client
           .from('keyboard_brands')
-          .select('*')
+          .select(SELECT.brands)
           .textSearch('fts', `${fts}`)
           .order('slug')
           .limit(10),
         likeQuery: client
           .from('keyboard_brands')
-          .select('*')
+          .select(SELECT.brands)
           .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
           .order('slug')
           .limit(10),
@@ -178,13 +196,13 @@ export default defineEventHandler(async (event) => {
         label: 'Keyboards',
         ftsQuery: client
           .from('keyboards')
-          .select('*, brand:keyboard_brands(name, slug, invertible_logo)')
+          .select(SELECT.keyboards)
           .textSearch('fts', `${fts}`)
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
           .from('keyboards')
-          .select('*, brand:keyboard_brands(name, slug, invertible_logo)')
+          .select(SELECT.keyboards)
           .or(
             `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
           )
@@ -199,17 +217,13 @@ export default defineEventHandler(async (event) => {
         label: 'Keyboard Releases',
         ftsQuery: client
           .from('keyboard_releases')
-          .select(
-            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
-          )
+          .select(SELECT.releases)
           .textSearch('fts', `${fts}`)
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
           .from('keyboard_releases')
-          .select(
-            '*, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
-          )
+          .select(SELECT.releases)
           .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
           .order('brand_keyboard_slug')
           .limit(20),
@@ -222,17 +236,13 @@ export default defineEventHandler(async (event) => {
         label: 'Keyboard Variants',
         ftsQuery: client
           .from('keyboard_variants')
-          .select(
-            '*, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug, invertible_logo)',
-          )
+          .select(SELECT.variants)
           .textSearch('fts', `${fts}`)
           .order('release_id')
           .limit(20),
         likeQuery: client
           .from('keyboard_variants')
-          .select(
-            '*, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug)',
-          )
+          .select(SELECT.variants)
           .ilike('variant_name', `%${queryText}%`)
           .order('release_id')
           .limit(20),

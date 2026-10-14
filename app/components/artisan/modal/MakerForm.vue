@@ -160,6 +160,7 @@
 
 <script setup>
 import country from 'flag-icons/country.json'
+import 'flag-icons/css/flag-icons.min.css'
 import slugify from 'slugify'
 import { makerSchema } from '~/utils/schemas/artisan'
 

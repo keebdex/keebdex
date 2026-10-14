@@ -8,9 +8,10 @@ export default defineEventHandler(async (event) => {
 
   const startOfDay = today(getLocalTimeZone()).subtract({ days: 1 }).toString()
 
+  // Only the maker of each new colorway is needed to count additions
   const { data, error } = await client
     .from('artisan_colorways')
-    .select('*, maker:artisan_makers(name, invertible_logo)')
+    .select('maker_id, maker:artisan_makers(name, invertible_logo)')
     .gte('created_at', startOfDay)
 
   if (error) {
@@ -31,9 +32,12 @@ export default defineEventHandler(async (event) => {
     },
   )
 
+  // Only the fields the home page's fresh releases marquee shows
   const { data: keysets, error: keysetsError } = await client
     .from('keysets')
-    .select('*, profile:keyset_profiles(name, manufacturer_id)')
+    .select(
+      'name, img, start_date, end_date, profile_id, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
+    )
     .eq('status', 'Live')
     .eq('review_status', 'Approved')
   // .lte('start_date', startOfDay)

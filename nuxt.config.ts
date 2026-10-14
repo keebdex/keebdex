@@ -15,6 +15,8 @@ const isCloudflare =
 
 // https://nuxt.com/docs/api/nuxt-config
 export default defineNuxtConfig({
+  compatibilityDate: '2026-10-14',
+
   build: {
     // fixing @babel/runtime issue in production build
     transpile: [...(isProduction ? ['@babel/runtime'] : [])],
@@ -25,6 +27,36 @@ export default defineNuxtConfig({
       // Exclude papaparse from the server bundle
       external: ['papaparse'],
     },
+  },
+
+  // Each SSR request runs on a Cloudflare Worker with 10 ms of CPU on the
+  // Free plan. Static pages are prerendered, and pages that are private or
+  // tools without search value render on the client, so the Worker only sends
+  // the app shell. Public catalog pages keep SSR for search engines and link
+  // previews. Rendered HTML is not cached: it depends on the theme and color
+  // mode cookies and on the device.
+  routeRules: {
+    '/about': { prerender: true },
+    '/changelog': { prerender: true },
+    '/privacy': { prerender: true },
+    '/why-choose-keebdex': { prerender: true },
+
+    '/account/**': { ssr: false },
+    '/admin/**': { ssr: false },
+    '/notifications': { ssr: false },
+    '/collection': { ssr: false },
+    '/collection/artisan/*/sort': { ssr: false },
+    '/artisan/wishlist': { ssr: false },
+    // Long lists (up to 1000 trade items, 72 search results) take 50-150 ms
+    // to render on the server
+    '/artisan/marketplace': { ssr: false },
+    '/artisan/search': { ssr: false },
+    '/artisan/submissions/**': { ssr: false },
+    '/keyboard/submissions/**': { ssr: false },
+    '/keyset/submissions/**': { ssr: false },
+    '/keyboard/brand/*/*/sort': { ssr: false },
+    '/keyset/*/*/color': { ssr: false },
+    '/keyset/*/*/kit': { ssr: false },
   },
 
   css: ['~/assets/main.css'],
@@ -38,12 +70,14 @@ export default defineNuxtConfig({
     '@nuxtjs/device',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
-    '@vercel/analytics',
-    '@vercel/speed-insights',
     'nuxt-og-image',
   ],
 
   fonts: {
+    // Every family below (and in the theme presets) is a Google Font, so skip
+    // the other providers (bunny, fontshare, fontsource, …), which can fetch
+    // their font lists over the network at startup
+    provider: 'google',
     defaults: { weights: [400, 500, 600, 700] },
     families: [
       { name: 'Reddit Sans', global: true },
@@ -102,17 +136,34 @@ export default defineNuxtConfig({
     },
   },
 
-  // icon: {
-  //   clientBundle: {
-  //     icons: ['hugeicons', 'simple-icons', 'solar'],
-  //   },
-  // },
+  // On Cloudflare, @nuxt/icon would serve icons from the Worker
+  // (/api/_nuxt_icon) by downloading and parsing whole collections from
+  // jsDelivr in every new isolate (solar 11.7 MB, simple-icons 4.8 MB,
+  // hugeicons 3.5 MB: about 3-15 ms of CPU and 4-12 MB of memory each). The
+  // icons named in the code are bundled instead (SSR reads the same bundle),
+  // and the rest, such as announcement icons from the database, load from the
+  // Iconify API.
+  icon: {
+    provider: 'iconify',
+    clientBundle: {
+      scan: {
+        globInclude: ['app/**/*.{vue,ts,js}', 'content/**/*.md'],
+      },
+      sizeLimitKb: 512,
+    },
+  },
 
   // The changelog collection is read from the keebdex-db D1 database, bound
   // to the Worker as DB. Dev and other hosts use Nuxt Content's SQLite.
   content: isCloudflare
     ? { database: { type: 'd1', bindingName: 'DB' } }
     : {},
+
+  // Absolute og:image URLs for the OG images of prerendered pages, which have
+  // no request host to build them from (NUXT_SITE_URL overrides it)
+  site: {
+    url: app.homepage,
+  },
 
   supabase: {
     redirect: false,
@@ -152,6 +203,12 @@ export default defineNuxtConfig({
 
   // pre-bundling to avoid page reloads
   vite: {
+    build: {
+      // Keep flag-icons' ~540 SVG flags as files instead of data URIs in its
+      // stylesheet, which otherwise weighs ~420 kB
+      assetsInlineLimit: (filePath) =>
+        filePath.includes('/flag-icons/') ? false : undefined,
+    },
     optimizeDeps: {
       include: [
         '@internationalized/date',

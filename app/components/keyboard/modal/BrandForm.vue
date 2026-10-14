@@ -89,6 +89,7 @@
 <script setup>
 import slugify from 'slugify'
 import country from 'flag-icons/country.json'
+import 'flag-icons/css/flag-icons.min.css'
 import { brandSchema } from '~/utils/schemas/keyboard'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
