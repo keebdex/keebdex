@@ -152,7 +152,12 @@ const sidebarOpen = useState('wishlist-sidebar-open', () => true)
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
 const { data: collections, refresh } = await useAsyncData(
-  () => $fetch(`/api/users/${user.value.uid}/collection-items`).catch(() => []),
+  // Guests have no collections: skip the request instead of asking the API
+  // for user "undefined"
+  () =>
+    user.value.uid
+      ? $fetch(`/api/users/${user.value.uid}/collection-items`).catch(() => [])
+      : Promise.resolve([]),
   {
     watch: [user],
     transform: (data) => {
