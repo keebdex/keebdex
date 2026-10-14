@@ -2,15 +2,18 @@ import { serverSupabaseClient } from '#supabase/server'
 import groupBy from 'lodash.groupby'
 
 const MAX_PAGE_SIZE = 50
+const INTENTS = ['want', 'sell']
 
 /**
  * Published Wishlist / For Sale or Trade artisan collections that list at
  * least one item, newest first, one page at a time, each with its listed
- * items. Backs the Trading Hub.
+ * items. `intent=want|sell` keeps only Wishlist or For Sale or Trade
+ * collections. Backs the Trading Hub.
  */
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { page, size } = getQuery(event)
+  const { page, size, intent } = getQuery(event)
+  const intents = INTENTS.includes(String(intent)) ? [String(intent)] : INTENTS
 
   const pageSize = Math.min(Math.max(Number(size) || 20, 1), MAX_PAGE_SIZE)
   const from = (Math.max(Number(page) || 1, 1) - 1) * pageSize
@@ -27,7 +30,7 @@ export default defineEventHandler(async (event) => {
       })
       .eq('published', true)
       .eq('category', 'artisan')
-      .in('intent', ['want', 'sell'])
+      .in('intent', intents)
       .eq('listed.exchange', true)
 
   const {
@@ -62,7 +65,7 @@ export default defineEventHandler(async (event) => {
     .select(
       // Only what the Trading Hub shows; full colorway rows made the
       // response far larger than needed
-      'id, collection_id, priority, asking_price, artisan:artisan_colorways(id, name, img, maker_id, sculpt_id, colorway_id, sculpt:artisan_sculpts(name))',
+      'id, collection_id, priority, asking_price, artisan:artisan_colorways(id, name, img, maker_id, sculpt_id, colorway_id, sculpt:artisan_sculpts(name), maker:artisan_makers(name))',
     )
     .in(
       'collection_id',

@@ -7,8 +7,8 @@ export default {
   ui: {
     colors: {
       primary: 'taro',
-      info: 'taro-teal',
-      success: 'taro-matcha',
+      info: 'taro-sky',
+      success: 'taro-jade',
       warning: 'taro-gold',
       neutral: 'taro-ink',
       error: 'taro-berry',
@@ -59,35 +59,35 @@ export default {
         900: '#592430',
         950: '#321018',
       }),
-      // Matcha green for success, the milk tea companion to taro
-      ...palette('taro-matcha', {
-        50: '#F3F6EF',
-        100: '#E6EDDB',
-        200: '#CFDCBB',
-        300: '#B0C38F',
-        400: '#8CA75B',
-        500: '#708C34',
-        600: '#5B7521',
-        700: '#4B6119',
-        800: '#3E4F18',
-        900: '#313F16',
-        950: '#192209',
+      // 500 = #00a4a9, a bright jade for success
+      ...palette('taro-jade', {
+        50: '#E6FAFA',
+        100: '#C2F2F2',
+        200: '#8FE6E6',
+        300: '#4FD4D6',
+        400: '#1BBFC3',
+        500: '#00A4A9',
+        600: '#00878C',
+        700: '#046B70',
+        800: '#0A565A',
+        900: '#0D474A',
+        950: '#022B2E',
       }),
-      // Dusty teal for info, softer than Tailwind teal and apart from matcha
-      ...palette('taro-teal', {
-        50: '#F0F7F7',
-        100: '#DCEDEF',
-        200: '#BDDDE0',
-        300: '#90C5CC',
-        400: '#5AAAB3',
-        500: '#2B8F9A',
-        600: '#147882',
-        700: '#0D646C',
-        800: '#135157',
-        900: '#134045',
-        950: '#082225',
+      // Soft blue for info, apart from the jade success and the taro primary
+      ...palette('taro-sky', {
+        50: '#F0F6FD',
+        100: '#DFEAFA',
+        200: '#C0D6F5',
+        300: '#94BAED',
+        400: '#6598E2',
+        500: '#4479D4',
+        600: '#3462BF',
+        700: '#2C4F9C',
+        800: '#29437E',
+        900: '#263A66',
+        950: '#1A2441',
       }),
-      // 500 = #f8c200
+      // 500 = #f8c200; 600 leans amber so light-mode warning stays bright
       ...palette('taro-gold', {
         50: '#FFFBE8',
         100: '#FFF3BD',
@@ -95,9 +95,9 @@ export default {
         300: '#FFD84D',
         400: '#FFCD1F',
         500: '#F8C200',
-        600: '#D19E00',
-        700: '#A67A00',
-        800: '#7F5D05',
+        600: '#C28400',
+        700: '#9A6A00',
+        800: '#7A5205',
         900: '#614709',
         950: '#362704',
       }),
@@ -107,7 +107,7 @@ export default {
     // neutral buttons use a darker lavender for contrast.
     light: {
       '--ui-primary': 'var(--ui-color-primary-600)',
-      '--ui-warning': 'var(--ui-color-warning-700)',
+      '--ui-warning': 'var(--ui-color-warning-600)',
       '--ui-error': 'var(--ui-color-error-600)',
       '--ui-success': 'var(--ui-color-success-600)',
       '--ui-info': 'var(--ui-color-info-600)',
