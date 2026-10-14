@@ -12,6 +12,7 @@ authors:
 
 ### 🚀 Improvements
 
+- The **Trading Hub** shows listings 20 at a time with page buttons at the bottom, so it opens quickly even as more collectors share their wishlists and trades.
 - Pages load faster, especially on phones: each page sends far less data, and icons arrive with the page instead of popping in one by one.
 - _About_, _Changelog_, _Privacy_, and _Why Keebdex_ are served as ready-made pages, so they open right away.
 - The **Trading Hub**, colorway search, and pages that only you see (your collections, notifications, settings, submissions) now load in your browser, which takes the heaviest work off the server and makes the occasional Cloudflare error page less likely.
