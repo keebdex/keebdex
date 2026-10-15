@@ -159,13 +159,7 @@
               description: 'text-sm line-clamp-2',
               footer: 'pt-3',
             }"
-            @click="
-              openPreview({
-                title: kitLabel(kit),
-                url: kit.img,
-                description: kit.description,
-              })
-            "
+            @click="openKitPreview(kit)"
           >
             <!-- Name with its group buy price, catalog style -->
             <template #title>
@@ -243,13 +237,45 @@
       </section>
       <UModal
         v-model:open="preview.open"
-        :title="preview.title"
-        :description="preview.description || undefined"
+        :title="previewKit ? kitLabel(previewKit) : preview.title"
+        :description="
+          (previewKit ? previewKit.description : preview.description) ||
+          undefined
+        "
         :ui="{ content: 'max-w-5xl' }"
       >
         <template #body>
+          <!-- Opened from a kit: swipe, arrows, or arrow keys through every kit -->
+          <template v-if="previewKit">
+            <UCarousel
+              ref="kitCarousel"
+              v-slot="{ item }"
+              :items="previewKits"
+              :start-index="kitStart"
+              loop
+              :arrows="previewKits.length > 1"
+              :ui="{ prev: 'start-2 sm:start-2', next: 'end-2 sm:end-2' }"
+              @select="preview.kitIndex = $event"
+            >
+              <NuxtImg
+                :src="item.img"
+                :alt="kitLabel(item)"
+                loading="lazy"
+                decoding="async"
+                class="w-full aspect-video rounded-lg object-contain"
+              />
+            </UCarousel>
+
+            <p
+              v-if="previewKits.length > 1"
+              class="mt-3 text-center text-sm text-muted tabular-nums"
+            >
+              {{ preview.kitIndex + 1 }} / {{ previewKits.length }}
+            </p>
+          </template>
+
           <NuxtImg
-            v-if="preview.url"
+            v-else-if="preview.url"
             :src="preview.url"
             :alt="preview.title"
             class="w-full rounded-lg object-contain"
@@ -406,12 +432,52 @@ const preview = reactive({
   title: '',
   url: '',
   description: '',
+  // Position in `previewKits` when a kit is shown, else -1 (cover, graphs)
+  kitIndex: -1,
 })
 
 function openPreview({ title, url, description = '' }) {
   if (!url) return
-  Object.assign(preview, { open: true, title, url, description })
+  Object.assign(preview, { open: true, title, url, description, kitIndex: -1 })
 }
+
+// Kits with a render, which the preview shows as a carousel
+const previewKits = computed(() => kits.value.filter((kit) => kit.img))
+const previewKit = computed(() => previewKits.value[preview.kitIndex])
+
+// Slide the carousel opens on; kept apart from `kitIndex`, since changing it
+// re-initializes the carousel
+const kitStart = ref(0)
+
+function openKitPreview(kit) {
+  const index = previewKits.value.indexOf(kit)
+
+  if (index < 0) return
+
+  kitStart.value = index
+  Object.assign(preview, { open: true, kitIndex: index })
+}
+
+const kitCarousel = useTemplateRef('kitCarousel')
+
+// The carousel only handles arrow keys while focused, and the modal opens with
+// focus on its close button, so the page listens too while a kit is shown.
+function stepKit(event, direction) {
+  if (event.target?.closest?.('[aria-roledescription="carousel"]')) return
+
+  kitCarousel.value?.emblaApi?.[direction]()
+}
+
+defineShortcuts(
+  computed(() =>
+    preview.open && previewKits.value.length > 1 && previewKit.value
+      ? {
+          arrowleft: (event) => stepKit(event, 'scrollPrev'),
+          arrowright: (event) => stepKit(event, 'scrollNext'),
+        }
+      : {},
+  ),
+)
 
 const { addItem } = useCollectionItem()
 
