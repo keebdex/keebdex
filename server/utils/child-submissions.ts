@@ -1,6 +1,6 @@
 import { createError, readBody } from 'h3'
 import type { H3Event } from 'h3'
-import omit from 'lodash.omit'
+import { omit } from 'es-toolkit'
 import { getActorProfile } from './admin'
 import type { ModeratorProfile } from './admin'
 import {
@@ -293,7 +293,7 @@ export const updateChildSubmission = async ({
 
   // The row is targeted by `match`; identity `id` columns can't be updated.
   const { data, error } = await matchRows(
-    from(client, table).update({ ...omit(payload, 'id'), ...resubmission }),
+    from(client, table).update({ ...omit(payload, ['id']), ...resubmission }),
     match,
   ).select()
 

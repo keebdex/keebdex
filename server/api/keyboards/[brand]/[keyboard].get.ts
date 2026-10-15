@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 import { getRandomCoverImage, omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {

@@ -1,4 +1,4 @@
-import omit from 'lodash.omit'
+import { omit } from 'es-toolkit'
 
 /**
  * Omit sensitive fields from the object before sending it to the client

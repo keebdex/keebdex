@@ -63,6 +63,7 @@ Preserve Nuxt file-based routing paths when moving or renaming pages and API han
 - Follow the existing Vue 3 Composition API style with `<script setup>`.
 - Keep Vue single-file component blocks in this order: `<template>`, then `<script setup>` (or `<script>` when required), then `<style>`.
 - Use TypeScript for new application code unless the surrounding file is intentionally JavaScript.
+- lodash is not a dependency: use native JavaScript or `es-toolkit` for array and object helpers. Import `sortBy` from `es-toolkit/compat`, which keeps lodash behavior (nested paths such as `'artisan.maker_id'`, several keys, `null` last); take the rest (`groupBy`, `keyBy`, `omit`) from `es-toolkit` with a key callback, since its main entry does not accept key strings.
 - Keep components in PascalCase. Keep variables and functions in camelCase. Use snake_case for database identifiers.
 - Keep domain-specific components in their existing domain folders; put genuinely reusable components in `app/components/shared/`.
 - Prefer existing Nuxt UI components and the established slots/configuration over custom replacements.

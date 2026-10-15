@@ -220,7 +220,7 @@
 </template>
 
 <script setup>
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 
 const appConfig = useAppConfig()
 const config = useRuntimeConfig()

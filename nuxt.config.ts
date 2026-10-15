@@ -214,8 +214,6 @@ export default defineNuxtConfig({
         '@internationalized/date',
         '@vue/devtools-core',
         '@vue/devtools-kit',
-        'lodash.groupby', // CJS
-        'lodash.sortby', // CJS
         'modern-screenshot',
         'papaparse', // CJS
         'vuedraggable', // CJS

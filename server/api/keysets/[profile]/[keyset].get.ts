@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 import { omitSensitive } from '../../../utils'
 
 export default defineEventHandler(async (event) => {
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
   //     .select()
   //     .in('maker_id', makerIds)
 
-  // const makerMap = keyBy(makers, 'id')
+  // const makerMap = keyBy(makers, (m) => m.id)
   // const sculptMap = keyBy(sculpts, (s) => `${s.maker_id}/${s.sculpt_id}`)
 
   // data.artisans.forEach((cap) => {

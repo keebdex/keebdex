@@ -118,8 +118,8 @@
 </template>
 
 <script setup>
-import groupBy from 'lodash.groupby'
-import sortBy from 'lodash.sortby'
+import { groupBy } from 'es-toolkit'
+import { sortBy } from 'es-toolkit/compat'
 
 const { isMobile } = useDevice()
 
@@ -160,16 +160,9 @@ const { data: collections, refresh } = await useAsyncData(
       : Promise.resolve([]),
   {
     watch: [user],
-    transform: (data) => {
-      return Object.values(groupBy(data, 'collection_id')).reduce(
-        (out, cur) => {
-          out[cur[0].collection_id] = sortBy(cur, ['order', 'id'])
-
-          return out
-        },
-        {},
-      )
-    },
+    // Sorting first keeps each collection's items in order once grouped
+    transform: (data) =>
+      groupBy(sortBy(data, ['order', 'id']), (item) => item.collection_id),
   },
 )
 

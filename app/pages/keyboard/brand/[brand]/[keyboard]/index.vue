@@ -364,7 +364,7 @@
 </template>
 
 <script setup>
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 
 const route = useRoute()
 const userStore = useUserStore()

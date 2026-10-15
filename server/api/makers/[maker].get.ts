@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
-import keyBy from 'lodash.keyby'
-import sortBy from 'lodash.sortby'
+import { keyBy } from 'es-toolkit'
+import { sortBy } from 'es-toolkit/compat'
 import { omitSensitive } from '../../utils'
 
 function sortSculpts(sculpts: any) {
@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
     return omitSensitive(sculpt)
   })
 
-  profile.sculpts = keyBy(sortSculpts(sculpts), 'sculpt_id')
+  profile.sculpts = keyBy(sortSculpts(sculpts), (s) => s.sculpt_id)
 
   return omitSensitive(profile)
 })

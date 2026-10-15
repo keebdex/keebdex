@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import groupBy from 'lodash.groupby'
+import { groupBy } from 'es-toolkit'
 
 const MAX_PAGE_SIZE = 50
 const INTENTS = ['want', 'sell']
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const group = groupBy(items, 'collection_id')
+  const group = groupBy(items || [], (item) => item.collection_id)
 
   return {
     data: collections.map(({ listed: _listed, ...collection }) => ({

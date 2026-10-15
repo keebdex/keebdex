@@ -67,7 +67,7 @@
 </template>
 
 <script setup>
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 import draggable from 'vuedraggable'
 
 const appConfig = useAppConfig()

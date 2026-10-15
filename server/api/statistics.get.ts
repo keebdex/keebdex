@@ -1,7 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { getLocalTimeZone, today } from '@internationalized/date'
-import groupBy from 'lodash.groupby'
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -21,16 +20,24 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const makers = Object.entries(groupBy(data, 'maker.name')).map(
-    ([name, keysets]) => {
-      return {
+  // Count each maker's new colorways in a single pass
+  const additions = new Map()
+  for (const colorway of data) {
+    const name = String(colorway.maker?.name)
+    const maker = additions.get(name)
+
+    if (maker) {
+      maker.additions++
+    } else {
+      additions.set(name, {
         name,
-        invertible_logo: keysets[0].maker.invertible_logo,
-        id: keysets[0].maker_id,
-        additions: keysets.length,
-      }
-    },
-  )
+        invertible_logo: colorway.maker?.invertible_logo,
+        id: colorway.maker_id,
+        additions: 1,
+      })
+    }
+  }
+  const makers = [...additions.values()]
 
   // Only the fields the home page's fresh releases marquee shows
   const { data: keysets, error: keysetsError } = await client

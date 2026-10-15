@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import sortBy from 'lodash.sortby'
+import { sortBy } from 'es-toolkit/compat'
 import { defineStore } from 'pinia'
 import { canManageAnyAssignment, canManageAssignment } from '~/utils/permissions'
 
