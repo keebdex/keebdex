@@ -89,7 +89,7 @@
       <UFormField
         label="Priority"
         name="priority"
-        help="Higher shows first. The top three show as toasts."
+        help="Higher shows first: the top three toasts and the top banner."
       >
         <UInputNumber
           v-model="form.priority"
@@ -154,11 +154,19 @@
       </UFormField>
     </div>
 
-    <UFormField name="show_toast">
-      <USwitch
-        v-model="form.show_toast"
-        label="Show as a toast"
-        description="It is always listed in the Announcements tab."
+    <UFormField
+      label="Show As"
+      name="display"
+      required
+      help="It is always listed in the Announcements tab."
+    >
+      <URadioGroup
+        v-model="form.display"
+        :items="ANNOUNCEMENT_DISPLAY_OPTIONS"
+        variant="card"
+        orientation="horizontal"
+        indicator="hidden"
+        :ui="{ fieldset: 'grid sm:grid-cols-3 gap-2', item: 'items-start' }"
       />
     </UFormField>
 
@@ -167,6 +175,7 @@
         <p class="text-sm font-medium text-highlighted">Preview</p>
 
         <UButton
+          v-if="form.display === 'toast'"
           label="Preview Toast"
           icon="hugeicons:eye"
           size="sm"
@@ -175,6 +184,19 @@
           @click="previewToast"
         />
       </div>
+
+      <!-- The chosen display first, then the tab row every announcement gets. -->
+      <template v-if="form.display === 'banner'">
+        <p class="text-xs text-muted">Banner</p>
+
+        <UBanner
+          v-bind="announcementBanner(preview, () => {})"
+          :close="false"
+          class="rounded-md overflow-hidden"
+        />
+      </template>
+
+      <p class="text-xs text-muted">Announcements tab</p>
 
       <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1' }">
         <NotificationAnnouncementItem :announcement="preview" />
@@ -206,6 +228,7 @@ import type {
   Announcement,
   AnnouncementAudience,
   AnnouncementColor,
+  AnnouncementDisplay,
 } from '~/utils/announcements'
 
 const PREVIEW_TOAST_ID = 'announcement-preview'
@@ -282,7 +305,7 @@ const form = reactive({
   color: (source?.color || 'primary') as AnnouncementColor,
   cta_label: source?.cta_label || '',
   cta_url: source?.cta_url || '',
-  show_toast: source?.show_toast ?? true,
+  display: (source?.display || 'toast') as AnnouncementDisplay,
   audience: (source?.audience || 'all') as AnnouncementAudience,
   priority: source?.priority ?? 0,
 })

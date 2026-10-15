@@ -260,7 +260,7 @@ const readFilter = computed({
 
 // Announcements have their own tab, so personal notifications don't get lost
 // among them, and their own unread badge. Reading one (or its CTA) dismisses
-// it, so it no longer shows as a toast either.
+// it, so it no longer shows as a toast or banner either.
 const {
   items: announcementItems,
   loaded: announcementsLoaded,
@@ -357,7 +357,7 @@ const groups = computed(() =>
   groupByDate(visible.value, (item) => item.created_at),
 )
 
-// Newest first like notifications; priority only orders the toasts.
+// Newest first like notifications; priority only orders toasts and banners.
 const visibleAnnouncements = computed(() =>
   unreadOnly.value
     ? announcementItems.value.filter(isAnnouncementUnread)

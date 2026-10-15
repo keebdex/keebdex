@@ -51,7 +51,16 @@
 
     <KeebSearch :routes="groups" />
 
-    <div class="flex flex-col w-full">
+    <!-- Panels default to min-h-svh; min-h-0 lets the page shrink under the banner. -->
+    <div class="flex flex-col w-full *:min-h-0">
+      <UBanner
+        v-if="banner"
+        :key="banner.key"
+        v-bind="bannerProps"
+        class="shrink-0"
+        @close="announcements.dismiss(banner.key)"
+      />
+
       <slot />
     </div>
 
@@ -331,6 +340,17 @@ watch(collapsed, (isCollapsed, wasCollapsed) => {
     routesMenuKey.value += 1
   }
 })
+
+// The banner across the top of every page: one announcement at a time, the
+// next one taking its place once it is dismissed (keyed, so it remounts).
+const banner = computed(() => announcements.bannerItem.value)
+const bannerProps = computed(
+  () =>
+    banner.value &&
+    announcementBanner(banner.value, () =>
+      announcements.dismiss(banner.value.key),
+    ),
+)
 
 // Announcement toasts on every page, once per page load (the layout stays
 // mounted across navigation). Everything goes through one toast queue with

@@ -36,7 +36,7 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
     id: 'announcements',
     label: 'Announcements',
     description:
-      'News about Keebdex as toasts when you open the site. The Announcements tab always lists them.',
+      'News about Keebdex as toasts when you open the site. Banners at the top of the page stay on, and the Announcements tab always lists everything.',
     icon: 'hugeicons:megaphone-01',
     items: [{ key: 'announcement_toasts', label: 'Toasts' }],
   },

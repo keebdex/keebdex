@@ -7,6 +7,9 @@ export const ANNOUNCEMENT_AUDIENCES = [
   'mods',
 ] as const
 
+/** Besides the Announcements tab, where every announcement is listed. */
+export const ANNOUNCEMENT_DISPLAYS = ['toast', 'banner', 'none'] as const
+
 export const ANNOUNCEMENT_COLORS = [
   'primary',
   'secondary',
@@ -71,7 +74,7 @@ export const announcementFieldsSchema = z.object({
       )
       .nullish(),
   ),
-  show_toast: z.boolean(),
+  display: z.enum(ANNOUNCEMENT_DISPLAYS),
   audience: z.enum(ANNOUNCEMENT_AUDIENCES),
   priority: z.number().int().min(-1000).max(1000),
   starts_at: dateTimeSchema,

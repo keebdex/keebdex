@@ -22,9 +22,10 @@
         :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
       >
         <template #header>
-          Announcements show as toasts when the site opens (top three by
-          priority) and in the Announcements tab of Notifications. Changes apply
-          on the next page load, without a deploy.
+          Each announcement shows as a toast when the site opens (top three by
+          priority), as the banner across the top of every page (one at a time),
+          or neither, and is always listed in the Announcements tab of
+          Notifications. Changes apply on the next page load, without a deploy.
         </template>
 
         <UTable
@@ -63,17 +64,14 @@
             {{ ANNOUNCEMENT_AUDIENCE_LABELS[row.original.audience] }}
           </template>
 
-          <template #show_toast-cell="{ row }">
-            <UIcon
-              :name="
-                row.original.show_toast
-                  ? 'hugeicons:checkmark-circle-02'
-                  : 'hugeicons:minus-sign-circle'
-              "
-              :class="row.original.show_toast ? 'text-success' : 'text-dimmed'"
-              class="size-5"
-              :aria-label="row.original.show_toast ? 'Toast' : 'Tab only'"
-            />
+          <template #display-cell="{ row }">
+            <div class="flex items-center gap-1.5 whitespace-nowrap">
+              <UIcon
+                :name="DISPLAY_OPTIONS[row.original.display].icon"
+                class="size-4 shrink-0 text-muted"
+              />
+              {{ DISPLAY_OPTIONS[row.original.display].label }}
+            </div>
           </template>
 
           <template #schedule-cell="{ row }">
@@ -93,7 +91,10 @@
 
           <template #action-cell="{ row }">
             <div class="flex items-center justify-end gap-1">
-              <UTooltip text="Preview Toast">
+              <UTooltip
+                v-if="row.original.display === 'toast'"
+                text="Preview Toast"
+              >
                 <UButton
                   icon="hugeicons:eye"
                   variant="ghost"
@@ -196,7 +197,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Announcement, AnnouncementStatus } from '~/utils/announcements'
+import type {
+  Announcement,
+  AnnouncementDisplay,
+  AnnouncementStatus,
+} from '~/utils/announcements'
 
 definePageMeta({
   middleware: 'admin',
@@ -233,11 +238,15 @@ const STATUS_COLORS: Record<
   ended: 'neutral',
 }
 
+const DISPLAY_OPTIONS = Object.fromEntries(
+  ANNOUNCEMENT_DISPLAY_OPTIONS.map((option) => [option.value, option]),
+) as Record<AnnouncementDisplay, (typeof ANNOUNCEMENT_DISPLAY_OPTIONS)[number]>
+
 const columns = [
   { accessorKey: 'title', header: 'Announcement' },
   { id: 'status', header: 'Status' },
   { accessorKey: 'audience', header: 'Audience' },
-  { accessorKey: 'show_toast', header: 'Toast' },
+  { accessorKey: 'display', header: 'Shown As' },
   { accessorKey: 'priority', header: 'Priority' },
   { id: 'schedule', header: 'Schedule' },
   { id: 'action' },

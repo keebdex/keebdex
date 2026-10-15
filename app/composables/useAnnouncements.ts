@@ -74,9 +74,10 @@ const legacyDismissals = () => {
 
 /**
  * Live announcements for the current visitor (`GET /api/announcements`).
- * Shared by the announcement toasts (shown by the layout), the Announcements tab of /notifications, and
- * the sidebar badge; `plugins/announcements.client.ts` loads them for
- * signed-in users and merges this device's dismissals on sign-in.
+ * Shared by the announcement toasts and banner (shown by the layout), the
+ * Announcements tab of /notifications, and the sidebar badge;
+ * `plugins/announcements.client.ts` loads them for signed-in users and merges
+ * this device's dismissals on sign-in.
  *
  * Dismissed (or read, which is the same thing) means:
  * - guests: this device's list plus the old toasts' acknowledged keys;
@@ -126,7 +127,18 @@ export const useAnnouncements = () => {
   const toastItems = computed(() =>
     payload.value?.toasts === false
       ? []
-      : items.value.filter((item) => item.show_toast && !isDismissed(item.key)),
+      : items.value.filter(
+          (item) => item.display === 'toast' && !isDismissed(item.key),
+        ),
+  )
+
+  // The banner: the highest-priority banner announcement not dismissed yet.
+  // Not a toast, so the toast preference leaves it on.
+  const bannerItem = computed(
+    () =>
+      items.value.find(
+        (item) => item.display === 'banner' && !isDismissed(item.key),
+      ) || null,
   )
 
   const isUnread = (item: Announcement) =>
@@ -328,6 +340,7 @@ export const useAnnouncements = () => {
     loading: readonly(loading),
     loaded: computed(() => !!payload.value),
     toastItems,
+    bannerItem,
     unread,
     isUnread,
     load,

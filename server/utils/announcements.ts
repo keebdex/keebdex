@@ -2,7 +2,7 @@ import { createError } from 'h3'
 import type { ZodType } from 'zod'
 
 export const ANNOUNCEMENT_FIELDS =
-  'key, title, description, icon, color, cta_label, cta_url, show_toast, audience, priority, starts_at, ends_at'
+  'key, title, description, icon, color, cta_label, cta_url, display, audience, priority, starts_at, ends_at'
 
 /** The `notification_preferences` key that turns announcement toasts off. */
 export const ANNOUNCEMENT_TOASTS_PREFERENCE = 'announcement_toasts'
