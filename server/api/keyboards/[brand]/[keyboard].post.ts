@@ -33,6 +33,24 @@ export default defineEventHandler(async (event) => {
     typing_angle: toNullableNumber(body.typing_angle),
   }
 
+  // Publishing the keyboard here mustn't publish its status-less releases and
+  // variants unreviewed.
+  if (isStaff && body.id && 'review_status' in body) {
+    await keepChildrenInReviewOnPublish(
+      client,
+      { table: 'keyboards', match: { id: body.id as number } },
+      body.review_status,
+      (keyboard) => {
+        const match = { brand_keyboard_slug: keyboard.brand_keyboard_slug }
+
+        return [
+          { table: 'keyboard_releases', match },
+          { table: 'keyboard_variants', match },
+        ]
+      },
+    )
+  }
+
   const { data, error } = body.id
     ? await client
         .from('keyboards')

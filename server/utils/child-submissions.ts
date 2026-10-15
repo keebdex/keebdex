@@ -453,6 +453,43 @@ const keepStatuslessInReview = async (
 }
 
 /**
+ * Staff can publish a parent under review straight from its form (Review
+ * Status set to Approved or cleared). Its children without a status of their
+ * own would be published with it, so they become Pending first, as when a
+ * child's approval cascades to the parent. `nextStatus` is the status the save
+ * writes; call this only when the save body carries one.
+ */
+export const keepChildrenInReviewOnPublish = async (
+  client: SupabaseClient,
+  parent: { table: SubmittableTable; match: RowMatch },
+  nextStatus: unknown,
+  // Built from the parent row as stored, before the save renames anything.
+  children: (
+    row: Record<string, any>,
+  ) => { table: SubmittableTable; match: RowMatch }[],
+) => {
+  if (nextStatus && nextStatus !== 'Approved') return
+
+  const { data } = (await matchRows(
+    from(client, parent.table).select('*'),
+    parent.match,
+  ).maybeSingle()) as { data: (Moderated & Record<string, any>) | null }
+
+  if (!data?.review_status || data.review_status === 'Approved') return
+
+  await Promise.all(
+    children(data).map((child) =>
+      keepStatuslessInReview(
+        client,
+        child.table,
+        child.match,
+        data.submitted_by,
+      ),
+    ),
+  )
+}
+
+/**
  * Resolves a parent still under review (Pending/Rejected) after one of its
  * children was approved or rejected:
  * - approve: the parent is approved too (after `beforeApprove`);

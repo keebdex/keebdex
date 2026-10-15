@@ -14,6 +14,10 @@ authors:
 
 - **Announcement banners** put the most important news in a slim bar across the top of every page, with a button to learn more. Each announcement shows either as a toast or as a banner, never both, and one banner at a time. Close it once and it stays gone, on every device when you are signed in, and it is marked as read in the _Announcements_ tab.
 
+### 🐛 Bug Fixes
+
+- Approving a new keyset or keyboard from its edit form no longer publishes all of its other proposed kits or variants with it. Each one stays in the review queue until a moderator approves it.
+
 ### 🚀 Improvements
 
 - The **Trading Hub** is easier to browse: listings show 20 at a time with the collection name, a _Buying_ or _Selling_ badge, the Discord contact, cap count, and date, and the _Buying_ and _Selling_ tabs show one side at a time. Opening a listing now shows offer and asking prices and top-priority caps, and links to each cap and to the full collection.

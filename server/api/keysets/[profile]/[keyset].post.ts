@@ -29,6 +29,21 @@ export default defineEventHandler(async (event) => {
           : getSubmissionAttribution(false, user.sub)),
       }
 
+  // Publishing the keyset here mustn't publish its status-less kits unreviewed.
+  if (isStaff && body.id && 'review_status' in body) {
+    await keepChildrenInReviewOnPublish(
+      client,
+      { table: 'keysets', match: { id: body.id as number } },
+      body.review_status,
+      (keyset) => [
+        {
+          table: 'keyset_kits',
+          match: { profile_keyset_id: keyset.profile_keyset_id },
+        },
+      ],
+    )
+  }
+
   const { data, error } = body.id
     ? await client
         .from('keysets')
