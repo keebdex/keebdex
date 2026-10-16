@@ -251,3 +251,6 @@ supabase/
 
 # Claude Code local overrides
 CLAUDE.local.md
+
+# Wrangler local state and generated deploy redirect
+.wrangler

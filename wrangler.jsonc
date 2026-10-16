@@ -1,0 +1,37 @@
+// Workers Builds deploys the wrangler.json that Nitro generates in
+// .output/server, and `wrangler deploy` replaces the Worker's settings with
+// it: bindings and settings made only in the dashboard are dropped on every
+// deploy. Nitro merges this file into the generated config, so keep them
+// here. Secrets (NUXT_* runtime variables) are kept across deploys.
+{
+  "name": "keebdex",
+  // Keep plain-text variables set in the dashboard
+  "keep_vars": true,
+  // Nuxt Content stores the changelog collection here (nuxt.config.ts)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "keebdex-db",
+      "database_id": "569e11e7-7948-40fd-be59-a804d9f2e95f"
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true
+    },
+    "issues": {
+      "enabled": true
+    }
+  },
+  "placement": {
+    "mode": "smart"
+  }
+}
