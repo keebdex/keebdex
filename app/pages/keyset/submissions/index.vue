@@ -237,6 +237,7 @@
         :confirm-label="rejectTitle"
         confirm-color="error"
         label="Note to submitter"
+        :presets="rejectNotePresets('keyset')"
         placeholder="e.g. The photo shows a different colorway."
         :loading="rejecting"
         @confirm="confirmReject"

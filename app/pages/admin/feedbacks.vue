@@ -143,6 +143,7 @@
         label="Comment"
         help="Optional. Add one when there is something to tell them."
         placeholder="e.g. Thanks! This is fixed in the latest release."
+        :presets="RESOLVE_FEEDBACK_NOTES"
         optional
         :loading="resolvingId !== null"
         @confirm="confirmResolve"

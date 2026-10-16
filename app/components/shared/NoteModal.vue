@@ -1,6 +1,25 @@
 <template>
   <UModal v-model:open="open" :title="title" :description="description">
     <template #body>
+      <div v-if="presets?.length" class="mb-4 space-y-2">
+        <p class="text-sm text-muted">Quick replies</p>
+
+        <div class="flex flex-wrap gap-2">
+          <UButton
+            v-for="preset in presets"
+            :key="preset"
+            :label="preset"
+            color="neutral"
+            :variant="note === preset ? 'solid' : 'outline'"
+            size="xs"
+            class="text-start"
+            :ui="{ label: 'whitespace-normal' }"
+            :disabled="loading"
+            @click="note = preset"
+          />
+        </div>
+      </div>
+
       <UFormField :label="label" :help="help" :required="!optional">
         <UTextarea
           v-model="note"
@@ -40,7 +59,8 @@ import { REVIEW_NOTE_MAX_LENGTH } from '~/utils/schemas/common'
 // Confirms an action with a note for the person it affects, who reads it in
 // their notification: rejecting submissions (note required), resolving
 // feedback (`optional` comment). A required note keeps the confirm button
-// disabled until it has text.
+// disabled until it has text. `presets` are quick replies that fill the note,
+// which stays editable.
 withDefaults(
   defineProps<{
     title: string
@@ -52,6 +72,7 @@ withDefaults(
     placeholder?: string
     optional?: boolean
     loading?: boolean
+    presets?: string[]
   }>(),
   {
     description: undefined,
@@ -61,6 +82,7 @@ withDefaults(
     placeholder: undefined,
     optional: false,
     loading: false,
+    presets: undefined,
   },
 )
 

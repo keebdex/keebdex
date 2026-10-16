@@ -8,20 +8,16 @@ authors:
     to: https://claude.com/claude-code
 ---
 
-**Lighter on its feet** — Keebdex pages now send far less data and leave more of the work to your browser, so they load faster and fail less often with the occasional Cloudflare error. Important news can now also appear as a banner across the top of every page.
-
-### ✨ What's New
-
-- **Announcement banners** put the most important news in a slim bar across the top of every page, with a button to learn more. Each announcement shows either as a toast or as a banner, never both, and one banner at a time. Close it once and it stays gone, on every device when you are signed in, and it is marked as read in the _Announcements_ tab.
+A **light touch** everywhere — pages send far less data and load faster, with fewer Cloudflare error pages. Announcements can now show as a banner, and the Trading Hub is easier to browse.
 
 ### 🐛 Bug Fixes
 
-- Approving a new keyset or keyboard from its edit form no longer publishes all of its other proposed kits or variants with it. Each one stays in the review queue until a moderator approves it.
+- Approving a new keyset or keyboard no longer publishes its other proposed kits or variants with it; each one waits for its own review.
 
 ### 🚀 Improvements
 
-- On a keyset page, the kit image preview is now a carousel: swipe, tap the arrows, or use your keyboard's arrow keys to look through every kit without closing and reopening it.
-- The **Trading Hub** is easier to browse: listings show 20 at a time with the collection name, a _Buying_ or _Selling_ badge, the Discord contact, cap count, and date, and the _Buying_ and _Selling_ tabs show one side at a time. Opening a listing now shows offer and asking prices and top-priority caps, and links to each cap and to the full collection.
-- Pages load faster, especially on phones: each page sends far less data, and icons arrive with the page instead of popping in one by one.
-- _About_, _Changelog_, _Privacy_, and _Why Keebdex_ are served as ready-made pages, so they open right away.
-- The **Trading Hub**, colorway search, and pages that only you see (your collections, notifications, settings, submissions) now load in your browser, which takes the heaviest work off the server and makes the occasional Cloudflare error page less likely.
+- Pages load faster, especially on phones: they send far less data, icons arrive with the page, simple pages open instantly, and your private pages load in the browser, so Cloudflare error pages are much rarer.
+- **Announcement banners** show the most important news in a slim bar across the top of every page. Close one and it stays gone, on every device when you are signed in.
+- The **Trading Hub** shows 20 listings at a time with _Buying_ and _Selling_ tabs, and each listing shows prices, top-priority caps, and links to every cap and the full collection.
+- Kit previews on keyset pages are a carousel: swipe, tap the arrows, or use the arrow keys to browse every kit.
+- Moderators can pick a quick reply when rejecting a submission or resolving feedback, then adjust it before sending, so people get a clear answer faster.
