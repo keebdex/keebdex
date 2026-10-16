@@ -107,11 +107,11 @@ export default defineNuxtConfig({
       cloudflare: { provider: '~/providers/cloudflare-images.ts' },
     },
     screens: {
-      'xs': 320,
-      'sm': 640,
-      'md': 768,
-      'lg': 1024,
-      'xl': 1280,
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
       '2xl': 1536,
       '3xl': 1792,
       '4xl': 2048,
@@ -155,9 +155,7 @@ export default defineNuxtConfig({
 
   // The changelog collection is read from the keebdex-db D1 database, bound
   // to the Worker as DB. Dev and other hosts use Nuxt Content's SQLite.
-  content: isCloudflare
-    ? { database: { type: 'd1', bindingName: 'DB' } }
-    : {},
+  content: isCloudflare ? { database: { type: 'd1', bindingName: 'DB' } } : {},
 
   // Absolute og:image URLs for the OG images of prerendered pages, which have
   // no request host to build them from (NUXT_SITE_URL overrides it)
@@ -179,10 +177,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     cloudflare: {
-      accountId: process.env.CF_IMAGES_ACCOUNT_ID,
-      imagesApiToken: process.env.CF_IMAGES_API_KEY,
-      imagesDeliveryBaseUrl: process.env.CF_IMAGES_DELIVERY_URL,
-      imagesDefaultVariant: process.env.CF_IMAGES_VARIANT || 'public',
+      accountId: '',
+      imagesApiToken: '',
+      imagesDeliveryBaseUrl: '',
+      imagesDefaultVariant: 'public',
     },
     public: {
       imgUrl: process.env.IMG_URL || 'https://img.keebdex.org',
