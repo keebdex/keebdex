@@ -46,6 +46,13 @@
               }"
             />
 
+            <UButton
+              v-if="canSuggest(sculpt)"
+              icon="hugeicons:pencil-edit-02"
+              label="Suggest Edit"
+              @click="suggest('artisan_sculpt', sculpt)"
+            />
+
             <template v-if="editable">
               <UModal v-model:visible="visible.edit" title="Edit Sculpt">
                 <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
@@ -130,6 +137,7 @@
         >
           <div class="aspect-square overflow-hidden relative">
             <NuxtImg
+              v-if="colorway.img"
               preset="square"
               loading="lazy"
               decoding="async"
@@ -137,6 +145,22 @@
               :src="colorway.img"
               class="w-full h-full object-cover rounded"
             />
+            <!-- No photo yet: invite the community to add one -->
+            <div
+              v-else
+              class="w-full h-full rounded bg-elevated flex flex-col items-center justify-center gap-3 text-dimmed"
+            >
+              <UIcon name="hugeicons:image-02" class="size-10" />
+              <UButton
+                v-if="canSuggest(colorway)"
+                label="Add Photo"
+                icon="hugeicons:image-add-02"
+                size="sm"
+                variant="soft"
+                :ui="{ label: 'block' }"
+                @click.stop="suggest('artisan_colorway', colorway, 'img')"
+              />
+            </div>
           </div>
 
           <template #footer>
@@ -145,6 +169,18 @@
                 <UButton
                   icon="hugeicons:copy-02"
                   @click="copyColorwayCard(colorway)"
+                />
+              </UTooltip>
+
+              <UTooltip
+                v-if="canSuggest(colorway)"
+                text="Suggest Edit"
+                :delay-duration="0"
+              >
+                <UButton
+                  icon="hugeicons:pencil-edit-02"
+                  aria-label="Suggest Edit"
+                  @click="suggest('artisan_colorway', colorway)"
                 />
               </UTooltip>
 
@@ -242,6 +278,14 @@
           />
         </template>
       </UModal>
+
+      <SharedSuggestEditModal
+        v-if="suggestTarget"
+        v-model:open="suggestOpen"
+        :entity-type="suggestTarget.entityType"
+        :record="suggestTarget.record"
+        :focus="suggestTarget.focus"
+      />
 
       <UPagination
         v-if="sculpt.total_colorways > size"
@@ -370,6 +414,13 @@ const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const editable = computed(() => userStore.isEditable(sculpt.value?.maker_id))
+
+const {
+  target: suggestTarget,
+  open: suggestOpen,
+  canSuggest,
+  suggest,
+} = useSuggestEdit(editable)
 
 const visible = ref({
   edit: false,

@@ -10,10 +10,17 @@
           />
         </template>
       </UDashboardNavbar>
+
+      <UDashboardToolbar>
+        <template #left>
+          <UNavigationMenu :items="viewLinks" highlight class="-mx-1 flex-1" />
+        </template>
+      </UDashboardToolbar>
     </template>
 
     <template #body>
       <UPageCard
+        v-if="view === 'new'"
         variant="subtle"
         class="space-y-4 mx-auto min-w-0 w-full lg:max-w-6xl"
         :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
@@ -203,6 +210,8 @@
         />
       </UPageCard>
 
+      <SharedSuggestionQueue v-else domain="keyboard" />
+
       <UModal v-model:open="editorOpen" title="Edit Variant">
         <template #body="{ close }">
           <KeyboardModalSubmissionWizard
@@ -269,6 +278,8 @@
 definePageMeta({
   middleware: 'auth',
 })
+
+const { view, links: viewLinks } = useSubmissionViews()
 
 const groupColumns = [
   { id: 'expand' },

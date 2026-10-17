@@ -131,6 +131,39 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     color: 'warning',
     to: SUBMISSION_PATHS[data.domain]?.queue,
   }),
+  // data: { status: 'approved' | 'rejected', note, entity_name, entity_type,
+  // domain, parent_key, fields, count }
+  suggestion_status: ({ data }) => {
+    const paths = SUBMISSION_PATHS[data.domain]
+    const count = Number(data.count) || 1
+    const subject =
+      count > 1
+        ? `${count} suggested edits`
+        : data.entity_name
+          ? `suggested edit to "${data.entity_name}"`
+          : 'suggested edit'
+    const verb = count > 1 ? 'have' : 'has'
+
+    if (data.status === 'approved') {
+      return {
+        title: 'Edit Approved',
+        description: `Your ${subject} ${verb} been approved and ${count > 1 ? 'are' : 'is'} now live. Thanks for helping keep Keebdex accurate!`,
+        icon: 'hugeicons:checkmark-circle-02',
+        color: 'success',
+        to:
+          paths && data.parent_key ? paths.detail(data.parent_key) : undefined,
+      }
+    }
+
+    return {
+      title: 'Edit Rejected',
+      description: `Your ${subject} ${verb} been rejected.`,
+      note: data.note,
+      icon: 'hugeicons:cancel-circle',
+      color: 'error',
+      to: paths ? `${paths.queue}?view=edits` : undefined,
+    }
+  },
   // data: { role, previous_role, assignments_added, assignments_removed }
   account_role_changed: ({ data }) => {
     const added = data.assignments_added?.length || 0

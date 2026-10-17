@@ -45,6 +45,13 @@
             :to="submitKitLink"
           />
 
+          <UButton
+            v-if="canSuggest(data)"
+            label="Suggest Edit"
+            icon="hugeicons:pencil-edit-02"
+            @click="suggest('keyset', data)"
+          />
+
           <SharedSaveToCollection
             v-if="authenticated"
             :item="data"
@@ -95,13 +102,24 @@
           >
             <!-- Icon-only reference links beside the title; the tooltip and
                  aria-label carry the name -->
-            <template v-if="externalLinks.length" #links>
+            <template v-if="externalLinks.length || canAddCover" #links>
               <UTooltip
                 v-for="{ label, ...link } in externalLinks"
                 :key="label"
                 :text="label"
               >
                 <UButton v-bind="link" :aria-label="label" />
+              </UTooltip>
+
+              <!-- No cover to show: invite the community to add one -->
+              <UTooltip v-if="canAddCover" text="Add Cover">
+                <UButton
+                  icon="hugeicons:image-add-02"
+                  color="neutral"
+                  variant="ghost"
+                  aria-label="Add Cover"
+                  @click="suggest('keyset', data, 'img')"
+                />
               </UTooltip>
             </template>
           </UPageHeader>
@@ -175,12 +193,29 @@
               </div>
             </template>
 
-            <template v-if="kit.qty" #footer>
-              <div class="flex items-center gap-1.5 text-xs text-muted">
-                <UIcon name="hugeicons:package" class="size-4" />
-                <span class="tabular-nums">
-                  {{ formatNumber(kit.qty) }} units
-                </span>
+            <template v-if="kit.qty || canSuggest(kit)" #footer>
+              <div class="flex w-full items-center justify-between gap-2">
+                <div
+                  v-if="kit.qty"
+                  class="flex items-center gap-1.5 text-xs text-muted"
+                >
+                  <UIcon name="hugeicons:package" class="size-4" />
+                  <span class="tabular-nums">
+                    {{ formatNumber(kit.qty) }} units
+                  </span>
+                </div>
+
+                <UTooltip v-if="canSuggest(kit)" text="Suggest Edit">
+                  <UButton
+                    icon="hugeicons:pencil-edit-02"
+                    size="xs"
+                    color="neutral"
+                    variant="ghost"
+                    aria-label="Suggest Edit"
+                    class="ms-auto"
+                    @click.stop="suggest('keyset_kit', kit)"
+                  />
+                </UTooltip>
               </div>
             </template>
 
@@ -199,6 +234,15 @@
                 color="error"
                 variant="solid"
                 class="absolute top-2 right-2"
+              />
+              <UButton
+                v-if="!kit.img && canSuggest(kit)"
+                label="Add Photo"
+                icon="hugeicons:image-add-02"
+                size="sm"
+                :ui="{ label: 'block' }"
+                class="absolute bottom-2 right-2"
+                @click.stop="suggest('keyset_kit', kit, 'img')"
               />
             </div>
           </UPageCard>
@@ -235,6 +279,14 @@
           />
         </div>
       </section>
+      <SharedSuggestEditModal
+        v-if="suggestTarget"
+        v-model:open="suggestOpen"
+        :entity-type="suggestTarget.entityType"
+        :record="suggestTarget.record"
+        :focus="suggestTarget.focus"
+      />
+
       <UModal
         v-model:open="preview.open"
         :title="previewKit ? kitLabel(previewKit) : preview.title"
@@ -295,6 +347,13 @@ const { manufacturers } = useKeysetProfiles()
 
 const { profile, keyset } = route.params
 const editable = computed(() => userStore.isEditable(`${profile}/${keyset}`))
+
+const {
+  target: suggestTarget,
+  open: suggestOpen,
+  canSuggest,
+  suggest,
+} = useSuggestEdit(editable)
 
 const { data, refresh } = await useAsyncData(
   `keyset/${profile}/${keyset}`,
@@ -384,6 +443,7 @@ const coverImg = computed(
 // NuxtImg also reports an image that failed during SSR once it mounts
 const coverFailed = ref(false)
 const showCover = computed(() => !!coverImg.value && !coverFailed.value)
+const canAddCover = computed(() => !showCover.value && canSuggest(data.value))
 
 watch(coverImg, () => {
   coverFailed.value = false

@@ -42,6 +42,13 @@
           />
 
           <UButton
+            v-if="canSuggest(data)"
+            label="Suggest Edit"
+            icon="hugeicons:pencil-edit-02"
+            @click="suggest('keyboard', data)"
+          />
+
+          <UButton
             v-if="editable"
             :to="`/keyboard/brand/${slug}/sort`"
             :icon="appConfig.ui.icons.sortManual"
@@ -192,6 +199,14 @@
               </div>
             </template>
 
+            <template v-else-if="canSuggest(release)" #links>
+              <UButton
+                icon="hugeicons:pencil-edit-02"
+                label="Suggest Edit"
+                @click="suggest('keyboard_release', release)"
+              />
+            </template>
+
             <div v-if="!release.variant_specs" class="mt-4">
               <SharedDescriptionList :items="getReleaseSpecs(release)" />
             </div>
@@ -214,16 +229,31 @@
                   container: imageCardContainerClass,
                 }"
               >
-                <NuxtImg
-                  preset="cover"
-                  loading="lazy"
-                  decoding="async"
-                  :alt="variant.variant_name"
-                  :src="
-                    variant.img_front || variant.img_back || '/keyboard.png'
-                  "
-                  class="aspect-video w-full object-cover"
-                />
+                <div class="relative">
+                  <NuxtImg
+                    preset="cover"
+                    loading="lazy"
+                    decoding="async"
+                    :alt="variant.variant_name"
+                    :src="
+                      variant.img_front || variant.img_back || '/keyboard.png'
+                    "
+                    class="aspect-video w-full object-cover"
+                  />
+                  <UButton
+                    v-if="
+                      !variant.img_front &&
+                      !variant.img_back &&
+                      canSuggest(variant)
+                    "
+                    label="Add Photo"
+                    icon="hugeicons:image-add-02"
+                    size="sm"
+                    :ui="{ label: 'block' }"
+                    class="absolute bottom-2 right-2"
+                    @click.stop="suggest('keyboard_variant', variant, 'img_front')"
+                  />
+                </div>
 
                 <template v-if="variant.photo_credit" #leading>
                   <UBadge
@@ -245,6 +275,14 @@
                       label="Save"
                       @on-select="saveToCollection"
                     />
+
+                    <UTooltip v-if="canSuggest(variant)" text="Suggest Edit">
+                      <UButton
+                        icon="hugeicons:pencil-edit-02"
+                        aria-label="Suggest Edit"
+                        @click="suggest('keyboard_variant', variant)"
+                      />
+                    </UTooltip>
 
                     <UModal v-if="editable" title="Edit Variant">
                       <UButton
@@ -358,6 +396,14 @@
         title="Nothing Has Shipped Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
       />
+
+      <SharedSuggestEditModal
+        v-if="suggestTarget"
+        v-model:open="suggestOpen"
+        :entity-type="suggestTarget.entityType"
+        :record="suggestTarget.record"
+        :focus="suggestTarget.focus"
+      />
     </template>
   </UDashboardPanel>
   <SharedRedirectPage v-else :to="`/keyboard/brand/${route.params.brand}`" />
@@ -374,6 +420,13 @@ const toast = useToast()
 const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
 
 const editable = computed(() => userStore.isEditable(route.params.brand))
+
+const {
+  target: suggestTarget,
+  open: suggestOpen,
+  canSuggest,
+  suggest,
+} = useSuggestEdit(editable)
 
 const visible = ref({
   addRelease: false,
