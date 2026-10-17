@@ -7,6 +7,9 @@
   "name": "keebdex",
   // Keep plain-text variables set in the dashboard
   "keep_vars": true,
+  "routes": [{ "pattern": "keebdex.org", "custom_domain": true }],
+  "workers_dev": true,
+  "preview_urls": true,
   // Nuxt Content stores the changelog collection here (nuxt.config.ts)
   "d1_databases": [
     {
@@ -33,5 +36,8 @@
   },
   "placement": {
     "mode": "smart"
+  },
+  "limits": {
+    "cpu_ms": 30000
   }
 }
