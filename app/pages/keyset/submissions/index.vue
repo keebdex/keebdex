@@ -66,6 +66,10 @@
             />
           </template>
 
+          <template #dimensions-cell="{ row }">
+            <SharedImageDimensions :src="row.original.keyset?.img" />
+          </template>
+
           <template #keyset-cell="{ row }">
             <UButton
               :label="groupLabel(row.original)"
@@ -123,6 +127,12 @@
                   :src="kitRow.original.img || kitRow.original.keyset?.img"
                   :alt="kitName(kitRow.original)"
                   class="size-10 rounded object-cover"
+                />
+              </template>
+
+              <template #dimensions-cell="{ row: kitRow }">
+                <SharedImageDimensions
+                  :src="kitRow.original.img || kitRow.original.keyset?.img"
                 />
               </template>
 
@@ -254,6 +264,7 @@ definePageMeta({
 const groupColumns = [
   { id: 'expand' },
   { id: 'img', header: 'Image' },
+  { id: 'dimensions', header: 'Size' },
   { id: 'keyset', header: 'Keyset' },
   { id: 'kits', header: 'Kits' },
   { id: 'status', header: 'Status' },
@@ -262,6 +273,7 @@ const groupColumns = [
 
 const kitColumns = [
   { accessorKey: 'img', header: 'Image' },
+  { id: 'dimensions', header: 'Size' },
   { accessorKey: 'kit', header: 'Kit' },
   { accessorKey: 'price', header: 'Price' },
   { accessorKey: 'qty', header: 'Qty' },

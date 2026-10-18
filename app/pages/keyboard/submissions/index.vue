@@ -129,6 +129,14 @@
                 />
               </template>
 
+              <template #dimensions-cell="{ row: variantRow }">
+                <SharedImageDimensions
+                  :src="
+                    variantRow.original.img_front || variantRow.original.img_back
+                  "
+                />
+              </template>
+
               <template #release-cell="{ row: variantRow }">
                 <span class="truncate max-w-40 block">
                   {{ variantRow.original.release?.name || '-' }}
@@ -274,6 +282,7 @@ const groupColumns = [
 
 const variantColumns = [
   { accessorKey: 'img', header: 'Image' },
+  { id: 'dimensions', header: 'Size' },
   { accessorKey: 'release', header: 'Release' },
   { accessorKey: 'variant', header: 'Variant' },
   { accessorKey: 'price', header: 'Price' },

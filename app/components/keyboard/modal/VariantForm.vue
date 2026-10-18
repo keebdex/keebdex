@@ -131,6 +131,7 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
+      <SharedImageDimensions :src="variant.img_front" variant="help" />
 
       <p class="mt-2 text-xs text-muted">
         Or drag and drop an image below to upload and auto-fill this field.
@@ -158,6 +159,7 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
+      <SharedImageDimensions :src="variant.img_back" variant="help" />
 
       <p class="mt-2 text-xs text-muted">
         Or drag and drop an image below to upload and auto-fill this field.

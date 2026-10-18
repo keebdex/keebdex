@@ -75,6 +75,7 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
+      <SharedImageDimensions :src="keyset.img" variant="help" />
 
       <p class="mt-2 text-xs text-muted">
         Or drag and drop an image below to upload and auto-fill this field.

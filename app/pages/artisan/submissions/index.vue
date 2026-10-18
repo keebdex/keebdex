@@ -43,6 +43,10 @@
             />
           </template>
 
+          <template #dimensions-cell="{ row }">
+            <SharedImageDimensions :src="row.original.img" />
+          </template>
+
           <template #name-cell="{ row }">
             <div class="font-medium truncate max-w-48">
               {{ row.original.name }}
@@ -155,6 +159,7 @@ definePageMeta({
 
 const columns = [
   { accessorKey: 'img', header: 'Image' },
+  { id: 'dimensions', header: 'Size' },
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'maker', header: 'Maker' },
   { accessorKey: 'sculpt', header: 'Sculpt' },

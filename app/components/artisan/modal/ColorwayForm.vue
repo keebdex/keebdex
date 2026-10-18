@@ -76,6 +76,7 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
+      <SharedImageDimensions :src="colorway.img" variant="help" />
 
       <div class="mt-2 space-y-2">
         <UFileUpload
