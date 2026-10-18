@@ -76,20 +76,15 @@
         icon="hugeicons:image-02"
         class="w-full"
       />
-      <SharedImageDimensions :src="colorway.img" variant="help" />
 
-      <div class="mt-2 space-y-2">
-        <UFileUpload
-          v-model="uploadedFile"
-          accept="image/*"
-          icon="hugeicons:image-upload"
-          layout="grid"
-          label="Click to browse or drag & drop an image to upload"
-          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
-          :ui="{ base: 'aspect-video' }"
-          :disabled="uploadingImage"
-        />
-      </div>
+      <SharedImageUpload
+        v-model="uploadedFile"
+        v-model:src="colorway.img"
+        :max-size-mb="maxUploadSizeMb"
+        :loading="uploadingImage"
+        class="mt-2"
+      />
+      <SharedImageDimensions :src="colorway.img" variant="help" />
     </UFormField>
 
     <UFormField label="Photo Credit" name="photo_credit">
@@ -237,9 +232,14 @@ watch(
 
 // Upload immediately on selection so embedded (wizard) usage doesn't rely on a standalone submit handler.
 watch(uploadedFile, async (file) => {
-  if (!file) return
-
   imageUploadFailed.value = false
+
+  // Removed image: a failed upload no longer blocks saving
+  if (!file) {
+    emit('update:uploading', false)
+    return
+  }
+
   uploadingImage.value = true
   emit('update:uploading', true)
 
