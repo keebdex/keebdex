@@ -10,6 +10,10 @@ authors:
 
 Submissions get a **sharper eye** — every image now shows its original size, and image fields preview the picture instead of an empty upload box.
 
+### ✨ What's New
+
+- **Stem types for colorways**: colorway forms now let you pick one or more stem types, such as MX, Alps, or Topre.
+
 ### 🚀 Improvements
 
 - **Image sizes in submissions**: review queues and submission forms show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.

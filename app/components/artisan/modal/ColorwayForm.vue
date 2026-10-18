@@ -57,6 +57,17 @@
       </UFormField>
     </div>
 
+    <UFormField label="Stem" name="stem">
+      <USelectMenu
+        v-model="stems"
+        :items="stemItems"
+        multiple
+        icon="hugeicons:cross"
+        placeholder="Select stem types"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField
       label="Description"
       name="description"
@@ -110,17 +121,15 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
+import { isEqual } from 'es-toolkit'
 import {
   artisanSaleFormats,
   artisanSpecialSaleFormats,
+  artisanStems,
   colorwaySchema,
 } from '~/utils/schemas/artisan'
 
-const emit = defineEmits([
-  'onSuccess',
-  'update:modelValue',
-  'update:uploading',
-])
+const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:uploading'])
 
 const props = defineProps({
   metadata: {
@@ -193,6 +202,19 @@ const defaultColorway = () => ({
 })
 
 const colorway = ref(defaultColorway())
+
+// Several stems can apply; an empty selection is stored as null
+const stems = computed({
+  get: () => colorway.value.stem || [],
+  set: (value) => {
+    colorway.value.stem = value.length ? value : null
+  },
+})
+
+// Values already saved outside the list stay visible so they can be removed
+const stemItems = computed(() => [
+  ...new Set([...artisanStems, ...stems.value]),
+])
 
 const maxUploadSizeMb = getMaxUploadSizeMb('artisan')
 const uploading = ref(false)
@@ -267,11 +289,7 @@ watch(
 )
 
 const onSubmit = async () => {
-  if (
-    !isStandalone.value ||
-    uploadingImage.value ||
-    imageUploadFailed.value
-  ) {
+  if (!isStandalone.value || uploadingImage.value || imageUploadFailed.value) {
     return
   }
 
@@ -287,7 +305,7 @@ const onSubmit = async () => {
       payload.overridden_fields = []
     } else {
       const dirtyFields = GDOC_MANAGED_FIELDS.filter(
-        (field) => payload[field] !== originalColorway.value[field],
+        (field) => !isEqual(payload[field], originalColorway.value[field]),
       )
 
       payload.overridden_fields = dirtyFields.length
@@ -312,7 +330,10 @@ const onSubmit = async () => {
       toast.add(noticeToast('submission_pending'))
     } else {
       toast.add(
-        successToast(colorway.value.id ? 'update' : 'add', { entity: 'Colorway', name: payload.name }),
+        successToast(colorway.value.id ? 'update' : 'add', {
+          entity: 'Colorway',
+          name: payload.name,
+        }),
       )
     }
     emit('onSuccess')
