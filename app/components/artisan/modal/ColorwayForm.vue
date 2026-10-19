@@ -73,7 +73,12 @@
       name="description"
       help="Keep it concise and under 400 characters for optimal display."
     >
-      <UTextarea v-model.trim="colorway.description" :rows="5" class="w-full" />
+      <UTextarea
+        v-model.trim="colorway.description"
+        :rows="5"
+        placeholder="The story behind this colorway, its theme, or how it was made"
+        class="w-full"
+      />
     </UFormField>
 
     <UFormField
@@ -98,10 +103,15 @@
       <SharedImageDimensions :src="colorway.img" variant="help" />
     </UFormField>
 
-    <UFormField label="Photo Credit" name="photo_credit">
+    <UFormField
+      label="Photo Credit"
+      name="photo_credit"
+      help="Leave empty when the photo is from the maker. For a collector's photo, credit their Discord or Instagram handle."
+    >
       <UInput
         v-model.trim="colorway.photo_credit"
         icon="hugeicons:camera-add-02"
+        placeholder="e.g. @username"
         class="w-full"
       />
     </UFormField>
