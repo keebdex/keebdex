@@ -46,7 +46,8 @@
             : 'Caps available for sale or trade. Reach out on Discord to make an offer.'
         "
         :ui="{
-          content: 'max-w-4xl',
+          // Nuxt UI sets the width as sm:max-w-md, so override it at sm too
+          content: 'sm:max-w-4xl',
         }"
       >
         <UPageCard
