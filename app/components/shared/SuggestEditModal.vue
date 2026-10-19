@@ -1,8 +1,8 @@
 <template>
   <UModal
     v-model:open="open"
-    :title="`Edit ${entity.label}`"
-    description="A moderator reviews your changes before they go live."
+    :title="reviewing ? 'Review Your Changes' : `Edit ${entity.label}`"
+    :description="description"
   >
     <template #body>
       <div v-if="loading" class="flex justify-center py-10 text-dimmed">
@@ -11,7 +11,7 @@
 
       <div v-else class="space-y-4">
         <UAlert
-          v-if="pending"
+          v-if="pending && !reviewing"
           icon="hugeicons:file-edit"
           color="info"
           variant="subtle"
@@ -19,49 +19,107 @@
           description="Your earlier changes are still waiting for review. Update them here or withdraw them."
         />
 
-        <SharedSuggestionForm
-          v-model:changes="changes"
-          :entity-type="entityType"
-          :record="record"
-          :initial="pending?.changes"
-          :form-props="formProps"
-          @update:uploading="(value) => (uploading = value)"
-        />
-
-        <UFormField
-          label="Reason or Source"
-          name="reason"
-          help="Optional. A link to the maker's, designer's, or vendor's post helps moderators verify your changes."
-        >
-          <UTextarea
-            v-model="reason"
-            :rows="2"
-            autoresize
-            :maxlength="SUGGESTION_REASON_MAX_LENGTH"
-            :disabled="saving"
-            class="w-full"
+        <!-- Kept mounted while reviewing, so going back keeps the edits -->
+        <div v-show="!reviewing">
+          <SharedSuggestionForm
+            ref="form"
+            v-model:changes="changes"
+            :entity-type="entityType"
+            :record="record"
+            :initial="pending?.changes"
+            :form-props="formProps"
+            @update:uploading="(value) => (uploading = value)"
           />
-        </UFormField>
+        </div>
+
+        <template v-if="reviewing">
+          <div class="divide-y divide-default rounded-lg border border-default">
+            <SharedSuggestionChange
+              v-for="key in changedKeys"
+              :key="key"
+              :field="key"
+              :before="record[key]"
+              :after="changes[key]"
+              :before-values="record"
+              :after-values="{ ...record, ...changes }"
+            >
+              <template #actions>
+                <UButton
+                  label="Undo"
+                  icon="hugeicons:undo-02"
+                  size="xs"
+                  color="neutral"
+                  variant="ghost"
+                  :ui="{ label: 'block' }"
+                  :disabled="saving"
+                  @click="form?.reset(key)"
+                />
+              </template>
+            </SharedSuggestionChange>
+          </div>
+
+          <UFormField
+            label="Reason or Source"
+            name="reason"
+            help="Optional. A link to the maker's, designer's, or vendor's post helps moderators verify your changes."
+          >
+            <UTextarea
+              v-model="reason"
+              :rows="2"
+              autoresize
+              :maxlength="SUGGESTION_REASON_MAX_LENGTH"
+              :disabled="saving"
+              class="w-full"
+            />
+          </UFormField>
+        </template>
       </div>
     </template>
 
     <template #footer>
-      <div class="flex w-full flex-wrap justify-end gap-2">
+      <div class="flex w-full flex-wrap items-center justify-between gap-2">
         <UButton
-          v-if="pending"
-          label="Withdraw"
-          color="error"
-          variant="soft"
-          :loading="withdrawing"
+          v-if="reviewing"
+          label="Back to Edit"
+          icon="hugeicons:arrow-left-01"
+          color="neutral"
+          variant="ghost"
+          :ui="{ label: 'block' }"
           :disabled="saving"
-          @click="withdraw"
+          @click="reviewing = false"
         />
-        <UButton
-          label="Submit for Review"
-          :loading="saving"
-          :disabled="!changeCount || uploading || loading || withdrawing"
-          @click="submit"
-        />
+        <span v-else class="text-sm text-muted">
+          {{
+            changeCount
+              ? `${countLabel(changeCount, 'change')}`
+              : 'No changes yet'
+          }}
+        </span>
+
+        <div class="flex flex-wrap gap-2">
+          <UButton
+            v-if="pending && !reviewing"
+            label="Withdraw"
+            color="error"
+            variant="soft"
+            :loading="withdrawing"
+            :disabled="saving"
+            @click="withdraw"
+          />
+          <UButton
+            v-if="reviewing"
+            label="Submit for Review"
+            :loading="saving"
+            :disabled="!changeCount || uploading || withdrawing"
+            @click="submit"
+          />
+          <UButton
+            v-else
+            label="Review Changes"
+            :disabled="!changeCount || uploading || loading || withdrawing"
+            @click="reviewing = true"
+          />
+        </div>
       </div>
     </template>
   </UModal>
@@ -72,9 +130,11 @@ import { SUGGESTION_REASON_MAX_LENGTH } from '~/utils/schemas/suggestion'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
 // Edit for signed-in users who cannot edit a page themselves: the record's
-// own form, sent as a suggestion that a moderator reviews. Reopening it for a
-// record with a pending suggestion of theirs loads that suggestion, so they
-// update or withdraw it instead of filing another.
+// own form, sent as a suggestion that a moderator reviews. The footer counts
+// the changes, and Review Changes shows each one (current and new value,
+// Undo) before Submit for Review. Reopening it for a record
+// with a pending suggestion of theirs loads that suggestion, so they update
+// or withdraw it instead of filing another.
 const props = defineProps<{
   entityType: SuggestionEntityType
   record: Record<string, any>
@@ -89,8 +149,28 @@ const toast = useToast()
 const entity = computed(() => SUGGESTION_ENTITIES[props.entityType])
 const name = computed(() => props.record[entity.value.nameKey])
 
+const form = useTemplateRef('form')
 const changes = ref<Record<string, unknown>>({})
-const changeCount = computed(() => Object.keys(changes.value).length)
+const changedKeys = computed(() => Object.keys(changes.value))
+const changeCount = computed(() => changedKeys.value.length)
+const reviewing = ref(false)
+
+const description = computed(() => {
+  if (!reviewing.value) {
+    return 'A moderator reviews your changes before they go live.'
+  }
+
+  const subject = name.value
+    ? `"${name.value}"`
+    : `this ${entity.value.label.toLowerCase()}`
+
+  return `${countLabel(changeCount.value, 'change')} to ${subject}. A moderator reviews them before they go live.`
+})
+
+// Undoing the last change on the review step goes back to the form.
+watch(changeCount, (count) => {
+  if (!count) reviewing.value = false
+})
 const reason = ref('')
 const pending = ref<Record<string, any> | null>(null)
 const loading = ref(false)
@@ -100,6 +180,7 @@ const uploading = ref(false)
 
 const load = async () => {
   changes.value = {}
+  reviewing.value = false
   reason.value = ''
   pending.value = null
   uploading.value = false

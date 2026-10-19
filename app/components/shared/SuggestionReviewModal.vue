@@ -43,21 +43,26 @@
           v-else
           class="divide-y divide-default rounded-lg border border-default"
         >
-          <div
+          <SharedSuggestionChange
             v-for="row in rows"
             :key="row.key"
-            class="p-3 space-y-2"
+            :field="row.key"
+            :before="row.before"
+            :after="row.after"
+            :before-values="row.beforeValues"
+            :after-values="row.afterValues"
+            :labels="row.labels"
             :class="reviewing && !selected[row.key] && 'opacity-60'"
           >
-            <div class="flex flex-wrap items-center justify-between gap-2">
+            <template v-if="reviewing" #label="{ label }">
               <UCheckbox
-                v-if="reviewing"
                 v-model="selected[row.key]"
-                :label="row.label"
+                :label="label"
                 :ui="{ label: 'font-medium' }"
               />
-              <span v-else class="text-sm font-medium">{{ row.label }}</span>
+            </template>
 
+            <template #actions>
               <UBadge
                 v-if="row.stale"
                 label="Changed Since"
@@ -66,33 +71,8 @@
                 variant="subtle"
                 size="sm"
               />
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div
-                v-for="side in row.sides"
-                :key="side.label"
-                class="min-w-0 space-y-1"
-              >
-                <p class="text-xs text-muted">{{ side.label }}</p>
-                <a
-                  v-if="row.image && side.value"
-                  :href="side.value"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <NuxtImg
-                    :src="side.value"
-                    :alt="row.label"
-                    class="max-h-40 rounded border border-default object-contain"
-                  />
-                </a>
-                <p v-else class="text-sm whitespace-pre-line break-words">
-                  {{ formatSuggestionValue(row.key, side.value, side.values) }}
-                </p>
-              </div>
-            </div>
-          </div>
+            </template>
+          </SharedSuggestionChange>
         </div>
       </div>
     </template>
@@ -233,24 +213,18 @@ const rows = computed(() => {
   return Object.keys(approved ? after : suggestion.changes || {}).map(
     (key) => ({
       key,
-      label: suggestionFieldLabel(key),
-      image: isImageSuggestionField(key),
+      before: before?.[key] ?? null,
+      after: after?.[key] ?? null,
+      beforeValues,
+      afterValues,
+      labels: (approved ? ['Before', 'Applied'] : ['Current', 'Suggested']) as [
+        string,
+        string,
+      ],
       stale:
         suggestion.review_status === 'Pending' &&
         !!suggestion.record &&
         !sameSuggestionValue(suggestion.record[key], suggestion.original?.[key]),
-      sides: [
-        {
-          label: approved ? 'Before' : 'Current',
-          value: before?.[key] ?? null,
-          values: beforeValues,
-        },
-        {
-          label: approved ? 'Applied' : 'Suggested',
-          value: after?.[key] ?? null,
-          values: afterValues,
-        },
-      ],
     }),
   )
 })

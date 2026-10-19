@@ -9,13 +9,14 @@
 </template>
 
 <script setup lang="ts">
+import { parseDate } from '@internationalized/date'
 import type { Component } from 'vue'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
 // The record's own atomic form in embedded mode, so suggestions always offer
 // the same fields as the admin forms. Starts from the record plus `initial`
 // (a pending suggestion's values) and reports the changed columns as
-// `changes`.
+// `changes`; `reset(key)` puts a field back to the record's value.
 const props = defineProps<{
   entityType: SuggestionEntityType
   record: Record<string, any>
@@ -86,4 +87,36 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+const DATE_RANGE_KEYS: Record<string, 'start' | 'end'> = {
+  start_date: 'start',
+  end_date: 'end',
+}
+
+const toCalendarDate = (value: unknown) =>
+  value ? parseDate(String(value).slice(0, 10)) : undefined
+
+const reset = (key: string) => {
+  const value = props.record[key] ?? null
+  const isKeyset = props.entityType === 'keyset'
+  const rangeKey = DATE_RANGE_KEYS[key]
+
+  if (isKeyset && rangeKey) {
+    const current = dateRange.value || {
+      start: toCalendarDate(model.value.start_date),
+      end: toCalendarDate(model.value.end_date),
+    }
+
+    dateRange.value = { ...current, [rangeKey]: toCalendarDate(value) }
+    return
+  }
+
+  // A new object, so the form copies it into its own state.
+  model.value = {
+    ...model.value,
+    [key]: isKeyset && key === 'ic_date' ? toCalendarDate(value) : value,
+  }
+}
+
+defineExpose({ reset })
 </script>
