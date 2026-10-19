@@ -1,10 +1,5 @@
 <template>
-  <UModal
-    v-model:open="open"
-    :title="title"
-    :description="description"
-    :ui="{ content: 'sm:max-w-3xl' }"
-  >
+  <UModal v-model:open="open" :title="title" :description="description">
     <template #body>
       <div v-if="suggestion" class="space-y-4">
         <UAlert
@@ -34,23 +29,34 @@
           </p>
         </div>
 
-        <div class="divide-y divide-default rounded-lg border border-default">
+        <!-- Staff adjusting the values edit them in the record's own form -->
+        <SharedSuggestionForm
+          v-if="adjusting"
+          v-model:changes="adjusted"
+          :entity-type="suggestion.entity_type"
+          :record="suggestion.record"
+          :initial="selectedChanges"
+          @update:uploading="(value) => (uploading = value)"
+        />
+
+        <div
+          v-else
+          class="divide-y divide-default rounded-lg border border-default"
+        >
           <div
             v-for="row in rows"
-            :key="row.field.key"
+            :key="row.key"
             class="p-3 space-y-2"
-            :class="reviewing && !selected[row.field.key] && 'opacity-60'"
+            :class="reviewing && !selected[row.key] && 'opacity-60'"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
               <UCheckbox
                 v-if="reviewing"
-                v-model="selected[row.field.key]"
-                :label="row.field.label"
+                v-model="selected[row.key]"
+                :label="row.label"
                 :ui="{ label: 'font-medium' }"
               />
-              <span v-else class="text-sm font-medium">
-                {{ row.field.label }}
-              </span>
+              <span v-else class="text-sm font-medium">{{ row.label }}</span>
 
               <UBadge
                 v-if="row.stale"
@@ -63,35 +69,27 @@
             </div>
 
             <div class="grid gap-3 sm:grid-cols-2">
-              <div class="min-w-0 space-y-1">
-                <p class="text-xs text-muted">
-                  {{ suggestion.review_status === 'Approved' ? 'Before' : 'Current' }}
+              <div
+                v-for="side in row.sides"
+                :key="side.label"
+                class="min-w-0 space-y-1"
+              >
+                <p class="text-xs text-muted">{{ side.label }}</p>
+                <a
+                  v-if="row.image && side.value"
+                  :href="side.value"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <NuxtImg
+                    :src="side.value"
+                    :alt="row.label"
+                    class="max-h-40 rounded border border-default object-contain"
+                  />
+                </a>
+                <p v-else class="text-sm whitespace-pre-line break-words">
+                  {{ formatSuggestionValue(row.key, side.value, side.values) }}
                 </p>
-                <SuggestionValue
-                  :field="row.field"
-                  :value="row.current"
-                  :values="currentValues"
-                />
-              </div>
-
-              <div class="min-w-0 space-y-1">
-                <p class="text-xs text-muted">
-                  {{ suggestion.review_status === 'Approved' ? 'Applied' : 'Suggested' }}
-                </p>
-                <SharedSuggestionField
-                  v-if="reviewing"
-                  v-model="draft[row.field.key]"
-                  :field="row.field"
-                  :upload="upload"
-                  :disabled="busy || !selected[row.field.key]"
-                  @update:uploading="(value) => setUploading(row.field.key, value)"
-                />
-                <SuggestionValue
-                  v-else
-                  :field="row.field"
-                  :value="row.suggested"
-                  :values="suggestedValues"
-                />
               </div>
             </div>
           </div>
@@ -100,46 +98,52 @@
     </template>
 
     <template v-if="reviewing" #footer>
-      <div class="flex w-full flex-wrap justify-end gap-2">
+      <div class="flex w-full flex-wrap justify-between gap-2">
         <UButton
-          label="Reject"
-          color="error"
-          variant="soft"
-          icon="hugeicons:cancel-circle"
-          :ui="{ label: 'block' }"
-          :disabled="busy"
-          @click="emit('reject', suggestion!)"
+          :label="adjusting ? 'Back to Changes' : 'Adjust Values'"
+          :icon="adjusting ? 'hugeicons:arrow-left-01' : 'hugeicons:edit-01'"
+          variant="ghost"
+          :disabled="busy || !suggestion?.record"
+          @click="adjusting = !adjusting"
         />
-        <UButton
-          :label="allSelected ? 'Approve' : 'Approve Selected'"
-          color="success"
-          icon="hugeicons:checkmark-circle-02"
-          :ui="{ label: 'block' }"
-          :loading="approving"
-          :disabled="busy || !selectedKeys.length || !suggestion?.record"
-          @click="approve"
-        />
+
+        <div class="flex flex-wrap gap-2">
+          <UButton
+            label="Reject"
+            color="error"
+            variant="soft"
+            :disabled="busy"
+            @click="emit('reject', suggestion!)"
+          />
+          <UButton
+            :label="adjusting || allSelected ? 'Approve' : 'Approve Selected'"
+            color="success"
+            :loading="approving"
+            :disabled="busy || !approvedCount || !suggestion?.record"
+            @click="approve"
+          />
+        </div>
       </div>
     </template>
   </UModal>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue'
-import type { SuggestionEntityType, SuggestionField } from '~/utils/suggestions'
+import type { SuggestionEntityType } from '~/utils/suggestions'
 
 // Staff review of an edit suggestion: each suggested field with the record's
-// current value and the suggested one, which staff can leave out (checkbox)
-// or adjust before approving. Fields whose current value changed since the
-// suggestion was written are flagged. Submitters and reviewed suggestions get
-// the same comparison, read-only.
+// current value and the suggested one, with a checkbox to leave it out.
+// Adjust Values opens the record's own form with the selected changes, and
+// approving then applies what the form holds. Fields whose current value
+// changed since the suggestion was written are flagged. Submitters and
+// reviewed suggestions get the same comparison, read-only.
 const props = defineProps<{
   suggestion: Record<string, any> | null
   approving?: boolean
 }>()
 
 const emit = defineEmits<{
-  approve: [suggestion: Record<string, any>, changes: Record<string, any>]
+  approve: [suggestion: Record<string, any>, changes: Record<string, unknown>]
   reject: [suggestion: Record<string, any>]
 }>()
 
@@ -150,9 +154,6 @@ const userStore = useUserStore()
 const entityType = computed(
   () => props.suggestion?.entity_type as SuggestionEntityType | undefined,
 )
-const entity = computed(() =>
-  entityType.value ? SUGGESTION_ENTITIES[entityType.value] : null,
-)
 
 const reviewing = computed(
   () =>
@@ -162,166 +163,101 @@ const reviewing = computed(
 )
 
 const title = computed(() =>
-  entity.value ? `${entity.value.label} Edit Suggestion` : 'Edit Suggestion',
+  entityType.value
+    ? `Review ${SUGGESTION_ENTITIES[entityType.value].label} Edit`
+    : 'Review Edit',
 )
 
-const description = computed(() => {
-  const suggestion = props.suggestion
+const description = computed(
+  () =>
+    [props.suggestion?.entity_name, props.suggestion?.parent_name]
+      .filter(Boolean)
+      .join(' · ') || undefined,
+)
 
-  if (!suggestion) return undefined
-
-  return [suggestion.entity_name, suggestion.parent_name]
-    .filter(Boolean)
-    .join(' · ')
-})
-
-// What staff will apply: the suggested values, editable.
-const draft = ref<Record<string, any>>({})
 const selected = ref<Record<string, boolean>>({})
-const uploadingKeys = ref(new Set<string>())
+const adjusting = ref(false)
+const adjusted = ref<Record<string, unknown>>({})
+const uploading = ref(false)
 
 watch(
   () => props.suggestion,
   (suggestion) => {
-    const changes = suggestion?.changes || {}
-
-    draft.value = { ...changes }
     selected.value = Object.fromEntries(
-      Object.keys(changes).map((key) => [key, true]),
+      Object.keys(suggestion?.changes || {}).map((key) => [key, true]),
     )
-    uploadingKeys.value = new Set()
+    adjusting.value = false
+    adjusted.value = {}
+    uploading.value = false
   },
   { immediate: true },
 )
 
-const setUploading = (key: string, value: boolean) => {
-  const next = new Set(uploadingKeys.value)
+const busy = computed(() => props.approving || uploading.value)
 
-  if (value) next.add(key)
-  else next.delete(key)
+const selectedChanges = computed(() =>
+  Object.fromEntries(
+    Object.entries(props.suggestion?.changes || {}).filter(
+      ([key]) => selected.value[key],
+    ),
+  ),
+)
 
-  uploadingKeys.value = next
-}
+const approvedChanges = computed(() =>
+  adjusting.value ? adjusted.value : selectedChanges.value,
+)
+const approvedCount = computed(() => Object.keys(approvedChanges.value).length)
 
-const busy = computed(() => props.approving || uploadingKeys.value.size > 0)
-
-const upload = computed(() =>
-  entityType.value
-    ? suggestionUploadTarget(entityType.value, props.suggestion?.record || {})
-    : { category: 'artisan' as const, assignment: 'artisan' },
+const allSelected = computed(() =>
+  Object.keys(props.suggestion?.changes || {}).every(
+    (key) => selected.value[key],
+  ),
 )
 
 // Approved suggestions compare what was there before with what was applied.
-const shown = computed(() => {
-  const suggestion = props.suggestion
-
-  if (!suggestion) return { keys: [], current: {}, suggested: {} }
-
-  const approved = suggestion.review_status === 'Approved'
-  const suggested = approved
-    ? suggestion.applied || suggestion.changes
-    : suggestion.changes
-
-  return {
-    keys: Object.keys(suggestion.changes || {}),
-    current: approved ? suggestion.original : suggestion.record || suggestion.original,
-    suggested: suggested || {},
-  }
-})
-
-const currentValues = computed(() => ({
-  ...(props.suggestion?.record || {}),
-  ...shown.value.current,
-}))
-const suggestedValues = computed(() => ({
-  ...currentValues.value,
-  ...shown.value.suggested,
-}))
-
 const rows = computed(() => {
   const suggestion = props.suggestion
-  const type = entityType.value
 
-  if (!suggestion || !type) return []
+  if (!suggestion) return []
 
-  return shown.value.keys
-    .map((key) => suggestionField(type, key))
-    .filter((field): field is SuggestionField => !!field)
-    .map((field) => ({
-      field,
-      current: shown.value.current?.[field.key] ?? null,
-      suggested: shown.value.suggested?.[field.key] ?? null,
+  const approved = suggestion.review_status === 'Approved'
+  const before = approved
+    ? suggestion.original
+    : suggestion.record || suggestion.original
+  const after = approved
+    ? suggestion.applied || suggestion.changes
+    : suggestion.changes
+  const beforeValues = { ...(suggestion.record || {}), ...before }
+  const afterValues = { ...beforeValues, ...after }
+
+  return Object.keys(approved ? after : suggestion.changes || {}).map(
+    (key) => ({
+      key,
+      label: suggestionFieldLabel(key),
+      image: isImageSuggestionField(key),
       stale:
         suggestion.review_status === 'Pending' &&
         !!suggestion.record &&
-        !sameSuggestionValue(
-          suggestion.record[field.key],
-          suggestion.original?.[field.key],
-        ),
-    }))
+        !sameSuggestionValue(suggestion.record[key], suggestion.original?.[key]),
+      sides: [
+        {
+          label: approved ? 'Before' : 'Current',
+          value: before?.[key] ?? null,
+          values: beforeValues,
+        },
+        {
+          label: approved ? 'Applied' : 'Suggested',
+          value: after?.[key] ?? null,
+          values: afterValues,
+        },
+      ],
+    }),
+  )
 })
-
-const selectedKeys = computed(() =>
-  rows.value
-    .map((row) => row.field.key)
-    .filter((key) => selected.value[key]),
-)
-
-const allSelected = computed(
-  () => selectedKeys.value.length === rows.value.length,
-)
 
 const approve = () => {
-  if (!props.suggestion) return
+  if (!props.suggestion || !approvedCount.value) return
 
-  emit(
-    'approve',
-    props.suggestion,
-    Object.fromEntries(selectedKeys.value.map((key) => [key, draft.value[key]])),
-  )
+  emit('approve', props.suggestion, approvedChanges.value)
 }
-
-// One value, read-only: images as thumbnails, links as links, the rest as
-// formatted text.
-const SuggestionValue = defineComponent({
-  props: {
-    field: { type: Object as PropType<SuggestionField>, required: true },
-    value: { type: null, default: null },
-    values: { type: Object, default: () => ({}) },
-  },
-  setup(valueProps) {
-    return () => {
-      const { field, value, values } = valueProps
-
-      if (field.type === 'image' && value) {
-        return h('a', { href: value, target: '_blank', rel: 'noopener' }, [
-          h('img', {
-            src: value,
-            alt: field.label,
-            class: 'max-h-40 rounded border border-default object-contain',
-          }),
-        ])
-      }
-
-      if (field.type === 'url' && value) {
-        return h(
-          'a',
-          {
-            href: value,
-            target: '_blank',
-            rel: 'noopener',
-            class: 'text-sm text-primary break-all',
-          },
-          value,
-        )
-      }
-
-      return h(
-        'p',
-        { class: 'text-sm whitespace-pre-line break-words' },
-        formatSuggestionValue(field, value, values),
-      )
-    }
-  },
-})
 </script>

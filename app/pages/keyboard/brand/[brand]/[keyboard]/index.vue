@@ -43,8 +43,8 @@
 
           <UButton
             v-if="canSuggest(data)"
-            label="Suggest Edit"
-            icon="hugeicons:pencil-edit-02"
+            label="Edit"
+            icon="hugeicons:edit-01"
             @click="suggest('keyboard', data)"
           />
 
@@ -201,9 +201,9 @@
 
             <template v-else-if="canSuggest(release)" #links>
               <UButton
-                icon="hugeicons:pencil-edit-02"
-                label="Suggest Edit"
-                @click="suggest('keyboard_release', release)"
+                icon="hugeicons:edit-01"
+                label="Edit"
+                @click="suggest('keyboard_release', release, { keyboard: data })"
               />
             </template>
 
@@ -251,7 +251,7 @@
                     size="sm"
                     :ui="{ label: 'block' }"
                     class="absolute bottom-2 right-2"
-                    @click.stop="suggest('keyboard_variant', variant, 'img_front')"
+                    @click.stop="suggest('keyboard_variant', variant, { keyboard: data })"
                   />
                 </div>
 
@@ -276,13 +276,12 @@
                       @on-select="saveToCollection"
                     />
 
-                    <UTooltip v-if="canSuggest(variant)" text="Suggest Edit">
-                      <UButton
-                        icon="hugeicons:pencil-edit-02"
-                        aria-label="Suggest Edit"
-                        @click="suggest('keyboard_variant', variant)"
-                      />
-                    </UTooltip>
+                    <UButton
+                      v-if="canSuggest(variant)"
+                      icon="hugeicons:edit-01"
+                      label="Edit"
+                      @click="suggest('keyboard_variant', variant, { keyboard: data })"
+                    />
 
                     <UModal v-if="editable" title="Edit Variant">
                       <UButton
@@ -402,7 +401,7 @@
         v-model:open="suggestOpen"
         :entity-type="suggestTarget.entityType"
         :record="suggestTarget.record"
-        :focus="suggestTarget.focus"
+        :form-props="suggestTarget.formProps"
       />
     </template>
   </UDashboardPanel>

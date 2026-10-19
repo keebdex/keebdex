@@ -47,8 +47,8 @@
 
           <UButton
             v-if="canSuggest(data)"
-            label="Suggest Edit"
-            icon="hugeicons:pencil-edit-02"
+            label="Edit"
+            icon="hugeicons:edit-01"
             @click="suggest('keyset', data)"
           />
 
@@ -118,7 +118,7 @@
                   color="neutral"
                   variant="ghost"
                   aria-label="Add Cover"
-                  @click="suggest('keyset', data, 'img')"
+                  @click="suggest('keyset', data)"
                 />
               </UTooltip>
             </template>
@@ -205,13 +205,13 @@
                   </span>
                 </div>
 
-                <UTooltip v-if="canSuggest(kit)" text="Suggest Edit">
+                <UTooltip v-if="canSuggest(kit)" text="Edit">
                   <UButton
-                    icon="hugeicons:pencil-edit-02"
+                    icon="hugeicons:edit-01"
                     size="xs"
                     color="neutral"
                     variant="ghost"
-                    aria-label="Suggest Edit"
+                    aria-label="Edit"
                     class="ms-auto"
                     @click.stop="suggest('keyset_kit', kit)"
                   />
@@ -242,7 +242,7 @@
                 size="sm"
                 :ui="{ label: 'block' }"
                 class="absolute bottom-2 right-2"
-                @click.stop="suggest('keyset_kit', kit, 'img')"
+                @click.stop="suggest('keyset_kit', kit)"
               />
             </div>
           </UPageCard>
@@ -284,7 +284,7 @@
         v-model:open="suggestOpen"
         :entity-type="suggestTarget.entityType"
         :record="suggestTarget.record"
-        :focus="suggestTarget.focus"
+        :form-props="suggestTarget.formProps"
       />
 
       <UModal

@@ -2,7 +2,12 @@ import { createError } from 'h3'
 import { groupBy } from 'es-toolkit'
 import type { getActorProfile } from './admin'
 import { omitSensitive } from './index'
-import { SUGGESTION_ENTITIES } from '~/utils/suggestions'
+import { TABLE_FIELDS } from './table-fields.generated'
+import {
+  SUGGESTION_ENTITIES,
+  isProtectedSuggestionField,
+  normalizeSuggestionValue,
+} from '~/utils/suggestions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 import { suggestionChangesSchema } from '~/utils/schemas/suggestion'
 
@@ -26,16 +31,39 @@ const invalid = (issues: { message: string; path: PropertyKey[] }[]) => {
   })
 }
 
-/** Validates the suggested values of a record (whitelisted, normalized). */
+/**
+ * Validates the suggested values of a record: every key must be a column of
+ * its table and not a protected one; blanks become null. Value types are
+ * checked by the database (the guard trigger casts them to the table's row).
+ */
 export const parseSuggestionChanges = (
   type: SuggestionEntityType,
   changes: unknown,
 ) => {
-  const result = suggestionChangesSchema(type).safeParse(changes)
+  const result = suggestionChangesSchema.safeParse(changes)
 
   if (!result.success) throw invalid(result.error.issues)
 
-  return result.data as Record<string, unknown>
+  const { table } = SUGGESTION_ENTITIES[type]
+  const columns = TABLE_FIELDS[table as keyof typeof TABLE_FIELDS] as
+    | readonly string[]
+    | undefined
+
+  for (const key of Object.keys(result.data)) {
+    if (!columns?.includes(key) || isProtectedSuggestionField(type, key)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `The field "${key}" cannot be changed.`,
+      })
+    }
+  }
+
+  return Object.fromEntries(
+    Object.entries(result.data).map(([key, value]) => [
+      key,
+      normalizeSuggestionValue(value),
+    ]),
+  )
 }
 
 /**
@@ -57,6 +85,9 @@ export const suggestionError = (error: { code?: string; message: string }) => {
     case '23514':
     case '22023':
     case '22P02':
+    case '22007':
+    case '22008':
+    case '22003':
       return createError({ statusCode: 400, statusMessage: error.message })
     case '42501':
       return createError({ statusCode: 403, statusMessage: error.message })
@@ -83,15 +114,10 @@ const PARENT_LOOKUPS = {
   },
 } as const
 
-// Extra columns per record kind, for its name and link.
-const RECORD_EXTRAS: Record<SuggestionEntityType, string[]> = {
-  artisan_colorway: ['colorway_id', 'maker_id'],
-  artisan_sculpt: ['maker_id'],
-  keyset_kit: ['kit_id', 'profile_keyset_id', 'category:kit_categories(name)'],
-  keyset: ['profile_keyset_id', 'profile:keyset_profiles(name)'],
-  keyboard_variant: ['brand_slug', 'brand_keyboard_slug'],
-  keyboard_release: ['brand_slug', 'brand_keyboard_slug'],
-  keyboard: ['brand_slug', 'brand_keyboard_slug'],
+// Joined rows per record kind, for its name.
+const RECORD_JOINS: Partial<Record<SuggestionEntityType, string>> = {
+  keyset_kit: 'category:kit_categories(name)',
+  keyset: 'profile:keyset_profiles(name)',
 }
 
 const recordName = (type: SuggestionEntityType, record: any) => {
@@ -138,15 +164,9 @@ export const withSuggestionRecords = async (
     Object.entries(byType).map(async ([key, rows]) => {
       const type = key as SuggestionEntityType
       const entity = SUGGESTION_ENTITIES[type]
-      const columns = [
-        'id',
-        ...entity.fields.map((field) => field.key),
-        ...RECORD_EXTRAS[type],
-      ]
-
       const { data, error } = await db
         .from(entity.table)
-        .select([...new Set(columns)].join(', '))
+        .select(['*', RECORD_JOINS[type]].filter(Boolean).join(', '))
         .in('id', [...new Set(rows.map((row) => row.entity_id))])
 
       if (error) {

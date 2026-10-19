@@ -17,7 +17,7 @@
       />
     </UFormField>
 
-    <div class="grid gap-2" :class="moderator ? 'grid-cols-2' : 'grid-cols-1'">
+    <div class="grid gap-2" :class="showOrder ? 'grid-cols-2' : 'grid-cols-1'">
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="colorway.qty"
@@ -26,7 +26,7 @@
         />
       </UFormField>
 
-      <UFormField v-if="moderator" label="Order" name="order">
+      <UFormField v-if="showOrder" label="Order" name="order">
         <UInput
           v-model.number="colorway.order"
           icon="hugeicons:text-number-sign"
@@ -161,6 +161,9 @@ const props = defineProps({
     default: 'standalone',
     validator: (value) => ['standalone', 'embedded'].includes(value),
   },
+  // Suggest Edit (SharedSuggestionForm): hides the fields a suggestion
+  // cannot change.
+  suggest: Boolean,
 })
 
 const toast = useToast()
@@ -190,6 +193,7 @@ const saleFormats = [
 ]
 
 const moderator = computed(() => userStore.isModerator)
+const showOrder = computed(() => moderator.value && !props.suggest)
 const isStandalone = computed(() => props.mode === 'standalone')
 const formWrapper = computed(() =>
   isStandalone.value ? resolveComponent('UForm') : 'div',

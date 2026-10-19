@@ -211,11 +211,7 @@ const changedLabels = (suggestion: Suggestion) =>
     suggestion.review_status === 'Approved' && suggestion.applied
       ? suggestion.applied
       : suggestion.changes || {},
-  ).map(
-    (key) =>
-      suggestionField(suggestion.entity_type as SuggestionEntityType, key)
-        ?.label || key,
-  )
+  ).map(suggestionFieldLabel)
 
 const isOwn = (suggestion: Suggestion) =>
   suggestion.submitted_by === user.value?.uid

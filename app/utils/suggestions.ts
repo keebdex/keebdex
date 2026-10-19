@@ -1,14 +1,14 @@
-import { Constants } from '~/types/database.types'
 import { formatDate, formatPrice } from '~/utils'
-import { artisanStems } from '~/utils/schemas/artisan'
 
 /**
- * Edit suggestions: signed-in users suggest changes to published records
- * (a missing photo, a wrong date or price), and staff review them in the Edits
- * tab of `/{domain}/submissions`. This registry lists the records that take
- * suggestions and the fields users may change, with how each field is edited
- * and shown. The database whitelist, `edit_suggestion_fields()` in the
- * `edit_suggestions` migration, must list the same keys.
+ * Edit suggestions: signed-in users suggest changes to published records (a
+ * missing photo, a wrong date or price), and staff review them in the Edits
+ * tab of `/{domain}/submissions`. Suggestions are made in the record's own
+ * atomic form (`mode="embedded"`, `suggest`), so the fields stay in sync with
+ * the admin forms: any column the form edits can be suggested, except the
+ * keys, parent links, and system columns listed in `protected` here and in
+ * `edit_suggestion_protected_fields()` of the `edit_suggestions` migration,
+ * which must list the same columns.
  */
 
 export type SuggestionEntityType =
@@ -22,78 +22,43 @@ export type SuggestionEntityType =
 
 export type SuggestionDomain = 'artisan' | 'keyset' | 'keyboard'
 
-export type SuggestionFieldType =
-  | 'text'
-  | 'textarea'
-  | 'url'
-  | 'image'
-  | 'number'
-  | 'date'
-  | 'select'
-  | 'multiselect'
-  | 'boolean'
-
-export interface SuggestionField {
-  key: string
-  label: string
-  type: SuggestionFieldType
-  // The column is not nullable.
-  required?: boolean
-  options?: readonly string[]
-  // Numbers shown as prices use the record's currency.
-  price?: boolean
-  help?: string
-}
-
 export interface SuggestionEntity {
   type: SuggestionEntityType
   domain: SuggestionDomain
   table: string
-  // Shown to users, e.g. in `Suggest an Edit to Colorway`.
+  // Shown to users, e.g. in `Edit Colorway`.
   label: string
   // Name column of the record.
   nameKey: string
-  fields: SuggestionField[]
+  // Props the record's atomic form needs besides the record itself (pages
+  // may pass richer ones, e.g. option lists); forms with fields a
+  // suggestion cannot change take `suggest` to hide them.
+  formProps: (record: Record<string, any>) => Record<string, unknown>
+  // Columns a suggestion never changes.
+  protected: string[]
 }
 
-const { Enums } = Constants.public
-
-const currency: SuggestionField = {
-  key: 'currency',
-  label: 'Currency',
-  type: 'select',
-  options: Enums.currency,
-}
-
-const keyboardSpecs: SuggestionField[] = [
-  currency,
-  { key: 'msrp_price', label: 'MSRP', type: 'number', price: true },
-  { key: 'release_year', label: 'Release Year', type: 'number' },
-  {
-    key: 'case_materials',
-    label: 'Case Materials',
-    type: 'multiselect',
-    options: Enums.keyboard_material,
-  },
-  {
-    key: 'plate_materials',
-    label: 'Plate Materials',
-    type: 'multiselect',
-    options: Enums.keyboard_material,
-  },
-  {
-    key: 'weight_materials',
-    label: 'Weight Materials',
-    type: 'multiselect',
-    options: Enums.keyboard_material,
-  },
-  {
-    key: 'pcb_types',
-    label: 'PCB Types',
-    type: 'multiselect',
-    options: Enums.keyboard_pcb_type,
-  },
+// Every table: identity, timestamps, search, and moderation columns.
+const SYSTEM_FIELDS = [
+  'id',
+  'created_at',
+  'updated_at',
+  'fts',
+  'review_status',
+  'review_note',
+  'submitted_by',
+  'verified_at',
+  'verified_by',
 ]
+
+// Columns the Google Doc sync owns besides the data it fills in.
+const SYNC_FIELDS = ['deleted', 'source', 'source_document_id', 'overridden_fields']
+
+const keyboardOf = (record: Record<string, any>) => ({
+  brand_slug: record.brand_slug,
+  brand_keyboard_slug: record.brand_keyboard_slug,
+  releases: [],
+})
 
 export const SUGGESTION_ENTITIES: Record<
   SuggestionEntityType,
@@ -105,32 +70,14 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'artisan_colorways',
     label: 'Colorway',
     nameKey: 'name',
-    fields: [
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      {
-        key: 'img',
-        label: 'Image',
-        type: 'image',
-        help: 'A square photo focused on the keycap works best.',
-      },
-      { key: 'photo_credit', label: 'Photo Credit', type: 'text' },
-      { key: 'release', label: 'Release', type: 'text' },
-      {
-        key: 'sale_type',
-        label: 'Sale Type',
-        type: 'select',
-        options: Enums.sale_format,
-      },
-      currency,
-      { key: 'price', label: 'Price', type: 'number', price: true },
-      { key: 'qty', label: 'Quantity', type: 'number' },
-      {
-        key: 'stem',
-        label: 'Stem',
-        type: 'multiselect',
-        options: artisanStems,
-      },
-      { key: 'description', label: 'Description', type: 'textarea' },
+    formProps: (record) => ({ makerId: record.maker_id, suggest: true }),
+    protected: [
+      'colorway_id',
+      'maker_id',
+      'sculpt_id',
+      'maker_sculpt_id',
+      'order',
+      ...SYNC_FIELDS,
     ],
   },
   artisan_sculpt: {
@@ -139,25 +86,8 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'artisan_sculpts',
     label: 'Sculpt',
     nameKey: 'name',
-    fields: [
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      { key: 'img', label: 'Image', type: 'image' },
-      { key: 'release', label: 'Release', type: 'text' },
-      {
-        key: 'profile',
-        label: 'Profile',
-        type: 'select',
-        options: ['sculpted', 'blank'],
-      },
-      { key: 'cast', label: 'Cast', type: 'select', options: ['resin', 'mixed'] },
-      {
-        key: 'design',
-        label: 'Design',
-        type: 'select',
-        options: ['physical', 'digital', 'hybrid'],
-      },
-      { key: 'story', label: 'Story', type: 'textarea' },
-    ],
+    formProps: () => ({ isEdit: true }),
+    protected: ['sculpt_id', 'maker_id', 'maker_sculpt_id', ...SYNC_FIELDS],
   },
   keyset_kit: {
     type: 'keyset_kit',
@@ -165,14 +95,8 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keyset_kits',
     label: 'Kit',
     nameKey: 'name',
-    fields: [
-      { key: 'name', label: 'Name', type: 'text' },
-      { key: 'img', label: 'Image', type: 'image', required: true },
-      { key: 'price', label: 'Price', type: 'number', price: true },
-      { key: 'qty', label: 'Quantity', type: 'number' },
-      { key: 'cancelled', label: 'Cancelled', type: 'boolean', required: true },
-      { key: 'description', label: 'Description', type: 'textarea' },
-    ],
+    formProps: () => ({ isEdit: true }),
+    protected: ['profile_keyset_id'],
   },
   keyset: {
     type: 'keyset',
@@ -180,29 +104,8 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keysets',
     label: 'Keyset',
     nameKey: 'name',
-    fields: [
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      { key: 'img', label: 'Cover Image', type: 'image' },
-      { key: 'designer', label: 'Designer', type: 'text' },
-      {
-        key: 'status',
-        label: 'Status',
-        type: 'select',
-        options: Enums.keyset_status,
-      },
-      { key: 'ic_date', label: 'IC Date', type: 'date' },
-      { key: 'start_date', label: 'GB Start', type: 'date' },
-      { key: 'end_date', label: 'GB End', type: 'date' },
-      {
-        key: 'url',
-        label: 'Link',
-        type: 'url',
-        help: 'The Geekhack thread or the vendor page.',
-      },
-      { key: 'order_graph', label: 'Order Graph', type: 'image' },
-      { key: 'order_history', label: 'Order History', type: 'image' },
-      { key: 'description', label: 'Description', type: 'textarea' },
-    ],
+    formProps: () => ({ isEdit: true, suggest: true }),
+    protected: ['profile_id', 'profile_keyset_id'],
   },
   keyboard_variant: {
     type: 'keyboard_variant',
@@ -210,27 +113,12 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keyboard_variants',
     label: 'Variant',
     nameKey: 'variant_name',
-    fields: [
-      { key: 'variant_name', label: 'Name', type: 'text', required: true },
-      { key: 'img_front', label: 'Front Image', type: 'image' },
-      { key: 'img_back', label: 'Back Image', type: 'image' },
-      { key: 'photo_credit', label: 'Photo Credit', type: 'text' },
-      {
-        key: 'finish_type',
-        label: 'Finish',
-        type: 'select',
-        options: Enums.keyboard_finish_type,
-        required: true,
-      },
-      {
-        key: 'sale_type',
-        label: 'Sale Type',
-        type: 'select',
-        options: Enums.sale_format,
-      },
-      { key: 'units_produced', label: 'Units Produced', type: 'number' },
-      ...keyboardSpecs,
-    ],
+    formProps: (record) => ({
+      isEdit: true,
+      suggest: true,
+      keyboard: keyboardOf(record),
+    }),
+    protected: ['brand_slug', 'brand_keyboard_slug', 'release_id'],
   },
   keyboard_release: {
     type: 'keyboard_release',
@@ -238,11 +126,12 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keyboard_releases',
     label: 'Release',
     nameKey: 'name',
-    fields: [
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      ...keyboardSpecs,
-      { key: 'description', label: 'Description', type: 'textarea' },
-    ],
+    formProps: (record) => ({
+      isEdit: true,
+      suggest: true,
+      keyboard: keyboardOf(record),
+    }),
+    protected: ['brand_slug', 'brand_keyboard_slug', 'order', 'variant_specs'],
   },
   keyboard: {
     type: 'keyboard',
@@ -250,30 +139,8 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keyboards',
     label: 'Keyboard',
     nameKey: 'name',
-    fields: [
-      { key: 'name', label: 'Name', type: 'text', required: true },
-      {
-        key: 'form_factor',
-        label: 'Form Factor',
-        type: 'select',
-        options: Enums.keyboard_form_factor,
-        required: true,
-      },
-      {
-        key: 'top_case_styles',
-        label: 'Top Case Styles',
-        type: 'multiselect',
-        options: Enums.keyboard_top_case_style,
-      },
-      {
-        key: 'mount_styles',
-        label: 'Mount Styles',
-        type: 'multiselect',
-        options: Enums.keyboard_mounting_style,
-      },
-      { key: 'typing_angle', label: 'Typing Angle', type: 'number' },
-      { key: 'description', label: 'Description', type: 'textarea' },
-    ],
+    formProps: () => ({ isEdit: true, includeBrand: false }),
+    protected: ['brand_slug', 'brand_keyboard_slug', 'slug'],
   },
 }
 
@@ -286,8 +153,10 @@ export const isSuggestionEntityType = (
 ): value is SuggestionEntityType =>
   typeof value === 'string' && value in SUGGESTION_ENTITIES
 
-export const suggestionField = (type: SuggestionEntityType, key: string) =>
-  SUGGESTION_ENTITIES[type].fields.find((field) => field.key === key)
+export const isProtectedSuggestionField = (
+  type: SuggestionEntityType,
+  key: string,
+) => SYSTEM_FIELDS.includes(key) || SUGGESTION_ENTITIES[type].protected.includes(key)
 
 /** Published records take suggestions; the rest are still under review. */
 export const isSuggestable = (record?: { review_status?: string | null }) =>
@@ -301,41 +170,109 @@ const isBlank = (value: unknown) =>
   value === '' ||
   (Array.isArray(value) && !value.length)
 
-/** Same value once blanks are treated alike and arrays compared by items. */
-export const sameSuggestionValue = (a: unknown, b: unknown) => {
-  if (isBlank(a) && isBlank(b)) return true
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return a.length === b.length && a.every((item, index) => item === b[index])
+// Form values as they are stored: calendar dates as ISO dates, trimmed
+// strings, and blanks as null.
+export const normalizeSuggestionValue = (value: unknown): unknown => {
+  if (value && typeof value === 'object' && 'calendar' in value) {
+    return String(value)
   }
-  return a === b
+  if (typeof value === 'string') return value.trim() || null
+  return isBlank(value) ? null : value
 }
 
-/** The fields of `draft` that differ from `record`. */
+// Columns hold plain values or lists of them; joined rows (a keyset's kits,
+// a kit's category) are never suggested.
+const isColumnValue = (value: unknown) =>
+  value === null ||
+  typeof value !== 'object' ||
+  (Array.isArray(value) && value.every((item) => typeof item !== 'object'))
+
+/** Same value once blanks are treated alike and lists compared by items. */
+export const sameSuggestionValue = (a: unknown, b: unknown) => {
+  const left = normalizeSuggestionValue(a)
+  const right = normalizeSuggestionValue(b)
+
+  if (Array.isArray(left) && Array.isArray(right)) {
+    return (
+      left.length === right.length &&
+      left.every((item, index) => item === right[index])
+    )
+  }
+
+  return left === right
+}
+
+/** The columns the form model changed, with their normalized values. */
 export const suggestionDiff = (
   type: SuggestionEntityType,
   record: Record<string, any>,
-  draft: Record<string, any>,
+  model: Record<string, any>,
 ) =>
   Object.fromEntries(
-    SUGGESTION_ENTITIES[type].fields
-      .filter(({ key }) => !sameSuggestionValue(draft[key], record[key]))
-      .map(({ key }) => [key, draft[key]]),
+    Object.keys(model)
+      .filter(
+        (key) =>
+          key in record &&
+          isColumnValue(record[key]) &&
+          !isProtectedSuggestionField(type, key) &&
+          !sameSuggestionValue(model[key], record[key]),
+      )
+      .map((key) => [key, normalizeSuggestionValue(model[key])]),
   )
+
+const FIELD_LABELS: Record<string, string> = {
+  img: 'Image',
+  img_front: 'Front Image',
+  img_back: 'Back Image',
+  qty: 'Quantity',
+  url: 'URL',
+  msrp_price: 'Base Price',
+  ic_date: 'IC Date',
+  start_date: 'GB Start',
+  end_date: 'GB End',
+  kit_id: 'Kit',
+  pcb_types: 'PCB',
+  case_materials: 'Case',
+  plate_materials: 'Plate',
+  weight_materials: 'Weight',
+  is_revision_of: 'Revision Of',
+  derived_from: 'Original Design',
+  finish_type: 'Finish Type',
+}
+
+const IMAGE_FIELDS = ['img', 'img_front', 'img_back', 'order_graph', 'order_history']
+const DATE_FIELDS = ['ic_date', 'start_date', 'end_date']
+const PRICE_FIELDS = ['price', 'msrp_price']
+
+export const isImageSuggestionField = (key: string) =>
+  IMAGE_FIELDS.includes(key)
+
+/** `img_front` -> `Front Image`, `units_produced` -> `Units Produced`. */
+export const suggestionFieldLabel = (key: string) =>
+  FIELD_LABELS[key] ||
+  key
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 
 /** A field value for tables and diffs: `Yes`, `ABS, PBT`, `$120`, `—`. */
 export const formatSuggestionValue = (
-  field: SuggestionField | undefined,
+  key: string,
   value: unknown,
   values: Record<string, any> = {},
 ) => {
-  if (isBlank(value)) return '—'
-  if (field?.type === 'boolean') return value ? 'Yes' : 'No'
-  if (Array.isArray(value)) return value.join(', ')
-  if (field?.type === 'date') return formatDate(String(value))
-  if (field?.price && typeof value === 'number') {
-    return formatPrice(value, values.currency || 'USD', { stripZeros: true })
+  const normalized = normalizeSuggestionValue(value)
+
+  if (normalized === null) return '—'
+  if (typeof normalized === 'boolean') return normalized ? 'Yes' : 'No'
+  if (Array.isArray(normalized)) return normalized.join(', ')
+  if (DATE_FIELDS.includes(key)) return formatDate(String(normalized))
+  if (PRICE_FIELDS.includes(key) && typeof normalized === 'number') {
+    return formatPrice(normalized, values.currency || 'USD', {
+      stripZeros: true,
+    })
   }
-  return String(value)
+  return String(normalized)
 }
 
 /** Detail page of a suggested record, from its parent key. */
@@ -355,29 +292,4 @@ export const suggestionRecordPath = (
   return domain === 'keyset'
     ? `/keyset/${parentKey}`
     : `/keyboard/brand/${parentKey}`
-}
-
-export interface SuggestionUploadTarget {
-  category: SuggestionDomain
-  assignment: string
-}
-
-// Image uploads go to the module's category; the assignment only names the
-// page the image belongs to.
-export const suggestionUploadTarget = (
-  type: SuggestionEntityType,
-  record: Record<string, any>,
-): SuggestionUploadTarget => {
-  const { domain } = SUGGESTION_ENTITIES[type]
-
-  return {
-    category: domain,
-    assignment: String(
-      (domain === 'artisan'
-        ? record.maker_id
-        : domain === 'keyset'
-          ? record.profile_keyset_id
-          : record.brand_slug) || domain,
-    ),
-  }
 }

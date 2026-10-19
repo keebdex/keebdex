@@ -13,8 +13,8 @@
       />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Release" name="release_id" required>
+    <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
+      <UFormField v-if="!suggest" label="Release" name="release_id" required>
         <USelect
           v-model="variant.release_id"
           :items="releaseOptions"
@@ -190,7 +190,7 @@ const emit = defineEmits([
   'update:uploading',
 ])
 
-const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
+const { metadata, modelValue, isEdit, keyboard, mode, suggest } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -209,6 +209,9 @@ const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
     default: 'standalone',
     validator: (value) => ['standalone', 'embedded'].includes(value),
   },
+  // Suggest Edit (SharedSuggestionForm): hides the fields a suggestion
+  // cannot change.
+  suggest: Boolean,
 })
 
 const toast = useToast()

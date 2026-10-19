@@ -48,9 +48,14 @@
 
             <UButton
               v-if="canSuggest(sculpt)"
-              icon="hugeicons:pencil-edit-02"
-              label="Suggest Edit"
-              @click="suggest('artisan_sculpt', sculpt)"
+              icon="hugeicons:dashboard-square-edit"
+              label="Edit"
+              @click="
+                suggest('artisan_sculpt', sculpt, {
+                  sculpts: sculpt.maker_sculpts,
+                  disableGoogleSync: sculpt.disable_google_sync,
+                })
+              "
             />
 
             <template v-if="editable">
@@ -158,7 +163,7 @@
                 size="sm"
                 variant="soft"
                 :ui="{ label: 'block' }"
-                @click.stop="suggest('artisan_colorway', colorway, 'img')"
+                @click.stop="suggest('artisan_colorway', colorway)"
               />
             </div>
           </div>
@@ -174,12 +179,12 @@
 
               <UTooltip
                 v-if="canSuggest(colorway)"
-                text="Suggest Edit"
+                text="Edit"
                 :delay-duration="0"
               >
                 <UButton
-                  icon="hugeicons:pencil-edit-02"
-                  aria-label="Suggest Edit"
+                  icon="hugeicons:file-edit"
+                  aria-label="Edit"
                   @click="suggest('artisan_colorway', colorway)"
                 />
               </UTooltip>
@@ -284,7 +289,7 @@
         v-model:open="suggestOpen"
         :entity-type="suggestTarget.entityType"
         :record="suggestTarget.record"
-        :focus="suggestTarget.focus"
+        :form-props="suggestTarget.formProps"
       />
 
       <UPagination
