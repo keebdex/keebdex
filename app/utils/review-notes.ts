@@ -4,15 +4,15 @@ export type ReviewDomain = 'artisan' | 'keyset' | 'keyboard'
 // edit the note after picking one. Each stays within REVIEW_NOTE_MAX_LENGTH.
 const COMMON_REJECT_NOTES = [
   'This is already listed on Keebdex.',
-  'Please add a clear photo of the item itself, without heavy edits or watermarks.',
+  'Please use a clear, higher-resolution photo of the item itself, without heavy edits or watermarks.',
   "We couldn't verify this. Please add a link to the maker's, designer's, or vendor's official post.",
   'Some details look incorrect. Please check them against the official source and resubmit.',
 ]
 
 const DOMAIN_REJECT_NOTES: Record<ReviewDomain, string[]> = {
   artisan: [
-    'The photo shows a different colorway.',
-    'This colorway belongs to a different sculpt.',
+    'The photo or details match a different colorway or sculpt.',
+    'The photo shows several keycaps or angles. Please crop it to a single view of this colorway.',
   ],
   keyset: [
     'This kit belongs to a different keyset.',

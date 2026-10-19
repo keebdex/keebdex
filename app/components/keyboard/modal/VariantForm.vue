@@ -132,24 +132,14 @@
         class="w-full"
       />
 
-      <p class="mt-2 text-xs text-muted">
-        Or drag and drop an image below to upload and auto-fill this field.
-      </p>
-
-      <div class="mt-2 space-y-2">
-        <UFileUpload
-          v-model="uploadedFileFront"
-          accept="image/*"
-          icon="hugeicons:image-upload"
-          layout="grid"
-          label="Click to browse or drag & drop an image to upload"
-          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
-          :disabled="isUploadingImage"
-          :ui="{
-            base: 'aspect-video',
-          }"
-        />
-      </div>
+      <SharedImageUpload
+        v-model="uploadedFileFront"
+        v-model:src="variant.img_front"
+        :max-size-mb="maxUploadSizeMb"
+        :loading="uploadingFileFront"
+        class="mt-2"
+      />
+      <SharedImageDimensions :src="variant.img_front" variant="help" />
     </UFormField>
 
     <UFormField label="Back Image" name="img_back">
@@ -159,24 +149,14 @@
         class="w-full"
       />
 
-      <p class="mt-2 text-xs text-muted">
-        Or drag and drop an image below to upload and auto-fill this field.
-      </p>
-
-      <div class="mt-2 space-y-2">
-        <UFileUpload
-          v-model="uploadedFileBack"
-          accept="image/*"
-          icon="hugeicons:image-upload"
-          layout="grid"
-          label="Click to browse or drag & drop a back image to upload"
-          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
-          :disabled="isUploadingImage"
-          :ui="{
-            base: 'aspect-video',
-          }"
-        />
-      </div>
+      <SharedImageUpload
+        v-model="uploadedFileBack"
+        v-model:src="variant.img_back"
+        :max-size-mb="maxUploadSizeMb"
+        :loading="uploadingFileBack"
+        class="mt-2"
+      />
+      <SharedImageDimensions :src="variant.img_back" variant="help" />
     </UFormField>
 
     <UFormField label="Photo Credit" name="photo_credit">
@@ -374,11 +354,16 @@ const releaseOptions = computed(() => {
 })
 
 const uploadImage = async (file, field, uploadState) => {
-  if (!file) return
-
   const failedState =
     field === 'img_front' ? failedFileFront : failedFileBack
   failedState.value = false
+
+  // Removed image: a failed upload no longer blocks saving
+  if (!file) {
+    emit('update:uploading', isUploadingImage.value || hasFailedImage.value)
+    return
+  }
+
   uploadState.value = true
   emit('update:uploading', true)
 

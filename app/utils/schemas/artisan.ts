@@ -7,6 +7,8 @@ const optionalUrlSchema = z.url().nullish().or(z.string().min(0).max(0))
 
 export const artisanSaleFormats = Constants.public.Enums.sale_format
 export const artisanSpecialSaleFormats = ['Giveaway', 'Commission', 'Auction']
+// Stem types offered in the colorway form
+export const artisanStems = ['MX', 'TMX', 'Alps', 'Topre', 'Choc']
 
 export const makerSchema = z.object({
   name: z.string().min(1),
@@ -55,6 +57,7 @@ export const colorwaySchema = z.object({
   currency: z.enum(Constants.public.Enums.currency).nullish(),
   price: z.number().nullish(),
   sale_type: z.enum(artisanSaleFormats).nullish(),
+  stem: z.string().array().nullish(),
   description: optionalTextSchema,
   img: optionalUrlSchema,
   photo_credit: optionalTextSchema,

@@ -39,5 +39,14 @@
   },
   "limits": {
     "cpu_ms": 30000
+  },
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "keebdex-db",
+        "database_id": "569e11e7-7948-40fd-be59-a804d9f2e95f"
+      }
+    ]
   }
 }

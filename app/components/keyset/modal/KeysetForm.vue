@@ -76,22 +76,14 @@
         class="w-full"
       />
 
-      <p class="mt-2 text-xs text-muted">
-        Or drag and drop an image below to upload and auto-fill this field.
-      </p>
-
-      <div class="mt-2 space-y-2">
-        <UFileUpload
-          v-model="uploadedFile"
-          accept="image/*"
-          icon="hugeicons:image-upload"
-          layout="grid"
-          label="Click to browse or drag & drop an image to upload"
-          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
-          :ui="{ base: 'aspect-video' }"
-          :disabled="uploadingImage"
-        />
-      </div>
+      <SharedImageUpload
+        v-model="uploadedFile"
+        v-model:src="keyset.img"
+        :max-size-mb="maxUploadSizeMb"
+        :loading="uploadingImage"
+        class="mt-2"
+      />
+      <SharedImageDimensions :src="keyset.img" variant="help" />
     </UFormField>
 
     <div class="grid grid-cols-2 gap-2">
@@ -338,9 +330,14 @@ watch(
 // Upload immediately on selection using a pending assignment path when the
 // profile_keyset_id isn't known yet (e.g. new keyset submissions).
 watch(uploadedFile, async (file) => {
-  if (!file) return
-
   imageUploadFailed.value = false
+
+  // Removed image: a failed upload no longer blocks saving
+  if (!file) {
+    emit('update:uploading', false)
+    return
+  }
+
   const assignment =
     keyset.value.profile_keyset_id ||
     `${keyset.value.profile_id || 'pending'}/pending-${Date.now()}`

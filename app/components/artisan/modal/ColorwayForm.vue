@@ -57,12 +57,28 @@
       </UFormField>
     </div>
 
+    <UFormField label="Stem" name="stem">
+      <USelectMenu
+        v-model="stems"
+        :items="stemItems"
+        multiple
+        icon="hugeicons:cross"
+        placeholder="Select stem types"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField
       label="Description"
       name="description"
       help="Keep it concise and under 400 characters for optimal display."
     >
-      <UTextarea v-model.trim="colorway.description" :rows="5" class="w-full" />
+      <UTextarea
+        v-model.trim="colorway.description"
+        :rows="5"
+        placeholder="The story behind this colorway, its theme, or how it was made"
+        class="w-full"
+      />
     </UFormField>
 
     <UFormField
@@ -77,24 +93,25 @@
         class="w-full"
       />
 
-      <div class="mt-2 space-y-2">
-        <UFileUpload
-          v-model="uploadedFile"
-          accept="image/*"
-          icon="hugeicons:image-upload"
-          layout="grid"
-          label="Click to browse or drag & drop an image to upload"
-          :description="`Maximum file size: ${maxUploadSizeMb}MB`"
-          :ui="{ base: 'aspect-video' }"
-          :disabled="uploadingImage"
-        />
-      </div>
+      <SharedImageUpload
+        v-model="uploadedFile"
+        v-model:src="colorway.img"
+        :max-size-mb="maxUploadSizeMb"
+        :loading="uploadingImage"
+        class="mt-2"
+      />
+      <SharedImageDimensions :src="colorway.img" variant="help" />
     </UFormField>
 
-    <UFormField label="Photo Credit" name="photo_credit">
+    <UFormField
+      label="Photo Credit"
+      name="photo_credit"
+      help="Leave empty when the photo is from the maker. For a collector's photo, credit their Discord or Instagram handle."
+    >
       <UInput
         v-model.trim="colorway.photo_credit"
         icon="hugeicons:camera-add-02"
+        placeholder="e.g. @username"
         class="w-full"
       />
     </UFormField>
@@ -114,17 +131,15 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
+import { isEqual } from 'es-toolkit'
 import {
   artisanSaleFormats,
   artisanSpecialSaleFormats,
+  artisanStems,
   colorwaySchema,
 } from '~/utils/schemas/artisan'
 
-const emit = defineEmits([
-  'onSuccess',
-  'update:modelValue',
-  'update:uploading',
-])
+const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:uploading'])
 
 const props = defineProps({
   metadata: {
@@ -198,6 +213,19 @@ const defaultColorway = () => ({
 
 const colorway = ref(defaultColorway())
 
+// Several stems can apply; an empty selection is stored as null
+const stems = computed({
+  get: () => colorway.value.stem || [],
+  set: (value) => {
+    colorway.value.stem = value.length ? value : null
+  },
+})
+
+// Values already saved outside the list stay visible so they can be removed
+const stemItems = computed(() => [
+  ...new Set([...artisanStems, ...stems.value]),
+])
+
 const maxUploadSizeMb = getMaxUploadSizeMb('artisan')
 const uploading = ref(false)
 const uploadingImage = ref(false)
@@ -236,9 +264,14 @@ watch(
 
 // Upload immediately on selection so embedded (wizard) usage doesn't rely on a standalone submit handler.
 watch(uploadedFile, async (file) => {
-  if (!file) return
-
   imageUploadFailed.value = false
+
+  // Removed image: a failed upload no longer blocks saving
+  if (!file) {
+    emit('update:uploading', false)
+    return
+  }
+
   uploadingImage.value = true
   emit('update:uploading', true)
 
@@ -266,11 +299,7 @@ watch(
 )
 
 const onSubmit = async () => {
-  if (
-    !isStandalone.value ||
-    uploadingImage.value ||
-    imageUploadFailed.value
-  ) {
+  if (!isStandalone.value || uploadingImage.value || imageUploadFailed.value) {
     return
   }
 
@@ -286,7 +315,7 @@ const onSubmit = async () => {
       payload.overridden_fields = []
     } else {
       const dirtyFields = GDOC_MANAGED_FIELDS.filter(
-        (field) => payload[field] !== originalColorway.value[field],
+        (field) => !isEqual(payload[field], originalColorway.value[field]),
       )
 
       payload.overridden_fields = dirtyFields.length
@@ -311,7 +340,10 @@ const onSubmit = async () => {
       toast.add(noticeToast('submission_pending'))
     } else {
       toast.add(
-        successToast(colorway.value.id ? 'update' : 'add', { entity: 'Colorway', name: payload.name }),
+        successToast(colorway.value.id ? 'update' : 'add', {
+          entity: 'Colorway',
+          name: payload.name,
+        }),
       )
     }
     emit('onSuccess')

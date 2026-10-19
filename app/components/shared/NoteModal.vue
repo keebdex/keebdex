@@ -10,12 +10,13 @@
             :key="preset"
             :label="preset"
             color="neutral"
-            :variant="note === preset ? 'solid' : 'outline'"
+            :variant="isPicked(preset) ? 'solid' : 'outline'"
             size="xs"
             class="text-start"
             :ui="{ label: 'whitespace-normal' }"
-            :disabled="loading"
-            @click="note = preset"
+            :aria-pressed="isPicked(preset)"
+            :disabled="loading || !fits(preset)"
+            @click="togglePreset(preset)"
           />
         </div>
       </div>
@@ -59,9 +60,10 @@ import { REVIEW_NOTE_MAX_LENGTH } from '~/utils/schemas/common'
 // Confirms an action with a note for the person it affects, who reads it in
 // their notification: rejecting submissions (note required), resolving
 // feedback (`optional` comment). A required note keeps the confirm button
-// disabled until it has text. `presets` are quick replies that fill the note,
-// which stays editable.
-withDefaults(
+// disabled until it has text. `presets` are quick replies toggled in and out of
+// the note (several can be combined while they fit, as a bulleted list), which
+// stays editable.
+const props = withDefaults(
   defineProps<{
     title: string
     description?: string
@@ -89,4 +91,45 @@ withDefaults(
 const emit = defineEmits<{ confirm: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 const note = defineModel<string>('note', { default: '' })
+
+const isPicked = (preset: string) => note.value.includes(preset)
+
+// Text lines that are not quick replies (typed by the moderator), without
+// their bullets
+const typedLines = () =>
+  props.presets
+    ?.reduce((text, preset) => text.replace(preset, ''), note.value)
+    .split('\n')
+    .map((line) => line.replace(/^\s*[•-]\s*/, '').trim())
+    .filter(Boolean) ?? []
+
+// Picked quick replies, in the order they appear in the note
+const pickedPresets = () =>
+  (props.presets ?? [])
+    .filter(isPicked)
+    .sort((a, b) => note.value.indexOf(a) - note.value.indexOf(b))
+
+// One item reads as a sentence; several become a bulleted list
+const compose = (items: string[]) =>
+  items.length > 1
+    ? items.map((item) => `• ${item}`).join('\n')
+    : (items[0] ?? '')
+
+const toggled = (preset: string) => {
+  const picked = pickedPresets()
+
+  return compose([
+    ...typedLines(),
+    ...(isPicked(preset)
+      ? picked.filter((item) => item !== preset)
+      : [...picked, preset]),
+  ])
+}
+
+const fits = (preset: string) =>
+  isPicked(preset) || toggled(preset).length <= REVIEW_NOTE_MAX_LENGTH
+
+const togglePreset = (preset: string) => {
+  note.value = toggled(preset)
+}
 </script>
