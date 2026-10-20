@@ -77,6 +77,27 @@ export const NOTIFICATION_PREFERENCE_GROUPS: NotificationPreferenceGroup[] = [
     ],
   },
   {
+    id: 'suggestions',
+    label: 'Edit Suggestions',
+    description: 'Reviews of the changes you suggest to published records.',
+    icon: 'hugeicons:pencil-edit-02',
+    items: [
+      {
+        key: 'suggestion_approved',
+        label: 'Approved',
+        icon: 'hugeicons:checkmark-circle-02',
+        color: 'success',
+      },
+      {
+        key: 'suggestion_rejected',
+        label: 'Rejected',
+        description: "With the moderator's note.",
+        icon: 'hugeicons:cancel-circle',
+        color: 'error',
+      },
+    ],
+  },
+  {
     id: 'feedback',
     label: 'Feedback',
     description: 'Feedback you send while signed in, once we resolve it.',

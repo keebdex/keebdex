@@ -34,14 +34,14 @@ export const useKeyboardSubmissionWizard = ({
   const queryKeyboard = String(route.query.keyboard || '')
   // Fall back to the brand embedded in `brand_keyboard_slug` (e.g.
   // "some-brand/some-keyboard") when only the `keyboard` query param made it
-  // through, so a direct "Submit a Release/Variant" link still recognizes
+  // through, so a direct "Add Release/Variant" link still recognizes
   // the right brand.
   const brand = ref({
     id: String(route.query.brand || queryKeyboard.split('/')[0] || ''),
   })
   const keyboardMode = ref('existing')
   const existingKeyboard = ref({ id: queryKeyboard })
-  // A direct "Submit a Release" link (keyboard pre-selected, no release id yet)
+  // A direct "Add Release" link (keyboard pre-selected, no release id yet)
   // already expresses the intent to create a new release, so the release step
   // should skip the existing/new toggle entirely and only render the create form.
   const isDirectReleaseEntry = !!queryKeyboard && !route.query.release

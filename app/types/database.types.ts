@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -56,11 +56,11 @@ export type Database = {
           cta_label: string | null
           cta_url: string | null
           description: string | null
+          display: string
           ends_at: string | null
           icon: string | null
           key: string
           priority: number
-          show_toast: boolean
           starts_at: string
           title: string
           updated_at: string
@@ -73,11 +73,11 @@ export type Database = {
           cta_label?: string | null
           cta_url?: string | null
           description?: string | null
+          display?: string
           ends_at?: string | null
           icon?: string | null
           key: string
           priority?: number
-          show_toast?: boolean
           starts_at?: string
           title: string
           updated_at?: string
@@ -90,11 +90,11 @@ export type Database = {
           cta_label?: string | null
           cta_url?: string | null
           description?: string | null
+          display?: string
           ends_at?: string | null
           icon?: string | null
           key?: string
           priority?: number
-          show_toast?: boolean
           starts_at?: string
           title?: string
           updated_at?: string
@@ -410,6 +410,81 @@ export type Database = {
           system?: Database["public"]["Enums"]["keyset_color_matching_system"]
         }
         Relationships: []
+      }
+      edit_suggestions: {
+        Row: {
+          applied: Json | null
+          changes: Json
+          created_at: string
+          domain: string
+          entity_id: number
+          entity_type: string
+          id: number
+          original: Json
+          parent_key: string
+          reason: string | null
+          review_note: string | null
+          review_status: Database["public"]["Enums"]["review_status"]
+          scope: string
+          submitted_by: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          applied?: Json | null
+          changes: Json
+          created_at?: string
+          domain: string
+          entity_id: number
+          entity_type: string
+          id?: never
+          original?: Json
+          parent_key: string
+          reason?: string | null
+          review_note?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"]
+          scope: string
+          submitted_by?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          applied?: Json | null
+          changes?: Json
+          created_at?: string
+          domain?: string
+          entity_id?: number
+          entity_type?: string
+          id?: never
+          original?: Json
+          parent_key?: string
+          reason?: string | null
+          review_note?: string | null
+          review_status?: Database["public"]["Enums"]["review_status"]
+          scope?: string
+          submitted_by?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edit_suggestions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "edit_suggestions_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedbacks: {
         Row: {
@@ -1149,29 +1224,6 @@ export type Database = {
           },
         ]
       }
-      notification_state: {
-        Row: {
-          announcements_seen_at: string | null
-          user_id: string
-        }
-        Insert: {
-          announcements_seen_at?: string | null
-          user_id?: string
-        }
-        Update: {
-          announcements_seen_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notification_state_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -1425,6 +1477,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_edit_suggestion: {
+        Args: { p_changes?: Json; p_id: number }
+        Returns: Json
+      }
       can_manage: { Args: { scope: string }; Returns: boolean }
       can_manage_any: { Args: never; Returns: boolean }
       child_submission_can_modify: {
@@ -1464,12 +1520,27 @@ export type Database = {
         Returns: boolean
       }
       dismiss_announcement: { Args: { p_key: string }; Returns: undefined }
+      edit_suggestion_details: {
+        Args: { p_entity_id: number; p_entity_type: string }
+        Returns: Json
+      }
+      edit_suggestion_field_allowed: {
+        Args: { p_entity_type: string; p_key: string }
+        Returns: boolean
+      }
+      edit_suggestion_protected_fields: {
+        Args: { p_entity_type: string }
+        Returns: string[]
+      }
+      edit_suggestion_table: {
+        Args: { p_entity_type: string }
+        Returns: string
+      }
       is_official_review_status: {
         Args: { s: Database["public"]["Enums"]["review_status"] }
         Returns: boolean
       }
       mark_all_notifications_read: { Args: never; Returns: number }
-      mark_announcements_seen: { Args: never; Returns: string }
       merge_dismissals: { Args: { p_keys: string[] }; Returns: number }
       push_notification: {
         Args: {

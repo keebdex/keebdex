@@ -10,6 +10,26 @@ export const artisanSpecialSaleFormats = ['Giveaway', 'Commission', 'Auction']
 // Stem types offered in the colorway form
 export const artisanStems = ['MX', 'TMX', 'Alps', 'Topre', 'Choc']
 
+// Fields the makers' Google Doc sync fills in. Editing one by hand adds it to
+// the record's overridden_fields, so the next sync keeps the edit.
+// apply_edit_suggestion() in the edit_suggestions migration lists the same
+// fields for approved suggestions; keep both in sync.
+export const colorwayGdocManagedFields = [
+  'name',
+  'release',
+  'qty',
+  'photo_credit',
+  'img',
+  'stem',
+]
+export const sculptGdocManagedFields = [
+  'name',
+  'release',
+  'profile',
+  'cast',
+  'design',
+]
+
 export const makerSchema = z.object({
   name: z.string().min(1),
   id: z

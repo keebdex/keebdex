@@ -34,6 +34,7 @@
     </UFormField>
 
     <UFormField
+      v-if="!suggest"
       name="variant_specs"
       help="Enable this for commissions or special drops where every colorway has different materials or pricing. Disable for standard runs where all boards share the same specs."
     >
@@ -107,7 +108,7 @@ import { keyboardReleaseSchema } from '~/utils/schemas/keyboard'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
+const { metadata, modelValue, isEdit, keyboard, mode, suggest } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -126,6 +127,9 @@ const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
     default: 'standalone',
     validator: (value) => ['standalone', 'embedded'].includes(value),
   },
+  // Suggest Edit (SharedSuggestionForm): hides the fields a suggestion
+  // cannot change.
+  suggest: Boolean,
 })
 
 const toast = useToast()

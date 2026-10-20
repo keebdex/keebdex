@@ -121,6 +121,7 @@ export type NoticeKey =
   | 'order_saved'
   | 'feedback_sent'
   | 'submission_pending'
+  | 'suggestion_pending'
   | 'color_fetched'
   | 'already_in_collection'
 
@@ -166,6 +167,12 @@ const NOTICES: Record<NoticeKey, (detail?: string) => ToastMessage> = {
     title: 'Thanks for Your Contribution!',
     description:
       'Your submission is pending review and shows a Pending Review badge until it is approved.',
+    color: 'success',
+  }),
+  suggestion_pending: () => ({
+    title: 'Thanks for Your Suggestion!',
+    description:
+      'A moderator will review your changes. You will get a notification once they are approved or rejected.',
     color: 'success',
   }),
   color_fetched: (detail) => ({

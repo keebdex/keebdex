@@ -97,7 +97,7 @@
         description="Know one of their boards? Submit it and our staff will review it before it goes public."
         :actions="[
           {
-            label: 'Submit a Keyboard',
+            label: 'Add Keyboard',
             icon: 'hugeicons:add-square',
             to: { path: '/keyboard/submissions/submit', query: { brand } },
           },

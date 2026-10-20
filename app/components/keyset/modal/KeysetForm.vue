@@ -23,8 +23,8 @@
       />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="Profile" name="profile" required>
+    <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
+      <UFormField v-if="!suggest" label="Profile" name="profile" required>
         <USelect
           v-model="keyset.profile_id"
           :items="
@@ -86,7 +86,7 @@
       <SharedImageDimensions :src="keyset.img" variant="help" />
     </UFormField>
 
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
       <UFormField label="Status" name="status">
         <USelect
           v-model="keyset.status"
@@ -95,7 +95,7 @@
         />
       </UFormField>
 
-      <UFormField label="Review Status" name="review_status">
+      <UFormField v-if="!suggest" label="Review Status" name="review_status">
         <USelect
           v-model="keyset.review_status"
           default-value="Pending"
@@ -208,6 +208,9 @@ const props = defineProps({
     default: 'standalone',
     validator: (value) => ['standalone', 'embedded'].includes(value),
   },
+  // Suggest Edit (SharedSuggestionForm): hides the fields a suggestion
+  // cannot change.
+  suggest: Boolean,
 })
 
 const route = useRoute()

@@ -96,7 +96,7 @@
 
 <script setup>
 import slugify from 'slugify'
-import { sculptSchema } from '~/utils/schemas/artisan'
+import { sculptGdocManagedFields, sculptSchema } from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
@@ -133,7 +133,6 @@ const sculpt = ref({
   is_revision_of: undefined,
 })
 const originalSculpt = ref({})
-const GDOC_MANAGED_FIELDS = ['name', 'release', 'profile', 'cast', 'design']
 
 onBeforeMount(() => {
   const { colorways, ...rest } = modelValue || metadata
@@ -198,7 +197,7 @@ const onSubmit = async () => {
     payload.source = 'keebdex'
     payload.overridden_fields = []
   } else {
-    const dirtyFields = GDOC_MANAGED_FIELDS.filter(
+    const dirtyFields = sculptGdocManagedFields.filter(
       (field) => payload[field] !== originalSculpt.value[field],
     )
 

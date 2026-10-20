@@ -34,9 +34,9 @@
 
             <UButton
               v-else-if="authenticated"
-              icon="hugeicons:paint-board"
+              icon="hugeicons:dashboard-square-add"
               color="primary"
-              label="Submit a Colorway"
+              label="Add Colorway"
               :to="{
                 path: '/artisan/submissions/submit',
                 query: {
@@ -44,6 +44,18 @@
                   sculpt: route.params.sculpt,
                 },
               }"
+            />
+
+            <UButton
+              v-if="canSuggest(sculpt)"
+              icon="hugeicons:dashboard-square-edit"
+              label="Edit"
+              @click="
+                suggest('artisan_sculpt', sculpt, {
+                  sculpts: sculpt.maker_sculpts,
+                  disableGoogleSync: sculpt.disable_google_sync,
+                })
+              "
             />
 
             <template v-if="editable">
@@ -130,6 +142,7 @@
         >
           <div class="aspect-square overflow-hidden relative">
             <NuxtImg
+              v-if="colorway.img"
               preset="square"
               loading="lazy"
               decoding="async"
@@ -137,6 +150,22 @@
               :src="colorway.img"
               class="w-full h-full object-cover rounded"
             />
+            <!-- No photo yet: invite the community to add one -->
+            <div
+              v-else
+              class="w-full h-full rounded bg-elevated flex flex-col items-center justify-center gap-3 text-dimmed"
+            >
+              <UIcon name="hugeicons:image-02" class="size-10" />
+              <UButton
+                v-if="canSuggest(colorway)"
+                label="Add Photo"
+                icon="hugeicons:image-add-02"
+                size="sm"
+                variant="soft"
+                :ui="{ label: 'block' }"
+                @click.stop="suggest('artisan_colorway', colorway)"
+              />
+            </div>
           </div>
 
           <template #footer>
@@ -145,6 +174,18 @@
                 <UButton
                   icon="hugeicons:copy-02"
                   @click="copyColorwayCard(colorway)"
+                />
+              </UTooltip>
+
+              <UTooltip
+                v-if="canSuggest(colorway)"
+                text="Edit"
+                :delay-duration="0"
+              >
+                <UButton
+                  icon="hugeicons:file-edit"
+                  aria-label="Edit"
+                  @click="suggest('artisan_colorway', colorway)"
                 />
               </UTooltip>
 
@@ -242,6 +283,14 @@
           />
         </template>
       </UModal>
+
+      <SharedSuggestEditModal
+        v-if="suggestTarget"
+        v-model:open="suggestOpen"
+        :entity-type="suggestTarget.entityType"
+        :record="suggestTarget.record"
+        :form-props="suggestTarget.formProps"
+      />
 
       <UPagination
         v-if="sculpt.total_colorways > size"
@@ -370,6 +419,13 @@ const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const editable = computed(() => userStore.isEditable(sculpt.value?.maker_id))
+
+const {
+  target: suggestTarget,
+  open: suggestOpen,
+  canSuggest,
+  suggest,
+} = useSuggestEdit(editable)
 
 const visible = ref({
   edit: false,

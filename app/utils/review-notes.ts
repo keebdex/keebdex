@@ -29,6 +29,15 @@ export const rejectNotePresets = (domain: ReviewDomain) => [
   ...COMMON_REJECT_NOTES,
 ]
 
+// Quick replies offered when rejecting an edit suggestion.
+export const SUGGESTION_REJECT_NOTES = [
+  'The current details already match the official source.',
+  "We couldn't verify this. Please add a link to the maker's, designer's, or vendor's official post.",
+  'Please use a clear photo of the item itself, without heavy edits or watermarks.',
+  'This photo shows a different item.',
+  'Someone else already suggested this change.',
+]
+
 // Quick replies offered when resolving feedback; the comment stays optional
 // and editable.
 export const RESOLVE_FEEDBACK_NOTES = [
