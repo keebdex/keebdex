@@ -38,6 +38,14 @@
             :to="`/keyset/${data.profile_keyset_id}/color`"
           />
 
+          <SharedRevisionHistory
+            v-if="editable"
+            domain="keyset"
+            :parent-key="`${profile}/${keyset}`"
+            description="Every change to this keyset and its kits, newest first."
+            @reverted="refresh"
+          />
+
           <UButton
             v-else-if="authenticated"
             label="Add Kit"

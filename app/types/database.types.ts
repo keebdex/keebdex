@@ -379,6 +379,20 @@ export type Database = {
             referencedRelation: "artisan_makers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artisan_sculpts_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_sculpts_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
         ]
       }
       colors: {
@@ -1278,6 +1292,63 @@ export type Database = {
           },
         ]
       }
+      record_revisions: {
+        Row: {
+          action: string
+          actor: string | null
+          changes: Json | null
+          created_at: string
+          domain: string
+          entity_id: number
+          entity_type: string
+          id: number
+          label: string | null
+          parent_key: string | null
+          reverts_revision: number | null
+          run_id: string | null
+          scope: string | null
+          snapshot: Json
+          source: string
+          suggestion_id: number | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          changes?: Json | null
+          created_at?: string
+          domain: string
+          entity_id: number
+          entity_type: string
+          id?: never
+          label?: string | null
+          parent_key?: string | null
+          reverts_revision?: number | null
+          run_id?: string | null
+          scope?: string | null
+          snapshot: Json
+          source: string
+          suggestion_id?: number | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          changes?: Json | null
+          created_at?: string
+          domain?: string
+          entity_id?: number
+          entity_type?: string
+          id?: never
+          label?: string | null
+          parent_key?: string | null
+          reverts_revision?: number | null
+          run_id?: string | null
+          scope?: string | null
+          snapshot?: Json
+          source?: string
+          suggestion_id?: number | null
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           avatar_url: string | null
@@ -1536,6 +1607,7 @@ export type Database = {
         Args: { p_entity_type: string }
         Returns: string
       }
+      is_admin: { Args: never; Returns: boolean }
       is_official_review_status: {
         Args: { s: Database["public"]["Enums"]["review_status"] }
         Returns: boolean
@@ -1554,6 +1626,19 @@ export type Database = {
           p_user_id: string
         }
         Returns: string
+      }
+      record_revision_ignored_fields: { Args: never; Returns: string[] }
+      revert_revision: {
+        Args: { p_id: number; p_mode?: string }
+        Returns: Json
+      }
+      revision_actors: {
+        Args: { p_ids: string[] }
+        Returns: {
+          avatar: string
+          id: string
+          name: string
+        }[]
       }
       submission_details: {
         Args: { p_row: Json; p_table: string }

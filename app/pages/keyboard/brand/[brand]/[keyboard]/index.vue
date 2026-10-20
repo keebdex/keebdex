@@ -76,6 +76,14 @@
             </template>
           </UModal>
 
+          <SharedRevisionHistory
+            v-if="editable"
+            domain="keyboard"
+            :parent-key="slug"
+            description="Every change to this keyboard, its releases, and variants, newest first."
+            @reverted="refresh"
+          />
+
           <USelect
             v-if="$device.isDesktopOrTablet"
             v-model="sort"

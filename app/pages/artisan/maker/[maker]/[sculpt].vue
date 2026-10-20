@@ -78,6 +78,13 @@
                 </template>
               </UModal>
 
+              <SharedRevisionHistory
+                domain="artisan"
+                :parent-key="`${route.params.maker}/${route.params.sculpt}`"
+                description="Every change to this sculpt and its colorways, newest first."
+                @reverted="refresh"
+              />
+
               <USelect
                 v-if="$device.isDesktopOrTablet"
                 v-model="sortValue"
