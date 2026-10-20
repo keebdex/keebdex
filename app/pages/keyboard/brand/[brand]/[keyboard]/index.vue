@@ -33,7 +33,7 @@
 
           <UButton
             v-else-if="authenticated"
-            label="Submit a Release"
+            label="Add Release"
             icon="hugeicons:delivery-view-01"
             :to="{
               path: '/keyboard/submissions/submit',
@@ -372,7 +372,7 @@
 
             <UButton
               v-else-if="authenticated"
-              label="Submit a Variant"
+              label="Add Variant"
               icon="hugeicons:add-square"
               variant="outline"
               class="w-full justify-center ring-0 border border-default border-dashed rounded-lg"

@@ -12,7 +12,7 @@ authors:
 
 ### ✨ What's New
 
-- **Edit for everyone**: signed-in collectors can now fix wrong details or fill in missing ones on any published colorway, sculpt, kit, keyset, keyboard, release, or variant with the same _Edit_ button and form editors use. Add a source link if you have one, and you get a notification once a moderator approves or rejects your changes.
+- **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and a moderator reviews the changes before they go live.
 - Colorways, kits, and variants without a photo show an _Add Photo_ button, and keysets without a cover an _Add Cover_ button, so you can upload the missing picture in a few taps.
 - Moderators review suggested changes in the new _Edits_ tab of each Submissions page, side by side with the current details. They can apply only some of the changes, adjust them in the usual form first, or reject them with a quick reply.
 - **Stem types for colorways**: colorway forms now let you pick one or more stem types, such as MX, Alps, or Topre.

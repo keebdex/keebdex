@@ -40,7 +40,7 @@
 
           <UButton
             v-else-if="authenticated"
-            label="Submit a Kit"
+            label="Add Kit"
             icon="hugeicons:cells"
             :to="submitKitLink"
           />
@@ -255,7 +255,7 @@
             :to="submitKitLink"
             class="text-primary"
           >
-            Submit a kit
+            Add a kit
           </ULink>
         </p>
       </section>

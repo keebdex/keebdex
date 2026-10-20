@@ -34,9 +34,9 @@
 
             <UButton
               v-else-if="authenticated"
-              icon="hugeicons:paint-board"
+              icon="hugeicons:dashboard-square-add"
               color="primary"
-              label="Submit a Colorway"
+              label="Add Colorway"
               :to="{
                 path: '/artisan/submissions/submit',
                 query: {

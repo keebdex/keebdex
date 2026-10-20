@@ -31,7 +31,7 @@ export const useKeysetSubmissionWizard = ({
   const queryKeyset = String(route.query.keyset || '')
   // Fall back to the profile embedded in `profile_keyset_id` (e.g.
   // "gmk/some-keyset") when only the `keyset` query param made it through,
-  // so a direct "Submit a Kit" link still recognizes the right profile.
+  // so a direct "Add Kit" link still recognizes the right profile.
   const profile = ref({
     id: String(route.query.profile || queryKeyset.split('/')[0] || ''),
   })
@@ -232,7 +232,7 @@ export const useKeysetSubmissionWizard = ({
     },
   )
 
-  // A direct "Submit a Kit" link only carries the id; resolve its name once.
+  // A direct "Add Kit" link only carries the id; resolve its name once.
   if (!isReview && queryKeyset) {
     $fetch<any>(`/api/keysets/${queryKeyset}`)
       .then((data) => {
@@ -258,7 +258,7 @@ export const useKeysetSubmissionWizard = ({
 
   // Reset the dependent keyset selection so a stale id from a previous profile isn't
   // submitted — but NOT on the initial run, which would wipe a pre-selected existing
-  // keyset id coming from a direct "Submit a Kit" link's `keyset` query param.
+  // keyset id coming from a direct "Add Kit" link's `keyset` query param.
   watch(
     () => profile.value.id,
     () => {

@@ -21,11 +21,11 @@ export const TABLE_FIELDS = {
     "cta_label",
     "cta_url",
     "description",
+    "display",
     "ends_at",
     "icon",
     "key",
     "priority",
-    "show_toast",
     "starts_at",
     "title",
     "updated_at"
@@ -111,6 +111,25 @@ export const TABLE_FIELDS = {
     "id",
     "name",
     "system"
+  ],
+  "edit_suggestions": [
+    "applied",
+    "changes",
+    "created_at",
+    "domain",
+    "entity_id",
+    "entity_type",
+    "id",
+    "original",
+    "parent_key",
+    "reason",
+    "review_note",
+    "review_status",
+    "scope",
+    "submitted_by",
+    "updated_at",
+    "verified_at",
+    "verified_by"
   ],
   "feedbacks": [
     "created_at",
@@ -270,10 +289,6 @@ export const TABLE_FIELDS = {
     "enabled",
     "preference",
     "updated_at",
-    "user_id"
-  ],
-  "notification_state": [
-    "announcements_seen_at",
     "user_id"
   ],
   "notifications": [
