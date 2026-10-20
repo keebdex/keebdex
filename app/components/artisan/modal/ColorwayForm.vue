@@ -137,6 +137,7 @@ import {
   artisanSpecialSaleFormats,
   artisanStems,
   colorwaySchema,
+  colorwayGdocManagedFields,
 } from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:uploading'])
@@ -236,15 +237,6 @@ const uploadingImage = ref(false)
 const imageUploadFailed = ref(false)
 const uploadedFile = ref(null)
 
-// Fields sourced from the Google Doc sync; editing them locally overrides the sync
-const GDOC_MANAGED_FIELDS = [
-  'name',
-  'release',
-  'qty',
-  'photo_credit',
-  'img',
-  'stem',
-]
 
 const originalColorway = ref({})
 
@@ -318,7 +310,7 @@ const onSubmit = async () => {
       payload.source = 'keebdex'
       payload.overridden_fields = []
     } else {
-      const dirtyFields = GDOC_MANAGED_FIELDS.filter(
+      const dirtyFields = colorwayGdocManagedFields.filter(
         (field) => !isEqual(payload[field], originalColorway.value[field]),
       )
 
