@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, readBody } from 'h3'
-import slugify from 'slugify'
 import { getActorProfile } from '../../utils/admin'
+import { urlSlugify } from '~/utils/slug'
 import { toNullableNumber } from '../../utils'
 import {
   canManageAssignment,
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const slug = slugify(String(keyboardInput.name), { lower: true })
+  const slug = urlSlugify(String(keyboardInput.name))
 
   // Staff submitting through the community form don't need to self-approve.
   const isModerator =

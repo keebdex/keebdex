@@ -178,7 +178,6 @@
 
 <script setup>
 import { parseDate } from '@internationalized/date'
-import slugify from 'slugify'
 import { Constants } from '~/types/database.types'
 import { createKeysetSchema } from '~/utils/schemas/keyset'
 
@@ -373,7 +372,7 @@ const onSubmit = async () => {
   }
 
   // The database builds profile_keyset_id from profile_id and slug.
-  const slug = slugify(keyset.value.name, { lower: true })
+  const slug = urlSlugify(keyset.value.name)
   keyset.value.slug = slug
   const path = `/keyset/${keyset.value.profile_id}/${slug}`
 

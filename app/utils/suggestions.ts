@@ -1,5 +1,5 @@
-import slugify from 'slugify'
 import { formatDate, formatPrice } from '~/utils'
+import { urlSlugify } from '~/utils/slug'
 
 /**
  * Edit suggestions: signed-in users suggest changes to published records (a
@@ -44,7 +44,7 @@ export interface SuggestionEntity {
   slugKeys?: (name: string) => Record<string, string>
 }
 
-const nameSlug = (name: string) => slugify(name, { lower: true })
+const nameSlug = (name: string) => urlSlugify(name)
 
 // Every table: identity, timestamps, search, and moderation columns.
 const SYSTEM_FIELDS = [

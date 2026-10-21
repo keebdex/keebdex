@@ -90,7 +90,6 @@
 </template>
 
 <script setup>
-import slugify from 'slugify'
 import { sculptGdocManagedFields, sculptSchema } from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
@@ -177,7 +176,7 @@ const onSubmit = async () => {
   const makerId = String(sculpt.value.maker_id || route.params.maker || '')
   const sculptId = String(sculpt.value.sculpt_id || route.params.sculpt || '')
 
-  const slug = slugify(sculpt.value.name, { lower: true })
+  const slug = urlSlugify(sculpt.value.name)
   const payload = {
     ...sculpt.value,
     maker_id: makerId,

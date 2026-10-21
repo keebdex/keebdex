@@ -161,7 +161,6 @@
 <script setup>
 import country from 'flag-icons/country.json'
 import 'flag-icons/css/flag-icons.min.css'
-import slugify from 'slugify'
 import { makerSchema } from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
@@ -235,7 +234,7 @@ const onSubmit = async () => {
   const normalizedMakerId = String(rest.id || '').trim()
 
   const makerId =
-    normalizedMakerId || slugify(maker.value.name, { lower: true })
+    normalizedMakerId || urlSlugify(maker.value.name)
 
   await $fetch(`/api/makers/${makerId}`, {
     method: 'post',

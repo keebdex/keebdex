@@ -34,7 +34,6 @@
 </template>
 
 <script setup>
-import slugify from 'slugify'
 
 const { colorway } = defineProps({
   colorway: {
@@ -91,7 +90,7 @@ const copyImage = () => copyBlob(capture(), toast)
 
 const downloadImage = async () => {
   try {
-    const filename = slugify(colorwayTitle(colorway), { lower: true })
+    const filename = urlSlugify(colorwayTitle(colorway))
     downloadBlob(await capture(), filename)
   } catch (error) {
     toast.add(errorToast(error))

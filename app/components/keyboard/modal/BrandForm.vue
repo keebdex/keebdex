@@ -87,7 +87,6 @@
 </template>
 
 <script setup>
-import slugify from 'slugify'
 import country from 'flag-icons/country.json'
 import 'flag-icons/css/flag-icons.min.css'
 import { brandSchema } from '~/utils/schemas/keyboard'
@@ -147,7 +146,7 @@ const onSubmit = async () => {
   const slug = isEdit
     ? String(metadata?.slug || brand.value.slug || '').trim()
     : String(brand.value.slug || '').trim() ||
-      slugify(brand.value.name, { lower: true })
+      urlSlugify(brand.value.name)
 
   await $fetch(`/api/keyboards/brands/${slug}`, {
     method: 'post',
