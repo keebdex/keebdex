@@ -83,7 +83,11 @@ watch(
       values.end_date = dateRange.value.end ?? null
     }
 
-    changes.value = suggestionDiff(props.entityType, props.record, values)
+    changes.value = suggestionDiff(
+      props.entityType,
+      props.record,
+      withSlugKeys(props.entityType, props.record, values),
+    )
   },
   { deep: true, immediate: true },
 )
@@ -97,6 +101,11 @@ const toCalendarDate = (value: unknown) =>
   value ? parseDate(String(value).slice(0, 10)) : undefined
 
 const reset = (key: string) => {
+  // Keys follow the name, so undoing a new address undoes the rename.
+  if (isSlugKey(props.entityType, key)) {
+    key = SUGGESTION_ENTITIES[props.entityType].nameKey
+  }
+
   const value = props.record[key] ?? null
   const isKeyset = props.entityType === 'keyset'
   const rangeKey = DATE_RANGE_KEYS[key]

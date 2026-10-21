@@ -1,3 +1,4 @@
+import { omit } from 'es-toolkit'
 import { omitSensitive, toNullableNumber } from '../../../utils'
 import {
   canManageAnyAssignment,
@@ -26,10 +27,12 @@ export default defineEventHandler(async (event) => {
         )
       : getSubmissionAttribution(false, user.sub)
 
+  // The database builds brand_keyboard_slug from brand_slug and slug.
   const payload = {
-    ...(isStaff ? body : omitModerationFields(body)),
+    ...omit(isStaff ? body : omitModerationFields(body), [
+      'brand_keyboard_slug',
+    ]),
     ...moderation,
-    brand_keyboard_slug: `${brand}/${body.slug}`,
     typing_angle: toNullableNumber(body.typing_angle),
   }
 

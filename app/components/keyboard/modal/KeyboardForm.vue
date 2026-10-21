@@ -304,7 +304,6 @@ const onSubmit = async () => {
       ...keyboard.value,
       slug,
       brand_slug,
-      brand_keyboard_slug: `${brand_slug}/${slug}`,
       derived_from: keyboard.value.derived_from || null,
       top_case_styles: requiresTopCaseStyles.value
         ? keyboard.value.top_case_styles

@@ -82,7 +82,7 @@
             domain="keyboard"
             :parent-key="slug"
             description="Every change to this keyboard, its releases, and variants, newest first."
-            @reverted="refresh"
+            @reverted="onReverted"
           />
 
           <USelect
@@ -502,6 +502,15 @@ const { data, refresh } = await useAsyncData(
     watch: [slug],
   },
 )
+
+// Reverting a rename moves the page back to its old address.
+const onReverted = ({ entityType, changes }) => {
+  if (entityType === 'keyboard' && changes.slug) {
+    return navigateTo(`/keyboard/brand/${route.params.brand}/${changes.slug}`)
+  }
+
+  refresh()
+}
 
 const keyboard = computed(() => {
   const { releases, ...rest } = data.value || {}

@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // The database builds brand_keyboard_slug from brand_slug and slug.
   const slug = slugify(String(keyboardInput.name), { lower: true })
-  const brand_keyboard_slug = `${keyboardInput.brand_slug}/${slug}`
 
   // Staff submitting through the community form don't need to self-approve.
   const isModerator =
@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
   const keyboardPayload = {
     ...keyboardInput,
     slug,
-    brand_keyboard_slug,
     typing_angle: toNullableNumber(keyboardInput.typing_angle),
     ...getSubmissionAttribution(isModerator, user.sub),
   }

@@ -95,7 +95,7 @@ import { sculptGdocManagedFields, sculptSchema } from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, modelValue, sculpts, isEdit, suggest, mode } = defineProps({
+const { metadata, modelValue, sculpts, isEdit, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -109,9 +109,6 @@ const { metadata, modelValue, sculpts, isEdit, suggest, mode } = defineProps({
     default: () => [],
   },
   isEdit: Boolean,
-  // Suggest Edit (SharedSuggestionForm): a rename suggests the new slug too,
-  // since approving it only writes the suggested columns.
-  suggest: Boolean,
   mode: {
     type: String,
     default: 'standalone',
@@ -143,18 +140,6 @@ watch(
     if (value && value !== sculpt.value) {
       Object.assign(sculpt.value, value)
     }
-  },
-)
-
-watch(
-  () => sculpt.value.name,
-  (name) => {
-    if (!suggest || !originalSculpt.value.sculpt_id) return
-
-    sculpt.value.sculpt_id =
-      !name || name === originalSculpt.value.name
-        ? originalSculpt.value.sculpt_id
-        : slugify(name, { lower: true })
   },
 )
 

@@ -15,11 +15,11 @@ export default defineEventHandler(async (event) => {
     await readBody(event),
   )
 
-  body.maker_sculpt_id = `${body.maker_id}/${body.sculpt_id}`
-
+  // maker_sculpt_id is built by the database (update_maker_sculpt_id).
+  delete body.maker_sculpt_id
   // Set by the database on the first rename of a synced sculpt
-  // (keep_source_sculpt_id), never by clients.
-  delete body.source_sculpt_id
+  // (keep_source_slug), never by clients.
+  delete body.source_slug
 
   const isStaff =
     canManageAnyAssignment(profile) &&

@@ -25,5 +25,5 @@ authors:
 - **Image sizes in submissions**: review queues and submission forms show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.
 - **Image previews in forms**: an existing or just-uploaded image appears in the form with _Replace_ and _Remove_ buttons instead of an empty upload box.
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
-- **Rename any sculpt**: sculpts that sync from a maker's Google Doc or website can now be renamed too, by staff or through a suggested edit. The page address follows the new name, the colorways move with it, and future syncs keep the renamed sculpt instead of adding the old one back.
+- **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
 - The _Unread_ filter on the notifications page loads your unread notifications directly, so older unread ones show up even when many newer ones are already read.
