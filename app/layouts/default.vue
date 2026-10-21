@@ -224,17 +224,6 @@ const routes = computed(() => {
         to: '/collection',
         active: route.path.startsWith('/collection'),
       },
-      // Staff: revisions of the pages they manage.
-      ...(isModerator.value
-        ? [
-            {
-              label: 'Recent Changes',
-              icon: 'hugeicons:time-quarter-pass',
-              to: '/recent-changes',
-              active: route.path === '/recent-changes',
-            },
-          ]
-        : []),
     ],
     wrapSection({
       collapsed: isCollapsed,
@@ -289,9 +278,24 @@ const notificationsLink = computed(() =>
     : [],
 )
 
+// Staff only: revisions of the pages they manage.
+const recentChangesLink = computed(() =>
+  isModerator.value
+    ? [
+        {
+          label: 'Recent Changes',
+          icon: 'hugeicons:time-quarter-pass',
+          to: '/recent-changes',
+          active: route.path === '/recent-changes',
+        },
+      ]
+    : [],
+)
+
 const links = computed(() => [
   [
     ...notificationsLink.value,
+    ...recentChangesLink.value,
     {
       label: 'Feedback',
       icon: 'hugeicons:message-question',
