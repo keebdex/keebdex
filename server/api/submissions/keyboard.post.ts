@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
 
   const body = await readBody(event)
-  const keyboardInput = pickTableFields('keyboards', body?.keyboard || {})
+  // The database builds brand_keyboard_slug from brand_slug and slug.
+  const keyboardInput = pickTableFields('keyboards', body?.keyboard || {}, [
+    'brand_keyboard_slug',
+  ])
 
   if (!keyboardInput.name || !keyboardInput.brand_slug) {
     throw createError({
@@ -20,7 +23,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // The database builds brand_keyboard_slug from brand_slug and slug.
   const slug = slugify(String(keyboardInput.name), { lower: true })
 
   // Staff submitting through the community form don't need to self-approve.

@@ -6,7 +6,10 @@ import {
 export default defineEventHandler(async (event) => {
   const { profile: profileId, keyset: keysetSlug } = getRouterParams(event)
   const { client, user, profile } = await getActorProfile(event)
-  const body = pickTableFields('keysets', await readBody(event))
+  // The database builds profile_keyset_id from profile_id and slug.
+  const body = pickTableFields('keysets', await readBody(event), [
+    'profile_keyset_id',
+  ])
 
   const isStaff =
     canManageAnyAssignment(profile) &&

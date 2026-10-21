@@ -10,16 +10,13 @@ export default defineEventHandler(async (event) => {
   // TODO: drop this `Record<string, unknown>` cast once the artisan sculpt
   // submission-status migration has been applied and
   // `bun run generate:table-fields` regenerated.
+  // The database builds maker_sculpt_id (update_maker_sculpt_id) and sets
+  // source_slug on the first rename of a synced sculpt (keep_source_slug).
   const body: Record<string, unknown> = pickTableFields(
     'artisan_sculpts',
     await readBody(event),
+    ['maker_sculpt_id', 'source_slug'],
   )
-
-  // maker_sculpt_id is built by the database (update_maker_sculpt_id).
-  delete body.maker_sculpt_id
-  // Set by the database on the first rename of a synced sculpt
-  // (keep_source_slug), never by clients.
-  delete body.source_slug
 
   const isStaff =
     canManageAnyAssignment(profile) &&

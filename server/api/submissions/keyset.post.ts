@@ -1,5 +1,4 @@
 import { createError, defineEventHandler, readBody } from 'h3'
-import { omit } from 'es-toolkit'
 import slugify from 'slugify'
 import { getActorProfile } from '../../utils/admin'
 import {
@@ -11,7 +10,10 @@ export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
 
   const body = await readBody(event)
-  const keysetInput = pickTableFields('keysets', body?.keyset || {})
+  // The database builds profile_keyset_id from profile_id and slug.
+  const keysetInput = pickTableFields('keysets', body?.keyset || {}, [
+    'profile_keyset_id',
+  ])
 
   if (!keysetInput.name || !keysetInput.profile_id) {
     throw createError({
@@ -20,7 +22,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // The database builds profile_keyset_id from profile_id and slug.
   const slug = slugify(String(keysetInput.name), { lower: true })
 
   // Staff submitting through the community form don't need to self-approve.
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
     canManageAssignment(profile, `${keysetInput.profile_id}/${slug}`)
 
   const keysetPayload = {
-    ...omit(keysetInput, ['profile_keyset_id']),
+    ...keysetInput,
     slug,
     ...getSubmissionAttribution(isModerator, user.sub),
   }
