@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, readBody } from 'h3'
-import slugify from 'slugify'
 import { getActorProfile } from '../../utils/admin'
+import { urlSlugify } from '~/utils/slug'
 import {
   canManageAssignment,
   canManageAnyAssignment,
@@ -10,7 +10,10 @@ export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
 
   const body = await readBody(event)
-  const keysetInput = pickTableFields('keysets', body?.keyset || {})
+  // The database builds profile_keyset_id from profile_id and slug.
+  const keysetInput = pickTableFields('keysets', body?.keyset || {}, [
+    'profile_keyset_id',
+  ])
 
   if (!keysetInput.name || !keysetInput.profile_id) {
     throw createError({
@@ -19,17 +22,16 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const slug = slugify(String(keysetInput.name), { lower: true })
-  const profile_keyset_id = `${keysetInput.profile_id}/${slug}`
+  const slug = urlSlugify(String(keysetInput.name))
 
   // Staff submitting through the community form don't need to self-approve.
   const isModerator =
     canManageAnyAssignment(profile) &&
-    canManageAssignment(profile, profile_keyset_id)
+    canManageAssignment(profile, `${keysetInput.profile_id}/${slug}`)
 
   const keysetPayload = {
     ...keysetInput,
-    profile_keyset_id,
+    slug,
     ...getSubmissionAttribution(isModerator, user.sub),
   }
 

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     profileKeysetId,
   )
   const body = await readBody(event)
-  const kit = pickTableFields('keyset_kits', body)
+  const kit = pickTableFields('keyset_kits', body, MODERATION_FIELDS)
   // Staff reviewing a kit can approve/reject it while saving.
   const moderation = getModerationOverride(
     body?.action,
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
       table: 'keyset_kits',
       match: { id: kit.id as number, profile_keyset_id: profileKeysetId },
       payload: {
-        ...omitModerationFields(kit),
+        ...kit,
         ...moderation,
         profile_keyset_id: profileKeysetId,
       },

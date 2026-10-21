@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     body?.note,
   )
   const colorway: Record<string, unknown> = {
-    ...pickTableFields('artisan_colorways', body),
+    ...pickTableFields('artisan_colorways', body, MODERATION_FIELDS),
     maker_id: maker,
     sculpt_id: sculpt,
     maker_sculpt_id: makerSculptId,
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
         maker_id: maker!,
         sculpt_id: sculpt!,
       },
-      payload: { ...omitModerationFields(colorway), ...moderation },
+      payload: { ...colorway, ...moderation },
       userId: user.sub,
       isStaff,
       label: 'colorway',

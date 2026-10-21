@@ -1,4 +1,3 @@
-import slugify from 'slugify'
 import { colorwaySchema, sculptSchema } from '~/utils/schemas/artisan'
 import { entitySelectionSchema, validateEach } from '~/utils/schemas/common'
 
@@ -229,7 +228,7 @@ export const useArtisanSubmissionWizard = ({
       let sculptId = existingSculpt.value.id
 
       if (sculptMode.value === 'new') {
-        const slug = slugify(sculpt.value.name, { lower: true })
+        const slug = urlSlugify(sculpt.value.name)
 
         await $fetch(`/api/makers/${maker.value.id}/sculpts/${slug}`, {
           method: 'post',

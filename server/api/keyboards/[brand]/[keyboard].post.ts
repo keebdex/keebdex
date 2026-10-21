@@ -6,7 +6,10 @@ import {
 
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
-  const body = pickTableFields('keyboards', await readBody(event))
+  // The database builds brand_keyboard_slug from brand_slug and slug.
+  const body = pickTableFields('keyboards', await readBody(event), [
+    'brand_keyboard_slug',
+  ])
   const { brand } = getRouterParams(event)
 
   const isStaff =
@@ -29,7 +32,6 @@ export default defineEventHandler(async (event) => {
   const payload = {
     ...(isStaff ? body : omitModerationFields(body)),
     ...moderation,
-    brand_keyboard_slug: `${brand}/${body.slug}`,
     typing_angle: toNullableNumber(body.typing_angle),
   }
 

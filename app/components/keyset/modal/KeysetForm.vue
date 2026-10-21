@@ -178,7 +178,6 @@
 
 <script setup>
 import { parseDate } from '@internationalized/date'
-import slugify from 'slugify'
 import { Constants } from '~/types/database.types'
 import { createKeysetSchema } from '~/utils/schemas/keyset'
 
@@ -372,8 +371,10 @@ const onSubmit = async () => {
     return
   }
 
-  const slug = slugify(keyset.value.name, { lower: true })
-  keyset.value.profile_keyset_id = `${keyset.value.profile_id}/${slug}`
+  // The database builds profile_keyset_id from profile_id and slug.
+  const slug = urlSlugify(keyset.value.name)
+  keyset.value.slug = slug
+  const path = `/keyset/${keyset.value.profile_id}/${slug}`
 
   if (keyset.value.ic_date) {
     keyset.value.ic_date = toISODate(keyset.value.ic_date)
@@ -397,7 +398,7 @@ const onSubmit = async () => {
         toast.add(successToast('update', { entity: 'Keyset', name: keyset.value.name }))
 
         if (route.params.keyset !== slug) {
-          navigateTo(`/keyset/${keyset.value.profile_keyset_id}`)
+          navigateTo(path)
         }
       } else {
         toast.add({
@@ -405,7 +406,7 @@ const onSubmit = async () => {
           actions: [
             {
               label: 'View',
-              to: `/keyset/${keyset.value.profile_keyset_id}`,
+              to: path,
             },
           ],
         })

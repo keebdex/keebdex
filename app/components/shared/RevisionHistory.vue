@@ -212,7 +212,8 @@ interface RevisionRecord {
 // with a diff per revision and Undo / Restore. `show({ record })` (exposed)
 // narrows it to one child record, e.g. from a colorway card. `?history=1`
 // opens it on load and `&rev=<id>` opens that revision (links from Recent
-// Changes). Emits `reverted` so the page reloads its data.
+// Changes). Emits `reverted` with the fields the revert wrote, so the page
+// reloads its data (or follows a sculpt's changed slug).
 const props = withDefaults(
   defineProps<{
     domain: 'artisan' | 'keyset' | 'keyboard'
@@ -227,7 +228,9 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{ reverted: [] }>()
+const emit = defineEmits<{
+  reverted: [revert: { entityType: string; changes: Record<string, unknown> }]
+}>()
 
 const toast = useToast()
 const route = useRoute()
@@ -447,10 +450,13 @@ const revert = async () => {
   reverting.value = true
 
   try {
-    await $fetch(`/api/revisions/${revision.id}/revert`, {
-      method: 'POST',
-      body: { mode: confirmMode.value },
-    })
+    const { changes } = await $fetch<{ changes: Record<string, unknown> }>(
+      `/api/revisions/${revision.id}/revert`,
+      {
+        method: 'POST',
+        body: { mode: confirmMode.value },
+      },
+    )
 
     toast.add(
       successToast('update', {
@@ -459,7 +465,7 @@ const revert = async () => {
       }),
     )
     confirmOpen.value = false
-    emit('reverted')
+    emit('reverted', { entityType: revision.entity_type, changes })
     await Promise.all([load(), loadDetail(revision.id)])
   } catch (error) {
     toast.add(errorToast(error, { showOriginalMessage: true }))

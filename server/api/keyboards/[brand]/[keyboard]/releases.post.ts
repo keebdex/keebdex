@@ -9,10 +9,14 @@ export default defineEventHandler(async (event) => {
     'keyboard',
     brandKeyboardSlug,
   )
-  const body = pickTableFields('keyboard_releases', await readBody(event))
+  const body = pickTableFields(
+    'keyboard_releases',
+    await readBody(event),
+    MODERATION_FIELDS,
+  )
 
   const payload = {
-    ...normalizeFields(omitSensitive(omitModerationFields(body)), {
+    ...normalizeFields(body, {
       numbers: ['release_year', 'msrp_price'],
       optional: ['currency'],
       arrays: [

@@ -1,4 +1,5 @@
 import { formatDate, formatPrice } from '~/utils'
+import { urlSlugify } from '~/utils/slug'
 
 /**
  * Edit suggestions: signed-in users suggest changes to published records (a
@@ -36,7 +37,14 @@ export interface SuggestionEntity {
   formProps: (record: Record<string, any>) => Record<string, unknown>
   // Columns a suggestion never changes.
   protected: string[]
+  // The record's own slug, built from the name as the admin form saves it,
+  // so a suggested rename moves the page to its new address (the database
+  // builds the page key from it). It goes back to the record's when the name
+  // does.
+  slugKeys?: (name: string) => Record<string, string>
 }
+
+const nameSlug = (name: string) => urlSlugify(name)
 
 // Every table: identity, timestamps, search, and moderation columns.
 const SYSTEM_FIELDS = [
@@ -87,7 +95,14 @@ export const SUGGESTION_ENTITIES: Record<
     label: 'Sculpt',
     nameKey: 'name',
     formProps: () => ({ isEdit: true }),
-    protected: ['sculpt_id', 'maker_id', 'maker_sculpt_id', ...SYNC_FIELDS],
+    // maker_sculpt_id and source_slug are built by the database.
+    protected: [
+      'maker_id',
+      'maker_sculpt_id',
+      'source_slug',
+      ...SYNC_FIELDS,
+    ],
+    slugKeys: (name) => ({ sculpt_id: nameSlug(name) }),
   },
   keyset_kit: {
     type: 'keyset_kit',
@@ -105,7 +120,9 @@ export const SUGGESTION_ENTITIES: Record<
     label: 'Keyset',
     nameKey: 'name',
     formProps: () => ({ isEdit: true, suggest: true }),
+    // profile_keyset_id is built by the database from profile_id and slug.
     protected: ['profile_id', 'profile_keyset_id'],
+    slugKeys: (name) => ({ slug: nameSlug(name) }),
   },
   keyboard_variant: {
     type: 'keyboard_variant',
@@ -140,7 +157,9 @@ export const SUGGESTION_ENTITIES: Record<
     label: 'Keyboard',
     nameKey: 'name',
     formProps: () => ({ isEdit: true, includeBrand: false }),
-    protected: ['brand_slug', 'brand_keyboard_slug', 'slug'],
+    // brand_keyboard_slug is built by the database from brand_slug and slug.
+    protected: ['brand_slug', 'brand_keyboard_slug'],
+    slugKeys: (name) => ({ slug: nameSlug(name) }),
   },
 }
 
@@ -201,6 +220,34 @@ export const sameSuggestionValue = (a: unknown, b: unknown) => {
 
   return left === right
 }
+
+/**
+ * The form model with the slug a rename moves (`slugKeys`): built from a
+ * changed name, the record's own otherwise.
+ */
+export const withSlugKeys = (
+  type: SuggestionEntityType,
+  record: Record<string, any>,
+  model: Record<string, any>,
+) => {
+  const { nameKey, slugKeys } = SUGGESTION_ENTITIES[type]
+  const name = normalizeSuggestionValue(model[nameKey])
+
+  if (!slugKeys) return model
+
+  const keys =
+    typeof name === 'string' && !sameSuggestionValue(name, record[nameKey])
+      ? slugKeys(name)
+      : Object.fromEntries(
+          Object.keys(slugKeys('')).map((key) => [key, record[key]]),
+        )
+
+  return { ...model, ...keys }
+}
+
+/** Keys that follow the name (`slugKeys`); undoing one undoes the name. */
+export const isSlugKey = (type: SuggestionEntityType, key: string) =>
+  key in (SUGGESTION_ENTITIES[type].slugKeys?.('') || {})
 
 /** The columns the form model changed, with their normalized values. */
 export const suggestionDiff = (

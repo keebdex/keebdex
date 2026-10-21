@@ -44,7 +44,7 @@
             domain="keyset"
             :parent-key="`${profile}/${keyset}`"
             description="Every change to this keyset and its kits, newest first."
-            @reverted="refresh"
+            @reverted="onReverted"
           />
 
           <UButton
@@ -388,6 +388,15 @@ const { data, refresh } = await useAsyncData(
     watch: [() => profile, () => keyset],
   },
 )
+
+// Reverting a rename moves the page back to its old address.
+const onReverted = ({ entityType, changes }) => {
+  if (entityType === 'keyset' && changes.slug) {
+    return navigateTo(`/keyset/${profile}/${changes.slug}`)
+  }
+
+  refresh()
+}
 
 const breadcrumbs = computed(() => {
   return [

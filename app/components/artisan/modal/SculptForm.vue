@@ -6,19 +6,14 @@
     @submit="onSubmit"
   >
     <UFormField label="Name" name="name" required>
-      <template v-if="disableGoogleSync" #help>
-        Changing name updates slug. Users who pinned this sculpt in favorites
-        may need to update their pins.
-      </template>
-      <template v-else-if="isEdit" #help>
-        You cannot change the name of a sculpt that is synced with Google Docs.
-        Please make the change in the sheet directly.
+      <template v-if="isEdit" #help>
+        Renaming also changes the link. Users who pinned this sculpt in
+        favorites may need to update their pins.
       </template>
 
       <UInput
         v-model.trim="sculpt.name"
         icon="hugeicons:text-font"
-        :disabled="isEdit && !disableGoogleSync"
         class="w-full"
       />
     </UFormField>
@@ -95,33 +90,30 @@
 </template>
 
 <script setup>
-import slugify from 'slugify'
 import { sculptGdocManagedFields, sculptSchema } from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, modelValue, sculpts, isEdit, disableGoogleSync, mode } =
-  defineProps({
-    metadata: {
-      type: Object,
-      default: () => ({}),
-    },
-    modelValue: {
-      type: Object,
-      default: null,
-    },
-    sculpts: {
-      type: Array,
-      default: () => [],
-    },
-    isEdit: Boolean,
-    disableGoogleSync: Boolean,
-    mode: {
-      type: String,
-      default: 'standalone',
-      validator: (value) => ['standalone', 'embedded'].includes(value),
-    },
-  })
+const { metadata, modelValue, sculpts, isEdit, mode } = defineProps({
+  metadata: {
+    type: Object,
+    default: () => ({}),
+  },
+  modelValue: {
+    type: Object,
+    default: null,
+  },
+  sculpts: {
+    type: Array,
+    default: () => [],
+  },
+  isEdit: Boolean,
+  mode: {
+    type: String,
+    default: 'standalone',
+    validator: (value) => ['standalone', 'embedded'].includes(value),
+  },
+})
 
 const toast = useToast()
 
@@ -184,7 +176,7 @@ const onSubmit = async () => {
   const makerId = String(sculpt.value.maker_id || route.params.maker || '')
   const sculptId = String(sculpt.value.sculpt_id || route.params.sculpt || '')
 
-  const slug = slugify(sculpt.value.name, { lower: true })
+  const slug = urlSlugify(sculpt.value.name)
   const payload = {
     ...sculpt.value,
     maker_id: makerId,
@@ -217,7 +209,10 @@ const onSubmit = async () => {
   })
     .then(() => {
       toast.add(
-        successToast(isEdit ? 'update' : 'add', { entity: 'Sculpt', name: sculpt.value.name }),
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Sculpt',
+          name: sculpt.value.name,
+        }),
       )
 
       if (isEdit && sculptId !== slug) {

@@ -115,7 +115,6 @@
 </template>
 
 <script setup>
-import slugify from 'slugify'
 import { Constants } from '~/types/database.types'
 import {
   keyboardSchema,
@@ -294,7 +293,7 @@ watch(
 const onSubmit = async () => {
   if (!isStandalone.value) return
 
-  const slug = slugify(keyboard.value.name, { lower: true })
+  const slug = urlSlugify(keyboard.value.name)
 
   const brand_slug = route.params.brand
 
@@ -304,7 +303,6 @@ const onSubmit = async () => {
       ...keyboard.value,
       slug,
       brand_slug,
-      brand_keyboard_slug: `${brand_slug}/${slug}`,
       derived_from: keyboard.value.derived_from || null,
       top_case_styles: requiresTopCaseStyles.value
         ? keyboard.value.top_case_styles
