@@ -1,26 +1,52 @@
 import type { AppNotification } from '~/utils/notifications'
 
+export type NotificationFilter = 'all' | 'unread'
+
+interface NotificationCursor {
+  // created_at of the oldest notification this filter has loaded
+  oldest: string | null
+  hasMore: boolean
+  loaded: boolean
+  loading: boolean
+}
+
+const emptyCursor = (): NotificationCursor => ({
+  oldest: null,
+  hasMore: false,
+  loaded: false,
+  loading: false,
+})
+
 /**
  * Notifications of the signed-in user, shared by the sidebar link (unread
- * badge) and the `/notifications` page: the newest loaded notifications (paged by
- * `created_at`), the unread count from `unread_count()`, and optimistic
- * read/unread/delete actions that roll back on failure. The realtime subscription
- * and sign-in/sign-out lifecycle live in `plugins/notifications.client.ts`.
+ * badge) and the `/notifications` page: the loaded notifications, the unread
+ * count from `unread_count()`, and optimistic read/unread/delete actions that
+ * roll back on failure. All and Unread page separately from the server
+ * (`unread=1`, each with its own `created_at` cursor) into one list, and
+ * `visibleFor(filter)` keeps each filter to the range it has loaded. The
+ * realtime subscription and sign-in/sign-out lifecycle live in
+ * `plugins/notifications.client.ts`.
  */
 export const useNotifications = () => {
   const toast = useToast()
 
   const items = useState<AppNotification[]>('notifications', () => [])
   const unread = useState('notifications-unread', () => 0)
-  const hasMore = useState('notifications-has-more', () => false)
-  const loaded = useState('notifications-loaded', () => false)
-  const loading = useState('notifications-loading', () => false)
+  const cursors = useState<Record<NotificationFilter, NotificationCursor>>(
+    'notifications-cursors',
+    () => ({ all: emptyCursor(), unread: emptyCursor() }),
+  )
   const loadingOlder = useState('notifications-loading-older', () => false)
 
   type Page = { data: AppNotification[]; hasMore: boolean; unread: number }
 
-  const fetchPage = (query: Record<string, string> = {}) =>
-    $fetch<Page>('/api/notifications', { query })
+  const fetchPage = (
+    filter: NotificationFilter,
+    query: Record<string, string> = {},
+  ) =>
+    $fetch<Page>('/api/notifications', {
+      query: filter === 'unread' ? { ...query, unread: '1' } : query,
+    })
 
   // Adds notifications not loaded yet and refreshes the loaded ones, newest
   // first.
@@ -35,43 +61,68 @@ export const useNotifications = () => {
     )
   }
 
-  const load = async () => {
-    if (loading.value) return
+  // First page of a filter; later calls refresh the newest notifications
+  // without moving a cursor that has already paged further.
+  const load = async (filter: NotificationFilter = 'all') => {
+    const cursor = cursors.value[filter]
 
-    loading.value = true
+    if (cursor.loading) return
+
+    cursor.loading = true
 
     try {
-      const page = await fetchPage()
+      const page = await fetchPage(filter)
 
       merge(page.data)
       unread.value = page.unread
-      if (!loaded.value) hasMore.value = page.hasMore
-      loaded.value = true
+
+      if (!cursor.loaded) {
+        cursor.hasMore = page.hasMore
+        cursor.oldest = page.data.at(-1)?.created_at ?? null
+      }
+
+      cursor.loaded = true
     } catch (error) {
       console.error('fetch notifications error', error)
     } finally {
-      loading.value = false
+      cursor.loading = false
     }
   }
 
-  const loadOlder = async () => {
-    const oldest = items.value.at(-1)
+  const loadOlder = async (filter: NotificationFilter = 'all') => {
+    const cursor = cursors.value[filter]
 
-    if (!oldest || loadingOlder.value) return
+    if (!cursor.oldest || loadingOlder.value) return
 
     loadingOlder.value = true
 
     try {
-      const page = await fetchPage({ before: oldest.created_at })
+      const page = await fetchPage(filter, { before: cursor.oldest })
 
       merge(page.data)
       unread.value = page.unread
-      hasMore.value = page.hasMore
+      cursor.hasMore = page.hasMore
+      cursor.oldest = page.data.at(-1)?.created_at ?? cursor.oldest
     } catch (error) {
       toast.add(errorToast(error))
     } finally {
       loadingOlder.value = false
     }
+  }
+
+  /**
+   * Notifications a filter shows: unread ones for Unread, and only down to
+   * the oldest one that filter has paged to, so older ones loaded by the
+   * other filter don't appear before the ones in between.
+   */
+  const visibleFor = (filter: NotificationFilter) => {
+    const { oldest, hasMore } = cursors.value[filter]
+
+    return items.value.filter(
+      (item) =>
+        (filter === 'all' || !item.read_at) &&
+        (!hasMore || !oldest || item.created_at >= oldest),
+    )
   }
 
   const refreshUnread = async () => {
@@ -196,19 +247,17 @@ export const useNotifications = () => {
   const reset = () => {
     items.value = []
     unread.value = 0
-    hasMore.value = false
-    loaded.value = false
+    cursors.value = { all: emptyCursor(), unread: emptyCursor() }
   }
 
   return {
     items,
     unread: readonly(unread),
-    hasMore: readonly(hasMore),
-    loaded: readonly(loaded),
-    loading: readonly(loading),
+    cursors: readonly(cursors),
     loadingOlder: readonly(loadingOlder),
     load,
     loadOlder,
+    visibleFor,
     refreshUnread,
     markRead,
     markUnread,

@@ -58,6 +58,7 @@ export default defineNuxtPlugin(() => {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && currentUid) {
       notifications.load()
+      if (notifications.cursors.value.unread.loaded) notifications.load('unread')
     }
   })
 })
