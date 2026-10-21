@@ -81,7 +81,6 @@
                 label="Mark all as read"
                 icon="hugeicons:check-check"
                 variant="link"
-                color="neutral"
                 size="xs"
                 class="-my-1 px-0"
                 :ui="{ label: 'block' }"
@@ -154,7 +153,6 @@
                 label="Mark all as read"
                 icon="hugeicons:check-check"
                 variant="link"
-                color="neutral"
                 size="xs"
                 class="-my-1 px-0"
                 :ui="{ label: 'block' }"
@@ -182,7 +180,6 @@
             <UButton
               label="Load older notifications"
               variant="outline"
-              color="neutral"
               :loading="loadingOlder"
               @click="loadOlder"
             />

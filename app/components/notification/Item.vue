@@ -34,7 +34,6 @@
               : 'hugeicons:mail-open-01'
           "
           variant="ghost"
-          color="neutral"
           size="xs"
           :aria-label="readLabel"
           @click="emit('toggle-read', notification)"

@@ -48,7 +48,6 @@
             v-for="fieldLabel in changedLabels(row.original)"
             :key="fieldLabel"
             :label="fieldLabel"
-            color="neutral"
             variant="subtle"
             size="sm"
           />

@@ -124,7 +124,6 @@
               <UTooltip v-if="canAddCover" text="Add Cover">
                 <UButton
                   icon="hugeicons:image-add-02"
-                  color="neutral"
                   variant="ghost"
                   aria-label="Add Cover"
                   @click="suggest('keyset', data)"
@@ -218,7 +217,6 @@
                   <UButton
                     icon="hugeicons:edit-01"
                     size="xs"
-                    color="neutral"
                     variant="ghost"
                     aria-label="Edit"
                     class="ms-auto"
@@ -230,7 +228,6 @@
                   <UButton
                     icon="hugeicons:time-quarter-pass"
                     size="xs"
-                    color="neutral"
                     variant="ghost"
                     aria-label="History"
                     class="ms-auto"

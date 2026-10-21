@@ -78,14 +78,12 @@
                   },
                 }"
                 variant="subtle"
-                color="neutral"
               />
 
               <UBadge
                 v-if="getOverflowCount(row.original.assignments) > 0"
                 :label="`+${getOverflowCount(row.original.assignments)}`"
                 variant="soft"
-                color="neutral"
               />
             </div>
           </template>

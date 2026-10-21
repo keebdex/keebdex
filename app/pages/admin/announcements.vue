@@ -98,7 +98,6 @@
                 <UButton
                   icon="hugeicons:eye"
                   variant="ghost"
-                  color="neutral"
                   size="sm"
                   aria-label="Preview toast"
                   @click="previewToast(row.original)"
@@ -109,7 +108,6 @@
                 <UButton
                   icon="hugeicons:pencil-edit-02"
                   variant="ghost"
-                  color="neutral"
                   size="sm"
                   aria-label="Edit announcement"
                   @click="openEditor(row.original)"
