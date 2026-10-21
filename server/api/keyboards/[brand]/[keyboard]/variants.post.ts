@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     brandKeyboardSlug,
   )
   const rawBody = await readBody(event)
-  const body = pickTableFields('keyboard_variants', rawBody)
+  const body = pickTableFields('keyboard_variants', rawBody, MODERATION_FIELDS)
   // Staff reviewing a proposal can approve/reject it while saving.
   const moderation = getModerationOverride(
     rawBody?.action,
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const payload = {
-    ...normalizeFields(omitSensitive(omitModerationFields(body)), {
+    ...normalizeFields(body, {
       numbers: ['units_produced', 'release_year', 'msrp_price'],
       optional: [
         'sale_type',

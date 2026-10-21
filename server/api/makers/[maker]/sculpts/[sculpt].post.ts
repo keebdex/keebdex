@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const body: Record<string, unknown> = pickTableFields(
     'artisan_sculpts',
     await readBody(event),
-    ['maker_sculpt_id', 'source_slug'],
+    [...MODERATION_FIELDS, 'maker_sculpt_id', 'source_slug'],
   )
 
   const isStaff =
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   // the client. Editing an existing sculpt never changes its status, except
   // that its submitter resubmits a rejected one for review.
   const record = {
-    ...omitModerationFields(body),
+    ...body,
     ...(body.id
       ? await getOwnResubmission(
           client,

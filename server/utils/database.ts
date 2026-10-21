@@ -26,13 +26,17 @@ function getAllowedTableFields<T extends PublicTable>(table: T) {
   return tableFields
 }
 
+// Generated columns, never written by anyone.
+const GENERATED_FIELDS = ['fts']
+
 /**
  * Picks only the allowed fields for a given table from the provided body object.
+ * Generated columns (`fts`) are always left out.
  * @param table The name of the table to pick fields from
  * @param body The object containing potential fields to pick
  * @param omit Columns of the table a client must never write, e.g. page keys
  * the database builds (`maker_sculpt_id`, `profile_keyset_id`,
- * `brand_keyboard_slug`)
+ * `brand_keyboard_slug`) or `MODERATION_FIELDS`
  * @returns An object containing only the allowed fields for the specified table
  */
 export function pickTableFields<T extends PublicTable>(
@@ -55,6 +59,7 @@ export function pickTableFields<T extends PublicTable>(
       ([key, value]) =>
         value !== undefined &&
         allowedFields.includes(key as TableField<T>) &&
+        !GENERATED_FIELDS.includes(key) &&
         !omit.includes(key),
     ),
   ) as Partial<Record<TableField<T>, unknown>>

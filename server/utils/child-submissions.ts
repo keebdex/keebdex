@@ -31,7 +31,9 @@ export type ReviewAction = 'approve' | 'reject'
 
 export type ReviewStatus = 'Pending' | 'Approved' | 'Rejected'
 
-const MODERATION_FIELDS = [
+// Set only by the server (attribution, review); pass to pickTableFields to
+// drop them from client bodies.
+export const MODERATION_FIELDS = [
   'review_status',
   'submitted_by',
   'verified_at',
@@ -63,8 +65,8 @@ const matchRows = <Q extends { eq: (column: string, value: unknown) => Q }>(
   )
 
 /**
- * Child payloads come from the client, so moderation fields are always dropped
- * here and re-applied server-side by `getChildSubmissionContext().attribute`.
+ * Drops moderation fields from a payload that may have kept them, e.g. a
+ * parent save that keeps them for staff only; `attribute()` re-applies them.
  */
 export const omitModerationFields = <T extends Record<string, unknown>>(
   record: T,
