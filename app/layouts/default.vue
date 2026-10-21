@@ -91,7 +91,7 @@ const announcements = useAnnouncements()
 const cookieConsent = useCookieConsent()
 const userStore = useUserStore()
 
-const { authenticated } = storeToRefs(userStore)
+const { authenticated, isModerator } = storeToRefs(userStore)
 const { unread: unreadNotifications } = useNotifications()
 const { unread: unreadAnnouncements } = useAnnouncements()
 
@@ -224,6 +224,17 @@ const routes = computed(() => {
         to: '/collection',
         active: route.path.startsWith('/collection'),
       },
+      // Staff: revisions of the pages they manage.
+      ...(isModerator.value
+        ? [
+            {
+              label: 'Recent Changes',
+              icon: 'hugeicons:time-quarter-pass',
+              to: '/recent-changes',
+              active: route.path === '/recent-changes',
+            },
+          ]
+        : []),
     ],
     wrapSection({
       collapsed: isCollapsed,

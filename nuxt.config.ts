@@ -44,6 +44,7 @@ export default defineNuxtConfig({
     '/account/**': { ssr: false },
     '/admin/**': { ssr: false },
     '/notifications': { ssr: false },
+    '/recent-changes': { ssr: false },
     '/collection': { ssr: false },
     '/collection/artisan/*/sort': { ssr: false },
     '/artisan/wishlist': { ssr: false },

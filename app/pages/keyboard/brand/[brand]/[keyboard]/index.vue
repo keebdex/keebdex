@@ -78,6 +78,7 @@
 
           <SharedRevisionHistory
             v-if="editable"
+            ref="history"
             domain="keyboard"
             :parent-key="slug"
             description="Every change to this keyboard, its releases, and variants, newest first."
@@ -175,6 +176,14 @@
                     />
                   </template>
                 </UModal>
+
+                <UButton
+                  icon="hugeicons:time-quarter-pass"
+                  label="History"
+                  @click="
+                    showHistory('keyboard_release', release.id, release.name)
+                  "
+                />
 
                 <UModal
                   v-if="
@@ -313,6 +322,18 @@
                         />
                       </template>
                     </UModal>
+                    <UButton
+                      v-if="editable"
+                      icon="hugeicons:time-quarter-pass"
+                      label="History"
+                      @click="
+                        showHistory(
+                          'keyboard_variant',
+                          variant.id,
+                          variant.variant_name,
+                        )
+                      "
+                    />
                     <UModal
                       v-if="editable"
                       v-model:visible="visible.deleteVariant"
@@ -423,6 +444,13 @@ const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
 const toast = useToast()
+
+const history = useTemplateRef('history')
+
+// History of one release or variant, from its own History button.
+const showHistory = (entityType, entityId, label) => {
+  history.value?.show({ record: { entityType, entityId, label } })
+}
 
 const slug = computed(() => `${route.params.brand}/${route.params.keyboard}`)
 

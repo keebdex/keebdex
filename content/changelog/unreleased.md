@@ -15,7 +15,7 @@ authors:
 - **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and a moderator reviews the changes before they go live.
 - Colorways, kits, and variants without a photo show an _Add Photo_ button, and keysets without a cover an _Add Cover_ button, so you can upload the missing picture in a few taps.
 - Moderators review suggested changes in the new _Edits_ tab of each Submissions page, side by side with the current details. They can apply only some of the changes, adjust them in the usual form first, or reject them with a quick reply.
-- **Change history for moderators**: sculpt, keyset, and keyboard pages have a _History_ button for staff that lists every change to the page and its records, whether from an editor, an approved suggestion, or a sync, and lets them undo an edit or restore an earlier version.
+- **Change history for moderators**: sculpt, keyset, and keyboard pages have a _History_ button for staff that lists every change to the page and its records, whether from an editor, an approved suggestion, or a sync, and lets them undo an edit or restore an earlier version. Each colorway, kit, release, and variant has its own _History_ button, and the new _Recent Changes_ page shows what changed across every page they manage, grouped by page and filterable by module or by who made the change.
 - **Stem types for colorways**: colorway forms now let you pick one or more stem types, such as MX, Alps, or Topre.
 
 ### 🚀 Improvements

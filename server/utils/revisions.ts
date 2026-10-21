@@ -1,6 +1,8 @@
 import { createError } from 'h3'
+import { groupBy } from 'es-toolkit'
 import type { H3Event } from 'h3'
 import { getActorProfile } from './admin'
+import { PARENT_LOOKUPS, parentName } from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
@@ -138,6 +140,63 @@ export const withRevisionActors = async (
       suggested_by: submitter
         ? { id: submitter, name: actors.get(submitter)?.name ?? null }
         : null,
+    }
+  })
+}
+
+const PARENT_TYPES = ['artisan_sculpt', 'keyset', 'keyboard']
+
+/**
+ * Adds `parent_name` to each revision: the name of its sculpt, keyset or
+ * keyboard page now, or, once that page is gone, the label of the page's own
+ * revision when one is in the list.
+ */
+export const withParentNames = async (
+  client: SupabaseClient,
+  revisions: any[],
+) => {
+  const db = client as any
+  const names = new Map<string, string | null>()
+  const byDomain = groupBy(
+    revisions.filter((row) => row.parent_key),
+    (row) => row.domain as keyof typeof PARENT_LOOKUPS,
+  )
+
+  await Promise.all(
+    Object.entries(byDomain).map(async ([key, rows]) => {
+      const domain = key as keyof typeof PARENT_LOOKUPS
+      const lookup = PARENT_LOOKUPS[domain]
+
+      if (!lookup) return
+
+      const { data, error } = await db
+        .from(lookup.table)
+        .select(lookup.select)
+        .in(lookup.key, [...new Set(rows.map((row) => row.parent_key))])
+
+      if (error) {
+        throw createError({ statusCode: 500, statusMessage: error.message })
+      }
+
+      for (const parent of data || []) {
+        names.set(`${domain}:${parent[lookup.key]}`, parentName(domain, parent))
+      }
+    }),
+  )
+
+  // Parent records are their own page.
+  const ownLabels = new Map(
+    revisions
+      .filter((row) => PARENT_TYPES.includes(row.entity_type))
+      .map((row) => [`${row.domain}:${row.parent_key}`, row.label]),
+  )
+
+  return revisions.map((row) => {
+    const key = `${row.domain}:${row.parent_key}`
+
+    return {
+      ...row,
+      parent_name: names.get(key) || ownLabels.get(key) || null,
     }
   })
 }

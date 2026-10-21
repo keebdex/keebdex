@@ -1,12 +1,17 @@
 <template>
+  <UButton
+    v-if="button"
+    icon="hugeicons:time-quarter-pass"
+    label="History"
+    @click="show()"
+  />
+
   <USlideover
     v-model:open="open"
     :title="detail ? detailTitle : 'History'"
-    :description="detail ? detailDescription : description"
+    :description="detail ? detailDescription : listDescription"
     :ui="{ content: 'sm:max-w-2xl' }"
   >
-    <UButton icon="hugeicons:time-quarter-pass" label="History" />
-
     <template #body>
       <!-- One revision: what it changed, or how it compares with now -->
       <div v-if="selectedId" class="space-y-4">
@@ -95,8 +100,39 @@
         </template>
       </div>
 
-      <!-- All revisions of the page -->
-      <template v-else>
+      <!-- All revisions of the page, or of one of its records -->
+      <div v-else class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <UBadge
+            v-if="record"
+            :label="record.label"
+            icon="hugeicons:filter"
+            color="neutral"
+            variant="subtle"
+            class="max-w-full"
+            :ui="{ label: 'truncate' }"
+          />
+          <UButton
+            v-if="record"
+            label="Show All Changes"
+            variant="link"
+            size="sm"
+            class="px-0"
+            :ui="{ label: 'block' }"
+            @click="show()"
+          />
+          <UButton
+            v-else
+            label="Recent Changes"
+            to="/recent-changes"
+            trailing-icon="hugeicons:arrow-right-02"
+            variant="link"
+            size="sm"
+            class="px-0 ms-auto"
+            :ui="{ label: 'block' }"
+          />
+        </div>
+
         <div v-if="loading && !revisions.length" class="space-y-3">
           <USkeleton v-for="i in 5" :key="i" class="h-16 w-full" />
         </div>
@@ -105,10 +141,14 @@
           v-else-if="!revisions.length"
           icon="hugeicons:time-quarter-pass"
           title="No Changes Yet"
-          description="Changes to this page and its records will be listed here as they happen."
+          :description="
+            record
+              ? 'Changes to this record will be listed here as they happen.'
+              : 'Changes to this page and its records will be listed here as they happen.'
+          "
         />
 
-        <div v-else class="space-y-4">
+        <template v-else>
           <SharedRevisionList :entries="entries" @select="select" />
 
           <div v-if="hasMore" class="flex justify-center">
@@ -120,8 +160,8 @@
               @click="load(true)"
             />
           </div>
-        </div>
-      </template>
+        </template>
+      </div>
     </template>
 
     <template v-if="detail?.current" #footer>
@@ -158,26 +198,48 @@
 <script setup lang="ts">
 import type { Revision, RevisionDetail } from '~/utils/revisions'
 
+import type { SuggestionEntityType } from '~/utils/suggestions'
+
+interface RevisionRecord {
+  entityType: SuggestionEntityType
+  entityId: number
+  label: string
+}
+
 // History button and slideover of a sculpt, keyset or keyboard page (staff
 // only): the revisions of the record and its children, loaded when opened,
-// with a diff per revision and Undo / Restore. Emits `reverted` so the page
-// reloads its data.
+// with a diff per revision and Undo / Restore. `show({ record })` (exposed)
+// narrows it to one child record, e.g. from a colorway card. `?history=1`
+// opens it on load and `&rev=<id>` opens that revision (links from Recent
+// Changes). Emits `reverted` so the page reloads its data.
 const props = withDefaults(
   defineProps<{
     domain: 'artisan' | 'keyset' | 'keyboard'
     parentKey: string
     description?: string
+    // Render the History button; off when the page opens it through show().
+    button?: boolean
   }>(),
   {
     description: 'Every change to this page and its records, newest first.',
+    button: true,
   },
 )
 
 const emit = defineEmits<{ reverted: [] }>()
 
 const toast = useToast()
+const route = useRoute()
+const router = useRouter()
 
 const open = ref(false)
+const record = ref<RevisionRecord | null>(null)
+
+const listDescription = computed(() =>
+  record.value
+    ? `Every change to this ${SUGGESTION_ENTITIES[record.value.entityType].label.toLowerCase()}, newest first.`
+    : props.description,
+)
 const revisions = ref<Revision[]>([])
 const hasMore = ref(false)
 const loading = ref(false)
@@ -194,6 +256,8 @@ const load = async (older = false) => {
         query: {
           domain: props.domain,
           parent_key: props.parentKey,
+          entity_type: record.value?.entityType,
+          entity_id: record.value?.entityId,
           before: older ? revisions.value.at(-1)?.id : undefined,
         },
       },
@@ -208,12 +272,55 @@ const load = async (older = false) => {
   }
 }
 
+// Revision to open once the slideover is open (deep link or show()).
+const pendingRevision = ref<number | null>(null)
+
+const start = () => {
+  revisions.value = []
+  hasMore.value = false
+  selectedId.value = null
+
+  if (pendingRevision.value) {
+    selectRevision(pendingRevision.value)
+    pendingRevision.value = null
+  }
+
+  load()
+}
+
+/** Opens the history, of the whole page or of one record. */
+const show = (
+  options: { record?: RevisionRecord | null; revisionId?: number } = {},
+) => {
+  record.value = options.record ?? null
+  pendingRevision.value = options.revisionId ?? null
+
+  if (open.value) start()
+  else open.value = true
+}
+
 watch(open, (value) => {
   if (value) {
-    selectedId.value = null
-    load()
+    start()
+  } else if (route.query.history) {
+    // Closing drops the deep link, so a reload doesn't reopen it.
+    const { history: _history, rev: _rev, ...query } = route.query
+    router.replace({ query })
   }
 })
+
+onMounted(() => {
+  if (!route.query.history) return
+
+  const revisionId = Number(route.query.rev)
+
+  show({
+    revisionId:
+      Number.isInteger(revisionId) && revisionId > 0 ? revisionId : undefined,
+  })
+})
+
+defineExpose({ show })
 
 // Selected revision ------------------------------------------------------------
 
@@ -237,12 +344,14 @@ const loadDetail = async (id: number) => {
   }
 }
 
-const select = (revision: Revision) => {
+const selectRevision = (id: number) => {
   detail.value = null
   view.value = 'change'
-  selectedId.value = revision.id
-  loadDetail(revision.id)
+  selectedId.value = id
+  loadDetail(id)
 }
+
+const select = (revision: Revision) => selectRevision(revision.id)
 
 watch(selectedId, (id) => {
   if (!id) detail.value = null

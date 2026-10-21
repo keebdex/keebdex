@@ -40,6 +40,7 @@
 
           <SharedRevisionHistory
             v-if="editable"
+            ref="history"
             domain="keyset"
             :parent-key="`${profile}/${keyset}`"
             description="Every change to this keyset and its kits, newest first."
@@ -201,7 +202,7 @@
               </div>
             </template>
 
-            <template v-if="kit.qty || canSuggest(kit)" #footer>
+            <template v-if="kit.qty || canSuggest(kit) || editable" #footer>
               <div class="flex w-full items-center justify-between gap-2">
                 <div
                   v-if="kit.qty"
@@ -222,6 +223,26 @@
                     aria-label="Edit"
                     class="ms-auto"
                     @click.stop="suggest('keyset_kit', kit)"
+                  />
+                </UTooltip>
+
+                <UTooltip v-if="editable" text="History">
+                  <UButton
+                    icon="hugeicons:time-quarter-pass"
+                    size="xs"
+                    color="neutral"
+                    variant="ghost"
+                    aria-label="History"
+                    class="ms-auto"
+                    @click.stop="
+                      history?.show({
+                        record: {
+                          entityType: 'keyset_kit',
+                          entityId: kit.id,
+                          label: kitLabel(kit),
+                        },
+                      })
+                    "
                   />
                 </UTooltip>
               </div>
@@ -440,6 +461,8 @@ const fullName = computed(() =>
 )
 
 const kits = computed(() => data.value?.kits || [])
+
+const history = useTemplateRef('history')
 
 const kitLabel = (kit) => kit.name || kit.category?.name || 'Kit'
 

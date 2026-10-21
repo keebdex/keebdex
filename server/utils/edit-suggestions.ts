@@ -96,7 +96,7 @@ export const suggestionError = (error: { code?: string; message: string }) => {
   }
 }
 
-const PARENT_LOOKUPS = {
+export const PARENT_LOOKUPS = {
   artisan: {
     table: 'artisan_sculpts',
     key: 'maker_sculpt_id',
@@ -134,7 +134,7 @@ const recordName = (type: SuggestionEntityType, record: any) => {
   return record[SUGGESTION_ENTITIES[type].nameKey]
 }
 
-const parentName = (domain: string, parent: any) => {
+export const parentName = (domain: string, parent: any) => {
   if (!parent) return null
 
   return domain === 'keyset'

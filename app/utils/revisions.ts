@@ -31,6 +31,21 @@ export type RevisionSource =
 
 export type RevisionAction = 'insert' | 'update' | 'delete'
 
+/** Filters of who made a change, for Recent Changes and its API. */
+export const REVISION_SOURCE_GROUPS = {
+  editors: ['app', 'revert'],
+  suggestions: ['suggestion'],
+  syncs: ['gdoc', 'scraper', 'vendor', 'image-sync', 'maintenance', 'sql'],
+} satisfies Record<string, RevisionSource[]>
+
+export type RevisionSourceGroup = keyof typeof REVISION_SOURCE_GROUPS
+
+export const isRevisionSourceGroup = (
+  value: unknown,
+): value is RevisionSourceGroup =>
+  typeof value === 'string' && value in REVISION_SOURCE_GROUPS
+
+
 export interface Revision {
   id: number
   created_at: string
@@ -50,6 +65,8 @@ export interface Revision {
   suggested_by: { id: string; name: string | null } | null
   reverts_revision: number | null
   run_id: string | null
+  // Recent Changes only: the sculpt, keyset or keyboard page's name.
+  parent_name?: string | null
 }
 
 export interface RevisionDetail extends Revision {
@@ -262,4 +279,88 @@ export const syncLockedFields = (revision: RevisionDetail, keys: string[]) => {
         : []
 
   return keys.filter((key) => managed.includes(key))
+}
+
+/** Detail page of a revision's sculpt, keyset or keyboard. */
+export const revisionPagePath = (
+  revision: Pick<Revision, 'domain' | 'parent_key'>,
+) => {
+  if (!revision.parent_key) return null
+
+  switch (revision.domain) {
+    case 'artisan':
+      return `/artisan/maker/${revision.parent_key}`
+    case 'keyset':
+      return `/keyset/${revision.parent_key}`
+    default:
+      return `/keyboard/brand/${revision.parent_key}`
+  }
+}
+
+export interface RecentChangesEntry {
+  key: string
+  domain: string
+  parentKey: string | null
+  name: string
+  revisions: Revision[]
+}
+
+export interface RecentChangesDay {
+  key: string
+  date: string
+  entries: RecentChangesEntry[]
+}
+
+/**
+ * Recent Changes: revisions by day, and within a day consecutive changes to
+ * the same page (sculpt, keyset or keyboard with its children) as one entry.
+ */
+export const groupRecentChanges = (revisions: Revision[]): RecentChangesDay[] => {
+  const days: RecentChangesDay[] = []
+
+  for (const revision of revisions) {
+    const dayKey = new Date(revision.created_at).toDateString()
+    let day = days.at(-1)
+
+    if (day?.key !== dayKey) {
+      day = { key: dayKey, date: revision.created_at, entries: [] }
+      days.push(day)
+    }
+
+    const pageKey = `${revision.domain}:${revision.parent_key}`
+    const last = day.entries.at(-1)
+
+    if (last && `${last.domain}:${last.parentKey}` === pageKey) {
+      last.revisions.push(revision)
+    } else {
+      day.entries.push({
+        key: `${dayKey}-${revision.id}`,
+        domain: revision.domain,
+        parentKey: revision.parent_key,
+        name: revision.parent_name || revision.label || revision.parent_key || 'Unknown page',
+        revisions: [revision],
+      })
+    }
+  }
+
+  return days
+}
+
+/** `Google Doc sync and Maker M`, `3 editors`: who changed a page. */
+export const revisionAuthors = (revisions: Revision[]) => {
+  const authors = [
+    ...new Set(
+      revisions.map((revision) =>
+        revision.source === 'app' || revision.source === 'revert'
+          ? revision.actor_name || 'Unknown user'
+          : revision.source === 'suggestion'
+            ? 'an edit suggestion'
+            : SOURCE_LABELS[revision.source] || revision.source,
+      ),
+    ),
+  ]
+
+  if (authors.length > 2) return `${authors.length} editors and sources`
+
+  return authors.join(' and ')
 }
