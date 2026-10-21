@@ -5,7 +5,7 @@ import {
 
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
-  const { maker: makerId, sculpt: sculptId } = getRouterParams(event)
+  const { maker: makerId } = getRouterParams(event)
 
   // TODO: drop this `Record<string, unknown>` cast once the artisan sculpt
   // submission-status migration has been applied and
@@ -17,28 +17,9 @@ export default defineEventHandler(async (event) => {
 
   body.maker_sculpt_id = `${body.maker_id}/${body.sculpt_id}`
 
-  // catalog-sync matches sculpts by their slug in the Google Doc or on the
-  // maker's website. Renaming a synced sculpt keeps that slug in
-  // source_sculpt_id (the first time only), so the next sync still finds it
-  // instead of recreating the sculpt under its old name.
+  // Set by the database on the first rename of a synced sculpt
+  // (keep_source_sculpt_id), never by clients.
   delete body.source_sculpt_id
-
-  if (body.id && body.sculpt_id !== sculptId) {
-    const { data: stored } = await client
-      .from('artisan_sculpts')
-      .select('*')
-      .eq('id', body.id as number)
-      .maybeSingle()
-    const synced = stored as Record<string, any> | null
-
-    if (
-      synced &&
-      ['gdoc', 'scraper'].includes(synced.source) &&
-      !synced.source_sculpt_id
-    ) {
-      body.source_sculpt_id = synced.sculpt_id
-    }
-  }
 
   const isStaff =
     canManageAnyAssignment(profile) &&
@@ -88,13 +69,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (body.sculpt_id !== sculptId) {
-    await client
-      .from('artisan_colorways')
-      .update({ sculpt_id: body.sculpt_id as string })
-      .eq('maker_id', makerId!)
-      .eq('sculpt_id', sculptId!)
-  }
-
+  // Colorways follow a renamed sculpt through the maker_sculpt_id cascade.
   return data
 })

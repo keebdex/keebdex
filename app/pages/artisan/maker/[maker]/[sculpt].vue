@@ -81,7 +81,7 @@
                 domain="artisan"
                 :parent-key="`${route.params.maker}/${route.params.sculpt}`"
                 description="Every change to this sculpt and its colorways, newest first."
-                @reverted="refresh"
+                @reverted="onReverted"
               />
 
               <USelect
@@ -385,6 +385,21 @@ const { data: sculpt, refresh } = await useAsyncData(
   },
 )
 
+// Reverting a rename moves the sculpt back to its old slug.
+const onReverted = ({ entityType, changes }) => {
+  if (
+    entityType === 'artisan_sculpt' &&
+    changes.sculpt_id &&
+    changes.sculpt_id !== route.params.sculpt
+  ) {
+    return navigateTo(
+      `/artisan/maker/${route.params.maker}/${changes.sculpt_id}`,
+    )
+  }
+
+  refresh()
+}
+
 const breadcrumbs = computed(() => {
   return [
     {
@@ -400,10 +415,9 @@ const breadcrumbs = computed(() => {
         alt: sculpt.value.maker_name,
         ui: {
           root: 'bg-transparent',
-          image:
-            sculpt.value.invertible_logo
-              ? 'rounded-none dark:invert'
-              : 'rounded-none',
+          image: sculpt.value.invertible_logo
+            ? 'rounded-none dark:invert'
+            : 'rounded-none',
         },
       },
     },
@@ -582,7 +596,9 @@ const deleteSculpt = async (closeModal) => {
       { method: 'delete' },
     )
 
-    toast.add(successToast('delete', { entity: 'Sculpt', name: sculpt.value.name }))
+    toast.add(
+      successToast('delete', { entity: 'Sculpt', name: sculpt.value.name }),
+    )
 
     closeModal()
     navigateTo(`/artisan/maker/${route.params.maker}`)
@@ -598,7 +614,9 @@ const deleteColorway = async (colorway, closeModal) => {
       { method: 'delete' },
     )
 
-    toast.add(successToast('delete', { entity: 'Colorway', name: colorway.name }))
+    toast.add(
+      successToast('delete', { entity: 'Colorway', name: colorway.name }),
+    )
 
     closeModal()
     refresh()

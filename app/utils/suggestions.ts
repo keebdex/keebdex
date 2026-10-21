@@ -87,10 +87,9 @@ export const SUGGESTION_ENTITIES: Record<
     label: 'Sculpt',
     nameKey: 'name',
     formProps: () => ({ isEdit: true, suggest: true }),
-    // Renaming also changes the slug, so only staff rename sculpts.
+    // A rename suggests the new slug too (SculptForm); maker_sculpt_id and
+    // source_sculpt_id are kept by the database.
     protected: [
-      'name',
-      'sculpt_id',
       'maker_id',
       'maker_sculpt_id',
       'source_sculpt_id',
