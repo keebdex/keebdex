@@ -8,22 +8,21 @@ authors:
     to: https://claude.com/claude-code
 ---
 
-**Many hands** keep the catalog right: anyone signed in can now suggest a fix or a missing photo for a colorway, kit, keyset, or keyboard, and moderators review each change before it goes live. Submissions also show every image's original size, and image fields preview the picture instead of an empty upload box.
+**Many hands** keep the catalog right: anyone signed in can now suggest a fix or a missing photo for a colorway, kit, keyset, or keyboard, and moderators review each change before it goes live. Moderators also get a full history of every change with one-click undo, and community submissions stay hidden until they are approved.
 
 ### ✨ What's New
 
-- **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and a moderator reviews the changes before they go live.
-- Colorways, kits, and variants without a photo show an _Add Photo_ button, and keysets without a cover an _Add Cover_ button, so you can upload the missing picture in a few taps.
-- Moderators review suggested changes in the new _Edits_ tab of each Submissions page, side by side with the current details. They can apply only some of the changes, adjust them in the usual form first, or reject them with a quick reply.
-- **Change history for moderators**: sculpt, keyset, and keyboard pages have a _History_ button for staff that lists every change to the page and its records, whether from an editor, an approved suggestion, or a sync, and lets them undo an edit or restore an earlier version. Each colorway, kit, release, and variant has its own _History_ button, and the new _Recent Changes_ page shows what changed across every page they manage, grouped by page and filterable by module or by who made the change.
-- **Stem types for colorways**: colorway forms now let you pick one or more stem types, such as MX, Alps, or Topre.
+- **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and records without a picture show _Add Photo_ or _Add Cover_. Moderators review each suggestion in the new _Edits_ tab of the Submissions pages, side by side with the current details, and can apply only some of the changes, adjust them first, or reject them with a quick reply.
+- **Change history**: staff can open a _History_ panel on sculpt, keyset, and keyboard pages, or on a single colorway, kit, release, or variant, to see every change, who made it, and what it looked like before. They can undo an edit or restore an earlier version, and the new _Recent Changes_ page shows what changed across every page they manage.
+- **Stem types for colorways**: colorway forms let you pick one or more stem types, such as MX, Alps, or Topre.
 
 ### 🐛 Bug Fixes
 
-- **Only reviewed submissions are public**: colorways, keysets, keyboards, releases, and variants submitted by the community stay out of catalog pages, counts, search, and the home page lists until a moderator approves them, so unfinished or unwanted submissions are never shown. Keysets added directly by staff no longer go missing from profile and Group Buy lists.
+- Colorways, keysets, keyboards, releases, and variants submitted by the community no longer appear on catalog pages, in counts, in search, or in the home page lists until a moderator approves them. Keysets added directly by staff no longer go missing from profile and Group Buy lists.
 
 ### 🚀 Improvements
 
 - **Image sizes in submissions**: review queues and submission forms show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.
-- **Image previews in forms**: an existing or just-uploaded image now appears in the form with _Replace_ and _Remove_ buttons.
+- **Image previews in forms**: an existing or just-uploaded image appears in the form with _Replace_ and _Remove_ buttons instead of an empty upload box.
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
+- The _Unread_ filter on the notifications page loads your unread notifications directly, so older unread ones show up even when many newer ones are already read.
