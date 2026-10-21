@@ -48,7 +48,6 @@
             v-for="fieldLabel in changedLabels(row.original)"
             :key="fieldLabel"
             :label="fieldLabel"
-            color="neutral"
             variant="subtle"
             size="sm"
           />
@@ -164,7 +163,13 @@ const columns = [
   { id: 'action' },
 ]
 
-const statusFilter = ref('Pending')
+// `?status=` opens a filter directly, e.g. from a revision's View Suggestion.
+const route = useRoute()
+const statusFilter = ref(
+  statusOptions.some((option) => option.value === route.query.status)
+    ? String(route.query.status)
+    : 'Pending',
+)
 
 const { page, size, setPage, resetPage } = usePagination(10)
 const { data, status, refresh } = useAdvancedSearch('/api/suggestions', {

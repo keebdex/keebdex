@@ -15,7 +15,6 @@
         <UButton
           icon="hugeicons:mail-open-01"
           variant="ghost"
-          color="neutral"
           size="xs"
           aria-label="Mark as read"
           @click="emit('read')"

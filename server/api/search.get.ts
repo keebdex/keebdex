@@ -1,4 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { PUBLISHED_FILTER } from '../utils'
 
 const {
   public: { imgUrl },
@@ -61,8 +62,10 @@ const SELECT = {
   brands: 'id, name, slug, invertible_logo',
   keyboards:
     'id, name, brand_keyboard_slug, brand_slug, brand:keyboard_brands(name, slug, invertible_logo)',
+  // Status-less releases follow their keyboard, so the keyboard must be
+  // published too (inner join, filtered below)
   releases:
-    'id, name, brand_keyboard_slug, brand_slug, keyboard:keyboards(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
+    'id, name, brand_keyboard_slug, brand_slug, keyboard:keyboards!inner(name, slug), brand:keyboard_brands(name, slug, invertible_logo)',
   variants:
     'id, variant_name, brand_keyboard_slug, brand_slug, keyboard:keyboards(name, slug), release:keyboard_releases(id, name, brand_keyboard_slug), brand:keyboard_brands(name, slug, invertible_logo)',
 } as const
@@ -155,12 +158,14 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keysets')
           .select(SELECT.keysets)
+          .or(PUBLISHED_FILTER)
           .textSearch('fts', `${fts}`)
           .order('profile_keyset_id')
           .limit(10),
         likeQuery: client
           .from('keysets')
           .select(SELECT.keysets)
+          .or(PUBLISHED_FILTER)
           .or(
             `name.ilike.%${queryText}%,profile_keyset_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
           )
@@ -197,12 +202,14 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keyboards')
           .select(SELECT.keyboards)
+          .or(PUBLISHED_FILTER)
           .textSearch('fts', `${fts}`)
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
           .from('keyboards')
           .select(SELECT.keyboards)
+          .or(PUBLISHED_FILTER)
           .or(
             `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
           )
@@ -218,12 +225,16 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keyboard_releases')
           .select(SELECT.releases)
+          .or(PUBLISHED_FILTER)
+          .or(PUBLISHED_FILTER, { referencedTable: 'keyboard' })
           .textSearch('fts', `${fts}`)
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
           .from('keyboard_releases')
           .select(SELECT.releases)
+          .or(PUBLISHED_FILTER)
+          .or(PUBLISHED_FILTER, { referencedTable: 'keyboard' })
           .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
           .order('brand_keyboard_slug')
           .limit(20),
@@ -237,12 +248,14 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keyboard_variants')
           .select(SELECT.variants)
+          .or(PUBLISHED_FILTER)
           .textSearch('fts', `${fts}`)
           .order('release_id')
           .limit(20),
         likeQuery: client
           .from('keyboard_variants')
           .select(SELECT.variants)
+          .or(PUBLISHED_FILTER)
           .ilike('variant_name', `%${queryText}%`)
           .order('release_id')
           .limit(20),

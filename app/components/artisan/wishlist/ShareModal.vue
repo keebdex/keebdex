@@ -45,7 +45,6 @@
               <UButton
                 block
                 icon="hugeicons:image-download-02"
-                color="neutral"
                 :disabled="!imageBlob"
                 @click="downloadBlob(imageBlob, filename)"
               >
@@ -86,7 +85,6 @@
                 v-if="shareTextSupported"
                 block
                 icon="hugeicons:share-08"
-                color="neutral"
                 @click="shareText"
               >
                 Share Text

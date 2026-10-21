@@ -1,7 +1,7 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { keyBy } from 'es-toolkit'
 import { sortBy } from 'es-toolkit/compat'
-import { omitSensitive } from '../../utils'
+import { PUBLISHED_FILTER, omitSensitive } from '../../utils'
 
 function sortSculpts(sculpts: any) {
   const revisionMap: Record<string, any> = {}
@@ -59,6 +59,8 @@ export default defineEventHandler(async (event) => {
     )
     .eq('id', makerId)
     .eq('sculpts.deleted', false)
+    .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.total_colorways' })
+    .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.colorways' })
     .order('order', {
       ascending: false,
       referencedTable: 'sculpts.colorways',

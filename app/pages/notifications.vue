@@ -81,7 +81,6 @@
                 label="Mark all as read"
                 icon="hugeicons:check-check"
                 variant="link"
-                color="neutral"
                 size="xs"
                 class="-my-1 px-0"
                 :ui="{ label: 'block' }"
@@ -105,7 +104,7 @@
 
       <div v-else class="mx-auto w-full lg:max-w-3xl space-y-6">
         <div
-          v-if="!loaded && loading"
+          v-if="!cursor.loaded && cursor.loading"
           class="flex justify-center py-16 text-dimmed"
         >
           <UIcon
@@ -115,7 +114,7 @@
         </div>
 
         <UEmpty
-          v-else-if="!visible.length && !hasMore"
+          v-else-if="!visible.length && !cursor.hasMore"
           :icon="
             unreadOnly
               ? 'hugeicons:checkmark-circle-02'
@@ -154,7 +153,6 @@
                 label="Mark all as read"
                 icon="hugeicons:check-check"
                 variant="link"
-                color="neutral"
                 size="xs"
                 class="-my-1 px-0"
                 :ui="{ label: 'block' }"
@@ -174,17 +172,16 @@
             </UPageCard>
           </section>
 
-          <p v-if="!visible.length" class="text-center text-sm text-muted">
-            No unread notifications among the ones loaded so far.
-          </p>
-
-          <div v-if="hasMore" class="flex justify-center">
+          <div v-if="cursor.hasMore" class="flex justify-center">
             <UButton
-              label="Load older notifications"
+              :label="
+                unreadOnly
+                  ? 'Load older unread notifications'
+                  : 'Load older notifications'
+              "
               variant="outline"
-              color="neutral"
               :loading="loadingOlder"
-              @click="loadOlder"
+              @click="loadOlder(filter)"
             />
           </div>
         </template>
@@ -210,13 +207,12 @@ useSeoMeta({
 const appConfig = useAppConfig()
 
 const {
-  items,
   unread,
-  hasMore,
-  loaded,
-  loading,
+  cursors,
   loadingOlder,
+  load,
   loadOlder,
+  visibleFor,
   markRead,
   markUnread,
   markAllRead,
@@ -320,10 +316,17 @@ const showAllActions = computed(() => [
   },
 ])
 
-const visible = computed(() =>
-  unreadOnly.value
-    ? items.value.filter((item) => !item.read_at)
-    : items.value,
+// Each filter pages from the server on its own (`unread=1` for Unread).
+const filter = computed(() => (unreadOnly.value ? 'unread' : 'all'))
+const cursor = computed(() => cursors.value[filter.value])
+const visible = computed(() => visibleFor(filter.value))
+
+watch(
+  filter,
+  (value) => {
+    if (!cursors.value[value].loaded) load(value)
+  },
+  { immediate: true },
 )
 
 const GROUP_IDS: Record<NotificationDateGroup, string> = {

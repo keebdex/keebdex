@@ -78,6 +78,14 @@
                 </template>
               </UModal>
 
+              <SharedRevisionHistory
+                ref="history"
+                domain="artisan"
+                :parent-key="`${route.params.maker}/${route.params.sculpt}`"
+                description="Every change to this sculpt and its colorways, newest first."
+                @reverted="refresh"
+              />
+
               <USelect
                 v-if="$device.isDesktopOrTablet"
                 v-model="sortValue"
@@ -210,6 +218,14 @@
                   />
                 </template>
               </UModal>
+
+              <UTooltip v-if="editable" text="History" :delay-duration="0">
+                <UButton
+                  icon="hugeicons:time-quarter-pass"
+                  aria-label="History"
+                  @click="showColorwayHistory(colorway)"
+                />
+              </UTooltip>
 
               <SharedSaveToCollection
                 v-if="authenticated"
@@ -497,6 +513,18 @@ const openColorwayCard = (colorway) => {
 // Copied cards are rendered off screen at a fixed width, so the image is the
 // same on every screen size. The capture promise goes straight into the
 // clipboard write (Safari).
+const history = useTemplateRef('history')
+
+const showColorwayHistory = (colorway) => {
+  history.value?.show({
+    record: {
+      entityType: 'artisan_colorway',
+      entityId: colorway.id,
+      label: colorway.name,
+    },
+  })
+}
+
 const snapshot = useTemplateRef('snapshot')
 const snapshotColorway = ref()
 

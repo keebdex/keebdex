@@ -1,6 +1,10 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { sortBy } from 'es-toolkit/compat'
-import { getRandomCoverImage, omitSensitive } from '../../../utils'
+import {
+  PUBLISHED_FILTER,
+  getRandomCoverImage,
+  omitSensitive,
+} from '../../../utils'
 
 export default defineEventHandler(async (event) => {
   const { brand: brand_slug } = event.context.params || {}
@@ -12,6 +16,13 @@ export default defineEventHandler(async (event) => {
       '*, keyboards(*, keyboard_releases(keyboard_variants(img_front, img_back)))',
     )
     .eq('slug', brand_slug)
+    // Published keyboards only; covers come from published releases and
+    // variants. Status-less releases and variants follow their keyboard.
+    .or(PUBLISHED_FILTER, { referencedTable: 'keyboards' })
+    .or(PUBLISHED_FILTER, { referencedTable: 'keyboards.keyboard_releases' })
+    .or(PUBLISHED_FILTER, {
+      referencedTable: 'keyboards.keyboard_releases.keyboard_variants',
+    })
     .single()
 
   if (brandError) {

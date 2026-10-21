@@ -303,6 +303,24 @@ export const TABLE_FIELDS = {
     "type",
     "user_id"
   ],
+  "record_revisions": [
+    "action",
+    "actor",
+    "changes",
+    "created_at",
+    "domain",
+    "entity_id",
+    "entity_type",
+    "id",
+    "label",
+    "parent_key",
+    "reverts_revision",
+    "run_id",
+    "scope",
+    "snapshot",
+    "source",
+    "suggestion_id"
+  ],
   "testimonials": [
     "avatar_url",
     "content",

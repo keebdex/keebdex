@@ -1,17 +1,19 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { getLocalTimeZone, today } from '@internationalized/date'
 import { sortBy } from 'es-toolkit/compat'
+import { PUBLISHED_FILTER } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
   const startOfDay = today(getLocalTimeZone()).subtract({ days: 1 }).toString()
 
-  // Only the maker of each new colorway is needed to count additions
+  // Only the maker of each new published colorway is needed to count additions
   const { data, error } = await client
     .from('artisan_colorways')
     .select('maker_id, maker:artisan_makers(name, invertible_logo)')
     .gte('created_at', startOfDay)
+    .or(PUBLISHED_FILTER)
 
   if (error) {
     throw createError({
@@ -46,7 +48,7 @@ export default defineEventHandler(async (event) => {
       'name, img, start_date, end_date, profile_id, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
     )
     .eq('status', 'Live')
-    .eq('review_status', 'Approved')
+    .or(PUBLISHED_FILTER)
   // .lte('start_date', startOfDay)
   // .gte('end_date', startOfDay)
 

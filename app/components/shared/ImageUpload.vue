@@ -33,7 +33,6 @@
           <UButton
             icon="hugeicons:image-upload"
             label="Replace"
-            color="neutral"
             variant="solid"
             size="xs"
             :ui="{ label: 'block' }"
@@ -42,7 +41,6 @@
           />
           <UButton
             icon="hugeicons:delete-02"
-            color="neutral"
             variant="solid"
             size="xs"
             aria-label="Remove image"

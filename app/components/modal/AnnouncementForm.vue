@@ -108,7 +108,6 @@
         <UPopover>
           <UButton
             icon="hugeicons:calendar-03"
-            color="neutral"
             variant="outline"
             class="w-full"
           >
@@ -130,7 +129,6 @@
           <UPopover>
             <UButton
               icon="hugeicons:calendar-03"
-              color="neutral"
               variant="outline"
               class="flex-1"
             >
@@ -145,7 +143,6 @@
           <UButton
             v-if="endsOn"
             icon="hugeicons:cancel-01"
-            color="neutral"
             variant="outline"
             aria-label="Clear end date"
             @click="endsOn = undefined"

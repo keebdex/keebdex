@@ -8,6 +8,13 @@ import { omit } from 'es-toolkit'
 export const omitSensitive = (obj: any) => omit(obj, ['fts'])
 
 /**
+ * PostgREST `or()` filter for published rows: approved, or added without
+ * review (`null`: synced from a maker's doc or site, or added by staff).
+ * Pending and Rejected submissions stay in the review queue.
+ */
+export const PUBLISHED_FILTER = 'review_status.is.null,review_status.eq.Approved'
+
+/**
  * Convert a value to a number or null if it's not a valid number
  * @param value
  * @returns

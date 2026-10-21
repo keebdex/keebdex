@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { PUBLISHED_FILTER } from './index'
 
 export const COLORWAY_SEARCH_SELECT =
   '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)'
@@ -12,7 +13,7 @@ const getSearchWords = (term: string) =>
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 /**
- * Colorways that are not deleted and whose own name contains every word of
+ * Published colorways (not deleted, not under review) whose own name contains every word of
  * the term. With `exact`, the name must contain the whole term as separate
  * words ("blue" matches "Baby Blue" but not "Blueberry").
  * Maker/sculpt-only matches are left out because the search palette already
@@ -30,6 +31,7 @@ export const matchColorwaysByName = (
     .from('artisan_colorways')
     .select(COLORWAY_SEARCH_SELECT, selectOptions)
     .not('deleted', 'is', true)
+    .or(PUBLISHED_FILTER)
 
   if (exact) {
     // Postgres word boundaries: \m start of word, \M end of word
@@ -86,6 +88,7 @@ export const searchPaletteColorways = async (
       .from('artisan_colorways')
       .select(COLORWAY_SEARCH_SELECT)
       .not('deleted', 'is', true)
+      .or(PUBLISHED_FILTER)
       .ilike('name', `${term.trim()}%`)
       .order('name')
       .limit(limit),

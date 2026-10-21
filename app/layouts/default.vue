@@ -91,7 +91,7 @@ const announcements = useAnnouncements()
 const cookieConsent = useCookieConsent()
 const userStore = useUserStore()
 
-const { authenticated } = storeToRefs(userStore)
+const { authenticated, isModerator } = storeToRefs(userStore)
 const { unread: unreadNotifications } = useNotifications()
 const { unread: unreadAnnouncements } = useAnnouncements()
 
@@ -278,9 +278,24 @@ const notificationsLink = computed(() =>
     : [],
 )
 
+// Staff only: revisions of the pages they manage.
+const recentChangesLink = computed(() =>
+  isModerator.value
+    ? [
+        {
+          label: 'Recent Changes',
+          icon: 'hugeicons:time-quarter-pass',
+          to: '/recent-changes',
+          active: route.path === '/recent-changes',
+        },
+      ]
+    : [],
+)
+
 const links = computed(() => [
   [
     ...notificationsLink.value,
+    ...recentChangesLink.value,
     {
       label: 'Feedback',
       icon: 'hugeicons:message-question',

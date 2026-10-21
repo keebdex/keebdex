@@ -9,7 +9,6 @@
             v-for="preset in presets"
             :key="preset"
             :label="preset"
-            color="neutral"
             :variant="isPicked(preset) ? 'solid' : 'outline'"
             size="xs"
             class="text-start"
