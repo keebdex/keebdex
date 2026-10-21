@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../../../utils'
+import { PUBLISHED_FILTER, omitSensitive } from '../../../../utils'
 
 export default defineEventHandler(async (event) => {
   const { maker: makerId, sculpt: sculptId } = event.context.params || {}
@@ -14,9 +14,7 @@ export default defineEventHandler(async (event) => {
     )
     .eq('id', makerId)
     .eq('sculpts.deleted', false)
-    // .or(
-    //   'sculpts.total_colorways.review_status.is.null,sculpts.total_colorways.review_status.neq.Rejected',
-    // )
+    .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.total_colorways' })
     .single()
 
   if (profileError) {
@@ -31,7 +29,7 @@ export default defineEventHandler(async (event) => {
     .select()
     .eq('maker_id', makerId)
     .eq('sculpt_id', sculptId)
-    .or('review_status.is.null,review_status.neq.Rejected')
+    .or(PUBLISHED_FILTER)
 
   if (query.order_by) {
     request = request.order(query.order_by, { ascending })
@@ -58,7 +56,7 @@ export default defineEventHandler(async (event) => {
       .select('colorway_id')
       .eq('maker_id', makerId)
       .eq('sculpt_id', sculptId)
-      .or('review_status.is.null,review_status.neq.Rejected')
+      .or(PUBLISHED_FILTER)
 
     if (query.order_by) {
       selectedColorwayRequest = selectedColorwayRequest.order(query.order_by, {

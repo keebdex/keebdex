@@ -18,6 +18,10 @@ authors:
 - **Change history for moderators**: sculpt, keyset, and keyboard pages have a _History_ button for staff that lists every change to the page and its records, whether from an editor, an approved suggestion, or a sync, and lets them undo an edit or restore an earlier version. Each colorway, kit, release, and variant has its own _History_ button, and the new _Recent Changes_ page shows what changed across every page they manage, grouped by page and filterable by module or by who made the change.
 - **Stem types for colorways**: colorway forms now let you pick one or more stem types, such as MX, Alps, or Topre.
 
+### 🐛 Bug Fixes
+
+- **Only reviewed submissions are public**: colorways, keysets, keyboards, releases, and variants submitted by the community stay out of catalog pages, counts, search, and the home page lists until a moderator approves them, so unfinished or unwanted submissions are never shown. Keysets added directly by staff no longer go missing from profile and Group Buy lists.
+
 ### 🚀 Improvements
 
 - **Image sizes in submissions**: review queues and submission forms show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.

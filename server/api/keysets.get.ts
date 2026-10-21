@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../utils'
+import { PUBLISHED_FILTER, omitSensitive } from '../utils'
 
 const statusMap: Record<string, string[]> = {
   ic: ['Interest Check'],
@@ -24,8 +24,7 @@ export default defineEventHandler(async (event) => {
           .from('keysets')
           .select('*, profile:keyset_profiles(name)', { count: 'exact', head })
           .in('status', statusMap[status] || [])
-          .neq('review_status', 'Pending')
-          .neq('review_status', 'Rejected')
+          .or(PUBLISHED_FILTER)
           .order('ic_date', { ascending: false })
       case 'live':
       case 'ended':
@@ -33,8 +32,7 @@ export default defineEventHandler(async (event) => {
           .from('keysets')
           .select('*, profile:keyset_profiles(name)', { count: 'exact', head })
           .in('status', statusMap[status] || [])
-          .neq('review_status', 'Pending')
-          .neq('review_status', 'Rejected')
+          .or(PUBLISHED_FILTER)
           .order('start_date', { ascending: status === 'live' })
       default:
         return client
@@ -42,8 +40,7 @@ export default defineEventHandler(async (event) => {
           .select('*', { count: 'exact', head })
           .eq('profile_id', profile_id)
           .neq('status', '')
-          .neq('review_status', 'Pending')
-          .neq('review_status', 'Rejected')
+          .or(PUBLISHED_FILTER)
           .order('profile_keyset_id')
     }
   }
