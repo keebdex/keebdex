@@ -86,8 +86,16 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'artisan_sculpts',
     label: 'Sculpt',
     nameKey: 'name',
-    formProps: () => ({ isEdit: true }),
-    protected: ['sculpt_id', 'maker_id', 'maker_sculpt_id', ...SYNC_FIELDS],
+    formProps: () => ({ isEdit: true, suggest: true }),
+    // Renaming also changes the slug, so only staff rename sculpts.
+    protected: [
+      'name',
+      'sculpt_id',
+      'maker_id',
+      'maker_sculpt_id',
+      'source_sculpt_id',
+      ...SYNC_FIELDS,
+    ],
   },
   keyset_kit: {
     type: 'keyset_kit',

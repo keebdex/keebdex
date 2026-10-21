@@ -25,4 +25,5 @@ authors:
 - **Image sizes in submissions**: review queues and submission forms show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.
 - **Image previews in forms**: an existing or just-uploaded image appears in the form with _Replace_ and _Remove_ buttons instead of an empty upload box.
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
+- **Rename any sculpt**: staff can now rename sculpts that sync from a maker's Google Doc or website. The page address follows the new name, and future syncs keep the renamed sculpt instead of adding the old one back.
 - The _Unread_ filter on the notifications page loads your unread notifications directly, so older unread ones show up even when many newer ones are already read.

@@ -17,6 +17,29 @@ export default defineEventHandler(async (event) => {
 
   body.maker_sculpt_id = `${body.maker_id}/${body.sculpt_id}`
 
+  // catalog-sync matches sculpts by their slug in the Google Doc or on the
+  // maker's website. Renaming a synced sculpt keeps that slug in
+  // source_sculpt_id (the first time only), so the next sync still finds it
+  // instead of recreating the sculpt under its old name.
+  delete body.source_sculpt_id
+
+  if (body.id && body.sculpt_id !== sculptId) {
+    const { data: stored } = await client
+      .from('artisan_sculpts')
+      .select('*')
+      .eq('id', body.id as number)
+      .maybeSingle()
+    const synced = stored as Record<string, any> | null
+
+    if (
+      synced &&
+      ['gdoc', 'scraper'].includes(synced.source) &&
+      !synced.source_sculpt_id
+    ) {
+      body.source_sculpt_id = synced.sculpt_id
+    }
+  }
+
   const isStaff =
     canManageAnyAssignment(profile) &&
     canManageAssignment(profile, String(body.maker_id || makerId || ''))
