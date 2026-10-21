@@ -19,7 +19,6 @@
           icon="hugeicons:arrow-left-02"
           label="All Changes"
           variant="link"
-          color="neutral"
           class="px-0"
           :ui="{ label: 'block' }"
           @click="selectedId = null"
@@ -102,34 +101,24 @@
 
       <!-- All revisions of the page, or of one of its records -->
       <div v-else class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
+        <div
+          v-if="record"
+          class="flex flex-wrap items-center justify-between gap-2"
+        >
           <UBadge
-            v-if="record"
             :label="record.label"
             icon="hugeicons:filter"
-            color="neutral"
             variant="subtle"
             class="max-w-full"
             :ui="{ label: 'truncate' }"
           />
           <UButton
-            v-if="record"
             label="Show All Changes"
             variant="link"
             size="sm"
             class="px-0"
             :ui="{ label: 'block' }"
             @click="show()"
-          />
-          <UButton
-            v-else
-            label="Recent Changes"
-            to="/recent-changes"
-            trailing-icon="hugeicons:arrow-right-02"
-            variant="link"
-            size="sm"
-            class="px-0 ms-auto"
-            :ui="{ label: 'block' }"
           />
         </div>
 
@@ -164,7 +153,19 @@
       </div>
     </template>
 
-    <template v-if="detail?.current" #footer>
+    <!-- The list links to every page's changes; a revision has its actions -->
+    <template v-if="!selectedId" #footer>
+      <UButton
+        label="Recent Changes"
+        icon="hugeicons:time-quarter-pass"
+        to="/recent-changes"
+        trailing-icon="hugeicons:arrow-right-02"
+        class="ms-auto"
+        :ui="{ label: 'block' }"
+      />
+    </template>
+
+    <template v-else-if="detail?.current" #footer>
       <div class="flex flex-wrap justify-end gap-2 w-full">
         <UButton
           v-if="detail.action === 'update'"

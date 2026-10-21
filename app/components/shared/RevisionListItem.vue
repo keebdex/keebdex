@@ -36,7 +36,6 @@
           v-for="field in fields"
           :key="field"
           :label="suggestionFieldLabel(field)"
-          color="neutral"
           variant="soft"
           size="sm"
         />
