@@ -20,7 +20,7 @@
           :datetime="detail.created_at"
           :title="formatTimeAgo(detail.created_at)"
         >
-          {{ dateTime.format(new Date(detail.created_at)) }}
+          {{ formatDateTime(detail.created_at) }}
         </time>
       </span>
       <template v-else-if="!selectedId">{{ listDescription }}</template>
@@ -365,12 +365,6 @@ const detailTitle = computed(() =>
     ? detail.value.label || revisionEntityLabel(detail.value)
     : 'Revision',
 )
-
-// When a revision was made, to the minute.
-const dateTime = new Intl.DateTimeFormat(undefined, {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-})
 
 const changeDiffs = computed(() =>
   detail.value ? revisionChangeDiff(detail.value) : [],

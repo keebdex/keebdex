@@ -1,24 +1,4 @@
-import type { CalendarDate } from '@internationalized/date'
-import { DateFormatter } from '@internationalized/date'
 import type { Database } from '~/types/database.types'
-
-const df = new DateFormatter('en-US', {
-  dateStyle: 'medium',
-})
-
-export const toISODate = (date: CalendarDate) => {
-  return date.toString()
-}
-
-export const formatDate = (date: string) => {
-  return date ? df.format(new Date(date)) : ''
-}
-
-export const formatDateRange = (fromDate: string, toDate: string) => {
-  return fromDate && toDate
-    ? df.formatRange(new Date(fromDate), new Date(toDate))
-    : ''
-}
 
 export const formatPrice = (
   amount: number | null | undefined,

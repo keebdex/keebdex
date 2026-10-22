@@ -117,9 +117,6 @@ export const announcementStatus = (
 export const announcementLastDay = (endsAt: string) =>
   new Date(new Date(endsAt).getTime() - 1)
 
-export const formatAnnouncementDay = (date: Date) =>
-  date.toLocaleDateString(undefined, { dateStyle: 'medium' })
-
 export const isExternalUrl = (url: string) => url.startsWith('https://')
 
 /** Props for the CTA button: external links open in a new tab. */

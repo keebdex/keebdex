@@ -58,15 +58,10 @@ const DAY_UI = {
 }
 
 const dayHeading = (date: string) => {
-  const day = new Date(date)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
+  const days = daysAgo(date)
 
-  if (day.toDateString() === today.toDateString()) return 'Changes today'
-  if (day.toDateString() === yesterday.toDateString()) {
-    return 'Changes yesterday'
-  }
+  if (days === 0) return 'Changes today'
+  if (days === 1) return 'Changes yesterday'
 
   return `Changes on ${formatDate(date)}`
 }
@@ -75,7 +70,7 @@ const days = computed(() => {
   const result: { key: string; heading: string; entries: T[] }[] = []
 
   for (const entry of props.entries) {
-    const key = new Date(entry.date).toDateString()
+    const key = String(startOfDay(entry.date).getTime())
     const last = result.at(-1)
 
     if (last?.key === key) last.entries.push(entry)

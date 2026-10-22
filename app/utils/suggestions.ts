@@ -1,4 +1,5 @@
-import { formatDate, formatPrice } from '~/utils'
+import { formatDate } from '~/utils/date'
+import { formatPrice } from '~/utils'
 import { urlSlugify } from '~/utils/slug'
 
 /**

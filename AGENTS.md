@@ -43,7 +43,7 @@ There is no test script or test suite currently defined in `package.json`. Do no
 - `app/stores/`: Pinia stores, including the user store.
 - `app/middleware/`: route guards such as authentication and admin access.
 - `app/types/database.types.ts`: generated Supabase database types; treat this as generated source and do not edit it manually.
-- `app/utils/`: client-side helpers and utilities (formatters such as `formatDate`, `formatPrice`, `formatNumber`, and `keysetProfileLabel` live in `index.ts`).
+- `app/utils/`: client-side helpers and utilities. Date helpers live in `date.ts` (`formatDate`, `formatDateTime`, `formatDateRange`, `formatTimeAgo`, `toISODate`, `startOfDay`, `daysAgo`), all in one `en-US` locale so dates read the same everywhere and SSR matches hydration; never format dates inline with `toLocaleDateString` or `Intl.DateTimeFormat`. Other formatters (`formatPrice`, `formatNumber`, `keysetProfileLabel`) live in `index.ts`.
 - `app/utils/theme-presets/`: theme preset system with registry, type definitions, and preset configs (see `index.ts` for the registered presets).
 - `app/composables/useAppTheme.ts`: reactive theme management with cookie persistence.
 - `app/composables/useSyncAppearance.ts`: synchronizes the signed-in user's appearance preferences with the profile API and refreshes them when the tab becomes visible.

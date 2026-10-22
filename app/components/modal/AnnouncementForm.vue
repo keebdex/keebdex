@@ -257,7 +257,7 @@ const timeZone = getLocalTimeZone()
 const toDay = (date: Date) => toCalendarDate(fromDate(date, timeZone))
 
 const formatDay = (day: DateValue) =>
-  formatAnnouncementDay(toCalendarDate(day).toDate(timeZone))
+  formatDate(toCalendarDate(day).toDate(timeZone))
 
 const source = props.announcement
 

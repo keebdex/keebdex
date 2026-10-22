@@ -77,12 +77,12 @@
           <template #schedule-cell="{ row }">
             <div class="text-sm whitespace-nowrap">
               <p>
-                {{ formatAnnouncementDay(new Date(row.original.starts_at)) }}
+                {{ formatDate(new Date(row.original.starts_at)) }}
               </p>
               <p class="text-dimmed">
                 {{
                   row.original.ends_at
-                    ? `until ${formatAnnouncementDay(announcementLastDay(row.original.ends_at))}`
+                    ? `until ${formatDate(announcementLastDay(row.original.ends_at))}`
                     : 'No end'
                 }}
               </p>

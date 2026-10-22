@@ -215,49 +215,20 @@ export const renderNotification = (
   notification: AppNotification,
 ): NotificationView => (REGISTRY[notification.type] || fallback)(notification)
 
-const relativeTime = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
-
-const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-  ['year', 60 * 60 * 24 * 365],
-  ['month', 60 * 60 * 24 * 30],
-  ['week', 60 * 60 * 24 * 7],
-  ['day', 60 * 60 * 24],
-  ['hour', 60 * 60],
-  ['minute', 60],
-]
-
-/** `just now`, `5 minutes ago`, `yesterday`, `3 weeks ago`. */
-export const formatTimeAgo = (date: string, now = Date.now()) => {
-  const seconds = Math.round((new Date(date).getTime() - now) / 1000)
-
-  for (const [unit, size] of RELATIVE_UNITS) {
-    if (Math.abs(seconds) >= size) {
-      return relativeTime.format(Math.round(seconds / size), unit)
-    }
-  }
-
-  return 'just now'
-}
-
 export type NotificationDateGroup =
   'Today' | 'Yesterday' | 'Earlier this week' | 'Older'
-
-const startOfDay = (date: Date) =>
-  new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
 /** Date heading on `/notifications`; weeks start on Monday. */
 export const notificationDateGroup = (
   date: string,
   now = new Date(),
 ): NotificationDateGroup => {
-  const today = startOfDay(now)
-  const day = startOfDay(new Date(date))
-  const daysAgo = Math.round((today.getTime() - day.getTime()) / 86_400_000)
+  const days = daysAgo(date, now)
 
-  if (daysAgo <= 0) return 'Today'
-  if (daysAgo === 1) return 'Yesterday'
+  if (days <= 0) return 'Today'
+  if (days === 1) return 'Yesterday'
 
-  const weekday = (today.getDay() + 6) % 7
+  const weekday = (now.getDay() + 6) % 7
 
-  return daysAgo <= weekday ? 'Earlier this week' : 'Older'
+  return days <= weekday ? 'Earlier this week' : 'Older'
 }
