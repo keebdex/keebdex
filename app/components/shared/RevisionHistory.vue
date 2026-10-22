@@ -22,15 +22,6 @@
         >
           {{ dateTime.format(new Date(detail.created_at)) }}
         </time>
-        <template v-if="detail.suggestion_id">
-          ·
-          <ULink
-            :to="`/${detail.domain}/submissions?view=edits&status=Approved`"
-            class="text-primary hover:underline"
-          >
-            View Suggestion
-          </ULink>
-        </template>
       </span>
       <template v-else-if="!selectedId">{{ listDescription }}</template>
     </template>
