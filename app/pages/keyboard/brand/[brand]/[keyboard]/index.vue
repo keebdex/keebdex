@@ -281,31 +281,34 @@
                 </template>
 
                 <template #footer>
-                  <div
-                    class="flex flex-wrap items-center justify-between gap-2"
-                    @click.stop
-                  >
+                  <div class="flex flex-wrap items-center gap-2" @click.stop>
                     <SharedSaveToCollection
                       v-if="authenticated"
                       :item="{ ...variant, release_name: release.name }"
                       category="keyboard"
-                      label="Save"
                       @on-select="saveToCollection"
                     />
 
-                    <UButton
+                    <UTooltip
                       v-if="canSuggest(variant)"
-                      icon="hugeicons:edit-01"
-                      label="Edit"
-                      @click="suggest('keyboard_variant', variant, { keyboard: data })"
-                    />
-
-                    <UModal v-if="editable" title="Edit Variant">
+                      text="Edit"
+                      :delay-duration="0"
+                    >
                       <UButton
                         icon="hugeicons:edit-01"
-                        label="Edit"
-                        @click="setSelectedVariant(variant, release)"
+                        aria-label="Edit"
+                        @click="suggest('keyboard_variant', variant, { keyboard: data })"
                       />
+                    </UTooltip>
+
+                    <UModal v-if="editable" title="Edit Variant">
+                      <UTooltip text="Edit" :delay-duration="0">
+                        <UButton
+                          icon="hugeicons:edit-01"
+                          aria-label="Edit"
+                          @click="setSelectedVariant(variant, release)"
+                        />
+                      </UTooltip>
 
                       <template #body="{ close }">
                         <KeyboardModalVariantForm
@@ -322,35 +325,38 @@
                         />
                       </template>
                     </UModal>
-                    <UButton
-                      v-if="editable"
-                      icon="hugeicons:time-quarter-pass"
-                      label="History"
-                      @click="
-                        showHistory(
-                          'keyboard_variant',
-                          variant.id,
-                          variant.variant_name,
-                        )
-                      "
-                    />
+                    <UTooltip v-if="editable" text="History" :delay-duration="0">
+                      <UButton
+                        icon="hugeicons:time-quarter-pass"
+                        aria-label="History"
+                        @click="
+                          showHistory(
+                            'keyboard_variant',
+                            variant.id,
+                            variant.variant_name,
+                          )
+                        "
+                      />
+                    </UTooltip>
                     <UModal
                       v-if="editable"
                       v-model:visible="visible.deleteVariant"
                       title="Delete Variant"
                       :description="`Are you sure you want to delete variant '${variant.variant_name}'? This action cannot be undone.`"
                     >
-                      <UButton
-                        label="Delete"
-                        icon="hugeicons:file-remove"
-                        color="error"
-                        @click="
-                          () => {
-                            setSelectedVariant(variant, release)
-                            visible.deleteVariant = true
-                          }
-                        "
-                      />
+                      <UTooltip text="Delete" :delay-duration="0">
+                        <UButton
+                          icon="hugeicons:file-remove"
+                          color="error"
+                          aria-label="Delete"
+                          @click="
+                            () => {
+                              setSelectedVariant(variant, release)
+                              visible.deleteVariant = true
+                            }
+                          "
+                        />
+                      </UTooltip>
                       <template #footer="{ close }">
                         <UButton label="Cancel" @click="close" />
                         <UButton
