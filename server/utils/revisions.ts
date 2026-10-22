@@ -18,8 +18,13 @@ type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 export const revisionsTable = (client: SupabaseClient) =>
   (client as any).from('record_revisions')
 
+// `record_name` / `variant_name`: the record's own name at that revision,
+// read from the snapshot, so lists under one page can drop the page's name.
 export const REVISION_COLUMNS =
-  'id, created_at, entity_type, entity_id, domain, scope, parent_key, label, action, changes, source, actor, suggestion_id, reverts_revision, run_id'
+  'id, created_at, entity_type, entity_id, domain, scope, parent_key, label, action, changes, source, actor, suggestion_id, reverts_revision, run_id, record_name:snapshot->>name, variant_name:snapshot->>variant_name'
+
+// Lists show no fields, so they leave out `changes` too.
+export const REVISION_LIST_COLUMNS = REVISION_COLUMNS.replace(' changes,', '')
 
 /**
  * Revision history is for staff only. RLS narrows what they read to their
@@ -179,7 +184,7 @@ export const withParentNames = async (
       }
 
       for (const parent of data || []) {
-        names.set(`${domain}:${parent[lookup.key]}`, parentName(domain, parent))
+        names.set(`${domain}:${parent[lookup.key]}`, parentName(parent))
       }
     }),
   )

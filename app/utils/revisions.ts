@@ -45,7 +45,6 @@ export const isRevisionSourceGroup = (
 ): value is RevisionSourceGroup =>
   typeof value === 'string' && value in REVISION_SOURCE_GROUPS
 
-
 export interface Revision {
   id: number
   created_at: string
@@ -65,6 +64,9 @@ export interface Revision {
   suggested_by: { id: string; name: string | null } | null
   reverts_revision: number | null
   run_id: string | null
+  // The record's own name at that revision (variants: `variant_name`).
+  record_name?: string | null
+  variant_name?: string | null
   // Recent Changes only: the sculpt, keyset or keyboard page's name.
   parent_name?: string | null
 }
@@ -111,13 +113,6 @@ export const REVISION_ACTION_LABELS: Record<RevisionAction, string> = {
 export const revisionIcon = (revision: Revision) =>
   SOURCE_ICONS[revision.source] || ACTION_ICONS[revision.action]
 
-export const revisionColor = (revision: Revision) =>
-  revision.action === 'insert'
-    ? 'text-success'
-    : revision.action === 'delete'
-      ? 'text-error'
-      : 'text-info'
-
 /** Who or what made the change: an editor's name or a sync job. */
 export const revisionAuthor = (revision: Revision) => {
   const name = revision.actor_name || (revision.actor ? 'Unknown user' : null)
@@ -136,13 +131,58 @@ export const revisionAuthor = (revision: Revision) => {
   }
 }
 
+// Records that are a page themselves rather than a child of one.
+const PAGE_TYPES: SuggestionEntityType[] = [
+  'artisan_sculpt',
+  'keyset',
+  'keyboard',
+]
+
+/** Whether the revision is of the page itself (sculpt, keyset, keyboard). */
+export const isPageRevision = (revision: Pick<Revision, 'entity_type'>) =>
+  PAGE_TYPES.includes(revision.entity_type)
+
+/**
+ * A record's name within its page, for lists that already show the page:
+ * `Towers 60`, `International`, `Silver`, or `Keyset` for the page itself.
+ * Kits named only by their category fall back to the label's last part
+ * (`CYL Rainy Day R3 - Base` -> `Base`).
+ */
+export const revisionRecordName = (revision: Revision) => {
+  if (isPageRevision(revision)) return revisionEntityLabel(revision)
+
+  const own = revision.variant_name || revision.record_name
+  if (own) return own
+
+  const label = revision.label || ''
+  const separator = label.lastIndexOf(' - ')
+
+  return (
+    (separator >= 0 ? label.slice(separator + 3) : label) ||
+    revisionEntityLabel(revision)
+  )
+}
+
 /** `Colorway`, `Kit`, `Keyboard`. */
 export const revisionEntityLabel = (revision: Pick<Revision, 'entity_type'>) =>
   SUGGESTION_ENTITIES[revision.entity_type]?.label || 'Record'
 
-/** Changed fields worth listing, moderation columns included. */
-export const revisionFields = (revision: Pick<Revision, 'changes'>) =>
-  Object.keys(revision.changes || {})
+/**
+ * How lists group consecutive revisions, here and in `GET /api/revisions`
+ * (which pages by these groups): Recent Changes by page, History by sync run
+ * (other revisions stand alone).
+ */
+export type RevisionGrouping = 'page' | 'run'
+
+export const revisionGroupKey = (
+  revision: Pick<Revision, 'id' | 'domain' | 'parent_key' | 'run_id'>,
+  grouping: RevisionGrouping,
+) => {
+  if (grouping === 'page')
+    return `page:${revision.domain}:${revision.parent_key}`
+
+  return revision.run_id ? `run:${revision.run_id}` : `rev:${revision.id}`
+}
 
 export type RevisionEntry =
   | { type: 'revision'; key: string; revision: Revision }
@@ -159,9 +199,8 @@ export const groupRevisions = (revisions: Revision[]): RevisionEntry[] => {
     const last = entries.at(-1)
 
     if (
-      revision.run_id &&
       last?.type === 'run' &&
-      last.runId === revision.run_id
+      revisionGroupKey(revision, 'run') === `run:${last.runId}`
     ) {
       last.revisions.push(revision)
     } else if (revision.run_id) {
@@ -299,54 +338,63 @@ export const revisionPagePath = (
 
 export interface RecentChangesEntry {
   key: string
+  // Its newest change, which places it in the timeline.
+  date: string
   domain: string
   parentKey: string | null
   name: string
   revisions: Revision[]
 }
 
-export interface RecentChangesDay {
-  key: string
-  date: string
-  entries: RecentChangesEntry[]
-}
-
 /**
- * Recent Changes: revisions by day, and within a day consecutive changes to
- * the same page (sculpt, keyset or keyboard with its children) as one entry.
+ * Recent Changes: consecutive changes to the same page (sculpt, keyset or
+ * keyboard with its children) as one entry, the groups the API pages by.
  */
-export const groupRecentChanges = (revisions: Revision[]): RecentChangesDay[] => {
-  const days: RecentChangesDay[] = []
+export const groupRecentChanges = (
+  revisions: Revision[],
+): RecentChangesEntry[] => {
+  const entries: (RecentChangesEntry & { groupKey: string })[] = []
 
   for (const revision of revisions) {
-    const dayKey = new Date(revision.created_at).toDateString()
-    let day = days.at(-1)
+    const groupKey = revisionGroupKey(revision, 'page')
+    const last = entries.at(-1)
 
-    if (day?.key !== dayKey) {
-      day = { key: dayKey, date: revision.created_at, entries: [] }
-      days.push(day)
-    }
-
-    const pageKey = `${revision.domain}:${revision.parent_key}`
-    const last = day.entries.at(-1)
-
-    if (last && `${last.domain}:${last.parentKey}` === pageKey) {
+    if (last?.groupKey === groupKey) {
       last.revisions.push(revision)
     } else {
-      day.entries.push({
-        key: `${dayKey}-${revision.id}`,
+      entries.push({
+        key: `entry-${revision.id}`,
+        date: revision.created_at,
+        groupKey,
         domain: revision.domain,
         parentKey: revision.parent_key,
-        name: revision.parent_name || revision.label || revision.parent_key || 'Unknown page',
+        name:
+          revision.parent_name ||
+          revision.label ||
+          revision.parent_key ||
+          'Unknown page',
         revisions: [revision],
       })
     }
   }
 
-  return days
+  return entries
 }
 
-/** `Google Doc sync and Maker M`, `3 editors`: who changed a page. */
+/** `International, Novelties and Base`; past three, `… and 4 more`. */
+export const revisionNameList = (revisions: Revision[]) => {
+  const names = [...new Set(revisions.map(revisionRecordName))]
+  const shown =
+    names.length > 3
+      ? [...names.slice(0, 3), `${names.length - 3} more`]
+      : names
+
+  return shown.length > 1
+    ? `${shown.slice(0, -1).join(', ')} and ${shown.at(-1)}`
+    : shown[0] || ''
+}
+
+/** `Google Doc sync and Maker M`, `3 editors and sources`: who changed a page. */
 export const revisionAuthors = (revisions: Revision[]) => {
   const authors = [
     ...new Set(
@@ -364,3 +412,9 @@ export const revisionAuthors = (revisions: Revision[]) => {
 
   return authors.join(' and ')
 }
+
+/** The editor's avatar, or the sync job's icon, for `UAvatar`. */
+export const revisionAvatar = (revision: Revision) =>
+  revision.actor_avatar
+    ? { src: revision.actor_avatar, alt: revision.actor_name || undefined }
+    : { icon: revisionIcon(revision) }

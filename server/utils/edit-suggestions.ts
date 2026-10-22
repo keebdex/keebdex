@@ -100,7 +100,7 @@ export const PARENT_LOOKUPS = {
   artisan: {
     table: 'artisan_sculpts',
     key: 'maker_sculpt_id',
-    select: 'maker_sculpt_id, name',
+    select: 'maker_sculpt_id, name, maker:artisan_makers(name)',
   },
   keyset: {
     table: 'keysets',
@@ -110,7 +110,7 @@ export const PARENT_LOOKUPS = {
   keyboard: {
     table: 'keyboards',
     key: 'brand_keyboard_slug',
-    select: 'brand_keyboard_slug, name',
+    select: 'brand_keyboard_slug, name, brand:keyboard_brands(name)',
   },
 } as const
 
@@ -134,12 +134,16 @@ const recordName = (type: SuggestionEntityType, record: any) => {
   return record[SUGGESTION_ENTITIES[type].nameKey]
 }
 
-export const parentName = (domain: string, parent: any) => {
+/**
+ * A sculpt, keyset or keyboard page's name with what it belongs to, the way
+ * the catalog shows it: `GAF Ninja`, `GMK Olivia`, `Singa Unikorn`.
+ */
+export const parentName = (parent: any) => {
   if (!parent) return null
 
-  return domain === 'keyset'
-    ? [parent.profile?.name, parent.name].filter(Boolean).join(' ')
-    : parent.name
+  const owner = parent.maker ?? parent.profile ?? parent.brand
+
+  return [owner?.name, parent.name].filter(Boolean).join(' ')
 }
 
 /**
@@ -215,10 +219,7 @@ export const withSuggestionRecords = async (
       ...row,
       record,
       entity_name: recordName(type, record),
-      parent_name: parentName(
-        row.domain,
-        parents.get(`${row.domain}:${row.parent_key}`),
-      ),
+      parent_name: parentName(parents.get(`${row.domain}:${row.parent_key}`)),
     }
   })
 }

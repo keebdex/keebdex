@@ -45,83 +45,7 @@
         />
 
         <template v-else>
-          <section
-            v-for="day in days"
-            :key="day.key"
-            :aria-label="dayLabel(day.date)"
-            class="space-y-2"
-          >
-            <h2
-              class="px-1 text-xs font-semibold uppercase tracking-wide text-dimmed"
-            >
-              {{ dayLabel(day.date) }}
-            </h2>
-
-            <div
-              v-for="entry in day.entries"
-              :key="entry.key"
-              class="rounded-lg border border-default p-3 space-y-2"
-            >
-              <div class="flex items-start gap-3">
-                <UIcon
-                  :name="DOMAIN_ICONS[entry.domain] || 'hugeicons:file-edit'"
-                  class="size-5 shrink-0 mt-0.5 text-muted"
-                />
-
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <ULink
-                      :to="pagePath(entry)"
-                      class="truncate font-medium text-highlighted hover:underline"
-                    >
-                      {{ entry.name }}
-                    </ULink>
-                    <time
-                      :datetime="entry.revisions[0]!.created_at"
-                      :title="formatDate(entry.revisions[0]!.created_at)"
-                      class="ms-auto shrink-0 text-xs text-dimmed"
-                    >
-                      {{
-                        formatTimeAgo(new Date(entry.revisions[0]!.created_at))
-                      }}
-                    </time>
-                  </div>
-                  <p class="text-sm text-muted">
-                    {{ countLabel(entry.revisions.length, 'change') }} by
-                    {{ revisionAuthors(entry.revisions) }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="ms-5 border-s border-default ps-2 space-y-1">
-                <SharedRevisionListItem
-                  v-for="revision in entry.revisions.slice(0, ENTRY_PREVIEW)"
-                  :key="revision.id"
-                  :revision="revision"
-                  compact
-                  @select="openRevision(entry, revision)"
-                />
-              </div>
-
-              <div class="flex flex-wrap items-center justify-end gap-2">
-                <span
-                  v-if="entry.revisions.length > ENTRY_PREVIEW"
-                  class="me-auto text-xs text-dimmed"
-                >
-                  +{{ entry.revisions.length - ENTRY_PREVIEW }} more
-                </span>
-                <UButton
-                  v-if="pagePath(entry)"
-                  label="Open History"
-                  icon="hugeicons:time-quarter-pass"
-                  size="sm"
-                  variant="soft"
-                  :to="`${pagePath(entry)}?history=1`"
-                  :ui="{ label: 'block' }"
-                />
-              </div>
-            </div>
-          </section>
+          <SharedRecentChangesList :entries="entries" />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -139,21 +63,13 @@
 </template>
 
 <script setup lang="ts">
-import type { RecentChangesEntry, Revision } from '~/utils/revisions'
+import type { Revision } from '~/utils/revisions'
 
 // Recent Changes (staff only): every revision of the pages in the caller's
-// scope, newest first, by day, with changes to one sculpt, keyset or keyboard
-// grouped together. Diffs and Undo / Restore stay in each page's History
-// slideover, which the entries open through `?history=1&rev=<id>`. Filters
-// live in the URL (`domain`, `source`).
-const ENTRY_PREVIEW = 5
-
-const DOMAIN_ICONS: Record<string, string> = {
-  artisan: 'hugeicons:alien-01',
-  keyboard: 'hugeicons:keyboard',
-  keyset: 'hugeicons:grid-view',
-}
-
+// scope, newest first, with consecutive changes to one sculpt, keyset or
+// keyboard grouped together (`SharedRecentChangesList`), paged by 20 groups.
+// Diffs and Undo / Restore stay in each page's History slideover, which the
+// entries open (`?history=1`). Filters live in the URL (`domain`, `source`).
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -214,7 +130,7 @@ const revisions = ref<Revision[]>([])
 const hasMore = ref(false)
 const loading = ref(false)
 
-const days = computed(() => groupRecentChanges(revisions.value))
+const entries = computed(() => groupRecentChanges(revisions.value))
 
 const load = async (older = false) => {
   loading.value = true
@@ -229,7 +145,7 @@ const load = async (older = false) => {
             ? source.value
             : undefined,
           hide_syncs: source.value === 'no-syncs' ? 1 : undefined,
-          limit: 50,
+          groups: 20,
           before: older ? revisions.value.at(-1)?.id : undefined,
         },
       },
@@ -262,25 +178,4 @@ watch(
   },
   { immediate: true },
 )
-
-const pagePath = (entry: RecentChangesEntry) =>
-  revisionPagePath({ domain: entry.domain, parent_key: entry.parentKey })
-
-const openRevision = (entry: RecentChangesEntry, revision: Revision) => {
-  const path = pagePath(entry)
-
-  if (path) navigateTo(`${path}?history=1&rev=${revision.id}`)
-}
-
-const dayLabel = (date: string) => {
-  const day = new Date(date)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
-
-  if (day.toDateString() === today.toDateString()) return 'Today'
-  if (day.toDateString() === yesterday.toDateString()) return 'Yesterday'
-
-  return formatDate(date)
-}
 </script>

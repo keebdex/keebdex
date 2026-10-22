@@ -99,14 +99,14 @@
         </template>
       </div>
 
-      <!-- All revisions of the page, or of one of its records -->
+      <!-- All revisions of the page, of one of its records, or of one sync run -->
       <div v-else class="space-y-4">
         <div
-          v-if="record"
+          v-if="filterLabel"
           class="flex flex-wrap items-center justify-between gap-2"
         >
           <UBadge
-            :label="record.label"
+            :label="filterLabel"
             icon="hugeicons:filter"
             variant="subtle"
             class="max-w-full"
@@ -131,14 +131,18 @@
           icon="hugeicons:time-quarter-pass"
           title="No Changes Yet"
           :description="
-            record
+            record || run
               ? 'Changes to this record will be listed here as they happen.'
               : 'Changes to this page and its records will be listed here as they happen.'
           "
         />
 
         <template v-else>
-          <SharedRevisionList :entries="entries" @select="select" />
+          <SharedRevisionList
+            :entries="entries"
+            @select="select"
+            @select-run="showRun"
+          />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -238,12 +242,18 @@ const router = useRouter()
 
 const open = ref(false)
 const record = ref<RevisionRecord | null>(null)
+// One sync run, opened from its entry: { id, label }.
+const run = ref<{ id: string; label: string } | null>(null)
 
-const listDescription = computed(() =>
-  record.value
-    ? `Every change to this ${SUGGESTION_ENTITIES[record.value.entityType].label.toLowerCase()}, newest first.`
-    : props.description,
-)
+const filterLabel = computed(() => record.value?.label || run.value?.label)
+
+const listDescription = computed(() => {
+  if (record.value) {
+    return `Every change to this ${SUGGESTION_ENTITIES[record.value.entityType].label.toLowerCase()}, newest first.`
+  }
+
+  return run.value ? 'Every change of this sync run.' : props.description
+})
 const revisions = ref<Revision[]>([])
 const hasMore = ref(false)
 const loading = ref(false)
@@ -262,6 +272,8 @@ const load = async (older = false) => {
           parent_key: props.parentKey,
           entity_type: record.value?.entityType,
           entity_id: record.value?.entityId,
+          run_id: run.value?.id,
+          groups: 20,
           before: older ? revisions.value.at(-1)?.id : undefined,
         },
       },
@@ -292,11 +304,16 @@ const start = () => {
   load()
 }
 
-/** Opens the history, of the whole page or of one record. */
+/** Opens the history, of the whole page, one record, or one sync run. */
 const show = (
-  options: { record?: RevisionRecord | null; revisionId?: number } = {},
+  options: {
+    record?: RevisionRecord | null
+    run?: { id: string; label: string } | null
+    revisionId?: number
+  } = {},
 ) => {
   record.value = options.record ?? null
+  run.value = options.run ?? null
   pendingRevision.value = options.revisionId ?? null
 
   if (open.value) start()
@@ -356,6 +373,20 @@ const selectRevision = (id: number) => {
 }
 
 const select = (revision: Revision) => selectRevision(revision.id)
+
+// A sync run's entry lists its changes, one per entry.
+const showRun = (revisions: Revision[]) => {
+  const runId = revisions[0]?.run_id
+
+  if (runId) {
+    show({
+      run: {
+        id: runId,
+        label: `${revisionAuthor(revisions[0]!)} · ${countLabel(revisions.length, 'change')}`,
+      },
+    })
+  }
+}
 
 watch(selectedId, (id) => {
   if (!id) detail.value = null
