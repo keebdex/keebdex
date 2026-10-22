@@ -27,8 +27,9 @@ const MAX_BATCHES = 10
  * groups per page, and `before` (a revision id, the last one returned) for
  * the next. RLS keeps them to the caller's scope.
  * - `domain` + `parent_key`: History of a sculpt, keyset or keyboard page,
- *   the parent record and its children, grouped by sync run; `entity_type` +
- *   `entity_id` narrow it to one record, `run_id` to one sync run.
+ *   the parent record and its children, one revision per group;
+ *   `entity_type` + `entity_id` narrow it to one record, `run_id` to one sync
+ *   run.
  * - No `parent_key`: Recent Changes, every page of the caller's scope (or one
  *   `domain`), grouped by page, each revision with its page's name
  *   (`parent_name`).
@@ -93,7 +94,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const size = Math.min(Math.max(Number(groups) || 20, 1), MAX_GROUPS)
-  const grouping: RevisionGrouping = parent_key ? 'run' : 'page'
+  const grouping: RevisionGrouping = parent_key ? 'revision' : 'page'
 
   const batch = (below?: number) => {
     let query = revisionsTable(client)

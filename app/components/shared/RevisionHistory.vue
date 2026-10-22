@@ -9,50 +9,40 @@
   <USlideover
     v-model:open="open"
     :title="detail ? detailTitle : 'History'"
-    :description="detail ? detailDescription : listDescription"
     :ui="{ content: 'sm:max-w-2xl' }"
   >
+    <!-- A revision's header says who made it and when -->
+    <template #description>
+      <span v-if="detail">
+        <SharedRevisionAuthors :revisions="[detail]" />
+        {{ revisionVerb(detail) }} ·
+        <time
+          :datetime="detail.created_at"
+          :title="formatTimeAgo(detail.created_at)"
+        >
+          {{ dateTime.format(new Date(detail.created_at)) }}
+        </time>
+        <template v-if="detail.suggestion_id">
+          ·
+          <ULink
+            :to="`/${detail.domain}/submissions?view=edits&status=Approved`"
+            class="text-primary hover:underline"
+          >
+            View Suggestion
+          </ULink>
+        </template>
+      </span>
+      <template v-else-if="!selectedId">{{ listDescription }}</template>
+    </template>
+
     <template #body>
       <!-- One revision: what it changed, or how it compares with now -->
       <div v-if="selectedId" class="space-y-4">
-        <UButton
-          icon="hugeicons:arrow-left-02"
-          label="All Changes"
-          variant="link"
-          class="px-0"
-          :ui="{ label: 'block' }"
-          @click="selectedId = null"
-        />
-
         <div v-if="detailLoading && !detail" class="space-y-3">
           <USkeleton v-for="i in 3" :key="i" class="h-16 w-full" />
         </div>
 
         <template v-else-if="detail">
-          <div class="flex flex-wrap items-center gap-2 text-sm text-muted">
-            <UAvatar
-              v-if="detail.actor_avatar"
-              :src="detail.actor_avatar"
-              :alt="detail.actor_name || undefined"
-              size="2xs"
-            />
-            <UIcon v-else :name="revisionIcon(detail)" class="size-4" />
-            <span>{{ revisionAuthor(detail) }}</span>
-            <span>·</span>
-            <time :datetime="detail.created_at">
-              {{ formatDate(detail.created_at) }}
-            </time>
-            <UButton
-              v-if="detail.suggestion_id"
-              label="View Suggestion"
-              :to="`/${detail.domain}/submissions?view=edits&status=Approved`"
-              variant="link"
-              size="sm"
-              class="px-0"
-              :ui="{ label: 'block' }"
-            />
-          </div>
-
           <UAlert
             v-if="!detail.current"
             icon="hugeicons:alert-02"
@@ -99,14 +89,14 @@
         </template>
       </div>
 
-      <!-- All revisions of the page, of one of its records, or of one sync run -->
+      <!-- All revisions of the page, or of one of its records -->
       <div v-else class="space-y-4">
         <div
-          v-if="filterLabel"
+          v-if="record"
           class="flex flex-wrap items-center justify-between gap-2"
         >
           <UBadge
-            :label="filterLabel"
+            :label="record.label"
             icon="hugeicons:filter"
             variant="subtle"
             class="max-w-full"
@@ -131,18 +121,14 @@
           icon="hugeicons:time-quarter-pass"
           title="No Changes Yet"
           :description="
-            record || run
+            record
               ? 'Changes to this record will be listed here as they happen.'
               : 'Changes to this page and its records will be listed here as they happen.'
           "
         />
 
         <template v-else>
-          <SharedRevisionList
-            :entries="entries"
-            @select="select"
-            @select-run="showRun"
-          />
+          <SharedRevisionList :revisions="revisions" @select="select" />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -169,22 +155,31 @@
       />
     </template>
 
-    <template v-else-if="detail?.current" #footer>
-      <div class="flex flex-wrap justify-end gap-2 w-full">
+    <!-- A revision: back to the list on the left, its actions on the right -->
+    <template v-else #footer>
+      <div class="flex w-full flex-wrap items-center justify-between gap-2">
         <UButton
-          v-if="detail.action === 'update'"
-          label="Undo"
-          icon="hugeicons:undo-02"
-          :disabled="!undoFields.length || !!conflicts.length"
-          @click="confirm('undo')"
+          icon="hugeicons:arrow-left-02"
+          label="All Changes"
+          @click="selectedId = null"
         />
-        <UButton
-          label="Restore"
-          icon="hugeicons:arrow-turn-backward"
-          color="primary"
-          :disabled="!restoreFields.length"
-          @click="confirm('restore')"
-        />
+
+        <div v-if="detail?.current" class="flex flex-wrap gap-2">
+          <UButton
+            v-if="detail.action === 'update'"
+            label="Undo"
+            icon="hugeicons:undo-02"
+            :disabled="!undoFields.length || !!conflicts.length"
+            @click="confirm('undo')"
+          />
+          <UButton
+            label="Restore"
+            icon="hugeicons:arrow-turn-backward"
+            color="primary"
+            :disabled="!restoreFields.length"
+            @click="confirm('restore')"
+          />
+        </div>
       </div>
     </template>
   </USlideover>
@@ -242,23 +237,16 @@ const router = useRouter()
 
 const open = ref(false)
 const record = ref<RevisionRecord | null>(null)
-// One sync run, opened from its entry: { id, label }.
-const run = ref<{ id: string; label: string } | null>(null)
-
-const filterLabel = computed(() => record.value?.label || run.value?.label)
-
 const listDescription = computed(() => {
   if (record.value) {
     return `Every change to this ${SUGGESTION_ENTITIES[record.value.entityType].label.toLowerCase()}, newest first.`
   }
 
-  return run.value ? 'Every change of this sync run.' : props.description
+  return props.description
 })
 const revisions = ref<Revision[]>([])
 const hasMore = ref(false)
 const loading = ref(false)
-
-const entries = computed(() => groupRevisions(revisions.value))
 
 const load = async (older = false) => {
   loading.value = true
@@ -272,7 +260,6 @@ const load = async (older = false) => {
           parent_key: props.parentKey,
           entity_type: record.value?.entityType,
           entity_id: record.value?.entityId,
-          run_id: run.value?.id,
           groups: 20,
           before: older ? revisions.value.at(-1)?.id : undefined,
         },
@@ -304,16 +291,11 @@ const start = () => {
   load()
 }
 
-/** Opens the history, of the whole page, one record, or one sync run. */
+/** Opens the history, of the whole page or one record. */
 const show = (
-  options: {
-    record?: RevisionRecord | null
-    run?: { id: string; label: string } | null
-    revisionId?: number
-  } = {},
+  options: { record?: RevisionRecord | null; revisionId?: number } = {},
 ) => {
   record.value = options.record ?? null
-  run.value = options.run ?? null
   pendingRevision.value = options.revisionId ?? null
 
   if (open.value) start()
@@ -374,20 +356,6 @@ const selectRevision = (id: number) => {
 
 const select = (revision: Revision) => selectRevision(revision.id)
 
-// A sync run's entry lists its changes, one per entry.
-const showRun = (revisions: Revision[]) => {
-  const runId = revisions[0]?.run_id
-
-  if (runId) {
-    show({
-      run: {
-        id: runId,
-        label: `${revisionAuthor(revisions[0]!)} · ${countLabel(revisions.length, 'change')}`,
-      },
-    })
-  }
-}
-
 watch(selectedId, (id) => {
   if (!id) detail.value = null
 })
@@ -407,11 +375,11 @@ const detailTitle = computed(() =>
     : 'Revision',
 )
 
-const detailDescription = computed(() =>
-  detail.value
-    ? `${REVISION_ACTION_LABELS[detail.value.action]} ${revisionEntityLabel(detail.value).toLowerCase()}`
-    : undefined,
-)
+// When a revision was made, to the minute.
+const dateTime = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
 
 const changeDiffs = computed(() =>
   detail.value ? revisionChangeDiff(detail.value) : [],

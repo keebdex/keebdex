@@ -20,18 +20,11 @@
           </div>
 
           <p class="mt-1 text-xs text-muted">
-            <UAvatar
-              v-bind="revisionAvatar(entry.revisions[0]!)"
-              size="3xs"
-              class="me-1 align-middle"
-            />
-            <span class="font-medium text-toned">
-              {{ revisionAuthors(entry.revisions) }}
-            </span>
+            <SharedRevisionAuthors :revisions="entry.revisions" />
             made {{ countLabel(entry.revisions.length, 'change') }}
             ·
             <time :datetime="entry.date" :title="formatDate(entry.date)">
-              {{ formatTimeAgo(new Date(entry.date)) }}
+              {{ formatTimeAgo(entry.date) }}
             </time>
           </p>
         </div>

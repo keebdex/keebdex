@@ -84,7 +84,7 @@ export const revisionError = (error: {
 
 /**
  * Adds `actor_name` / `actor_avatar` to each revision, and for applied
- * suggestions `suggested_by` with the submitter's name. Names come from
+ * suggestions `suggested_by` with the submitter's name and avatar. Names come from
  * `revision_actors()`, since staff other than admins cannot read other users.
  */
 export const withRevisionActors = async (
@@ -143,7 +143,11 @@ export const withRevisionActors = async (
       actor_name: actor?.name ?? null,
       actor_avatar: actor?.avatar ?? null,
       suggested_by: submitter
-        ? { id: submitter, name: actors.get(submitter)?.name ?? null }
+        ? {
+            id: submitter,
+            name: actors.get(submitter)?.name ?? null,
+            avatar: actors.get(submitter)?.avatar ?? null,
+          }
         : null,
     }
   })
