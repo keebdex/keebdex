@@ -18,8 +18,13 @@ type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 export const revisionsTable = (client: SupabaseClient) =>
   (client as any).from('record_revisions')
 
+// `record_name` / `variant_name`: the record's own name at that revision,
+// read from the snapshot, so lists under one page can drop the page's name.
 export const REVISION_COLUMNS =
-  'id, created_at, entity_type, entity_id, domain, scope, parent_key, label, action, changes, source, actor, suggestion_id, reverts_revision, run_id'
+  'id, created_at, entity_type, entity_id, domain, scope, parent_key, label, action, changes, source, actor, suggestion_id, reverts_revision, run_id, record_name:snapshot->>name, variant_name:snapshot->>variant_name'
+
+// Lists show no fields, so they leave out `changes` too.
+export const REVISION_LIST_COLUMNS = REVISION_COLUMNS.replace(' changes,', '')
 
 /**
  * Revision history is for staff only. RLS narrows what they read to their
@@ -79,7 +84,7 @@ export const revisionError = (error: {
 
 /**
  * Adds `actor_name` / `actor_avatar` to each revision, and for applied
- * suggestions `suggested_by` with the submitter's name. Names come from
+ * suggestions `suggested_by` with the submitter's name and avatar. Names come from
  * `revision_actors()`, since staff other than admins cannot read other users.
  */
 export const withRevisionActors = async (
@@ -138,7 +143,11 @@ export const withRevisionActors = async (
       actor_name: actor?.name ?? null,
       actor_avatar: actor?.avatar ?? null,
       suggested_by: submitter
-        ? { id: submitter, name: actors.get(submitter)?.name ?? null }
+        ? {
+            id: submitter,
+            name: actors.get(submitter)?.name ?? null,
+            avatar: actors.get(submitter)?.avatar ?? null,
+          }
         : null,
     }
   })
@@ -179,7 +188,7 @@ export const withParentNames = async (
       }
 
       for (const parent of data || []) {
-        names.set(`${domain}:${parent[lookup.key]}`, parentName(domain, parent))
+        names.set(`${domain}:${parent[lookup.key]}`, parentName(parent))
       }
     }),
   )
