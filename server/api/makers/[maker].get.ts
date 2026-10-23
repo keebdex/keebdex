@@ -84,11 +84,10 @@ export default defineEventHandler(async (event) => {
   const sculpts = profile.sculpts.map((sculpt: any) => {
     sculpt.total_colorways = sculpt.total_colorways[0]?.count
 
-    const previewColorways = sculpt.colorways || []
-
-    if (previewColorways.length > 0) {
-      sculpt.img = getLatestColorway(previewColorways)?.img ?? sculpt.img
-    }
+    // The sculpt card's cover: the latest of its newest published colorways
+    // that has an image
+    const withImage = (sculpt.colorways || []).filter((c: any) => c.img)
+    sculpt.img = getLatestColorway(withImage)?.img ?? null
 
     delete sculpt.colorways
 
