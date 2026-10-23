@@ -52,7 +52,8 @@
     <KeebSearch :routes="groups" />
 
     <!-- Panels default to min-h-svh; min-h-0 lets the page shrink under the banner. -->
-    <div class="flex flex-col w-full *:min-h-0">
+    <!-- flex-1 min-w-0 takes the width left by the sidebar (w-full overflowed by it). -->
+    <div class="flex flex-1 flex-col min-w-0 *:min-h-0">
       <UBanner
         v-if="banner"
         :key="banner.key"

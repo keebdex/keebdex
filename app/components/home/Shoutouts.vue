@@ -1,32 +1,34 @@
 <template>
-  <HomeSection
+  <UPageSection
     v-if="testimonials.length"
+    headline="Shoutouts"
     title="What people say"
+    description="Collectors and makers on how they use Keebdex."
     :links="[
       {
         to: '/shoutouts',
         label: 'All Shoutouts',
         variant: 'ghost',
         trailingIcon: 'solar:map-arrow-right-bold-duotone',
+        ui: { label: 'block' },
       },
     ]"
+    :ui="{ container: 'overflow-hidden', body: 'flex flex-col gap-6' }"
   >
-    <UMarquee
+    <HomeMarquee
       v-for="(row, index) in rows"
       :key="index"
-      pause-on-hover
+      :items="row"
       :reverse="index === 1"
-      :repeat="isMobile ? 2 : 4"
-      class="py-3 [--duration:28s] [--gap:--spacing(8)]"
+      item-class="w-80"
+      duration="80s"
+      layout="center"
     >
-      <ShoutoutCard
-        v-for="item in row"
-        :key="item.id"
-        :item="item"
-        class="w-[320px] shrink-0"
-      />
-    </UMarquee>
-  </HomeSection>
+      <template #default="{ item }">
+        <ShoutoutCard :item="item" />
+      </template>
+    </HomeMarquee>
+  </UPageSection>
 </template>
 
 <script setup>
@@ -46,7 +48,8 @@ const { data } = await useAsyncData(
 
 const testimonials = computed(() => data.value?.data || [])
 
-// Two rows scrolling in opposite directions once there are enough shoutouts.
+// Two rows scrolling in opposite directions once there are enough shoutouts;
+// up to three sit still in a grid (HomeMarquee).
 const rows = computed(() => {
   const items = testimonials.value
   if (items.length < 6) return [items]
