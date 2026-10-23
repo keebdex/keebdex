@@ -19,7 +19,7 @@ authors:
 ### 🐛 Bug Fixes
 
 - Colorways, keysets, keyboards, releases, and variants submitted by the community no longer appear on catalog pages, in counts, in search, or in the home page lists until a moderator approves them. Keysets added directly by staff no longer go missing from profile and Group Buy lists.
-- On computers, pages no longer run past the right edge of the window next to the sidebar, which used to cut off the end of toolbars and the last column of grids and push the home page off center.
+- On computers, pages no longer run past the right edge of the window, which cut off the end of toolbars and the last column of grids and pushed the home page off center.
 
 ### 🚀 Improvements
 
@@ -27,5 +27,6 @@ authors:
 - **Image previews in forms**: an existing or just-uploaded image appears in the form with _Replace_ and _Remove_ buttons instead of an empty upload box.
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
 - **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. New addresses leave out punctuation such as apostrophes. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
-- **A livelier home page**: _Happening Now_ shows live group buys with how many days are left, highlighted in the last three days, and short lists of makers, keysets, or shoutouts sit still instead of scrolling past as repeats. Shoutouts are easier to read, with the quote first and its author below, and the welcome now leads straight in with _Start Collecting_ and _Search Keebdex_, taking less room on phones so the latest releases show without scrolling.
+- **A livelier home page**: the welcome leads straight in with _Start Collecting_ and _Search Keebdex_, and on phones it takes less room so the latest releases show without scrolling. _Happening Now_ shows how many days each live group buy has left, short lists sit still instead of scrolling past as repeats, and shoutouts put the quote first with its author below.
+- **Your role on phones**: the account menu now shows your role at the top on phones, where the account button is just your picture.
 - The _Unread_ filter on the notifications page loads your unread notifications directly, so older unread ones show up even when many newer ones are already read.
