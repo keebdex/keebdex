@@ -5,7 +5,7 @@
   >
     <!-- HEADER SECTION -->
     <div
-      class="font-cinzel flex shrink-0 items-center justify-between rounded border-2 border-[#5a3d11] bg-[linear-gradient(to_bottom,#fce8ad,#d1a441,#edd17d)] px-2 py-1 shadow-[inset_0_0_4px_rgba(255,255,255,0.8),0_2px_4px_rgba(0,0,0,0.4)]"
+      class="font-serif-upper flex shrink-0 items-center justify-between rounded border-2 border-[#5a3d11] bg-[linear-gradient(to_bottom,#fce8ad,#d1a441,#edd17d)] px-2 py-1 shadow-[inset_0_0_4px_rgba(255,255,255,0.8),0_2px_4px_rgba(0,0,0,0.4)]"
     >
       <span
         class="min-w-0 flex-1 truncate text-[1.05rem] font-black tracking-[-0.02em] text-[#1a0f00] [text-shadow:0.5px_0.5px_0px_rgba(255,255,255,0.8)]"
@@ -44,14 +44,14 @@
     >
       <div>
         <div
-          class="font-cinzel mb-1 shrink-0 border-b border-[#a38243] pb-0.5 text-[0.75rem] font-extrabold text-[#2b1a03]"
+          class="font-serif-upper mb-1 shrink-0 border-b border-[#a38243] pb-0.5 text-[0.75rem] font-extrabold text-[#2b1a03]"
         >
           [{{ subtypeDisplay }}]
         </div>
 
         <!-- Description Text with line clamping -->
         <p
-          class="font-newsreader line-clamp-5 text-[0.8rem] leading-[1.3] break-words text-[#111827]"
+          class="font-serif line-clamp-5 text-[0.8rem] leading-[1.3] break-words text-[#111827]"
         >
           {{ colorway.description }}
         </p>
@@ -59,7 +59,7 @@
 
       <!-- STATS FOOTER -->
       <div
-        class="font-cinzel mt-1 flex items-center justify-between border-t border-amber-900/20 pt-1 text-xs font-bold text-amber-950"
+        class="font-serif-upper mt-1 flex items-center justify-between border-t border-amber-900/20 pt-1 text-xs font-bold text-amber-950"
       >
         <span>
           R. Price /
