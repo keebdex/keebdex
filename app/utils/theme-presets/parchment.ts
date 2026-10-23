@@ -18,7 +18,6 @@ export default {
     root: {
       '--ui-radius': '0.375rem',
       //   '--font-sans': "'DM Sans', sans-serif",
-      '--font-serif': "'Source Serif 4', serif",
       ...palette('clay', {
         50: '#fcf5f1',
         100: '#f7e9e0',

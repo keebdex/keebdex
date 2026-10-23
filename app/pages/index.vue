@@ -11,38 +11,55 @@
     <template #body>
       <UPageHero
         :description="$config.public.site.description"
-        :links="[
-          {
-            label: 'About Keebdex',
-            to: '/about',
-            icon: 'solar:telescope-bold-duotone',
-            ui: {
-              label: 'block',
-            },
-          },
-          {
-            label: 'Why choose Keebdex?',
-            to: '/why-choose-keebdex',
-            icon: 'solar:star-fall-bold-duotone',
-            color: 'primary',
-            ui: {
-              label: 'block',
-            },
-          },
-        ]"
-        :ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
+        :ui="{
+          container: 'py-10 sm:py-16 lg:py-20',
+          description: 'text-base sm:text-xl/8',
+          footer: 'mt-6 sm:mt-10',
+        }"
       >
         <template #title>
-          Welcome to <AppWordmark size="2xl" inline />
+          Welcome to
+          <AppWordmark :size="$device.isMobile ? 'xl' : '2xl'" inline />
+        </template>
+
+        <template #links>
+          <!-- Guests land on the collection sign-in page. -->
+          <UButton
+            :label="authenticated ? 'My Collection' : 'Start Collecting'"
+            to="/collection"
+            icon="hugeicons:collections-bookmark"
+            color="primary"
+            size="xl"
+            :ui="{ label: 'block' }"
+          />
+          <UDashboardSearchButton
+            label="Search Keebdex"
+            size="xl"
+            variant="soft"
+            :ui="{ label: 'block' }"
+          />
+
+          <div class="flex basis-full justify-center">
+            <UButton
+              label="Why choose Keebdex?"
+              to="/why-choose-keebdex"
+              variant="link"
+              trailing-icon="hugeicons:arrow-right-02"
+              :ui="{ label: 'block' }"
+            />
+          </div>
         </template>
       </UPageHero>
 
-      <FreshReleasesMarquee />
+      <HomeFreshReleases />
 
-      <ArtisanCollectorGuide />
+      <HomeArtisanGuides />
 
-      <ShoutoutsMarquee />
+      <HomeShoutouts />
     </template>
   </UDashboardPanel>
 </template>
 
+<script setup>
+const { authenticated } = storeToRefs(useUserStore())
+</script>

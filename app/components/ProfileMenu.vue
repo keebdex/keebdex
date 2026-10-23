@@ -6,26 +6,16 @@
       content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
     }"
   >
-    <div
+    <UUser
       v-if="authenticated"
-      class="cursor-pointer w-full flex flex-row items-center justify-between"
-    >
-      <UUser
-        :name="collapsed ? undefined : user.name"
-        :description="collapsed ? undefined : roleMap[role]?.label"
-        :avatar="{
-          src: user.picture,
-          alt: user.name,
-        }"
-      />
-
-      <UIcon
-        v-if="role"
-        :name="roleMap[role].icon"
-        class="text-xl"
-        :class="roleMap[role]?.class"
-      />
-    </div>
+      :name="collapsed ? undefined : user.name"
+      :description="collapsed ? undefined : roleMap[role]?.label"
+      :avatar="{
+        src: user.picture,
+        alt: user.name,
+      }"
+      class="cursor-pointer w-full"
+    />
     <UButton
       v-else
       :label="collapsed ? undefined : 'Sign In'"
@@ -130,10 +120,9 @@ const items = computed(() => {
           {
             type: 'label',
             label: user.value.name,
-            avatar: {
-              src: user.value.picture,
-              alt: user.value.name,
-            },
+            // The role, when the trigger shows only the avatar (phones and the
+            // collapsed sidebar); otherwise the trigger already shows it
+            description: collapsed ? roleMap[role.value]?.label : undefined,
           },
         ],
         [

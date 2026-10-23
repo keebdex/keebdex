@@ -86,7 +86,7 @@ export default defineNuxtConfig({
       { name: 'Dosis', weights: [500, 700, 800], global: true },
       { name: 'Cinzel', global: true },
       { name: 'Outfit', global: true },
-      { name: 'Source Serif 4', global: true },
+      { name: 'Cardo', global: true },
     ],
   },
 
@@ -213,11 +213,12 @@ export default defineNuxtConfig({
         '@internationalized/date',
         '@vue/devtools-core',
         '@vue/devtools-kit',
+        '@vueuse/core',
+        'es-toolkit/compat',
         'modern-screenshot',
         'papaparse', // CJS
         'vuedraggable', // CJS
         'zod',
-        '@vueuse/core',
       ],
     },
   },

@@ -14,6 +14,11 @@ const relativeTime = new Intl.RelativeTimeFormat(LOCALE, { numeric: 'auto' })
 
 type DateInput = string | Date
 
+// ICU versions differ in the spaces they put around range dashes and before
+// AM/PM (thin, narrow no-break, or plain), so Node and the browser would
+// render different text and break hydration.
+const plainSpaces = (text: string) => text.replace(/[\u2009\u202f]/g, ' ')
+
 const asDate = (date: DateInput) =>
   date instanceof Date ? date : new Date(date)
 
@@ -21,11 +26,11 @@ export const toISODate = (date: CalendarDate) => date.toString()
 
 /** `Oct 22, 2026`. */
 export const formatDate = (date: DateInput | null | undefined) =>
-  date ? dateFormatter.format(asDate(date)) : ''
+  date ? plainSpaces(dateFormatter.format(asDate(date))) : ''
 
 /** `Oct 22, 2026 at 4:36 PM`. */
 export const formatDateTime = (date: DateInput | null | undefined) =>
-  date ? dateTimeFormatter.format(asDate(date)) : ''
+  date ? plainSpaces(dateTimeFormatter.format(asDate(date))) : ''
 
 /** `Oct 1 – 22, 2026`. */
 export const formatDateRange = (
@@ -33,7 +38,7 @@ export const formatDateRange = (
   toDate: DateInput | null | undefined,
 ) =>
   fromDate && toDate
-    ? dateFormatter.formatRange(asDate(fromDate), asDate(toDate))
+    ? plainSpaces(dateFormatter.formatRange(asDate(fromDate), asDate(toDate)))
     : ''
 
 const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [

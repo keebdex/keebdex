@@ -1,13 +1,15 @@
 <template>
   <UPageSection
     title="ArtisanCollector's Guides"
-    description="An overview of the Artisan Collector guides and recommended reading sequence for newcomers"
+    description="An overview of the Artisan Collector guides and recommended reading sequence for newcomers."
     orientation="horizontal"
     :features="features"
   >
     <NuxtImg
       src="https://artisancollector.com/wp-content/uploads/GuideFeature_Roadmap.png"
-      alt="Artisan Collector's Guides"
+      alt="ArtisanCollector's collecting roadmap"
+      loading="lazy"
+      decoding="async"
       class="rounded-lg object-cover w-full"
     />
   </UPageSection>
@@ -15,18 +17,10 @@
 
 <script setup>
 const features = [
-  // {
-  //   title: 'Start Here: Collecting Roadmap',
-  //   description:
-  //     'An overview of the Artisan Collector guides and recommended reading sequence for newcomers',
-  //   to: 'https://artisancollector.com/guides/start/',
-  //   target: '_blank',
-  //   icon: 'solar:map-bold-duotone',
-  // },
   {
     title: 'What are Artisan Keycaps?',
     description:
-      'The fundamentals of artisan keycaps, the various stems, profiles, types, how they are typically made, and where to learn more',
+      'The fundamentals of artisan keycaps, the various stems, profiles, types, how they are typically made, and where to learn more.',
     to: 'https://artisancollector.com/guides/what-are-artisan-keycaps/',
     target: '_blank',
     icon: 'solar:point-on-map-bold-duotone',
@@ -42,7 +36,7 @@ const features = [
   {
     title: 'The Three Artisan Collector Resources',
     description:
-      'The three main resources that impact your ability to collect artisans, and the relationship between them',
+      'The three main resources that impact your ability to collect artisans, and the relationship between them.',
     to: 'https://artisancollector.com/guides/3-artisan-collecting-resources/',
     target: '_blank',
     icon: 'solar:widget-add-bold-duotone',
