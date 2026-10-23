@@ -30,10 +30,15 @@
             },
           },
         ]"
-        :ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
+        :ui="{
+          container: 'py-10 sm:py-16 lg:py-20',
+          description: 'text-base sm:text-xl/8',
+          links: 'mt-6 sm:mt-10',
+        }"
       >
         <template #title>
-          Welcome to <AppWordmark size="2xl" inline />
+          Welcome to
+          <AppWordmark :size="$device.isMobile ? 'xl' : '2xl'" inline />
         </template>
       </UPageHero>
 
@@ -45,4 +50,3 @@
     </template>
   </UDashboardPanel>
 </template>
-

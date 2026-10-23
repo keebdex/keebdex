@@ -3,16 +3,6 @@
     title="ArtisanCollector's Guides"
     description="An overview of the Artisan Collector guides and recommended reading sequence for newcomers."
     orientation="horizontal"
-    :links="[
-      {
-        label: 'Start Here',
-        to: 'https://artisancollector.com/guides/start/',
-        target: '_blank',
-        icon: 'solar:map-bold-duotone',
-        color: 'primary',
-        ui: { label: 'block' },
-      },
-    ]"
     :features="features"
   >
     <NuxtImg
