@@ -8,6 +8,8 @@
     <NuxtImg
       src="https://artisancollector.com/wp-content/uploads/GuideFeature_Roadmap.png"
       alt="Artisan Collector's Guides"
+      loading="lazy"
+      decoding="async"
       class="rounded-lg object-cover w-full"
     />
   </UPageSection>

@@ -37,11 +37,11 @@
         </template>
       </UPageHero>
 
-      <FreshReleasesMarquee />
+      <HomeFreshReleases />
 
-      <ArtisanCollectorGuide />
+      <HomeArtisanGuides />
 
-      <ShoutoutsMarquee />
+      <HomeShoutouts />
     </template>
   </UDashboardPanel>
 </template>

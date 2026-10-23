@@ -1,20 +1,5 @@
 <template>
-  <UPageSection
-    v-if="totalFreshReleases"
-    :ui="{
-      root: 'rounded-2xl border border-default bg-elevated/30 p-3 sm:p-4',
-      container: '!py-8 !gap-6',
-    }"
-  >
-    <UPageHeader
-      title="Happening Now"
-      :ui="{
-        root: 'pb-4',
-        title:
-          'text-base sm:text-md font-semibold uppercase tracking-[0.24em] text-dimmed',
-      }"
-    />
-
+  <HomeSection v-if="totalFreshReleases" title="Happening Now">
     <div v-if="artisanDrops.length">
       <UPageHeader
         title="Artisan Makers with New Releases"
@@ -36,7 +21,7 @@
 
       <UMarquee
         pause-on-hover
-        :repeat="$device.isMobile ? 2 : 4"
+        :repeat="isMobile ? 2 : 4"
         class="py-3 [--duration:28s] [--gap:--spacing(8)]"
       >
         <UPageCard
@@ -91,7 +76,7 @@
       <UMarquee
         pause-on-hover
         reverse
-        :repeat="$device.isMobile ? 2 : 4"
+        :repeat="isMobile ? 2 : 4"
         class="py-3 [--duration:28s] [--gap:--spacing(8)]"
       >
         <UPageCard
@@ -133,25 +118,19 @@
         </UPageCard>
       </UMarquee>
     </div>
-  </UPageSection>
+  </HomeSection>
 </template>
 
 <script setup>
+const empty = () => ({ makers: [], keysets: [] })
+
 const { data } = await useAsyncData(
   'home-fresh-releases',
-  () =>
-    $fetch('/api/statistics').catch(() => ({
-      makers: [],
-      keysets: [],
-    })),
-  {
-    default: () => ({
-      makers: [],
-      keysets: [],
-    }),
-  },
+  () => $fetch('/api/statistics').catch(empty),
+  { default: empty },
 )
 
+const { isMobile } = useDevice()
 const {
   public: { imgUrl },
 } = useRuntimeConfig()
