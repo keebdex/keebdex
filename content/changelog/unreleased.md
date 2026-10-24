@@ -12,7 +12,7 @@ authors:
 
 ### ✨ What's New
 
-- **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and records without a picture show _Add Photo_ or _Add Cover_. Moderators review each suggestion in the new _Edits_ tab of the Submissions pages, side by side with the current details, and can apply only some of the changes, adjust them first, or reject them with a quick reply. When a detail changed after it was suggested, moderators see who changed it and when before deciding, and when several people suggest different values for the same detail, they see them side by side. A count next to each module's _Submissions_ link shows moderators how many submissions and suggestions are waiting for them, without a notification for every new one.
+- **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and records without a picture show _Add Photo_ or _Add Cover_. Moderators review suggestions in the new _Edits_ tab of the Submissions pages, apply all or only some of the changes, and see when a detail has changed since it was suggested or when someone else suggested a different value. A count next to each _Submissions_ link shows them what is waiting, without a notification for every new one.
 - **Change history**: staff can open a _History_ panel on sculpt, keyset, and keyboard pages, or on a single colorway, kit, release, or variant, to see every change, who made it, and what it looked like before. They can undo an edit or restore an earlier version, even one with a photo that was replaced long ago, and the new _Recent Changes_ page shows what changed across every page they manage.
 - **Stem types for colorways**: colorway forms let you pick one or more stem types, such as MX, Alps, or Topre, so you can tell at a glance whether a cap fits your board.
 
@@ -29,6 +29,7 @@ authors:
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
 - **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. New addresses leave out punctuation such as apostrophes. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
 - **A livelier home page**: the welcome leads straight in with _Start Collecting_ and _Search Keebdex_, and on phones it takes less room so the latest releases show without scrolling. _Happening Now_ shows how many days each live group buy has left, short lists sit still instead of scrolling past as repeats, and shoutouts put the quote first with its author below.
+- **Order graphs that last**: order graphs and order history charts on keyset pages are now stored on Keebdex like keyset covers, so they keep showing after the image host they were shared on removes them.
 - **Your role on phones**: the account menu now shows your role at the top on phones, where the account button is just your picture.
 
 ### ⚠️ Breaking Changes
