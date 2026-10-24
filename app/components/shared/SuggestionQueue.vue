@@ -109,6 +109,7 @@
     :approving="approving"
     @approve="approve"
     @reject="(suggestion) => (rejectTarget = suggestion)"
+    @open="(suggestion) => (selected = suggestion)"
   />
 
   <SharedNoteModal
