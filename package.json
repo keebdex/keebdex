@@ -79,6 +79,7 @@
     "lint-staged": "^17.6.0",
     "nuxt": "4.6.2",
     "nuxt-og-image": "^7.0.7",
+    "nuxtseo-devtools-host": "^1.0.1",
     "prettier": "^3.9.10"
   }
 }

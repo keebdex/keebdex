@@ -23,6 +23,14 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    // Nitro detects Workers Builds by itself, but nuxt-og-image reads the
+    // preset from this config (or NITRO_PRESET) and otherwise falls back to
+    // node-server: OG images then fetch their fonts through Nitro, which
+    // does not serve public assets on Workers, instead of the ASSETS binding,
+    // and render every font as the default sans-serif
+    preset: isCloudflare
+      ? process.env.NITRO_PRESET || 'cloudflare_module'
+      : undefined,
     rollupConfig: {
       // Exclude papaparse from the server bundle
       external: ['papaparse'],
