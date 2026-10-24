@@ -52,48 +52,56 @@ export const getReviewQueueContext = async (event: H3Event) => {
   }
 }
 
+type GroupedQueue = {
+  parentTable: 'keysets' | 'keyboards'
+  childTable: 'keyset_kits' | 'keyboard_variants'
+  groupKey: 'profile_keyset_id' | 'brand_keyboard_slug'
+  // Assignment column, present on both the parent and child tables.
+  scopeColumn: 'profile_keyset_id' | 'brand_slug'
+}
+
+export const KEYSET_QUEUE: GroupedQueue = {
+  parentTable: 'keysets',
+  childTable: 'keyset_kits',
+  groupKey: 'profile_keyset_id',
+  scopeColumn: 'profile_keyset_id',
+}
+
+export const KEYBOARD_QUEUE: GroupedQueue = {
+  parentTable: 'keyboards',
+  childTable: 'keyboard_variants',
+  groupKey: 'brand_keyboard_slug',
+  scopeColumn: 'brand_slug',
+}
+
 /**
- * Lists a review queue grouped by parent (keyset > kits, keyboard >
- * variants), paginated by group and ordered by each group's most recently
- * submitted child. A child's status is its own review_status, falling back to
- * its parent's for children created under a Pending parent before they carried
- * their own status. Children added directly by staff have a null status under
- * an official parent and never enter the queue.
+ * The children of a grouped queue with `status`: those with that status of
+ * their own, plus status-less children of a parent with that status. Returns
+ * a request builder for the child table, narrowed to the actor's scope (or to
+ * their own submissions for non-staff).
  */
-export const listGroupedSubmissions = async (
-  event: H3Event,
+const groupedChildRequest = async (
+  client: any,
+  { parentTable, childTable, groupKey, scopeColumn }: GroupedQueue,
   {
-    parentTable,
-    childTable,
-    groupKey,
-    scopeColumn,
-    select,
-    parentName,
-    childrenName,
-    parentOf,
+    isModerator,
+    userId,
+    scope,
+    status,
   }: {
-    parentTable: 'keysets' | 'keyboards'
-    childTable: 'keyset_kits' | 'keyboard_variants'
-    groupKey: 'profile_keyset_id' | 'brand_keyboard_slug'
-    // Assignment column, present on both the parent and child tables.
-    scopeColumn: 'profile_keyset_id' | 'brand_slug'
-    select: string
-    parentName: string
-    childrenName: string
-    parentOf: (row: any) => any
+    isModerator: boolean
+    userId: string
+    scope: string[] | null
+    status: ReviewStatus
   },
 ) => {
-  const { client, user, isModerator, scope, status, page, size, from } =
-    await getReviewQueueContext(event)
-  const db = client as any
-
-  let parentRequest = db
+  let parentRequest = client
     .from(parentTable)
     .select(groupKey)
     .eq('review_status', status)
 
   if (!isModerator) {
-    parentRequest = parentRequest.eq('submitted_by', user.sub)
+    parentRequest = parentRequest.eq('submitted_by', userId)
   } else if (scope) {
     parentRequest = parentRequest.in(scopeColumn, scope)
   }
@@ -107,7 +115,7 @@ export const listGroupedSubmissions = async (
   const filters = [
     isModerator
       ? `review_status.eq.${status}`
-      : `and(review_status.eq.${status},submitted_by.eq.${user.sub})`,
+      : `and(review_status.eq.${status},submitted_by.eq.${userId})`,
   ]
 
   if (parents?.length) {
@@ -119,15 +127,53 @@ export const listGroupedSubmissions = async (
     )
   }
 
-  const childRequest = (columns: string) => {
-    const request = db
+  return (columns: string, options?: { count: 'exact'; head: true }) => {
+    const request = client
       .from(childTable)
-      .select(columns)
+      .select(columns, options)
       .or(filters.join(','))
-      .order('created_at', { ascending: false })
 
     return scope ? request.in(scopeColumn, scope) : request
   }
+}
+
+/**
+ * Lists a review queue grouped by parent (keyset > kits, keyboard >
+ * variants), paginated by group and ordered by each group's most recently
+ * submitted child. A child's status is its own review_status, falling back to
+ * its parent's for children created under a Pending parent before they carried
+ * their own status. Children added directly by staff have a null status under
+ * an official parent and never enter the queue.
+ */
+export const listGroupedSubmissions = async (
+  event: H3Event,
+  {
+    queue,
+    select,
+    parentName,
+    childrenName,
+    parentOf,
+  }: {
+    queue: GroupedQueue
+    select: string
+    parentName: string
+    childrenName: string
+    parentOf: (row: any) => any
+  },
+) => {
+  const { client, user, isModerator, scope, status, page, size, from } =
+    await getReviewQueueContext(event)
+  const { groupKey } = queue
+
+  const children = await groupedChildRequest(client, queue, {
+    isModerator,
+    userId: user.sub,
+    scope,
+    status,
+  })
+
+  const childRequest = (columns: string) =>
+    children(columns).order('created_at', { ascending: false })
 
   // The queue is small enough to resolve the group order from the
   // lightweight child keys first.
@@ -185,4 +231,30 @@ export const listGroupedSubmissions = async (
     page,
     size,
   }
+}
+
+/**
+ * Number of children of a grouped queue waiting for review in the staff
+ * member's scope (`null` for unrestricted), counted like the Pending filter
+ * of `listGroupedSubmissions` lists them.
+ */
+export const countGroupedPending = async (
+  client: any,
+  queue: GroupedQueue,
+  { userId, scope }: { userId: string; scope: string[] | null },
+) => {
+  const children = await groupedChildRequest(client, queue, {
+    isModerator: true,
+    userId,
+    scope,
+    status: 'Pending',
+  })
+
+  const { count, error } = await children('id', { count: 'exact', head: true })
+
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+
+  return count || 0
 }

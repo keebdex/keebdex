@@ -10,6 +10,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const { authenticated, isModerator } = storeToRefs(useUserStore())
   const { unread: unreadNotifications } = useNotifications()
   const { unread: unreadAnnouncements } = useAnnouncements()
+  const { total: pendingReviews } = usePendingReviews()
 
   // Personal notifications plus announcements not read yet, so a new
   // announcement brings users to the Announcements tab.
@@ -19,7 +20,8 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
 
   const isUnder = (path: string) => route.path.startsWith(path)
 
-  // Each module lists its submissions to signed-in users last.
+  // Each module lists its submissions to signed-in users last, with what
+  // waits for review there as a badge for staff.
   const section = (
     domain: Domain,
     label: string,
@@ -32,6 +34,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
         icon: 'hugeicons:file-verified',
         to: `/${domain}/submissions`,
         active: isUnder(`/${domain}/submissions`),
+        badge: pendingBadge(pendingReviews(domain)),
       })
     }
 

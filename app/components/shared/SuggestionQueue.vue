@@ -166,13 +166,22 @@ const columns = [
 const statusFilter = ref('Pending')
 
 const { page, size, setPage, resetPage } = usePagination(10)
-const { data, status, refresh } = useAdvancedSearch('/api/suggestions', {
+const {
+  data,
+  status,
+  refresh: refreshRows,
+} = useAdvancedSearch('/api/suggestions', {
   key: `${props.domain}-suggestions`,
   term: ref(''),
   minLength: 0,
   pagination: { page, size },
   filters: { status: statusFilter, domain: props.domain },
 })
+
+const { load: refreshPendingReviews } = usePendingReviews()
+
+// After every change: the rows, and the sidebar's pending count.
+const refresh = () => Promise.all([refreshRows(), refreshPendingReviews()])
 
 watch(statusFilter, resetPage)
 

@@ -46,13 +46,22 @@ export const useSubmissionReviewQueue = ({
   const statusFilter = ref('Pending')
 
   const { page, size, setPage, resetPage } = usePagination(10)
-  const { data, status, refresh } = useAdvancedSearch(endpoint, {
+  const {
+    data,
+    status,
+    refresh: refreshRows,
+  } = useAdvancedSearch(endpoint, {
     key,
     term: ref(''),
     minLength: 0,
     pagination: { page, size },
     filters: { status: statusFilter },
   })
+
+  const { load: refreshPendingReviews } = usePendingReviews()
+
+  // After every change: the rows, and the sidebar's pending count.
+  const refresh = () => Promise.all([refreshRows(), refreshPendingReviews()])
 
   watch(statusFilter, resetPage)
 
