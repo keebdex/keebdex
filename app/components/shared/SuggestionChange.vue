@@ -30,13 +30,15 @@
         </p>
       </div>
     </div>
+
+    <slot />
   </div>
 </template>
 
 <script setup lang="ts">
 // One changed field of an edit suggestion: its label, the value before and
 // after (images as thumbnails), with slots for a checkbox in place of the
-// label and for actions such as Undo.
+// label, for actions such as Undo, and for details below the values.
 const props = withDefaults(
   defineProps<{
     field: string

@@ -63,8 +63,24 @@
             </template>
 
             <template #actions>
+              <UButton
+                v-if="row.stale && row.since.length"
+                :label="`Changed Since · ${row.since.length}`"
+                icon="hugeicons:alert-02"
+                :trailing-icon="
+                  expanded[row.key]
+                    ? 'hugeicons:arrow-up-01'
+                    : 'hugeicons:arrow-down-01'
+                "
+                color="warning"
+                variant="subtle"
+                size="xs"
+                :ui="{ label: 'block' }"
+                :aria-expanded="!!expanded[row.key]"
+                @click="expanded[row.key] = !expanded[row.key]"
+              />
               <UBadge
-                v-if="row.stale"
+                v-else-if="row.stale"
                 label="Changed Since"
                 icon="hugeicons:alert-02"
                 color="warning"
@@ -72,6 +88,13 @@
                 size="sm"
               />
             </template>
+
+            <SharedSuggestionChangesSince
+              v-if="row.stale && expanded[row.key] && row.since.length"
+              :field="row.key"
+              :revisions="row.since"
+              :values="row.beforeValues"
+            />
           </SharedSuggestionChange>
         </div>
       </div>
@@ -109,14 +132,16 @@
 </template>
 
 <script setup lang="ts">
+import type { Revision } from '~/utils/revisions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
 // Staff review of an edit suggestion: each suggested field with the record's
 // current value and the suggested one, with a checkbox to leave it out.
 // Adjust Values opens the record's own form with the selected changes, and
 // approving then applies what the form holds. Fields whose current value
-// changed since the suggestion was written are flagged. Submitters and
-// reviewed suggestions get the same comparison, read-only.
+// changed since the suggestion was written are flagged, and reviewers can
+// open the revisions that changed them. Submitters and reviewed suggestions
+// get the same comparison, read-only.
 const props = defineProps<{
   suggestion: Record<string, any> | null
   approving?: boolean
@@ -160,6 +185,15 @@ const adjusting = ref(false)
 const adjusted = ref<Record<string, unknown>>({})
 const uploading = ref(false)
 
+// Revisions behind each Changed Since field, and the fields opened.
+const changesSince = ref<Record<string, Revision[]>>({})
+const expanded = ref<Record<string, boolean>>({})
+
+const isStale = (suggestion: Record<string, any>, key: string) =>
+  suggestion.review_status === 'Pending' &&
+  !!suggestion.record &&
+  !sameSuggestionValue(suggestion.record[key], suggestion.original?.[key])
+
 watch(
   () => props.suggestion,
   (suggestion) => {
@@ -169,6 +203,29 @@ watch(
     adjusting.value = false
     adjusted.value = {}
     uploading.value = false
+    changesSince.value = {}
+    expanded.value = {}
+  },
+  { immediate: true },
+)
+
+// Loaded once per suggestion, for reviewers only (revisions are staff-only).
+// Without them the field keeps its plain Changed Since badge.
+watch(
+  [() => props.suggestion, open, reviewing],
+  async ([suggestion, isOpen, canReview]) => {
+    if (!suggestion || !isOpen || !canReview) return
+    if (!Object.keys(suggestion.changes || {}).some((key) => isStale(suggestion, key))) return
+
+    try {
+      const { data } = await $fetch<{ data: Record<string, Revision[]> }>(
+        `/api/suggestions/${suggestion.id}/changes-since`,
+      )
+
+      if (props.suggestion?.id === suggestion.id) changesSince.value = data
+    } catch (error) {
+      console.error('fetch changes since suggestion error', error)
+    }
   },
   { immediate: true },
 )
@@ -221,10 +278,8 @@ const rows = computed(() => {
         string,
         string,
       ],
-      stale:
-        suggestion.review_status === 'Pending' &&
-        !!suggestion.record &&
-        !sameSuggestionValue(suggestion.record[key], suggestion.original?.[key]),
+      stale: isStale(suggestion, key),
+      since: changesSince.value[key] || [],
     }),
   )
 })

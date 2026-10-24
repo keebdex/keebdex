@@ -1,4 +1,4 @@
-export type ReviewDomain = 'artisan' | 'keyset' | 'keyboard'
+import type { ReviewDomain } from '~/utils/review-notes'
 
 type PendingCounts = Record<ReviewDomain, { submissions: number; edits: number }>
 
