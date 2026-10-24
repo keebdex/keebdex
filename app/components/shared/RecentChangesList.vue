@@ -5,8 +5,8 @@
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <UBadge
-              :label="DOMAIN_LABELS[entry.domain] || entry.domain"
-              :icon="DOMAIN_ICONS[entry.domain]"
+              :label="KEEB_MODULE_LABELS[entry.domain]"
+              :icon="KEEB_MODULE_ICONS[entry.domain]"
               variant="outline"
               size="sm"
               class="shrink-0"
@@ -56,18 +56,6 @@ import type { RecentChangesEntry } from '~/utils/revisions'
 // many changes, and when; the clock button opens the page's History, where
 // the changes are listed one by one.
 defineProps<{ entries: RecentChangesEntry[] }>()
-
-const DOMAIN_ICONS: Record<string, string> = {
-  artisan: 'hugeicons:alien-01',
-  keyboard: 'hugeicons:keyboard',
-  keyset: 'hugeicons:grid-view',
-}
-
-const DOMAIN_LABELS: Record<string, string> = {
-  artisan: 'Artisan',
-  keyboard: 'Keyboard',
-  keyset: 'Keyset',
-}
 
 const pagePath = (entry: RecentChangesEntry) =>
   revisionPagePath({ domain: entry.domain, parent_key: entry.parentKey })

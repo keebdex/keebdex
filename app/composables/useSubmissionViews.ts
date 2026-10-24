@@ -9,7 +9,7 @@ export const useSubmissionViews = () => {
   const { counts } = usePendingReviews()
 
   const pending = computed(
-    () => counts.value?.[route.path.split('/')[1] as ReviewDomain],
+    () => counts.value?.[route.path.split('/')[1] as KeebModule],
   )
 
   const view = computed(() =>

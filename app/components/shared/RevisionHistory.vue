@@ -206,7 +206,7 @@ interface RevisionRecord {
 // reloads its data (or follows a sculpt's changed slug).
 const props = withDefaults(
   defineProps<{
-    domain: 'artisan' | 'keyset' | 'keyboard'
+    domain: KeebModule
     parentKey: string
     description?: string
     // Render the History button; off when the page opens it through show().

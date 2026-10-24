@@ -8,10 +8,8 @@ import {
   countGroupedPending,
 } from '../../utils/submission-queue'
 import { canManageAnyAssignment } from '~/utils/permissions'
-
-const DOMAINS = ['artisan', 'keyset', 'keyboard'] as const
-
-type Domain = (typeof DOMAINS)[number]
+import { KEEB_MODULES } from '~/utils/keeb-modules'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 /**
  * What waits for the staff member's review, per module: Pending submissions
@@ -47,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
   // RLS returns suggestions of the caller's scope plus their own, so their
   // own (made outside their scope) are left out.
-  const countEdits = async (domain: Domain) => {
+  const countEdits = async (domain: KeebModule) => {
     const { count, error } = await suggestionsTable(client)
       .select('id', { count: 'exact', head: true })
       .eq('domain', domain)
@@ -65,15 +63,15 @@ export default defineEventHandler(async (event) => {
     countColorways(),
     countGroupedPending(client, KEYSET_QUEUE, { userId: user.sub, scope }),
     countGroupedPending(client, KEYBOARD_QUEUE, { userId: user.sub, scope }),
-    ...DOMAINS.map(countEdits),
+    ...KEEB_MODULES.map(countEdits),
   ])
 
   const submissions = { artisan, keyset, keyboard }
 
   return Object.fromEntries(
-    DOMAINS.map((domain, i) => [
+    KEEB_MODULES.map((domain, i) => [
       domain,
       { submissions: submissions[domain], edits: edits[i] || 0 },
     ]),
-  ) as Record<Domain, { submissions: number; edits: number }>
+  ) as Record<KeebModule, { submissions: number; edits: number }>
 })

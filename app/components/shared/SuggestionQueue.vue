@@ -141,13 +141,13 @@
 
 <script setup lang="ts">
 import { reviewNoteSchema } from '~/utils/schemas/common'
-import type { SuggestionDomain, SuggestionEntityType } from '~/utils/suggestions'
+import type { SuggestionEntityType } from '~/utils/suggestions'
 
 // Edits tab of a submission review page: edit suggestions to published
 // records of one domain. Staff review them (approve all or some fields,
 // possibly adjusted, or reject with a note) and delete them; submitters
 // follow their own and withdraw them while Pending.
-const props = defineProps<{ domain: SuggestionDomain }>()
+const props = defineProps<{ domain: KeebModule }>()
 
 type Suggestion = Record<string, any>
 

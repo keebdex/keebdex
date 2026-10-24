@@ -4,6 +4,7 @@ import type { getActorProfile } from './admin'
 import { omitSensitive } from './index'
 import { TABLE_FIELDS } from './table-fields.generated'
 import {
+  PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isProtectedSuggestionField,
   normalizeSuggestionValue,
@@ -187,7 +188,7 @@ export const withSuggestionRecords = async (
   const byDomain = groupBy(
     suggestions.filter(
       (row) =>
-        !['artisan_sculpt', 'keyset', 'keyboard'].includes(row.entity_type),
+        !PAGE_ENTITY_TYPES.includes(row.entity_type),
     ),
     (row) => row.domain as keyof typeof PARENT_LOOKUPS,
   )

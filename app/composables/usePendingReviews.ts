@@ -1,6 +1,4 @@
-import type { ReviewDomain } from '~/utils/review-notes'
-
-type PendingCounts = Record<ReviewDomain, { submissions: number; edits: number }>
+type PendingCounts = Record<KeebModule, { submissions: number; edits: number }>
 
 /**
  * What waits for the signed-in staff member's review, per module (Pending
@@ -27,7 +25,7 @@ export const usePendingReviews = () => {
     }
   }
 
-  const total = (domain: ReviewDomain) =>
+  const total = (domain: KeebModule) =>
     (counts.value?.[domain].submissions || 0) +
     (counts.value?.[domain].edits || 0)
 

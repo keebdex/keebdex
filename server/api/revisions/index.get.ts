@@ -13,8 +13,8 @@ import {
 } from '~/utils/revisions'
 import type { RevisionGrouping } from '~/utils/revisions'
 import { isSuggestionEntityType } from '~/utils/suggestions'
+import { isKeebModule } from '~/utils/keeb-modules'
 
-const DOMAINS = ['artisan', 'keyset', 'keyboard']
 const MAX_GROUPS = 50
 // Rows read per request to the database, and the most requests per page, so
 // a huge sync run cannot make one page read the whole table.
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     groups,
   } = getQuery(event)
 
-  if (domain !== undefined && !DOMAINS.includes(String(domain))) {
+  if (domain !== undefined && !isKeebModule(domain)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid domain' })
   }
 

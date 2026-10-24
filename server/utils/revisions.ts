@@ -6,6 +6,7 @@ import { PARENT_LOOKUPS, parentName } from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
+  PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isSuggestionEntityType,
 } from '~/utils/suggestions'
@@ -153,8 +154,6 @@ export const withRevisionActors = async (
   })
 }
 
-const PARENT_TYPES = ['artisan_sculpt', 'keyset', 'keyboard']
-
 /**
  * Adds `parent_name` to each revision: the name of its sculpt, keyset or
  * keyboard page now, or, once that page is gone, the label of the page's own
@@ -196,7 +195,7 @@ export const withParentNames = async (
   // Parent records are their own page.
   const ownLabels = new Map(
     revisions
-      .filter((row) => PARENT_TYPES.includes(row.entity_type))
+      .filter((row) => PAGE_ENTITY_TYPES.includes(row.entity_type))
       .map((row) => [`${row.domain}:${row.parent_key}`, row.label]),
   )
 

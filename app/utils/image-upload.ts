@@ -1,6 +1,4 @@
-import type { Enums } from '~/types/database.types'
-
-type UploadImageCategory = Lowercase<Enums<'module'>>
+import type { KeebModule } from '~/utils/keeb-modules'
 
 type UploadableFile = File | File[] | null | undefined
 
@@ -10,14 +8,14 @@ function getSingleFile(file: UploadableFile): File | null {
   return file
 }
 
-export function getMaxUploadSizeMb(category: UploadImageCategory) {
+export function getMaxUploadSizeMb(category: KeebModule) {
   const config = useRuntimeConfig()
   const maxSizeMap = config.public.upload?.max_image_size || {}
 
   return Number(maxSizeMap[category]) || 5
 }
 
-function validateImageFile(file: File, category: UploadImageCategory) {
+function validateImageFile(file: File, category: KeebModule) {
   if (!file.type?.startsWith('image/')) {
     throw new Error('Only image files are allowed')
   }
@@ -33,7 +31,7 @@ function validateImageFile(file: File, category: UploadImageCategory) {
 export async function uploadImageToCloudflare(options: {
   file: UploadableFile
   assignment: string
-  category: UploadImageCategory
+  category: KeebModule
 }) {
   const selectedFile = getSingleFile(options.file)
 

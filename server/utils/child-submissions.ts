@@ -8,8 +8,7 @@ import {
   canManageAssignment,
 } from '~/utils/permissions'
 import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
-
-export type ChildSubmissionDomain = 'keyset' | 'keyboard' | 'artisan'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
@@ -171,7 +170,7 @@ const PARENTS = {
  */
 export const getChildSubmissionContext = async (
   event: H3Event,
-  domain: ChildSubmissionDomain,
+  domain: KeebModule,
   parentKey: string,
 ) => {
   const { client, user, profile } = await getActorProfile(event)

@@ -5,8 +5,7 @@ import {
   suggestionsTable,
   withSuggestionRecords,
 } from '../../utils/edit-suggestions'
-
-const DOMAINS = ['artisan', 'keyset', 'keyboard']
+import { isKeebModule } from '~/utils/keeb-modules'
 
 /**
  * Edits tab of `/{domain}/submissions`: suggestions of one domain and status,
@@ -20,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   const domain = String(getQuery(event).domain || '')
 
-  if (!DOMAINS.includes(domain)) {
+  if (!isKeebModule(domain)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid domain' })
   }
 

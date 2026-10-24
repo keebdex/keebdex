@@ -1,5 +1,3 @@
-export type ReviewDomain = 'artisan' | 'keyset' | 'keyboard'
-
 // Quick replies offered when rejecting a submission; the moderator can still
 // edit the note after picking one. Each stays within REVIEW_NOTE_MAX_LENGTH.
 const COMMON_REJECT_NOTES = [
@@ -9,7 +7,7 @@ const COMMON_REJECT_NOTES = [
   'Some details look incorrect. Please check them against the official source and resubmit.',
 ]
 
-const DOMAIN_REJECT_NOTES: Record<ReviewDomain, string[]> = {
+const DOMAIN_REJECT_NOTES: Record<KeebModule, string[]> = {
   artisan: [
     'The photo or details match a different colorway or sculpt.',
     'The photo shows several keycaps or angles. Please crop it to a single view of this colorway.',
@@ -24,7 +22,7 @@ const DOMAIN_REJECT_NOTES: Record<ReviewDomain, string[]> = {
   ],
 }
 
-export const rejectNotePresets = (domain: ReviewDomain) => [
+export const rejectNotePresets = (domain: KeebModule) => [
   ...DOMAIN_REJECT_NOTES[domain],
   ...COMMON_REJECT_NOTES,
 ]
