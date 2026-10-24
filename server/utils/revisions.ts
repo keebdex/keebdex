@@ -6,6 +6,7 @@ import { PARENT_LOOKUPS, parentName } from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
+  PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isSuggestionEntityType,
 } from '~/utils/suggestions'
@@ -83,6 +84,35 @@ export const revisionError = (error: {
 }
 
 /**
+ * Names and provider avatars of users by id, through `revision_actors()`,
+ * since staff other than admins cannot read other users.
+ */
+export const getActorNames = async (
+  client: SupabaseClient,
+  userIds: (string | null | undefined)[],
+) => {
+  const ids = [...new Set(userIds.filter(Boolean))]
+  const actors = new Map<
+    string,
+    { name: string | null; avatar: string | null }
+  >()
+
+  if (!ids.length) return actors
+
+  const { data, error } = await (client as any).rpc('revision_actors', {
+    p_ids: ids,
+  })
+
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+
+  for (const row of data || []) actors.set(row.id, row)
+
+  return actors
+}
+
+/**
  * Adds `actor_name` / `actor_avatar` to each revision, and for applied
  * suggestions `suggested_by` with the submitter's name and avatar. Names come from
  * `revision_actors()`, since staff other than admins cannot read other users.
@@ -110,27 +140,10 @@ export const withRevisionActors = async (
     for (const row of data || []) submitters.set(row.id, row.submitted_by)
   }
 
-  const ids = [
-    ...new Set(
-      [...revisions.map((row) => row.actor), ...submitters.values()].filter(
-        Boolean,
-      ),
-    ),
-  ]
-  const actors = new Map<
-    string,
-    { name: string | null; avatar: string | null }
-  >()
-
-  if (ids.length) {
-    const { data, error } = await db.rpc('revision_actors', { p_ids: ids })
-
-    if (error) {
-      throw createError({ statusCode: 500, statusMessage: error.message })
-    }
-
-    for (const row of data || []) actors.set(row.id, row)
-  }
+  const actors = await getActorNames(client, [
+    ...revisions.map((row) => row.actor),
+    ...submitters.values(),
+  ])
 
   return revisions.map((row) => {
     const actor = row.actor ? actors.get(row.actor) : undefined
@@ -152,8 +165,6 @@ export const withRevisionActors = async (
     }
   })
 }
-
-const PARENT_TYPES = ['artisan_sculpt', 'keyset', 'keyboard']
 
 /**
  * Adds `parent_name` to each revision: the name of its sculpt, keyset or
@@ -196,7 +207,7 @@ export const withParentNames = async (
   // Parent records are their own page.
   const ownLabels = new Map(
     revisions
-      .filter((row) => PARENT_TYPES.includes(row.entity_type))
+      .filter((row) => PAGE_ENTITY_TYPES.includes(row.entity_type))
       .map((row) => [`${row.domain}:${row.parent_key}`, row.label]),
   )
 

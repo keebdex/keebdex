@@ -1,5 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import type { Enums } from '~/types/database.types'
+import { isKeebModule } from '~/utils/keeb-modules'
+import type { KeebModule } from '~/utils/keeb-modules'
 import { canManageAssignment } from '~/utils/permissions'
 
 interface CloudflareImageUploadResponse {
@@ -11,11 +12,9 @@ interface CloudflareImageUploadResponse {
   }
 }
 
-type UploadCategory = Lowercase<Enums<'module'>>
-
 function resolveUploadLimit(
   config: ReturnType<typeof useRuntimeConfig>,
-  category?: UploadCategory,
+  category?: KeebModule,
 ) {
   if (!category) {
     return 5
@@ -23,7 +22,7 @@ function resolveUploadLimit(
 
   const maxSizeMap =
     (config.public.upload?.max_image_size as Partial<
-      Record<UploadCategory, number>
+      Record<KeebModule, number>
     >) || {}
 
   return Number(maxSizeMap[category]) || 5
@@ -32,18 +31,12 @@ function resolveUploadLimit(
 function isAuthorizedUploader(
   profile: { role?: string | null; assignments?: string[] | null } | null,
   assignment: string,
-  category: UploadCategory,
+  category: KeebModule,
 ) {
   // Any authenticated user can upload artisan, keyset, or keyboard images
   // (submissions and edit suggestions); permission for the underlying record
   // is enforced separately when it's saved.
-  if (
-    category === 'artisan' ||
-    category === 'keyset' ||
-    category === 'keyboard'
-  ) {
-    return true
-  }
+  if (isKeebModule(category)) return true
 
   return canManageAssignment(profile, assignment)
 }
@@ -63,7 +56,7 @@ export default defineEventHandler(async (event) => {
   ).trim()
   const category = String(formData.get('category') || '')
     .trim()
-    .toLowerCase() as UploadCategory
+    .toLowerCase() as KeebModule
 
   if (!(file instanceof File)) {
     throw createError({ statusCode: 400, statusMessage: 'Missing image file' })

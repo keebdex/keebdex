@@ -77,9 +77,10 @@ const { isModerator } = storeToRefs(useUserStore())
 
 const domainItems = [
   { label: 'All', value: 'all' },
-  { label: 'Artisans', value: 'artisan' },
-  { label: 'Keyboards', value: 'keyboard' },
-  { label: 'Keysets', value: 'keyset' },
+  ...KEEB_MODULES.map((value) => ({
+    label: `${KEEB_MODULE_LABELS[value]}s`,
+    value,
+  })),
 ]
 
 const sourceItems = [

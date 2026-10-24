@@ -63,8 +63,24 @@
             </template>
 
             <template #actions>
+              <UButton
+                v-if="row.stale && row.since.length"
+                :label="`Changed Since · ${row.since.length}`"
+                icon="hugeicons:alert-02"
+                :trailing-icon="
+                  expanded[row.key]
+                    ? 'hugeicons:arrow-up-01'
+                    : 'hugeicons:arrow-down-01'
+                "
+                color="warning"
+                variant="subtle"
+                size="xs"
+                :ui="{ label: 'block' }"
+                :aria-expanded="!!expanded[row.key]"
+                @click="expanded[row.key] = !expanded[row.key]"
+              />
               <UBadge
-                v-if="row.stale"
+                v-else-if="row.stale"
                 label="Changed Since"
                 icon="hugeicons:alert-02"
                 color="warning"
@@ -72,6 +88,21 @@
                 size="sm"
               />
             </template>
+
+            <SharedSuggestionChangesSince
+              v-if="row.stale && expanded[row.key] && row.since.length"
+              :field="row.key"
+              :revisions="row.since"
+              :values="row.beforeValues"
+            />
+
+            <SharedSuggestionAlsoSuggested
+              v-if="row.others.length"
+              :field="row.key"
+              :suggestions="row.others"
+              :values="row.beforeValues"
+              @open="(other) => emit('open', other)"
+            />
           </SharedSuggestionChange>
         </div>
       </div>
@@ -109,14 +140,17 @@
 </template>
 
 <script setup lang="ts">
+import type { Revision } from '~/utils/revisions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
 // Staff review of an edit suggestion: each suggested field with the record's
 // current value and the suggested one, with a checkbox to leave it out.
 // Adjust Values opens the record's own form with the selected changes, and
 // approving then applies what the form holds. Fields whose current value
-// changed since the suggestion was written are flagged. Submitters and
-// reviewed suggestions get the same comparison, read-only.
+// changed since the suggestion was written are flagged, and reviewers can
+// open the revisions that changed them; fields other Pending suggestions also
+// change list those, and Review opens one. Submitters and reviewed
+// suggestions get the same comparison, read-only.
 const props = defineProps<{
   suggestion: Record<string, any> | null
   approving?: boolean
@@ -125,6 +159,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   approve: [suggestion: Record<string, any>, changes: Record<string, unknown>]
   reject: [suggestion: Record<string, any>]
+  open: [suggestion: Record<string, any>]
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -160,6 +195,17 @@ const adjusting = ref(false)
 const adjusted = ref<Record<string, unknown>>({})
 const uploading = ref(false)
 
+// Revisions behind each Changed Since field, and the fields opened.
+const changesSince = ref<Record<string, Revision[]>>({})
+const expanded = ref<Record<string, boolean>>({})
+// Other Pending suggestions for the record that change the same fields.
+const others = ref<Record<string, any>[]>([])
+
+const isStale = (suggestion: Record<string, any>, key: string) =>
+  suggestion.review_status === 'Pending' &&
+  !!suggestion.record &&
+  !sameSuggestionValue(suggestion.record[key], suggestion.original?.[key])
+
 watch(
   () => props.suggestion,
   (suggestion) => {
@@ -169,6 +215,52 @@ watch(
     adjusting.value = false
     adjusted.value = {}
     uploading.value = false
+    changesSince.value = {}
+    expanded.value = {}
+    others.value = []
+  },
+  { immediate: true },
+)
+
+// Loaded once per suggestion, for reviewers only (both are staff-only).
+// Without the revisions a field keeps its plain Changed Since badge.
+const loadChangesSince = async (suggestion: Record<string, any>) => {
+  const stale = Object.keys(suggestion.changes || {}).some((key) =>
+    isStale(suggestion, key),
+  )
+
+  if (!stale) return
+
+  try {
+    const { data } = await $fetch<{ data: Record<string, Revision[]> }>(
+      `/api/suggestions/${suggestion.id}/changes-since`,
+    )
+
+    if (props.suggestion?.id === suggestion.id) changesSince.value = data
+  } catch (error) {
+    console.error('fetch changes since suggestion error', error)
+  }
+}
+
+const loadOthers = async (suggestion: Record<string, any>) => {
+  try {
+    const { data } = await $fetch<{ data: Record<string, any>[] }>(
+      `/api/suggestions/${suggestion.id}/overlapping`,
+    )
+
+    if (props.suggestion?.id === suggestion.id) others.value = data
+  } catch (error) {
+    console.error('fetch overlapping suggestions error', error)
+  }
+}
+
+watch(
+  [() => props.suggestion, open, reviewing],
+  ([suggestion, isOpen, canReview]) => {
+    if (!suggestion || !isOpen || !canReview) return
+
+    loadChangesSince(suggestion)
+    loadOthers(suggestion)
   },
   { immediate: true },
 )
@@ -221,10 +313,9 @@ const rows = computed(() => {
         string,
         string,
       ],
-      stale:
-        suggestion.review_status === 'Pending' &&
-        !!suggestion.record &&
-        !sameSuggestionValue(suggestion.record[key], suggestion.original?.[key]),
+      stale: isStale(suggestion, key),
+      since: changesSince.value[key] || [],
+      others: others.value.filter((other) => other.overlap?.includes(key)),
     }),
   )
 })

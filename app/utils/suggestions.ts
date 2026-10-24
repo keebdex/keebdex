@@ -1,6 +1,7 @@
 import { formatDate } from '~/utils/date'
 import { formatPrice } from '~/utils'
 import { urlSlugify } from '~/utils/slug'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 /**
  * Edit suggestions: signed-in users suggest changes to published records (a
@@ -22,11 +23,16 @@ export type SuggestionEntityType =
   | 'keyboard_release'
   | 'keyboard'
 
-export type SuggestionDomain = 'artisan' | 'keyset' | 'keyboard'
+/** Records that are a page themselves (sculpt, keyset, keyboard) rather than a child of one. */
+export const PAGE_ENTITY_TYPES: SuggestionEntityType[] = [
+  'artisan_sculpt',
+  'keyset',
+  'keyboard',
+]
 
 export interface SuggestionEntity {
   type: SuggestionEntityType
-  domain: SuggestionDomain
+  domain: KeebModule
   table: string
   // Shown to users, e.g. in `Edit Colorway`.
   label: string

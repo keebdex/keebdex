@@ -1,8 +1,6 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { Ref } from 'vue'
 
-type Domain = 'artisan' | 'keyboard' | 'keyset'
-
 // The sidebar's catalog sections and its personal links (Notifications,
 // Recent Changes). The layout adds the links that open its own modals.
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
@@ -10,6 +8,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const { authenticated, isModerator } = storeToRefs(useUserStore())
   const { unread: unreadNotifications } = useNotifications()
   const { unread: unreadAnnouncements } = useAnnouncements()
+  const { total: pendingReviews } = usePendingReviews()
 
   // Personal notifications plus announcements not read yet, so a new
   // announcement brings users to the Announcements tab.
@@ -19,11 +18,11 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
 
   const isUnder = (path: string) => route.path.startsWith(path)
 
-  // Each module lists its submissions to signed-in users last.
+  // Each module lists its submissions to signed-in users last, with what
+  // waits for review there as a badge for staff.
   const section = (
-    domain: Domain,
+    domain: KeebModule,
     label: string,
-    icon: string,
     children: NavigationMenuItem[],
   ): NavigationMenuItem[] => {
     if (authenticated.value) {
@@ -32,6 +31,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
         icon: 'hugeicons:file-verified',
         to: `/${domain}/submissions`,
         active: isUnder(`/${domain}/submissions`),
+        badge: pendingBadge(pendingReviews(domain)),
       })
     }
 
@@ -40,7 +40,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     return [
       {
         label,
-        icon,
+        icon: KEEB_MODULE_ICONS[domain],
         type: 'trigger',
         defaultOpen: true,
         active: isUnder(`/${domain}`),
@@ -58,7 +58,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
         active: isUnder('/collection'),
       },
     ],
-    section('artisan', 'Artisans', 'hugeicons:alien-01', [
+    section('artisan', 'Artisans', [
       {
         label: 'Makers',
         icon: 'hugeicons:user-multiple',
@@ -78,7 +78,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
         active: route.path === '/artisan/wishlist',
       },
     ]),
-    section('keyboard', 'Keyboards', 'hugeicons:keyboard', [
+    section('keyboard', 'Keyboards', [
       {
         label: 'Brands',
         icon: 'hugeicons:user-multiple',
@@ -87,7 +87,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
         exact: false,
       },
     ]),
-    section('keyset', 'Keysets', 'hugeicons:grid-view', [
+    section('keyset', 'Keysets', [
       {
         label: 'Profiles',
         icon: 'hugeicons:cross',

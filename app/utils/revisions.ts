@@ -3,11 +3,13 @@ import {
   sculptGdocManagedFields,
 } from '~/utils/schemas/artisan'
 import {
+  PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isProtectedSuggestionField,
   sameSuggestionValue,
 } from '~/utils/suggestions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 /**
  * Revision history: every change to a sculpt, colorway, keyset, kit,
@@ -50,7 +52,7 @@ export interface Revision {
   created_at: string
   entity_type: SuggestionEntityType
   entity_id: number
-  domain: string
+  domain: KeebModule
   scope: string | null
   parent_key: string | null
   label: string | null
@@ -207,16 +209,9 @@ export const revisionVerb = (revision: Revision) =>
     ? 'reverted'
     : REVISION_ACTION_LABELS[revision.action].toLowerCase()
 
-// Records that are a page themselves rather than a child of one.
-const PAGE_TYPES: SuggestionEntityType[] = [
-  'artisan_sculpt',
-  'keyset',
-  'keyboard',
-]
-
 /** Whether the revision is of the page itself (sculpt, keyset, keyboard). */
 export const isPageRevision = (revision: Pick<Revision, 'entity_type'>) =>
-  PAGE_TYPES.includes(revision.entity_type)
+  PAGE_ENTITY_TYPES.includes(revision.entity_type)
 
 /**
  * A record's name within its page, for lists that already show the page:
@@ -375,7 +370,7 @@ export interface RecentChangesEntry {
   key: string
   // Its newest change, which places it in the timeline.
   date: string
-  domain: string
+  domain: KeebModule
   parentKey: string | null
   name: string
   revisions: Revision[]

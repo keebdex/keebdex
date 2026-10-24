@@ -1,9 +1,10 @@
 import { createError } from 'h3'
-import { groupBy } from 'es-toolkit'
+import { groupBy, omit } from 'es-toolkit'
 import type { getActorProfile } from './admin'
 import { omitSensitive } from './index'
 import { TABLE_FIELDS } from './table-fields.generated'
 import {
+  PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isProtectedSuggestionField,
   normalizeSuggestionValue,
@@ -120,6 +121,54 @@ const RECORD_JOINS: Partial<Record<SuggestionEntityType, string>> = {
   keyset: 'profile:keyset_profiles(name)',
 }
 
+// Joined rows only for `names` (what the Edits queue lists), dropped from
+// `record` afterwards so forms and diffs see the record's own columns.
+const NAME_JOINS: Partial<Record<SuggestionEntityType, [string, string]>> = {
+  artisan_sculpt: ['maker', 'maker:artisan_makers(name)'],
+  keyboard: ['brand', 'brand:keyboard_brands(name)'],
+  keyboard_variant: ['release', 'release:keyboard_releases(name)'],
+}
+
+export interface SuggestionNames {
+  // Maker, keyset profile, or keyboard brand.
+  owner: string | null
+  // Sculpt, keyset, or keyboard.
+  page: string | null
+  // Keyboard release (of a release or a variant).
+  release: string | null
+  // Colorway, kit, or variant; null for the page itself and releases.
+  item: string | null
+}
+
+/**
+ * The names of a suggestion's record by level, so the Edits queue can show
+ * each module its own columns (Maker, Kit, Brand, Variant). A deleted record
+ * keeps what its parent page gives.
+ */
+const suggestionNames = (
+  type: SuggestionEntityType,
+  record: any,
+  parent: any,
+): SuggestionNames => {
+  const page = PAGE_ENTITY_TYPES.includes(type) ? record : parent
+  const owner = page?.maker ?? page?.profile ?? page?.brand
+
+  return {
+    owner: owner?.name ?? null,
+    page: page?.name ?? null,
+    // Only keyboards have releases (sculpts have a `release` column of their own).
+    release:
+      type === 'keyboard_release'
+        ? (record?.name ?? null)
+        : type === 'keyboard_variant'
+          ? (record?.release?.name ?? null)
+          : null,
+    item: ['artisan_colorway', 'keyset_kit', 'keyboard_variant'].includes(type)
+      ? recordName(type, record)
+      : null,
+  }
+}
+
 const recordName = (type: SuggestionEntityType, record: any) => {
   if (!record) return null
 
@@ -170,7 +219,11 @@ export const withSuggestionRecords = async (
       const entity = SUGGESTION_ENTITIES[type]
       const { data, error } = await db
         .from(entity.table)
-        .select(['*', RECORD_JOINS[type]].filter(Boolean).join(', '))
+        .select(
+          ['*', RECORD_JOINS[type], NAME_JOINS[type]?.[1]]
+            .filter(Boolean)
+            .join(', '),
+        )
         .in('id', [...new Set(rows.map((row) => row.entity_id))])
 
       if (error) {
@@ -187,7 +240,7 @@ export const withSuggestionRecords = async (
   const byDomain = groupBy(
     suggestions.filter(
       (row) =>
-        !['artisan_sculpt', 'keyset', 'keyboard'].includes(row.entity_type),
+        !PAGE_ENTITY_TYPES.includes(row.entity_type),
     ),
     (row) => row.domain as keyof typeof PARENT_LOOKUPS,
   )
@@ -214,12 +267,15 @@ export const withSuggestionRecords = async (
   return suggestions.map((row) => {
     const type = row.entity_type as SuggestionEntityType
     const record = records.get(`${type}:${row.entity_id}`) || null
+    const parent = parents.get(`${row.domain}:${row.parent_key}`)
+    const nameJoin = NAME_JOINS[type]?.[0]
 
     return {
       ...row,
-      record,
+      record: record && nameJoin ? omit(record, [nameJoin]) : record,
       entity_name: recordName(type, record),
-      parent_name: parentName(parents.get(`${row.domain}:${row.parent_key}`)),
+      parent_name: parentName(parent),
+      names: suggestionNames(type, record, parent),
     }
   })
 }
