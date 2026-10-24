@@ -8,7 +8,7 @@ authors:
     to: https://claude.com/claude-code
 ---
 
-**Many hands** keep the catalog right: anyone signed in can now suggest a fix or a missing photo for a colorway, kit, keyset, or keyboard, and moderators review each change before it goes live. Moderators also get a full history of every change with one-click undo, and community submissions stay hidden until they are approved.
+**Many hands** keep the catalog right: anyone signed in can now suggest a fix or a missing photo for a colorway, kit, keyset, or keyboard, and moderators review each change before it goes live. Moderators also get a full history of every change with one-click undo, and the home page leads straight into what is happening now.
 
 ### ✨ What's New
 
@@ -24,10 +24,9 @@ authors:
 
 ### 🚀 Improvements
 
-- **Image sizes in submissions**: review queues and submission forms show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.
-- **Image previews in forms**: an existing or just-uploaded image appears in the form with _Replace_ and _Remove_ buttons instead of an empty upload box.
+- **Images in submissions**: forms show the current or just-uploaded image with _Replace_ and _Remove_ buttons instead of an empty upload box, and forms and review queues show each image's original size and flag low-resolution photos, so they are easy to spot and reject with a ready-made note.
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
-- **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. New addresses leave out punctuation such as apostrophes. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
+- **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
 - **A livelier home page**: the welcome leads straight in with _Start Collecting_ and _Search Keebdex_, and on phones it takes less room so the latest releases show without scrolling. _Happening Now_ shows how many days each live group buy has left, short lists sit still instead of scrolling past as repeats, and shoutouts put the quote first with its author below.
 - **Order graphs that last**: order graphs and order history charts on keyset pages are now stored on Keebdex like keyset covers, so they keep showing after the image host they were shared on removes them.
 - **Your role on phones**: the account menu now shows your role at the top on phones, where the account button is just your picture.
