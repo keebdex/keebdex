@@ -13,18 +13,11 @@
     <div class="grid gap-3 sm:grid-cols-2">
       <div v-for="side in sides" :key="side.label" class="min-w-0 space-y-1">
         <p class="text-xs text-muted">{{ side.label }}</p>
-        <a
+        <SharedDiffImage
           v-if="image && side.value"
-          :href="String(side.value)"
-          target="_blank"
-          rel="noopener"
-        >
-          <NuxtImg
-            :src="String(side.value)"
-            :alt="label"
-            class="max-h-40 rounded border border-default object-contain"
-          />
-        </a>
+          :src="String(side.value)"
+          :alt="label"
+        />
         <p v-else class="text-sm whitespace-pre-line break-words">
           {{ formatSuggestionValue(field, side.value, side.values) }}
         </p>

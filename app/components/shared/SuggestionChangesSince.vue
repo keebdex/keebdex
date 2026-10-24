@@ -25,11 +25,11 @@
               name="hugeicons:arrow-right-02"
               class="size-4 shrink-0 text-dimmed"
             />
-            <NuxtImg
+            <SharedDiffImage
               v-if="image && value"
               :src="String(value)"
               :alt="suggestionFieldLabel(field)"
-              class="h-10 rounded border border-default object-contain"
+              compact
             />
             <span v-else class="break-words">
               {{ formatSuggestionValue(field, value, values) }}
