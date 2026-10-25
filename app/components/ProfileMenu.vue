@@ -23,6 +23,7 @@
       :trailing-icon="collapsed ? undefined : 'hugeicons:unfold-more'"
       variant="ghost"
       block
+      :ui="{ label: 'block' }"
     />
 
     <UModal v-model:open="visible">
