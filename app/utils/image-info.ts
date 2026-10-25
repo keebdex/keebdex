@@ -1,9 +1,20 @@
 // Stored URLs end with a named variant: `https://imagedelivery.net/<hash>/<id>/public`
 // (or `/cdn-cgi/imagedelivery/<hash>/<id>/<variant>` on a custom domain).
 // Custom ids may contain slashes, e.g. `keyset/gmk/dinokidz`. The first group
-// is the URL without its variant
-export const CLOUDFLARE_IMAGE_URL =
-  /^(https:\/\/(?:imagedelivery\.net|[^/]+\/cdn-cgi\/imagedelivery)\/[^/]+\/.+)\/[^/]+$/
+// is the URL without its variant, the second the account hash
+const CLOUDFLARE_IMAGE_URL =
+  /^(https:\/\/(?:imagedelivery\.net|[^/]+\/cdn-cgi\/imagedelivery)\/([^/]+)\/.+)\/[^/]+$/
+
+// The URL without its variant, only for images on Keebdex's own account
+// (`cloudflare.accountHash`): flexible variants and `format=json` are a
+// per-account setting, and other accounts (vendor sites) answer them with a
+// 403, so their images stay on the stored named variant
+export function cloudflareImageBase(src: string) {
+  const match = src.match(CLOUDFLARE_IMAGE_URL)
+  const { accountHash } = useRuntimeConfig().public.cloudflare
+
+  return match && match[2] === accountHash ? match[1] : null
+}
 
 // Images whose longer side is below this many pixels are flagged as low
 // resolution in the submission review
@@ -34,11 +45,11 @@ function loadNaturalSize(src: string) {
 }
 
 async function fetchImageInfo(src: string): Promise<ImageInfo | null> {
-  const match = src.match(CLOUDFLARE_IMAGE_URL)
+  const base = cloudflareImageBase(src)
 
   // Cloudflare Images describes the original upload as JSON, so the full
   // image is never downloaded just to be measured
-  if (match) {
+  if (base) {
     try {
       const { original } = await $fetch<{
         original: {
@@ -47,7 +58,7 @@ async function fetchImageInfo(src: string): Promise<ImageInfo | null> {
           file_size?: number
           format?: string
         }
-      }>(`${match[1]}/format=json`)
+      }>(`${base}/format=json`)
 
       return {
         width: original.width,

@@ -188,16 +188,20 @@ export default defineNuxtConfig({
     cloudflare: {
       accountId: '',
       imagesApiToken: '',
-      imagesDeliveryBaseUrl: '',
-      imagesDefaultVariant: 'public',
     },
     public: {
-      imgUrl: process.env.IMG_URL || 'https://img.keebdex.org',
+      imgUrl: 'https://img.keebdex.org',
+      cloudflare: {
+        // Cloudflare Images account hash (https://imagedelivery.net/<hash>/…):
+        // only images on this account get resized variants
+        accountHash: 'AoGTnmznzkqXfjeHrFtGwg',
+      },
       upload: {
         max_image_size: {
-          artisan: Number(process.env.UPLOAD_MAX_ARTISAN_IMAGE_SIZE_MB) || 5,
-          keyboard: Number(process.env.UPLOAD_MAX_KEYBOARD_IMAGE_SIZE_MB) || 20,
-          keyset: Number(process.env.UPLOAD_MAX_KEYSET_IMAGE_SIZE_MB) || 10,
+          // MB
+          artisan: 10,
+          keyboard: 20,
+          keyset: 10,
         },
       },
       site: {

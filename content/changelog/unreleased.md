@@ -21,6 +21,7 @@ authors:
 - Colorways, keysets, keyboards, releases, and variants submitted by the community no longer appear on catalog pages, in counts, in search, or in the home page lists until a moderator approves them. Keysets added directly by staff no longer go missing from profile and Group Buy lists.
 - On computers, pages no longer run past the right edge of the window, which cut off the end of toolbars and the last column of grids and pushed the home page off center.
 - Link previews on Discord and other sites show the Keebdex font again, instead of a plain fallback font that only appeared once a page was shared.
+- Keyset covers and kit pictures that link to images hosted by a vendor's own image service show again, instead of a blank space, while waiting to be copied to Keebdex, which now copies them too.
 - The _Unread_ filter on the notifications page loads your unread notifications directly, so older unread ones show up even when many newer ones are already read.
 
 ### 🚀 Improvements

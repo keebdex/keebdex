@@ -12,7 +12,7 @@ export function getMaxUploadSizeMb(category: KeebModule) {
   const config = useRuntimeConfig()
   const maxSizeMap = config.public.upload?.max_image_size || {}
 
-  return Number(maxSizeMap[category]) || 5
+  return Number(maxSizeMap[category]) || 10
 }
 
 function validateImageFile(file: File, category: KeebModule) {

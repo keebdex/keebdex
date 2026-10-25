@@ -25,7 +25,7 @@ function resolveUploadLimit(
       Record<KeebModule, number>
     >) || {}
 
-  return Number(maxSizeMap[category]) || 5
+  return Number(maxSizeMap[category]) || 10
 }
 
 function isAuthorizedUploader(
@@ -133,15 +133,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const deliveryBase = config.cloudflare?.imagesDeliveryBaseUrl?.replace(
-    /\/$/,
-    '',
+  // Cloudflare lists the image's named variants with the account's own
+  // delivery URL, so uploads never depend on a configured hash
+  const imageUrl = response.result.variants?.find((url) =>
+    url.endsWith('/public'),
   )
-  const variant = config.cloudflare?.imagesDefaultVariant || 'public'
-
-  const imageUrl = deliveryBase
-    ? `${deliveryBase}/${response.result.id}/${variant}`
-    : response.result.variants?.[0]
 
   if (!imageUrl) {
     throw createError({
