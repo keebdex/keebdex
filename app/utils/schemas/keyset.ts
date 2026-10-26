@@ -49,3 +49,11 @@ export const keysetColorLinkSchema = z.object({
   profile_keyset_id: z.string(),
   color_ids: z.number().array().min(1),
 })
+
+export const keysetProfileSchema = z.object({
+  name: z.string().min(1),
+  profile: z.enum(Constants.public.Enums.keyset_profile).nullish(),
+  manufacturer: optionalTextSchema,
+  manufacturer_id: optionalTextSchema,
+  description: optionalTextSchema,
+})

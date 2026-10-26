@@ -61,6 +61,16 @@
       </UFormField>
     </div>
 
+    <!-- Staff manage colors on their own page; suggestions take them here -->
+    <UFormField
+      v-if="suggest"
+      label="Colors"
+      name="colors"
+      help="Search colors by code or name."
+    >
+      <KeysetColorPicker v-model="keyset.colors" />
+    </UFormField>
+
     <UFormField label="URL" name="url">
       <UInput
         v-model.trim="keyset.url"

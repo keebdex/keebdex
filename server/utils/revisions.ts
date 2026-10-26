@@ -2,7 +2,7 @@ import { createError } from 'h3'
 import { groupBy } from 'es-toolkit'
 import type { H3Event } from 'h3'
 import { getActorProfile } from './admin'
-import { PARENT_LOOKUPS, parentName } from './edit-suggestions'
+import { PARENT_LOOKUPS, keysetColorIds, parentName } from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
@@ -284,13 +284,7 @@ export const getRevisionRecord = async (
 
   if (!data) return null
 
-  if (entityType === 'keyset') {
-    data.colors = [
-      ...new Set<number>(
-        (data.colors || []).map((row: { color_id: number }) => row.color_id),
-      ),
-    ].sort((a, b) => a - b)
-  }
+  if (entityType === 'keyset') data.colors = keysetColorIds(data.colors)
 
   return omitSensitive(data)
 }

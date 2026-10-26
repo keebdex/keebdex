@@ -24,7 +24,11 @@ export const useSuggestEdit = (editable: MaybeRefOrGetter<boolean>) => {
     record: Record<string, any>,
     formProps?: Record<string, unknown>,
   ) => {
-    target.value = { entityType, record, formProps }
+    target.value = {
+      entityType,
+      record: suggestionRecord(entityType, record),
+      formProps,
+    }
     open.value = true
   }
 

@@ -52,6 +52,13 @@
             </template>
           </UModal>
 
+          <UButton
+            v-if="canSuggest(data)"
+            label="Edit"
+            icon="hugeicons:edit-01"
+            @click="suggest('keyboard_brand', data)"
+          />
+
           <SharedRevisionHistory
             v-if="editable"
             domain="keyboard"
@@ -111,6 +118,14 @@
           },
         ]"
       />
+
+      <SharedSuggestEditModal
+        v-if="suggestTarget"
+        v-model:open="suggestOpen"
+        :entity-type="suggestTarget.entityType"
+        :record="suggestTarget.record"
+        :form-props="suggestTarget.formProps"
+      />
     </template>
   </UDashboardPanel>
   <SharedRedirectPage v-else to="/keyboard/brand" />
@@ -127,6 +142,13 @@ const {
 const brand = computed(() => String(route.params.brand || ''))
 
 const editable = computed(() => userStore.isEditable(brand.value))
+
+const {
+  target: suggestTarget,
+  open: suggestOpen,
+  canSuggest,
+  suggest,
+} = useSuggestEdit(editable)
 
 const visible = ref({
   createKeyboard: false,

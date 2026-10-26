@@ -52,6 +52,13 @@
             </template>
           </UModal>
 
+          <UButton
+            v-if="canSuggest(maker)"
+            label="Edit"
+            icon="hugeicons:edit-01"
+            @click="suggest('artisan_maker', maker)"
+          />
+
           <SharedRevisionHistory
             v-if="editable"
             domain="artisan"
@@ -111,6 +118,14 @@
           :sculpt="sculpt"
         />
       </UPageGrid>
+
+      <SharedSuggestEditModal
+        v-if="suggestTarget"
+        v-model:open="suggestOpen"
+        :entity-type="suggestTarget.entityType"
+        :record="suggestTarget.record"
+        :form-props="suggestTarget.formProps"
+      />
     </template>
   </UDashboardPanel>
   <SharedRedirectPage v-else to="/artisan/maker" />
@@ -126,6 +141,13 @@ const {
 } = useRuntimeConfig()
 
 const editable = computed(() => userStore.isEditable(maker.value?.maker_id))
+
+const {
+  target: suggestTarget,
+  open: suggestOpen,
+  canSuggest,
+  suggest,
+} = useSuggestEdit(editable)
 
 const visible = ref({
   create: false,

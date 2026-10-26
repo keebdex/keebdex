@@ -31,11 +31,12 @@
       />
     </UFormField>
 
-    <UFormField>
+    <UFormField v-if="!suggest">
       <UCheckbox v-model="maker.verified" label="Verified" />
     </UFormField>
 
     <UFormField
+      v-if="!suggest"
       help="Stop syncing from Google Docs and manage uploads here instead."
       :ui="{
         help: 'text-info',
@@ -72,7 +73,7 @@
     </UFormField>
 
     <UFormField
-      v-if="!maker.disable_google_sync"
+      v-if="!suggest && !maker.disable_google_sync"
       label="Document ID"
       name="document_ids"
       :ui="{
@@ -177,6 +178,9 @@ const { metadata, modelValue, isEdit, mode } = defineProps({
     default: null,
   },
   isKeeb: Boolean,
+  // Suggest Edit (SharedSuggestionForm): hides the Google Doc settings and
+  // the verified flag, which a suggestion cannot change.
+  suggest: Boolean,
   isEdit: Boolean,
   mode: {
     type: String,

@@ -19,7 +19,7 @@
           :alt="label"
         />
         <div
-          v-else-if="field === 'colors' && Array.isArray(side.value)"
+          v-else-if="colors && Array.isArray(side.value)"
           class="flex flex-wrap gap-1.5"
         >
           <UBadge
@@ -33,7 +33,7 @@
             <template #leading>
               <span
                 class="size-2.5 shrink-0 rounded-full ring ring-default"
-                :style="{ backgroundColor: colorDetails[id]?.hex }"
+                :style="{ backgroundColor: details[id]?.hex }"
               />
             </template>
           </UBadge>
@@ -55,10 +55,14 @@ import type { RevisionColor } from '~/utils/revisions'
 // One changed field of an edit suggestion: its label, the value before and
 // after (images as thumbnails, a keyset's colors as swatches, removed ones in
 // red and added ones in green), with slots for a checkbox in place of the
-// label, for actions such as Undo, and for details below the values.
+// label, for actions such as Undo, and for details below the values. A
+// keyset's colors come as ids, the side after also as the colors to add and
+// remove, which it shows applied to the side before.
 const props = withDefaults(
   defineProps<{
     field: string
+    // Shown instead of the field's own label.
+    label?: string
     before: unknown
     after: unknown
     // Record values around each side, e.g. the currency of a price.
@@ -71,13 +75,34 @@ const props = withDefaults(
   {
     beforeValues: () => ({}),
     afterValues: () => ({}),
+    label: undefined,
     labels: () => ['Current', 'New'],
     colorDetails: () => ({}),
   },
 )
 
+const colors = computed(() => props.field === 'colors')
+
+const ids = (value: unknown) => (Array.isArray(value) ? (value as number[]) : [])
+
+const before = computed(() => props.before)
+const after = computed(() =>
+  colors.value && isColorsChange(props.after)
+    ? colorsAfter(ids(props.before), props.after)
+    : props.after,
+)
+
+const { details: knownColors } = useKeysetColorDetails(() =>
+  colors.value
+    ? [...ids(before.value), ...ids(after.value)].filter(
+        (id) => !props.colorDetails[id],
+      )
+    : [],
+)
+const details = computed(() => ({ ...knownColors.value, ...props.colorDetails }))
+
 const colorLabel = (id: number) => {
-  const color = props.colorDetails[id]
+  const color = details.value[id]
 
   return color ? `${color.system} ${color.code}` : `Color ${id}`
 }
@@ -88,22 +113,22 @@ const only = (value: unknown, other: unknown) =>
     ? value.filter((item) => !(Array.isArray(other) && other.includes(item)))
     : []
 
-const label = computed(() => suggestionFieldLabel(props.field))
+const label = computed(() => props.label || suggestionFieldLabel(props.field))
 const image = computed(() => isImageSuggestionField(props.field))
 
 const sides = computed(() => [
   {
     label: props.labels[0],
-    value: props.before,
+    value: before.value,
     values: props.beforeValues,
-    only: only(props.before, props.after),
+    only: only(before.value, after.value),
     color: 'error' as const,
   },
   {
     label: props.labels[1],
-    value: props.after,
+    value: after.value,
     values: props.afterValues,
-    only: only(props.after, props.before),
+    only: only(after.value, before.value),
     color: 'success' as const,
   },
 ])

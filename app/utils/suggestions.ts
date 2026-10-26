@@ -39,10 +39,7 @@ export const PAGE_ENTITY_TYPES: SuggestionEntityType[] = [
   'keyboard',
 ]
 
-/**
- * Pages above the sculpt, keyset, and keyboard pages: their revisions are
- * kept, but the database takes no edit suggestions for them yet.
- */
+/** Pages above the sculpt, keyset, and keyboard pages, each its own key. */
 export const OWNER_ENTITY_TYPES: SuggestionEntityType[] = [
   'artisan_maker',
   'keyset_profile',
@@ -136,7 +133,7 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'artisan_makers',
     label: 'Maker',
     nameKey: 'name',
-    formProps: () => ({ isEdit: true }),
+    formProps: () => ({ isEdit: true, suggest: true }),
     // maker_id is the maker's page key and staff assignment; the rest are
     // the Google Doc settings and flags staff set.
     protected: [
@@ -247,6 +244,63 @@ export const isSuggestable = (record?: { review_status?: string | null }) =>
   (!record.review_status || record.review_status === 'Approved') &&
   !(record as { deleted?: boolean }).deleted
 
+/**
+ * Fields that are not columns of the record: a keyset's colors, rows of
+ * `keyset_colors`. The record and its form hold them as color ids sorted
+ * ascending; a suggestion holds the colors to add and remove
+ * (`ColorsChange`), never the whole list, so approving it never drops colors
+ * added since.
+ */
+export const isVirtualSuggestionField = (type: SuggestionEntityType, key: string) =>
+  type === 'keyset' && key === 'colors'
+
+export interface ColorsChange {
+  add: number[]
+  remove: number[]
+}
+
+const colorCount = (count: number) =>
+  `${count} ${count === 1 ? 'color' : 'colors'}`
+
+const sortedIds = (ids: number[]) =>
+  [...new Set(ids)].sort((a, b) => a - b)
+
+export const isColorsChange = (value: unknown): value is ColorsChange =>
+  !!value &&
+  typeof value === 'object' &&
+  !Array.isArray(value) &&
+  ('add' in value || 'remove' in value)
+
+/** The colors to add and remove to go from `current` to `next`. */
+export const colorsChange = (current: number[], next: number[]): ColorsChange => ({
+  add: sortedIds(next.filter((id) => !current.includes(id))),
+  remove: sortedIds(current.filter((id) => !next.includes(id))),
+})
+
+/** `current` with a change applied, as approving it would leave the keyset. */
+export const colorsAfter = (current: number[], change: Partial<ColorsChange>) =>
+  sortedIds([
+    ...current.filter((id) => !change.remove?.includes(id)),
+    ...(change.add || []),
+  ])
+
+const colorIdOf = (color: unknown) =>
+  color && typeof color === 'object'
+    ? Number((color as { color_id?: number; id?: number }).color_id ?? (color as { id?: number }).id)
+    : Number(color)
+
+/**
+ * The record as suggestions compare it: a keyset's colors (rows of
+ * `keyset_colors`, as the keyset page loads them) as sorted color ids.
+ */
+export const suggestionRecord = (
+  type: SuggestionEntityType,
+  record: Record<string, any>,
+) =>
+  type === 'keyset' && Array.isArray(record.colors)
+    ? { ...record, colors: sortedIds(record.colors.map(colorIdOf)) }
+    : record
+
 const isBlank = (value: unknown) =>
   value === null ||
   value === undefined ||
@@ -313,22 +367,30 @@ export const withSlugKeys = (
 export const isSlugKey = (type: SuggestionEntityType, key: string) =>
   key in (SUGGESTION_ENTITIES[type].slugKeys?.('') || {})
 
-/** The columns the form model changed, with their normalized values. */
+/**
+ * The columns the form model changed, with their normalized values; a
+ * keyset's colors as the colors to add and remove.
+ */
 export const suggestionDiff = (
   type: SuggestionEntityType,
   record: Record<string, any>,
   model: Record<string, any>,
 ) =>
   Object.fromEntries(
-    Object.keys(model)
-      .filter(
-        (key) =>
-          key in record &&
-          isColumnValue(record[key]) &&
-          !isProtectedSuggestionField(type, key) &&
-          !sameSuggestionValue(model[key], record[key]),
-      )
-      .map((key) => [key, normalizeSuggestionValue(model[key])]),
+    Object.keys(model).flatMap((key) => {
+      if (isVirtualSuggestionField(type, key)) {
+        const change = colorsChange(record[key] || [], model[key] || [])
+
+        return change.add.length || change.remove.length ? [[key, change]] : []
+      }
+
+      return key in record &&
+        isColumnValue(record[key]) &&
+        !isProtectedSuggestionField(type, key) &&
+        !sameSuggestionValue(model[key], record[key])
+        ? [[key, normalizeSuggestionValue(model[key])]]
+        : []
+    }),
   )
 
 const FIELD_LABELS: Record<string, string> = {
@@ -343,6 +405,8 @@ const FIELD_LABELS: Record<string, string> = {
   end_date: 'GB End',
   kit_id: 'Kit',
   pcb_types: 'PCB',
+  'colors:add': 'Colors to Add',
+  'colors:remove': 'Colors to Remove',
   case_materials: 'Case',
   plate_materials: 'Plate',
   weight_materials: 'Weight',
@@ -372,6 +436,19 @@ export const formatSuggestionValue = (
   value: unknown,
   values: Record<string, any> = {},
 ) => {
+  if (isColorsChange(value)) {
+    return [
+      value.add?.length && `Add ${colorCount(value.add.length)}`,
+      value.remove?.length && `Remove ${colorCount(value.remove.length)}`,
+    ]
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  if (key === 'colors' && Array.isArray(value)) {
+    return value.length ? colorCount(value.length) : '—'
+  }
+
   const normalized = normalizeSuggestionValue(value)
 
   if (normalized === null) return '—'

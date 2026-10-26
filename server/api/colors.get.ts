@@ -9,6 +9,12 @@ export default defineEventHandler(async (event) => {
   const size = Number(query.size) || 20
   const system = query.system?.toString().trim()
   const term = query.term?.toString().trim()
+  // `ids=1,2,3`: the colors a keyset or a suggestion names
+  const ids = String(query.ids || '')
+    .split(',')
+    .map(Number)
+    .filter((id) => Number.isInteger(id) && id > 0)
+    .slice(0, 200)
 
   const from = (page - 1) * size
   const to = page * size - 1
@@ -17,6 +23,10 @@ export default defineEventHandler(async (event) => {
 
   if (system) {
     dbQuery = dbQuery.eq('system', system)
+  }
+
+  if (ids.length) {
+    dbQuery = dbQuery.in('id', ids)
   }
 
   if (term) {

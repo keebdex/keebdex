@@ -20,6 +20,15 @@
           :description="suggestion.review_note"
         />
 
+        <UAlert
+          v-if="reviewing && colorRemovals"
+          icon="hugeicons:alert-02"
+          color="warning"
+          variant="subtle"
+          title="Most Colors Removed"
+          :description="`This suggestion removes ${colorRemovals} of the keyset's ${suggestion.record.colors.length} colors. Leave out Colors to Remove unless that is intended.`"
+        />
+
         <div v-if="suggestion.reason" class="text-sm">
           <p class="text-xs uppercase tracking-widest text-muted mb-1">
             Reason or Source
@@ -46,7 +55,8 @@
           <SharedSuggestionChange
             v-for="row in rows"
             :key="row.key"
-            :field="row.key"
+            :field="row.field"
+            :label="row.label"
             :before="row.before"
             :after="row.after"
             :before-values="row.beforeValues"
@@ -91,14 +101,14 @@
 
             <SharedSuggestionChangesSince
               v-if="row.stale && expanded[row.key] && row.since.length"
-              :field="row.key"
+              :field="row.field"
               :revisions="row.since"
               :values="row.beforeValues"
             />
 
             <SharedSuggestionAlsoSuggested
               v-if="row.others.length"
-              :field="row.key"
+              :field="row.field"
               :suggestions="row.others"
               :values="row.beforeValues"
               @open="(other) => emit('open', other)"
@@ -150,7 +160,9 @@ import type { SuggestionEntityType } from '~/utils/suggestions'
 // changed since the suggestion was written are flagged, and reviewers can
 // open the revisions that changed them; fields other Pending suggestions also
 // change list those, and Review opens one. Submitters and reviewed
-// suggestions get the same comparison, read-only.
+// suggestions get the same comparison, read-only. A keyset's colors are two
+// rows, the colors to add and the colors to remove, each with its own
+// checkbox, so a moderator can take the additions and leave out removals.
 const props = defineProps<{
   suggestion: Record<string, any> | null
   approving?: boolean
@@ -201,6 +213,37 @@ const expanded = ref<Record<string, boolean>>({})
 // Other Pending suggestions for the record that change the same fields.
 const others = ref<Record<string, any>[]>([])
 
+const COLOR_PARTS = ['add', 'remove'] as const
+
+// What the checkboxes select: each field, or each non-empty part of colors
+// (`colors:add`, `colors:remove`).
+const selectionKeys = (changes: Record<string, unknown> = {}) =>
+  Object.entries(changes).flatMap(([key, value]) =>
+    isColorsChange(value)
+      ? COLOR_PARTS.filter((part) => value[part]?.length).map(
+          (part) => `${key}:${part}`,
+        )
+      : [key],
+  )
+
+// The changes with only the selected fields and parts of colors.
+const pickChanges = (
+  changes: Record<string, unknown> = {},
+  picked: Record<string, boolean>,
+) =>
+  Object.fromEntries(
+    Object.entries(changes).flatMap(([key, value]) => {
+      if (!isColorsChange(value)) return picked[key] ? [[key, value]] : []
+
+      const part = {
+        add: picked[`${key}:add`] ? value.add || [] : [],
+        remove: picked[`${key}:remove`] ? value.remove || [] : [],
+      }
+
+      return part.add.length || part.remove.length ? [[key, part]] : []
+    }),
+  )
+
 const isStale = (suggestion: Record<string, any>, key: string) =>
   suggestion.review_status === 'Pending' &&
   !!suggestion.record &&
@@ -210,7 +253,7 @@ watch(
   () => props.suggestion,
   (suggestion) => {
     selected.value = Object.fromEntries(
-      Object.keys(suggestion?.changes || {}).map((key) => [key, true]),
+      selectionKeys(suggestion?.changes).map((key) => [key, true]),
     )
     adjusting.value = false
     adjusted.value = {}
@@ -265,14 +308,19 @@ watch(
   { immediate: true },
 )
 
+// How many colors a keyset suggestion removes, when that is at least half
+// of them (two or more): worth a second look before approving.
+const colorRemovals = computed(() => {
+  const removed = props.suggestion?.changes?.colors?.remove?.length || 0
+  const current = props.suggestion?.record?.colors?.length || 0
+
+  return removed >= 2 && removed * 2 >= current ? removed : 0
+})
+
 const busy = computed(() => props.approving || uploading.value)
 
 const selectedChanges = computed(() =>
-  Object.fromEntries(
-    Object.entries(props.suggestion?.changes || {}).filter(
-      ([key]) => selected.value[key],
-    ),
-  ),
+  pickChanges(props.suggestion?.changes, selected.value),
 )
 
 const approvedChanges = computed(() =>
@@ -281,9 +329,7 @@ const approvedChanges = computed(() =>
 const approvedCount = computed(() => Object.keys(approvedChanges.value).length)
 
 const allSelected = computed(() =>
-  Object.keys(props.suggestion?.changes || {}).every(
-    (key) => selected.value[key],
-  ),
+  selectionKeys(props.suggestion?.changes).every((key) => selected.value[key]),
 )
 
 // Approved suggestions compare what was there before with what was applied.
@@ -302,22 +348,33 @@ const rows = computed(() => {
   const beforeValues = { ...(suggestion.record || {}), ...before }
   const afterValues = { ...beforeValues, ...after }
 
-  return Object.keys(approved ? after : suggestion.changes || {}).map(
-    (key) => ({
+  const shown = (approved ? after : suggestion.changes) || {}
+  const labels = (
+    approved ? ['Before', 'Applied'] : ['Current', 'Suggested']
+  ) as [string, string]
+
+  return selectionKeys(shown).map((key) => {
+    const [field, part] = key.split(':') as [
+      string,
+      (typeof COLOR_PARTS)[number] | undefined,
+    ]
+    const value = after?.[field] ?? null
+
+    return {
       key,
-      before: before?.[key] ?? null,
-      after: after?.[key] ?? null,
+      field,
+      label: part ? suggestionFieldLabel(key) : undefined,
+      before: before?.[field] ?? null,
+      // One part of a colors change, the other left empty.
+      after: part ? { add: [], remove: [], [part]: value[part] } : value,
       beforeValues,
       afterValues,
-      labels: (approved ? ['Before', 'Applied'] : ['Current', 'Suggested']) as [
-        string,
-        string,
-      ],
-      stale: isStale(suggestion, key),
-      since: changesSince.value[key] || [],
-      others: others.value.filter((other) => other.overlap?.includes(key)),
-    }),
-  )
+      labels,
+      stale: isStale(suggestion, field),
+      since: changesSince.value[field] || [],
+      others: others.value.filter((other) => other.overlap?.includes(field)),
+    }
+  })
 })
 
 const approve = () => {

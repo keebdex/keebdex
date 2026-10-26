@@ -30,8 +30,7 @@ const changes = defineModel<Record<string, unknown>>('changes', {
   default: () => ({}),
 })
 
-// Profiles have no form yet.
-const FORMS: Partial<Record<SuggestionEntityType, Component>> = {
+const FORMS: Record<SuggestionEntityType, Component> = {
   artisan_colorway: defineAsyncComponent(
     () => import('~/components/artisan/modal/ColorwayForm.vue'),
   ),
@@ -47,6 +46,9 @@ const FORMS: Partial<Record<SuggestionEntityType, Component>> = {
   keyset: defineAsyncComponent(
     () => import('~/components/keyset/modal/KeysetForm.vue'),
   ),
+  keyset_profile: defineAsyncComponent(
+    () => import('~/components/keyset/modal/ProfileForm.vue'),
+  ),
   keyboard_variant: defineAsyncComponent(
     () => import('~/components/keyboard/modal/VariantForm.vue'),
   ),
@@ -61,9 +63,19 @@ const FORMS: Partial<Record<SuggestionEntityType, Component>> = {
   ),
 }
 
+// A pending suggestion holds a keyset's colors as the colors to add and
+// remove; the form shows the colors the keyset would have.
+const initialValues = () =>
+  Object.fromEntries(
+    Object.entries(props.initial || {}).map(([key, value]) => [
+      key,
+      isColorsChange(value) ? colorsAfter(props.record[key] || [], value) : value,
+    ]),
+  )
+
 const model = ref<Record<string, any>>({
   ...props.record,
-  ...(props.initial || {}),
+  ...initialValues(),
 })
 
 // KeysetForm keeps the group buy dates in a separate range.
