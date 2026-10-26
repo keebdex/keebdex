@@ -85,8 +85,8 @@ const { data, refresh } = await useAsyncData(
   () => $fetch('/api/makers'),
   {
     transform: (makers) =>
-      makers.map(({ id, name, invertible_logo }) => ({
-        id,
+      makers.map(({ maker_id, name, invertible_logo }) => ({
+        maker_id,
         name,
         invertible_logo,
       })),
