@@ -1,7 +1,6 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import {
   REVISION_COLUMNS,
-  getRevisionColors,
   getRevisionRecord,
   parseRevisionId,
   requireRevisionStaff,
@@ -13,8 +12,7 @@ import {
 /**
  * One revision with its snapshot, the record before it (`before`), and the
  * record as it is now (`current`, null once deleted), so the history can
- * compare the revision with either. A keyset's color changes come with the
- * colors they name (`color_details`, by id).
+ * compare the revision with either.
  */
 export default defineEventHandler(async (event) => {
   const { client } = await requireRevisionStaff(event)
@@ -38,16 +36,9 @@ export default defineEventHandler(async (event) => {
     getRevisionRecord(client, data.entity_type, data.entity_id),
   ])
 
-  const colorDetails = await getRevisionColors(
-    client,
-    ...(data.changes?.colors || []),
-    current?.colors,
-  )
-
   return {
     ...revision,
     before: revisionBefore(data),
     current,
-    color_details: colorDetails,
   }
 })

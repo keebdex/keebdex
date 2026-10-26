@@ -29,8 +29,10 @@ export const useArtisanSubmissionWizard = ({
   const uploading = ref(false)
 
   // Step 1: an existing maker, or a new one proposed with the sculpt.
-  const owner = useSubmissionOwner('artisan', maker)
-  const makerKey = owner.key
+  const owner = useSubmissionOwner('artisan', maker, () => {
+    existingSculpt.value = { id: '' }
+    sculptMode.value = 'new'
+  })
 
   // A proposed maker has no sculpts yet.
   const { data: makerDetail, status: sculptsStatus } = useAsyncData<any>(
@@ -44,13 +46,6 @@ export const useArtisanSubmissionWizard = ({
       default: () => null,
     },
   )
-
-  watch(owner.isNew, (isNew) => {
-    if (isNew) {
-      existingSculpt.value = { id: '' }
-      sculptMode.value = 'new'
-    }
-  })
 
   // /api/makers/[maker] returns `sculpts` keyed by sculpt_id, not an array.
   const sculpts = computed(() =>
@@ -295,7 +290,6 @@ export const useArtisanSubmissionWizard = ({
   return {
     maker,
     owner,
-    makerKey,
     sculptMode,
     existingSculpt,
     sculptOptions,

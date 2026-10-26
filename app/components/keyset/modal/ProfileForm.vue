@@ -80,7 +80,6 @@ const { metadata, modelValue, mode } = defineProps({
     type: Object,
     default: null,
   },
-  isEdit: Boolean,
   mode: {
     type: String,
     default: 'standalone',
@@ -124,11 +123,10 @@ watch(
 const onSubmit = async () => {
   if (mode !== 'standalone') return
 
-  const { profile_id, id, ...body } = profile.value
-
-  await $fetch(`/api/profiles/${profile_id || metadata.profile_id}`, {
+  // The server keys the profile by the route, never by the body.
+  await $fetch(`/api/profiles/${metadata.profile_id}`, {
     method: 'post',
-    body,
+    body: profile.value,
   })
     .then((data) => {
       toast.add(

@@ -18,7 +18,6 @@
           <template #body="{ close }">
             <KeysetModalProfileForm
               :metadata="data.profile"
-              :is-edit="true"
               @on-success="
                 () => {
                   close()

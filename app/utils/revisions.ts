@@ -86,12 +86,14 @@ export interface RevisionColor {
   hex: string
 }
 
+/** A color as keysets list it (`GMK N9`), or its id until it is loaded. */
+export const keysetColorLabel = (color: Partial<RevisionColor> & { id: number }) =>
+  color.system ? `${color.system} ${color.code}` : `Color ${color.id}`
+
 export interface RevisionDetail extends Revision {
   snapshot: Record<string, unknown>
   before: Record<string, unknown> | null
   current: Record<string, unknown> | null
-  // The colors a keyset's `colors` change names, by id.
-  color_details?: Record<number, RevisionColor>
 }
 
 // Jobs and tools that write without a signed-in user, named like bot

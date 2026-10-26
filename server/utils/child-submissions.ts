@@ -553,7 +553,7 @@ const resolveParentReview = async ({
  * The maker, profile, or brand above the pages of a module: its own key, and
  * the pages (sculpts, keysets, keyboards) that point at it.
  */
-const OWNERS = {
+export const OWNERS = {
   artisan: {
     table: 'artisan_makers',
     key: 'maker_id',
@@ -587,7 +587,7 @@ const OWNERS = {
 >
 
 /** A page key's owner: `gmk/olivia` -> `gmk`, `mode/sonnet` -> `mode`. */
-export const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
+const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
 
 /**
  * Creates or updates a maker, profile, or brand from its form, keyed by
@@ -620,29 +620,17 @@ export const saveOwnerSubmission = async (
   ).maybeSingle()
 
   if (existing) {
-    const resubmission = await getOwnResubmission(
+    const { data } = await updateChildSubmission({
       client,
-      config.table,
+      table: config.table,
       match,
-      user.sub,
+      payload: record,
+      userId: user.sub,
       isStaff,
-    )
+      label: config.label,
+    })
 
-    const { data, error } = await matchRows(
-      from(client, config.table).update({ ...record, ...resubmission }),
-      match,
-    ).select()
-
-    fail(error)
-
-    if (!data?.length) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: `You can't edit this ${config.label} in its current state`,
-      })
-    }
-
-    return data[0] as Record<string, any>
+    return data
   }
 
   const { data, error } = await from(client, config.table)

@@ -36,20 +36,7 @@ const OWNERS = {
     label: 'Profile',
     list: '/api/keysets/profiles',
     // Grouped by keycap profile, like the catalog.
-    options: (data: any): Option[] =>
-      Object.entries(
-        (data?.groupedProfiles || {}) as Record<string, Record<string, string>>,
-      )
-        .map(([label, profiles]) => [
-          { type: 'label', label },
-          ...Object.entries(profiles).map(([value, name]) => ({
-            label: name,
-            value,
-          })),
-          { type: 'separator' },
-        ])
-        .flat()
-        .slice(0, -1),
+    options: (data: any): Option[] => groupedProfileItems(data?.groupedProfiles),
     detail: async (key: string) =>
       (
         await $fetch<any>('/api/keysets', {
@@ -84,11 +71,13 @@ const OWNERS = {
  * own form), created first on submit by `ensure()`, Pending for everyone but
  * its staff. In review mode it is locked once published, and while still
  * under review (`reviewStatus`) its form is shown again and `save()` writes it
- * before the rest.
+ * before the rest. `onNew` runs when a new owner is picked, so the next step
+ * (which has nothing to pick under it) can switch to new as well.
  */
 export const useSubmissionOwner = (
   domain: KeebModule,
   selected: Ref<{ id: string }>,
+  onNew?: () => void,
 ) => {
   const config = OWNERS[domain]
 
@@ -114,6 +103,22 @@ export const useSubmissionOwner = (
       : options.value.find((option) => option.value === selected.value.id)
           ?.label,
   )
+
+  if (onNew) {
+    watch(isNew, (value) => {
+      if (value) onNew()
+    })
+  }
+
+  /** The owner step's props for `SharedSubmissionEntityStep`. */
+  const stepProps = computed(() => ({
+    label: config.label,
+    tabs: options.value.length > 0,
+    options: options.value,
+    loading: status.value === 'pending',
+    underReview: !!reviewStatus.value,
+    name: label.value,
+  }))
 
   const canAdvance = computed(() =>
     isNew.value ? !!draft.value.name?.trim() : !!selected.value.id,
@@ -165,7 +170,6 @@ export const useSubmissionOwner = (
   }
 
   return {
-    label: config.label,
     ownerMode,
     draft,
     draftKey,
@@ -175,6 +179,7 @@ export const useSubmissionOwner = (
     options,
     status,
     optionLabel: label,
+    stepProps,
     canAdvance,
     validate,
     ensure,

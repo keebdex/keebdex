@@ -50,8 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import type { RevisionColor } from '~/utils/revisions'
-
 // One changed field of an edit suggestion: its label, the value before and
 // after (images as thumbnails, a keyset's colors as swatches, removed ones in
 // red and added ones in green), with slots for a checkbox in place of the
@@ -69,15 +67,12 @@ const props = withDefaults(
     beforeValues?: Record<string, any>
     afterValues?: Record<string, any>
     labels?: [string, string]
-    // Colors named by a `colors` value, by id.
-    colorDetails?: Record<number, RevisionColor>
   }>(),
   {
     beforeValues: () => ({}),
     afterValues: () => ({}),
     label: undefined,
     labels: () => ['Current', 'New'],
-    colorDetails: () => ({}),
   },
 )
 
@@ -92,20 +87,11 @@ const after = computed(() =>
     : props.after,
 )
 
-const { details: knownColors } = useKeysetColorDetails(() =>
-  colors.value
-    ? [...ids(before.value), ...ids(after.value)].filter(
-        (id) => !props.colorDetails[id],
-      )
-    : [],
+const { details } = useKeysetColorDetails(() =>
+  colors.value ? [...ids(before.value), ...ids(after.value)] : [],
 )
-const details = computed(() => ({ ...knownColors.value, ...props.colorDetails }))
 
-const colorLabel = (id: number) => {
-  const color = details.value[id]
-
-  return color ? `${color.system} ${color.code}` : `Color ${id}`
-}
+const colorLabel = (id: number) => keysetColorLabel(details.value[id] || { id })
 
 // Items on one side only: removed before, added after.
 const only = (value: unknown, other: unknown) =>

@@ -9,17 +9,12 @@
     >
       <template #maker>
         <SharedSubmissionEntityStep
+          v-bind="ownerStep"
           v-model:selected="maker.id"
           v-model:entity-mode="ownerMode"
-          label="Maker"
           reviewed="colorway"
           :mode="mode"
           hint="Pick the maker this colorway belongs to, or propose one Keebdex doesn't list yet."
-          :tabs="ownerOptions.length > 0"
-          :options="ownerOptions"
-          :loading="ownerStatus === 'pending'"
-          :under-review="!!ownerReviewStatus"
-          :name="makerLabel"
           :to="`/artisan/maker/${maker.id}`"
         >
           <ArtisanModalMakerForm
@@ -111,7 +106,6 @@ const submissionWizard = useArtisanSubmissionWizard({
 const {
   maker,
   owner,
-  makerKey,
   sculptMode,
   existingSculpt,
   sculptOptions,
@@ -128,10 +122,10 @@ const {
 const {
   ownerMode,
   draft: makerDraft,
-  options: ownerOptions,
-  status: ownerStatus,
   reviewStatus: ownerReviewStatus,
   optionLabel: makerLabel,
+  key: makerKey,
+  stepProps: ownerStep,
 } = owner
 
 const wizard = useSubmissionWizardActions({

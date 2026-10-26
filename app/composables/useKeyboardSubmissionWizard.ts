@@ -41,7 +41,10 @@ export const useKeyboardSubmissionWizard = ({
   })
 
   // Step 1: an existing brand, or a new one proposed with the keyboard.
-  const owner = useSubmissionOwner('keyboard', brand)
+  const owner = useSubmissionOwner('keyboard', brand, () => {
+    existingKeyboard.value = { id: '' }
+    keyboardMode.value = 'new'
+  })
   const keyboardMode = ref('existing')
   const existingKeyboard = ref({ id: queryKeyboard })
   // A direct "Add Release" link (keyboard pre-selected, no release id yet)
@@ -119,13 +122,6 @@ export const useKeyboardSubmissionWizard = ({
       default: () => null,
     },
   )
-
-  watch(owner.isNew, (isNew) => {
-    if (isNew) {
-      existingKeyboard.value = { id: '' }
-      keyboardMode.value = 'new'
-    }
-  })
 
   const keyboardOptions = computed(() =>
     (brandDetail.value?.keyboards || []).map((k: any) => ({

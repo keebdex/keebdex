@@ -9,17 +9,12 @@
     >
       <template #brand>
         <SharedSubmissionEntityStep
+          v-bind="ownerStep"
           v-model:selected="brand.id"
           v-model:entity-mode="ownerMode"
-          label="Brand"
           reviewed="variant"
           :mode="mode"
           hint="Pick the brand this keyboard belongs to, or propose one Keebdex doesn't list yet."
-          :tabs="ownerOptions.length > 0"
-          :options="ownerOptions"
-          :loading="ownerStatus === 'pending'"
-          :under-review="!!ownerReviewStatus"
-          :name="brandLabel"
           :to="`/keyboard/brand/${brand.id}`"
         >
           <KeyboardModalBrandForm
@@ -165,10 +160,9 @@ const {
 const {
   ownerMode,
   draft: brandDraft,
-  options: ownerOptions,
-  status: ownerStatus,
   reviewStatus: ownerReviewStatus,
   optionLabel: brandLabel,
+  stepProps: ownerStep,
 } = owner
 
 const wizard = useSubmissionWizardActions({

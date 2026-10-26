@@ -11,6 +11,7 @@ import {
   isProtectedSuggestionField,
   isVirtualSuggestionField,
   normalizeSuggestionValue,
+  suggestionRecord,
 } from '~/utils/suggestions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 import { suggestionChangesSchema } from '~/utils/schemas/suggestion'
@@ -144,15 +145,17 @@ export const PARENT_LOOKUPS = {
   },
 } as const
 
+// Fields that are not columns (`isVirtualSuggestionField`), joined as rows
+// and turned into values by `suggestionRecord`.
+export const VIRTUAL_FIELD_JOINS: Partial<Record<SuggestionEntityType, string>> = {
+  keyset: 'colors:keyset_colors(color_id)',
+}
+
 // Joined rows per record kind, for its name (and a keyset's colors).
 const RECORD_JOINS: Partial<Record<SuggestionEntityType, string>> = {
   keyset_kit: 'category:kit_categories(name)',
-  keyset: 'profile:keyset_profiles(name), colors:keyset_colors(color_id)',
+  keyset: `profile:keyset_profiles(name), ${VIRTUAL_FIELD_JOINS.keyset}`,
 }
-
-/** A keyset's colors as ids, sorted ascending, as suggestions compare them. */
-export const keysetColorIds = (rows: { color_id: number }[] | null = []) =>
-  [...new Set((rows || []).map((row) => row.color_id))].sort((a, b) => a - b)
 
 // Joined rows only for `names` (what the Edits queue lists), dropped from
 // `record` afterwards so forms and diffs see the record's own columns.
@@ -269,9 +272,10 @@ export const withSuggestionRecords = async (
       }
 
       for (const record of data || []) {
-        if (type === 'keyset') record.colors = keysetColorIds(record.colors)
-
-        records.set(`${type}:${record.id}`, omitSensitive(record))
+        records.set(
+          `${type}:${record.id}`,
+          omitSensitive(suggestionRecord(type, record)),
+        )
       }
     }),
   )

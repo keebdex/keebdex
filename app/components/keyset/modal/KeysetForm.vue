@@ -36,26 +36,7 @@
       >
         <USelect
           v-model="keyset.profile_id"
-          :items="
-            Object.entries(groupedProfiles)
-              .map(([profile, profileManufacturers], idx) => {
-                return [
-                  { type: 'label', label: profile },
-                  ...Object.entries(profileManufacturers).map(
-                    ([value, label]) => ({
-                      type: 'item',
-                      label,
-                      value,
-                    }),
-                  ),
-                  {
-                    type: 'separator',
-                  },
-                ]
-              })
-              .flat()
-              .slice(0, -1)
-          "
+          :items="groupedProfileItems(groupedProfiles)"
           class="w-full"
         />
       </UFormField>

@@ -2,7 +2,12 @@ import { createError } from 'h3'
 import { groupBy } from 'es-toolkit'
 import type { H3Event } from 'h3'
 import { getActorProfile } from './admin'
-import { PARENT_LOOKUPS, keysetColorIds, parentName } from './edit-suggestions'
+import { OWNERS } from './child-submissions'
+import {
+  PARENT_LOOKUPS,
+  VIRTUAL_FIELD_JOINS,
+  parentName,
+} from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
@@ -10,8 +15,10 @@ import {
   PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isSuggestionEntityType,
+  suggestionRecord,
 } from '~/utils/suggestions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
@@ -168,13 +175,6 @@ export const withRevisionActors = async (
   })
 }
 
-// Makers, profiles and brands are their own page, keyed by their own key.
-const OWNER_KEYS: Partial<Record<SuggestionEntityType, string>> = {
-  artisan_maker: 'maker_id',
-  keyset_profile: 'profile_id',
-  keyboard_brand: 'slug',
-}
-
 /**
  * Adds `parent_name` to each revision: the name of its page now (a maker,
  * profile, or brand, or a sculpt, keyset, or keyboard after its maker,
@@ -187,46 +187,24 @@ export const withParentNames = async (
 ) => {
   const db = client as any
   const names = new Map<string, string | null>()
-  const withKey = revisions.filter((row) => row.parent_key)
-  const isOwner = (row: any) => OWNER_ENTITY_TYPES.includes(row.entity_type)
-  const byDomain = groupBy(
-    withKey.filter((row) => !isOwner(row)),
-    (row) => row.domain as keyof typeof PARENT_LOOKUPS,
-  )
-  const byOwner = groupBy(
-    withKey.filter(isOwner),
-    (row) => row.entity_type as SuggestionEntityType,
-  )
+  // Makers, profiles and brands are their own page, keyed by their own key.
+  const lookupOf = (row: { domain: KeebModule; entity_type: string }) => {
+    if (!OWNER_ENTITY_TYPES.includes(row.entity_type as SuggestionEntityType)) {
+      return PARENT_LOOKUPS[row.domain]
+    }
 
-  await Promise.all(
-    Object.entries(byOwner).map(async ([type, rows]) => {
-      const entityType = type as SuggestionEntityType
-      const key = OWNER_KEYS[entityType]
+    const { table, key } = OWNERS[row.domain]
 
-      if (!key) return
-
-      const { data, error } = await db
-        .from(SUGGESTION_ENTITIES[entityType].table)
-        .select(`${key}, name`)
-        .in(key, [...new Set(rows.map((row) => row.parent_key))])
-
-      if (error) {
-        throw createError({ statusCode: 500, statusMessage: error.message })
-      }
-
-      for (const owner of data || []) {
-        names.set(`${rows[0].domain}:${owner[key]}`, owner.name)
-      }
-    }),
+    return { table, key, select: `${key}, name` }
+  }
+  const groups = groupBy(
+    revisions.filter((row) => row.parent_key && lookupOf(row)),
+    (row) => lookupOf(row).table,
   )
 
   await Promise.all(
-    Object.entries(byDomain).map(async ([key, rows]) => {
-      const domain = key as keyof typeof PARENT_LOOKUPS
-      const lookup = PARENT_LOOKUPS[domain]
-
-      if (!lookup) return
-
+    Object.values(groups).map(async (rows) => {
+      const lookup = lookupOf(rows[0])
       const { data, error } = await db
         .from(lookup.table)
         .select(lookup.select)
@@ -237,7 +215,7 @@ export const withParentNames = async (
       }
 
       for (const parent of data || []) {
-        names.set(`${domain}:${parent[lookup.key]}`, parentName(parent))
+        names.set(`${rows[0].domain}:${parent[lookup.key]}`, parentName(parent))
       }
     }),
   )
@@ -274,7 +252,7 @@ export const getRevisionRecord = async (
   const db = client as any
   const { data, error } = await db
     .from(SUGGESTION_ENTITIES[entityType].table)
-    .select(entityType === 'keyset' ? '*, colors:keyset_colors(color_id)' : '*')
+    .select(['*', VIRTUAL_FIELD_JOINS[entityType]].filter(Boolean).join(', '))
     .eq('id', entityId)
     .maybeSingle()
 
@@ -284,39 +262,7 @@ export const getRevisionRecord = async (
 
   if (!data) return null
 
-  if (entityType === 'keyset') data.colors = keysetColorIds(data.colors)
-
-  return omitSensitive(data)
-}
-
-/**
- * The colors named in a keyset revision's `colors` and in the keyset now,
- * by id, so the history can show them as swatches.
- */
-export const getRevisionColors = async (
-  client: SupabaseClient,
-  ...lists: unknown[]
-) => {
-  const ids = [
-    ...new Set(
-      lists.flatMap((list) =>
-        Array.isArray(list) ? list.filter(Number.isInteger) : [],
-      ),
-    ),
-  ]
-
-  if (!ids.length) return {}
-
-  const { data, error } = await (client as any)
-    .from('colors')
-    .select('id, system, code, name, hex')
-    .in('id', ids)
-
-  if (error) {
-    throw createError({ statusCode: 500, statusMessage: error.message })
-  }
-
-  return Object.fromEntries((data || []).map((color: any) => [color.id, color]))
+  return omitSensitive(suggestionRecord(entityType, data))
 }
 
 /**

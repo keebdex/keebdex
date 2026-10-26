@@ -9,24 +9,15 @@
     >
       <template #profile>
         <SharedSubmissionEntityStep
+          v-bind="ownerStep"
           v-model:selected="profile.id"
           v-model:entity-mode="ownerMode"
-          label="Profile"
           reviewed="kit"
           :mode="mode"
           hint="Pick the manufacturer profile this keyset belongs to, or propose one Keebdex doesn't list yet."
-          :tabs="ownerOptions.length > 0"
-          :options="ownerOptions"
-          :loading="ownerStatus === 'pending'"
-          :under-review="!!ownerReviewStatus"
-          :name="profileLabel || manufacturers[profile.id]"
           :to="`/keyset/${profile.id}`"
         >
-          <KeysetModalProfileForm
-            v-model="profileDraft"
-            mode="embedded"
-            :is-edit="mode === 'review'"
-          />
+          <KeysetModalProfileForm v-model="profileDraft" mode="embedded" />
         </SharedSubmissionEntityStep>
       </template>
 
@@ -130,7 +121,6 @@ const submissionWizard = useKeysetSubmissionWizard({
 const {
   profile,
   owner,
-  manufacturers,
   keysetMode,
   existingKeyset,
   keysetOptions,
@@ -150,10 +140,9 @@ const {
   ownerMode,
   isNew: ownerIsNew,
   draft: profileDraft,
-  options: ownerOptions,
-  status: ownerStatus,
   reviewStatus: ownerReviewStatus,
   optionLabel: profileLabel,
+  stepProps: ownerStep,
 } = owner
 
 const kitLabel = () =>
@@ -179,7 +168,7 @@ const items = computed(() => [
   {
     slot: 'profile',
     title: 'Profile',
-    description: profileLabel.value || manufacturers.value[profile.value.id],
+    description: profileLabel.value,
     icon: 'hugeicons:grid-view',
   },
   {

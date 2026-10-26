@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
       await resubmitRejectedParent(client, 'keysets', {
         profile_keyset_id: profileKeysetId,
       })
-      await resubmitRejectedOwner(client, 'keyset', ownerKeyOf(profileKeysetId))
+      await resubmitRejectedOwner(client, 'keyset', profile!)
     }
   } else {
     const { error } = await client.from('keyset_kits').insert({

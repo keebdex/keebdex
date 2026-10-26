@@ -172,7 +172,7 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keyset_profiles',
     label: 'Profile',
     nameKey: 'name',
-    formProps: () => ({ isEdit: true }),
+    formProps: () => ({}),
     protected: ['profile_id'],
   },
   keyboard_variant: {
@@ -262,7 +262,8 @@ export interface ColorsChange {
 const colorCount = (count: number) =>
   `${count} ${count === 1 ? 'color' : 'colors'}`
 
-const sortedIds = (ids: number[]) =>
+/** Ids without duplicates, sorted ascending, as color lists are compared. */
+export const sortedIds = (ids: number[]) =>
   [...new Set(ids)].sort((a, b) => a - b)
 
 export const isColorsChange = (value: unknown): value is ColorsChange =>

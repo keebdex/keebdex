@@ -38,7 +38,10 @@ export const useKeysetSubmissionWizard = ({
   const existingKeyset = ref({ id: queryKeyset })
 
   // Step 1: an existing profile, or a new one proposed with the keyset.
-  const owner = useSubmissionOwner('keyset', profile)
+  const owner = useSubmissionOwner('keyset', profile, () => {
+    existingKeyset.value = { id: '' }
+    keysetMode.value = 'new'
+  })
 
   // Profiles a keyset may name: the published ones, the caller's own
   // proposals, and the one being proposed.
@@ -278,13 +281,6 @@ export const useKeysetSubmissionWizard = ({
   )
 
   // A proposed profile has no keysets yet.
-  watch(owner.isNew, (isNew) => {
-    if (isNew) {
-      existingKeyset.value = { id: '' }
-      keysetMode.value = 'new'
-    }
-  })
-
   // Reset the dependent keyset selection so a stale id from a previous profile isn't
   // submitted — but NOT on the initial run, which would wipe a pre-selected existing
   // keyset id coming from a direct "Add Kit" link's `keyset` query param.
@@ -367,7 +363,6 @@ export const useKeysetSubmissionWizard = ({
   return {
     profile,
     owner,
-    manufacturers,
     keysetMode,
     existingKeyset,
     keysetOptions,

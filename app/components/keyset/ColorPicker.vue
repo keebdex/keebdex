@@ -12,6 +12,7 @@
     placeholder="Which color are you looking for?"
     label-key="code"
     class="w-full"
+    @update:open="onOpen"
   >
     <template #item="{ item }">
       <UUser :name="`${item.system} ${item.code}`" :description="item.name">
@@ -22,7 +23,7 @@
     </template>
 
     <template #tags-item-text="{ item }">
-      {{ colorLabel(item) }}
+      {{ keysetColorLabel(item) }}
     </template>
 
     <template #content-bottom>
@@ -52,31 +53,31 @@ const colorOptions = ref([])
 
 const { details, remember } = useKeysetColorDetails(() => model.value)
 
-const colorLabel = (color) =>
-  color.system ? `${color.system} ${color.code}` : `Color ${color.id}`
-
 const selected = computed({
   get: () => model.value.map((id) => details.value[id] || { id }),
   set: (colors) => {
     remember(colors.filter((color) => color.code))
-    model.value = [...new Set(colors.map((color) => color.id))].sort(
-      (a, b) => a - b,
-    )
+    model.value = sortedIds(colors.map((color) => color.id))
   },
 })
 
-const { data, status, shouldSearch, normalizedTerm } = useAdvancedSearch(
-  '/api/colors',
-  {
+// The first page loads when the menu opens (or on typing), not with every
+// form that shows the picker.
+const { data, status, refresh, shouldSearch, normalizedTerm } =
+  useAdvancedSearch('/api/colors', {
     key: 'keyset-color-picker-search',
     term,
     minLength: 2,
+    immediate: false,
     pagination: {
       page,
       size,
     },
-  },
-)
+  })
+
+const onOpen = (open) => {
+  if (open && status.value === 'idle') refresh()
+}
 
 const hasMore = computed(() => {
   const count = data.value?.count || 0

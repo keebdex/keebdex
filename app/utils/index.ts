@@ -47,6 +47,25 @@ export const keysetProfileLabel = (
   return name ? `${manufacturer} ${name}` : manufacturer
 }
 
+/**
+ * Select items for profiles grouped by keycap profile (`groupedProfiles` from
+ * `GET /api/keysets/profiles`): a label per group, then its profiles.
+ */
+export const groupedProfileItems = (
+  groupedProfiles: Record<string, Record<string, string>> = {},
+) =>
+  Object.entries(groupedProfiles)
+    .flatMap(([label, profiles]) => [
+      { type: 'separator' as const },
+      { type: 'label' as const, label },
+      ...Object.entries(profiles).map(([value, name]) => ({
+        type: 'item' as const,
+        label: name,
+        value,
+      })),
+    ])
+    .slice(1)
+
 export const keysetStatusMap = {
   ic: {
     title: 'Interest Check',

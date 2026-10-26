@@ -66,7 +66,6 @@
             :before-values="detail.before || {}"
             :after-values="detail.snapshot"
             :highlight="conflicts"
-            :color-details="detail.color_details"
             empty="This revision changed no fields that can be shown."
           />
 
