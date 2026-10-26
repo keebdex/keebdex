@@ -30,12 +30,16 @@ const changes = defineModel<Record<string, unknown>>('changes', {
   default: () => ({}),
 })
 
-const FORMS: Record<SuggestionEntityType, Component> = {
+// Profiles have no form yet.
+const FORMS: Partial<Record<SuggestionEntityType, Component>> = {
   artisan_colorway: defineAsyncComponent(
     () => import('~/components/artisan/modal/ColorwayForm.vue'),
   ),
   artisan_sculpt: defineAsyncComponent(
     () => import('~/components/artisan/modal/SculptForm.vue'),
+  ),
+  artisan_maker: defineAsyncComponent(
+    () => import('~/components/artisan/modal/MakerForm.vue'),
   ),
   keyset_kit: defineAsyncComponent(
     () => import('~/components/keyset/modal/KeysetKitForm.vue'),
@@ -51,6 +55,9 @@ const FORMS: Record<SuggestionEntityType, Component> = {
   ),
   keyboard: defineAsyncComponent(
     () => import('~/components/keyboard/modal/KeyboardForm.vue'),
+  ),
+  keyboard_brand: defineAsyncComponent(
+    () => import('~/components/keyboard/modal/BrandForm.vue'),
   ),
 }
 

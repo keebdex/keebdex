@@ -6,10 +6,12 @@ import { PARENT_LOOKUPS, parentName } from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
+  OWNER_ENTITY_TYPES,
   PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isSuggestionEntityType,
 } from '~/utils/suggestions'
+import type { SuggestionEntityType } from '~/utils/suggestions'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
@@ -166,9 +168,17 @@ export const withRevisionActors = async (
   })
 }
 
+// Makers, profiles and brands are their own page, keyed by their own key.
+const OWNER_KEYS: Partial<Record<SuggestionEntityType, string>> = {
+  artisan_maker: 'maker_id',
+  keyset_profile: 'profile_id',
+  keyboard_brand: 'slug',
+}
+
 /**
- * Adds `parent_name` to each revision: the name of its sculpt, keyset or
- * keyboard page now, or, once that page is gone, the label of the page's own
+ * Adds `parent_name` to each revision: the name of its page now (a maker,
+ * profile, or brand, or a sculpt, keyset, or keyboard after its maker,
+ * profile, or brand), or, once that page is gone, the label of the page's own
  * revision when one is in the list.
  */
 export const withParentNames = async (
@@ -177,9 +187,37 @@ export const withParentNames = async (
 ) => {
   const db = client as any
   const names = new Map<string, string | null>()
+  const withKey = revisions.filter((row) => row.parent_key)
+  const isOwner = (row: any) => OWNER_ENTITY_TYPES.includes(row.entity_type)
   const byDomain = groupBy(
-    revisions.filter((row) => row.parent_key),
+    withKey.filter((row) => !isOwner(row)),
     (row) => row.domain as keyof typeof PARENT_LOOKUPS,
+  )
+  const byOwner = groupBy(
+    withKey.filter(isOwner),
+    (row) => row.entity_type as SuggestionEntityType,
+  )
+
+  await Promise.all(
+    Object.entries(byOwner).map(async ([type, rows]) => {
+      const entityType = type as SuggestionEntityType
+      const key = OWNER_KEYS[entityType]
+
+      if (!key) return
+
+      const { data, error } = await db
+        .from(SUGGESTION_ENTITIES[entityType].table)
+        .select(`${key}, name`)
+        .in(key, [...new Set(rows.map((row) => row.parent_key))])
+
+      if (error) {
+        throw createError({ statusCode: 500, statusMessage: error.message })
+      }
+
+      for (const owner of data || []) {
+        names.set(`${rows[0].domain}:${owner[key]}`, owner.name)
+      }
+    }),
   )
 
   await Promise.all(
@@ -221,7 +259,11 @@ export const withParentNames = async (
   })
 }
 
-/** The record a revision belongs to, as it is now, or null once deleted. */
+/**
+ * The record a revision belongs to, as it is now, or null once deleted. A
+ * keyset also gets `colors`, its color ids sorted ascending, the way its
+ * revisions record them.
+ */
 export const getRevisionRecord = async (
   client: SupabaseClient,
   entityType: string,
@@ -229,9 +271,10 @@ export const getRevisionRecord = async (
 ) => {
   if (!isSuggestionEntityType(entityType)) return null
 
-  const { data, error } = await (client as any)
+  const db = client as any
+  const { data, error } = await db
     .from(SUGGESTION_ENTITIES[entityType].table)
-    .select('*')
+    .select(entityType === 'keyset' ? '*, colors:keyset_colors(color_id)' : '*')
     .eq('id', entityId)
     .maybeSingle()
 
@@ -239,7 +282,47 @@ export const getRevisionRecord = async (
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
-  return data ? omitSensitive(data) : null
+  if (!data) return null
+
+  if (entityType === 'keyset') {
+    data.colors = [
+      ...new Set<number>(
+        (data.colors || []).map((row: { color_id: number }) => row.color_id),
+      ),
+    ].sort((a, b) => a - b)
+  }
+
+  return omitSensitive(data)
+}
+
+/**
+ * The colors named in a keyset revision's `colors` and in the keyset now,
+ * by id, so the history can show them as swatches.
+ */
+export const getRevisionColors = async (
+  client: SupabaseClient,
+  ...lists: unknown[]
+) => {
+  const ids = [
+    ...new Set(
+      lists.flatMap((list) =>
+        Array.isArray(list) ? list.filter(Number.isInteger) : [],
+      ),
+    ),
+  ]
+
+  if (!ids.length) return {}
+
+  const { data, error } = await (client as any)
+    .from('colors')
+    .select('id, system, code, name, hex')
+    .in('id', ids)
+
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+
+  return Object.fromEntries((data || []).map((color: any) => [color.id, color]))
 }
 
 /**

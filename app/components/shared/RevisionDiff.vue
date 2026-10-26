@@ -12,6 +12,7 @@
       :before-values="beforeValues"
       :after-values="afterValues"
       :labels="labels"
+      :color-details="colorDetails"
     >
       <template v-if="highlight.includes(diff.key)" #actions>
         <UBadge
@@ -28,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import type { RevisionFieldDiff } from '~/utils/revisions'
+import type { RevisionColor, RevisionFieldDiff } from '~/utils/revisions'
 
 // Field-by-field comparison for the History slideover, built on the edit
 // suggestion rows (labels, formatted values, image thumbnails). `highlight`
@@ -41,6 +42,7 @@ withDefaults(
     afterValues?: Record<string, any>
     highlight?: string[]
     empty?: string
+    colorDetails?: Record<number, RevisionColor>
   }>(),
   {
     labels: () => ['Before', 'After'],
@@ -48,6 +50,7 @@ withDefaults(
     afterValues: () => ({}),
     highlight: () => [],
     empty: 'No fields to compare.',
+    colorDetails: () => ({}),
   },
 )
 </script>

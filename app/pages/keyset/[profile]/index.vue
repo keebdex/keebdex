@@ -9,14 +9,28 @@
     :size="size"
     @update:page="setPage"
     @update:keysets="refresh"
-  />
+  >
+    <template v-if="editable" #actions>
+      <SharedRevisionHistory
+        domain="keyset"
+        :parent-key="profile"
+        description="Every change to this profile, newest first. Its keysets keep their own history."
+        @reverted="refresh()"
+      />
+    </template>
+  </KeysetListing>
 </template>
 
 <script setup>
 const route = useRoute()
+const userStore = useUserStore()
 const { manufacturers } = useKeysetProfiles()
 
 const { profile } = route.params
+
+// Nobody is assigned a profile, so only admins and editors without
+// assignments see its history.
+const editable = computed(() => userStore.isEditable(profile))
 
 const { page, size, setPage } = usePagination(36)
 

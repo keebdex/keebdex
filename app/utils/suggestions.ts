@@ -17,17 +17,36 @@ import type { KeebModule } from '~/utils/keeb-modules'
 export type SuggestionEntityType =
   | 'artisan_colorway'
   | 'artisan_sculpt'
+  | 'artisan_maker'
   | 'keyset_kit'
   | 'keyset'
+  | 'keyset_profile'
   | 'keyboard_variant'
   | 'keyboard_release'
   | 'keyboard'
+  | 'keyboard_brand'
 
-/** Records that are a page themselves (sculpt, keyset, keyboard) rather than a child of one. */
+/**
+ * Records that are a page themselves (maker, sculpt, profile, keyset, brand,
+ * keyboard) rather than a child of one.
+ */
 export const PAGE_ENTITY_TYPES: SuggestionEntityType[] = [
+  'artisan_maker',
   'artisan_sculpt',
+  'keyset_profile',
   'keyset',
+  'keyboard_brand',
   'keyboard',
+]
+
+/**
+ * Pages above the sculpt, keyset, and keyboard pages: their revisions are
+ * kept, but the database takes no edit suggestions for them yet.
+ */
+export const OWNER_ENTITY_TYPES: SuggestionEntityType[] = [
+  'artisan_maker',
+  'keyset_profile',
+  'keyboard_brand',
 ]
 
 export interface SuggestionEntity {
@@ -111,6 +130,25 @@ export const SUGGESTION_ENTITIES: Record<
     ],
     slugKeys: (name) => ({ sculpt_id: nameSlug(name) }),
   },
+  artisan_maker: {
+    type: 'artisan_maker',
+    domain: 'artisan',
+    table: 'artisan_makers',
+    label: 'Maker',
+    nameKey: 'name',
+    formProps: () => ({ isEdit: true }),
+    // maker_id is the maker's page key and staff assignment; the rest are
+    // the Google Doc settings and flags staff set.
+    protected: [
+      'maker_id',
+      'verified',
+      'deleted',
+      'document_ids',
+      'contributors',
+      'disable_google_sync',
+      'invertible_logo',
+    ],
+  },
   keyset_kit: {
     type: 'keyset_kit',
     domain: 'keyset',
@@ -130,6 +168,15 @@ export const SUGGESTION_ENTITIES: Record<
     // profile_keyset_id is built by the database from profile_id and slug.
     protected: ['profile_id', 'profile_keyset_id'],
     slugKeys: (name) => ({ slug: nameSlug(name) }),
+  },
+  keyset_profile: {
+    type: 'keyset_profile',
+    domain: 'keyset',
+    table: 'keyset_profiles',
+    label: 'Profile',
+    nameKey: 'name',
+    formProps: () => ({ isEdit: true }),
+    protected: ['profile_id'],
   },
   keyboard_variant: {
     type: 'keyboard_variant',
@@ -167,6 +214,16 @@ export const SUGGESTION_ENTITIES: Record<
     // brand_keyboard_slug is built by the database from brand_slug and slug.
     protected: ['brand_slug', 'brand_keyboard_slug'],
     slugKeys: (name) => ({ slug: nameSlug(name) }),
+  },
+  keyboard_brand: {
+    type: 'keyboard_brand',
+    domain: 'keyboard',
+    table: 'keyboard_brands',
+    label: 'Brand',
+    nameKey: 'name',
+    formProps: () => ({ isEdit: true }),
+    // slug is the brand's page key and staff assignment.
+    protected: ['slug', 'invertible_logo'],
   },
 }
 

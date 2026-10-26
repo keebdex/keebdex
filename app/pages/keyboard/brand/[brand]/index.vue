@@ -52,6 +52,14 @@
             </template>
           </UModal>
 
+          <SharedRevisionHistory
+            v-if="editable"
+            domain="keyboard"
+            :parent-key="brand"
+            description="Every change to this brand, newest first. Its keyboards keep their own history."
+            @reverted="refresh()"
+          />
+
           <SharedProfileDrawer
             :title="data.name"
             :slug="data.slug"

@@ -23,6 +23,8 @@
               />
             </template>
           </UModal>
+
+          <slot name="actions" />
         </template>
       </UDashboardNavbar>
 

@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { SUGGESTION_ENTITY_TYPES } from '~/utils/suggestions'
+import {
+  OWNER_ENTITY_TYPES,
+  SUGGESTION_ENTITY_TYPES,
+} from '~/utils/suggestions'
 
 export const SUGGESTION_REASON_MAX_LENGTH = 500
 
@@ -24,7 +27,11 @@ export const suggestionChangesSchema = z
   })
 
 export const createSuggestionSchema = z.object({
-  entity_type: z.enum(SUGGESTION_ENTITY_TYPES),
+  entity_type: z
+    .enum(SUGGESTION_ENTITY_TYPES)
+    .refine((type) => !OWNER_ENTITY_TYPES.includes(type), {
+      message: 'This record does not take suggestions yet.',
+    }),
   entity_id: z.coerce.number().int().positive(),
   changes: suggestionChangesSchema,
   reason: suggestionReasonSchema,

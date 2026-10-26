@@ -52,6 +52,14 @@
             </template>
           </UModal>
 
+          <SharedRevisionHistory
+            v-if="editable"
+            domain="artisan"
+            :parent-key="route.params.maker"
+            description="Every change to this maker, newest first. Its sculpts keep their own history."
+            @reverted="refresh()"
+          />
+
           <UModal
             v-if="Object.hasOwn(favorites, maker.maker_id)"
             v-model:visible="visible.customize_pins"
