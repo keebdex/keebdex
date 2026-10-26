@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     .select(
       '*, sculpts:artisan_sculpts (*, total_colorways:artisan_colorways(count), colorways:artisan_colorways(img, order, created_at))',
     )
-    .eq('id', makerId)
+    .eq('maker_id', makerId)
     .eq('sculpts.deleted', false)
     .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.total_colorways' })
     .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.colorways' })

@@ -48,10 +48,10 @@
         <UPageGrid :class="artisanGridClass">
           <SharedKeebLogoCard
             v-for="maker in favoriteMakers"
-            :key="maker.id"
+            :key="maker.maker_id"
             :title="maker.name"
-            :to="`/artisan/maker/${maker.id}`"
-            :slug="maker.id"
+            :to="`/artisan/maker/${maker.maker_id}`"
+            :slug="maker.maker_id"
             :invertible="maker.invertible_logo"
             aspect="square"
           />
@@ -61,10 +61,10 @@
       <UPageGrid :class="artisanGridClass">
         <SharedKeebLogoCard
           v-for="maker in otherMakers"
-          :key="maker.id"
+          :key="maker.maker_id"
           :title="maker.name"
-          :to="`/artisan/maker/${maker.id}`"
-          :slug="maker.id"
+          :to="`/artisan/maker/${maker.maker_id}`"
+          :slug="maker.maker_id"
           :invertible="maker.invertible_logo"
           aspect="square"
         />
@@ -100,10 +100,10 @@ const visible = ref(false)
 const customize = ref(false)
 
 const favoriteMakers = computed(() => {
-  return data.value.filter((m) => Object.keys(favorites.value).includes(m.id))
+  return data.value.filter((m) => Object.keys(favorites.value).includes(m.maker_id))
 })
 
 const otherMakers = computed(() => {
-  return data.value.filter((m) => !Object.keys(favorites.value).includes(m.id))
+  return data.value.filter((m) => !Object.keys(favorites.value).includes(m.maker_id))
 })
 </script>

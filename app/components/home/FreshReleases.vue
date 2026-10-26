@@ -44,6 +44,7 @@
 
       <HomeMarquee
         :items="artisanDrops"
+        item-key="maker_id"
         :max="4"
         grid="sm:grid-cols-2 lg:grid-cols-4"
         item-class="w-60"
@@ -51,7 +52,7 @@
       >
         <template #default="{ item: maker }">
           <UPageCard
-            :to="`/artisan/maker/${maker.id}`"
+            :to="`/artisan/maker/${maker.maker_id}`"
             variant="subtle"
             spotlight
             class="h-full"
@@ -61,7 +62,7 @@
               <UUser
                 size="lg"
                 :avatar="{
-                  src: `${imgUrl}/logo/${maker.id}.png`,
+                  src: `${imgUrl}/logo/${maker.maker_id}.png`,
                   alt: maker.name,
                   ui: {
                     root: 'rounded-none bg-transparent',

@@ -6,7 +6,7 @@
         multiple
         filter
         label-key="name"
-        value-key="id"
+        value-key="maker_id"
         :items="makers"
         selected-icon="hugeicons:pin"
         :ui="{
@@ -15,7 +15,7 @@
       >
         <template #item-leading="{ item }">
           <UAvatar
-            :src="`${$config.public.imgUrl}/logo/${item.id}.png`"
+            :src="`${$config.public.imgUrl}/logo/${item.maker_id}.png`"
             size="xs"
             :ui="{
               root: 'rounded-none bg-transparent',

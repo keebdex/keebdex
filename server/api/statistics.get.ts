@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       additions.set(name, {
         name,
         invertible_logo: colorway.maker?.invertible_logo,
-        id: colorway.maker_id,
+        maker_id: colorway.maker_id,
         additions: 1,
       })
     }

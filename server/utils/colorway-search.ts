@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { PUBLISHED_FILTER } from './index'
 
 export const COLORWAY_SEARCH_SELECT =
-  '*, maker:artisan_makers(id, name, invertible_logo), sculpt:artisan_sculpts(name)'
+  '*, maker:artisan_makers(maker_id, name, invertible_logo), sculpt:artisan_sculpts(name)'
 
 // rows fetched per palette query before ranking
 const PALETTE_FETCH_LIMIT = 200

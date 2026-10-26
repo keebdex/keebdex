@@ -217,7 +217,7 @@ export type Database = {
             columns: ["maker_id"]
             isOneToOne: false
             referencedRelation: "artisan_makers"
-            referencedColumns: ["id"]
+            referencedColumns: ["maker_id"]
           },
           {
             foreignKeyName: "colorways_maker_sculpt_id_fkey"
@@ -240,9 +240,10 @@ export type Database = {
           document_ids: Json[] | null
           founded: string | null
           fts: unknown
-          id: string
+          id: number
           instagram: string | null
           invertible_logo: boolean | null
+          maker_id: string
           name: string
           updated_at: string | null
           verified: boolean
@@ -259,9 +260,10 @@ export type Database = {
           document_ids?: Json[] | null
           founded?: string | null
           fts?: unknown
-          id: string
+          id?: never
           instagram?: string | null
           invertible_logo?: boolean | null
+          maker_id: string
           name: string
           updated_at?: string | null
           verified?: boolean
@@ -278,9 +280,10 @@ export type Database = {
           document_ids?: Json[] | null
           founded?: string | null
           fts?: unknown
-          id?: string
+          id?: never
           instagram?: string | null
           invertible_logo?: boolean | null
+          maker_id?: string
           name?: string
           updated_at?: string | null
           verified?: boolean
@@ -377,7 +380,7 @@ export type Database = {
             columns: ["maker_id"]
             isOneToOne: false
             referencedRelation: "artisan_makers"
-            referencedColumns: ["id"]
+            referencedColumns: ["maker_id"]
           },
           {
             foreignKeyName: "artisan_sculpts_submitted_by_fkey"
@@ -1067,27 +1070,30 @@ export type Database = {
       keyset_profiles: {
         Row: {
           description: string | null
-          id: string
+          id: number
           manufacturer: string | null
           manufacturer_id: string | null
           name: string
           profile: Database["public"]["Enums"]["keyset_profile"] | null
+          profile_id: string
         }
         Insert: {
           description?: string | null
-          id: string
+          id?: never
           manufacturer?: string | null
           manufacturer_id?: string | null
           name: string
           profile?: Database["public"]["Enums"]["keyset_profile"] | null
+          profile_id: string
         }
         Update: {
           description?: string | null
-          id?: string
+          id?: never
           manufacturer?: string | null
           manufacturer_id?: string | null
           name?: string
           profile?: Database["public"]["Enums"]["keyset_profile"] | null
+          profile_id?: string
         }
         Relationships: []
       }
@@ -1170,7 +1176,7 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "keyset_profiles"
-            referencedColumns: ["id"]
+            referencedColumns: ["profile_id"]
           },
           {
             foreignKeyName: "keysets_submitted_by_fkey"

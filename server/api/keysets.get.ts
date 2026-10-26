@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
   const { data: profile, error: profileError } = await client
     .from('keyset_profiles')
     .select()
-    .eq('id', profile_id)
+    .eq('profile_id', profile_id)
     .single()
 
   if (

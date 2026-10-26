@@ -31,7 +31,7 @@ authors:
 - **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
 - **A livelier home page**: the welcome leads straight in with _Start Collecting_ and _Search Keebdex_, and on phones it takes less room so the latest releases show without scrolling. _Happening Now_ shows how many days each live group buy has left, short lists sit still instead of scrolling past as repeats, and shoutouts put the quote first with its author below.
 - **Order graphs that last**: order graphs and order history charts on keyset pages are now stored on Keebdex like keyset covers, so they keep showing after the image host they were shared on removes them.
-- **Your role on phones**: the account menu now shows your role at the top on phones, where the account button is just your picture.
+- **Account menu on phones**: the account menu now shows your role at the top on phones, where the account button is just your picture, and the _Sign In_ button keeps its label instead of showing only an icon.
 
 ### ⚠️ Breaking Changes
 

@@ -32,7 +32,7 @@ export const sculptGdocManagedFields = [
 
 export const makerSchema = z.object({
   name: z.string().min(1),
-  id: z
+  maker_id: z
     .string()
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
