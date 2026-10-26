@@ -75,8 +75,12 @@ export const TABLE_FIELDS = {
     "invertible_logo",
     "maker_id",
     "name",
+    "review_status",
+    "submitted_by",
     "updated_at",
     "verified",
+    "verified_at",
+    "verified_by",
     "website"
   ],
   "artisan_sculpts": [
@@ -154,7 +158,11 @@ export const TABLE_FIELDS = {
     "instagram",
     "invertible_logo",
     "name",
+    "review_status",
     "slug",
+    "submitted_by",
+    "verified_at",
+    "verified_by",
     "website"
   ],
   "keyboard_releases": [
@@ -255,7 +263,11 @@ export const TABLE_FIELDS = {
     "manufacturer_id",
     "name",
     "profile",
-    "profile_id"
+    "profile_id",
+    "review_status",
+    "submitted_by",
+    "verified_at",
+    "verified_by"
   ],
   "keysets": [
     "created_at",
