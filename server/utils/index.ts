@@ -1,4 +1,6 @@
 import { omit } from 'es-toolkit'
+import type { H3Event } from 'h3'
+import { serverSupabaseUser } from '#supabase/server'
 
 /**
  * Omit sensitive fields from the object before sending it to the client
@@ -13,6 +15,22 @@ export const omitSensitive = (obj: any) => omit(obj, ['fts'])
  * Pending and Rejected submissions stay in the review queue.
  */
 export const PUBLISHED_FILTER = 'review_status.is.null,review_status.eq.Approved'
+
+/**
+ * `PUBLISHED_FILTER` plus the caller's own rows under review when `own` is
+ * set (`?own=1`), for the submission wizards: someone who proposed a maker,
+ * profile, or brand can pick it again for the next sculpt, keyset, or
+ * keyboard. Public lists never pass it.
+ */
+export const publishedOrOwnFilter = async (event: H3Event, own: unknown) => {
+  if (own !== '1' && own !== 'true') return PUBLISHED_FILTER
+
+  const user = await serverSupabaseUser(event)
+
+  return user
+    ? `${PUBLISHED_FILTER},submitted_by.eq.${user.sub}`
+    : PUBLISHED_FILTER
+}
 
 /**
  * Convert a value to a number or null if it's not a valid number

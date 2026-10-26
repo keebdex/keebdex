@@ -8,22 +8,23 @@
       class="w-full"
     >
       <template #maker>
-        <div class="space-y-4">
-          <p class="text-sm text-muted">
-            Pick the maker this colorway belongs to.
-          </p>
-
-          <USelectMenu
-            v-model="maker.id"
-            :items="makerOptions"
-            :loading="makersStatus === 'pending'"
-            :disabled="mode === 'review'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a maker"
-            class="w-full"
+        <SharedSubmissionOwnerStep
+          v-model:selected="maker"
+          v-model:owner-mode="ownerMode"
+          label="Maker"
+          :options="ownerOptions"
+          :loading="ownerStatus === 'pending'"
+          :review-status="ownerReviewStatus"
+          :mode="mode"
+          hint="Pick the maker this colorway belongs to, or propose one Keebdex doesn't list yet."
+        >
+          <ArtisanModalMakerForm
+            v-model="makerDraft"
+            mode="embedded"
+            suggest
+            :is-edit="mode === 'review'"
           />
-        </div>
+        </SharedSubmissionOwnerStep>
       </template>
 
       <template #sculpt>
@@ -81,7 +82,7 @@
             <template #default="{ item, index }">
               <ArtisanModalColorwayForm
                 v-model="colorways[index]"
-                :maker-id="maker.id"
+                :maker-id="makerKey"
                 mode="embedded"
                 @update:uploading="wizard.setImageUploading(item._key, $event)"
               />
@@ -126,8 +127,8 @@ const submissionWizard = useArtisanSubmissionWizard({
 
 const {
   maker,
-  makerOptions,
-  makersStatus,
+  owner,
+  makerKey,
   sculptMode,
   existingSculpt,
   sculptOptions,
@@ -141,13 +142,23 @@ const {
   sculptReviewStatus,
 } = submissionWizard
 
+const {
+  ownerMode,
+  draft: makerDraft,
+  options: ownerOptions,
+  status: ownerStatus,
+  reviewStatus: ownerReviewStatus,
+  optionLabel: makerLabel,
+} = owner
+
 const wizard = useSubmissionWizardActions({
   mode: props.mode,
   entity: 'Colorway',
   label: () => colorways.value[0]?.name,
   stepCount: 3,
-  // A sculpt proposed with the colorway is reviewed first.
-  reviewStep: () => (sculptReviewStatus.value ? 1 : 2),
+  // A maker or sculpt proposed with the colorway is reviewed first.
+  reviewStep: () =>
+    ownerReviewStatus.value ? 0 : sculptReviewStatus.value ? 1 : 2,
   createStep: () => (maker.value.id && existingSculpt.value.id ? 2 : 0),
   wizard: submissionWizard,
   emit,
@@ -162,8 +173,7 @@ const items = computed(() => [
   {
     slot: 'maker',
     title: 'Maker',
-    description: makerOptions.value.find((o) => o.value === maker.value.id)
-      ?.label,
+    description: makerLabel.value,
     icon: 'hugeicons:user-multiple',
   },
   {

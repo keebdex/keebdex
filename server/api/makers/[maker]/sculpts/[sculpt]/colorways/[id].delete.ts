@@ -18,13 +18,16 @@ export default defineEventHandler(async (event) => {
     note: await readDeletionNote(event, isStaff),
   })
 
-  // A sculpt under review with no colorways left has nothing to review anymore.
+  // A sculpt under review with no colorways left has nothing to review
+  // anymore, and neither does a maker under review with no sculpts left.
   if (!isOfficial && parent.review_status) {
-    await deleteParentIfEmpty(
+    const sculptDeleted = await deleteParentIfEmpty(
       client,
       { table: 'artisan_sculpts', match: { maker_sculpt_id: makerSculptId } },
       { table: 'artisan_colorways', match },
     )
+
+    if (sculptDeleted) await deleteOwnerIfEmpty(client, 'artisan', maker!)
   }
 
   return { success: true }

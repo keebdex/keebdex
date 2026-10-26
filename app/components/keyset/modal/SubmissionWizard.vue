@@ -8,34 +8,22 @@
       class="w-full"
     >
       <template #profile>
-        <div class="space-y-4">
-          <p class="text-sm text-muted">
-            Pick the manufacturer profile this keyset belongs to.
-          </p>
-
-          <USelect
-            v-model="profile.id"
-            :items="
-              Object.entries(groupedProfiles)
-                .map(([label, profileManufacturers]) => [
-                  { type: 'label', label },
-                  ...Object.entries(profileManufacturers).map(
-                    ([value, name]) => ({
-                      type: 'item',
-                      label: name,
-                      value,
-                    }),
-                  ),
-                  { type: 'separator' },
-                ])
-                .flat()
-                .slice(0, -1)
-            "
-            :disabled="mode === 'review'"
-            placeholder="Select a profile"
-            class="w-full"
+        <SharedSubmissionOwnerStep
+          v-model:selected="profile"
+          v-model:owner-mode="ownerMode"
+          label="Profile"
+          :options="ownerOptions"
+          :loading="ownerStatus === 'pending'"
+          :review-status="ownerReviewStatus"
+          :mode="mode"
+          hint="Pick the manufacturer profile this keyset belongs to, or propose one Keebdex doesn't list yet."
+        >
+          <KeysetModalProfileForm
+            v-model="profileDraft"
+            mode="embedded"
+            :is-edit="mode === 'review'"
           />
-        </div>
+        </SharedSubmissionOwnerStep>
       </template>
 
       <template #keyset>
@@ -59,7 +47,7 @@
           </p>
 
           <UTabs
-            v-if="mode === 'create'"
+            v-if="mode === 'create' && !ownerIsNew"
             v-model="keysetMode"
             :items="keysetModeTabs"
             size="sm"
@@ -86,6 +74,7 @@
             v-model="keyset"
             v-model:date-range="dateRange"
             :is-edit="mode === 'review'"
+            :colors="mode === 'create'"
             mode="embedded"
             @update:uploading="wizard.setImageUploading('keyset', $event)"
           />
@@ -144,8 +133,6 @@ const props = defineProps({
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const { groupedProfiles, manufacturers } = useKeysetProfiles()
-
 const keysetModeTabs = [
   { label: 'Choose Existing Keyset', value: 'existing' },
   { label: 'Propose New Keyset', value: 'new' },
@@ -158,6 +145,8 @@ const submissionWizard = useKeysetSubmissionWizard({
 
 const {
   profile,
+  owner,
+  manufacturers,
   keysetMode,
   existingKeyset,
   keysetOptions,
@@ -173,6 +162,16 @@ const {
   keysetUnderReview,
 } = submissionWizard
 
+const {
+  ownerMode,
+  isNew: ownerIsNew,
+  draft: profileDraft,
+  options: ownerOptions,
+  status: ownerStatus,
+  reviewStatus: ownerReviewStatus,
+  optionLabel: profileLabel,
+} = owner
+
 const kitLabel = () =>
   [keyset.value.name, kits.value[0]?.name || kits.value[0]?.kit_id]
     .filter(Boolean)
@@ -183,8 +182,10 @@ const wizard = useSubmissionWizardActions({
   entity: 'Kit',
   label: kitLabel,
   stepCount: 3,
-  // A published keyset isn't under review, so land on the kit itself.
-  reviewStep: () => (keysetUnderReview.value ? 1 : 2),
+  // A profile or keyset under review is reviewed first; otherwise land on the
+  // kit itself.
+  reviewStep: () =>
+    ownerReviewStatus.value ? 0 : keysetUnderReview.value ? 1 : 2,
   createStep: () => (profile.value.id && existingKeyset.value.id ? 2 : 0),
   wizard: submissionWizard,
   emit,
@@ -194,7 +195,7 @@ const items = computed(() => [
   {
     slot: 'profile',
     title: 'Profile',
-    description: manufacturers.value[profile.value.id],
+    description: profileLabel.value || manufacturers.value[profile.value.id],
     icon: 'hugeicons:grid-view',
   },
   {

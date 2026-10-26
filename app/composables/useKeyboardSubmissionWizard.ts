@@ -39,6 +39,9 @@ export const useKeyboardSubmissionWizard = ({
   const brand = ref({
     id: String(route.query.brand || queryKeyboard.split('/')[0] || ''),
   })
+
+  // Step 1: an existing brand, or a new one proposed with the keyboard.
+  const owner = useSubmissionOwner('keyboard', brand)
   const keyboardMode = ref('existing')
   const existingKeyboard = ref({ id: queryKeyboard })
   // A direct "Add Release" link (keyboard pre-selected, no release id yet)
@@ -97,31 +100,32 @@ export const useKeyboardSubmissionWizard = ({
 
     return {
       releases: [{ id: 'draft', name: releaseLabel || 'New Release' }],
-      brand_slug: brand.value.id,
-      brand_keyboard_slug: existingKeyboard.value.id || brand.value.id,
+      brand_slug: owner.key.value,
+      brand_keyboard_slug: existingKeyboard.value.id || owner.key.value,
     }
   })
 
   const uploading = ref(false)
 
-  const { data: brands, status: brandsStatus } = useAsyncData<any[]>(
-    'keyboard-submission-brands',
-    () => $fetch('/api/keyboards/brands'),
-    { default: () => [] },
-  )
-
-  const brandOptions = computed(() =>
-    (brands.value || []).map((b: any) => ({ label: b.name, value: b.slug })),
-  )
-
+  // A proposed brand has no keyboards yet.
   const { data: brandDetail, status: keyboardsStatus } = useAsyncData<any>(
     () => `keyboard-submission-keyboards-${brand.value.id}`,
     () =>
-      (brand.value.id
+      (brand.value.id && !owner.isNew.value
         ? $fetch(`/api/keyboards/brands/${brand.value.id}`)
         : null) as Promise<any>,
-    { watch: [() => brand.value.id], default: () => null },
+    {
+      watch: [() => brand.value.id, owner.isNew],
+      default: () => null,
+    },
   )
+
+  watch(owner.isNew, (isNew) => {
+    if (isNew) {
+      existingKeyboard.value = { id: '' }
+      keyboardMode.value = 'new'
+    }
+  })
 
   const keyboardOptions = computed(() =>
     (brandDetail.value?.keyboards || []).map((k: any) => ({
@@ -220,7 +224,7 @@ export const useKeyboardSubmissionWizard = ({
     const rel = submission.release || {}
     const kb = rel.keyboard || {}
 
-    brand.value = { id: submissionKey.split('/')[0] || '' }
+    await owner.load(submissionKey.split('/')[0] || '', kb.brand?.review_status)
     await nextTick()
     keyboardMode.value = 'existing'
     existingKeyboard.value = { id: submissionKey }
@@ -275,6 +279,8 @@ export const useKeyboardSubmissionWizard = ({
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
     const [brandSlug = '', keyboardSlug = ''] = submissionKey.split('/')
 
+    await owner.save()
+
     if (keyboardUnderReview.value) {
       // The server sends a submitter's rejected keyboard back to review.
       await $fetch(`/api/keyboards/${brandSlug}/${keyboardSlug}`, {
@@ -321,7 +327,7 @@ export const useKeyboardSubmissionWizard = ({
     isReview
       ? [!!brand.value.id, true, true, true]
       : [
-          !!brand.value.id,
+          owner.canAdvance.value,
           keyboardMode.value === 'existing'
             ? !!existingKeyboard.value.id
             : !!keyboard.value.name?.trim(),
@@ -335,7 +341,7 @@ export const useKeyboardSubmissionWizard = ({
   const ok = { success: true as const }
 
   const validateStep = useStepValidation([
-    () => entitySelectionSchema.safeParse(brand.value),
+    () => owner.validate(),
     () =>
       isReview
         ? keyboardUnderReview.value
@@ -367,13 +373,15 @@ export const useKeyboardSubmissionWizard = ({
     uploading.value = true
 
     try {
+      // A proposed brand is created first, Pending like the rest.
+      const brandSlug = await owner.ensure()
       let brandKeyboardSlug = existingKeyboard.value.id
 
       if (keyboardMode.value === 'new') {
         const created: any = await $fetch('/api/submissions/keyboard', {
           method: 'post',
           body: {
-            keyboard: { ...keyboard.value, brand_slug: brand.value.id },
+            keyboard: { ...keyboard.value, brand_slug: brandSlug },
           },
         })
 
@@ -420,8 +428,7 @@ export const useKeyboardSubmissionWizard = ({
 
   return {
     brand,
-    brandOptions,
-    brandsStatus,
+    owner,
     keyboardMode,
     existingKeyboard,
     keyboardOptions,

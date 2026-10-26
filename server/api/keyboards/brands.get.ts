@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../utils'
+import { omitSensitive, publishedOrOwnFilter } from '../../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('keyboard_brands')
     .select()
+    // Brands under review stay out of the list (`?own=1` adds the caller's).
+    .or(await publishedOrOwnFilter(event, getQuery(event).own))
     .order('slug', { ascending: true })
 
   if (error) {

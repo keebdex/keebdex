@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   let request = client
     .from('artisan_colorways')
     .select(
-      '*, maker:artisan_makers(maker_id, name), sculpt:artisan_sculpts(name, review_status)',
+      '*, maker:artisan_makers(maker_id, name, review_status), sculpt:artisan_sculpts(name, review_status)',
       { count: 'exact' },
     )
     .eq('review_status', status)

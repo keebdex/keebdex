@@ -1,10 +1,14 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { sortBy } from 'es-toolkit/compat'
-import { omitSensitive } from '../utils'
+import { omitSensitive, publishedOrOwnFilter } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
-  const { data, error } = await client.from('artisan_makers').select()
+  // Makers under review stay out of the list (`?own=1` adds the caller's).
+  const { data, error } = await client
+    .from('artisan_makers')
+    .select()
+    .or(await publishedOrOwnFilter(event, getQuery(event).own))
 
   if (error) {
     throw createError({

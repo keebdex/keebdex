@@ -8,22 +8,22 @@
       class="w-full"
     >
       <template #brand>
-        <div class="space-y-4">
-          <p class="text-sm text-muted">
-            Pick the brand this keyboard belongs to.
-          </p>
-
-          <USelectMenu
-            v-model="brand.id"
-            :items="brandOptions"
-            :loading="brandsStatus === 'pending'"
-            :disabled="mode === 'review'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a brand"
-            class="w-full"
+        <SharedSubmissionOwnerStep
+          v-model:selected="brand"
+          v-model:owner-mode="ownerMode"
+          label="Brand"
+          :options="ownerOptions"
+          :loading="ownerStatus === 'pending'"
+          :review-status="ownerReviewStatus"
+          :mode="mode"
+          hint="Pick the brand this keyboard belongs to, or propose one Keebdex doesn't list yet."
+        >
+          <KeyboardModalBrandForm
+            v-model="brandDraft"
+            mode="embedded"
+            :is-edit="mode === 'review'"
           />
-        </div>
+        </SharedSubmissionOwnerStep>
       </template>
 
       <template #keyboard>
@@ -202,8 +202,7 @@ const submissionWizard = useKeyboardSubmissionWizard({
 
 const {
   brand,
-  brandOptions,
-  brandsStatus,
+  owner,
   keyboardMode,
   existingKeyboard,
   keyboardOptions,
@@ -224,6 +223,15 @@ const {
   releaseUnderReview,
 } = submissionWizard
 
+const {
+  ownerMode,
+  draft: brandDraft,
+  options: ownerOptions,
+  status: ownerStatus,
+  reviewStatus: ownerReviewStatus,
+  optionLabel: brandLabel,
+} = owner
+
 const wizard = useSubmissionWizardActions({
   mode: props.mode,
   entity: 'Variant',
@@ -235,7 +243,13 @@ const wizard = useSubmissionWizardActions({
   // Land on the highest level that is still under review; a published
   // keyboard and release leave just the variant.
   reviewStep: () =>
-    keyboardUnderReview.value ? 1 : releaseUnderReview.value ? 2 : 3,
+    ownerReviewStatus.value
+      ? 0
+      : keyboardUnderReview.value
+        ? 1
+        : releaseUnderReview.value
+          ? 2
+          : 3,
   createStep: () =>
     !brand.value.id || !existingKeyboard.value.id
       ? 0
@@ -253,7 +267,7 @@ const items = computed(() => [
   {
     slot: 'brand',
     title: 'Brand',
-    description: optionLabel(brandOptions.value, brand.value.id),
+    description: brandLabel.value,
     icon: 'hugeicons:user-multiple',
   },
   {
