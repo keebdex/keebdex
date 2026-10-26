@@ -8,125 +8,74 @@
       class="w-full"
     >
       <template #brand>
-        <SharedSubmissionOwnerStep
-          v-model:selected="brand"
-          v-model:owner-mode="ownerMode"
+        <SharedSubmissionEntityStep
+          v-model:selected="brand.id"
+          v-model:entity-mode="ownerMode"
           label="Brand"
-          :options="ownerOptions"
-          :loading="ownerStatus === 'pending'"
-          :review-status="ownerReviewStatus"
+          reviewed="variant"
           :mode="mode"
           hint="Pick the brand this keyboard belongs to, or propose one Keebdex doesn't list yet."
+          :tabs="ownerOptions.length > 0"
+          :options="ownerOptions"
+          :loading="ownerStatus === 'pending'"
+          :under-review="!!ownerReviewStatus"
+          :name="brandLabel"
+          :to="`/keyboard/brand/${brand.id}`"
         >
           <KeyboardModalBrandForm
             v-model="brandDraft"
             mode="embedded"
             :is-edit="mode === 'review'"
           />
-        </SharedSubmissionOwnerStep>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #keyboard>
-        <div v-if="mode === 'review' && !keyboardUnderReview" class="space-y-2">
-          <p class="text-sm text-muted">
-            This keyboard is already published. Only the variant is reviewed
-            here.
-          </p>
-
-          <NuxtLink
-            :to="`/keyboard/brand/${existingKeyboard.id}`"
-            class="text-sm font-medium text-primary hover:underline"
-          >
-            {{ keyboard.name }}
-          </NuxtLink>
-        </div>
-
-        <div v-else class="space-y-4">
-          <p v-if="mode === 'review'" class="text-sm text-muted">
-            This keyboard is still under review — review and edit it here before
-            approving.
-          </p>
-
-          <UTabs
-            v-if="mode === 'create' && keyboardOptions.length"
-            v-model="keyboardMode"
-            :items="keyboardModeTabs"
-            size="sm"
-          />
-
-          <USelectMenu
-            v-if="mode === 'create' && keyboardMode === 'existing'"
-            v-model="existingKeyboard.id"
-            :items="keyboardOptions"
-            :loading="keyboardsStatus === 'pending'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a keyboard"
-            class="w-full"
-          />
-
+        <SharedSubmissionEntityStep
+          v-model:selected="existingKeyboard.id"
+          v-model:entity-mode="keyboardMode"
+          label="Keyboard"
+          reviewed="variant"
+          :mode="mode"
+          :tabs="keyboardOptions.length > 0"
+          :options="keyboardOptions"
+          :loading="keyboardsStatus === 'pending'"
+          :under-review="keyboardUnderReview"
+          :name="keyboard.name"
+          :to="`/keyboard/brand/${existingKeyboard.id}`"
+        >
           <KeyboardModalKeyboardForm
-            v-if="mode === 'review' || keyboardMode === 'new'"
             v-model="keyboard"
             :is-edit="mode === 'review'"
             mode="embedded"
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #release>
-        <div v-if="mode === 'review'" class="space-y-4">
-          <p v-if="!releaseUnderReview" class="text-sm">
-            <strong>{{ release.name }}</strong>
-            <span class="text-muted">
-              is already published. Only the variant is reviewed here.
-            </span>
-          </p>
-
-          <template v-else>
-            <p class="text-sm text-muted">
-              This release is still under review — review and edit it here
-              before approving.
-            </p>
-
-            <KeyboardModalReleaseForm
-              v-model="release"
-              :keyboard="{ releases: [] }"
-              mode="embedded"
-            />
-          </template>
-        </div>
-
-        <div v-else class="space-y-4">
-          <UTabs
-            v-if="
-              keyboardMode === 'existing' &&
-              releaseOptions.length &&
-              !isDirectReleaseEntry
-            "
-            v-model="releaseMode"
-            :items="releaseModeTabs"
-            size="sm"
-          />
-
-          <USelectMenu
-            v-if="releaseMode === 'existing'"
-            v-model="existingRelease.id"
-            :items="releaseOptions"
-            :loading="releasesStatus === 'pending'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a release"
-            class="w-full"
-          />
-
+        <!-- A direct "Add Release" link proposes a new release -->
+        <SharedSubmissionEntityStep
+          v-model:selected="existingRelease.id"
+          v-model:entity-mode="releaseMode"
+          label="Release"
+          reviewed="variant"
+          :mode="mode"
+          :tabs="
+            keyboardMode === 'existing' &&
+            releaseOptions.length > 0 &&
+            !isDirectReleaseEntry
+          "
+          :options="releaseOptions"
+          :loading="releasesStatus === 'pending'"
+          :under-review="releaseUnderReview"
+          :name="release.name"
+        >
           <KeyboardModalReleaseForm
-            v-if="releaseMode === 'new'"
             v-model="release"
             :keyboard="{ releases: [] }"
             mode="embedded"
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #variant>
@@ -184,16 +133,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
-
-const keyboardModeTabs = [
-  { label: 'Choose Existing Keyboard', value: 'existing' },
-  { label: 'Propose New Keyboard', value: 'new' },
-]
-
-const releaseModeTabs = [
-  { label: 'Choose Existing Release', value: 'existing' },
-  { label: 'Propose New Release', value: 'new' },
-]
 
 const submissionWizard = useKeyboardSubmissionWizard({
   mode: props.mode,

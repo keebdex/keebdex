@@ -8,69 +8,58 @@
       class="w-full"
     >
       <template #profile>
-        <SharedSubmissionOwnerStep
-          v-model:selected="profile"
-          v-model:owner-mode="ownerMode"
+        <SharedSubmissionEntityStep
+          v-model:selected="profile.id"
+          v-model:entity-mode="ownerMode"
           label="Profile"
-          :options="ownerOptions"
-          :loading="ownerStatus === 'pending'"
-          :review-status="ownerReviewStatus"
+          reviewed="kit"
           :mode="mode"
           hint="Pick the manufacturer profile this keyset belongs to, or propose one Keebdex doesn't list yet."
+          :tabs="ownerOptions.length > 0"
+          :options="ownerOptions"
+          :loading="ownerStatus === 'pending'"
+          :under-review="!!ownerReviewStatus"
+          :name="profileLabel || manufacturers[profile.id]"
+          :to="`/keyset/${profile.id}`"
         >
           <KeysetModalProfileForm
             v-model="profileDraft"
             mode="embedded"
             :is-edit="mode === 'review'"
           />
-        </SharedSubmissionOwnerStep>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #keyset>
-        <div v-if="mode === 'review' && !keysetUnderReview" class="space-y-2">
-          <p class="text-sm text-muted">
-            This keyset is already published. Only the kit is reviewed here.
-          </p>
-
-          <NuxtLink
-            :to="`/keyset/${existingKeyset.id}`"
-            class="text-sm font-medium text-primary hover:underline"
-          >
-            {{ keyset.name }}
-          </NuxtLink>
-        </div>
-
-        <div v-else class="space-y-4">
-          <p v-if="mode === 'review'" class="text-sm text-muted">
-            This keyset is still under review — review and edit it here before
-            approving.
-          </p>
-
-          <UTabs
-            v-if="mode === 'create' && !ownerIsNew"
-            v-model="keysetMode"
-            :items="keysetModeTabs"
-            size="sm"
-          />
-
-          <USelectMenu
-            v-if="mode === 'create' && keysetMode === 'existing'"
-            v-model="existingKeyset.id"
-            v-model:search-term="keysetTerm"
-            :items="keysetOptions"
-            :loading="keysetsStatus === 'pending'"
-            value-key="value"
-            label-key="label"
-            ignore-filter
-            placeholder="Select a keyset"
-            :search-input="{
-              placeholder: 'Type at least 3 characters to search...',
-            }"
-            class="w-full"
-          />
+        <SharedSubmissionEntityStep
+          v-model:entity-mode="keysetMode"
+          label="Keyset"
+          reviewed="kit"
+          :mode="mode"
+          :tabs="!ownerIsNew"
+          :under-review="keysetUnderReview"
+          :name="keyset.name"
+          :to="`/keyset/${existingKeyset.id}`"
+        >
+          <!-- Keysets are searched as you type, not preloaded -->
+          <template #select>
+            <USelectMenu
+              v-model="existingKeyset.id"
+              v-model:search-term="keysetTerm"
+              :items="keysetOptions"
+              :loading="keysetsStatus === 'pending'"
+              value-key="value"
+              label-key="label"
+              ignore-filter
+              placeholder="Select a keyset"
+              :search-input="{
+                placeholder: 'Type at least 3 characters to search...',
+              }"
+              class="w-full"
+            />
+          </template>
 
           <KeysetModalKeysetForm
-            v-if="mode === 'review' || keysetMode === 'new'"
             v-model="keyset"
             v-model:date-range="dateRange"
             :is-edit="mode === 'review'"
@@ -78,7 +67,7 @@
             mode="embedded"
             @update:uploading="wizard.setImageUploading('keyset', $event)"
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #kit>
@@ -132,11 +121,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
-
-const keysetModeTabs = [
-  { label: 'Choose Existing Keyset', value: 'existing' },
-  { label: 'Propose New Keyset', value: 'new' },
-]
 
 const submissionWizard = useKeysetSubmissionWizard({
   mode: props.mode,

@@ -8,15 +8,19 @@
       class="w-full"
     >
       <template #maker>
-        <SharedSubmissionOwnerStep
-          v-model:selected="maker"
-          v-model:owner-mode="ownerMode"
+        <SharedSubmissionEntityStep
+          v-model:selected="maker.id"
+          v-model:entity-mode="ownerMode"
           label="Maker"
-          :options="ownerOptions"
-          :loading="ownerStatus === 'pending'"
-          :review-status="ownerReviewStatus"
+          reviewed="colorway"
           :mode="mode"
           hint="Pick the maker this colorway belongs to, or propose one Keebdex doesn't list yet."
+          :tabs="ownerOptions.length > 0"
+          :options="ownerOptions"
+          :loading="ownerStatus === 'pending'"
+          :under-review="!!ownerReviewStatus"
+          :name="makerLabel"
+          :to="`/artisan/maker/${maker.id}`"
         >
           <ArtisanModalMakerForm
             v-model="makerDraft"
@@ -24,45 +28,29 @@
             suggest
             :is-edit="mode === 'review'"
           />
-        </SharedSubmissionOwnerStep>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #sculpt>
-        <div class="space-y-4">
-          <UTabs
-            v-if="mode === 'create' && sculptOptions.length"
-            v-model="sculptMode"
-            :items="sculptModeTabs"
-            size="sm"
-          />
-
-          <p
-            v-if="mode === 'review' && sculptReviewStatus"
-            class="text-sm text-muted"
-          >
-            This sculpt was proposed together with the colorway below and is
-            still under review — review and edit it here before approving.
-          </p>
-
-          <USelectMenu
-            v-if="sculptMode === 'existing'"
-            v-model="existingSculpt.id"
-            :items="sculptOptions"
-            :loading="sculptsStatus === 'pending'"
-            :disabled="mode === 'review'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a sculpt"
-            class="w-full"
-          />
-
+        <SharedSubmissionEntityStep
+          v-model:selected="existingSculpt.id"
+          v-model:entity-mode="sculptMode"
+          label="Sculpt"
+          reviewed="colorway"
+          :mode="mode"
+          :tabs="sculptOptions.length > 0"
+          :options="sculptOptions"
+          :loading="sculptsStatus === 'pending'"
+          :under-review="!!sculptReviewStatus"
+          :name="selectedSculptLabel"
+          :to="`/artisan/maker/${maker.id}/${existingSculpt.id}`"
+        >
           <ArtisanModalSculptForm
-            v-if="sculptMode === 'new'"
             v-model="sculpt"
             :sculpts="sculpts"
             mode="embedded"
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #colorway>
@@ -114,11 +102,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
-
-const sculptModeTabs = [
-  { label: 'Choose Existing Sculpt', value: 'existing' },
-  { label: 'Propose New Sculpt', value: 'new' },
-]
 
 const submissionWizard = useArtisanSubmissionWizard({
   mode: props.mode,
