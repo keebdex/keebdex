@@ -29,14 +29,14 @@ export default defineEventHandler(async (event) => {
       acc[group] = {}
     }
 
-    acc[group][row.id] = row.name
+    acc[group][row.profile_id] = row.name
 
     return acc
   }, {})
 
   const manufacturers = (data || []).reduce<Record<string, string>>(
     (acc, row) => {
-      acc[row.id] = row.name
+      acc[row.profile_id] = row.name
       return acc
     },
     {},

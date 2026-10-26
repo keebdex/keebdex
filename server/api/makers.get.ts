@@ -13,5 +13,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return sortBy(data?.map(omitSensitive), 'id')
+  return sortBy(data?.map(omitSensitive), 'maker_id')
 })

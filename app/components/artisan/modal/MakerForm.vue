@@ -20,11 +20,11 @@
     <UFormField
       v-if="!isEdit"
       label="Slug"
-      name="id"
+      name="maker_id"
       help="Used in URL, e.g. my-maker. Leave empty to auto-generate from name."
     >
       <UInput
-        v-model.trim="maker.id"
+        v-model.trim="maker.maker_id"
         icon="hugeicons:text-font"
         class="w-full"
         placeholder="my-maker"
@@ -231,17 +231,14 @@ const onSubmit = async () => {
   if (mode !== 'standalone') return
 
   const { sculpts, ...rest } = maker.value
-  const normalizedMakerId = String(rest.id || '').trim()
+  const normalizedMakerId = String(rest.maker_id || '').trim()
 
   const makerId =
     normalizedMakerId || urlSlugify(maker.value.name)
 
   await $fetch(`/api/makers/${makerId}`, {
     method: 'post',
-    body: {
-      ...rest,
-      id: makerId,
-    },
+    body: rest,
   })
     .then(() => {
       toast.add(successToast(isEdit ? 'update' : 'add', { entity: 'Maker', name: rest.name }))

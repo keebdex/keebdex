@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     .select(
       'name, invertible_logo, disable_google_sync, sculpts:artisan_sculpts (*, total_colorways:artisan_colorways(count))',
     )
-    .eq('id', makerId)
+    .eq('maker_id', makerId)
     .eq('sculpts.deleted', false)
     .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.total_colorways' })
     .single()

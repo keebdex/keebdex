@@ -54,7 +54,7 @@ const PALETTE_COLORWAY_LIMIT = 24
 // as the user types, and full rows (with their search vectors) made parsing
 // the responses most of its CPU time
 const SELECT = {
-  makers: 'id, name, invertible_logo',
+  makers: 'id, maker_id, name, invertible_logo',
   sculpts:
     'id, name, maker_id, sculpt_id, maker:artisan_makers(name, invertible_logo)',
   keysets:
@@ -111,13 +111,13 @@ export default defineEventHandler(async (event) => {
           .from('artisan_makers')
           .select(SELECT.makers)
           .textSearch('fts', `${fts}`)
-          .order('id')
+          .order('maker_id')
           .limit(10),
         likeQuery: client
           .from('artisan_makers')
           .select(SELECT.makers)
-          .or(`name.ilike.%${queryText}%,id.ilike.%${queryText}%`)
-          .order('id')
+          .or(`name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%`)
+          .order('maker_id')
           .limit(10),
       }),
     })
@@ -292,11 +292,11 @@ export default defineEventHandler(async (event) => {
       label: 'Artisan Makers',
       ignoreFilter: true,
       items: artisanMakers.map((m: any) => ({
-        id: m.id,
+        id: m.maker_id,
         label: m.name,
-        to: `/artisan/maker/${m.id}`,
+        to: `/artisan/maker/${m.maker_id}`,
         avatar: {
-          src: `${imgUrl}/logo/${m.id}.png`,
+          src: `${imgUrl}/logo/${m.maker_id}.png`,
           alt: m.name,
           invertible: m.invertible_logo,
         },

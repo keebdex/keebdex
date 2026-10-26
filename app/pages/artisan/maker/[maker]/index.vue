@@ -53,7 +53,7 @@
           </UModal>
 
           <UModal
-            v-if="Object.hasOwn(favorites, maker.id)"
+            v-if="Object.hasOwn(favorites, maker.maker_id)"
             v-model:visible="visible.customize_pins"
             title="Customize Pins"
             description="Pin up to 6 sculpts to the top for easy access."
@@ -70,7 +70,7 @@
 
           <SharedProfileDrawer
             :title="maker.name"
-            :slug="maker.id"
+            :slug="maker.maker_id"
             :invertible="maker.invertible_logo"
             :description="maker.bio"
             :links="makerLinks"
@@ -117,7 +117,7 @@ const {
   public: { imgUrl },
 } = useRuntimeConfig()
 
-const editable = computed(() => userStore.isEditable(maker.value?.id))
+const editable = computed(() => userStore.isEditable(maker.value?.maker_id))
 
 const visible = ref({
   create: false,
@@ -225,6 +225,6 @@ useSeoMeta({
 defineOgImage('Module', {
   title: maker.value?.name,
   description: maker.value?.bio,
-  titleLogo: `${imgUrl}/logo/${maker.value?.id}.png`,
+  titleLogo: `${imgUrl}/logo/${maker.value?.maker_id}.png`,
 })
 </script>

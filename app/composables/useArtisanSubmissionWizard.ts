@@ -37,7 +37,7 @@ export const useArtisanSubmissionWizard = ({
   const makerOptions = computed(() =>
     (makers.value || []).map((maker: any) => ({
       label: maker.name,
-      value: maker.id,
+      value: maker.maker_id,
     })),
   )
 

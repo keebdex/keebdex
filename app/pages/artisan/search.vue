@@ -55,11 +55,11 @@
         <section v-for="group in groups" :key="group.key">
           <ULink
             v-if="group.maker"
-            :to="`/artisan/maker/${group.maker.id}`"
+            :to="`/artisan/maker/${group.maker.maker_id}`"
             class="flex items-center gap-2 mb-4 w-fit font-semibold text-highlighted hover:text-primary"
           >
             <UAvatar
-              :src="`${imgUrl}/logo/${group.maker.id}.png`"
+              :src="`${imgUrl}/logo/${group.maker.maker_id}.png`"
               :alt="group.maker.name"
               size="sm"
               :ui="{
