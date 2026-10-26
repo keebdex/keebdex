@@ -205,10 +205,12 @@ Release notes are read by collectors, not developers. Keep every release in the 
 
   ## Summary
 
-  <what changed and why, notable decisions, manual steps for the user (e.g. migrations to apply), and the checks that were actually run>
+  <one paragraph: what changed and why, as a reader of the merge commit needs it>
+
+  <details: notable decisions, manual steps for the user (e.g. migrations to apply), and the checks that were actually run>
   ```
 
-  Write the title in Conventional Commits style. Do not claim tests, lint, or builds passed unless they were run. Keep the PR notes in sync if the work deviates from the plan.
+  Open every pull request body (here and in `supabase/` and catalog-sync) with that one-paragraph summary: it is what the reviewer reads first and what goes into the merge commit's message. Write the title in Conventional Commits style. Do not claim tests, lint, or builds passed unless they were run. Keep the PR notes in sync if the work deviates from the plan.
 
 - After finishing a task, update the instruction file that covers what changed so it reflects the latest state of the code (schema, endpoints, stores, composables, file paths, conventions): the feature's file under `docs/agents/` for feature details, this file only for rules most tasks need. Fix anything outdated or conflicting instead of appending contradictory notes.
 - Also update the plan file: tick completed steps and record deviations in its notes section.
