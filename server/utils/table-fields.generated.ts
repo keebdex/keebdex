@@ -73,6 +73,7 @@ export const TABLE_FIELDS = {
     "id",
     "instagram",
     "invertible_logo",
+    "maker_id",
     "name",
     "updated_at",
     "verified",
@@ -253,7 +254,8 @@ export const TABLE_FIELDS = {
     "manufacturer",
     "manufacturer_id",
     "name",
-    "profile"
+    "profile",
+    "profile_id"
   ],
   "keysets": [
     "created_at",
