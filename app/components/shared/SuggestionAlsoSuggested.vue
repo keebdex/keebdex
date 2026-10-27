@@ -9,10 +9,9 @@
       <span>Also suggested by</span>
       <UUser
         :name="suggestion.submitter_name || 'Someone'"
-        :avatar="{
-          src: suggestion.submitter_avatar || undefined,
-          alt: suggestion.submitter_name || undefined,
-        }"
+        :avatar="
+          userAvatar(suggestion.submitter_avatar, suggestion.submitter_name)
+        "
         size="3xs"
         :ui="{ name: 'text-xs font-medium text-toned' }"
       />

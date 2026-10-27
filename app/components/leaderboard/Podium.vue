@@ -14,10 +14,8 @@
 
       <div class="relative">
         <UAvatar
-          :src="place.entry.avatar || undefined"
-          :alt="place.entry.name || undefined"
+          v-bind="userAvatar(place.entry.avatar, place.entry.name)"
           icon="hugeicons:user-circle-02"
-          referrerpolicy="no-referrer"
           :class="[
             'ring-4 ring-offset-2 ring-offset-(--ui-bg)',
             place.medal?.ring,
@@ -38,7 +36,7 @@
         class="mt-4 w-full truncate font-semibold"
         :class="place.first && 'sm:text-lg'"
       >
-        {{ place.entry.name || 'Anonymous Collector' }}
+        {{ place.entry.name }}
         <UBadge
           v-if="place.entry.user_id === meId"
           label="You"

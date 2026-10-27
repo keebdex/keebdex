@@ -70,7 +70,6 @@
         :model-value="!leaderboardHidden"
         label="Show me on the leaderboard"
         :loading="savingLeaderboard"
-        :disabled="savingLeaderboard"
         class="lg:justify-self-end"
         @update:model-value="onLeaderboardChange"
       />

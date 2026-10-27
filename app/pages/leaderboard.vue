@@ -85,24 +85,24 @@
         <template v-else>
           <LeaderboardPodium
             :entries="entries.slice(0, 3)"
-            :me-id="userStore.user?.uid"
+            :me-id="me?.user_id"
             class="mt-4"
           />
 
           <div v-if="rows.length" class="mt-8">
             <LeaderboardHeader />
             <UPageList divide>
-              <template v-for="row in rows" :key="row.entry.user_id">
+              <template v-for="entry in rows" :key="entry.user_id">
                 <div
-                  v-if="row.gap"
+                  v-if="entry === own && gap"
                   class="flex justify-center py-1 text-muted"
                   aria-hidden="true"
                 >
                   <UIcon name="hugeicons:more-horizontal" class="size-5" />
                 </div>
 
-                <div v-if="row.mine">
-                  <LeaderboardRow :entry="row.entry" highlight />
+                <div v-if="entry.user_id === me?.user_id">
+                  <LeaderboardRow :entry="entry" highlight />
                   <p
                     v-if="userStore.leaderboardHidden"
                     class="pb-3 pl-11 sm:pl-12 text-sm text-muted"
@@ -115,7 +115,7 @@
                   </p>
                 </div>
 
-                <LeaderboardRow v-else :entry="row.entry" />
+                <LeaderboardRow v-else :entry="entry" />
               </template>
             </UPageList>
           </div>
@@ -137,7 +137,6 @@ useSeoMeta({
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const { authenticated } = storeToRefs(userStore)
 
 const periodItems = [
   { label: 'All Time', value: 'all' },
@@ -171,43 +170,28 @@ const module = computed<KeebModule | 'all'>({
   set: (value) => queryValue('module', value, 'all'),
 })
 
-// useFetch forwards the session cookie during SSR, so `me` is filled there too
-const { data, status } = await useFetch('/api/leaderboard', {
-  query: computed(() => ({
-    period: period.value,
-    module: module.value === 'all' ? undefined : module.value,
-  })),
-  watch: [authenticated],
+const query = computed(() => ({
+  period: period.value,
+  module: module.value === 'all' ? undefined : module.value,
+}))
+
+const { data: entries, status } = await useFetch('/api/leaderboard', {
+  query,
+  default: () => [],
 })
+const me = useLeaderboardMe(query)
 
-const entries = computed(() => data.value?.data || [])
-const me = computed(() => data.value?.me || null)
-
-// The board below the podium, with the caller's own row in rank order when
-// they are not on it (outside the top, or hidden): after everyone sharing
-// their rank, and after a gap when ranks are skipped to reach them.
-const rows = computed(() => {
-  const rows = entries.value.slice(3).map((entry) => ({
-    entry,
-    mine: entry.user_id === me.value?.user_id,
-    gap: false,
-  }))
-  const own = me.value
-
-  if (!own || entries.value.some((entry) => entry.user_id === own.user_id)) {
-    return rows
-  }
-
-  const index = rows.findIndex((row) => row.entry.rank > own.rank)
-  const at = index === -1 ? rows.length : index
-  const previous = rows[at - 1]?.entry ?? entries.value.at(-1)
-
-  rows.splice(at, 0, {
-    entry: own,
-    mine: true,
-    gap: index === -1 && !!previous && own.rank > previous.rank + 1,
-  })
-
-  return rows
-})
+// The caller's own row when they are not on the board (outside the top, or
+// hidden): merged into the list below the podium in rank order, after
+// everyone sharing their rank (the sort is stable), and after a gap when
+// ranks are skipped to reach it.
+const own = computed(() => leaderboardOwnRow(entries.value, me.value))
+const rows = computed(() =>
+  [...entries.value.slice(3), ...(own.value ? [own.value] : [])].sort(
+    (a, b) => a.rank - b.rank,
+  ),
+)
+const gap = computed(
+  () => !!own.value && own.value.rank > (entries.value.at(-1)?.rank ?? 0) + 1,
+)
 </script>

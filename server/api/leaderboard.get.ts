@@ -1,41 +1,22 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { isKeebModule } from '~/utils/keeb-modules'
-import {
-  isLeaderboardPeriod,
-  type LeaderboardEntry,
-} from '~/utils/leaderboard'
+import { serverSupabaseClient } from '#supabase/server'
+import { toLeaderboardEntry } from '~/utils/leaderboard'
 
+// The public board, the same for every visitor; the caller's own rank is
+// /api/leaderboard/me
 export default defineEventHandler(async (event) => {
-  const { period = 'all', module } = getQuery(event)
-
-  if (!isLeaderboardPeriod(period)) {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid period' })
-  }
-  if (module && !isKeebModule(module)) {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid module' })
-  }
-
+  const { period, module } = getLeaderboardQuery(event)
   const client = await serverSupabaseClient(event)
-  const user = await serverSupabaseUser(event)
-  const args = { p_period: period, p_domain: module || undefined }
-  // The podium and seven more; everyone else sees only their own rank
-  const limit = 10
 
-  const [board, me] = await Promise.all([
-    client.rpc('leaderboard', { ...args, p_limit: limit }),
-    user
-      ? client.rpc('leaderboard_me', args).maybeSingle()
-      : { data: null, error: null },
-  ])
+  const { data, error } = await client.rpc('leaderboard', {
+    p_period: period,
+    p_domain: module,
+    // The podium and seven more; everyone else sees only their own rank
+    p_limit: 10,
+  })
 
-  const error = board.error || me.error
   if (error) {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
-  // The generated types read name and avatar as text, but either can be null
-  return {
-    data: (board.data || []) as LeaderboardEntry[],
-    me: (me.data || null) as LeaderboardEntry | null,
-  }
+  return (data || []).map(toLeaderboardEntry)
 })

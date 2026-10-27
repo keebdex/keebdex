@@ -4,7 +4,6 @@
     title="Top Contributors"
     orientation="horizontal"
     reverse
-    :ui="{ wrapper: 'max-lg:order-first' }"
     :description="
       period === 'month'
         ? 'The collectors who added the most to Keebdex this month.'
@@ -50,8 +49,7 @@
       </UDropdownMenu>
     </template>
 
-    <!-- Opposite the guides above, so the two sections read apart; stacked
-    on phones, the title comes first -->
+    <!-- Opposite the guides above, so the two sections read apart -->
     <LeaderboardPodium
       :entries="podium"
       :me-id="me?.user_id"
@@ -61,47 +59,29 @@
 </template>
 
 <script setup lang="ts">
-import type { LeaderboardEntry } from '~/utils/leaderboard'
-
-const { authenticated } = storeToRefs(useUserStore())
-// Forwards the session cookie during SSR, so `me` is the signed-in user
-const requestFetch = useRequestFetch()
-
 // This month's board, or the all-time one while the month is still quiet:
 // the podium plus the next three
 const { data } = await useAsyncData(
   'home-top-contributors',
   async () => {
     const fetchBoard = (period: 'month' | 'all') =>
-      requestFetch('/api/leaderboard', { query: { period } })
-        .then(({ data, me }) => ({
-          period,
-          entries: data.slice(0, 6) as LeaderboardEntry[],
-          me: me as LeaderboardEntry | null,
-        }))
-        .catch(() => ({ period, entries: [], me: null }))
+      $fetch('/api/leaderboard', { query: { period } })
+        .then((entries) => ({ period, entries: entries.slice(0, 6) }))
+        .catch(() => ({ period, entries: [] }))
 
     const month = await fetchBoard('month')
     return month.entries.length >= 3 ? month : fetchBoard('all')
   },
-  {
-    default: () => ({ period: 'all' as const, entries: [], me: null }),
-    watch: [authenticated],
-  },
+  { default: () => ({ period: 'all' as const, entries: [] }) },
 )
 
 const period = computed(() => data.value.period)
 const podium = computed(() => data.value.entries.slice(0, 3))
 const runnersUp = computed(() => data.value.entries.slice(3))
-const me = computed(() => data.value.me)
+const me = useLeaderboardMe(() => ({ period: period.value }))
 
 // The caller's own rank when they are not among the six shown
-const ownRank = computed(() =>
-  me.value &&
-  !data.value.entries.some((entry) => entry.user_id === me.value?.user_id)
-    ? me.value
-    : null,
-)
+const ownRank = computed(() => leaderboardOwnRow(data.value.entries, me.value))
 
 // Start Contributing opens the submission wizard of the module picked
 const submitItems = KEEB_MODULES.map((module) => ({

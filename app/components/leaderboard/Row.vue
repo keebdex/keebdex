@@ -16,15 +16,11 @@
     </div>
 
     <UUser
-      :name="entry.name || 'Anonymous Collector'"
+      :name="entry.name"
       :description="compact ? undefined : summary"
       :avatar="{
-        src: entry.avatar || undefined,
-        alt: entry.name || undefined,
+        ...userAvatar(entry.avatar, entry.name),
         icon: 'hugeicons:user-circle-02',
-        // Google answers most avatar requests that carry a referrer with an
-        // error once a page shows several
-        referrerpolicy: 'no-referrer',
       }"
       class="flex-1 min-w-0"
       :ui="{ name: 'truncate', description: 'truncate md:hidden' }"
@@ -62,12 +58,8 @@ const { entry } = defineProps<{
 const medal = computed(() => leaderboardMedal(entry.rank))
 
 const summary = computed(() =>
-  [
-    entry.pages && countLabel(entry.pages, 'page'),
-    entry.items && countLabel(entry.items, 'item'),
-    entry.suggestions && countLabel(entry.suggestions, 'edit'),
-  ]
-    .filter(Boolean)
+  LEADERBOARD_COLUMNS.filter((column) => entry[column.key])
+    .map((column) => countLabel(entry[column.key], column.noun))
     .join(' · '),
 )
 </script>

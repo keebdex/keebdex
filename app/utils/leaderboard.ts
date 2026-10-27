@@ -16,13 +16,34 @@ export const isLeaderboardPeriod = (value: unknown): value is LeaderboardPeriod 
 export interface LeaderboardEntry {
   rank: number
   user_id: string
-  name: string | null
+  name: string
   avatar: string | null
   points: number
   pages: number
   items: number
   suggestions: number
 }
+
+/**
+ * A row of the `leaderboard` / `leaderboard_me` functions as the API returns
+ * it: the generated types read name and avatar as text, but either can be
+ * null, so a nameless collector gets a placeholder name here once.
+ */
+export const toLeaderboardEntry = (row: Omit<LeaderboardEntry, 'name' | 'avatar'> & {
+  name: string | null
+  avatar: string | null
+}): LeaderboardEntry => ({
+  ...row,
+  name: row.name || 'Anonymous Collector',
+  avatar: row.avatar || null,
+})
+
+/** The caller's own row when they are not among `entries` already. */
+export const leaderboardOwnRow = (
+  entries: LeaderboardEntry[],
+  me: LeaderboardEntry | null | undefined,
+) =>
+  me && !entries.some((entry) => entry.user_id === me.user_id) ? me : null
 
 // Gold, silver, and bronze by rank, so tied collectors share a medal
 export const leaderboardMedal = (rank: number) =>
@@ -48,7 +69,12 @@ export const leaderboardMedal = (rank: number) =>
 
 // Count columns of the board on wide screens
 export const LEADERBOARD_COLUMNS = [
-  { key: 'pages', label: 'Pages', icon: 'hugeicons:file-02' },
-  { key: 'items', label: 'Items', icon: 'hugeicons:layers-01' },
-  { key: 'suggestions', label: 'Edits', icon: 'hugeicons:edit-02' },
+  { key: 'pages', label: 'Pages', noun: 'page', icon: 'hugeicons:file-02' },
+  { key: 'items', label: 'Items', noun: 'item', icon: 'hugeicons:layers-01' },
+  {
+    key: 'suggestions',
+    label: 'Edits',
+    noun: 'edit',
+    icon: 'hugeicons:edit-02',
+  },
 ] as const
