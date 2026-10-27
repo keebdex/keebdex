@@ -188,16 +188,15 @@ const sectionHeaderUi = {
 
 const DAY = 86_400_000
 
-// "9 days left", in warning colors for the last three days; "Live" when there
-// is no end date or it has passed while the status still says Live.
+// "9 days left", counting the end date itself, in warning colors for the last
+// three days. Live group buys always have an end date of today or later, and
+// days are UTC dates, like the query that picks them (liveGroupBuys).
 const closingBadge = (endDate) => {
-  const left = endDate ? new Date(endDate).getTime() - Date.now() : 0
-  if (left <= 0) return { label: 'Live', color: 'primary' }
-
-  const days = Math.ceil(left / DAY)
+  const days =
+    Math.round((Date.parse(endDate) - Date.parse(isoToday())) / DAY) + 1
 
   return {
-    label: days === 1 ? 'Last day' : `${days} days left`,
+    label: days <= 1 ? 'Last day' : `${days} days left`,
     color: days <= 3 ? 'warning' : 'primary',
   }
 }

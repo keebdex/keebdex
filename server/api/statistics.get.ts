@@ -1,19 +1,33 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { getLocalTimeZone, today } from '@internationalized/date'
 import { sortBy } from 'es-toolkit/compat'
-import { PUBLISHED_FILTER } from '../utils'
+import { PUBLISHED_FILTER, liveGroupBuys } from '../utils'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
   const startOfDay = today(getLocalTimeZone()).subtract({ days: 1 }).toString()
 
-  // Only the maker of each new published colorway is needed to count additions
-  const { data, error } = await client
-    .from('artisan_colorways')
-    .select('maker_id, maker:artisan_makers(name, invertible_logo)')
-    .gte('created_at', startOfDay)
-    .or(PUBLISHED_FILTER)
+  // Independent, so both run at once
+  const [colorways, liveKeysets] = await Promise.all([
+    // Only the maker of each new published colorway is needed to count additions
+    client
+      .from('artisan_colorways')
+      .select('maker_id, maker:artisan_makers(name, invertible_logo)')
+      .gte('created_at', startOfDay)
+      .or(PUBLISHED_FILTER),
+    // Only the fields the home page's fresh releases marquee shows
+    liveGroupBuys(
+      client
+        .from('keysets')
+        .select(
+          'name, img, start_date, end_date, profile_id, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
+        )
+        .or(PUBLISHED_FILTER),
+    ),
+  ])
+
+  const { data, error } = colorways
 
   if (error) {
     throw createError({
@@ -41,16 +55,7 @@ export default defineEventHandler(async (event) => {
   }
   const makers = [...additions.values()]
 
-  // Only the fields the home page's fresh releases marquee shows
-  const { data: keysets, error: keysetsError } = await client
-    .from('keysets')
-    .select(
-      'name, img, start_date, end_date, profile_id, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
-    )
-    .eq('status', 'Live')
-    .or(PUBLISHED_FILTER)
-  // .lte('start_date', startOfDay)
-  // .gte('end_date', startOfDay)
+  const { data: keysets, error: keysetsError } = liveKeysets
 
   if (keysetsError) {
     throw createError({

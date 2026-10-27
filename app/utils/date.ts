@@ -63,6 +63,13 @@ export const formatTimeAgo = (date: DateInput, now = Date.now()) => {
   return 'just now'
 }
 
+/**
+ * Today as `YYYY-MM-DD` in UTC, to compare with date-only columns such as a
+ * keyset's group buy dates. UTC on both sides, so the server renders what the
+ * client hydrates.
+ */
+export const isoToday = () => new Date().toISOString().slice(0, 10)
+
 /** Midnight of the date's day, in the local time zone. */
 export const startOfDay = (date: DateInput) => {
   const value = asDate(date)
