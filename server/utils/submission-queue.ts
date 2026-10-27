@@ -1,7 +1,7 @@
 import { createError, getQuery } from 'h3'
 import type { H3Event } from 'h3'
 import { getActorProfile } from './admin'
-import { getAssignmentScope } from './child-submissions'
+import { getAssignmentScope, isReviewStatus } from './child-submissions'
 import type { ReviewStatus } from './child-submissions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
@@ -13,11 +13,11 @@ import { canManageAnyAssignment } from '~/utils/permissions'
 export const parseReviewStatus = (value: unknown) => {
   const status = String(value || 'Pending').trim()
 
-  if (!['Pending', 'Approved', 'Rejected'].includes(status)) {
+  if (!isReviewStatus(status)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid status' })
   }
 
-  return status as ReviewStatus
+  return status
 }
 
 /**

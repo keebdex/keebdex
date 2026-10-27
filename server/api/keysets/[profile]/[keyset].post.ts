@@ -33,7 +33,6 @@ export default defineEventHandler(async (event) => {
     await keepChildrenInReviewOnPublish(
       client,
       { table: 'keysets', match: { id: body.id as number } },
-      'Approved',
       (keyset) => [
         {
           table: 'keyset_kits',

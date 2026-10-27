@@ -38,7 +38,6 @@ export default defineEventHandler(async (event) => {
     await keepChildrenInReviewOnPublish(
       client,
       { table: 'keyboards', match: { id: body.id as number } },
-      'Approved',
       (keyboard) => {
         const match = { brand_keyboard_slug: keyboard.brand_keyboard_slug }
 
