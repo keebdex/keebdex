@@ -172,7 +172,7 @@ export const SUGGESTION_ENTITIES: Record<
     table: 'keyset_profiles',
     label: 'Profile',
     nameKey: 'name',
-    formProps: () => ({}),
+    formProps: () => ({ isEdit: true }),
     protected: ['profile_id'],
   },
   keyboard_variant: {

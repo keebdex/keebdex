@@ -13,6 +13,20 @@
       />
     </UFormField>
 
+    <UFormField
+      v-if="!isEdit"
+      label="Slug"
+      name="profile_id"
+      help="Used in URL, e.g. gmk-cyl. Leave empty to auto-generate from name."
+    >
+      <UInput
+        v-model.trim="profile.profile_id"
+        icon="hugeicons:text-font"
+        class="w-full"
+        placeholder="gmk-cyl"
+      />
+    </UFormField>
+
     <UFormField label="Profile" name="profile">
       <USelect
         v-model="profile.profile"
@@ -66,12 +80,12 @@
 import { Constants } from '~/types/database.types'
 import { keysetProfileSchema } from '~/utils/schemas/keyset'
 
-// A keyset profile (GMK, SA, ...): admin edits on the profile page and edit
-// suggestions (`mode="embedded"`). Profiles are added in the database, so the
-// form only updates one.
+// A keyset profile (GMK, SA, ...): added on the profile list, edited on the
+// profile page, and embedded in edit suggestions and the keyset submission
+// wizard (`mode="embedded"`). The slug is set only when it is added.
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, modelValue, mode } = defineProps({
+const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -80,6 +94,7 @@ const { metadata, modelValue, mode } = defineProps({
     type: Object,
     default: null,
   },
+  isEdit: Boolean,
   mode: {
     type: String,
     default: 'standalone',
@@ -92,6 +107,7 @@ const toast = useToast()
 const profileOptions = Constants.public.Enums.keyset_profile
 
 const profile = ref({
+  profile_id: '',
   name: '',
   profile: null,
   manufacturer: '',
@@ -124,13 +140,20 @@ const onSubmit = async () => {
   if (mode !== 'standalone') return
 
   // The server keys the profile by the route, never by the body.
-  await $fetch(`/api/profiles/${metadata.profile_id}`, {
+  const profileId = isEdit
+    ? metadata.profile_id
+    : profile.value.profile_id || urlSlugify(profile.value.name)
+
+  await $fetch(`/api/profiles/${profileId}`, {
     method: 'post',
     body: profile.value,
   })
     .then((data) => {
       toast.add(
-        successToast('update', { entity: 'Profile', name: profile.value.name }),
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Profile',
+          name: profile.value.name,
+        }),
       )
       emit('onSuccess', data)
     })

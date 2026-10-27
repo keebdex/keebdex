@@ -1,7 +1,28 @@
 <template>
   <UDashboardPanel id="keyset-profiles">
     <template #header>
-      <UDashboardNavbar title="Keyset Profiles" />
+      <UDashboardNavbar title="Keyset Profiles">
+        <template #right>
+          <UModal
+            v-if="editable"
+            v-model:open="adding"
+            title="Add Keyset Profile"
+          >
+            <UButton color="primary" icon="hugeicons:add-square" label="Add" />
+
+            <template #body="{ close }">
+              <KeysetModalProfileForm
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
+              />
+            </template>
+          </UModal>
+        </template>
+      </UDashboardNavbar>
     </template>
 
     <template #body>
@@ -56,7 +77,12 @@ useSeoMeta({
     'Browse keycap profiles and manufacturers, then drill into each catalog of keysets.',
 })
 
-const { groupedProfiles, status } = useKeysetProfiles()
+const userStore = useUserStore()
+// Admins and editors without assignments (nobody is assigned a profile).
+const editable = computed(() => userStore.isEditable('keyset'))
+const adding = ref(false)
+
+const { groupedProfiles, status, refresh } = useKeysetProfiles()
 
 const groups = computed(() => Object.entries(groupedProfiles.value))
 </script>

@@ -17,7 +17,11 @@
           hint="Pick the manufacturer profile this keyset belongs to, or propose one Keebdex doesn't list yet."
           :to="`/keyset/${profile.id}`"
         >
-          <KeysetModalProfileForm v-model="profileDraft" mode="embedded" />
+          <KeysetModalProfileForm
+            v-model="profileDraft"
+            mode="embedded"
+            :is-edit="mode === 'review'"
+          />
         </SharedSubmissionEntityStep>
       </template>
 

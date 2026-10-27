@@ -44,7 +44,8 @@ const OWNERS = {
         })
       )?.profile,
     save: (key: string) => `/api/profiles/${key}`,
-    keyOf: (draft: Record<string, any>) => urlSlugify(draft.name || ''),
+    keyOf: (draft: Record<string, any>) =>
+      String(draft.profile_id || '').trim() || urlSlugify(draft.name || ''),
     fields: ['name', 'profile', 'manufacturer', 'manufacturer_id', 'description'],
     schema: keysetProfileSchema,
     draft: () => ({ name: '', profile: null }),
