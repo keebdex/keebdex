@@ -2,7 +2,7 @@
   <UPageSection
     v-if="testimonials.length"
     headline="Shoutouts"
-    title="What people say"
+    title="What People Say"
     description="Collectors and makers on how they use Keebdex."
     :links="[
       {

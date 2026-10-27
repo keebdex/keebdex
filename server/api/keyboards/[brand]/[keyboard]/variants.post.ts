@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
   } else {
     const { data, error } = await client
       .from('keyboard_variants')
-      .insert({ ...attribute(payload, { own: true }), ...moderation } as any)
+      .insert({ ...attribute(payload), ...moderation } as any)
       .select()
       .single()
 

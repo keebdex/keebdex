@@ -58,12 +58,28 @@
 
       <UButton block color="primary" type="submit" loading-auto> Save </UButton>
     </UForm>
+
+    <UPageCard
+      title="Leaderboard"
+      description="Your approved submissions and edits earn points on the public leaderboard."
+      variant="subtle"
+      orientation="horizontal"
+      :ui="{ container: 'lg:items-center' }"
+    >
+      <USwitch
+        :model-value="!leaderboardHidden"
+        label="Show me on the leaderboard"
+        :loading="savingLeaderboard"
+        class="lg:justify-self-end"
+        @update:model-value="onLeaderboardChange"
+      />
+    </UPageCard>
   </div>
 </template>
 
 <script setup>
 const userStore = useUserStore()
-const { user, social } = storeToRefs(userStore)
+const { user, social, leaderboardHidden } = storeToRefs(userStore)
 
 const toast = useToast()
 
@@ -77,6 +93,26 @@ const onSubmit = async () => {
     })
     .catch((error) => {
       toast.add(errorToast(error))
+    })
+}
+
+// Saved as soon as it changes, apart from the profile form
+const savingLeaderboard = ref(false)
+const onLeaderboardChange = async (show) => {
+  savingLeaderboard.value = true
+  await $fetch(`/api/users/${user.value.uid}`, {
+    method: 'post',
+    body: { leaderboard_hidden: !show },
+  })
+    .then(() => {
+      leaderboardHidden.value = !show
+      toast.add(successToast('update', { entity: 'Leaderboard visibility' }))
+    })
+    .catch((error) => {
+      toast.add(errorToast(error))
+    })
+    .finally(() => {
+      savingLeaderboard.value = false
     })
 }
 

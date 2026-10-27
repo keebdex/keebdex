@@ -34,7 +34,12 @@ type Moderated = { review_status: string | null; submitted_by: string | null }
 
 export type ReviewAction = 'approve' | 'reject'
 
-export type ReviewStatus = 'Pending' | 'Approved' | 'Rejected'
+export const REVIEW_STATUSES = ['Pending', 'Approved', 'Rejected'] as const
+
+export type ReviewStatus = (typeof REVIEW_STATUSES)[number]
+
+export const isReviewStatus = (value: unknown): value is ReviewStatus =>
+  REVIEW_STATUSES.includes(value as ReviewStatus)
 
 // Set only by the server (attribution, review); pass to pickTableFields to
 // drop them from client bodies.
@@ -133,6 +138,72 @@ export const getOwnResubmission = async (
 }
 
 /**
+ * Moderation columns for a page (keyset, keyboard, sculpt) saved from its
+ * form; the body never sets them. A create is attributed like any submission
+ * (staff publish it under their name, so it counts on the leaderboard). An
+ * edit keeps them, except that a submitter's own Rejected page goes back to
+ * review, and staff changing the Review Status the keyset form shows review
+ * the page as the queue would (approving or rejecting records who and when).
+ * Approving a page under review that way would publish its `children`
+ * without a status of their own with it, so they become Pending first, as
+ * when a child's approval cascades to the page.
+ */
+export const getPageSaveModeration = async ({
+  client,
+  table,
+  id,
+  status,
+  userId,
+  isStaff,
+  children,
+}: {
+  client: SupabaseClient
+  table: SubmittableTable
+  id: unknown
+  status?: unknown
+  userId: string
+  isStaff: boolean
+  // Built from the page row as stored, before the save renames anything.
+  children?: (
+    row: Record<string, any>,
+  ) => { table: SubmittableTable; match: RowMatch }[]
+}): Promise<Record<string, unknown>> => {
+  if (!id) return getSubmissionAttribution(isStaff, userId)
+
+  const match = { id: id as number }
+
+  if (!isStaff) {
+    return (await getOwnResubmission(client, table, match, userId, false)) || {}
+  }
+
+  if (!isReviewStatus(status)) return {}
+
+  const { data } = (await matchRows(
+    from(client, table).select('*'),
+    match,
+  ).maybeSingle()) as { data: (Moderated & Record<string, any>) | null }
+
+  if (data?.review_status === status) return {}
+
+  if (status === 'Pending') return { review_status: 'Pending' }
+
+  if (status === 'Approved' && data?.review_status && children) {
+    await Promise.all(
+      children(data).map((child) =>
+        keepStatuslessInReview(
+          client,
+          child.table,
+          child.match,
+          data.submitted_by,
+        ),
+      ),
+    )
+  }
+
+  return getReviewPatch(status === 'Approved' ? 'approve' : 'reject', userId)
+}
+
+/**
  * Staff scope for submissions: admins (and editors without assignments) see
  * everything, others only their assigned pages. Null means unrestricted.
  */
@@ -169,10 +240,8 @@ const PARENTS = {
  * newly created child gets:
  * - official (null/Approved) parent + staff for it: auto-approved;
  * - official parent + anyone else: a Pending community proposal;
- * - Pending/Rejected keyset or sculpt: kits/colorways still get their own
- *   status (see above);
- * - Pending/Rejected keyboard: releases have no state of their own (the
- *   keyboard's lifecycle owns them), but variants still get their own.
+ * - the submitter's own Pending/Rejected parent: the child still gets its
+ *   own status, so each kit, colorway, release, or variant is reviewed alone.
  */
 export const getChildSubmissionContext = async (
   event: H3Event,
@@ -203,19 +272,14 @@ export const getChildSubmissionContext = async (
   const isOfficial =
     !parent.review_status || parent.review_status === 'Approved'
 
-  // `own` children (keyset kits, keyboard variants, artisan colorways) always
-  // carry their own status so each can be reviewed alone; others (keyboard
-  // releases) follow a Pending parent's lifecycle.
-  const attribute = <T extends Record<string, unknown>>(
-    record: T,
-    { own = domain !== 'keyboard' }: { own?: boolean } = {},
-  ) => {
-    const base = omitModerationFields(record)
-
-    if (!isOfficial && !own) return base
-
-    return { ...base, ...getSubmissionAttribution(isStaff, user.sub) }
-  }
+  // Every child (kit, colorway, release, variant) carries its own status and
+  // submitter, also under its submitter's own Pending parent, so each is
+  // reviewed and credited on its own.
+  // Callers already drop client moderation fields (pickTableFields).
+  const attribute = <T extends Record<string, unknown>>(record: T) => ({
+    ...record,
+    ...getSubmissionAttribution(isStaff, user.sub),
+  })
 
   return {
     client,
@@ -460,43 +524,6 @@ const keepStatuslessInReview = async (
 }
 
 /**
- * Staff can publish a parent under review straight from its form (Review
- * Status set to Approved or cleared). Its children without a status of their
- * own would be published with it, so they become Pending first, as when a
- * child's approval cascades to the parent. `nextStatus` is the status the save
- * writes; call this only when the save body carries one.
- */
-export const keepChildrenInReviewOnPublish = async (
-  client: SupabaseClient,
-  parent: { table: SubmittableTable; match: RowMatch },
-  nextStatus: unknown,
-  // Built from the parent row as stored, before the save renames anything.
-  children: (
-    row: Record<string, any>,
-  ) => { table: SubmittableTable; match: RowMatch }[],
-) => {
-  if (nextStatus && nextStatus !== 'Approved') return
-
-  const { data } = (await matchRows(
-    from(client, parent.table).select('*'),
-    parent.match,
-  ).maybeSingle()) as { data: (Moderated & Record<string, any>) | null }
-
-  if (!data?.review_status || data.review_status === 'Approved') return
-
-  await Promise.all(
-    children(data).map((child) =>
-      keepStatuslessInReview(
-        client,
-        child.table,
-        child.match,
-        data.submitted_by,
-      ),
-    ),
-  )
-}
-
-/**
  * Resolves a parent still under review (Pending/Rejected) after one of its
  * children was approved or rejected:
  * - approve: the parent is approved too (after `beforeApprove`);
@@ -690,6 +717,7 @@ export const saveOwnerSubmission = async (
     .insert({
       ...record,
       ...match,
+      // Staff add it published (submitted_by defaults to them)
       ...(isStaff ? {} : getSubmissionAttribution(false, user.sub)),
     })
     .select()
@@ -857,8 +885,9 @@ export const cascadeKeyboardReview = async (
     children: { table: 'keyboard_variants', match: keyboardMatch },
     action,
     userId,
-    // Other releases and variants without a status of their own follow the
-    // keyboard; the reviewed variant's own release keeps following it.
+    // Releases and variants without a status of their own (saved before
+    // they carried one, or under a keyboard staff moved back to review)
+    // stay in review.
     beforeApprove: async (keyboard) => {
       await Promise.all([
         keepStatuslessInReview(

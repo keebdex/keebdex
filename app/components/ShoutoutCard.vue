@@ -26,7 +26,7 @@
       <UUser
         :name="item.name"
         :description="item.role || 'Collector'"
-        :avatar="{ src: item.avatar_url || undefined, alt: item.name }"
+        :avatar="userAvatar(item.avatar_url, item.name)"
         :ui="{ name: 'truncate', description: 'truncate' }"
       />
     </template>

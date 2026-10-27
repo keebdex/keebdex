@@ -26,10 +26,7 @@ const links = [
     label: 'Profile',
     icon: 'hugeicons:user-01',
     to: '/account/settings',
-    avatar: {
-      src: user.value.picture,
-      alt: user.value.name,
-    },
+    avatar: userAvatar(user.value.picture, user.value.name),
     exact: true,
   },
   {

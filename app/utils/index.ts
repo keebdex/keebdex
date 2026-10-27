@@ -16,6 +16,20 @@ export const formatPrice = (
   }).format(amount)
 }
 
+/**
+ * Avatar props for a user's profile picture (from Google or Discord). Google
+ * refuses most avatar requests that carry a referrer once a page shows
+ * several, so the image loads without one.
+ */
+export const userAvatar = (
+  src: string | null | undefined,
+  alt?: string | null,
+) => ({
+  src: src || undefined,
+  alt: alt || undefined,
+  referrerpolicy: 'no-referrer' as const,
+})
+
 export const formatNumber = (value: number | null | undefined) =>
   value || value === 0 ? new Intl.NumberFormat('en-US').format(value) : ''
 

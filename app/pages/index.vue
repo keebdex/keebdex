@@ -41,7 +41,7 @@
 
           <div class="flex basis-full justify-center">
             <UButton
-              label="Why choose Keebdex?"
+              label="Why Choose Keebdex?"
               to="/why-choose-keebdex"
               variant="link"
               trailing-icon="hugeicons:arrow-right-02"
@@ -54,6 +54,8 @@
       <HomeFreshReleases />
 
       <HomeArtisanGuides />
+
+      <HomeTopContributors />
 
       <HomeShoutouts />
     </template>

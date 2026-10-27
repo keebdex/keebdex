@@ -1,8 +1,8 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { Ref } from 'vue'
 
-// The sidebar's catalog sections and its personal links (Notifications,
-// Recent Changes). The layout adds the links that open its own modals.
+// The sidebar's catalog sections and its footer links (Leaderboard,
+// Notifications, Recent Changes). The layout adds the links that open its own modals.
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const route = useRoute()
   const { authenticated, isModerator } = storeToRefs(useUserStore())
@@ -116,7 +116,14 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
   ])
 
   const personalLinks = computed<NavigationMenuItem[]>(() => {
-    const items: NavigationMenuItem[] = []
+    const items: NavigationMenuItem[] = [
+      {
+        label: 'Leaderboard',
+        icon: 'hugeicons:champion',
+        to: '/leaderboard',
+        active: route.path === '/leaderboard',
+      },
+    ]
 
     // Signed-in users only; the dot icon and badge flag unread notifications
     // and announcements.

@@ -8,6 +8,7 @@ import {
   isProtectedSuggestionField,
   sameSuggestionValue,
 } from '~/utils/suggestions'
+import { userAvatar } from '~/utils'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 import type { KeebModule } from '~/utils/keeb-modules'
 
@@ -145,7 +146,7 @@ export const revisionIcon = (revision: Revision) =>
 export interface RevisionAuthor {
   key: string
   name: string
-  avatar: { src?: string; alt?: string; icon?: string }
+  avatar: { src?: string; alt?: string; icon?: string; referrerpolicy?: string }
   bot: boolean
 }
 
@@ -157,9 +158,7 @@ const person = (
 ): RevisionAuthor => ({
   key: `user:${id}`,
   name: name || fallback,
-  avatar: avatar
-    ? { src: avatar, alt: name || undefined }
-    : { icon: 'hugeicons:user' },
+  avatar: avatar ? userAvatar(avatar, name) : { icon: 'hugeicons:user' },
   bot: false,
 })
 

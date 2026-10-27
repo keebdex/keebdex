@@ -10,10 +10,7 @@
       v-if="authenticated"
       :name="collapsed ? undefined : user.name"
       :description="collapsed ? undefined : roleMap[role]?.label"
-      :avatar="{
-        src: user.picture,
-        alt: user.name,
-      }"
+      :avatar="userAvatar(user.picture, user.name)"
       class="cursor-pointer w-full"
     />
     <UButton

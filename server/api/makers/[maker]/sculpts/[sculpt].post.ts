@@ -23,19 +23,16 @@ export default defineEventHandler(async (event) => {
     canManageAssignment(profile, String(body.maker_id || makerId || ''))
 
   // Moderation fields are only ever set by the server, never trusted from
-  // the client. Editing an existing sculpt never changes its status, except
-  // that its submitter resubmits a rejected one for review.
+  // the client.
   const record = {
     ...body,
-    ...(body.id
-      ? await getOwnResubmission(
-          client,
-          'artisan_sculpts',
-          { id: body.id as number },
-          user.sub,
-          isStaff,
-        )
-      : getSubmissionAttribution(isStaff, user.sub)),
+    ...(await getPageSaveModeration({
+      client,
+      table: 'artisan_sculpts',
+      id: body.id,
+      userId: user.sub,
+      isStaff,
+    })),
   }
 
   const { data, error } = body.id

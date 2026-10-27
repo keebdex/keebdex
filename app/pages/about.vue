@@ -13,7 +13,7 @@
         :features="features"
         :links="[
           {
-            label: 'Why choose Keebdex?',
+            label: 'Why Choose Keebdex?',
             to: '/why-choose-keebdex',
             icon: 'solar:star-fall-bold-duotone',
             color: 'primary',
