@@ -17,13 +17,25 @@
         />
       </UPageList>
 
+      <!-- A hidden user's rank counts them among the visible collectors, so
+      someone else holds it on the board; say so -->
       <p v-if="ownRank" class="mt-4 text-sm text-muted">
-        You're
+        <template v-if="leaderboardHidden">
+          You're hidden from the leaderboard. You'd be
+        </template>
+        <template v-else>You're</template>
         <span class="font-semibold text-highlighted">#{{ ownRank.rank }}</span>
         this month with
         <span class="font-semibold text-highlighted">
           {{ countLabel(ownRank.points, 'point') }}</span
         >.
+        <ULink
+          v-if="leaderboardHidden"
+          to="/account/settings"
+          class="underline"
+        >
+          Change it
+        </ULink>
       </p>
     </template>
 
@@ -69,6 +81,7 @@ const { data: entries } = await useAsyncData(
 
 const podium = computed(() => entries.value.slice(0, 3))
 const runnersUp = computed(() => entries.value.slice(3))
+const { leaderboardHidden } = storeToRefs(useUserStore())
 const me = useLeaderboardMe({ period: 'month' })
 
 // The caller's own rank when they are not among the six shown

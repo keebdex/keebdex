@@ -8,7 +8,7 @@ authors:
     to: https://claude.com/claude-code
 ---
 
-**Many hands** keep the catalog right: anyone signed in can now suggest a fix, a missing photo, or a keyset's colors on any published page, from a colorway up to a maker, brand, or keycap profile, and propose a maker, brand, or profile the catalog is missing along with their submission. Moderators review every change before it goes live, with the full history of each page and one-click undo.
+**Many hands** keep the catalog right — anyone signed in can now suggest a fix, a missing photo, or a keyset's colors on any published page, and propose a maker, brand, or keycap profile the catalog is missing along with their submission. Moderators review every change before it goes live, with the full history of each page and one-click undo, and the new _Leaderboard_ celebrates the collectors who add the most.
 
 ### ✨ What's New
 
@@ -25,6 +25,7 @@ authors:
 - Link previews on Discord and other sites show the Keebdex font again, instead of a plain fallback font that only appeared once a page was shared.
 - Keyset covers and kit pictures that link to images hosted by a vendor's own image service show again, instead of a blank space, while waiting to be copied to Keebdex, which now copies them too.
 - The _Unread_ filter on the notifications page loads your unread notifications directly, so older unread ones show up even when many newer ones are already read.
+- Profile pictures from Google accounts show again on pages with many collectors, such as shoutouts and change history, instead of falling back to a placeholder.
 
 ### 🚀 Improvements
 
