@@ -139,15 +139,6 @@ export default defineAppConfig({
       slots: {
         container: 'py-8 sm:py-12 lg:py-16',
       },
-      variants: {
-        // `reverse` puts the text last at every width; stacked on phones,
-        // the title still comes first.
-        reverse: {
-          true: {
-            wrapper: 'max-lg:order-first',
-          },
-        },
-      },
     },
     marquee: {
       slots: {

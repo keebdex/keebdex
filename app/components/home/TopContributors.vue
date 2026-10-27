@@ -45,7 +45,8 @@
       </UDropdownMenu>
     </template>
 
-    <!-- Opposite the guides above, so the two sections read apart -->
+    <!-- Opposite the guides above, so the two sections read apart; stacked
+    on phones, the podium comes first and ranks 4–6 follow it -->
     <LeaderboardPodium
       :entries="podium"
       :me-id="me?.user_id"
