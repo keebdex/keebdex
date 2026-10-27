@@ -61,7 +61,7 @@
           <UBadge
             v-if="keyset.status === 'Cancelled'"
             label="Cancelled"
-            color="error"
+            :color="keysetPhaseColors.Cancelled"
             variant="solid"
             class="absolute top-6 right-6 z-20"
           />

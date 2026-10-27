@@ -65,7 +65,7 @@ export const useKeysetSubmissionWizard = ({
     img: '',
     description: '',
     profile_id: '',
-    status: DEFAULT_KEYSET_STATUS as string,
+    status: DEFAULT_KEYSET_STATUS,
     review_status: undefined as string | undefined,
     ic_date: undefined as ReturnType<typeof parseDate> | string | undefined,
     start_date: undefined as string | undefined,

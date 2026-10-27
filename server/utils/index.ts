@@ -1,6 +1,7 @@
 import { omit } from 'es-toolkit'
 import type { H3Event } from 'h3'
 import { serverSupabaseUser } from '#supabase/server'
+import { isoToday } from '~/utils/date'
 
 /**
  * Omit sensitive fields from the object before sending it to the client
@@ -14,7 +15,29 @@ export const omitSensitive = (obj: any) => omit(obj, ['fts'])
  * review (`null`: synced from a maker's doc or site, or added by staff).
  * Pending and Rejected submissions stay in the review queue.
  */
-export const PUBLISHED_FILTER = 'review_status.is.null,review_status.eq.Approved'
+export const PUBLISHED_FILTER =
+  'review_status.is.null,review_status.eq.Approved'
+
+/**
+ * Narrows a keysets query to live group buys: Confirmed sets whose
+ * `start_date`–`end_date` holds today (UTC). The Live tab of Group Buys and
+ * the home page's Happening Now share it; `keysetPhase` applies the same rule
+ * to one keyset in the browser.
+ */
+export const liveGroupBuys = <
+  Q extends {
+    lte: (column: string, value: string) => Q
+    gte: (column: string, value: string) => Q
+    eq: (column: string, value: string) => Q
+  },
+>(
+  query: Q,
+  today = isoToday(),
+) =>
+  query
+    .lte('start_date', today)
+    .gte('end_date', today)
+    .eq('status', 'Confirmed')
 
 /**
  * `PUBLISHED_FILTER` plus the caller's own rows under review when `own` is
