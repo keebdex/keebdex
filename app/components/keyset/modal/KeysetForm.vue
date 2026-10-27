@@ -41,7 +41,7 @@
         />
       </UFormField>
 
-      <UFormField label="Sculpt" name="sculpt">
+      <UFormField label="Row Sculpt" name="sculpt">
         <UInputMenu
           v-model.trim="keyset.sculpt"
           :items="sculpts"
@@ -91,7 +91,7 @@
       <UFormField label="Status" name="status">
         <USelect
           v-model="keyset.status"
-          :items="keysetStatusEnum"
+          :items="KEYSET_STATUSES"
           class="w-full"
         />
       </UFormField>
@@ -218,7 +218,6 @@ const props = defineProps({
 const route = useRoute()
 const toast = useToast()
 const userStore = useUserStore()
-const keysetStatusEnum = Constants.public.Enums.keyset_status
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const isEdit = computed(() => props.isEdit)
 const isStandalone = computed(() => props.mode === 'standalone')
@@ -256,6 +255,7 @@ const defaultKeyset = () => ({
   url: '',
   img: '',
   description: '',
+  status: DEFAULT_KEYSET_STATUS,
 })
 
 const keyset = ref(defaultKeyset())
@@ -366,11 +366,7 @@ watch(uploadedFile, async (file) => {
 })
 
 const onSubmit = async () => {
-  if (
-    !isStandalone.value ||
-    uploadingImage.value ||
-    imageUploadFailed.value
-  ) {
+  if (!isStandalone.value || uploadingImage.value || imageUploadFailed.value) {
     return
   }
 
@@ -398,7 +394,9 @@ const onSubmit = async () => {
   )
     .then(() => {
       if (isEdit.value) {
-        toast.add(successToast('update', { entity: 'Keyset', name: keyset.value.name }))
+        toast.add(
+          successToast('update', { entity: 'Keyset', name: keyset.value.name }),
+        )
 
         if (route.params.keyset !== slug) {
           navigateTo(path)

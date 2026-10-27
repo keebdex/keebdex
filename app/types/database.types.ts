@@ -1874,6 +1874,7 @@ export type Database = {
         | "Shipping"
         | "Complete"
         | "Cancelled"
+        | "Confirmed"
       module: "Artisan" | "Keyset" | "Keyboard"
       review_status: "Pending" | "Approved" | "Rejected"
       sale_format:
@@ -2112,6 +2113,7 @@ export const Constants = {
         "Shipping",
         "Complete",
         "Cancelled",
+        "Confirmed",
       ],
       module: ["Artisan", "Keyset", "Keyboard"],
       review_status: ["Pending", "Approved", "Rejected"],

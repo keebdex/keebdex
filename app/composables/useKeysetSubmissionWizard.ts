@@ -65,7 +65,7 @@ export const useKeysetSubmissionWizard = ({
     img: '',
     description: '',
     profile_id: '',
-    status: undefined as string | undefined,
+    status: DEFAULT_KEYSET_STATUS as string,
     review_status: undefined as string | undefined,
     ic_date: undefined as ReturnType<typeof parseDate> | string | undefined,
     start_date: undefined as string | undefined,
@@ -130,7 +130,10 @@ export const useKeysetSubmissionWizard = ({
   const load = async () => {
     if (!isReview || !submission) return
 
-    await owner.load(submissionProfile, submission.keyset?.profile?.review_status)
+    await owner.load(
+      submissionProfile,
+      submission.keyset?.profile?.review_status,
+    )
     await nextTick()
     keysetMode.value = 'existing'
     existingKeyset.value = { id: submissionKey }

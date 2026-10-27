@@ -1,11 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { PUBLISHED_FILTER, omitSensitive } from '../utils'
-
-const statusMap: Record<string, string[]> = {
-  ic: ['Interest Check'],
-  live: ['Live', 'Scheduled'],
-  ended: ['In Production', 'Shipping'],
-}
+import { isoToday } from '~/utils/keyset-status'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -18,28 +13,32 @@ export default defineEventHandler(async (event) => {
   const to = from + pageSize - 1
 
   const buildQuery = (head = false) => {
+    const today = isoToday()
+    const keysets = () =>
+      client
+        .from('keysets')
+        .select('*, profile:keyset_profiles(name)', { count: 'exact', head })
+        .or(PUBLISHED_FILTER)
+
+    // Group buy tabs: Interest Check is a status; Live goes by the group buy
+    // dates of confirmed sets, so a set leaves it on its own once it ends.
     switch (status) {
       case 'ic':
-        return client
-          .from('keysets')
-          .select('*, profile:keyset_profiles(name)', { count: 'exact', head })
-          .in('status', statusMap[status] || [])
-          .or(PUBLISHED_FILTER)
+        return keysets()
+          .eq('status', 'Interest Check')
           .order('ic_date', { ascending: false })
+      // Today falls within the group buy of a confirmed set
       case 'live':
-      case 'ended':
-        return client
-          .from('keysets')
-          .select('*, profile:keyset_profiles(name)', { count: 'exact', head })
-          .in('status', statusMap[status] || [])
-          .or(PUBLISHED_FILTER)
-          .order('start_date', { ascending: status === 'live' })
+        return keysets()
+          .lte('start_date', today)
+          .gte('end_date', today)
+          .eq('status', 'Confirmed')
+          .order('start_date', { ascending: true })
       default:
         return client
           .from('keysets')
           .select('*', { count: 'exact', head })
           .eq('profile_id', profile_id)
-          .neq('status', '')
           .or(PUBLISHED_FILTER)
           .order('profile_keyset_id')
     }
@@ -71,8 +70,7 @@ export default defineEventHandler(async (event) => {
     profileError &&
     status !== 'pending' &&
     status !== 'ic' &&
-    status !== 'live' &&
-    status !== 'ended'
+    status !== 'live'
   ) {
     throw createError({
       statusCode: 404,

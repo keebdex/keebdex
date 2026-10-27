@@ -33,19 +33,6 @@ export const userAvatar = (
 export const formatNumber = (value: number | null | undefined) =>
   value || value === 0 ? new Intl.NumberFormat('en-US').format(value) : ''
 
-export const keysetStatusColors: Record<
-  Database['public']['Enums']['keyset_status'],
-  string
-> = {
-  'Interest Check': 'secondary',
-  Cancelled: 'error',
-  Scheduled: 'info',
-  Live: 'primary',
-  'In Production': 'warning',
-  Shipping: 'info',
-  Complete: 'success',
-}
-
 // Profile rows hold a short name (CYL, SA) apart from the manufacturer (GMK,
 // Signature Plastics); show both unless they say the same thing (JTK JTK)
 export const keysetProfileLabel = (
@@ -92,15 +79,8 @@ export const keysetStatusMap = {
     title: 'Group Buy Live',
     label: 'Live',
     description:
-      'Sets that are either live in group buy or scheduled to start soon.',
+      'Sets whose group buy is running today, going by its start and end dates.',
     icon: 'hugeicons:live-streaming-02',
-  },
-  ended: {
-    title: 'Group Buy Ended',
-    label: 'Ended',
-    description:
-      'Sets with group buys already ended and awaiting production or delivery.',
-    icon: 'hugeicons:file-archive',
   },
 }
 

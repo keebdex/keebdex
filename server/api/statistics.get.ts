@@ -2,6 +2,7 @@ import { serverSupabaseClient } from '#supabase/server'
 import { getLocalTimeZone, today } from '@internationalized/date'
 import { sortBy } from 'es-toolkit/compat'
 import { PUBLISHED_FILTER } from '../utils'
+import { isoToday } from '~/utils/keyset-status'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -41,16 +42,19 @@ export default defineEventHandler(async (event) => {
   }
   const makers = [...additions.values()]
 
+  const gbDay = isoToday()
+
   // Only the fields the home page's fresh releases marquee shows
   const { data: keysets, error: keysetsError } = await client
     .from('keysets')
     .select(
       'name, img, start_date, end_date, profile_id, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
     )
-    .eq('status', 'Live')
+    // Live group buys, by their dates (see GET /api/keysets?status=live)
+    .lte('start_date', gbDay)
+    .gte('end_date', gbDay)
+    .eq('status', 'Confirmed')
     .or(PUBLISHED_FILTER)
-  // .lte('start_date', startOfDay)
-  // .gte('end_date', startOfDay)
 
   if (keysetsError) {
     throw createError({

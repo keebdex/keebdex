@@ -490,7 +490,7 @@ watch(coverImg, () => {
 const details = computed(() =>
   [
     { term: 'Designer', description: data.value.designer },
-    { term: 'Sculpt', description: data.value.sculpt },
+    { term: 'Row Sculpt', description: data.value.sculpt },
   ].filter((item) => item.description),
 )
 
@@ -504,13 +504,12 @@ const groupBuy = computed(() => {
     },
   ].filter((item) => item.description)
 
-  if (data.value.status) {
+  const phase = keysetPhase(data.value)
+
+  if (phase) {
     items.push({
       term: 'Status',
-      badge: {
-        label: data.value.status,
-        color: keysetStatusColors[data.value.status],
-      },
+      badge: { label: phase, color: keysetPhaseColors[phase] },
     })
   }
 

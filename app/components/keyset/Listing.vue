@@ -59,11 +59,9 @@
           }"
         >
           <UBadge
-            v-if="
-              keyset.status === 'Cancelled' || keyset.status === 'Scheduled'
-            "
-            :label="keyset.status"
-            :color="keysetStatusColors[keyset.status]"
+            v-if="keyset.status === 'Cancelled'"
+            label="Cancelled"
+            color="error"
             variant="solid"
             class="absolute top-6 right-6 z-20"
           />

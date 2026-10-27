@@ -33,9 +33,11 @@ authors:
 - **Combined quick replies**: moderators can pick several quick replies when rejecting a submission or resolving feedback, and they appear as a tidy list in the note.
 - **Renames that move the page**: renaming a sculpt, keyset, or keyboard, by staff or through a suggested edit, gives the page an address that matches its new name, and its colorways, kits, or releases come along. Its change history, pending suggestions, and editors follow it too, and sculpts that sync from a maker's Google Doc or website keep syncing instead of coming back under their old name.
 - **A livelier home page**: the welcome leads straight in with _Start Collecting_ and _Search Keebdex_, and on phones it takes less room so the latest releases show without scrolling. _Happening Now_ shows how many days each live group buy has left, short lists sit still instead of scrolling past as repeats, and shoutouts put the quote first with its author below.
+- **Group buys that keep up**: the _Live_ tab of _Group Buys_ and the home page's _Happening Now_ show every set whose group buy is running today, going by its dates, so a set appears and leaves on time without anyone updating it. _Group Buys_ now has just _Interest Check_ and _Live_, a keyset's status only says whether it is an interest check, confirmed, or cancelled, and the row sculpt is now labelled _Row Sculpt_.
 - **Order graphs that last**: order graphs and order history charts on keyset pages are now stored on Keebdex like keyset covers, so they keep showing after the image host they were shared on removes them.
 - **Account menu on phones**: the account menu now shows your role at the top on phones, where the account button is just your picture, and the _Sign In_ button keeps its label instead of showing only an icon.
 
 ### ⚠️ Breaking Changes
 
+- The _Ended_ tab of _Group Buys_ is gone, and links to it open the _Live_ tab. Finished group buys are still listed on each profile's page.
 - Renaming a sculpt, keyset, or keyboard now changes its address, and the old address no longer opens the page. Bookmarks or shared links to a renamed page need to be updated.
