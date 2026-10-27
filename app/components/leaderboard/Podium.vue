@@ -17,6 +17,7 @@
           :src="place.entry.avatar || undefined"
           :alt="place.entry.name || undefined"
           icon="hugeicons:user-circle-02"
+          referrerpolicy="no-referrer"
           :class="[
             'ring-4 ring-offset-2 ring-offset-(--ui-bg)',
             place.medal?.ring,

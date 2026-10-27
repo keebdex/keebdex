@@ -22,6 +22,9 @@
         src: entry.avatar || undefined,
         alt: entry.name || undefined,
         icon: 'hugeicons:user-circle-02',
+        // Google answers most avatar requests that carry a referrer with an
+        // error once a page shows several
+        referrerpolicy: 'no-referrer',
       }"
       class="flex-1 min-w-0"
       :ui="{ name: 'truncate', description: 'truncate md:hidden' }"
