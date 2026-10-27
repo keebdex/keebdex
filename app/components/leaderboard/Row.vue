@@ -17,7 +17,7 @@
 
     <UUser
       :name="entry.name || 'Anonymous Collector'"
-      :description="summary"
+      :description="compact ? undefined : summary"
       :avatar="{
         src: entry.avatar || undefined,
         alt: entry.name || undefined,
@@ -28,18 +28,20 @@
     />
 
     <!-- From md the counts get their own columns, under LeaderboardHeader -->
-    <span
-      v-for="column in LEADERBOARD_COLUMNS"
+    <template v-if="!compact">
+      <span
+        v-for="column in LEADERBOARD_COLUMNS"
       :key="column.key"
       class="hidden md:block w-20 shrink-0 text-center text-sm tabular-nums"
       :class="entry[column.key] ? 'text-default' : 'text-dimmed'"
     >
-      {{ formatNumber(entry[column.key]) }}
-    </span>
+        {{ formatNumber(entry[column.key]) }}
+      </span>
+    </template>
 
     <div class="w-16 shrink-0 text-right">
       <p class="font-semibold tabular-nums">{{ formatNumber(entry.points) }}</p>
-      <p class="text-xs text-muted md:hidden">points</p>
+      <p class="text-xs text-muted" :class="!compact && 'md:hidden'">points</p>
     </div>
   </div>
 </template>
@@ -50,6 +52,8 @@ import type { LeaderboardEntry } from '~/utils/leaderboard'
 const { entry } = defineProps<{
   entry: LeaderboardEntry
   highlight?: boolean
+  // Rank, avatar, name, and points only, e.g. beside the home page podium
+  compact?: boolean
 }>()
 
 const medal = computed(() => leaderboardMedal(entry.rank))

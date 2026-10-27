@@ -55,6 +55,8 @@
 
       <HomeArtisanGuides />
 
+      <HomeTopContributors />
+
       <HomeShoutouts />
     </template>
   </UDashboardPanel>
