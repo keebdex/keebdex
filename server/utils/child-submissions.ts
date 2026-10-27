@@ -89,6 +89,21 @@ export const getSubmissionAttribution = (isStaff: boolean, userId: string) => ({
 })
 
 /**
+ * A staff body saved as sent (the admin forms) never changes who submitted a
+ * record, and a record staff create is credited to them, as
+ * `getSubmissionAttribution` does for the other create paths, so it counts
+ * on the leaderboard.
+ */
+export const withStaffSubmitter = <T extends Record<string, unknown>>(
+  body: T,
+  userId: string,
+) => {
+  const record = omit(body, ['submitted_by'])
+
+  return body.id ? record : { ...record, submitted_by: userId }
+}
+
+/**
  * Moderation columns written when staff approve or reject a record.
  */
 export const getReviewPatch = (action: ReviewAction, userId: string) => ({
@@ -690,7 +705,10 @@ export const saveOwnerSubmission = async (
     .insert({
       ...record,
       ...match,
-      ...(isStaff ? {} : getSubmissionAttribution(false, user.sub)),
+      // Staff add it published, credited to them for the leaderboard
+      ...(isStaff
+        ? { submitted_by: user.sub }
+        : getSubmissionAttribution(false, user.sub)),
     })
     .select()
     .single()

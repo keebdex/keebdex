@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   // Only staff may set moderation fields; a submitter editing their own
   // rejected keyset sends it back to review.
   const payload = isStaff
-    ? body
+    ? withStaffSubmitter(body, user.sub)
     : {
         ...omitModerationFields(body),
         ...(body.id

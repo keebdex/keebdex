@@ -30,7 +30,9 @@ export default defineEventHandler(async (event) => {
       : getSubmissionAttribution(false, user.sub)
 
   const payload = {
-    ...(isStaff ? body : omitModerationFields(body)),
+    ...(isStaff
+      ? withStaffSubmitter(body, user.sub)
+      : omitModerationFields(body)),
     ...moderation,
     typing_angle: toNullableNumber(body.typing_angle),
   }
