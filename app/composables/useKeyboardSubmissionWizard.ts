@@ -207,7 +207,8 @@ export const useKeyboardSubmissionWizard = ({
       !!keyboardReviewStatus.value && keyboardReviewStatus.value !== 'Approved',
   )
 
-  // A release without a status of its own follows its keyboard.
+  // Releases carry their own status; one saved before that follows its
+  // keyboard.
   const releaseUnderReview = computed(() =>
     releaseReviewStatus.value
       ? releaseReviewStatus.value !== 'Approved'

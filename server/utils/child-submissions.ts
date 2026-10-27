@@ -248,19 +248,13 @@ export const getChildSubmissionContext = async (
   const isOfficial =
     !parent.review_status || parent.review_status === 'Approved'
 
-  // `own` children (keyset kits, keyboard variants, artisan colorways) always
-  // carry their own status so each can be reviewed alone; others (keyboard
-  // releases) follow a Pending parent's lifecycle.
-  const attribute = <T extends Record<string, unknown>>(
-    record: T,
-    { own = domain !== 'keyboard' }: { own?: boolean } = {},
-  ) => {
-    const base = omitModerationFields(record)
-
-    if (!isOfficial && !own) return base
-
-    return { ...base, ...getSubmissionAttribution(isStaff, user.sub) }
-  }
+  // Every child (kit, colorway, release, variant) carries its own status and
+  // submitter, also under its submitter's own Pending parent, so each is
+  // reviewed and credited on its own.
+  const attribute = <T extends Record<string, unknown>>(record: T) => ({
+    ...omitModerationFields(record),
+    ...getSubmissionAttribution(isStaff, user.sub),
+  })
 
   return {
     client,
@@ -905,8 +899,8 @@ export const cascadeKeyboardReview = async (
     children: { table: 'keyboard_variants', match: keyboardMatch },
     action,
     userId,
-    // Other releases and variants without a status of their own follow the
-    // keyboard; the reviewed variant's own release keeps following it.
+    // Releases and variants saved before they carried their own status
+    // (20261027000200_release_review_status) stay in review.
     beforeApprove: async (keyboard) => {
       await Promise.all([
         keepStatuslessInReview(
