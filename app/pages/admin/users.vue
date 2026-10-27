@@ -71,7 +71,7 @@
                 :key="assignment"
                 :label="assignment"
                 :avatar="{
-                  src: `${$config.public.imgUrl}/logo/${assignment}.png`,
+                  src: logoUrl(assignment),
                   ui: {
                     root: 'rounded-none bg-transparent',
                     image: 'dark:invert',

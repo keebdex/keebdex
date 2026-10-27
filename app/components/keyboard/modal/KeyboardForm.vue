@@ -145,10 +145,6 @@ const props = defineProps({
 const route = useRoute()
 const toast = useToast()
 
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
-
 const isEdit = computed(() => props.isEdit)
 const includeBrand = computed(() => props.includeBrand)
 const isStandalone = computed(() => props.mode === 'standalone')
@@ -248,7 +244,7 @@ onBeforeMount(() => {
         props.metadata?.original?.name,
       ]),
       avatar: {
-        src: `${imgUrl}/logo/${props.metadata?.original?.brand_slug}.png`,
+        src: logoUrl(props.metadata?.original?.brand_slug),
         alt: props.metadata?.original?.brand?.name,
         ui: {
           root: 'bg-transparent rounded-none',

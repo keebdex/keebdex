@@ -135,10 +135,6 @@
 const route = useRoute()
 const userStore = useUserStore()
 
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
-
 const brand = computed(() => String(route.params.brand || ''))
 
 const editable = computed(() => userStore.isEditable(brand.value))
@@ -227,6 +223,6 @@ useSeoMeta({
 defineOgImage('Module', {
   title: data.value?.name,
   description: description.value,
-  titleLogo: `${imgUrl}/logo/${data.value?.slug}.png`,
+  titleLogo: logoUrl(data.value?.slug),
 })
 </script>

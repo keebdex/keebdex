@@ -62,7 +62,7 @@
               <UUser
                 size="lg"
                 :avatar="{
-                  src: `${imgUrl}/logo/${maker.maker_id}.png`,
+                  src: logoUrl(maker.maker_id),
                   alt: maker.name,
                   ui: {
                     root: 'rounded-none bg-transparent',
@@ -142,7 +142,7 @@
                   'Live now'
                 "
                 :avatar="{
-                  src: `${imgUrl}/logo/${keyset.profile_id}.png`,
+                  src: logoUrl(keyset.profile_id),
                   alt: keyset.profile.name,
                   ui: {
                     root: 'rounded-none bg-transparent',
@@ -167,10 +167,6 @@ const { data } = await useAsyncData(
   () => $fetch('/api/statistics').catch(empty),
   { default: empty },
 )
-
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
 
 const artisanDrops = computed(() => data.value?.makers || [])
 const liveKeysets = computed(() => data.value?.keysets || [])

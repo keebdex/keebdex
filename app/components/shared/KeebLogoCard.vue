@@ -55,7 +55,7 @@ const {
   public: { imgUrl },
 } = useRuntimeConfig()
 
-const logoSrc = computed(() => `${imgUrl}/logo/${props.slug}.png`)
+const logoSrc = computed(() => logoUrl(props.slug))
 const fallbackSrc = `${imgUrl}/not-found.png`
 
 const imageSrc = ref(logoSrc.value)

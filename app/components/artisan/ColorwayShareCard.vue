@@ -14,7 +14,7 @@
       <div class="flex items-center gap-3">
         <UAvatar
           v-if="colorway.maker_id"
-          :src="`${imgUrl}/logo/${colorway.maker_id}.png`"
+          :src="logoUrl(colorway.maker_id)"
           :alt="colorway.sculpt?.maker_name"
           :size="simple ? 'sm' : 'lg'"
           :ui="{
@@ -87,10 +87,6 @@ const { colorway } = defineProps({
     default: false,
   },
 })
-
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
 
 const badges = computed(() =>
   [

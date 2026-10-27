@@ -136,10 +136,6 @@ const route = useRoute()
 const userStore = useUserStore()
 const { favorites } = storeToRefs(userStore)
 
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
-
 const editable = computed(() => userStore.isEditable(maker.value?.maker_id))
 
 const {
@@ -255,6 +251,6 @@ useSeoMeta({
 defineOgImage('Module', {
   title: maker.value?.name,
   description: maker.value?.bio,
-  titleLogo: `${imgUrl}/logo/${maker.value?.maker_id}.png`,
+  titleLogo: logoUrl(maker.value?.maker_id),
 })
 </script>

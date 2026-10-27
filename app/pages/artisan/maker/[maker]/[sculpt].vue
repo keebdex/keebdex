@@ -296,10 +296,6 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
-
 const { page, size, setPage } = usePagination(72)
 
 const sortField = ref('order')
@@ -380,7 +376,7 @@ const breadcrumbs = computed(() => {
       label: sculpt.value.maker_name,
       to: `/artisan/maker/${sculpt.value.maker_id}?page=${page.value}`,
       avatar: {
-        src: `${imgUrl}/logo/${sculpt.value.maker_id}.png`,
+        src: logoUrl(sculpt.value.maker_id),
         alt: sculpt.value.maker_name,
         ui: {
           root: 'bg-transparent',
@@ -409,7 +405,7 @@ defineOgImage('Module', {
   title: sculpt.value?.name,
   description: sculpt.value?.story,
   headline: sculpt.value?.maker_name,
-  headlineLogo: `${imgUrl}/logo/${sculpt.value?.maker_id}.png`,
+  headlineLogo: logoUrl(sculpt.value?.maker_id),
 })
 
 const userStore = useUserStore()

@@ -13,7 +13,7 @@
       >
         <UAvatar
           v-if="slug"
-          :src="`${$config.public.imgUrl}/logo/${slug}.png`"
+          :src="logoUrl(slug)"
           :alt="title"
           size="4xl"
           :ui="{

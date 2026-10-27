@@ -59,7 +59,7 @@
             class="flex items-center gap-2 mb-4 w-fit font-semibold text-highlighted hover:text-primary"
           >
             <UAvatar
-              :src="`${imgUrl}/logo/${group.maker.maker_id}.png`"
+              :src="logoUrl(group.maker.maker_id)"
               :alt="group.maker.name"
               size="sm"
               :ui="{
@@ -131,10 +131,6 @@ import { watchDebounced } from '@vueuse/core'
 const appConfig = useAppConfig()
 const route = useRoute()
 const router = useRouter()
-
-const {
-  public: { imgUrl },
-} = useRuntimeConfig()
 
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
