@@ -17,15 +17,14 @@ export default defineEventHandler(async (event) => {
 
   const client = await serverSupabaseClient(event)
   const user = await serverSupabaseUser(event)
-  const args = { p_period: period, p_domain: module || null }
+  const args = { p_period: period, p_domain: module || undefined }
   // The podium and seven more; everyone else sees only their own rank
   const limit = 10
 
-  // The functions are not in the generated types until the migration runs.
   const [board, me] = await Promise.all([
-    (client as any).rpc('leaderboard', { ...args, p_limit: limit }),
+    client.rpc('leaderboard', { ...args, p_limit: limit }),
     user
-      ? (client as any).rpc('leaderboard_me', args).maybeSingle()
+      ? client.rpc('leaderboard_me', args).maybeSingle()
       : { data: null, error: null },
   ])
 
@@ -34,6 +33,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
+  // The generated types read name and avatar as text, but either can be null
   return {
     data: (board.data || []) as LeaderboardEntry[],
     me: (me.data || null) as LeaderboardEntry | null,

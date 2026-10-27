@@ -378,6 +378,7 @@ export const TABLE_FIELDS = {
     "favorite_makers",
     "full_name",
     "id",
+    "leaderboard_hidden",
     "qq",
     "reddit",
     "role"

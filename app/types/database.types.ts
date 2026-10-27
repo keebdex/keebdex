@@ -1603,6 +1603,7 @@ export type Database = {
           favorite_makers: Json
           full_name: string | null
           id: string
+          leaderboard_hidden: boolean
           qq: string | null
           reddit: string | null
           role: string | null
@@ -1615,6 +1616,7 @@ export type Database = {
           favorite_makers?: Json
           full_name?: string | null
           id: string
+          leaderboard_hidden?: boolean
           qq?: string | null
           reddit?: string | null
           role?: string | null
@@ -1627,6 +1629,7 @@ export type Database = {
           favorite_makers?: Json
           full_name?: string | null
           id?: string
+          leaderboard_hidden?: boolean
           qq?: string | null
           reddit?: string | null
           role?: string | null
@@ -1709,6 +1712,54 @@ export type Database = {
       keyset_color_ids: {
         Args: { p_profile_keyset_id: string }
         Returns: number[]
+      }
+      leaderboard: {
+        Args: { p_domain?: string; p_limit?: number; p_period: string }
+        Returns: {
+          avatar: string
+          items: number
+          name: string
+          pages: number
+          points: number
+          rank: number
+          suggestions: number
+          user_id: string
+        }[]
+      }
+      leaderboard_contributions: {
+        Args: never
+        Returns: {
+          domain: string
+          happened_at: string
+          kind: string
+          user_id: string
+        }[]
+      }
+      leaderboard_me: {
+        Args: { p_domain?: string; p_period: string }
+        Returns: {
+          avatar: string
+          items: number
+          name: string
+          pages: number
+          points: number
+          rank: number
+          suggestions: number
+          user_id: string
+        }[]
+      }
+      leaderboard_totals: {
+        Args: { p_domain: string; p_include: string; p_period: string }
+        Returns: {
+          avatar: string
+          items: number
+          name: string
+          pages: number
+          points: number
+          rank: number
+          suggestions: number
+          user_id: string
+        }[]
       }
       mark_all_notifications_read: { Args: never; Returns: number }
       merge_dismissals: { Args: { p_keys: string[] }; Returns: number }
