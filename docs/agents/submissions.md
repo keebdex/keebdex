@@ -53,7 +53,7 @@ Signed-in users can propose artisan colorways, keyset kits, and keyboard variant
 ## Auto-approve rule for staff submissions
 
 - When the actor is staff for the relevant assignment (`canManageAnyAssignment(profile) && canManageAssignment(profile, assignment)`: `brand_slug`, `profile_keyset_id`, `maker_id`), creates through the shared endpoints (`/api/submissions/*`, and the kit/release/variant/colorway create endpoints used by admin and community forms) are written as `Approved` with `verified_by = user.sub` and `verified_at = new Date().toISOString()` in the same insert. Non-staff always get `Pending` with null `verified_*`.
-- Every create path sets `submitted_by`, staff included (the page saves above, the child endpoints through `attribute()`, the submission endpoints, and `saveOwnerSubmission`, where staff add makers, profiles, and brands published with no status under their name), since the leaderboard counts by it. No edit changes it.
+- `submitted_by` defaults to `auth.uid()` on every submittable table (`20261027000100_backfill_submitted_by`, as on `edit_suggestions`), so every insert by a signed-in user names them, staff included, whichever path it takes (`saveOwnerSubmission` relies on it for the makers, profiles, and brands staff add published with no status); the leaderboard counts by it. Syncs and the SQL editor have no `auth.uid()` and leave it null. The app still sets it explicitly through `getSubmissionAttribution`, and no edit changes it.
 
 ## Delete cascade rule for submissions
 

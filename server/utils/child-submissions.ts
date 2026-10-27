@@ -717,10 +717,8 @@ export const saveOwnerSubmission = async (
     .insert({
       ...record,
       ...match,
-      // Staff add it published, credited to them for the leaderboard
-      ...(isStaff
-        ? { submitted_by: user.sub }
-        : getSubmissionAttribution(false, user.sub)),
+      // Staff add it published (submitted_by defaults to them)
+      ...(isStaff ? {} : getSubmissionAttribution(false, user.sub)),
     })
     .select()
     .single()
