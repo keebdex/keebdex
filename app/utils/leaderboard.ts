@@ -25,17 +25,16 @@ export interface LeaderboardEntry {
 }
 
 /**
- * A row of the `leaderboard` / `leaderboard_me` functions as the API returns
- * it: the generated types read name and avatar as text, but either can be
- * null, so a nameless collector gets a placeholder name here once.
+ * A `leaderboard_entry` row of the `leaderboard` / `leaderboard_me` functions
+ * as the API returns it. The generated types read every field of a composite
+ * type as nullable; only name and avatar can be, so a nameless collector gets
+ * a placeholder name here once.
  */
-export const toLeaderboardEntry = (row: Omit<LeaderboardEntry, 'name' | 'avatar'> & {
-  name: string | null
-  avatar: string | null
+export const toLeaderboardEntry = (row: {
+  [K in keyof LeaderboardEntry]: LeaderboardEntry[K] | null
 }): LeaderboardEntry => ({
-  ...row,
+  ...(row as LeaderboardEntry),
   name: row.name || 'Anonymous Collector',
-  avatar: row.avatar || null,
 })
 
 /** The caller's own row when they are not among `entries` already. */
