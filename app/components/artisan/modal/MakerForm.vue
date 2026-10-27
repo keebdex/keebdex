@@ -238,8 +238,10 @@ const onSubmit = async () => {
   const { sculpts, ...rest } = maker.value
   const normalizedMakerId = String(rest.maker_id || '').trim()
 
-  const makerId =
-    normalizedMakerId || urlSlugify(maker.value.name)
+  // A new maker's slug is normalized; an existing one keeps its key.
+  const makerId = isEdit
+    ? normalizedMakerId
+    : urlSlugify(normalizedMakerId || maker.value.name)
 
   await $fetch(`/api/makers/${makerId}`, {
     method: 'post',

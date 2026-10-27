@@ -146,8 +146,7 @@ watch(
 const onSubmit = async () => {
   const slug = isEdit
     ? String(metadata?.slug || brand.value.slug || '').trim()
-    : String(brand.value.slug || '').trim() ||
-      urlSlugify(brand.value.name)
+    : urlSlugify(String(brand.value.slug || '').trim() || brand.value.name)
 
   await $fetch(`/api/keyboards/brands/${slug}`, {
     method: 'post',

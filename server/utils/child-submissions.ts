@@ -10,6 +10,8 @@ import {
 import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
 import type { KeebModule } from '~/utils/keeb-modules'
 import { urlSlugify } from '~/utils/slug'
+import { SUGGESTION_ENTITIES } from '~/utils/suggestions'
+import type { SuggestionEntityType } from '~/utils/suggestions'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
@@ -556,6 +558,7 @@ const resolveParentReview = async ({
  */
 export const OWNERS = {
   artisan: {
+    entityType: 'artisan_maker',
     table: 'artisan_makers',
     key: 'maker_id',
     pages: 'artisan_sculpts',
@@ -563,6 +566,7 @@ export const OWNERS = {
     label: 'maker',
   },
   keyset: {
+    entityType: 'keyset_profile',
     table: 'keyset_profiles',
     key: 'profile_id',
     pages: 'keysets',
@@ -570,6 +574,7 @@ export const OWNERS = {
     label: 'profile',
   },
   keyboard: {
+    entityType: 'keyboard_brand',
     table: 'keyboard_brands',
     key: 'slug',
     pages: 'keyboards',
@@ -579,6 +584,7 @@ export const OWNERS = {
 } as const satisfies Record<
   KeebModule,
   {
+    entityType: SuggestionEntityType
     table: SubmittableTable
     key: string
     pages: SubmittableTable
@@ -617,7 +623,14 @@ export const saveOwnerSubmission = async (
   const match = { [config.key]: key }
   const isStaff =
     canManageAnyAssignment(profile) && canManageAssignment(profile, key)
-  const record = omit(omitModerationFields(body), ['id', config.key])
+  // Staff-only columns (a maker's Google Doc settings and flags, logo
+  // inversion) are the ones edit suggestions protect; others never set them,
+  // or a proposal's document_ids would start syncing once it is approved.
+  const record = omit(omitModerationFields(body), [
+    'id',
+    config.key,
+    ...(isStaff ? [] : SUGGESTION_ENTITIES[config.entityType].protected),
+  ])
   const newKey =
     typeof body[config.key] === 'string' ? String(body[config.key]).trim() : key
   const taken = () =>
@@ -664,6 +677,13 @@ export const saveOwnerSubmission = async (
       if (String(error?.statusMessage).includes('duplicate key')) throw taken()
       throw error
     }
+  }
+
+  if (urlSlugify(key) !== key) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Use lowercase letters, numbers, and dashes for the slug.',
+    })
   }
 
   const { data, error } = await from(client, config.table)

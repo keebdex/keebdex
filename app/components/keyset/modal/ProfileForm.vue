@@ -143,7 +143,7 @@ const onSubmit = async () => {
   // The server keys the profile by the route, never by the body.
   const profileId = isEdit
     ? metadata.profile_id
-    : profile.value.profile_id || urlSlugify(profile.value.name)
+    : urlSlugify(profile.value.profile_id || profile.value.name)
 
   await $fetch(`/api/profiles/${profileId}`, {
     method: 'post',
