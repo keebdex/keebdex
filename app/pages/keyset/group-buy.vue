@@ -22,7 +22,7 @@
 const route = useRoute()
 const router = useRouter()
 
-const validStatuses = Object.keys(keysetStatusMap)
+const validStatuses = Object.keys(groupBuyTabs)
 
 const status = computed(() => {
   const s = route.query.status
@@ -30,7 +30,7 @@ const status = computed(() => {
 })
 
 const links = computed(() =>
-  Object.entries(keysetStatusMap).map(([value, meta]) => ({
+  Object.entries(groupBuyTabs).map(([value, meta]) => ({
     label: meta.label,
     icon: meta.icon,
     to: { path: route.path, query: { status: value } },
@@ -57,12 +57,10 @@ const { data, refresh } = await useAsyncData(
 )
 
 const title = 'Group Buys'
-const description = computed(
-  () => `${keysetStatusMap[status.value]?.description}`,
-)
+const description = computed(() => `${groupBuyTabs[status.value]?.description}`)
 
 useSeoMeta({
-  title: computed(() => `${keysetStatusMap[status.value]?.title}`),
+  title: computed(() => `${groupBuyTabs[status.value]?.title}`),
   description,
   ogDescription: description,
   twitterDescription: description,

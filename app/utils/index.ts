@@ -67,7 +67,9 @@ export const groupedProfileItems = (
     ])
     .slice(1)
 
-export const keysetStatusMap = {
+// Tabs of the Group Buys page (`/keyset/group-buy?status=`), keyed by the
+// `status` query value `GET /api/keysets` reads.
+export const groupBuyTabs = {
   ic: {
     title: 'Interest Check',
     label: 'Interest Check',
