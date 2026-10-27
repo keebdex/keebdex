@@ -144,6 +144,9 @@ export const getOwnResubmission = async (
  * edit keeps them, except that a submitter's own Rejected page goes back to
  * review, and staff changing the Review Status the keyset form shows review
  * the page as the queue would (approving or rejecting records who and when).
+ * Approving a page under review that way would publish its `children`
+ * without a status of their own with it, so they become Pending first, as
+ * when a child's approval cascades to the page.
  */
 export const getPageSaveModeration = async ({
   client,
@@ -152,6 +155,7 @@ export const getPageSaveModeration = async ({
   status,
   userId,
   isStaff,
+  children,
 }: {
   client: SupabaseClient
   table: SubmittableTable
@@ -159,6 +163,10 @@ export const getPageSaveModeration = async ({
   status?: unknown
   userId: string
   isStaff: boolean
+  // Built from the page row as stored, before the save renames anything.
+  children?: (
+    row: Record<string, any>,
+  ) => { table: SubmittableTable; match: RowMatch }[]
 }): Promise<Record<string, unknown>> => {
   if (!id) return getSubmissionAttribution(isStaff, userId)
 
@@ -170,16 +178,29 @@ export const getPageSaveModeration = async ({
 
   if (!isReviewStatus(status)) return {}
 
-  const { data } = await matchRows(
-    from(client, table).select('review_status'),
+  const { data } = (await matchRows(
+    from(client, table).select('*'),
     match,
-  ).maybeSingle()
+  ).maybeSingle()) as { data: (Moderated & Record<string, any>) | null }
 
-  if ((data as Moderated | null)?.review_status === status) return {}
+  if (data?.review_status === status) return {}
 
-  return status === 'Pending'
-    ? { review_status: 'Pending' }
-    : getReviewPatch(status === 'Approved' ? 'approve' : 'reject', userId)
+  if (status === 'Pending') return { review_status: 'Pending' }
+
+  if (status === 'Approved' && data?.review_status && children) {
+    await Promise.all(
+      children(data).map((child) =>
+        keepStatuslessInReview(
+          client,
+          child.table,
+          child.match,
+          data.submitted_by,
+        ),
+      ),
+    )
+  }
+
+  return getReviewPatch(status === 'Approved' ? 'approve' : 'reject', userId)
 }
 
 /**
@@ -500,39 +521,6 @@ const keepStatuslessInReview = async (
   const { error } = await query
 
   fail(error)
-}
-
-/**
- * Staff can approve a parent under review straight from its form (Review
- * Status set to Approved). Its children without a status of their own would
- * be published with it, so they become Pending first, as when a child's
- * approval cascades to the parent.
- */
-export const keepChildrenInReviewOnPublish = async (
-  client: SupabaseClient,
-  parent: { table: SubmittableTable; match: RowMatch },
-  // Built from the parent row as stored, before the save renames anything.
-  children: (
-    row: Record<string, any>,
-  ) => { table: SubmittableTable; match: RowMatch }[],
-) => {
-  const { data } = (await matchRows(
-    from(client, parent.table).select('*'),
-    parent.match,
-  ).maybeSingle()) as { data: (Moderated & Record<string, any>) | null }
-
-  if (!data?.review_status || data.review_status === 'Approved') return
-
-  await Promise.all(
-    children(data).map((child) =>
-      keepStatuslessInReview(
-        client,
-        child.table,
-        child.match,
-        data.submitted_by,
-      ),
-    ),
-  )
 }
 
 /**

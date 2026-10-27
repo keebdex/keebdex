@@ -17,7 +17,8 @@ export default defineEventHandler(async (event) => {
     canManageAnyAssignment(profile) &&
     canManageAssignment(profile, `${profileId}/${keysetSlug}`)
 
-  // Staff set the Review Status from the form; the server writes the rest.
+  // Staff set the Review Status from the form; the server writes the rest,
+  // and approving keeps the keyset's status-less kits in review.
   const moderation = await getPageSaveModeration({
     client,
     table: 'keysets',
@@ -25,22 +26,14 @@ export default defineEventHandler(async (event) => {
     status: rawBody?.review_status,
     userId: user.sub,
     isStaff,
+    children: (keyset) => [
+      {
+        table: 'keyset_kits',
+        match: { profile_keyset_id: keyset.profile_keyset_id },
+      },
+    ],
   })
   const payload = { ...body, ...moderation }
-
-  // Publishing the keyset here mustn't publish its status-less kits unreviewed.
-  if (body.id && moderation.review_status === 'Approved') {
-    await keepChildrenInReviewOnPublish(
-      client,
-      { table: 'keysets', match: { id: body.id as number } },
-      (keyset) => [
-        {
-          table: 'keyset_kits',
-          match: { profile_keyset_id: keyset.profile_keyset_id },
-        },
-      ],
-    )
-  }
 
   const { data, error } = body.id
     ? await client

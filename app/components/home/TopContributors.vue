@@ -4,11 +4,7 @@
     title="Top Contributors"
     orientation="horizontal"
     reverse
-    :description="
-      period === 'month'
-        ? 'The collectors who added the most to Keebdex this month.'
-        : 'The collectors who added the most to Keebdex.'
-    "
+    description="The collectors who added the most to Keebdex this month."
   >
     <template v-if="runnersUp.length || ownRank" #body>
       <UPageList v-if="runnersUp.length" divide>
@@ -24,7 +20,7 @@
       <p v-if="ownRank" class="mt-4 text-sm text-muted">
         You're
         <span class="font-semibold text-highlighted">#{{ ownRank.rank }}</span>
-        {{ period === 'month' ? 'this month' : 'so far' }} with
+        this month with
         <span class="font-semibold text-highlighted">
           {{ countLabel(ownRank.points, 'point') }}</span
         >.
@@ -34,7 +30,7 @@
     <template #links>
       <UButton
         label="Full Leaderboard"
-        :to="period === 'month' ? '/leaderboard?period=month' : '/leaderboard'"
+        to="/leaderboard?period=month"
         trailing-icon="hugeicons:arrow-right-02"
         :ui="{ label: 'block' }"
       />
@@ -59,29 +55,23 @@
 </template>
 
 <script setup lang="ts">
-// This month's board, or the all-time one while the month is still quiet:
-// the podium plus the next three
-const { data } = await useAsyncData(
+// This month's podium plus the next three; the section hides while nobody
+// has contributed this month
+const { data: entries } = await useAsyncData(
   'home-top-contributors',
-  async () => {
-    const fetchBoard = (period: 'month' | 'all') =>
-      $fetch('/api/leaderboard', { query: { period } })
-        .then((entries) => ({ period, entries: entries.slice(0, 6) }))
-        .catch(() => ({ period, entries: [] }))
-
-    const month = await fetchBoard('month')
-    return month.entries.length >= 3 ? month : fetchBoard('all')
-  },
-  { default: () => ({ period: 'all' as const, entries: [] }) },
+  () =>
+    $fetch('/api/leaderboard', { query: { period: 'month' } })
+      .then((board) => board.slice(0, 6))
+      .catch(() => []),
+  { default: () => [] },
 )
 
-const period = computed(() => data.value.period)
-const podium = computed(() => data.value.entries.slice(0, 3))
-const runnersUp = computed(() => data.value.entries.slice(3))
-const me = useLeaderboardMe(() => ({ period: period.value }))
+const podium = computed(() => entries.value.slice(0, 3))
+const runnersUp = computed(() => entries.value.slice(3))
+const me = useLeaderboardMe({ period: 'month' })
 
 // The caller's own rank when they are not among the six shown
-const ownRank = computed(() => leaderboardOwnRow(data.value.entries, me.value))
+const ownRank = computed(() => leaderboardOwnRow(entries.value, me.value))
 
 // Start Contributing opens the submission wizard of the module picked
 const submitItems = KEEB_MODULES.map((module) => ({

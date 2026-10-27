@@ -1715,51 +1715,33 @@ export type Database = {
       }
       leaderboard: {
         Args: { p_domain?: string; p_limit?: number; p_period: string }
-        Returns: {
-          avatar: string
-          items: number
-          name: string
-          pages: number
-          points: number
-          rank: number
-          suggestions: number
-          user_id: string
-        }[]
-      }
-      leaderboard_contributions: {
-        Args: never
-        Returns: {
-          domain: string
-          happened_at: string
-          kind: string
-          user_id: string
-        }[]
+        Returns: Database["public"]["CompositeTypes"]["leaderboard_entry"][]
+        SetofOptions: {
+          from: "*"
+          to: "leaderboard_entry"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       leaderboard_me: {
         Args: { p_domain?: string; p_period: string }
-        Returns: {
-          avatar: string
-          items: number
-          name: string
-          pages: number
-          points: number
-          rank: number
-          suggestions: number
-          user_id: string
-        }[]
+        Returns: Database["public"]["CompositeTypes"]["leaderboard_entry"][]
+        SetofOptions: {
+          from: "*"
+          to: "leaderboard_entry"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       leaderboard_totals: {
         Args: { p_domain: string; p_include: string; p_period: string }
-        Returns: {
-          avatar: string
-          items: number
-          name: string
-          pages: number
-          points: number
-          rank: number
-          suggestions: number
-          user_id: string
-        }[]
+        Returns: Database["public"]["CompositeTypes"]["leaderboard_entry"][]
+        SetofOptions: {
+          from: "*"
+          to: "leaderboard_entry"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       mark_all_notifications_read: { Args: never; Returns: number }
       merge_dismissals: { Args: { p_keys: string[] }; Returns: number }
@@ -1799,6 +1781,13 @@ export type Database = {
         Returns: Json
       }
       unread_count: { Args: never; Returns: number }
+      user_display: {
+        Args: { p_id: string }
+        Returns: {
+          avatar: string
+          name: string
+        }[]
+      }
     }
     Enums: {
       currency:
@@ -1898,7 +1887,16 @@ export type Database = {
       user_role: "admin" | "editor" | "maker" | "designer" | "donator"
     }
     CompositeTypes: {
-      [_ in never]: never
+      leaderboard_entry: {
+        rank: number | null
+        user_id: string | null
+        name: string | null
+        avatar: string | null
+        points: number | null
+        pages: number | null
+        items: number | null
+        suggestions: number | null
+      }
     }
   }
 }

@@ -17,6 +17,8 @@ export default defineEventHandler(async (event) => {
   const isStaff =
     canManageAnyAssignment(profile) && canManageAssignment(profile, brand)
 
+  // Approving keeps the keyboard's status-less releases and variants in
+  // review.
   const moderation = await getPageSaveModeration({
     client,
     table: 'keyboards',
@@ -24,29 +26,20 @@ export default defineEventHandler(async (event) => {
     status: rawBody?.review_status,
     userId: user.sub,
     isStaff,
+    children: (keyboard) => {
+      const match = { brand_keyboard_slug: keyboard.brand_keyboard_slug }
+
+      return [
+        { table: 'keyboard_releases', match },
+        { table: 'keyboard_variants', match },
+      ]
+    },
   })
 
   const payload = {
     ...body,
     ...moderation,
     typing_angle: toNullableNumber(body.typing_angle),
-  }
-
-  // Publishing the keyboard here mustn't publish its status-less releases and
-  // variants unreviewed.
-  if (body.id && moderation.review_status === 'Approved') {
-    await keepChildrenInReviewOnPublish(
-      client,
-      { table: 'keyboards', match: { id: body.id as number } },
-      (keyboard) => {
-        const match = { brand_keyboard_slug: keyboard.brand_keyboard_slug }
-
-        return [
-          { table: 'keyboard_releases', match },
-          { table: 'keyboard_variants', match },
-        ]
-      },
-    )
   }
 
   const { data, error } = body.id
