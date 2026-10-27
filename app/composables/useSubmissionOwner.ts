@@ -8,7 +8,7 @@ import type { KeebModule } from '~/utils/keeb-modules'
 type Option = { label?: string; value?: string; type?: string }
 
 // Per module: the owner's label, where its options and record come from,
-// where it is saved, and how its key is built from the form.
+// where it is saved, and its key column (the slug in its form).
 const OWNERS = {
   artisan: {
     label: 'Maker',
@@ -17,8 +17,7 @@ const OWNERS = {
       rows.map((row) => ({ label: row.name, value: row.maker_id })),
     detail: async (key: string) => $fetch<any>(`/api/makers/${key}`),
     save: (key: string) => `/api/makers/${key}`,
-    keyOf: (draft: Record<string, any>) =>
-      String(draft.maker_id || '').trim() || urlSlugify(draft.name || ''),
+    keyField: 'maker_id',
     fields: [
       'name',
       'country_origin',
@@ -44,8 +43,7 @@ const OWNERS = {
         })
       )?.profile,
     save: (key: string) => `/api/profiles/${key}`,
-    keyOf: (draft: Record<string, any>) =>
-      String(draft.profile_id || '').trim() || urlSlugify(draft.name || ''),
+    keyField: 'profile_id',
     fields: ['name', 'profile', 'manufacturer', 'manufacturer_id', 'description'],
     schema: keysetProfileSchema,
     draft: () => ({ name: '', profile: null }),
@@ -57,8 +55,7 @@ const OWNERS = {
       rows.map((row) => ({ label: row.name, value: row.slug })),
     detail: async (key: string) => $fetch<any>(`/api/keyboards/brands/${key}`),
     save: (key: string) => `/api/keyboards/brands/${key}`,
-    keyOf: (draft: Record<string, any>) =>
-      String(draft.slug || '').trim() || urlSlugify(draft.name || ''),
+    keyField: 'slug',
     fields: ['name', 'country_origin', 'website', 'instagram', 'discord', 'bio'],
     schema: brandSchema,
     draft: () => ({ name: '' }),
@@ -88,8 +85,19 @@ export const useSubmissionOwner = (
 
   const isNew = computed(() => ownerMode.value === 'new')
   // The key a new owner gets, shown in the stepper and used once created.
-  const draftKey = computed(() => config.keyOf(draft.value))
-  const key = computed(() => (isNew.value ? draftKey.value : selected.value.id))
+  const draftKey = computed(() =>
+    urlSlugify(String(draft.value[config.keyField] || '').trim() || draft.value.name || ''),
+  )
+  // Under review, the pages below still point at the current key until
+  // `rename()` moves them.
+  const key = computed(() =>
+    isNew.value && !reviewStatus.value ? draftKey.value : selected.value.id,
+  )
+  // Review: the slug was changed in the form (only possible while under
+  // review; a published owner keeps its slug).
+  const renaming = computed(
+    () => !!reviewStatus.value && draftKey.value !== selected.value.id,
+  )
 
   const { data, status } = useAsyncData<any>(
     `submission-owners-${domain}`,
@@ -152,7 +160,9 @@ export const useSubmissionOwner = (
     try {
       const record = await config.detail(ownerKey)
 
-      Object.assign(draft.value, pickKeys(record, config.fields))
+      Object.assign(draft.value, pickKeys(record, config.fields), {
+        [config.keyField]: ownerKey,
+      })
       reviewStatus.value = ownerStatus!
       ownerMode.value = 'new'
     } catch {
@@ -170,12 +180,29 @@ export const useSubmissionOwner = (
     })
   }
 
+  /**
+   * Review: moves an owner under review to the slug in its form, after the
+   * pages below were saved under the current one (they follow through the
+   * on update cascade). Returns the key it ends up with.
+   */
+  const rename = async () => {
+    if (!renaming.value) return selected.value.id
+
+    await $fetch(config.save(selected.value.id), {
+      method: 'post',
+      body: { [config.keyField]: draftKey.value },
+    })
+
+    return draftKey.value
+  }
+
   return {
     ownerMode,
     draft,
     draftKey,
     key,
     isNew,
+    renaming,
     reviewStatus,
     options,
     status,
@@ -186,5 +213,6 @@ export const useSubmissionOwner = (
     ensure,
     load,
     save,
+    rename,
   }
 }

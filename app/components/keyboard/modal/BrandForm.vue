@@ -17,7 +17,8 @@
       v-if="!isEdit"
       label="Slug"
       name="slug"
-      help="Used in URL, e.g. my-brand. Leave empty to auto-generate from name."
+      help="Used in URL, e.g. my-brand. Leave empty to auto-generate from name. It can't be changed once the brand is published."
+      :ui="{ help: 'text-warning' }"
     >
       <UInput
         v-model.trim="brand.slug"

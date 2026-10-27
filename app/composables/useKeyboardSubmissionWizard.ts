@@ -272,8 +272,11 @@ export const useKeyboardSubmissionWizard = ({
   // Saves the keyboard and release (only while under review) and then the
   // variant; approving or rejecting rides on the variant save so the server can
   // cascade to the release and keyboard.
+  // A brand whose slug changed in review moves last, so the review action
+  // goes to the variant's new address.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
     const [brandSlug = '', keyboardSlug = ''] = submissionKey.split('/')
+    const moderate = action !== 'update' && !owner.renaming.value
 
     await owner.save()
 
@@ -309,9 +312,18 @@ export const useKeyboardSubmissionWizard = ({
         release_id: submission?.release_id,
         brand_slug: brandSlug,
         brand_keyboard_slug: submissionKey,
-        ...(action === 'update' ? {} : { action }),
+        ...(moderate ? { action } : {}),
       },
     })
+
+    const newBrandSlug = await owner.rename()
+
+    if (action !== 'update' && !moderate) {
+      await $fetch(`/api/keyboards/${newBrandSlug}/${keyboardSlug}/variants`, {
+        method: 'post',
+        body: { id: submission?.id, action },
+      })
+    }
   }
 
   const remove = () =>

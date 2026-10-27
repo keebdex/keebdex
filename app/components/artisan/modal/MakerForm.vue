@@ -21,7 +21,8 @@
       v-if="!isEdit"
       label="Slug"
       name="maker_id"
-      help="Used in URL, e.g. my-maker. Leave empty to auto-generate from name."
+      help="Used in URL, e.g. my-maker. Leave empty to auto-generate from name. It can't be changed once the maker is published."
+      :ui="{ help: 'text-warning' }"
     >
       <UInput
         v-model.trim="maker.maker_id"

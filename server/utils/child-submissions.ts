@@ -9,6 +9,7 @@ import {
 } from '~/utils/permissions'
 import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
 import type { KeebModule } from '~/utils/keeb-modules'
+import { urlSlugify } from '~/utils/slug'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
@@ -600,6 +601,10 @@ const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
  * except that a submitter's own Rejected record goes back to Pending. A key
  * already taken, by a published record or someone's proposal the caller
  * cannot see, is a 409.
+ * A body whose key differs from `key` renames the record, only while it is
+ * under review (Pending or Rejected): once published, its address, logo,
+ * assignments, pins, and catalog-sync all point at the key, so it stays. The
+ * pages under it follow through the on update cascade of their keys.
  */
 export const saveOwnerSubmission = async (
   event: H3Event,
@@ -613,24 +618,52 @@ export const saveOwnerSubmission = async (
   const isStaff =
     canManageAnyAssignment(profile) && canManageAssignment(profile, key)
   const record = omit(omitModerationFields(body), ['id', config.key])
+  const newKey =
+    typeof body[config.key] === 'string' ? String(body[config.key]).trim() : key
+  const taken = () =>
+    createError({
+      statusCode: 409,
+      statusMessage: `A ${config.label} with this slug already exists or is waiting for review.`,
+    })
 
   const { data: existing } = await matchRows(
-    from(client, config.table).select(config.key),
+    from(client, config.table).select(`${config.key}, review_status`),
     match,
   ).maybeSingle()
 
   if (existing) {
-    const { data } = await updateChildSubmission({
-      client,
-      table: config.table,
-      match,
-      payload: record,
-      userId: user.sub,
-      isStaff,
-      label: config.label,
-    })
+    if (newKey !== key) {
+      if (!['Pending', 'Rejected'].includes((existing as Moderated).review_status!)) {
+        throw createError({
+          statusCode: 409,
+          statusMessage: `A published ${config.label} keeps its slug.`,
+        })
+      }
 
-    return data
+      if (!newKey || urlSlugify(newKey) !== newKey) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Use lowercase letters, numbers, and dashes for the slug.',
+        })
+      }
+    }
+
+    try {
+      const { data } = await updateChildSubmission({
+        client,
+        table: config.table,
+        match,
+        payload: newKey === key ? record : { ...record, [config.key]: newKey },
+        userId: user.sub,
+        isStaff,
+        label: config.label,
+      })
+
+      return data
+    } catch (error: any) {
+      if (String(error?.statusMessage).includes('duplicate key')) throw taken()
+      throw error
+    }
   }
 
   const { data, error } = await from(client, config.table)
@@ -642,12 +675,7 @@ export const saveOwnerSubmission = async (
     .select()
     .single()
 
-  if (error?.code === '23505') {
-    throw createError({
-      statusCode: 409,
-      statusMessage: `A ${config.label} with this name already exists or is waiting for review.`,
-    })
-  }
+  if (error?.code === '23505') throw taken()
 
   fail(error)
 

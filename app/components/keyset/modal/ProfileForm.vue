@@ -17,7 +17,8 @@
       v-if="!isEdit"
       label="Slug"
       name="profile_id"
-      help="Used in URL, e.g. gmk-cyl. Leave empty to auto-generate from name."
+      help="Used in URL, e.g. gmk-cyl. Leave empty to auto-generate from name. It can't be changed once the profile is published."
+      :ui="{ help: 'text-warning' }"
     >
       <UInput
         v-model.trim="profile.profile_id"

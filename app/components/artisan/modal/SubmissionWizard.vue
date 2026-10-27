@@ -21,7 +21,6 @@
             v-model="makerDraft"
             mode="embedded"
             suggest
-            :is-edit="mode === 'review'"
           />
         </SharedSubmissionEntityStep>
       </template>

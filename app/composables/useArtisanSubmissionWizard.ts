@@ -164,8 +164,13 @@ export const useArtisanSubmissionWizard = ({
   }
 
   // Saves the sculpt (only while under review) and then the colorway;
-  // approving rides on the colorway save so the server can cascade.
+  // approving rides on the colorway save so the server can cascade. A maker
+  // whose slug changed in review moves last, so the review action goes to
+  // the colorway's new address.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    const sculptId = existingSculpt.value.id
+    const moderate = action !== 'update' && !owner.renaming.value
+
     await owner.save()
 
     if (sculptReviewStatus.value) {
@@ -186,9 +191,18 @@ export const useArtisanSubmissionWizard = ({
       method: 'post',
       body: {
         ...toPayload(colorways.value[0]!),
-        ...(action === 'update' ? {} : { action }),
+        ...(moderate ? { action } : {}),
       },
     })
+
+    const makerId = await owner.rename()
+
+    if (action !== 'update' && !moderate) {
+      await $fetch(colorwaysUrl(sculptId, makerId), {
+        method: 'post',
+        body: { id: submission?.id, action },
+      })
+    }
   }
 
   const remove = async () => {

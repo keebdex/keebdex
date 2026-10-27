@@ -17,11 +17,7 @@
           hint="Pick the brand this keyboard belongs to, or propose one Keebdex doesn't list yet."
           :to="`/keyboard/brand/${brand.id}`"
         >
-          <KeyboardModalBrandForm
-            v-model="brandDraft"
-            mode="embedded"
-            :is-edit="mode === 'review'"
-          />
+          <KeyboardModalBrandForm v-model="brandDraft" mode="embedded" />
         </SharedSubmissionEntityStep>
       </template>
 

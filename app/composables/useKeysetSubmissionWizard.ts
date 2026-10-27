@@ -51,8 +51,8 @@ export const useKeysetSubmissionWizard = ({
         .filter((option) => option.value)
         .map((option) => [option.value, option.label]),
     ),
-    ...(owner.isNew.value && owner.draftKey.value
-      ? { [owner.draftKey.value]: owner.draft.value.name }
+    ...(owner.isNew.value && owner.key.value
+      ? { [owner.key.value]: owner.draft.value.name }
       : {}),
   }))
 
@@ -181,7 +181,11 @@ export const useKeysetSubmissionWizard = ({
   // Saves the keyset (only while under review) and then the kit; approving or
   // rejecting rides on the kit save so the server can cascade to the keyset.
   // The server sends a submitter's rejected keyset back to review.
+  // A profile whose slug changed in review moves last, so the review action
+  // goes to the kit's new address.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    const moderate = action !== 'update' && !owner.renaming.value
+
     await owner.save()
 
     if (keysetUnderReview.value) {
@@ -196,9 +200,18 @@ export const useKeysetSubmissionWizard = ({
       body: {
         ...toPayload(kits.value[0]!),
         profile_keyset_id: submissionKey,
-        ...(action === 'update' ? {} : { action }),
+        ...(moderate ? { action } : {}),
       },
     })
+
+    const profileId = await owner.rename()
+
+    if (action !== 'update' && !moderate) {
+      await $fetch(`/api/keysets/${profileId}/${submissionKeyset}/kits`, {
+        method: 'post',
+        body: { id: submission?.id, action },
+      })
+    }
   }
 
   const remove = () =>
