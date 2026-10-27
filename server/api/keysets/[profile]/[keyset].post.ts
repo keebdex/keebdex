@@ -7,37 +7,33 @@ export default defineEventHandler(async (event) => {
   const { profile: profileId, keyset: keysetSlug } = getRouterParams(event)
   const { client, user, profile } = await getActorProfile(event)
   // The database builds profile_keyset_id from profile_id and slug.
-  const body = pickTableFields('keysets', await readBody(event), [
+  const rawBody = await readBody(event)
+  const body = pickTableFields('keysets', rawBody, [
     'profile_keyset_id',
+    ...MODERATION_FIELDS,
   ])
 
   const isStaff =
     canManageAnyAssignment(profile) &&
     canManageAssignment(profile, `${profileId}/${keysetSlug}`)
 
-  // Only staff may set moderation fields; a submitter editing their own
-  // rejected keyset sends it back to review.
-  const payload = isStaff
-    ? withStaffSubmitter(body, user.sub)
-    : {
-        ...omitModerationFields(body),
-        ...(body.id
-          ? await getOwnResubmission(
-              client,
-              'keysets',
-              { id: body.id as number },
-              user.sub,
-              false,
-            )
-          : getSubmissionAttribution(false, user.sub)),
-      }
+  // Staff set the Review Status from the form; the server writes the rest.
+  const moderation = await getPageSaveModeration({
+    client,
+    table: 'keysets',
+    id: body.id,
+    status: rawBody?.review_status,
+    userId: user.sub,
+    isStaff,
+  })
+  const payload = { ...body, ...moderation }
 
   // Publishing the keyset here mustn't publish its status-less kits unreviewed.
-  if (isStaff && body.id && 'review_status' in body) {
+  if (body.id && moderation.review_status === 'Approved') {
     await keepChildrenInReviewOnPublish(
       client,
       { table: 'keysets', match: { id: body.id as number } },
-      body.review_status,
+      'Approved',
       (keyset) => [
         {
           table: 'keyset_kits',

@@ -89,21 +89,6 @@ export const getSubmissionAttribution = (isStaff: boolean, userId: string) => ({
 })
 
 /**
- * A staff body saved as sent (the admin forms) never changes who submitted a
- * record, and a record staff create is credited to them, as
- * `getSubmissionAttribution` does for the other create paths, so it counts
- * on the leaderboard.
- */
-export const withStaffSubmitter = <T extends Record<string, unknown>>(
-  body: T,
-  userId: string,
-) => {
-  const record = omit(body, ['submitted_by'])
-
-  return body.id ? record : { ...record, submitted_by: userId }
-}
-
-/**
  * Moderation columns written when staff approve or reject a record.
  */
 export const getReviewPatch = (action: ReviewAction, userId: string) => ({
@@ -145,6 +130,51 @@ export const getOwnResubmission = async (
   return data?.submitted_by === userId && data.review_status === 'Rejected'
     ? getResubmissionPatch()
     : null
+}
+
+/**
+ * Moderation columns for a page (keyset, keyboard, sculpt) saved from its
+ * form; the body never sets them. A create is attributed like any submission
+ * (staff publish it under their name, so it counts on the leaderboard). An
+ * edit keeps them, except that a submitter's own Rejected page goes back to
+ * review, and staff changing the Review Status the keyset form shows review
+ * the page as the queue would (approving or rejecting records who and when).
+ */
+export const getPageSaveModeration = async ({
+  client,
+  table,
+  id,
+  status,
+  userId,
+  isStaff,
+}: {
+  client: SupabaseClient
+  table: SubmittableTable
+  id: unknown
+  status?: unknown
+  userId: string
+  isStaff: boolean
+}): Promise<Record<string, unknown>> => {
+  if (!id) return getSubmissionAttribution(isStaff, userId)
+
+  const match = { id: id as number }
+
+  if (!isStaff) {
+    return (await getOwnResubmission(client, table, match, userId, false)) || {}
+  }
+
+  if (!['Pending', 'Approved', 'Rejected'].includes(status as string)) return {}
+
+  const { data } = await matchRows(
+    from(client, table).select('review_status'),
+    match,
+  ).maybeSingle()
+
+  if ((data as Moderated | null)?.review_status === status) return {}
+
+  return status === 'Pending'
+    ? { review_status: 'Pending' }
+    : getReviewPatch(status === 'Approved' ? 'approve' : 'reject', userId)
 }
 
 /**

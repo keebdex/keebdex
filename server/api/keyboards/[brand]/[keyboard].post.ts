@@ -7,43 +7,38 @@ import {
 export default defineEventHandler(async (event) => {
   const { client, user, profile } = await getActorProfile(event)
   // The database builds brand_keyboard_slug from brand_slug and slug.
-  const body = pickTableFields('keyboards', await readBody(event), [
+  const rawBody = await readBody(event)
+  const body = pickTableFields('keyboards', rawBody, [
     'brand_keyboard_slug',
+    ...MODERATION_FIELDS,
   ])
   const { brand } = getRouterParams(event)
 
   const isStaff =
     canManageAnyAssignment(profile) && canManageAssignment(profile, brand)
 
-  // Only staff may set moderation fields; a submitter editing their own
-  // rejected keyboard sends it back to review.
-  const moderation = isStaff
-    ? {}
-    : body.id
-      ? await getOwnResubmission(
-          client,
-          'keyboards',
-          { id: body.id as number },
-          user.sub,
-          false,
-        )
-      : getSubmissionAttribution(false, user.sub)
+  const moderation = await getPageSaveModeration({
+    client,
+    table: 'keyboards',
+    id: body.id,
+    status: rawBody?.review_status,
+    userId: user.sub,
+    isStaff,
+  })
 
   const payload = {
-    ...(isStaff
-      ? withStaffSubmitter(body, user.sub)
-      : omitModerationFields(body)),
+    ...body,
     ...moderation,
     typing_angle: toNullableNumber(body.typing_angle),
   }
 
   // Publishing the keyboard here mustn't publish its status-less releases and
   // variants unreviewed.
-  if (isStaff && body.id && 'review_status' in body) {
+  if (body.id && moderation.review_status === 'Approved') {
     await keepChildrenInReviewOnPublish(
       client,
       { table: 'keyboards', match: { id: body.id as number } },
-      body.review_status,
+      'Approved',
       (keyboard) => {
         const match = { brand_keyboard_slug: keyboard.brand_keyboard_slug }
 
