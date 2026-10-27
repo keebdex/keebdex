@@ -24,7 +24,8 @@ export default defineEventHandler(async (event) => {
   })
 
   // A release under review with no variants left has nothing to review
-  // anymore, and neither does a keyboard under review with no releases left.
+  // anymore, and neither does a keyboard under review with no releases left
+  // (nor a brand under review with no keyboards left).
   // A release without a status of its own follows its keyboard.
   const { data: release } = await client
     .from('keyboard_releases')
@@ -47,11 +48,14 @@ export default defineEventHandler(async (event) => {
   )
 
   if (releaseDeleted && keyboardUnderReview) {
-    await deleteParentIfEmpty(
+    const keyboardDeleted = await deleteParentIfEmpty(
       client,
       { table: 'keyboards', match: keyboardMatch },
       { table: 'keyboard_releases', match: keyboardMatch },
     )
+
+    // A brand under review with no keyboards left goes too.
+    if (keyboardDeleted) await deleteOwnerIfEmpty(client, 'keyboard', brand!)
   }
 
   return { success: true }

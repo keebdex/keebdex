@@ -52,11 +52,13 @@ export default defineEventHandler(async (event) => {
       label: 'colorway',
     })
 
-    // Editing your own rejected colorway sends its rejected sculpt back too.
+    // Editing your own rejected colorway sends its rejected sculpt (and
+    // maker) back too.
     if (resubmitted) {
       await resubmitRejectedParent(client, 'artisan_sculpts', {
         maker_sculpt_id: makerSculptId,
       })
+      await resubmitRejectedOwner(client, 'artisan', maker!)
     }
 
     result = [data]

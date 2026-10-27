@@ -8,12 +8,13 @@ authors:
     to: https://claude.com/claude-code
 ---
 
-**Many hands** keep the catalog right: anyone signed in can now suggest a fix or a missing photo for a colorway, kit, keyset, or keyboard, and moderators review each change before it goes live. Moderators also get a full history of every change with one-click undo, and the home page leads straight into what is happening now.
+**Many hands** keep the catalog right: anyone signed in can now suggest a fix, a missing photo, or a keyset's colors on any published page, from a colorway up to a maker, brand, or keycap profile, and propose a maker, brand, or profile the catalog is missing along with their submission. Moderators review every change before it goes live, with the full history of each page and one-click undo.
 
 ### ✨ What's New
 
-- **Edit for everyone**: signed-in collectors can fix or fill in details on any published record with the same _Edit_ button editors use, and records without a picture show _Add Photo_ or _Add Cover_. Moderators review suggestions in the new _Edits_ tab of the Submissions pages, apply all or only some of the changes, and see when a detail has changed since it was suggested or when someone else suggested a different value. A count next to each _Submissions_ link shows them what is waiting, without a notification for every new one.
-- **Change history**: staff can open a _History_ panel on sculpt, keyset, and keyboard pages, or on a single colorway, kit, release, or variant, to see every change, who made it, and what it looked like before. They can undo an edit or restore an earlier version, even one with a photo that was replaced long ago, and the new _Recent Changes_ page shows what changed across every page they manage.
+- **Edit for everyone**: signed-in collectors can fix or fill in details on any published page with the same _Edit_ button editors use, from a colorway or kit up to a maker, brand, or keycap profile, including the colors a keyset is missing or should drop, and records without a picture show _Add Photo_ or _Add Cover_. Moderators review suggestions in the new _Edits_ tab of the Submissions pages, apply all or only some of the changes, and see when a detail changed since it was suggested or when someone else suggested another value, with a count on each _Submissions_ link instead of a notification for every new one.
+- **Propose a new maker, brand, or profile**: when the submission forms don't list the maker, keyboard brand, or keycap profile you need, propose it right there with your sculpt, keyboard, or keyset, and pick a new keyset's colors as you add it. Moderators review it with the rest of your submission, and it joins the catalog once approved.
+- **Change history**: staff can open a _History_ panel on maker, sculpt, profile, keyset, brand, and keyboard pages, or on a single colorway, kit, release, or variant, to see every change, who made it, and what it looked like before, including the colors added to or removed from a keyset. They can undo an edit or restore an earlier version, even one with a photo that was replaced long ago, and the new _Recent Changes_ page shows what changed across every page they manage.
 - **Stem types for colorways**: colorway forms let you pick one or more stem types, such as MX, Alps, or Topre, so you can tell at a glance whether a cap fits your board.
 
 ### 🐛 Bug Fixes

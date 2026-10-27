@@ -9,15 +9,21 @@ import {
 } from '~/utils/permissions'
 import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
 import type { KeebModule } from '~/utils/keeb-modules'
+import { urlSlugify } from '~/utils/slug'
+import { SUGGESTION_ENTITIES } from '~/utils/suggestions'
+import type { SuggestionEntityType } from '~/utils/suggestions'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
 export type SubmittableTable =
+  | 'keyset_profiles'
   | 'keysets'
   | 'keyset_kits'
+  | 'keyboard_brands'
   | 'keyboards'
   | 'keyboard_releases'
   | 'keyboard_variants'
+  | 'artisan_makers'
   | 'artisan_sculpts'
   | 'artisan_colorways'
 
@@ -547,11 +553,228 @@ const resolveParentReview = async ({
 }
 
 /**
- * Approving a kit also approves its keyset when that keyset is still under
- * review, like approving a colorway resolves its sculpt; its status-less
+ * The maker, profile, or brand above the pages of a module: its own key, and
+ * the pages (sculpts, keysets, keyboards) that point at it.
+ */
+export const OWNERS = {
+  artisan: {
+    entityType: 'artisan_maker',
+    table: 'artisan_makers',
+    key: 'maker_id',
+    pages: 'artisan_sculpts',
+    pageKey: 'maker_id',
+    label: 'maker',
+  },
+  keyset: {
+    entityType: 'keyset_profile',
+    table: 'keyset_profiles',
+    key: 'profile_id',
+    pages: 'keysets',
+    pageKey: 'profile_id',
+    label: 'profile',
+  },
+  keyboard: {
+    entityType: 'keyboard_brand',
+    table: 'keyboard_brands',
+    key: 'slug',
+    pages: 'keyboards',
+    pageKey: 'brand_slug',
+    label: 'brand',
+  },
+} as const satisfies Record<
+  KeebModule,
+  {
+    entityType: SuggestionEntityType
+    table: SubmittableTable
+    key: string
+    pages: SubmittableTable
+    pageKey: string
+    label: string
+  }
+>
+
+/** A page key's owner: `gmk/olivia` -> `gmk`, `mode/sonnet` -> `mode`. */
+const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
+
+/**
+ * Creates or updates a maker, profile, or brand from its form, keyed by
+ * `key` (`maker_id`, `profile_id`, `slug`), never by the body. Staff of the
+ * new key (admins and editors without assignments) add published records
+ * (no status), as the admin forms always have; everyone else proposes a
+ * Pending one under their name (the submission wizards), so staff never
+ * publish a page under an owner still under review.
+ * Moderation columns are never taken from the body: editing keeps the status,
+ * except that a submitter's own Rejected record goes back to Pending. A key
+ * already taken, by a published record or someone's proposal the caller
+ * cannot see, is a 409.
+ * A body whose key differs from `key` renames the record, only while it is
+ * under review (Pending or Rejected): once published, its address, logo,
+ * assignments, pins, and catalog-sync all point at the key, so it stays. The
+ * pages under it follow through the on update cascade of their keys.
+ */
+export const saveOwnerSubmission = async (
+  event: H3Event,
+  domain: KeebModule,
+  key: string,
+  body: Record<string, unknown>,
+) => {
+  const { client, user, profile } = await getActorProfile(event)
+  const config = OWNERS[domain]
+  const match = { [config.key]: key }
+  const isStaff =
+    canManageAnyAssignment(profile) && canManageAssignment(profile, key)
+  // Staff-only columns (a maker's Google Doc settings and flags, logo
+  // inversion) are the ones edit suggestions protect; others never set them,
+  // or a proposal's document_ids would start syncing once it is approved.
+  const record = omit(omitModerationFields(body), [
+    'id',
+    config.key,
+    ...(isStaff ? [] : SUGGESTION_ENTITIES[config.entityType].protected),
+  ])
+  const newKey =
+    typeof body[config.key] === 'string' ? String(body[config.key]).trim() : key
+  const taken = () =>
+    createError({
+      statusCode: 409,
+      statusMessage: `A ${config.label} with this slug already exists or is waiting for review.`,
+    })
+
+  const { data: existing } = await matchRows(
+    from(client, config.table).select(`${config.key}, review_status`),
+    match,
+  ).maybeSingle()
+
+  if (existing) {
+    if (newKey !== key) {
+      if (!['Pending', 'Rejected'].includes((existing as Moderated).review_status!)) {
+        throw createError({
+          statusCode: 409,
+          statusMessage: `A published ${config.label} keeps its slug.`,
+        })
+      }
+
+      if (!newKey || urlSlugify(newKey) !== newKey) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Use lowercase letters, numbers, and dashes for the slug.',
+        })
+      }
+    }
+
+    try {
+      const { data } = await updateChildSubmission({
+        client,
+        table: config.table,
+        match,
+        payload: newKey === key ? record : { ...record, [config.key]: newKey },
+        userId: user.sub,
+        isStaff,
+        label: config.label,
+      })
+
+      return data
+    } catch (error: any) {
+      if (String(error?.statusMessage).includes('duplicate key')) throw taken()
+      throw error
+    }
+  }
+
+  if (urlSlugify(key) !== key) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Use lowercase letters, numbers, and dashes for the slug.',
+    })
+  }
+
+  const { data, error } = await from(client, config.table)
+    .insert({
+      ...record,
+      ...match,
+      ...(isStaff ? {} : getSubmissionAttribution(false, user.sub)),
+    })
+    .select()
+    .single()
+
+  if (error?.code === '23505') throw taken()
+
+  fail(error)
+
+  return data as Record<string, any>
+}
+
+/**
+ * After a page's review, the maker, profile, or brand above it follows, the
+ * way a keyset follows its kits: approving approves it while it is under
+ * review (its pages without a status of their own become Pending first), and
+ * rejecting rejects a Pending one once none of its pages is left alive.
+ */
+const cascadeOwnerReview = (
+  client: SupabaseClient,
+  domain: KeebModule,
+  ownerKey: string,
+  action: ReviewAction,
+  userId: string,
+) => {
+  const config = OWNERS[domain]
+  const pages = { [config.pageKey]: ownerKey }
+
+  return resolveParentReview({
+    client,
+    table: config.table,
+    match: { [config.key]: ownerKey },
+    children: { table: config.pages, match: pages },
+    action,
+    userId,
+    beforeApprove: (owner) =>
+      keepStatuslessInReview(client, config.pages, pages, owner.submitted_by),
+  })
+}
+
+/**
+ * Deletes a maker, profile, or brand still under review once no page is left
+ * under it, after the last one was deleted. Published ones always stay.
+ */
+export const deleteOwnerIfEmpty = async (
+  client: SupabaseClient,
+  domain: KeebModule,
+  ownerKey: string,
+) => {
+  const config = OWNERS[domain]
+  const match = { [config.key]: ownerKey }
+
+  const { data: owner } = (await matchRows(
+    from(client, config.table).select('review_status'),
+    match,
+  ).maybeSingle()) as { data: Moderated | null }
+
+  if (!owner?.review_status || owner.review_status === 'Approved') return false
+
+  return deleteParentIfEmpty(
+    client,
+    { table: config.table, match },
+    { table: config.pages, match: { [config.pageKey]: ownerKey } },
+  )
+}
+
+/**
+ * Sends a Rejected maker, profile, or brand back to Pending after its
+ * submitter resubmitted something under it.
+ */
+export const resubmitRejectedOwner = (
+  client: SupabaseClient,
+  domain: KeebModule,
+  ownerKey: string,
+) =>
+  resubmitRejectedParent(client, OWNERS[domain].table, {
+    [OWNERS[domain].key]: ownerKey,
+  })
+
+/**
+ * Approving a kit also approves its keyset (and profile) when that keyset is
+ * still under review, like approving a colorway resolves its sculpt; its status-less
  * sibling kits become Pending instead of being published.
  */
-export const cascadeKeysetReview = (
+export const cascadeKeysetReview = async (
   client: SupabaseClient,
   keysetKey: string,
   action: ReviewAction,
@@ -559,7 +782,7 @@ export const cascadeKeysetReview = (
 ) => {
   const match = { profile_keyset_id: keysetKey }
 
-  return resolveParentReview({
+  await resolveParentReview({
     client,
     table: 'keysets',
     match,
@@ -569,13 +792,21 @@ export const cascadeKeysetReview = (
     beforeApprove: (keyset) =>
       keepStatuslessInReview(client, 'keyset_kits', match, keyset.submitted_by),
   })
+
+  await cascadeOwnerReview(
+    client,
+    'keyset',
+    ownerKeyOf(keysetKey),
+    action,
+    userId,
+  )
 }
 
 /**
- * Approving a colorway also approves its sculpt when that sculpt is still
- * under review, as there's no separate moderation queue for sculpts.
+ * Approving a colorway also approves its sculpt (and maker) when that sculpt
+ * is still under review, as there's no separate moderation queue for sculpts.
  */
-export const cascadeSculptReview = (
+export const cascadeSculptReview = async (
   client: SupabaseClient,
   makerId: string,
   sculptId: string,
@@ -584,7 +815,7 @@ export const cascadeSculptReview = (
 ) => {
   const match = { maker_id: makerId, sculpt_id: sculptId }
 
-  return resolveParentReview({
+  await resolveParentReview({
     client,
     table: 'artisan_sculpts',
     match,
@@ -592,11 +823,13 @@ export const cascadeSculptReview = (
     action,
     userId,
   })
+
+  await cascadeOwnerReview(client, 'artisan', makerId, action, userId)
 }
 
 /**
- * Approving a variant also approves its release and keyboard while those are
- * under review, like approving a colorway resolves its sculpt. Releases
+ * Approving a variant also approves its release, keyboard, and brand while
+ * those are under review, like approving a colorway resolves its sculpt. Releases
  * without a status of their own follow their keyboard.
  */
 export const cascadeKeyboardReview = async (
@@ -644,4 +877,12 @@ export const cascadeKeyboardReview = async (
       ])
     },
   })
+
+  await cascadeOwnerReview(
+    client,
+    'keyboard',
+    ownerKeyOf(keyboardKey),
+    action,
+    userId,
+  )
 }

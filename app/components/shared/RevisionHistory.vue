@@ -197,9 +197,9 @@ interface RevisionRecord {
   label: string
 }
 
-// History button and slideover of a sculpt, keyset or keyboard page (staff
-// only): the revisions of the record and its children, loaded when opened,
-// with a diff per revision and Undo / Restore. `show({ record })` (exposed)
+// History button and slideover of a page (staff only): the revisions of the
+// record and its children, loaded when opened, with a diff per revision and
+// Undo / Restore. `show({ record })` (exposed)
 // narrows it to one child record, e.g. from a colorway card. `?history=1`
 // opens it on load and `&rev=<id>` opens that revision (links from Recent
 // Changes). Emits `reverted` with the fields the revert wrote, so the page

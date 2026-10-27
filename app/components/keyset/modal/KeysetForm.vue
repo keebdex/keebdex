@@ -23,30 +23,20 @@
       />
     </UFormField>
 
-    <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
-      <UFormField v-if="!suggest" label="Profile" name="profile" required>
+    <div
+      class="grid gap-2"
+      :class="suggest || !isStandalone ? 'grid-cols-1' : 'grid-cols-2'"
+    >
+      <!-- The submission wizard picks the profile in its first step -->
+      <UFormField
+        v-if="!suggest && isStandalone"
+        label="Profile"
+        name="profile"
+        required
+      >
         <USelect
           v-model="keyset.profile_id"
-          :items="
-            Object.entries(groupedProfiles)
-              .map(([profile, profileManufacturers], idx) => {
-                return [
-                  { type: 'label', label: profile },
-                  ...Object.entries(profileManufacturers).map(
-                    ([value, label]) => ({
-                      type: 'item',
-                      label,
-                      value,
-                    }),
-                  ),
-                  {
-                    type: 'separator',
-                  },
-                ]
-              })
-              .flat()
-              .slice(0, -1)
-          "
+          :items="groupedProfileItems(groupedProfiles)"
           class="w-full"
         />
       </UFormField>
@@ -60,6 +50,17 @@
         />
       </UFormField>
     </div>
+
+    <!-- Staff manage colors on their own page; suggestions and new keysets in
+    the submission wizard take them here -->
+    <UFormField
+      v-if="suggest || colors"
+      label="Colors"
+      name="colors"
+      help="Search colors by code or name."
+    >
+      <KeysetColorPicker v-model="keyset.colors" />
+    </UFormField>
 
     <UFormField label="URL" name="url">
       <UInput
@@ -210,6 +211,8 @@ const props = defineProps({
   // Suggest Edit (SharedSuggestionForm): hides the fields a suggestion
   // cannot change.
   suggest: Boolean,
+  // Shows the keyset's colors (a new keyset in the submission wizard).
+  colors: Boolean,
 })
 
 const route = useRoute()

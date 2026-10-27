@@ -2,14 +2,23 @@ import { createError } from 'h3'
 import { groupBy } from 'es-toolkit'
 import type { H3Event } from 'h3'
 import { getActorProfile } from './admin'
-import { PARENT_LOOKUPS, parentName } from './edit-suggestions'
+import { OWNERS } from './child-submissions'
+import {
+  PARENT_LOOKUPS,
+  VIRTUAL_FIELD_JOINS,
+  parentName,
+} from './edit-suggestions'
 import { omitSensitive } from './index'
 import { canManageAnyAssignment } from '~/utils/permissions'
 import {
+  OWNER_ENTITY_TYPES,
   PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isSuggestionEntityType,
+  suggestionRecord,
 } from '~/utils/suggestions'
+import type { SuggestionEntityType } from '~/utils/suggestions'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 type SupabaseClient = Awaited<ReturnType<typeof getActorProfile>>['client']
 
@@ -167,8 +176,9 @@ export const withRevisionActors = async (
 }
 
 /**
- * Adds `parent_name` to each revision: the name of its sculpt, keyset or
- * keyboard page now, or, once that page is gone, the label of the page's own
+ * Adds `parent_name` to each revision: the name of its page now (a maker,
+ * profile, or brand, or a sculpt, keyset, or keyboard after its maker,
+ * profile, or brand), or, once that page is gone, the label of the page's own
  * revision when one is in the list.
  */
 export const withParentNames = async (
@@ -177,18 +187,24 @@ export const withParentNames = async (
 ) => {
   const db = client as any
   const names = new Map<string, string | null>()
-  const byDomain = groupBy(
-    revisions.filter((row) => row.parent_key),
-    (row) => row.domain as keyof typeof PARENT_LOOKUPS,
+  // Makers, profiles and brands are their own page, keyed by their own key.
+  const lookupOf = (row: { domain: KeebModule; entity_type: string }) => {
+    if (!OWNER_ENTITY_TYPES.includes(row.entity_type as SuggestionEntityType)) {
+      return PARENT_LOOKUPS[row.domain]
+    }
+
+    const { table, key } = OWNERS[row.domain]
+
+    return { table, key, select: `${key}, name` }
+  }
+  const groups = groupBy(
+    revisions.filter((row) => row.parent_key && lookupOf(row)),
+    (row) => lookupOf(row).table,
   )
 
   await Promise.all(
-    Object.entries(byDomain).map(async ([key, rows]) => {
-      const domain = key as keyof typeof PARENT_LOOKUPS
-      const lookup = PARENT_LOOKUPS[domain]
-
-      if (!lookup) return
-
+    Object.values(groups).map(async (rows) => {
+      const lookup = lookupOf(rows[0])
       const { data, error } = await db
         .from(lookup.table)
         .select(lookup.select)
@@ -199,7 +215,7 @@ export const withParentNames = async (
       }
 
       for (const parent of data || []) {
-        names.set(`${domain}:${parent[lookup.key]}`, parentName(parent))
+        names.set(`${rows[0].domain}:${parent[lookup.key]}`, parentName(parent))
       }
     }),
   )
@@ -221,7 +237,11 @@ export const withParentNames = async (
   })
 }
 
-/** The record a revision belongs to, as it is now, or null once deleted. */
+/**
+ * The record a revision belongs to, as it is now, or null once deleted. A
+ * keyset also gets `colors`, its color ids sorted ascending, the way its
+ * revisions record them.
+ */
 export const getRevisionRecord = async (
   client: SupabaseClient,
   entityType: string,
@@ -229,9 +249,10 @@ export const getRevisionRecord = async (
 ) => {
   if (!isSuggestionEntityType(entityType)) return null
 
-  const { data, error } = await (client as any)
+  const db = client as any
+  const { data, error } = await db
     .from(SUGGESTION_ENTITIES[entityType].table)
-    .select('*')
+    .select(['*', VIRTUAL_FIELD_JOINS[entityType]].filter(Boolean).join(', '))
     .eq('id', entityId)
     .maybeSingle()
 
@@ -239,7 +260,9 @@ export const getRevisionRecord = async (
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
-  return data ? omitSensitive(data) : null
+  if (!data) return null
+
+  return omitSensitive(suggestionRecord(entityType, data))
 }
 
 /**

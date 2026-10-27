@@ -24,7 +24,6 @@ export const useKeysetSubmissionWizard = ({
 }: SubmissionWizardOptions = {}) => {
   const route = useRoute()
   const toast = useToast()
-  const { manufacturers } = useKeysetProfiles()
   const { isReview, reviewStatus, canSave, canDelete } =
     useSubmissionReview(mode)
 
@@ -37,6 +36,25 @@ export const useKeysetSubmissionWizard = ({
   })
   const keysetMode = ref('existing')
   const existingKeyset = ref({ id: queryKeyset })
+
+  // Step 1: an existing profile, or a new one proposed with the keyset.
+  const owner = useSubmissionOwner('keyset', profile, () => {
+    existingKeyset.value = { id: '' }
+    keysetMode.value = 'new'
+  })
+
+  // Profiles a keyset may name: the published ones, the caller's own
+  // proposals, and the one being proposed.
+  const manufacturers = computed<Record<string, string>>(() => ({
+    ...Object.fromEntries(
+      owner.options.value
+        .filter((option) => option.value)
+        .map((option) => [option.value, option.label]),
+    ),
+    ...(owner.isNew.value && owner.key.value
+      ? { [owner.key.value]: owner.draft.value.name }
+      : {}),
+  }))
 
   const keyset = ref({
     id: undefined as number | undefined,
@@ -52,6 +70,8 @@ export const useKeysetSubmissionWizard = ({
     ic_date: undefined as ReturnType<typeof parseDate> | string | undefined,
     start_date: undefined as string | undefined,
     end_date: undefined as string | undefined,
+    // Color ids for a new keyset, saved after it (KeysetColorPicker).
+    colors: [] as number[],
   })
 
   // Bound to KeysetForm's GB date-range picker; not part of `keyset` since the
@@ -63,7 +83,9 @@ export const useKeysetSubmissionWizard = ({
 
   // The keyset body for the API, with CalendarDate values as ISO dates.
   const toKeysetPayload = () => {
-    const payload: Record<string, any> = { ...keyset.value }
+    const { colors: _colors, ...payload }: Record<string, any> = {
+      ...keyset.value,
+    }
 
     if (payload.ic_date) payload.ic_date = toISODate(payload.ic_date)
     if (dateRange.value.start) {
@@ -108,7 +130,7 @@ export const useKeysetSubmissionWizard = ({
   const load = async () => {
     if (!isReview || !submission) return
 
-    profile.value = { id: submissionProfile }
+    await owner.load(submissionProfile, submission.keyset?.profile?.review_status)
     await nextTick()
     keysetMode.value = 'existing'
     existingKeyset.value = { id: submissionKey }
@@ -159,7 +181,13 @@ export const useKeysetSubmissionWizard = ({
   // Saves the keyset (only while under review) and then the kit; approving or
   // rejecting rides on the kit save so the server can cascade to the keyset.
   // The server sends a submitter's rejected keyset back to review.
+  // A profile whose slug changed in review moves last, so the review action
+  // goes to the kit's new address.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    const moderate = action !== 'update' && !owner.renaming.value
+
+    await owner.save()
+
     if (keysetUnderReview.value) {
       await $fetch(`/api/keysets/${submissionProfile}/${submissionKeyset}`, {
         method: 'post',
@@ -172,9 +200,18 @@ export const useKeysetSubmissionWizard = ({
       body: {
         ...toPayload(kits.value[0]!),
         profile_keyset_id: submissionKey,
-        ...(action === 'update' ? {} : { action }),
+        ...(moderate ? { action } : {}),
       },
     })
+
+    const profileId = await owner.rename()
+
+    if (action !== 'update' && !moderate) {
+      await $fetch(`/api/keysets/${profileId}/${submissionKeyset}/kits`, {
+        method: 'post',
+        body: { id: submission?.id, action },
+      })
+    }
   }
 
   const remove = () =>
@@ -246,16 +283,17 @@ export const useKeysetSubmissionWizard = ({
       .catch(() => {})
   }
 
-  // KeysetForm always renders its own Profile field; keep it in sync with step 1.
-  // Runs immediately so a new-keyset form pre-fills profile_id on first mount too.
+  // The keyset's profile is step 1's, a proposed one included. Runs
+  // immediately so a new-keyset form pre-fills profile_id on first mount too.
   watch(
-    () => profile.value.id,
+    owner.key,
     (id) => {
       keyset.value.profile_id = id
     },
     { immediate: true },
   )
 
+  // A proposed profile has no keysets yet.
   // Reset the dependent keyset selection so a stale id from a previous profile isn't
   // submitted — but NOT on the initial run, which would wipe a pre-selected existing
   // keyset id coming from a direct "Add Kit" link's `keyset` query param.
@@ -268,7 +306,7 @@ export const useKeysetSubmissionWizard = ({
   )
 
   const canAdvance = computed(() => [
-    !!profile.value.id,
+    owner.canAdvance.value,
     keysetMode.value === 'existing'
       ? !!existingKeyset.value.id
       : !!keyset.value.name?.trim(),
@@ -276,13 +314,13 @@ export const useKeysetSubmissionWizard = ({
   ])
 
   const validateStep = useStepValidation([
-    () => entitySelectionSchema.safeParse(profile.value),
+    () => owner.validate(),
     () =>
       keysetMode.value === 'existing'
         ? entitySelectionSchema.safeParse(existingKeyset.value)
         : createKeysetSchema(manufacturers).safeParse({
             ...keyset.value,
-            profile_id: profile.value.id,
+            profile_id: owner.key.value,
           }),
     () => validateEach(keysetKitSchema, kits.value),
   ])
@@ -291,17 +329,29 @@ export const useKeysetSubmissionWizard = ({
     uploading.value = true
 
     try {
+      // A proposed profile is created first, Pending like the rest.
+      const profileId = await owner.ensure()
       let profileKeysetId = existingKeyset.value.id
 
       if (keysetMode.value === 'new') {
         const created: any = await $fetch('/api/submissions/keyset', {
           method: 'post',
           body: {
-            keyset: { ...toKeysetPayload(), profile_id: profile.value.id },
+            keyset: { ...toKeysetPayload(), profile_id: profileId },
           },
         })
 
         profileKeysetId = created.profile_keyset_id
+
+        if (keyset.value.colors.length) {
+          await $fetch(`/api/keysets/${profileKeysetId}/colors`, {
+            method: 'post',
+            body: {
+              profile_keyset_id: profileKeysetId,
+              color_ids: keyset.value.colors,
+            },
+          })
+        }
       }
 
       for (const kit of kits.value) {
@@ -325,6 +375,7 @@ export const useKeysetSubmissionWizard = ({
 
   return {
     profile,
+    owner,
     keysetMode,
     existingKeyset,
     keysetOptions,

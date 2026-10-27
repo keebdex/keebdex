@@ -36,5 +36,9 @@ export default defineEventHandler(async (event) => {
     getRevisionRecord(client, data.entity_type, data.entity_id),
   ])
 
-  return { ...revision, before: revisionBefore(data), current }
+  return {
+    ...revision,
+    before: revisionBefore(data),
+    current,
+  }
 })

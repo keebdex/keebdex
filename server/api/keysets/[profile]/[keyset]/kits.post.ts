@@ -32,11 +32,13 @@ export default defineEventHandler(async (event) => {
       label: 'kit',
     })
 
-    // Editing your own rejected kit sends its rejected keyset back too.
+    // Editing your own rejected kit sends its rejected keyset (and profile)
+    // back too.
     if (resubmitted) {
       await resubmitRejectedParent(client, 'keysets', {
         profile_keyset_id: profileKeysetId,
       })
+      await resubmitRejectedOwner(client, 'keyset', profile!)
     }
   } else {
     const { error } = await client.from('keyset_kits').insert({

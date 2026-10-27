@@ -12,12 +12,13 @@ import type { SuggestionEntityType } from '~/utils/suggestions'
 import type { KeebModule } from '~/utils/keeb-modules'
 
 /**
- * Revision history: every change to a sculpt, colorway, keyset, kit,
- * keyboard, release, or variant is kept in `record_revisions` (see the
- * `record_revisions` migration). Staff read it from the History slideover of
- * the sculpt, keyset, and keyboard pages and can undo an edit or restore a
- * record to a revision. Field labels and values reuse the edit suggestion
- * helpers (`app/utils/suggestions.ts`).
+ * Revision history: every change to a maker, sculpt, colorway, profile,
+ * keyset (its colors included), kit, brand, keyboard, release, or variant is
+ * kept in `record_revisions` (see the `record_revisions` and
+ * `catalog_parent_revisions` migrations). Staff read it from the History
+ * slideover of each page and can undo an edit or restore a record to a
+ * revision. Field labels and values reuse the edit suggestion helpers
+ * (`app/utils/suggestions.ts`).
  */
 
 export type RevisionSource =
@@ -76,6 +77,18 @@ export interface Revision {
   // Recent Changes only: the sculpt, keyset or keyboard page's name.
   parent_name?: string | null
 }
+
+export interface RevisionColor {
+  id: number
+  system: string
+  code: string
+  name: string | null
+  hex: string
+}
+
+/** A color as keysets list it (`GMK N9`), or its id until it is loaded. */
+export const keysetColorLabel = (color: Partial<RevisionColor> & { id: number }) =>
+  color.system ? `${color.system} ${color.code}` : `Color ${color.id}`
 
 export interface RevisionDetail extends Revision {
   snapshot: Record<string, unknown>
@@ -209,7 +222,7 @@ export const revisionVerb = (revision: Revision) =>
     ? 'reverted'
     : REVISION_ACTION_LABELS[revision.action].toLowerCase()
 
-/** Whether the revision is of the page itself (sculpt, keyset, keyboard). */
+/** Whether the revision is of a page itself (maker, sculpt, keyset, ...). */
 export const isPageRevision = (revision: Pick<Revision, 'entity_type'>) =>
   PAGE_ENTITY_TYPES.includes(revision.entity_type)
 
@@ -350,7 +363,11 @@ export const syncLockedFields = (revision: RevisionDetail, keys: string[]) => {
   return keys.filter((key) => managed.includes(key))
 }
 
-/** Detail page of a revision's sculpt, keyset or keyboard. */
+/**
+ * Detail page of a revision's page: a maker, profile, or brand is keyed by
+ * its own key, a sculpt, keyset, or keyboard by its page key, under the same
+ * routes.
+ */
 export const revisionPagePath = (
   revision: Pick<Revision, 'domain' | 'parent_key'>,
 ) => {

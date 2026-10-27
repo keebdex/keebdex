@@ -8,88 +8,57 @@
       class="w-full"
     >
       <template #profile>
-        <div class="space-y-4">
-          <p class="text-sm text-muted">
-            Pick the manufacturer profile this keyset belongs to.
-          </p>
-
-          <USelect
-            v-model="profile.id"
-            :items="
-              Object.entries(groupedProfiles)
-                .map(([label, profileManufacturers]) => [
-                  { type: 'label', label },
-                  ...Object.entries(profileManufacturers).map(
-                    ([value, name]) => ({
-                      type: 'item',
-                      label: name,
-                      value,
-                    }),
-                  ),
-                  { type: 'separator' },
-                ])
-                .flat()
-                .slice(0, -1)
-            "
-            :disabled="mode === 'review'"
-            placeholder="Select a profile"
-            class="w-full"
-          />
-        </div>
+        <SharedSubmissionEntityStep
+          v-bind="ownerStep"
+          v-model:selected="profile.id"
+          v-model:entity-mode="ownerMode"
+          reviewed="kit"
+          :mode="mode"
+          hint="Pick the manufacturer profile this keyset belongs to, or propose one Keebdex doesn't list yet."
+          :to="`/keyset/${profile.id}`"
+        >
+          <KeysetModalProfileForm v-model="profileDraft" mode="embedded" />
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #keyset>
-        <div v-if="mode === 'review' && !keysetUnderReview" class="space-y-2">
-          <p class="text-sm text-muted">
-            This keyset is already published. Only the kit is reviewed here.
-          </p>
-
-          <NuxtLink
-            :to="`/keyset/${existingKeyset.id}`"
-            class="text-sm font-medium text-primary hover:underline"
-          >
-            {{ keyset.name }}
-          </NuxtLink>
-        </div>
-
-        <div v-else class="space-y-4">
-          <p v-if="mode === 'review'" class="text-sm text-muted">
-            This keyset is still under review — review and edit it here before
-            approving.
-          </p>
-
-          <UTabs
-            v-if="mode === 'create'"
-            v-model="keysetMode"
-            :items="keysetModeTabs"
-            size="sm"
-          />
-
-          <USelectMenu
-            v-if="mode === 'create' && keysetMode === 'existing'"
-            v-model="existingKeyset.id"
-            v-model:search-term="keysetTerm"
-            :items="keysetOptions"
-            :loading="keysetsStatus === 'pending'"
-            value-key="value"
-            label-key="label"
-            ignore-filter
-            placeholder="Select a keyset"
-            :search-input="{
-              placeholder: 'Type at least 3 characters to search...',
-            }"
-            class="w-full"
-          />
+        <SharedSubmissionEntityStep
+          v-model:entity-mode="keysetMode"
+          label="Keyset"
+          reviewed="kit"
+          :mode="mode"
+          :tabs="!ownerIsNew"
+          :under-review="keysetUnderReview"
+          :name="keyset.name"
+          :to="`/keyset/${existingKeyset.id}`"
+        >
+          <!-- Keysets are searched as you type, not preloaded -->
+          <template #select>
+            <USelectMenu
+              v-model="existingKeyset.id"
+              v-model:search-term="keysetTerm"
+              :items="keysetOptions"
+              :loading="keysetsStatus === 'pending'"
+              value-key="value"
+              label-key="label"
+              ignore-filter
+              placeholder="Select a keyset"
+              :search-input="{
+                placeholder: 'Type at least 3 characters to search...',
+              }"
+              class="w-full"
+            />
+          </template>
 
           <KeysetModalKeysetForm
-            v-if="mode === 'review' || keysetMode === 'new'"
             v-model="keyset"
             v-model:date-range="dateRange"
             :is-edit="mode === 'review'"
+            :colors="mode === 'create'"
             mode="embedded"
             @update:uploading="wizard.setImageUploading('keyset', $event)"
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #kit>
@@ -144,13 +113,6 @@ const props = defineProps({
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const { groupedProfiles, manufacturers } = useKeysetProfiles()
-
-const keysetModeTabs = [
-  { label: 'Choose Existing Keyset', value: 'existing' },
-  { label: 'Propose New Keyset', value: 'new' },
-]
-
 const submissionWizard = useKeysetSubmissionWizard({
   mode: props.mode,
   submission: props.submission,
@@ -158,6 +120,7 @@ const submissionWizard = useKeysetSubmissionWizard({
 
 const {
   profile,
+  owner,
   keysetMode,
   existingKeyset,
   keysetOptions,
@@ -173,6 +136,15 @@ const {
   keysetUnderReview,
 } = submissionWizard
 
+const {
+  ownerMode,
+  isNew: ownerIsNew,
+  draft: profileDraft,
+  reviewStatus: ownerReviewStatus,
+  optionLabel: profileLabel,
+  stepProps: ownerStep,
+} = owner
+
 const kitLabel = () =>
   [keyset.value.name, kits.value[0]?.name || kits.value[0]?.kit_id]
     .filter(Boolean)
@@ -183,8 +155,10 @@ const wizard = useSubmissionWizardActions({
   entity: 'Kit',
   label: kitLabel,
   stepCount: 3,
-  // A published keyset isn't under review, so land on the kit itself.
-  reviewStep: () => (keysetUnderReview.value ? 1 : 2),
+  // A profile or keyset under review is reviewed first; otherwise land on the
+  // kit itself.
+  reviewStep: () =>
+    ownerReviewStatus.value ? 0 : keysetUnderReview.value ? 1 : 2,
   createStep: () => (profile.value.id && existingKeyset.value.id ? 2 : 0),
   wizard: submissionWizard,
   emit,
@@ -194,7 +168,7 @@ const items = computed(() => [
   {
     slot: 'profile',
     title: 'Profile',
-    description: manufacturers.value[profile.value.id],
+    description: profileLabel.value,
     icon: 'hugeicons:grid-view',
   },
   {

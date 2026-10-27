@@ -17,7 +17,8 @@
       v-if="!isEdit"
       label="Slug"
       name="slug"
-      help="Used in URL, e.g. my-brand. Leave empty to auto-generate from name."
+      help="Used in URL, e.g. my-brand. Leave empty to auto-generate from name. It can't be changed once the brand is published."
+      :ui="{ help: 'text-warning' }"
     >
       <UInput
         v-model.trim="brand.slug"
@@ -145,8 +146,7 @@ watch(
 const onSubmit = async () => {
   const slug = isEdit
     ? String(metadata?.slug || brand.value.slug || '').trim()
-    : String(brand.value.slug || '').trim() ||
-      urlSlugify(brand.value.name)
+    : urlSlugify(String(brand.value.slug || '').trim() || brand.value.name)
 
   await $fetch(`/api/keyboards/brands/${slug}`, {
     method: 'post',

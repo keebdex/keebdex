@@ -14,13 +14,16 @@ export default defineEventHandler(async (event) => {
     note: await readDeletionNote(event, isStaff),
   })
 
-  // A keyset under review with no kits left has nothing to review anymore.
+  // A keyset under review with no kits left has nothing to review anymore,
+  // and neither does a profile under review with no keysets left.
   if (!isOfficial && parent.review_status) {
-    await deleteParentIfEmpty(
+    const keysetDeleted = await deleteParentIfEmpty(
       client,
       { table: 'keysets', match },
       { table: 'keyset_kits', match },
     )
+
+    if (keysetDeleted) await deleteOwnerIfEmpty(client, 'keyset', profile!)
   }
 
   return { success: true }

@@ -8,60 +8,43 @@
       class="w-full"
     >
       <template #maker>
-        <div class="space-y-4">
-          <p class="text-sm text-muted">
-            Pick the maker this colorway belongs to.
-          </p>
-
-          <USelectMenu
-            v-model="maker.id"
-            :items="makerOptions"
-            :loading="makersStatus === 'pending'"
-            :disabled="mode === 'review'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a maker"
-            class="w-full"
+        <SharedSubmissionEntityStep
+          v-bind="ownerStep"
+          v-model:selected="maker.id"
+          v-model:entity-mode="ownerMode"
+          reviewed="colorway"
+          :mode="mode"
+          hint="Pick the maker this colorway belongs to, or propose one Keebdex doesn't list yet."
+          :to="`/artisan/maker/${maker.id}`"
+        >
+          <ArtisanModalMakerForm
+            v-model="makerDraft"
+            mode="embedded"
+            suggest
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #sculpt>
-        <div class="space-y-4">
-          <UTabs
-            v-if="mode === 'create' && sculptOptions.length"
-            v-model="sculptMode"
-            :items="sculptModeTabs"
-            size="sm"
-          />
-
-          <p
-            v-if="mode === 'review' && sculptReviewStatus"
-            class="text-sm text-muted"
-          >
-            This sculpt was proposed together with the colorway below and is
-            still under review — review and edit it here before approving.
-          </p>
-
-          <USelectMenu
-            v-if="sculptMode === 'existing'"
-            v-model="existingSculpt.id"
-            :items="sculptOptions"
-            :loading="sculptsStatus === 'pending'"
-            :disabled="mode === 'review'"
-            value-key="value"
-            label-key="label"
-            placeholder="Select a sculpt"
-            class="w-full"
-          />
-
+        <SharedSubmissionEntityStep
+          v-model:selected="existingSculpt.id"
+          v-model:entity-mode="sculptMode"
+          label="Sculpt"
+          reviewed="colorway"
+          :mode="mode"
+          :tabs="sculptOptions.length > 0"
+          :options="sculptOptions"
+          :loading="sculptsStatus === 'pending'"
+          :under-review="!!sculptReviewStatus"
+          :name="selectedSculptLabel"
+          :to="`/artisan/maker/${maker.id}/${existingSculpt.id}`"
+        >
           <ArtisanModalSculptForm
-            v-if="sculptMode === 'new'"
             v-model="sculpt"
             :sculpts="sculpts"
             mode="embedded"
           />
-        </div>
+        </SharedSubmissionEntityStep>
       </template>
 
       <template #colorway>
@@ -81,7 +64,7 @@
             <template #default="{ item, index }">
               <ArtisanModalColorwayForm
                 v-model="colorways[index]"
-                :maker-id="maker.id"
+                :maker-id="makerKey"
                 mode="embedded"
                 @update:uploading="wizard.setImageUploading(item._key, $event)"
               />
@@ -114,11 +97,6 @@ const props = defineProps({
 
 const emit = defineEmits(['onSuccess', 'onDelete'])
 
-const sculptModeTabs = [
-  { label: 'Choose Existing Sculpt', value: 'existing' },
-  { label: 'Propose New Sculpt', value: 'new' },
-]
-
 const submissionWizard = useArtisanSubmissionWizard({
   mode: props.mode,
   submission: props.submission,
@@ -126,8 +104,7 @@ const submissionWizard = useArtisanSubmissionWizard({
 
 const {
   maker,
-  makerOptions,
-  makersStatus,
+  owner,
   sculptMode,
   existingSculpt,
   sculptOptions,
@@ -141,13 +118,23 @@ const {
   sculptReviewStatus,
 } = submissionWizard
 
+const {
+  ownerMode,
+  draft: makerDraft,
+  reviewStatus: ownerReviewStatus,
+  optionLabel: makerLabel,
+  key: makerKey,
+  stepProps: ownerStep,
+} = owner
+
 const wizard = useSubmissionWizardActions({
   mode: props.mode,
   entity: 'Colorway',
   label: () => colorways.value[0]?.name,
   stepCount: 3,
-  // A sculpt proposed with the colorway is reviewed first.
-  reviewStep: () => (sculptReviewStatus.value ? 1 : 2),
+  // A maker or sculpt proposed with the colorway is reviewed first.
+  reviewStep: () =>
+    ownerReviewStatus.value ? 0 : sculptReviewStatus.value ? 1 : 2,
   createStep: () => (maker.value.id && existingSculpt.value.id ? 2 : 0),
   wizard: submissionWizard,
   emit,
@@ -162,8 +149,7 @@ const items = computed(() => [
   {
     slot: 'maker',
     title: 'Maker',
-    description: makerOptions.value.find((o) => o.value === maker.value.id)
-      ?.label,
+    description: makerLabel.value,
     icon: 'hugeicons:user-multiple',
   },
   {

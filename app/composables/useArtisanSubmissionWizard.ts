@@ -28,26 +28,23 @@ export const useArtisanSubmissionWizard = ({
 
   const uploading = ref(false)
 
-  const { data: makers, status: makersStatus } = useAsyncData<any[]>(
-    'artisan-submission-makers',
-    () => $fetch('/api/makers'),
-    { default: () => [] },
-  )
+  // Step 1: an existing maker, or a new one proposed with the sculpt.
+  const owner = useSubmissionOwner('artisan', maker, () => {
+    existingSculpt.value = { id: '' }
+    sculptMode.value = 'new'
+  })
 
-  const makerOptions = computed(() =>
-    (makers.value || []).map((maker: any) => ({
-      label: maker.name,
-      value: maker.maker_id,
-    })),
-  )
-
+  // A proposed maker has no sculpts yet.
   const { data: makerDetail, status: sculptsStatus } = useAsyncData<any>(
     () => `artisan-submission-sculpts-${maker.value.id}`,
     () =>
-      (maker.value.id
+      (maker.value.id && !owner.isNew.value
         ? $fetch(`/api/makers/${maker.value.id}`)
         : null) as Promise<any>,
-    { watch: [() => maker.value.id], default: () => null },
+    {
+      watch: [() => maker.value.id, owner.isNew],
+      default: () => null,
+    },
   )
 
   // /api/makers/[maker] returns `sculpts` keyed by sculpt_id, not an array.
@@ -132,13 +129,15 @@ export const useArtisanSubmissionWizard = ({
 
   const sculptReviewStatus = ref<string | null>(null)
 
-  const colorwaysUrl = (sculptId = existingSculpt.value.id) =>
-    `/api/makers/${maker.value.id}/sculpts/${sculptId}/colorways`
+  const colorwaysUrl = (
+    sculptId = existingSculpt.value.id,
+    makerId = maker.value.id,
+  ) => `/api/makers/${makerId}/sculpts/${sculptId}/colorways`
 
   const load = async () => {
     if (!isReview || !submission) return
 
-    maker.value = { id: submission.maker_id }
+    await owner.load(submission.maker_id, submission.maker?.review_status)
     await nextTick()
     sculptMode.value = 'existing'
     existingSculpt.value = { id: submission.sculpt_id }
@@ -165,8 +164,15 @@ export const useArtisanSubmissionWizard = ({
   }
 
   // Saves the sculpt (only while under review) and then the colorway;
-  // approving rides on the colorway save so the server can cascade.
+  // approving rides on the colorway save so the server can cascade. A maker
+  // whose slug changed in review moves last, so the review action goes to
+  // the colorway's new address.
   const save = async (action: 'update' | 'approve' | 'reject' = 'update') => {
+    const sculptId = existingSculpt.value.id
+    const moderate = action !== 'update' && !owner.renaming.value
+
+    await owner.save()
+
     if (sculptReviewStatus.value) {
       await $fetch(
         `/api/makers/${maker.value.id}/sculpts/${existingSculpt.value.id}`,
@@ -185,9 +191,18 @@ export const useArtisanSubmissionWizard = ({
       method: 'post',
       body: {
         ...toPayload(colorways.value[0]!),
-        ...(action === 'update' ? {} : { action }),
+        ...(moderate ? { action } : {}),
       },
     })
+
+    const makerId = await owner.rename()
+
+    if (action !== 'update' && !moderate) {
+      await $fetch(colorwaysUrl(sculptId, makerId), {
+        method: 'post',
+        body: { id: submission?.id, action },
+      })
+    }
   }
 
   const remove = async () => {
@@ -199,7 +214,7 @@ export const useArtisanSubmissionWizard = ({
   // Drives the Next button's disabled state so the wizard can't advance
   // past a step whose entity hasn't been picked yet.
   const canAdvance = computed(() => [
-    !!maker.value.id,
+    owner.canAdvance.value,
     sculptMode.value === 'existing'
       ? !!existingSculpt.value.id
       : !!sculpt.value.name?.trim(),
@@ -213,7 +228,7 @@ export const useArtisanSubmissionWizard = ({
   })
 
   const validateStep = useStepValidation([
-    () => entitySelectionSchema.safeParse(maker.value),
+    () => owner.validate(),
     () =>
       sculptMode.value === 'existing'
         ? entitySelectionSchema.safeParse(existingSculpt.value)
@@ -225,16 +240,18 @@ export const useArtisanSubmissionWizard = ({
     uploading.value = true
 
     try {
+      // A proposed maker is created first, Pending like the rest.
+      const makerId = await owner.ensure()
       let sculptId = existingSculpt.value.id
 
       if (sculptMode.value === 'new') {
         const slug = urlSlugify(sculpt.value.name)
 
-        await $fetch(`/api/makers/${maker.value.id}/sculpts/${slug}`, {
+        await $fetch(`/api/makers/${makerId}/sculpts/${slug}`, {
           method: 'post',
           body: {
             ...sculpt.value,
-            maker_id: maker.value.id,
+            maker_id: makerId,
             sculpt_id: slug,
             source: 'keebdex',
             overridden_fields: [],
@@ -247,13 +264,13 @@ export const useArtisanSubmissionWizard = ({
       const createdColorways = []
 
       for (const colorway of colorways.value) {
-        const [created] = await $fetch<any[]>(colorwaysUrl(sculptId), {
+        const [created] = await $fetch<any[]>(colorwaysUrl(sculptId, makerId), {
           method: 'post',
           body: {
             ...toPayload(colorway),
-            maker_id: maker.value.id,
+            maker_id: makerId,
             sculpt_id: sculptId,
-            maker_sculpt_id: `${maker.value.id}/${sculptId}`,
+            maker_sculpt_id: `${makerId}/${sculptId}`,
             source: 'keebdex',
             overridden_fields: [],
           },
@@ -286,8 +303,7 @@ export const useArtisanSubmissionWizard = ({
 
   return {
     maker,
-    makerOptions,
-    makersStatus,
+    owner,
     sculptMode,
     existingSculpt,
     sculptOptions,

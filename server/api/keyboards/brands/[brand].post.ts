@@ -1,22 +1,17 @@
-import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../../utils'
-
+/**
+ * Creates or updates a keyboard brand (`saveOwnerSubmission`): staff add
+ * published brands, everyone else proposes one for review; the route param
+ * is the slug.
+ */
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
-  const body = pickTableFields('keyboard_brands', await readBody(event))
+  const slug = getRouterParam(event, 'brand')!
 
-  const { data, error } = await client
-    .from('keyboard_brands')
-    .upsert(body, { onConflict: 'slug' })
-    .select()
-    .single()
-
-  if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
-  }
-
-  return omitSensitive(data)
+  return omitSensitive(
+    await saveOwnerSubmission(
+      event,
+      'keyboard',
+      slug,
+      pickTableFields('keyboard_brands', await readBody(event)),
+    ),
+  )
 })

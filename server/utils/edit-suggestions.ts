@@ -1,13 +1,17 @@
 import { createError } from 'h3'
 import { groupBy, omit } from 'es-toolkit'
+import { z } from 'zod'
 import type { getActorProfile } from './admin'
 import { omitSensitive } from './index'
 import { TABLE_FIELDS } from './table-fields.generated'
 import {
+  OWNER_ENTITY_TYPES,
   PAGE_ENTITY_TYPES,
   SUGGESTION_ENTITIES,
   isProtectedSuggestionField,
+  isVirtualSuggestionField,
   normalizeSuggestionValue,
+  suggestionRecord,
 } from '~/utils/suggestions'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 import { suggestionChangesSchema } from '~/utils/schemas/suggestion'
@@ -32,10 +36,22 @@ const invalid = (issues: { message: string; path: PropertyKey[] }[]) => {
   })
 }
 
+const colorIdsSchema = z.array(z.number().int().positive()).max(200)
+
+// A keyset's colors to add and remove, never the whole list.
+const colorsChangeSchema = z
+  .object({
+    add: colorIdsSchema.default([]),
+    remove: colorIdsSchema.default([]),
+  })
+  .strict()
+
 /**
  * Validates the suggested values of a record: every key must be a column of
- * its table and not a protected one; blanks become null. Value types are
- * checked by the database (the guard trigger casts them to the table's row).
+ * its table and not a protected one, or a keyset's `colors` (`{ add,
+ * remove }`); blanks become null. Value types are checked by the database
+ * (the guard trigger casts them to the table's row and drops colors that
+ * change nothing).
  */
 export const parseSuggestionChanges = (
   type: SuggestionEntityType,
@@ -51,6 +67,8 @@ export const parseSuggestionChanges = (
     | undefined
 
   for (const key of Object.keys(result.data)) {
+    if (isVirtualSuggestionField(type, key)) continue
+
     if (!columns?.includes(key) || isProtectedSuggestionField(type, key)) {
       throw createError({
         statusCode: 400,
@@ -60,10 +78,22 @@ export const parseSuggestionChanges = (
   }
 
   return Object.fromEntries(
-    Object.entries(result.data).map(([key, value]) => [
-      key,
-      normalizeSuggestionValue(value),
-    ]),
+    Object.entries(result.data).map(([key, value]) => {
+      if (!isVirtualSuggestionField(type, key)) {
+        return [key, normalizeSuggestionValue(value)]
+      }
+
+      const colors = colorsChangeSchema.safeParse(value)
+
+      if (!colors.success) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Colors must list the colors to add and remove.',
+        })
+      }
+
+      return [key, colors.data]
+    }),
   )
 }
 
@@ -115,10 +145,16 @@ export const PARENT_LOOKUPS = {
   },
 } as const
 
-// Joined rows per record kind, for its name.
+// Fields that are not columns (`isVirtualSuggestionField`), joined as rows
+// and turned into values by `suggestionRecord`.
+export const VIRTUAL_FIELD_JOINS: Partial<Record<SuggestionEntityType, string>> = {
+  keyset: 'colors:keyset_colors(color_id)',
+}
+
+// Joined rows per record kind, for its name (and a keyset's colors).
 const RECORD_JOINS: Partial<Record<SuggestionEntityType, string>> = {
   keyset_kit: 'category:kit_categories(name)',
-  keyset: 'profile:keyset_profiles(name)',
+  keyset: `profile:keyset_profiles(name), ${VIRTUAL_FIELD_JOINS.keyset}`,
 }
 
 // Joined rows only for `names` (what the Edits queue lists), dropped from
@@ -150,6 +186,11 @@ const suggestionNames = (
   record: any,
   parent: any,
 ): SuggestionNames => {
+  // A maker, profile, or brand is the owner itself.
+  if (OWNER_ENTITY_TYPES.includes(type)) {
+    return { owner: record?.name ?? null, page: null, release: null, item: null }
+  }
+
   const page = PAGE_ENTITY_TYPES.includes(type) ? record : parent
   const owner = page?.maker ?? page?.profile ?? page?.brand
 
@@ -231,7 +272,10 @@ export const withSuggestionRecords = async (
       }
 
       for (const record of data || []) {
-        records.set(`${type}:${record.id}`, omitSensitive(record))
+        records.set(
+          `${type}:${record.id}`,
+          omitSensitive(suggestionRecord(type, record)),
+        )
       }
     }),
   )

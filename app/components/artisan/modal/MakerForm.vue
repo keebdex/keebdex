@@ -21,7 +21,8 @@
       v-if="!isEdit"
       label="Slug"
       name="maker_id"
-      help="Used in URL, e.g. my-maker. Leave empty to auto-generate from name."
+      help="Used in URL, e.g. my-maker. Leave empty to auto-generate from name. It can't be changed once the maker is published."
+      :ui="{ help: 'text-warning' }"
     >
       <UInput
         v-model.trim="maker.maker_id"
@@ -31,11 +32,12 @@
       />
     </UFormField>
 
-    <UFormField>
+    <UFormField v-if="!suggest">
       <UCheckbox v-model="maker.verified" label="Verified" />
     </UFormField>
 
     <UFormField
+      v-if="!suggest"
       help="Stop syncing from Google Docs and manage uploads here instead."
       :ui="{
         help: 'text-info',
@@ -72,7 +74,7 @@
     </UFormField>
 
     <UFormField
-      v-if="!maker.disable_google_sync"
+      v-if="!suggest && !maker.disable_google_sync"
       label="Document ID"
       name="document_ids"
       :ui="{
@@ -177,6 +179,9 @@ const { metadata, modelValue, isEdit, mode } = defineProps({
     default: null,
   },
   isKeeb: Boolean,
+  // Suggest Edit (SharedSuggestionForm): hides the Google Doc settings and
+  // the verified flag, which a suggestion cannot change.
+  suggest: Boolean,
   isEdit: Boolean,
   mode: {
     type: String,
@@ -233,8 +238,10 @@ const onSubmit = async () => {
   const { sculpts, ...rest } = maker.value
   const normalizedMakerId = String(rest.maker_id || '').trim()
 
-  const makerId =
-    normalizedMakerId || urlSlugify(maker.value.name)
+  // A new maker's slug is normalized; an existing one keeps its key.
+  const makerId = isEdit
+    ? normalizedMakerId
+    : urlSlugify(normalizedMakerId || maker.value.name)
 
   await $fetch(`/api/makers/${makerId}`, {
     method: 'post',

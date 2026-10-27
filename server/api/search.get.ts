@@ -110,12 +110,14 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('artisan_makers')
           .select(SELECT.makers)
+          .or(PUBLISHED_FILTER)
           .textSearch('fts', `${fts}`)
           .order('maker_id')
           .limit(10),
         likeQuery: client
           .from('artisan_makers')
           .select(SELECT.makers)
+          .or(PUBLISHED_FILTER)
           .or(`name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%`)
           .order('maker_id')
           .limit(10),
@@ -183,12 +185,14 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('keyboard_brands')
           .select(SELECT.brands)
+          .or(PUBLISHED_FILTER)
           .textSearch('fts', `${fts}`)
           .order('slug')
           .limit(10),
         likeQuery: client
           .from('keyboard_brands')
           .select(SELECT.brands)
+          .or(PUBLISHED_FILTER)
           .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
           .order('slug')
           .limit(10),

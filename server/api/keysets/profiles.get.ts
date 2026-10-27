@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../../utils'
+import { omitSensitive, publishedOrOwnFilter } from '../../utils'
 import { Constants } from '~/types/database.types'
 
 const groups = new Set(Constants.public.Enums.keyset_profile_group)
@@ -10,6 +10,9 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('keyset_profiles')
     .select('*')
+    // Profiles under review stay out of the catalog (`?own=1` adds the
+    // caller's, for the keyset wizard).
+    .or(await publishedOrOwnFilter(event, getQuery(event).own))
     .order('profile')
     .order('name')
 
