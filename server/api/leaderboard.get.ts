@@ -18,10 +18,12 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const user = await serverSupabaseUser(event)
   const args = { p_period: period, p_domain: module || null }
+  // The podium and seven more; everyone else sees only their own rank
+  const limit = 10
 
   // The functions are not in the generated types until the migration runs.
   const [board, me] = await Promise.all([
-    (client as any).rpc('leaderboard', { ...args, p_limit: 50 }),
+    (client as any).rpc('leaderboard', { ...args, p_limit: limit }),
     user
       ? (client as any).rpc('leaderboard_me', args).maybeSingle()
       : { data: null, error: null },

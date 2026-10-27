@@ -1,7 +1,11 @@
 <template>
   <UDashboardPanel id="leaderboard">
     <template #header>
-      <UDashboardNavbar title="Leaderboard" />
+      <UDashboardNavbar title="Leaderboard">
+        <template #right>
+          <LeaderboardPointsGuide />
+        </template>
+      </UDashboardNavbar>
 
       <UDashboardToolbar>
         <template #left>
@@ -30,21 +34,8 @@
     <template #body>
       <!-- Kept narrow, so names and points stay close on wide screens -->
       <UPage class="w-full max-w-4xl mx-auto">
-        <UAlert icon="hugeicons:information-circle" color="info">
-          <template #description>
-            Collectors earn
-            <span class="font-medium">{{ LEADERBOARD_POINTS.pages }} points</span>
-            for each maker, sculpt, profile, keyset, brand, or keyboard they
-            add,
-            <span class="font-medium">{{ LEADERBOARD_POINTS.items }} points</span>
-            for each colorway, kit, release, or variant, and
-            <span class="font-medium">{{ LEADERBOARD_POINTS.suggestions }} point</span>
-            for each accepted edit suggestion, once it is approved.
-          </template>
-        </UAlert>
-
         <template v-if="status === 'pending' && !entries.length">
-          <div class="mt-10 grid grid-cols-3 items-end gap-2 sm:gap-6">
+          <div class="mt-4 grid grid-cols-3 items-end gap-2 sm:gap-6">
             <div
               v-for="height in ['h-36 sm:h-52', 'h-48 sm:h-72', 'h-28 sm:h-44']"
               :key="height"
@@ -89,14 +80,13 @@
               ui: { label: 'block' },
             },
           ]"
-          class="mt-6"
         />
 
         <template v-else>
           <LeaderboardPodium
             :entries="entries.slice(0, 3)"
             :me-id="userStore.user?.uid"
-            class="mt-10"
+            class="mt-4"
           />
 
           <div v-if="rows.length" class="mt-8">
