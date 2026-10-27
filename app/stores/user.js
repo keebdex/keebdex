@@ -10,6 +10,7 @@ export const useUserStore = defineStore('user', {
     collections: [],
     favorites: [],
     social: {},
+    leaderboardHidden: false,
     appearance: {},
     appearanceLoaded: false,
     appearanceSaveTimer: null,
@@ -76,6 +77,7 @@ export const useUserStore = defineStore('user', {
           qq: data.qq,
         }
 
+        this.leaderboardHidden = !!data.leaderboard_hidden
         this.role = data.role
         this.assignments = data.assignments
         this.appearance =
