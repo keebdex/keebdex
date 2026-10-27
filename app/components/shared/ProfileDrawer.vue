@@ -7,7 +7,7 @@
         reverse
         variant="naked"
         :ui="{
-          footer: 'flex-wrap gap-2 justify-center w-full',
+          footer: 'justify-center',
           description: 'text-justify',
         }"
       >

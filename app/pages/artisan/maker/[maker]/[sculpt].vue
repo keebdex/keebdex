@@ -174,15 +174,9 @@
             </div>
           </div>
 
-          <template #footer>
+          <!-- Every action needs a signed-in user; copying lives in the popup -->
+          <template v-if="authenticated" #footer>
             <div class="flex flex-wrap items-center gap-2" @click.stop>
-              <UTooltip text="Copy Card" :delay-duration="0">
-                <UButton
-                  icon="hugeicons:copy-02"
-                  @click="copyColorwayCard(colorway)"
-                />
-              </UTooltip>
-
               <UTooltip
                 v-if="canSuggest(colorway)"
                 text="Edit"
@@ -226,7 +220,6 @@
               </UTooltip>
 
               <SharedSaveToCollection
-                v-if="authenticated"
                 :item="colorway"
                 :text="true"
                 @on-select="saveTo"
@@ -258,30 +251,6 @@
           </template>
         </UPageCard>
       </UPageGrid>
-
-      <SharedSnapshot ref="snapshot" width="18rem">
-        <UPageCard
-          v-if="snapshotColorway"
-          :title="snapshotColorway.name"
-          reverse
-          :ui="{
-            root: 'h-full flex flex-col',
-            container: imageCardContainerClass,
-          }"
-        >
-          <div class="aspect-square overflow-hidden relative">
-            <NuxtImg
-              :alt="snapshotColorway.name"
-              :src="snapshotColorway.img"
-              class="w-full h-full object-cover rounded"
-            />
-          </div>
-
-          <template #footer>
-            <AppWordmark size="sm" />
-          </template>
-        </UPageCard>
-      </SharedSnapshot>
 
       <UModal
         v-model:open="visible.card"
@@ -522,9 +491,6 @@ const openColorwayCard = (colorway) => {
   }
 }
 
-// Copied cards are rendered off screen at a fixed width, so the image is the
-// same on every screen size. The capture promise goes straight into the
-// clipboard write (Safari).
 const history = useTemplateRef('history')
 
 const showColorwayHistory = (colorway) => {
@@ -535,14 +501,6 @@ const showColorwayHistory = (colorway) => {
       label: colorway.name,
     },
   })
-}
-
-const snapshot = useTemplateRef('snapshot')
-const snapshotColorway = ref()
-
-const copyColorwayCard = (colorway) => {
-  snapshotColorway.value = colorway
-  copyBlob(snapshot.value.capture(), toast)
 }
 
 const syncColorwayCardFromQuery = () => {

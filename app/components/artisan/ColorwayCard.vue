@@ -2,25 +2,32 @@
   <UPageCard reverse class="mx-auto">
     <ArtisanYugiohCard
       v-if="cardType === 'yugioh'"
-      ref="tradingCard"
+      ref="card"
       :colorway="colorway"
       :stars="classify.stars"
       :foil="!copying"
     />
     <ArtisanPokemonCard
-      v-if="cardType === 'pokemon'"
-      ref="tradingCard"
+      v-else-if="cardType === 'pokemon'"
+      ref="card"
       :colorway="colorway"
       :stars="classify.stars"
       :foil="!copying"
     />
+    <ArtisanColorwayShareCard
+      v-else
+      ref="card"
+      :colorway="colorway"
+      :simple="cardType === 'simple'"
+    />
 
     <template #footer>
-      <div class="flex items-center justify-center gap-2 w-full">
+      <!-- The select takes what is left, so the card sets the popup's width -->
+      <div class="flex items-center gap-2 w-full">
         <USelect
           v-model="cardType"
           :items="cardTypeOptions"
-          class="mr-auto w-40"
+          class="flex-1 w-0 min-w-0"
         />
 
         <UButton icon="hugeicons:copy-02" @click="copyImage"> Copy </UButton>
@@ -44,8 +51,10 @@ const { colorway } = defineProps({
 
 const toast = useToast()
 
-const cardType = ref('yugioh') // 'yugioh' | 'pokemon'
+const cardType = ref('simple') // 'simple' | 'detailed' | 'yugioh' | 'pokemon'
 const cardTypeOptions = [
+  { label: 'Keebdex Simple', value: 'simple' },
+  { label: 'Keebdex Detailed', value: 'detailed' },
   { label: 'Yu-Gi-Oh!', value: 'yugioh' },
   { label: 'Pokémon', value: 'pokemon' },
 ]
@@ -70,16 +79,15 @@ const classify = computed(() => ({
 const copying = ref(false)
 
 // The foil is hidden while copying, to ensure the screenshot is clear.
-const tradingCard = useTemplateRef('tradingCard')
+const card = useTemplateRef('card')
 
-// The trading card has a fixed size, so it is captured in place, without the
-// foil effect.
+// Every card has a fixed size, so it is captured in place.
 const capture = async () => {
   copying.value = true
 
   try {
     await nextTick()
-    return await captureScreenshot(tradingCard.value.$el)
+    return await captureScreenshot(card.value.$el)
   } finally {
     copying.value = false
   }

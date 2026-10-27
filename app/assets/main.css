@@ -20,3 +20,9 @@
 
   --color-donator: #bf3989;
 }
+
+/* Colorway cards in the popup: the trading cards and the Keebdex card */
+:root {
+  --card-width: 380px;
+  --card-height: 550px;
+}

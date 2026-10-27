@@ -108,8 +108,9 @@ export default defineAppConfig({
     },
     pageCard: {
       slots: {
-        // Wrap actions instead of widening narrow grid cards
-        footer: 'flex flex-wrap gap-2',
+        // Wrap actions instead of widening narrow grid cards; span the card,
+        // since the wrapper's items-start would shrink the footer to its content
+        footer: 'flex flex-wrap gap-2 w-full',
         container: 'p-3 sm:p-4',
       },
     },

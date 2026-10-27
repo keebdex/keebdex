@@ -42,11 +42,6 @@ defineProps({
 </script>
 
 <style>
-:root {
-  --card-width: 380px;
-  --card-height: 550px;
-}
-
 /* One sweep across the card, then a rest with the band parked off the card
    (no-repeat, positions past 0-100%) so the artwork stays clear. */
 @keyframes holoShift {
