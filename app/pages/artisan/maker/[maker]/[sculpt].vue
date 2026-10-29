@@ -176,77 +176,91 @@
 
           <!-- Every action needs a signed-in user; copying lives in the popup -->
           <template v-if="authenticated" #footer>
-            <div class="flex flex-wrap items-center gap-2" @click.stop>
-              <UTooltip
-                v-if="canSuggest(colorway)"
-                text="Edit"
-                :delay-duration="0"
-              >
-                <UButton
-                  icon="hugeicons:file-edit"
-                  aria-label="Edit"
-                  @click="suggest('artisan_colorway', colorway)"
-                />
-              </UTooltip>
-
-              <UModal v-if="editable" title="Edit Colorway">
-                <UTooltip text="Edit" :delay-duration="0">
-                  <UButton
-                    icon="hugeicons:file-edit"
-                    @click="setSelected(colorway)"
-                  />
-                </UTooltip>
-
-                <template #body="{ close }">
-                  <ArtisanModalColorwayForm
-                    :metadata="selectedColorway"
-                    @on-success="
-                      () => {
-                        close()
-                        refresh()
-                        clearSelected()
-                      }
-                    "
-                  />
-                </template>
-              </UModal>
-
-              <UTooltip v-if="editable" text="History" :delay-duration="0">
-                <UButton
-                  icon="hugeicons:time-quarter-pass"
-                  aria-label="History"
-                  @click="showColorwayHistory(colorway)"
-                />
-              </UTooltip>
-
+            <!-- Save on the left with its label, icon-only actions on the
+                 right, like keyboard variant cards -->
+            <div class="flex w-full flex-wrap items-center gap-2" @click.stop>
               <SharedSaveToCollection
                 :item="colorway"
-                :text="true"
+                :item-name="colorway.name"
+                label="Save"
+                keep-label
                 @on-select="saveTo"
               />
 
-              <UModal
-                v-if="editable"
-                title="Delete"
-                :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
-              >
-                <UTooltip text="Delete" :delay-duration="0">
+              <div class="ms-auto flex items-center gap-1">
+                <!-- Staff edit in place; others suggest an edit -->
+                <UTooltip
+                  v-if="canSuggest(colorway)"
+                  text="Edit"
+                  :delay-duration="0"
+                >
                   <UButton
-                    v-if="user.email_verified"
-                    icon="hugeicons:file-remove"
-                    color="error"
+                    icon="hugeicons:file-edit"
+                    variant="ghost"
+                    aria-label="Edit"
+                    @click="suggest('artisan_colorway', colorway)"
                   />
                 </UTooltip>
 
-                <template #footer="{ close }">
-                  <UButton label="Cancel" @click="close" />
-                  <UButton
-                    label="Delete"
-                    color="error"
-                    @click="deleteColorway(colorway, close)"
-                  />
+                <template v-if="editable">
+                  <UModal title="Edit Colorway">
+                    <UTooltip text="Edit" :delay-duration="0">
+                      <UButton
+                        icon="hugeicons:file-edit"
+                        variant="ghost"
+                        aria-label="Edit"
+                        @click="setSelected(colorway)"
+                      />
+                    </UTooltip>
+
+                    <template #body="{ close }">
+                      <ArtisanModalColorwayForm
+                        :metadata="selectedColorway"
+                        @on-success="
+                          () => {
+                            close()
+                            refresh()
+                            clearSelected()
+                          }
+                        "
+                      />
+                    </template>
+                  </UModal>
+
+                  <UTooltip text="History" :delay-duration="0">
+                    <UButton
+                      icon="hugeicons:time-quarter-pass"
+                      variant="ghost"
+                      aria-label="History"
+                      @click="showColorwayHistory(colorway)"
+                    />
+                  </UTooltip>
+
+                  <UModal
+                    title="Delete"
+                    :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
+                  >
+                    <UTooltip text="Delete" :delay-duration="0">
+                      <UButton
+                        v-if="user.email_verified"
+                        icon="hugeicons:file-remove"
+                        color="error"
+                        variant="ghost"
+                        aria-label="Delete"
+                      />
+                    </UTooltip>
+
+                    <template #footer="{ close }">
+                      <UButton label="Cancel" @click="close" />
+                      <UButton
+                        label="Delete"
+                        color="error"
+                        @click="deleteColorway(colorway, close)"
+                      />
+                    </template>
+                  </UModal>
                 </template>
-              </UModal>
+              </div>
             </div>
           </template>
         </UPageCard>
