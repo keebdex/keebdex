@@ -97,7 +97,8 @@ const toAuthor = (author) =>
               icon: author.icon,
               text: author.name.charAt(0),
               style: author.color && { color: author.color },
-              ui: author.color && { icon: 'text-current' },
+              // Logos read small at the avatar's 1em icon size
+              ui: { icon: author.color ? 'size-5 text-current' : 'size-5' },
             },
         to: author.to,
         target: author.to ? '_blank' : undefined,
