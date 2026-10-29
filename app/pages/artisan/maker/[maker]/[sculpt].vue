@@ -134,104 +134,38 @@
 
     <template #body>
       <UPageGrid :class="artisanGridClass">
-        <UPageCard
+        <SharedCatalogCard
           v-for="colorway in sculpt.colorways"
           :key="colorway.colorway_id"
           :title="colorway.name"
-          reverse
-          spotlight
-          :ui="{
-            root: 'colorway-card h-full cursor-pointer flex flex-col',
-            container: imageCardContainerClass,
-          }"
+          :img="colorway.img"
+          aspect="square"
+          :editable="editable"
+          :suggestable="canSuggest(colorway)"
+          class="cursor-pointer"
           @click="openColorwayCard(colorway)"
+          @edit="openColorwayForm(colorway)"
+          @suggest="suggest('artisan_colorway', colorway)"
+          @history="showColorwayHistory(colorway)"
+          @delete="
+            openDelete(
+              'Colorway',
+              colorway.name,
+              `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
+            )
+          "
         >
-          <div class="aspect-square overflow-hidden relative">
-            <NuxtImg
-              v-if="colorway.img"
-              preset="square"
-              loading="lazy"
-              decoding="async"
-              :alt="colorway.name"
-              :src="colorway.img"
-              class="w-full h-full object-cover rounded"
+          <!-- Save needs a signed-in user; copying lives in the popup -->
+          <template v-if="authenticated" #footer-start>
+            <SharedSaveToCollection
+              :item="colorway"
+              :item-name="colorway.name"
+              label="Save"
+              keep-label
+              @on-select="saveTo"
             />
-            <!-- No photo yet: invite the community to add one -->
-            <div
-              v-else
-              class="w-full h-full rounded bg-elevated flex flex-col items-center justify-center gap-3 text-dimmed"
-            >
-              <UIcon name="hugeicons:image-02" class="size-10" />
-              <UButton
-                v-if="canSuggest(colorway)"
-                label="Add Photo"
-                icon="hugeicons:image-add-02"
-                size="sm"
-                variant="soft"
-                :ui="{ label: 'block' }"
-                @click.stop="suggest('artisan_colorway', colorway)"
-              />
-            </div>
-          </div>
-
-          <!-- Every action needs a signed-in user; copying lives in the popup -->
-          <template v-if="authenticated" #footer>
-            <!-- Save on the left with its label, icon-only actions on the
-                 right, like keyboard variant cards -->
-            <div class="flex w-full flex-wrap items-center gap-2" @click.stop>
-              <SharedSaveToCollection
-                :item="colorway"
-                :item-name="colorway.name"
-                label="Save"
-                keep-label
-                @on-select="saveTo"
-              />
-
-              <div class="ms-auto flex items-center gap-1">
-                <!-- Staff edit in place; others suggest an edit -->
-                <UTooltip v-if="editable || canSuggest(colorway)" text="Edit">
-                  <UButton
-                    icon="hugeicons:file-edit"
-                    variant="ghost"
-                    aria-label="Edit"
-                    @click="
-                      editable
-                        ? openColorwayForm(colorway)
-                        : suggest('artisan_colorway', colorway)
-                    "
-                  />
-                </UTooltip>
-
-                <template v-if="editable">
-                  <UTooltip text="History">
-                    <UButton
-                      icon="hugeicons:time-quarter-pass"
-                      variant="ghost"
-                      aria-label="History"
-                      @click="showColorwayHistory(colorway)"
-                    />
-                  </UTooltip>
-
-                  <UTooltip text="Delete">
-                    <UButton
-                      icon="hugeicons:file-remove"
-                      color="error"
-                      variant="ghost"
-                      aria-label="Delete"
-                      @click="
-                        openDelete(
-                          'Colorway',
-                          colorway.name,
-                          `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
-                        )
-                      "
-                    />
-                  </UTooltip>
-                </template>
-              </div>
-            </div>
           </template>
-        </UPageCard>
+        </SharedCatalogCard>
       </UPageGrid>
 
       <UModal

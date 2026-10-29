@@ -131,108 +131,33 @@
         </div>
 
         <UPageGrid v-if="kits.length">
-          <UPageCard
+          <SharedCatalogCard
             v-for="kit in kits"
             :key="kit.id"
             :title="kitLabel(kit)"
-            :description="kit.description || undefined"
-            reverse
-            spotlight
+            :description="kit.description"
+            :price="
+              kit.price && formatPrice(kit.price, 'USD', { stripZeros: true })
+            "
+            :price-struck="kit.cancelled"
+            :img="kit.img"
+            fallback="/keyset.png"
+            :editable="editable"
+            :suggestable="canSuggest(kit)"
             class="cursor-zoom-in"
-            :ui="{
-              body: 'w-full',
-              description: 'text-sm line-clamp-2',
-              footer: 'pt-3',
-            }"
             @click="openKitPreview(kit)"
+            @edit="openKitForm(kit)"
+            @suggest="suggest('keyset_kit', kit)"
+            @history="showHistory('keyset_kit', kit.id, kitLabel(kit))"
+            @delete="
+              openDelete(
+                'Kit',
+                kitLabel(kit),
+                `/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`,
+              )
+            "
           >
-            <!-- Name with its group buy price, catalog style -->
-            <template #title>
-              <div class="flex items-baseline justify-between gap-3">
-                <span class="truncate">{{ kitLabel(kit) }}</span>
-                <span
-                  v-if="kit.price"
-                  class="shrink-0 tabular-nums"
-                  :class="kit.cancelled && 'line-through text-muted'"
-                >
-                  {{ formatPrice(kit.price, 'USD', { stripZeros: true }) }}
-                </span>
-              </div>
-            </template>
-
-            <template v-if="kit.qty || editable || canSuggest(kit)" #footer>
-              <!-- Units on the left, icon-only actions on the right -->
-              <div class="flex w-full items-center gap-2" @click.stop>
-                <div
-                  v-if="kit.qty"
-                  class="flex items-center gap-1.5 text-xs text-muted"
-                >
-                  <UIcon name="hugeicons:package" class="size-4" />
-                  <span class="tabular-nums">
-                    {{ formatNumber(kit.qty) }} units
-                  </span>
-                </div>
-
-                <div class="ms-auto flex items-center gap-1">
-                  <!-- Staff edit in place; others suggest an edit -->
-                  <UTooltip v-if="editable || canSuggest(kit)" text="Edit">
-                    <UButton
-                      icon="hugeicons:edit-01"
-                      variant="ghost"
-                      aria-label="Edit"
-                      @click="
-                        editable ? openKitForm(kit) : suggest('keyset_kit', kit)
-                      "
-                    />
-                  </UTooltip>
-
-                  <template v-if="editable">
-                    <UTooltip text="History">
-                      <UButton
-                        icon="hugeicons:time-quarter-pass"
-                        variant="ghost"
-                        aria-label="History"
-                        @click="
-                          history?.show({
-                            record: {
-                              entityType: 'keyset_kit',
-                              entityId: kit.id,
-                              label: kitLabel(kit),
-                            },
-                          })
-                        "
-                      />
-                    </UTooltip>
-
-                    <UTooltip text="Delete">
-                      <UButton
-                        icon="hugeicons:dashboard-square-remove"
-                        color="error"
-                        variant="ghost"
-                        aria-label="Delete"
-                        @click="
-                          openDelete(
-                            'Kit',
-                            kitLabel(kit),
-                            `/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`,
-                          )
-                        "
-                      />
-                    </UTooltip>
-                  </template>
-                </div>
-              </div>
-            </template>
-
-            <div class="relative">
-              <NuxtImg
-                preset="cover"
-                loading="lazy"
-                decoding="async"
-                :src="kit.img || '/keyset.png'"
-                :alt="kitLabel(kit)"
-                class="w-full aspect-video object-cover rounded"
-              />
+            <template #badges>
               <UBadge
                 v-if="kit.cancelled"
                 label="Cancelled"
@@ -240,17 +165,17 @@
                 variant="solid"
                 class="absolute top-2 right-2"
               />
-              <UButton
-                v-if="!kit.img && canSuggest(kit)"
-                label="Add Photo"
-                icon="hugeicons:image-add-02"
-                size="sm"
-                :ui="{ label: 'block' }"
-                class="absolute bottom-2 right-2"
-                @click.stop="suggest('keyset_kit', kit)"
-              />
-            </div>
-          </UPageCard>
+            </template>
+
+            <template v-if="kit.qty" #footer-start>
+              <div class="flex items-center gap-1.5 text-xs text-muted">
+                <UIcon name="hugeicons:package" class="size-4" />
+                <span class="tabular-nums">
+                  {{ formatNumber(kit.qty) }} units
+                </span>
+              </div>
+            </template>
+          </SharedCatalogCard>
         </UPageGrid>
 
         <UEmpty
@@ -563,6 +488,11 @@ const fullName = computed(() =>
 const kits = computed(() => data.value?.kits || [])
 
 const history = useTemplateRef('history')
+
+// History of one kit, from its card
+const showHistory = (entityType, entityId, label) => {
+  history.value?.show({ record: { entityType, entityId, label } })
+}
 
 const kitLabel = (kit) => kit.name || kit.category?.name || 'Kit'
 

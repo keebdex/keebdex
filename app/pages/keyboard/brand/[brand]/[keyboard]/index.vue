@@ -133,56 +133,28 @@
             </div>
 
             <!-- Icon-only, like the variant cards, so they read as the
-                 release's and not the keyboard's navbar actions -->
-            <div v-if="editable" class="flex shrink-0 items-center gap-1">
-              <UTooltip text="Edit">
-                <UButton
-                  icon="hugeicons:edit-01"
-                  variant="ghost"
-                  aria-label="Edit Release"
-                  @click="openReleaseForm(release)"
-                />
-              </UTooltip>
-
-              <UTooltip text="History">
-                <UButton
-                  icon="hugeicons:time-quarter-pass"
-                  variant="ghost"
-                  aria-label="Release History"
-                  @click="
-                    showHistory('keyboard_release', release.id, release.name)
-                  "
-                />
-              </UTooltip>
-
-              <!-- A release can only be deleted once its variants are gone. -->
-              <UTooltip v-if="!release.variants?.length" text="Delete">
-                <UButton
-                  icon="hugeicons:file-remove"
-                  color="error"
-                  variant="ghost"
-                  aria-label="Delete Release"
-                  @click="
-                    openDelete(
-                      'Release',
-                      release.name,
-                      `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
-                    )
-                  "
-                />
-              </UTooltip>
-            </div>
-
-            <UTooltip v-else-if="canSuggest(release)" text="Edit">
-              <UButton
-                icon="hugeicons:edit-01"
-                variant="ghost"
-                aria-label="Edit Release"
-                @click="
-                  suggest('keyboard_release', release, { keyboard: data })
-                "
-              />
-            </UTooltip>
+                 release's and not the keyboard's actions -->
+            <SharedRecordActions
+              :editable="editable"
+              :suggestable="canSuggest(release)"
+              :deletable="!release.variants?.length"
+              label="Release"
+              class="shrink-0"
+              @edit="openReleaseForm(release)"
+              @suggest="
+                suggest('keyboard_release', release, { keyboard: data })
+              "
+              @history="
+                showHistory('keyboard_release', release.id, release.name)
+              "
+              @delete="
+                openDelete(
+                  'Release',
+                  release.name,
+                  `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
+                )
+              "
+            />
           </div>
 
           <!-- Laid out like the keyboard's specs in the header -->
@@ -212,133 +184,54 @@
                 content: 'sm:max-w-3xl',
               }"
             >
-              <UPageCard
+              <SharedCatalogCard
                 :title="variant.variant_name"
                 :description="variant.finish_type"
-                reverse
-                spotlight
-                :ui="{
-                  root: 'h-full cursor-pointer flex flex-col',
-                  container: imageCardContainerClass,
-                  body: 'w-full',
-                  description: 'text-sm',
-                }"
+                :price="variant.price"
+                :img="variant.img_front || variant.img_back"
+                fallback="/keyboard.png"
+                :editable="editable"
+                :suggestable="canSuggest(variant)"
+                class="cursor-pointer"
+                @edit="openVariantForm(variant, release)"
+                @suggest="
+                  suggest('keyboard_variant', variant, { keyboard: data })
+                "
+                @history="
+                  showHistory(
+                    'keyboard_variant',
+                    variant.id,
+                    variant.variant_name,
+                  )
+                "
+                @delete="
+                  openDelete(
+                    'Variant',
+                    variant.variant_name,
+                    `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+                  )
+                "
               >
-                <!-- Name with its price, catalog style -->
-                <template #title>
-                  <div class="flex items-baseline justify-between gap-3">
-                    <span class="truncate">{{ variant.variant_name }}</span>
-                    <span v-if="variant.price" class="shrink-0 tabular-nums">
-                      {{ variant.price }}
-                    </span>
-                  </div>
-                </template>
-
-                <div class="relative">
-                  <NuxtImg
-                    preset="cover"
-                    loading="lazy"
-                    decoding="async"
-                    :alt="variant.variant_name"
-                    :src="
-                      variant.img_front || variant.img_back || '/keyboard.png'
-                    "
-                    class="aspect-video w-full object-cover"
-                  />
+                <template #badges>
                   <UBadge
                     v-if="variant.customSpecs"
                     label="Custom Specs"
                     icon="hugeicons:settings-02"
                     class="absolute top-2 left-2"
                   />
-                  <UButton
-                    v-if="
-                      !variant.img_front &&
-                      !variant.img_back &&
-                      canSuggest(variant)
-                    "
-                    label="Add Photo"
-                    icon="hugeicons:image-add-02"
-                    size="sm"
-                    :ui="{ label: 'block' }"
-                    class="absolute bottom-2 right-2"
-                    @click.stop="
-                      suggest('keyboard_variant', variant, {
-                        keyboard: data,
-                      })
-                    "
-                  />
-                </div>
-
-                <template v-if="authenticated" #footer>
-                  <!-- Save on the left with its label, icon-only actions on
-                       the right -->
-                  <div class="flex w-full items-center gap-2" @click.stop>
-                    <SharedSaveToCollection
-                      :item="variant.saveItem"
-                      :item-name="variant.variant_name"
-                      category="keyboard"
-                      label="Save"
-                      keep-label
-                      @on-select="saveToCollection"
-                    />
-
-                    <div class="ms-auto flex items-center gap-1">
-                      <!-- Staff edit in place; others suggest an edit -->
-                      <UTooltip
-                        v-if="editable || canSuggest(variant)"
-                        text="Edit"
-                      >
-                        <UButton
-                          icon="hugeicons:edit-01"
-                          variant="ghost"
-                          aria-label="Edit"
-                          @click="
-                            editable
-                              ? openVariantForm(variant, release)
-                              : suggest('keyboard_variant', variant, {
-                                  keyboard: data,
-                                })
-                          "
-                        />
-                      </UTooltip>
-
-                      <template v-if="editable">
-                        <UTooltip text="History">
-                          <UButton
-                            icon="hugeicons:time-quarter-pass"
-                            variant="ghost"
-                            aria-label="History"
-                            @click="
-                              showHistory(
-                                'keyboard_variant',
-                                variant.id,
-                                variant.variant_name,
-                              )
-                            "
-                          />
-                        </UTooltip>
-
-                        <UTooltip text="Delete">
-                          <UButton
-                            icon="hugeicons:file-remove"
-                            color="error"
-                            variant="ghost"
-                            aria-label="Delete"
-                            @click="
-                              openDelete(
-                                'Variant',
-                                variant.variant_name,
-                                `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
-                              )
-                            "
-                          />
-                        </UTooltip>
-                      </template>
-                    </div>
-                  </div>
                 </template>
-              </UPageCard>
+
+                <template v-if="authenticated" #footer-start>
+                  <SharedSaveToCollection
+                    :item="variant.saveItem"
+                    :item-name="variant.variant_name"
+                    category="keyboard"
+                    label="Save"
+                    keep-label
+                    @on-select="saveToCollection"
+                  />
+                </template>
+              </SharedCatalogCard>
 
               <template #content>
                 <KeyboardVariantCard
