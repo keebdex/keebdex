@@ -12,6 +12,12 @@
         :id="`${item.colorway_id || item.profile_keyset_id || item.id || 'item'}-save-to`"
         :label="label"
         :icon="icon"
+        :ui="keepLabel ? { label: 'block' } : undefined"
+        :aria-label="
+          itemName
+            ? `${action} ${itemName} to a collection`
+            : `${action} to a collection`
+        "
       />
     </UTooltip>
   </UDropdownMenu>
@@ -35,7 +41,7 @@ const emit = defineEmits(['onSelect'])
 
 const route = useRoute()
 
-const { item, category, move } = defineProps({
+const { item, category, move, itemName } = defineProps({
   item: {
     type: Object,
     default: () => ({}),
@@ -52,6 +58,14 @@ const { item, category, move } = defineProps({
   icon: {
     type: String,
     default: 'hugeicons:bookmark-add-02',
+  },
+  // Keep the label on phones too, where icon buttons drop it.
+  keepLabel: Boolean,
+  // Names the item in the button's accessible name ("Save Blue to a
+  // collection"), since the button is often icon-only.
+  itemName: {
+    type: String,
+    default: undefined,
   },
 })
 

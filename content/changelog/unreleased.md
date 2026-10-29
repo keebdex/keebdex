@@ -1,0 +1,13 @@
+---
+title: Unreleased
+---
+
+**Keyboard pages get lighter** — each keyboard now opens with its key specs at a glance, and empty details no longer leave blank labels behind.
+
+### 🐛 Bug Fixes
+
+- Opening a keyboard variant now shows its full name, both in the popup and in the copied image, and _Save_ there adds that variant to your collection instead of the wrong item.
+
+### 🚀 Improvements
+
+- **Keyboard pages** open with the brand logo, the description, and the form factor, top case, mount, and typing angle once under the title, with a _Based on_ link to the original design when there is one. Releases list only the specs they have, variant cards show their finish and price, and the variant popup lists only what that variant adds.

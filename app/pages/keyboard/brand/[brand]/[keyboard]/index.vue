@@ -5,31 +5,58 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
+      </UDashboardNavbar>
+    </template>
 
-        <template #right>
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.addRelease"
-            title="Add Release"
-          >
-            <UButton
-              color="primary"
-              icon="hugeicons:delivery-view-01"
-              label="Add Release"
+    <template #body>
+      <UPageHeader
+        :title="title"
+        :ui="{
+          root: 'pt-0 pb-6',
+          wrapper: 'gap-4 sm:flex-row sm:items-start sm:justify-between',
+          links: 'flex flex-wrap gap-2 shrink-0',
+          title: 'text-2xl',
+          headline: 'mb-1',
+        }"
+      >
+        <template #title>
+          <span class="flex items-center gap-3">
+            <UAvatar
+              :src="logoUrl(data.brand?.slug)"
+              :alt="data.brand?.name"
+              size="lg"
+              :ui="{
+                root: 'bg-transparent rounded-none shrink-0',
+                image: data.brand?.invertible_logo
+                  ? 'rounded-none dark:invert'
+                  : 'rounded-none',
+              }"
             />
+            {{ title }}
+          </span>
+        </template>
 
-            <template #body="{ close }">
-              <KeyboardModalReleaseForm
-                :keyboard="data"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
+        <template v-if="data.original" #headline>
+          <span class="text-sm text-muted font-normal">
+            Based on
+            <ULink
+              :to="`/keyboard/brand/${data.derived_from}`"
+              class="font-medium text-highlighted hover:underline"
+            >
+              {{ originalName }}
+            </ULink>
+          </span>
+        </template>
+
+        <!-- The page's actions sit with the keyboard they act on -->
+        <template v-if="authenticated || data.derived_keyboards?.length" #links>
+          <UButton
+            v-if="editable"
+            color="primary"
+            icon="hugeicons:delivery-view-01"
+            label="Add Release"
+            @click="openReleaseForm()"
+          />
 
           <UButton
             v-else-if="authenticated"
@@ -48,19 +75,7 @@
             @click="suggest('keyboard', data)"
           />
 
-          <!-- Ordering needs at least two releases. -->
-          <UButton
-            v-if="editable && (data.releases?.length || 0) > 1"
-            :icon="appConfig.ui.icons.sortManual"
-            label="Sort"
-            @click="sortOpen = true"
-          />
-
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.editKeyboard"
-            title="Edit Keyboard"
-          >
+          <UModal v-if="editable" title="Edit Keyboard">
             <UButton icon="hugeicons:edit-01" label="Edit" />
 
             <template #body="{ close }">
@@ -77,6 +92,14 @@
             </template>
           </UModal>
 
+          <!-- Ordering needs at least two releases. -->
+          <UButton
+            v-if="editable && (data.releases?.length || 0) > 1"
+            :icon="appConfig.ui.icons.sortManual"
+            label="Sort"
+            @click="sortOpen = true"
+          />
+
           <SharedRevisionHistory
             v-if="editable"
             ref="history"
@@ -86,151 +109,149 @@
             @reverted="onReverted"
           />
 
-          <USelect
-            v-if="$device.isDesktopOrTablet"
-            v-model="sort"
-            :items="sortOptions"
-            :icon="sortIconMap[sort]"
-            variant="soft"
-          />
-
           <KeyboardRelatedKeyboardsDrawer
             v-if="data.derived_keyboards?.length"
             :keyboards="data.derived_keyboards"
             title="Derived Designs"
             description="A collection of keyboards that share this design's DNA through community reworks, official collaborations, and specialized iterations."
-            button-label="Derived"
+            :button-label="`${data.derived_keyboards.length} Derived`"
             icon="hugeicons:archive-02"
           />
-
-          <SharedProfileDrawer
-            v-if="data.description"
-            :title="data.name"
-            :description="data.description"
-          />
-
-          <KeyboardRelatedKeyboardsDrawer
-            v-if="data.derived_from && data.original"
-            :keyboards="[data.original]"
-            title="Original Design"
-            description="This is the original design that inspired this keyboard's creation."
-            button-label="Original"
-            icon="hugeicons:copyright"
-          />
-
-          <UDropdownMenu v-else-if="items.length" :items="items">
-            <UButton label="More" trailing-icon="hugeicons:arrow-down-01" />
-          </UDropdownMenu>
         </template>
-      </UDashboardNavbar>
 
-      <UDashboardToolbar v-if="$device.isMobile">
-        <USelect
-          v-model="sort"
-          :items="sortOptions"
-          :icon="sortIconMap[sort]"
-          variant="soft"
-        />
-      </UDashboardToolbar>
-    </template>
+        <template #description>
+          <div class="space-y-4">
+            <SharedDescription
+              v-if="data.description"
+              :description="data.description"
+              class="text-sm max-w-prose"
+            />
 
-    <template #body>
-      <UPageList v-if="sortedReleases.length" divide class="mt-4">
-        <UPageCard
-          v-for="(release, idx) in sortedReleases"
+            <!-- The keyboard's own specs, shared by every release -->
+            <dl
+              class="grid grid-cols-2 gap-y-3 sm:flex sm:flex-wrap sm:divide-x sm:divide-muted"
+            >
+              <div
+                v-for="spec in keyboardSpecs"
+                :key="spec.term"
+                class="space-y-0.5 sm:px-6 sm:first:ps-0"
+              >
+                <dt class="flex items-center gap-1.5 text-xs text-muted">
+                  <UIcon :name="spec.icon" class="size-3.5" />
+                  {{ spec.term }}
+                </dt>
+                <dd class="text-sm font-medium text-highlighted">
+                  {{ spec.description || '—' }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </template>
+      </UPageHeader>
+
+      <UPageList v-if="releases.length" divide>
+        <section
+          v-for="release in releases"
           :key="release.id"
-          variant="ghost"
-          :ui="{
-            container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
-          }"
+          class="space-y-4 py-6 first:pt-0"
         >
-          <UPageHeader
-            :title="release.name"
-            :description="release.description"
-            :ui="{
-              root: 'py-4 pt-0 border-none',
-              title: 'text-base md:text-lg',
-              description: 'text-sm',
-            }"
-          >
-            <template v-if="editable" #links>
-              <div class="flex items-center gap-2">
-                <UModal title="Edit Release">
-                  <UButton
-                    icon="hugeicons:edit-01"
-                    label="Edit"
-                    @click="setSelectedRelease(release)"
-                  />
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0 space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-base md:text-lg font-semibold text-highlighted">
+                  {{ release.name }}
+                </h2>
+                <UBadge
+                  v-if="release.release_year"
+                  :label="String(release.release_year)"
+                  icon="hugeicons:calendar-03"
+                />
+              </div>
+              <p v-if="release.description" class="text-sm text-muted">
+                {{ release.description }}
+              </p>
+            </div>
 
-                  <template #body="{ close }">
-                    <KeyboardModalReleaseForm
-                      :is-edit="true"
-                      :metadata="selectedRelease"
-                      :keyboard="data"
-                      @on-success="
-                        () => {
-                          close()
-                          refresh()
-                          clearSelectedRelease()
-                        }
-                      "
-                    />
-                  </template>
-                </UModal>
+            <!-- Icon-only, like the variant cards, so they read as the
+                 release's and not the keyboard's navbar actions -->
+            <div v-if="editable" class="flex shrink-0 items-center gap-1">
+              <UTooltip text="Edit" :delay-duration="0">
+                <UButton
+                  icon="hugeicons:edit-01"
+                  variant="ghost"
+                  aria-label="Edit Release"
+                  @click="openReleaseForm(release)"
+                />
+              </UTooltip>
 
+              <UTooltip text="History" :delay-duration="0">
                 <UButton
                   icon="hugeicons:time-quarter-pass"
-                  label="History"
+                  variant="ghost"
+                  aria-label="Release History"
                   @click="
                     showHistory('keyboard_release', release.id, release.name)
                   "
                 />
+              </UTooltip>
 
-                <UModal
-                  v-if="
-                    editable && (!release.variants || !release.variants.length)
+              <!-- A release can only be deleted once its variants are gone. -->
+              <UTooltip
+                v-if="!release.variants?.length"
+                text="Delete"
+                :delay-duration="0"
+              >
+                <UButton
+                  icon="hugeicons:file-remove"
+                  color="error"
+                  variant="ghost"
+                  aria-label="Delete Release"
+                  @click="
+                    openDelete(
+                      'Release',
+                      release.name,
+                      `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
+                    )
                   "
-                  v-model:visible="visible.deleteRelease"
-                  title="Delete Release"
-                  :description="`Are you sure you want to delete release '${release.name}'? This action cannot be undone.`"
-                >
-                  <UButton
-                    label="Delete"
-                    icon="hugeicons:file-remove"
-                    color="error"
-                    @click="
-                      () => {
-                        setSelectedRelease(release)
-                        visible.deleteRelease = true
-                      }
-                    "
-                  />
-                  <template #footer="{ close }">
-                    <UButton label="Cancel" @click="close" />
-                    <UButton
-                      label="Delete"
-                      color="error"
-                      @click="() => deleteRelease(release, close)"
-                    />
-                  </template>
-                </UModal>
-              </div>
-            </template>
+                />
+              </UTooltip>
+            </div>
 
-            <template v-else-if="canSuggest(release)" #links>
+            <UTooltip
+              v-else-if="canSuggest(release)"
+              text="Edit"
+              :delay-duration="0"
+            >
               <UButton
                 icon="hugeicons:edit-01"
-                label="Edit"
-                @click="suggest('keyboard_release', release, { keyboard: data })"
+                variant="ghost"
+                aria-label="Edit Release"
+                @click="
+                  suggest('keyboard_release', release, { keyboard: data })
+                "
               />
-            </template>
+            </UTooltip>
+          </div>
 
-            <div v-if="!release.variant_specs" class="mt-4">
-              <SharedDescriptionList :items="getReleaseSpecs(release)" />
-            </div>
-          </UPageHeader>
+          <!-- Laid out like the variant popup's specs -->
+          <SharedDescriptionList
+            v-if="release.specs.length"
+            :items="release.specs"
+          />
 
-          <UPageGrid>
+          <UEmpty
+            v-if="!release.variants.length"
+            icon="hugeicons:layers-01"
+            title="No Variants Yet"
+            :description="
+              editable || authenticated
+                ? 'Add the colorways and finishes this release came in.'
+                : 'The colorways and finishes of this release have not been added yet.'
+            "
+            :actions="addVariantActions(release)"
+          />
+
+          <UPageGrid v-else>
             <UModal
               v-for="variant in release.variants"
               :key="variant.id"
@@ -240,13 +261,26 @@
             >
               <UPageCard
                 :title="variant.variant_name"
+                :description="variant.finish_type"
                 reverse
                 spotlight
                 :ui="{
                   root: 'h-full cursor-pointer flex flex-col',
                   container: imageCardContainerClass,
+                  body: 'w-full',
+                  description: 'text-sm',
                 }"
               >
+                <!-- Name with its price, catalog style -->
+                <template #title>
+                  <div class="flex items-baseline justify-between gap-3">
+                    <span class="truncate">{{ variant.variant_name }}</span>
+                    <span v-if="variant.price" class="shrink-0 tabular-nums">
+                      {{ variant.price }}
+                    </span>
+                  </div>
+                </template>
+
                 <div class="relative">
                   <NuxtImg
                     preset="cover"
@@ -257,6 +291,12 @@
                       variant.img_front || variant.img_back || '/keyboard.png'
                     "
                     class="aspect-video w-full object-cover"
+                  />
+                  <UBadge
+                    v-if="variant.customSpecs"
+                    label="Custom Specs"
+                    icon="hugeicons:settings-02"
+                    class="absolute top-2 left-2"
                   />
                   <UButton
                     v-if="
@@ -269,111 +309,88 @@
                     size="sm"
                     :ui="{ label: 'block' }"
                     class="absolute bottom-2 right-2"
-                    @click.stop="suggest('keyboard_variant', variant, { keyboard: data })"
+                    @click.stop="
+                      suggest('keyboard_variant', variant, {
+                        keyboard: data,
+                      })
+                    "
                   />
                 </div>
 
-                <template v-if="variant.photo_credit" #leading>
-                  <UBadge
-                    :label="variant.photo_credit"
-                    icon="hugeicons:camera-add-02"
-                    color="info"
-                  />
-                </template>
-
-                <template #footer>
-                  <div class="flex flex-wrap items-center gap-2" @click.stop>
+                <template v-if="authenticated" #footer>
+                  <!-- Save on the left with its label, icon-only actions on
+                       the right -->
+                  <div class="flex w-full items-center gap-2" @click.stop>
                     <SharedSaveToCollection
-                      v-if="authenticated"
-                      :item="{ ...variant, release_name: release.name }"
+                      :item="variant.saveItem"
+                      :item-name="variant.variant_name"
                       category="keyboard"
+                      label="Save"
+                      keep-label
                       @on-select="saveToCollection"
                     />
 
-                    <UTooltip
-                      v-if="canSuggest(variant)"
-                      text="Edit"
-                      :delay-duration="0"
-                    >
-                      <UButton
-                        icon="hugeicons:edit-01"
-                        aria-label="Edit"
-                        @click="suggest('keyboard_variant', variant, { keyboard: data })"
-                      />
-                    </UTooltip>
-
-                    <UModal v-if="editable" title="Edit Variant">
-                      <UTooltip text="Edit" :delay-duration="0">
+                    <div class="ms-auto flex items-center gap-1">
+                      <!-- Staff edit in place; others suggest an edit -->
+                      <UTooltip
+                        v-if="editable || canSuggest(variant)"
+                        text="Edit"
+                        :delay-duration="0"
+                      >
                         <UButton
                           icon="hugeicons:edit-01"
+                          variant="ghost"
                           aria-label="Edit"
-                          @click="setSelectedVariant(variant, release)"
+                          @click="
+                            editable
+                              ? openVariantForm(variant, release)
+                              : suggest('keyboard_variant', variant, {
+                                  keyboard: data,
+                                })
+                          "
                         />
                       </UTooltip>
 
-                      <template #body="{ close }">
-                        <KeyboardModalVariantForm
-                          :is-edit="true"
-                          :metadata="selectedVariant"
-                          :keyboard="data"
-                          @on-success="
-                            () => {
-                              close()
-                              refresh()
-                              clearSelectedVariant()
-                            }
-                          "
-                        />
+                      <template v-if="editable">
+                        <UTooltip text="History" :delay-duration="0">
+                          <UButton
+                            icon="hugeicons:time-quarter-pass"
+                            variant="ghost"
+                            aria-label="History"
+                            @click="
+                              showHistory(
+                                'keyboard_variant',
+                                variant.id,
+                                variant.variant_name,
+                              )
+                            "
+                          />
+                        </UTooltip>
+
+                        <UTooltip text="Delete" :delay-duration="0">
+                          <UButton
+                            icon="hugeicons:file-remove"
+                            color="error"
+                            variant="ghost"
+                            aria-label="Delete"
+                            @click="
+                              openDelete(
+                                'Variant',
+                                variant.variant_name,
+                                `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+                              )
+                            "
+                          />
+                        </UTooltip>
                       </template>
-                    </UModal>
-                    <UTooltip v-if="editable" text="History" :delay-duration="0">
-                      <UButton
-                        icon="hugeicons:time-quarter-pass"
-                        aria-label="History"
-                        @click="
-                          showHistory(
-                            'keyboard_variant',
-                            variant.id,
-                            variant.variant_name,
-                          )
-                        "
-                      />
-                    </UTooltip>
-                    <UModal
-                      v-if="editable"
-                      v-model:visible="visible.deleteVariant"
-                      title="Delete Variant"
-                      :description="`Are you sure you want to delete variant '${variant.variant_name}'? This action cannot be undone.`"
-                    >
-                      <UTooltip text="Delete" :delay-duration="0">
-                        <UButton
-                          icon="hugeicons:file-remove"
-                          color="error"
-                          aria-label="Delete"
-                          @click="
-                            () => {
-                              setSelectedVariant(variant, release)
-                              visible.deleteVariant = true
-                            }
-                          "
-                        />
-                      </UTooltip>
-                      <template #footer="{ close }">
-                        <UButton label="Cancel" @click="close" />
-                        <UButton
-                          label="Delete"
-                          color="error"
-                          @click="() => deleteVariant(variant, close)"
-                        />
-                      </template>
-                    </UModal>
+                    </div>
                   </div>
                 </template>
               </UPageCard>
 
               <template #content>
                 <KeyboardVariantCard
-                  :keyboard="keyboard"
+                  :keyboard="data"
                   :release="release"
                   :variant="variant"
                   :authenticated="authenticated"
@@ -382,47 +399,16 @@
               </template>
             </UModal>
 
-            <UModal v-if="editable" title="Add Variant">
-              <template #default="{ open }">
-                <UButton
-                  label="Add Variant"
-                  icon="hugeicons:add-square"
-                  variant="outline"
-                  class="w-full justify-center ring-0 border border-default border-dashed rounded-lg"
-                  @click="open"
-                />
-              </template>
-              <template #body="{ close }">
-                <KeyboardModalVariantForm
-                  :metadata="{ release_id: release.id }"
-                  :keyboard="data"
-                  @on-success="
-                    () => {
-                      close()
-                      refresh()
-                    }
-                  "
-                />
-              </template>
-            </UModal>
-
             <UButton
-              v-else-if="authenticated"
+              v-if="editable || authenticated"
               label="Add Variant"
               icon="hugeicons:add-square"
               variant="outline"
-              class="w-full justify-center ring-0 border border-default border-dashed rounded-lg"
-              :to="{
-                path: '/keyboard/submissions/submit',
-                query: {
-                  brand: route.params.brand,
-                  keyboard: slug,
-                  release: release.id,
-                },
-              }"
+              class="w-full min-h-24 justify-center ring-0 border border-default border-dashed rounded-lg"
+              v-bind="addVariantTarget(release)"
             />
           </UPageGrid>
-        </UPageCard>
+        </section>
       </UPageList>
 
       <UEmpty
@@ -432,14 +418,52 @@
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
       />
 
-      <UModal v-if="editable" v-model:open="sortOpen" title="Sort Releases">
-        <template #body>
-          <KeyboardModalReleaseSortForm
-            :keyboard="data"
-            @on-success="onSorted"
-          />
-        </template>
-      </UModal>
+      <template v-if="editable">
+        <UModal
+          v-model:open="releaseForm.open"
+          :title="releaseForm.isEdit ? 'Edit Release' : 'Add Release'"
+        >
+          <template #body>
+            <KeyboardModalReleaseForm
+              :is-edit="releaseForm.isEdit"
+              :metadata="releaseForm.metadata"
+              :keyboard="data"
+              @on-success="onFormSuccess(releaseForm)"
+            />
+          </template>
+        </UModal>
+
+        <UModal
+          v-model:open="variantForm.open"
+          :title="variantForm.isEdit ? 'Edit Variant' : 'Add Variant'"
+        >
+          <template #body>
+            <KeyboardModalVariantForm
+              :is-edit="variantForm.isEdit"
+              :metadata="variantForm.metadata"
+              :keyboard="data"
+              @on-success="onFormSuccess(variantForm)"
+            />
+          </template>
+        </UModal>
+
+        <UModal v-model:open="sortOpen" title="Sort Releases">
+          <template #body>
+            <KeyboardModalReleaseSortForm
+              :keyboard="data"
+              @on-success="onSorted"
+            />
+          </template>
+        </UModal>
+
+        <SharedConfirmModal
+          v-model:open="deleteTarget.open"
+          :title="`Delete ${deleteTarget.entity}`"
+          :description="`Are you sure you want to delete ${deleteTarget.entity.toLowerCase()} '${deleteTarget.name}'? This action cannot be undone.`"
+          :loading="deleting"
+          @confirm="confirmDelete"
+        />
+      </template>
 
       <SharedSuggestEditModal
         v-if="suggestTarget"
@@ -455,15 +479,17 @@
 
 <script setup>
 import { sortBy } from 'es-toolkit/compat'
+import { keyboardTopCaseStylesEnabled } from '~/utils/schemas/keyboard'
 
 const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
 const toast = useToast()
+const appConfig = useAppConfig()
 
 const history = useTemplateRef('history')
 
-// History of one release or variant, from its own History button.
+// History of one release or variant, from its own menu.
 const showHistory = (entityType, entityId, label) => {
   history.value?.show({ record: { entityType, entityId, label } })
 }
@@ -479,34 +505,6 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
-const visible = ref({
-  addRelease: false,
-  editKeyboard: false,
-  deleteVariant: false,
-  deleteRelease: false,
-})
-
-const selectedRelease = ref({})
-const selectedVariant = ref({})
-
-const sort = ref('order|desc')
-const appConfig = useAppConfig()
-
-const sortOptions = [
-  {
-    label: 'Oldest First',
-    icon: appConfig.ui.icons.sortNumberAsc,
-    value: 'order|asc',
-  },
-  {
-    label: 'Newest First',
-    icon: appConfig.ui.icons.sortNumberDesc,
-    value: 'order|desc',
-  },
-]
-
-const sortIconMap = getSortIconMap(sortOptions)
-
 const { data, refresh } = await useAsyncData(
   () => `keyboard:${slug.value}`,
   () => $fetch(`/api/keyboards/${slug.value}`),
@@ -514,13 +512,6 @@ const { data, refresh } = await useAsyncData(
     watch: [slug],
   },
 )
-
-const sortOpen = ref(false)
-
-const onSorted = () => {
-  sortOpen.value = false
-  refresh()
-}
 
 // Reverting a rename moves the page back to its old address.
 const onReverted = ({ entityType, changes }) => {
@@ -531,48 +522,102 @@ const onReverted = ({ entityType, changes }) => {
   refresh()
 }
 
-const keyboard = computed(() => {
-  const { releases, ...rest } = data.value || {}
+const title = computed(() =>
+  formatKeyboardDescription([data.value?.brand?.name, data.value?.name]),
+)
 
-  return rest
+const originalName = computed(() =>
+  formatKeyboardDescription([
+    data.value?.original?.brand?.name,
+    data.value?.original?.name,
+  ]),
+)
+
+// The keyboard's own specs, shared by every release and variant.
+const keyboardSpecs = computed(() => {
+  const { form_factor, top_case_styles, mount_styles, typing_angle } =
+    data.value || {}
+
+  return [
+    {
+      term: 'Form Factor',
+      description: form_factor,
+      icon: 'hugeicons:keyboard',
+    },
+    // Top case styles apply only to some form factors.
+    keyboardTopCaseStylesEnabled.includes(form_factor) && {
+      term: 'Top Case',
+      description: joinSpecList(top_case_styles),
+      icon: 'hugeicons:layout-top',
+    },
+    {
+      term: 'Mount',
+      description: joinSpecList(mount_styles),
+      icon: 'hugeicons:layers-01',
+    },
+    {
+      term: 'Typing Angle',
+      description: typing_angle ? `${typing_angle}°` : null,
+      icon: 'hugeicons:angle-01',
+    },
+  ].filter(Boolean)
 })
 
 // Submitters and staff can read releases/variants still under review, but the
-// keyboard page only lists official ones (null/Approved); the rest live in the
-// review queue.
-const isOfficial = (row) =>
-  !row.review_status || row.review_status === 'Approved'
-
-const sortedReleases = computed(() => {
-  const releases = sortBy(
-    (data.value?.releases || []).filter(isOfficial).map((release) => ({
+// keyboard page only lists approved ones; the rest live in the review queue.
+// Newest release first, with what the template shows worked out once.
+const releases = computed(() =>
+  sortBy(
+    (data.value?.releases || []).filter(isApproved).map((release) => ({
       ...release,
-      variants: (release.variants || []).filter(isOfficial),
+      // A release with specs per variant leaves price and materials to each
+      // variant.
+      specs: release.variant_specs
+        ? []
+        : [
+            { term: 'Pricing', description: releasePrice(release) },
+            ...KEYBOARD_MATERIAL_SPECS.map(({ term, field }) => ({
+              term,
+              description: joinSpecList(release[field]),
+            })),
+          ].filter((spec) => spec.description),
+      variants: (release.variants || []).filter(isApproved).map((variant) => ({
+        ...variant,
+        price: variantPrice(variant, release),
+        customSpecs: hasCustomSpecs(variant, release),
+        saveItem: { ...variant, release_name: release.name },
+      })),
     })),
     'order',
-  )
-  const [, direction = 'desc'] = String(sort.value || 'order|desc').split('|')
+  ).reverse(),
+)
 
-  return direction === 'asc' ? releases : releases.reverse()
-})
+// Staff add a variant in place; other signed-in users submit one.
+const addVariantTarget = (release) =>
+  editable.value
+    ? { onClick: () => openVariantForm({ release_id: release.id }) }
+    : {
+        to: {
+          path: '/keyboard/submissions/submit',
+          query: {
+            brand: route.params.brand,
+            keyboard: slug.value,
+            release: release.id,
+          },
+        },
+      }
 
-const items = computed(() => {
-  if (data.value.derived_from) {
-    return [
-      {
-        label: 'Original Design',
-        type: 'label',
-      },
-      {
-        label: `${data.value.original.brand.name} ${data.value.original.name}`,
-        icon: 'hugeicons:keyboard',
-        to: `/keyboard/brand/${data.value.derived_from}`,
-      },
-    ]
-  }
-
-  return []
-})
+const addVariantActions = (release) =>
+  editable.value || authenticated.value
+    ? [
+        {
+          label: 'Add Variant',
+          icon: 'hugeicons:add-square',
+          ui: { label: 'block' },
+          ...addVariantTarget(release),
+        },
+      ]
+    : []
 
 const breadcrumbs = computed(() => {
   return [
@@ -601,63 +646,71 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const clearSelectedRelease = () => {
-  selectedRelease.value = {}
+// Staff forms and the delete confirmation, one of each for the whole page.
+const releaseForm = reactive({ open: false, isEdit: false, metadata: {} })
+const variantForm = reactive({ open: false, isEdit: false, metadata: {} })
+const deleteTarget = reactive({
+  open: false,
+  entity: 'Release',
+  name: '',
+  url: '',
+})
+const deleting = ref(false)
+
+const openReleaseForm = (release) => {
+  Object.assign(releaseForm, {
+    open: true,
+    isEdit: !!release,
+    metadata: release ? { ...release } : {},
+  })
 }
 
-const setSelectedRelease = (release) => {
-  selectedRelease.value = { ...release }
+const openVariantForm = (variant, release) => {
+  Object.assign(variantForm, {
+    open: true,
+    isEdit: !!release,
+    metadata: release
+      ? { ...variant, release_name: release.name }
+      : { ...variant },
+  })
 }
 
-const clearSelectedVariant = () => {
-  selectedVariant.value = {}
+const onFormSuccess = (form) => {
+  form.open = false
+  refresh()
 }
 
-const setSelectedVariant = (variant, release = null) => {
-  selectedVariant.value = {
-    ...variant,
-    release_name: release?.name || variant.release_name,
-  }
+const openDelete = (entity, name, url) => {
+  Object.assign(deleteTarget, { open: true, entity, name, url })
 }
 
-const deleteVariant = async (variant, close) => {
+const confirmDelete = async () => {
+  deleting.value = true
+
   try {
-    await $fetch(
-      `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
-      { method: 'delete' },
-    )
+    await $fetch(deleteTarget.url, { method: 'delete' })
 
     toast.add(
-      successToast('delete', { entity: 'Variant', name: variant.variant_name }),
+      successToast('delete', {
+        entity: deleteTarget.entity,
+        name: deleteTarget.name,
+      }),
     )
 
-    if (typeof close === 'function') close()
+    deleteTarget.open = false
     refresh()
   } catch (error) {
     toast.add(errorToast(error))
   } finally {
-    visible.value.deleteVariant = false
-    clearSelectedVariant()
+    deleting.value = false
   }
 }
 
-const deleteRelease = async (release, close) => {
-  try {
-    await $fetch(
-      `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
-      { method: 'delete' },
-    )
+const sortOpen = ref(false)
 
-    toast.add(successToast('delete', { entity: 'Release', name: release.name }))
-
-    if (typeof close === 'function') close()
-    refresh()
-  } catch (error) {
-    toast.add(errorToast(error))
-  } finally {
-    visible.value.deleteRelease = false
-    clearSelectedRelease()
-  }
+const onSorted = () => {
+  sortOpen.value = false
+  refresh()
 }
 
 const { addItem } = useCollectionItem()
@@ -670,56 +723,6 @@ const saveToCollection = (collection, variant) => {
   ])
   addItem(collection, { keyboard_item_id: variant.id }, contextName, 'Keyboard')
 }
-
-const getReleaseSpecs = (release) => {
-  const items = [
-    {
-      term: 'Release Year',
-      description: release?.release_year,
-    },
-  ]
-
-  if (!release?.variant_specs) {
-    items.push(
-      {
-        term: 'Pricing',
-        description: release?.msrp_price
-          ? formatPrice(release.msrp_price, release.currency)
-          : null,
-      },
-      {
-        term: 'Case',
-        description: release?.case_materials?.length
-          ? release.case_materials.join(', ')
-          : null,
-      },
-      {
-        term: 'PCB',
-        description: release?.pcb_types?.length
-          ? release.pcb_types.join(', ')
-          : null,
-      },
-      {
-        term: 'Plate',
-        description: release?.plate_materials?.length
-          ? release.plate_materials.join(', ')
-          : null,
-      },
-      {
-        term: 'Weight',
-        description: release?.weight_materials?.length
-          ? release.weight_materials.join(', ')
-          : null,
-      },
-    )
-  }
-
-  return items
-}
-
-const title = computed(() => {
-  return `${data.value?.brand?.name} ${data.value?.name}`
-})
 
 const description = computed(() => {
   if (data.value?.description) {
