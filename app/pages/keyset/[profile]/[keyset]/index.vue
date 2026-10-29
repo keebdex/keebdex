@@ -5,70 +5,6 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
-
-        <template #right>
-          <UModal v-if="editable" v-model:visible="visible" title="Edit Keyset">
-            <UButton label="Edit" icon="hugeicons:edit-01" />
-
-            <template #body="{ close }">
-              <KeysetModalKeysetForm
-                :is-edit="true"
-                :metadata="data"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UButton
-            v-if="editable"
-            label="Kits"
-            icon="hugeicons:cells"
-            :to="`/keyset/${data.profile_keyset_id}/kit`"
-          />
-
-          <UButton
-            v-if="editable"
-            label="Colors"
-            icon="hugeicons:colors"
-            :to="`/keyset/${data.profile_keyset_id}/color`"
-          />
-
-          <SharedRevisionHistory
-            v-if="editable"
-            ref="history"
-            domain="keyset"
-            :parent-key="`${profile}/${keyset}`"
-            description="Every change to this keyset and its kits, newest first."
-            @reverted="onReverted"
-          />
-
-          <UButton
-            v-else-if="authenticated"
-            label="Add Kit"
-            icon="hugeicons:cells"
-            :to="submitKitLink"
-          />
-
-          <UButton
-            v-if="canSuggest(data)"
-            label="Edit"
-            icon="hugeicons:edit-01"
-            @click="suggest('keyset', data)"
-          />
-
-          <SharedSaveToCollection
-            v-if="authenticated"
-            :item="data"
-            category="keyset"
-            label="Save"
-            @on-select="saveTo"
-          />
-        </template>
       </UDashboardNavbar>
     </template>
 
@@ -102,16 +38,49 @@
             :description="data.description"
             :ui="{
               root: 'pt-0 pb-4',
-              // Keep the icon links on the title row at every width
-              wrapper: 'flex-row items-center justify-between',
-              links: 'shrink-0',
+              // Actions on their own row: beside the cover the title column
+              // is too narrow for them
+              wrapper: 'lg:flex-col lg:items-start gap-3',
+              links: 'flex flex-wrap gap-2',
               title: 'text-2xl',
               description: 'text-sm',
             }"
           >
-            <!-- Icon-only reference links beside the title; the tooltip and
-                 aria-label carry the name -->
-            <template v-if="externalLinks.length || canAddCover" #links>
+            <!-- The page's actions, then icon-only reference links; tooltips
+                 and aria-labels carry the names -->
+            <template
+              v-if="authenticated || externalLinks.length || canAddCover"
+              #links
+            >
+              <SharedSaveToCollection
+                v-if="authenticated"
+                :item="data"
+                :item-name="fullName"
+                category="keyset"
+                label="Save"
+                keep-label
+                @on-select="saveTo"
+              />
+
+              <!-- Staff edit in place; others suggest an edit -->
+              <UTooltip v-if="editable || canSuggest(data)" text="Edit">
+                <UButton
+                  icon="hugeicons:edit-01"
+                  aria-label="Edit Keyset"
+                  @click="
+                    editable ? (keysetFormOpen = true) : suggest('keyset', data)
+                  "
+                />
+              </UTooltip>
+
+              <UTooltip v-if="editable" text="History">
+                <UButton
+                  icon="hugeicons:time-quarter-pass"
+                  aria-label="Keyset History"
+                  @click="history?.show()"
+                />
+              </UTooltip>
+
               <UTooltip
                 v-for="{ label, ...link } in externalLinks"
                 :key="label"
@@ -141,14 +110,25 @@
         </div>
       </div>
 
-      <!-- Kits -->
+      <!-- Kits, headed like a keyboard's releases -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-highlighted">
-          Kits
-          <span v-if="kits.length" class="text-muted font-normal">
-            ({{ kits.length }})
-          </span>
-        </h2>
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold text-highlighted">
+            Kits
+            <span v-if="kits.length" class="text-muted font-normal">
+              ({{ kits.length }})
+            </span>
+          </h2>
+
+          <UTooltip v-if="authenticated" text="Add Kit">
+            <UButton
+              icon="hugeicons:dashboard-square-add"
+              variant="ghost"
+              aria-label="Add Kit"
+              v-bind="addKitTarget"
+            />
+          </UTooltip>
+        </div>
 
         <UPageGrid v-if="kits.length">
           <UPageCard
@@ -180,8 +160,9 @@
               </div>
             </template>
 
-            <template v-if="kit.qty || canSuggest(kit) || editable" #footer>
-              <div class="flex w-full items-center justify-between gap-2">
+            <template v-if="kit.qty || editable || canSuggest(kit)" #footer>
+              <!-- Units on the left, icon-only actions on the right -->
+              <div class="flex w-full items-center gap-2" @click.stop>
                 <div
                   v-if="kit.qty"
                   class="flex items-center gap-1.5 text-xs text-muted"
@@ -192,35 +173,58 @@
                   </span>
                 </div>
 
-                <UTooltip v-if="canSuggest(kit)" text="Edit">
-                  <UButton
-                    icon="hugeicons:edit-01"
-                    size="xs"
-                    variant="ghost"
-                    aria-label="Edit"
-                    class="ms-auto"
-                    @click.stop="suggest('keyset_kit', kit)"
-                  />
-                </UTooltip>
+                <div class="ms-auto flex items-center gap-1">
+                  <!-- Staff edit in place; others suggest an edit -->
+                  <UTooltip
+                    v-if="editable || canSuggest(kit)"
+                    text="Edit"
+                    :delay-duration="0"
+                  >
+                    <UButton
+                      icon="hugeicons:edit-01"
+                      variant="ghost"
+                      aria-label="Edit"
+                      @click="
+                        editable ? openKitForm(kit) : suggest('keyset_kit', kit)
+                      "
+                    />
+                  </UTooltip>
 
-                <UTooltip v-if="editable" text="History">
-                  <UButton
-                    icon="hugeicons:time-quarter-pass"
-                    size="xs"
-                    variant="ghost"
-                    aria-label="History"
-                    class="ms-auto"
-                    @click.stop="
-                      history?.show({
-                        record: {
-                          entityType: 'keyset_kit',
-                          entityId: kit.id,
-                          label: kitLabel(kit),
-                        },
-                      })
-                    "
-                  />
-                </UTooltip>
+                  <template v-if="editable">
+                    <UTooltip text="History" :delay-duration="0">
+                      <UButton
+                        icon="hugeicons:time-quarter-pass"
+                        variant="ghost"
+                        aria-label="History"
+                        @click="
+                          history?.show({
+                            record: {
+                              entityType: 'keyset_kit',
+                              entityId: kit.id,
+                              label: kitLabel(kit),
+                            },
+                          })
+                        "
+                      />
+                    </UTooltip>
+
+                    <UTooltip text="Delete" :delay-duration="0">
+                      <UButton
+                        icon="hugeicons:dashboard-square-remove"
+                        color="error"
+                        variant="ghost"
+                        aria-label="Delete"
+                        @click="
+                          openDelete(
+                            'Kit',
+                            kitLabel(kit),
+                            `/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`,
+                          )
+                        "
+                      />
+                    </UTooltip>
+                  </template>
+                </div>
               </div>
             </template>
 
@@ -253,37 +257,152 @@
           </UPageCard>
         </UPageGrid>
 
-        <p v-else class="text-sm text-muted">
-          No kits have been added yet.
-          <ULink
-            v-if="authenticated && !editable"
-            :to="submitKitLink"
-            class="text-primary"
-          >
-            Add a kit
-          </ULink>
-        </p>
+        <UEmpty
+          v-else
+          icon="hugeicons:cells"
+          title="No Kits Yet"
+          :description="
+            authenticated
+              ? 'Add the base kit first, then alphas, novelties, and spacebars.'
+              : 'The kits of this keyset have not been added yet.'
+          "
+          :actions="
+            authenticated
+              ? [
+                  {
+                    label: 'Add Kit',
+                    icon: 'hugeicons:dashboard-square-add',
+                    ui: { label: 'block' },
+                    ...addKitTarget,
+                  },
+                ]
+              : []
+          "
+        />
       </section>
 
-      <!-- Colors -->
-      <section v-if="data.colors?.length" class="space-y-4">
-        <h2 class="text-lg font-semibold text-highlighted">Color Palette</h2>
-        <p class="text-sm text-muted">
-          Colors displayed on screen are for reference only - use a physical
-          color fan for accurate matching. Some codes are from the designer and
-          may differ from official references (RAL, Pantone, etc.).
-        </p>
+      <!-- Colors: added and removed, never edited -->
+      <section v-if="data.colors?.length || editable" class="space-y-4">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold text-highlighted">Color Palette</h2>
 
-        <div
-          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
-        >
-          <KeysetColorCard
-            v-for="color in data.colors"
-            :key="color.id"
-            v-bind="color.color"
-          />
+          <UTooltip v-if="editable" text="Add Colors">
+            <UButton
+              icon="hugeicons:dashboard-circle-add"
+              variant="ghost"
+              aria-label="Add Colors"
+              @click="colorFormOpen = true"
+            />
+          </UTooltip>
         </div>
+
+        <template v-if="data.colors?.length">
+          <p class="text-sm text-muted">
+            Colors displayed on screen are for reference only - use a physical
+            color fan for accurate matching. Some codes are from the designer
+            and may differ from official references (RAL, Pantone, etc.).
+          </p>
+
+          <div
+            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
+          >
+            <KeysetColorCard
+              v-for="color in data.colors"
+              :key="color.id"
+              v-bind="color.color"
+            >
+              <template v-if="editable" #action>
+                <UTooltip text="Remove" :delay-duration="0">
+                  <UButton
+                    icon="hugeicons:dashboard-circle-remove"
+                    size="xs"
+                    color="error"
+                    variant="ghost"
+                    aria-label="Remove Color"
+                    @click="
+                      openDelete(
+                        'Color',
+                        `${color.color.system} ${color.color.code}`,
+                        `/api/keysets/${color.profile_keyset_id}/colors/${color.id}`,
+                      )
+                    "
+                  />
+                </UTooltip>
+              </template>
+            </KeysetColorCard>
+          </div>
+        </template>
+
+        <UEmpty
+          v-else
+          icon="hugeicons:colors"
+          title="No Colors Yet"
+          description="Add the alpha and modifier colors first, then the accents."
+          :actions="[
+            {
+              label: 'Add Colors',
+              icon: 'hugeicons:dashboard-circle-add',
+              ui: { label: 'block' },
+              onClick: () => (colorFormOpen = true),
+            },
+          ]"
+        />
       </section>
+
+      <template v-if="editable">
+        <SharedRevisionHistory
+          ref="history"
+          :button="false"
+          domain="keyset"
+          :parent-key="`${profile}/${keyset}`"
+          description="Every change to this keyset and its kits, newest first."
+          @reverted="onReverted"
+        />
+
+        <UModal v-model:open="keysetFormOpen" title="Edit Keyset">
+          <template #body>
+            <KeysetModalKeysetForm
+              :is-edit="true"
+              :metadata="data"
+              @on-success="onFormSuccess"
+            />
+          </template>
+        </UModal>
+
+        <UModal
+          v-model:open="kitForm.open"
+          :title="kitForm.isEdit ? 'Edit Kit' : 'Add Kit'"
+          :description="
+            kitForm.isEdit
+              ? undefined
+              : 'Add the base and alpha kits before novelties, spacebars, and other extras.'
+          "
+        >
+          <template #body>
+            <KeysetModalKeysetKitForm
+              :is-edit="kitForm.isEdit"
+              :metadata="kitForm.metadata"
+              @on-success="onFormSuccess"
+            />
+          </template>
+        </UModal>
+
+        <UModal v-model:open="colorFormOpen" title="Add Colors">
+          <template #body>
+            <KeysetModalKeysetColorForm @on-success="onFormSuccess" />
+          </template>
+        </UModal>
+
+        <SharedConfirmModal
+          v-model:open="deleteTarget.open"
+          :title="`Remove ${deleteTarget.entity}`"
+          :description="`Are you sure you want to remove ${deleteTarget.entity.toLowerCase()} '${deleteTarget.name}'? This action cannot be undone.`"
+          confirm-label="Remove"
+          :loading="deleting"
+          @confirm="confirmDelete"
+        />
+      </template>
+
       <SharedSuggestEditModal
         v-if="suggestTarget"
         v-model:open="suggestOpen"
@@ -503,12 +622,66 @@ const specs = computed(() => {
   return items
 })
 
-const submitKitLink = computed(() => ({
-  path: '/keyset/submissions/submit',
-  query: { profile, keyset: data.value.profile_keyset_id },
-}))
+// Staff add a kit in place; others submit one for review
+const addKitTarget = computed(() =>
+  editable.value
+    ? { onClick: () => openKitForm() }
+    : {
+        to: {
+          path: '/keyset/submissions/submit',
+          query: { profile, keyset: data.value.profile_keyset_id },
+        },
+      },
+)
 
-const visible = ref(false)
+const keysetFormOpen = ref(false)
+const colorFormOpen = ref(false)
+const kitForm = reactive({ open: false, isEdit: false, metadata: {} })
+
+const openKitForm = (kit) => {
+  Object.assign(kitForm, {
+    open: true,
+    isEdit: !!kit,
+    metadata: kit ? { ...kit } : {},
+  })
+}
+
+const onFormSuccess = () => {
+  keysetFormOpen.value = false
+  colorFormOpen.value = false
+  kitForm.open = false
+  refresh()
+}
+
+const toast = useToast()
+const deleteTarget = reactive({ open: false, entity: 'Kit', name: '', url: '' })
+const deleting = ref(false)
+
+const openDelete = (entity, name, url) => {
+  Object.assign(deleteTarget, { open: true, entity, name, url })
+}
+
+const confirmDelete = async () => {
+  deleting.value = true
+
+  try {
+    await $fetch(deleteTarget.url, { method: 'delete' })
+
+    toast.add(
+      successToast('delete', {
+        entity: deleteTarget.entity,
+        name: deleteTarget.name,
+      }),
+    )
+
+    deleteTarget.open = false
+    refresh()
+  } catch (error) {
+    toast.add(errorToast(error))
+  } finally {
+    deleting.value = false
+  }
+}
 
 const preview = reactive({
   open: false,
