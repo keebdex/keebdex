@@ -7,7 +7,7 @@
       content: 'w-48',
     }"
   >
-    <UTooltip :text="move ? 'Move' : 'Save'" :delay-duration="0">
+    <UTooltip :text="move ? 'Move' : 'Save'">
       <UButton
         :id="`${item.colorway_id || item.profile_keyset_id || item.id || 'item'}-save-to`"
         :label="label"

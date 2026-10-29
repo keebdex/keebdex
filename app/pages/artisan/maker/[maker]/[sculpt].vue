@@ -189,11 +189,7 @@
 
               <div class="ms-auto flex items-center gap-1">
                 <!-- Staff edit in place; others suggest an edit -->
-                <UTooltip
-                  v-if="editable || canSuggest(colorway)"
-                  text="Edit"
-                  :delay-duration="0"
-                >
+                <UTooltip v-if="editable || canSuggest(colorway)" text="Edit">
                   <UButton
                     icon="hugeicons:file-edit"
                     variant="ghost"
@@ -207,7 +203,7 @@
                 </UTooltip>
 
                 <template v-if="editable">
-                  <UTooltip text="History" :delay-duration="0">
+                  <UTooltip text="History">
                     <UButton
                       icon="hugeicons:time-quarter-pass"
                       variant="ghost"
@@ -216,7 +212,7 @@
                     />
                   </UTooltip>
 
-                  <UTooltip text="Delete" :delay-duration="0">
+                  <UTooltip text="Delete">
                     <UButton
                       icon="hugeicons:file-remove"
                       color="error"

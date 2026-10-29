@@ -15,7 +15,7 @@
       <div class="cursor-move">
         <ArtisanWishlistItem :item="item" :buying="buying" :compact="compact">
           <template #actions>
-            <UTooltip text="Priority" :delay-duration="0">
+            <UTooltip text="Priority">
               <UButton
                 v-if="buying && item.exchange"
                 icon="hugeicons:shopping-bag-favorite"
@@ -25,7 +25,7 @@
               />
             </UTooltip>
 
-            <UTooltip text="Remove" :delay-duration="0">
+            <UTooltip text="Remove">
               <UButton
                 icon="hugeicons:shopping-bag-remove"
                 color="error"

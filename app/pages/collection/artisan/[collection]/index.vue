@@ -162,7 +162,7 @@
               v-model:visible="visible.edit_item"
               :title="`Edit ${colorwayTitle(artisan)} Listing`"
             >
-              <UTooltip text="Edit Listing" :delay-duration="0">
+              <UTooltip text="Edit Listing">
                 <UButton icon="hugeicons:file-edit" />
               </UTooltip>
 
@@ -192,7 +192,7 @@
               title="Remove Artisan"
               :description="`Are you sure you want to remove ${colorwayTitle(artisan)}?`"
             >
-              <UTooltip text="Remove" :delay-duration="0">
+              <UTooltip text="Remove">
                 <UButton icon="hugeicons:bookmark-minus-02" color="error" />
               </UTooltip>
 

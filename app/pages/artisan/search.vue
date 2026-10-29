@@ -18,7 +18,6 @@
 
           <UTooltip
             text="Only names containing the term as whole words, e.g. Blue but not Blueberry."
-            :delay-duration="0"
           >
             <USwitch v-model="exact" label="Exact Match" size="sm" />
           </UTooltip>

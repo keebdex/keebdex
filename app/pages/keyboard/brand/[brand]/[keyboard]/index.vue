@@ -135,7 +135,7 @@
             <!-- Icon-only, like the variant cards, so they read as the
                  release's and not the keyboard's navbar actions -->
             <div v-if="editable" class="flex shrink-0 items-center gap-1">
-              <UTooltip text="Edit" :delay-duration="0">
+              <UTooltip text="Edit">
                 <UButton
                   icon="hugeicons:edit-01"
                   variant="ghost"
@@ -144,7 +144,7 @@
                 />
               </UTooltip>
 
-              <UTooltip text="History" :delay-duration="0">
+              <UTooltip text="History">
                 <UButton
                   icon="hugeicons:time-quarter-pass"
                   variant="ghost"
@@ -156,11 +156,7 @@
               </UTooltip>
 
               <!-- A release can only be deleted once its variants are gone. -->
-              <UTooltip
-                v-if="!release.variants?.length"
-                text="Delete"
-                :delay-duration="0"
-              >
+              <UTooltip v-if="!release.variants?.length" text="Delete">
                 <UButton
                   icon="hugeicons:file-remove"
                   color="error"
@@ -177,11 +173,7 @@
               </UTooltip>
             </div>
 
-            <UTooltip
-              v-else-if="canSuggest(release)"
-              text="Edit"
-              :delay-duration="0"
-            >
+            <UTooltip v-else-if="canSuggest(release)" text="Edit">
               <UButton
                 icon="hugeicons:edit-01"
                 variant="ghost"
@@ -296,7 +288,6 @@
                       <UTooltip
                         v-if="editable || canSuggest(variant)"
                         text="Edit"
-                        :delay-duration="0"
                       >
                         <UButton
                           icon="hugeicons:edit-01"
@@ -313,7 +304,7 @@
                       </UTooltip>
 
                       <template v-if="editable">
-                        <UTooltip text="History" :delay-duration="0">
+                        <UTooltip text="History">
                           <UButton
                             icon="hugeicons:time-quarter-pass"
                             variant="ghost"
@@ -328,7 +319,7 @@
                           />
                         </UTooltip>
 
-                        <UTooltip text="Delete" :delay-duration="0">
+                        <UTooltip text="Delete">
                           <UButton
                             icon="hugeicons:file-remove"
                             color="error"

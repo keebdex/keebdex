@@ -38,11 +38,7 @@
         </div>
       </div>
 
-      <UTooltip
-        v-if="revisionPagePath(revision)"
-        text="Open in History"
-        :delay-duration="0"
-      >
+      <UTooltip v-if="revisionPagePath(revision)" text="Open in History">
         <UButton
           icon="hugeicons:time-quarter-pass"
           size="xs"

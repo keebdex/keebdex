@@ -1,5 +1,5 @@
 <template>
-  <UTooltip v-if="broken" :text="UNAVAILABLE_HINT" :delay-duration="0">
+  <UTooltip v-if="broken" :text="UNAVAILABLE_HINT">
     <div
       :class="[
         'inline-flex items-center gap-1.5 rounded border border-dashed border-default px-2 text-xs text-muted',
