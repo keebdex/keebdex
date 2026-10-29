@@ -48,11 +48,12 @@
             @click="suggest('keyboard', data)"
           />
 
+          <!-- Ordering needs at least two releases. -->
           <UButton
-            v-if="editable"
-            :to="`/keyboard/brand/${slug}/sort`"
+            v-if="editable && (data.releases?.length || 0) > 1"
             :icon="appConfig.ui.icons.sortManual"
             label="Sort"
+            @click="sortOpen = true"
           />
 
           <UModal
@@ -431,6 +432,15 @@
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
       />
 
+      <UModal v-if="editable" v-model:open="sortOpen" title="Sort Releases">
+        <template #body>
+          <KeyboardModalReleaseSortForm
+            :keyboard="data"
+            @on-success="onSorted"
+          />
+        </template>
+      </UModal>
+
       <SharedSuggestEditModal
         v-if="suggestTarget"
         v-model:open="suggestOpen"
@@ -504,6 +514,13 @@ const { data, refresh } = await useAsyncData(
     watch: [slug],
   },
 )
+
+const sortOpen = ref(false)
+
+const onSorted = () => {
+  sortOpen.value = false
+  refresh()
+}
 
 // Reverting a rename moves the page back to its old address.
 const onReverted = ({ entityType, changes }) => {
