@@ -93,7 +93,7 @@
           />
         </div>
 
-        <!-- Right: identity, catalog details, group buy history -->
+        <!-- Right: identity and specifications -->
         <div
           :class="['space-y-6', showCover && 'lg:col-span-2 2xl:col-span-1']"
         >
@@ -132,33 +132,12 @@
             </template>
           </UPageHeader>
 
-          <div
-            :class="
-              showCover ? 'space-y-6' : 'grid grid-cols-1 sm:grid-cols-2 gap-6'
-            "
-          >
-            <section v-if="details.length" class="space-y-3">
-              <h2 class="text-xs uppercase tracking-widest text-muted">
-                Details
-              </h2>
-              <SharedDescriptionList
-                :columns="1"
-                orientation="horizontal"
-                :items="details"
-              />
-            </section>
-
-            <section v-if="groupBuy.length" class="space-y-3">
-              <h2 class="text-xs uppercase tracking-widest text-muted">
-                Group Buy
-              </h2>
-              <SharedDescriptionList
-                :columns="1"
-                orientation="horizontal"
-                :items="groupBuy"
-              />
-            </section>
-          </div>
+          <section v-if="specs.length" class="space-y-3">
+            <h2 class="text-xs uppercase tracking-widest text-muted">
+              Specifications
+            </h2>
+            <SharedSpecList :items="specs" layout="grid" :columns="3" />
+          </section>
         </div>
       </div>
 
@@ -486,21 +465,28 @@ watch(coverImg, () => {
   coverFailed.value = false
 })
 
-// What the set is: stays true long after the group buy ends
-const details = computed(() =>
-  [
-    { term: 'Designer', description: data.value.designer },
-    { term: 'Row Sculpt', description: data.value.sculpt },
-  ].filter((item) => item.description),
-)
-
-// When and how it was sold: secondary history for collectors
-const groupBuy = computed(() => {
+// What the set is, then when and how it was sold
+const specs = computed(() => {
   const items = [
-    { term: 'IC Date', description: formatDate(data.value.ic_date) },
+    {
+      term: 'Designer',
+      description: data.value.designer,
+      icon: 'hugeicons:user-edit-01',
+    },
+    {
+      term: 'Row Sculpt',
+      description: data.value.sculpt,
+      icon: 'hugeicons:align-vertical-center',
+    },
+    {
+      term: 'IC Date',
+      description: formatDate(data.value.ic_date),
+      icon: 'hugeicons:bulb',
+    },
     {
       term: 'Timeline',
       description: formatDateRange(data.value.start_date, data.value.end_date),
+      icon: 'hugeicons:calendar-03',
     },
   ].filter((item) => item.description)
 
@@ -509,6 +495,7 @@ const groupBuy = computed(() => {
   if (phase) {
     items.push({
       term: 'Status',
+      icon: 'hugeicons:activity-01',
       badge: { label: phase, color: keysetPhaseColors[phase] },
     })
   }

@@ -63,11 +63,7 @@
     </div>
 
     <template #description>
-      <SharedDescriptionList
-        :columns="$device.isMobile && !snapshot ? 1 : 3"
-        :responsive="!snapshot"
-        :items="specs"
-      />
+      <SharedSpecList :items="specs" layout="grid" :columns="3" />
     </template>
 
     <template #leading>
@@ -169,37 +165,40 @@ const title = computed(() => {
 // The page shows the keyboard's own specs in its header, so the popup lists
 // what this variant adds; the copied image stands alone and keeps them.
 const specs = computed(() => {
-  const keyboardSpecs = snapshot
-    ? [
-        { term: 'Form Factor', description: keyboard.form_factor },
-        {
-          term: 'Top Case Styles',
-          description: joinSpecList(keyboard.top_case_styles),
-        },
-        { term: 'Mount', description: joinSpecList(keyboard.mount_styles) },
-        {
-          term: 'Typing Angle',
-          description: keyboard.typing_angle
-            ? `${keyboard.typing_angle}°`
-            : null,
-        },
-      ]
-    : []
+  const keyboardSpecs = snapshot ? keyboardSpecItems(keyboard) : []
 
   return [
     {
       term: 'Release Year',
       description: variant.release_year || release.release_year,
+      icon: 'hugeicons:calendar-03',
     },
     ...keyboardSpecs,
-    { term: 'Finish', description: variant.finish_type },
-    { term: 'Sale Type', description: variant.sale_type },
-    { term: 'Units Produced', description: variant.units_produced },
-    { term: 'Pricing', description: variantPrice(variant, release) },
+    {
+      term: 'Finish',
+      description: variant.finish_type,
+      icon: 'hugeicons:paint-brush-01',
+    },
+    {
+      term: 'Sale Type',
+      description: variant.sale_type,
+      icon: 'hugeicons:shopping-bag-01',
+    },
+    {
+      term: 'Units Produced',
+      description: variant.units_produced,
+      icon: 'hugeicons:hashtag',
+    },
+    {
+      term: 'Pricing',
+      description: variantPrice(variant, release),
+      icon: 'hugeicons:sale-tag-02',
+    },
     // A variant's own materials replace the release's.
-    ...KEYBOARD_MATERIAL_SPECS.map(({ term, field }) => ({
+    ...KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
       term,
       description: variantMaterials(variant, release, field),
+      icon,
     })),
   ].filter((item) => item.description)
 })

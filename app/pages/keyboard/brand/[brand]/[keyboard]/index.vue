@@ -120,31 +120,18 @@
         </template>
 
         <template #description>
-          <div class="space-y-4">
-            <SharedDescription
+          <div class="flex flex-col gap-4">
+            <!-- One <p> per line, each with mb-2: drop the last one's so the
+                 gap below matches the release's -->
+            <div
               v-if="data.description"
-              :description="data.description"
-              class="text-sm max-w-prose"
-            />
+              class="text-sm max-w-prose *:last:mb-0"
+            >
+              <SharedDescription :description="data.description" />
+            </div>
 
             <!-- The keyboard's own specs, shared by every release -->
-            <dl
-              class="grid grid-cols-2 gap-y-3 sm:flex sm:flex-wrap sm:divide-x sm:divide-muted"
-            >
-              <div
-                v-for="spec in keyboardSpecs"
-                :key="spec.term"
-                class="space-y-0.5 sm:px-6 sm:first:ps-0"
-              >
-                <dt class="flex items-center gap-1.5 text-xs text-muted">
-                  <UIcon :name="spec.icon" class="size-3.5" />
-                  {{ spec.term }}
-                </dt>
-                <dd class="text-sm font-medium text-highlighted">
-                  {{ spec.description || '—' }}
-                </dd>
-              </div>
-            </dl>
+            <SharedSpecList :items="keyboardSpecs" />
           </div>
         </template>
       </UPageHeader>
@@ -233,10 +220,11 @@
             </UTooltip>
           </div>
 
-          <!-- Laid out like the variant popup's specs -->
-          <SharedDescriptionList
+          <!-- Laid out like the keyboard's specs in the header -->
+          <SharedSpecList
             v-if="release.specs.length"
             :items="release.specs"
+            layout="grid"
           />
 
           <UEmpty
@@ -479,7 +467,6 @@
 
 <script setup>
 import { sortBy } from 'es-toolkit/compat'
-import { keyboardTopCaseStylesEnabled } from '~/utils/schemas/keyboard'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -534,34 +521,7 @@ const originalName = computed(() =>
 )
 
 // The keyboard's own specs, shared by every release and variant.
-const keyboardSpecs = computed(() => {
-  const { form_factor, top_case_styles, mount_styles, typing_angle } =
-    data.value || {}
-
-  return [
-    {
-      term: 'Form Factor',
-      description: form_factor,
-      icon: 'hugeicons:keyboard',
-    },
-    // Top case styles apply only to some form factors.
-    keyboardTopCaseStylesEnabled.includes(form_factor) && {
-      term: 'Top Case',
-      description: joinSpecList(top_case_styles),
-      icon: 'hugeicons:layout-top',
-    },
-    {
-      term: 'Mount',
-      description: joinSpecList(mount_styles),
-      icon: 'hugeicons:layers-01',
-    },
-    {
-      term: 'Typing Angle',
-      description: typing_angle ? `${typing_angle}°` : null,
-      icon: 'hugeicons:angle-01',
-    },
-  ].filter(Boolean)
-})
+const keyboardSpecs = computed(() => keyboardSpecItems(data.value || {}))
 
 // Submitters and staff can read releases/variants still under review, but the
 // keyboard page only lists approved ones; the rest live in the review queue.
@@ -570,17 +530,15 @@ const releases = computed(() =>
   sortBy(
     (data.value?.releases || []).filter(isApproved).map((release) => ({
       ...release,
-      // A release with specs per variant leaves price and materials to each
-      // variant.
+      // A release with specs per variant leaves materials to each variant;
+      // prices show on the variant cards.
       specs: release.variant_specs
         ? []
-        : [
-            { term: 'Pricing', description: releasePrice(release) },
-            ...KEYBOARD_MATERIAL_SPECS.map(({ term, field }) => ({
-              term,
-              description: joinSpecList(release[field]),
-            })),
-          ].filter((spec) => spec.description),
+        : KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
+            term,
+            description: joinSpecList(release[field]),
+            icon,
+          })).filter((spec) => spec.description),
       variants: (release.variants || []).filter(isApproved).map((variant) => ({
         ...variant,
         price: variantPrice(variant, release),
