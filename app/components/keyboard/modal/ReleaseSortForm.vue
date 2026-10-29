@@ -55,6 +55,8 @@
 </template>
 
 <script setup>
+import { sortBy } from 'es-toolkit/compat'
+
 import draggable from 'vuedraggable'
 
 const emit = defineEmits(['onSuccess'])
@@ -72,11 +74,7 @@ const toast = useToast()
 
 // Every release, including those still in review, so their orders stay
 // distinct; newest (highest order) first, as the page shows them.
-const releases = ref(
-  [...(keyboard.releases || [])].sort(
-    (a, b) => (b.order || 0) - (a.order || 0),
-  ),
-)
+const releases = ref(sortBy(keyboard.releases || [], 'order').reverse())
 const initialIds = releases.value.map(({ id }) => id).join()
 const changed = computed(
   () => releases.value.map(({ id }) => id).join() !== initialIds,

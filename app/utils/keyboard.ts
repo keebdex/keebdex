@@ -26,7 +26,7 @@ export const joinSpecList = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') || null : (value as string) || null
 
 /** A release's shared price; none when each variant sets its own. */
-export const releasePrice = (release: Release) =>
+const releasePrice = (release: Release) =>
   release.variant_specs
     ? ''
     : formatPrice(release.msrp_price, release.currency, { stripZeros: true })

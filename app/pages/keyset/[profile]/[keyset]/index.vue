@@ -642,7 +642,7 @@ const openKitForm = (kit) => {
   Object.assign(kitForm, {
     open: true,
     isEdit: !!kit,
-    metadata: kit ? { ...kit } : {},
+    metadata: { ...kit },
   })
 }
 
@@ -653,35 +653,12 @@ const onFormSuccess = () => {
   refresh()
 }
 
-const toast = useToast()
-const deleteTarget = reactive({ open: false, entity: 'Kit', name: '', url: '' })
-const deleting = ref(false)
-
-const openDelete = (entity, name, url) => {
-  Object.assign(deleteTarget, { open: true, entity, name, url })
-}
-
-const confirmDelete = async () => {
-  deleting.value = true
-
-  try {
-    await $fetch(deleteTarget.url, { method: 'delete' })
-
-    toast.add(
-      successToast('delete', {
-        entity: deleteTarget.entity,
-        name: deleteTarget.name,
-      }),
-    )
-
-    deleteTarget.open = false
-    refresh()
-  } catch (error) {
-    toast.add(errorToast(error))
-  } finally {
-    deleting.value = false
-  }
-}
+const {
+  target: deleteTarget,
+  deleting,
+  open: openDelete,
+  confirm: confirmDelete,
+} = useConfirmDelete(refresh)
 
 const preview = reactive({
   open: false,

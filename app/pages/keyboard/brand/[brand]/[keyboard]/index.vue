@@ -51,46 +51,22 @@
         <!-- The page's actions sit with the keyboard they act on -->
         <template v-if="authenticated || data.derived_keyboards?.length" #links>
           <UButton
-            v-if="editable"
+            v-if="authenticated"
             color="primary"
             icon="hugeicons:delivery-view-01"
             label="Add Release"
-            @click="openReleaseForm()"
+            v-bind="addReleaseTarget"
           />
 
+          <!-- Staff edit in place; others suggest an edit -->
           <UButton
-            v-else-if="authenticated"
-            label="Add Release"
-            icon="hugeicons:delivery-view-01"
-            :to="{
-              path: '/keyboard/submissions/submit',
-              query: { brand: route.params.brand, keyboard: slug },
-            }"
-          />
-
-          <UButton
-            v-if="canSuggest(data)"
+            v-if="editable || canSuggest(data)"
             label="Edit"
             icon="hugeicons:edit-01"
-            @click="suggest('keyboard', data)"
+            @click="
+              editable ? (keyboardFormOpen = true) : suggest('keyboard', data)
+            "
           />
-
-          <UModal v-if="editable" title="Edit Keyboard">
-            <UButton icon="hugeicons:edit-01" label="Edit" />
-
-            <template #body="{ close }">
-              <KeyboardModalKeyboardForm
-                :is-edit="true"
-                :metadata="data"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
 
           <!-- Ordering needs at least two releases. -->
           <UButton
@@ -121,14 +97,11 @@
 
         <template #description>
           <div class="flex flex-col gap-4">
-            <!-- One <p> per line, each with mb-2: drop the last one's so the
-                 gap below matches the release's -->
-            <div
+            <SharedDescription
               v-if="data.description"
-              class="text-sm max-w-prose *:last:mb-0"
-            >
-              <SharedDescription :description="data.description" />
-            </div>
+              :description="data.description"
+              class="text-sm max-w-prose"
+            />
 
             <!-- The keyboard's own specs, shared by every release -->
             <SharedSpecList :items="keyboardSpecs" />
@@ -232,7 +205,7 @@
             icon="hugeicons:layers-01"
             title="No Variants Yet"
             :description="
-              editable || authenticated
+              authenticated
                 ? 'Add the colorways and finishes this release came in.'
                 : 'The colorways and finishes of this release have not been added yet.'
             "
@@ -388,7 +361,7 @@
             </UModal>
 
             <UButton
-              v-if="editable || authenticated"
+              v-if="authenticated"
               label="Add Variant"
               icon="hugeicons:add-square"
               variant="outline"
@@ -407,6 +380,16 @@
       />
 
       <template v-if="editable">
+        <UModal v-model:open="keyboardFormOpen" title="Edit Keyboard">
+          <template #body>
+            <KeyboardModalKeyboardForm
+              :is-edit="true"
+              :metadata="data"
+              @on-success="onKeyboardSaved"
+            />
+          </template>
+        </UModal>
+
         <UModal
           v-model:open="releaseForm.open"
           :title="releaseForm.isEdit ? 'Edit Release' : 'Add Release'"
@@ -471,7 +454,6 @@ import { sortBy } from 'es-toolkit/compat'
 const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
-const toast = useToast()
 const appConfig = useAppConfig()
 
 const history = useTemplateRef('history')
@@ -551,6 +533,18 @@ const releases = computed(() =>
 )
 
 // Staff add a variant in place; other signed-in users submit one.
+// Staff add a release in place; others submit one for review
+const addReleaseTarget = computed(() =>
+  editable.value
+    ? { onClick: () => openReleaseForm() }
+    : {
+        to: {
+          path: '/keyboard/submissions/submit',
+          query: { brand: route.params.brand, keyboard: slug.value },
+        },
+      },
+)
+
 const addVariantTarget = (release) =>
   editable.value
     ? { onClick: () => openVariantForm({ release_id: release.id }) }
@@ -566,7 +560,7 @@ const addVariantTarget = (release) =>
       }
 
 const addVariantActions = (release) =>
-  editable.value || authenticated.value
+  authenticated.value
     ? [
         {
           label: 'Add Variant',
@@ -605,21 +599,15 @@ const breadcrumbs = computed(() => {
 })
 
 // Staff forms and the delete confirmation, one of each for the whole page.
+const keyboardFormOpen = ref(false)
 const releaseForm = reactive({ open: false, isEdit: false, metadata: {} })
 const variantForm = reactive({ open: false, isEdit: false, metadata: {} })
-const deleteTarget = reactive({
-  open: false,
-  entity: 'Release',
-  name: '',
-  url: '',
-})
-const deleting = ref(false)
 
 const openReleaseForm = (release) => {
   Object.assign(releaseForm, {
     open: true,
     isEdit: !!release,
-    metadata: release ? { ...release } : {},
+    metadata: { ...release },
   })
 }
 
@@ -633,36 +621,22 @@ const openVariantForm = (variant, release) => {
   })
 }
 
+const onKeyboardSaved = () => {
+  keyboardFormOpen.value = false
+  refresh()
+}
+
 const onFormSuccess = (form) => {
   form.open = false
   refresh()
 }
 
-const openDelete = (entity, name, url) => {
-  Object.assign(deleteTarget, { open: true, entity, name, url })
-}
-
-const confirmDelete = async () => {
-  deleting.value = true
-
-  try {
-    await $fetch(deleteTarget.url, { method: 'delete' })
-
-    toast.add(
-      successToast('delete', {
-        entity: deleteTarget.entity,
-        name: deleteTarget.name,
-      }),
-    )
-
-    deleteTarget.open = false
-    refresh()
-  } catch (error) {
-    toast.add(errorToast(error))
-  } finally {
-    deleting.value = false
-  }
-}
+const {
+  target: deleteTarget,
+  deleting,
+  open: openDelete,
+  confirm: confirmDelete,
+} = useConfirmDelete(refresh)
 
 const sortOpen = ref(false)
 

@@ -190,7 +190,7 @@
               <div class="ms-auto flex items-center gap-1">
                 <!-- Staff edit in place; others suggest an edit -->
                 <UTooltip
-                  v-if="canSuggest(colorway)"
+                  v-if="editable || canSuggest(colorway)"
                   text="Edit"
                   :delay-duration="0"
                 >
@@ -198,35 +198,15 @@
                     icon="hugeicons:file-edit"
                     variant="ghost"
                     aria-label="Edit"
-                    @click="suggest('artisan_colorway', colorway)"
+                    @click="
+                      editable
+                        ? openColorwayForm(colorway)
+                        : suggest('artisan_colorway', colorway)
+                    "
                   />
                 </UTooltip>
 
                 <template v-if="editable">
-                  <UModal title="Edit Colorway">
-                    <UTooltip text="Edit" :delay-duration="0">
-                      <UButton
-                        icon="hugeicons:file-edit"
-                        variant="ghost"
-                        aria-label="Edit"
-                        @click="setSelected(colorway)"
-                      />
-                    </UTooltip>
-
-                    <template #body="{ close }">
-                      <ArtisanModalColorwayForm
-                        :metadata="selectedColorway"
-                        @on-success="
-                          () => {
-                            close()
-                            refresh()
-                            clearSelected()
-                          }
-                        "
-                      />
-                    </template>
-                  </UModal>
-
                   <UTooltip text="History" :delay-duration="0">
                     <UButton
                       icon="hugeicons:time-quarter-pass"
@@ -236,29 +216,21 @@
                     />
                   </UTooltip>
 
-                  <UModal
-                    title="Delete"
-                    :description="`Are you sure you want to delete ${colorway.name}? This action cannot be undone.`"
-                  >
-                    <UTooltip text="Delete" :delay-duration="0">
-                      <UButton
-                        v-if="user.email_verified"
-                        icon="hugeicons:file-remove"
-                        color="error"
-                        variant="ghost"
-                        aria-label="Delete"
-                      />
-                    </UTooltip>
-
-                    <template #footer="{ close }">
-                      <UButton label="Cancel" @click="close" />
-                      <UButton
-                        label="Delete"
-                        color="error"
-                        @click="deleteColorway(colorway, close)"
-                      />
-                    </template>
-                  </UModal>
+                  <UTooltip text="Delete" :delay-duration="0">
+                    <UButton
+                      icon="hugeicons:file-remove"
+                      color="error"
+                      variant="ghost"
+                      aria-label="Delete"
+                      @click="
+                        openDelete(
+                          'Colorway',
+                          colorway.name,
+                          `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
+                        )
+                      "
+                    />
+                  </UTooltip>
                 </template>
               </div>
             </div>
@@ -280,6 +252,25 @@
           />
         </template>
       </UModal>
+
+      <template v-if="editable">
+        <UModal v-model:open="colorwayForm.open" title="Edit Colorway">
+          <template #body>
+            <ArtisanModalColorwayForm
+              :metadata="colorwayForm.metadata"
+              @on-success="onColorwaySaved"
+            />
+          </template>
+        </UModal>
+
+        <SharedConfirmModal
+          v-model:open="deleteTarget.open"
+          title="Delete Colorway"
+          :description="`Are you sure you want to delete ${deleteTarget.name}? This action cannot be undone.`"
+          :loading="deleting"
+          @confirm="confirmDelete"
+        />
+      </template>
 
       <SharedSuggestEditModal
         v-if="suggestTarget"
@@ -423,7 +414,7 @@ defineOgImage('Module', {
 })
 
 const userStore = useUserStore()
-const { authenticated, user } = storeToRefs(userStore)
+const { authenticated } = storeToRefs(userStore)
 
 const editable = computed(() => userStore.isEditable(sculpt.value?.maker_id))
 
@@ -461,12 +452,25 @@ const clearSelected = () => {
   selectedColorway.value = {}
 }
 
-const setSelected = (colorway) => {
+// A colorway with its sculpt, as the popup and the form take it
+const withSculpt = (colorway) => {
   const { colorways, ...rest } = sculpt.value
-  selectedColorway.value = {
-    ...colorway,
-    sculpt: rest,
-  }
+  return { ...colorway, sculpt: rest }
+}
+
+const setSelected = (colorway) => {
+  selectedColorway.value = withSculpt(colorway)
+}
+
+const colorwayForm = reactive({ open: false, metadata: {} })
+
+const openColorwayForm = (colorway) => {
+  Object.assign(colorwayForm, { open: true, metadata: withSculpt(colorway) })
+}
+
+const onColorwaySaved = () => {
+  colorwayForm.open = false
+  refresh()
 }
 
 const colorwayCid = computed(() => {
@@ -575,21 +579,10 @@ const deleteSculpt = async (closeModal) => {
   }
 }
 
-const deleteColorway = async (colorway, closeModal) => {
-  try {
-    await $fetch(
-      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
-      { method: 'delete' },
-    )
-
-    toast.add(
-      successToast('delete', { entity: 'Colorway', name: colorway.name }),
-    )
-
-    closeModal()
-    refresh()
-  } catch (error) {
-    toast.add(errorToast(error))
-  }
-}
+const {
+  target: deleteTarget,
+  deleting,
+  open: openDelete,
+  confirm: confirmDelete,
+} = useConfirmDelete(refresh)
 </script>
