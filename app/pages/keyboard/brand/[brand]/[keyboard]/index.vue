@@ -10,12 +10,10 @@
 
     <template #body>
       <UPageHeader
-        :title="title"
         :ui="{
           root: 'pt-0 pb-6',
           wrapper: 'gap-4 sm:flex-row sm:items-start sm:justify-between',
           links: 'flex flex-wrap gap-2 shrink-0',
-          title: 'text-2xl',
           headline: 'mb-1',
           description: 'text-sm',
         }"

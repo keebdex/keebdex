@@ -46,7 +46,6 @@
                 showCover && 'lg:flex-col 2xl:flex-row',
               ],
               links: 'flex flex-wrap gap-2 shrink-0',
-              title: 'text-2xl',
               description: 'text-sm',
             }"
           >
