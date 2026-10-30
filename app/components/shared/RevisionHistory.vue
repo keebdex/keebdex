@@ -1,11 +1,4 @@
 <template>
-  <UButton
-    v-if="button"
-    icon="hugeicons:time-quarter-pass"
-    label="History"
-    @click="show()"
-  />
-
   <USlideover
     v-model:open="open"
     :title="detail ? detailTitle : 'History'"
@@ -197,7 +190,8 @@ interface RevisionRecord {
   label: string
 }
 
-// History button and slideover of a page (staff only): the revisions of the
+// History slideover of a page (staff only), opened through `show()` (from
+// `SharedRecordActions`' History button): the revisions of the
 // record and its children, loaded when opened, with a diff per revision and
 // Undo / Restore. `show({ record })` (exposed)
 // narrows it to one child record, e.g. from a colorway card. `?history=1`
@@ -209,12 +203,9 @@ const props = withDefaults(
     domain: KeebModule
     parentKey: string
     description?: string
-    // Render the History button; off when the page opens it through show().
-    button?: boolean
   }>(),
   {
     description: 'Every change to this page and its records, newest first.',
-    button: true,
   },
 )
 

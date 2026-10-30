@@ -48,8 +48,7 @@
           </span>
         </template>
 
-        <!-- The page's actions sit with the keyboard they act on: Add keeps
-             its label, the rest are icon-only -->
+        <!-- The page's actions sit with the keyboard they act on -->
         <template v-if="authenticated || data.derived_keyboards?.length" #links>
           <UButton
             v-if="authenticated"
@@ -62,10 +61,8 @@
           <SharedRecordActions
             :editable="editable"
             :suggestable="canSuggest(data)"
-            :deletable="false"
-            :ghost="false"
             label="Keyboard"
-            @edit="keyboardFormOpen = true"
+            @edit="editing = true"
             @suggest="suggest('keyboard', data)"
             @history="history?.show()"
           />
@@ -132,6 +129,7 @@
             <!-- Icon-only, like the variant cards, so they read as the
                  release's and not the keyboard's actions -->
             <SharedRecordActions
+              ghost
               :editable="editable"
               :suggestable="canSuggest(release)"
               :deletable="!release.variants?.length"
@@ -263,14 +261,13 @@
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
-          :button="false"
           domain="keyboard"
           :parent-key="slug"
           description="Every change to this keyboard, its releases, and variants, newest first."
           @reverted="onReverted"
         />
 
-        <UModal v-model:open="keyboardFormOpen" title="Edit Keyboard">
+        <UModal v-model:open="editing" title="Edit Keyboard">
           <template #body>
             <KeyboardModalKeyboardForm
               :is-edit="true"
@@ -489,7 +486,7 @@ const breadcrumbs = computed(() => {
 })
 
 // Staff forms and the delete confirmation, one of each for the whole page.
-const keyboardFormOpen = ref(false)
+const editing = ref(false)
 const releaseForm = reactive({ open: false, isEdit: false, metadata: {} })
 const variantForm = reactive({ open: false, isEdit: false, metadata: {} })
 
@@ -512,7 +509,7 @@ const openVariantForm = (variant, release) => {
 }
 
 const onKeyboardSaved = () => {
-  keyboardFormOpen.value = false
+  editing.value = false
   refresh()
 }
 

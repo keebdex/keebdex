@@ -65,6 +65,7 @@
         <slot name="footer-start" />
 
         <SharedRecordActions
+          ghost
           :editable="editable"
           :suggestable="suggestable"
           class="ms-auto"

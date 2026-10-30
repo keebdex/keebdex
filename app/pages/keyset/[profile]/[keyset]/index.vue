@@ -61,8 +61,6 @@
               <SharedRecordActions
                 :editable="editable"
                 :suggestable="canSuggest(data)"
-                :deletable="false"
-                :ghost="false"
                 label="Keyset"
                 @edit="keysetFormOpen = true"
                 @suggest="suggest('keyset', data)"
@@ -262,7 +260,6 @@
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
-          :button="false"
           domain="keyset"
           :parent-key="`${profile}/${keyset}`"
           description="Every change to this keyset and its kits, newest first."

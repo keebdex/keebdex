@@ -1,6 +1,5 @@
 <template>
   <USlideover :title="`${title} Information`">
-    <!-- Icon-only, like the page header actions other than Add -->
     <UTooltip text="Info">
       <UButton
         icon="hugeicons:information-circle"

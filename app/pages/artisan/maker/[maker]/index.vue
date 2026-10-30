@@ -6,8 +6,6 @@
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
-        <!-- Add keeps its label; the other actions are icon-only, named by
-             their tooltips and aria-labels -->
         <template #right>
           <UModal v-if="editable" title="Add Sculpt">
             <UButton
@@ -32,8 +30,6 @@
           <SharedRecordActions
             :editable="editable"
             :suggestable="canSuggest(maker)"
-            :deletable="false"
-            :ghost="false"
             label="Maker"
             @edit="editing = true"
             @suggest="suggest('artisan_maker', maker)"
@@ -42,7 +38,6 @@
 
           <UModal
             v-if="Object.hasOwn(favorites, maker.maker_id)"
-            v-model:visible="visible.customize_pins"
             title="Customize Pins"
             description="Pin up to 6 sculpts to the top for easy access."
           >
@@ -77,7 +72,6 @@
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
-          :button="false"
           domain="artisan"
           :parent-key="route.params.maker"
           description="Every change to this maker, newest first. Its sculpts keep their own history."
@@ -149,10 +143,6 @@ const {
   canSuggest,
   suggest,
 } = useSuggestEdit(editable)
-
-const visible = ref({
-  customize_pins: false,
-})
 
 const editing = ref(false)
 const history = useTemplateRef('history')

@@ -6,8 +6,6 @@
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
-        <!-- Add keeps its label; the other actions are icon-only, named by
-             their tooltips and aria-labels -->
         <template #right>
           <UModal v-if="editable" title="Add Keyboard">
             <UButton
@@ -32,8 +30,6 @@
           <SharedRecordActions
             :editable="editable"
             :suggestable="canSuggest(data)"
-            :deletable="false"
-            :ghost="false"
             label="Brand"
             @edit="editing = true"
             @suggest="suggest('keyboard_brand', data)"
@@ -55,7 +51,6 @@
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
-          :button="false"
           domain="keyboard"
           :parent-key="brand"
           description="Every change to this brand, newest first. Its keyboards keep their own history."

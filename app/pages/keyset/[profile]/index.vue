@@ -15,8 +15,6 @@
         v-if="data?.profile"
         :editable="editable"
         :suggestable="canSuggest(data.profile)"
-        :deletable="false"
-        :ghost="false"
         label="Profile"
         @edit="editing = true"
         @suggest="suggest('keyset_profile', data.profile)"
@@ -26,7 +24,6 @@
       <template v-if="editable && data?.profile">
         <SharedRevisionHistory
           ref="history"
-          :button="false"
           domain="keyset"
           :parent-key="profile"
           description="Every change to this profile, newest first. Its keysets keep their own history."

@@ -6,79 +6,76 @@
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
-        <!-- Add keeps its label; the other actions are icon-only, named by
-             their tooltips and aria-labels -->
         <template #right>
-          <div class="flex items-center gap-2">
-            <UModal v-if="editable" title="Add Colorway">
-              <UButton
-                icon="hugeicons:dashboard-square-add"
-                color="primary"
-                label="Add Colorway"
-              />
-
-              <template #body="{ close }">
-                <ArtisanModalColorwayForm
-                  :metadata="newColorwayMetadata"
-                  @on-success="
-                    () => {
-                      close()
-                      refresh()
-                    }
-                  "
-                />
-              </template>
-            </UModal>
-
+          <UModal v-if="editable" title="Add Colorway">
             <UButton
-              v-else-if="authenticated"
               icon="hugeicons:dashboard-square-add"
               color="primary"
               label="Add Colorway"
-              :to="{
-                path: '/artisan/submissions/submit',
-                query: {
-                  maker: route.params.maker,
-                  sculpt: route.params.sculpt,
-                },
-              }"
             />
 
-            <SharedRecordActions
-              :editable="editable"
-              :suggestable="canSuggest(sculpt)"
-              :ghost="false"
-              label="Sculpt"
-              @edit="editingSculpt = true"
-              @suggest="
-                suggest('artisan_sculpt', sculpt, {
-                  sculpts: sculpt.maker_sculpts,
-                })
-              "
-              @history="history?.show()"
-              @delete="
-                openDelete(
-                  'Sculpt',
-                  sculpt.name,
-                  `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
-                )
-              "
-            />
+            <template #body="{ close }">
+              <ArtisanModalColorwayForm
+                :metadata="newColorwayMetadata"
+                @on-success="
+                  () => {
+                    close()
+                    refresh()
+                  }
+                "
+              />
+            </template>
+          </UModal>
 
-            <USelect
-              v-if="$device.isDesktopOrTablet"
-              v-model="sortValue"
-              :items="sortOptions"
-              :icon="sortIconMap[sortValue]"
-              variant="soft"
-            />
+          <UButton
+            v-else-if="authenticated"
+            icon="hugeicons:dashboard-square-add"
+            color="primary"
+            label="Add Colorway"
+            :to="{
+              path: '/artisan/submissions/submit',
+              query: {
+                maker: route.params.maker,
+                sculpt: route.params.sculpt,
+              },
+            }"
+          />
 
-            <SharedProfileDrawer
-              v-if="sculpt.story"
-              :title="sculpt.name"
-              :description="sculpt.story"
-            />
-          </div>
+          <SharedRecordActions
+            :editable="editable"
+            :suggestable="canSuggest(sculpt)"
+            label="Sculpt"
+            @edit="editingSculpt = true"
+            @suggest="
+              suggest('artisan_sculpt', sculpt, {
+                sculpts: sculpt.maker_sculpts,
+              })
+            "
+            @history="history?.show()"
+            @delete="
+              openDelete(
+                'Sculpt',
+                sculpt.name,
+                `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
+                // A deleted sculpt has no page left: go back to its maker
+                () => navigateTo(`/artisan/maker/${route.params.maker}`),
+              )
+            "
+          />
+
+          <USelect
+            v-if="$device.isDesktopOrTablet"
+            v-model="sortValue"
+            :items="sortOptions"
+            :icon="sortIconMap[sortValue]"
+            variant="soft"
+          />
+
+          <SharedProfileDrawer
+            v-if="sculpt.story"
+            :title="sculpt.name"
+            :description="sculpt.story"
+          />
         </template>
       </UDashboardNavbar>
 
@@ -129,7 +126,7 @@
       </UPageGrid>
 
       <UModal
-        v-model:open="visible.card"
+        v-model:open="cardOpen"
         :ui="{
           content: 'w-fit',
         }"
@@ -146,7 +143,6 @@
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
-          :button="false"
           domain="artisan"
           :parent-key="`${route.params.maker}/${route.params.sculpt}`"
           description="Every change to this sculpt and its colorways, newest first."
@@ -339,9 +335,7 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
-const visible = ref({
-  card: false,
-})
+const cardOpen = ref(false)
 
 const editingSculpt = ref(false)
 
@@ -402,7 +396,7 @@ const updateColorwayQuery = (cid) => {
 }
 
 const closeColorwayCard = () => {
-  visible.value.card = false
+  cardOpen.value = false
   clearSelected()
 
   if (colorwayCid.value) {
@@ -412,7 +406,7 @@ const closeColorwayCard = () => {
 
 const openColorwayCard = (colorway) => {
   setSelected(colorway)
-  visible.value.card = true
+  cardOpen.value = true
 
   if (colorwayCid.value !== colorway.colorway_id) {
     updateColorwayQuery(colorway.colorway_id)
@@ -433,7 +427,7 @@ const showColorwayHistory = (colorway) => {
 
 const syncColorwayCardFromQuery = () => {
   if (!colorwayCid.value) {
-    visible.value.card = false
+    cardOpen.value = false
     clearSelected()
     return
   }
@@ -454,13 +448,13 @@ const syncColorwayCardFromQuery = () => {
   )
 
   if (!colorway) {
-    visible.value.card = false
+    cardOpen.value = false
     clearSelected()
     return
   }
 
   setSelected(colorway)
-  visible.value.card = true
+  cardOpen.value = true
 }
 
 watch(
@@ -480,10 +474,5 @@ const {
   deleting,
   open: openDelete,
   confirm: confirmDelete,
-} = useConfirmDelete(() =>
-  // A deleted sculpt has no page left: go back to its maker
-  deleteTarget.entity === 'Sculpt'
-    ? navigateTo(`/artisan/maker/${route.params.maker}`)
-    : refresh(),
-)
+} = useConfirmDelete(refresh)
 </script>
