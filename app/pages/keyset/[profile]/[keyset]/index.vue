@@ -46,12 +46,8 @@
               description: 'text-sm',
             }"
           >
-            <!-- The page's actions, then icon-only reference links; tooltips
-                 and aria-labels carry the names -->
-            <template
-              v-if="authenticated || externalLinks.length || canAddCover"
-              #links
-            >
+            <!-- The page's actions; the reference links sit under the specs -->
+            <template v-if="authenticated || canAddCover" #links>
               <SharedSaveToCollection
                 v-if="authenticated"
                 :item="data"
@@ -73,14 +69,6 @@
                 @history="history?.show()"
               />
 
-              <UTooltip
-                v-for="{ label, ...link } in externalLinks"
-                :key="label"
-                :text="label"
-              >
-                <UButton v-bind="link" :aria-label="label" />
-              </UTooltip>
-
               <!-- No cover to show: invite the community to add one -->
               <UTooltip v-if="canAddCover" text="Add Cover">
                 <UButton
@@ -98,6 +86,16 @@
             </h2>
             <SharedSpecList :items="specs" layout="grid" :columns="3" />
           </section>
+
+          <!-- Where the set was discussed and how it sold, with labels -->
+          <div v-if="referenceLinks.length" class="flex flex-wrap gap-2">
+            <UButton
+              v-for="link in referenceLinks"
+              :key="link.label"
+              v-bind="link"
+              :ui="{ label: 'block' }"
+            />
+          </div>
         </div>
       </div>
 
@@ -420,27 +418,19 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const externalLinks = computed(() => {
+// The interest check thread and dvorcol's order charts; vendor pages are
+// left out, since they go stale once the group buy ends
+const referenceLinks = computed(() => {
   const links = []
 
-  if (data.value.url) {
-    if (data.value.url.includes('geekhack')) {
-      links.push({
-        label: 'Geekhack',
-        icon: 'hugeicons:comment-01',
-        to: data.value.url,
-        target: '_blank',
-        external: true,
-      })
-    } else {
-      links.push({
-        label: 'Vendor',
-        icon: 'hugeicons:link-square-02',
-        to: data.value.url,
-        target: '_blank',
-        external: true,
-      })
-    }
+  if (data.value.url?.includes('geekhack')) {
+    links.push({
+      label: 'Geekhack',
+      icon: 'hugeicons:comment-01',
+      to: data.value.url,
+      target: '_blank',
+      external: true,
+    })
   }
 
   if (data.value.order_graph) {
