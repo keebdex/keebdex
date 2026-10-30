@@ -171,6 +171,19 @@ export const artisanGridClass =
 export const imageCardContainerClass =
   'h-full grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)]'
 
+// A UPageHeader scaled down to head a section of a detail page (a keyboard's
+// releases, a keyset's kits and colors): an h2 title, no border or padding,
+// and the actions beside the title at every width. Pass both to the header
+// (`:as="detailSectionHeaderAs" :ui="detailSectionHeaderUi"`).
+export const detailSectionHeaderAs = { title: 'h2' }
+export const detailSectionHeaderUi = {
+  root: 'border-none py-0',
+  wrapper: 'flex-row items-start justify-between',
+  title: 'text-lg sm:text-lg font-semibold',
+  description: 'mt-1 text-sm text-start',
+  links: 'shrink-0',
+}
+
 export const SEARCH_TERM_MIN_LENGTH = 3
 
 // Copies `keys` from `source` (missing keys become undefined), e.g. to hydrate

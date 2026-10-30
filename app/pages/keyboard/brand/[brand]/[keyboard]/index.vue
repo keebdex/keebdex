@@ -17,6 +17,7 @@
           links: 'flex flex-wrap gap-2 shrink-0',
           title: 'text-2xl',
           headline: 'mb-1',
+          description: 'text-sm',
         }"
       >
         <template #title>
@@ -94,7 +95,6 @@
             <SharedDescription
               v-if="data.description"
               :description="data.description"
-              class="text-sm max-w-prose"
             />
 
             <!-- The keyboard's own specs, shared by every release -->
@@ -109,48 +109,48 @@
           :key="release.id"
           class="space-y-4 py-6 first:pt-0"
         >
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0 space-y-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <h2 class="text-base md:text-lg font-semibold text-highlighted">
-                  {{ release.name }}
-                </h2>
+          <UPageHeader
+            :description="release.description || undefined"
+            :as="detailSectionHeaderAs"
+            :ui="detailSectionHeaderUi"
+          >
+            <template #title>
+              <span class="flex flex-wrap items-center gap-2">
+                {{ release.name }}
                 <UBadge
                   v-if="release.release_year"
                   :label="String(release.release_year)"
                   icon="hugeicons:calendar-03"
                 />
-              </div>
-              <p v-if="release.description" class="text-sm text-muted">
-                {{ release.description }}
-              </p>
-            </div>
+              </span>
+            </template>
 
-            <!-- Icon-only, like the variant cards, so they read as the
-                 release's and not the keyboard's actions -->
-            <SharedRecordActions
-              ghost
-              :editable="editable"
-              :suggestable="canSuggest(release)"
-              :deletable="!release.variants?.length"
-              label="Release"
-              class="shrink-0"
-              @edit="openReleaseForm(release)"
-              @suggest="
-                suggest('keyboard_release', release, { keyboard: data })
-              "
-              @history="
-                showHistory('keyboard_release', release.id, release.name)
-              "
-              @delete="
-                openDelete(
-                  'Release',
-                  release.name,
-                  `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
-                )
-              "
-            />
-          </div>
+            <!-- Ghost, like the variant cards, so they read as the release's
+                 and not the keyboard's actions -->
+            <template #links>
+              <SharedRecordActions
+                ghost
+                :editable="editable"
+                :suggestable="canSuggest(release)"
+                :deletable="!release.variants?.length"
+                label="Release"
+                @edit="openReleaseForm(release)"
+                @suggest="
+                  suggest('keyboard_release', release, { keyboard: data })
+                "
+                @history="
+                  showHistory('keyboard_release', release.id, release.name)
+                "
+                @delete="
+                  openDelete(
+                    'Release',
+                    release.name,
+                    `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
+                  )
+                "
+              />
+            </template>
+          </UPageHeader>
 
           <!-- Laid out like the keyboard's specs in the header -->
           <SharedSpecList

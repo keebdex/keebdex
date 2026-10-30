@@ -63,14 +63,6 @@
             "
           />
 
-          <USelect
-            v-if="$device.isDesktopOrTablet"
-            v-model="sortValue"
-            :items="sortOptions"
-            :icon="sortIconMap[sortValue]"
-            variant="soft"
-          />
-
           <SharedProfileDrawer
             v-if="sculpt.story"
             :title="sculpt.name"
@@ -79,13 +71,17 @@
         </template>
       </UDashboardNavbar>
 
-      <UDashboardToolbar v-if="$device.isMobile">
-        <USelect
-          v-model="sortValue"
-          :items="sortOptions"
-          :icon="sortIconMap[sortValue]"
-          variant="soft"
-        />
+      <!-- List controls sit in the toolbar, like other list pages, so the
+           navbar keeps only the page's actions -->
+      <UDashboardToolbar>
+        <template #right>
+          <USelect
+            v-model="sortValue"
+            :items="sortOptions"
+            :icon="sortIconMap[sortValue]"
+            variant="soft"
+          />
+        </template>
       </UDashboardToolbar>
     </template>
 

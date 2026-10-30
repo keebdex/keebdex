@@ -38,10 +38,14 @@
             :description="data.description"
             :ui="{
               root: 'pt-0 pb-4',
-              // Actions on their own row: beside the cover the title column
-              // is too narrow for them
-              wrapper: 'lg:flex-col lg:items-start gap-3',
-              links: 'flex flex-wrap gap-2',
+              // Actions beside the title, like the keyboard page, except
+              // beside the cover from lg to xl, where the column is too
+              // narrow for both
+              wrapper: [
+                'gap-3 sm:flex-row sm:items-start sm:justify-between lg:items-start',
+                showCover && 'lg:flex-col 2xl:flex-row',
+              ],
+              links: 'flex flex-wrap gap-2 shrink-0',
               title: 'text-2xl',
               description: 'text-sm',
             }"
@@ -78,10 +82,12 @@
             </template>
           </UPageHeader>
 
-          <section v-if="specs.length" class="space-y-3">
-            <h2 class="text-xs uppercase tracking-widest text-muted">
-              Specifications
-            </h2>
+          <section v-if="specs.length" class="space-y-4">
+            <UPageHeader
+              title="Specifications"
+              :as="detailSectionHeaderAs"
+              :ui="detailSectionHeaderUi"
+            />
             <SharedSpecList :items="specs" layout="grid" :columns="3" />
           </section>
 
@@ -97,25 +103,25 @@
         </div>
       </div>
 
-      <!-- Kits, headed like a keyboard's releases -->
+      <!-- Kits and colors are headed by section-sized page headers (an h2
+           title), with ghost actions so they don't read as the page's own -->
       <section class="space-y-4">
-        <div class="flex items-center justify-between gap-4">
-          <h2 class="text-lg font-semibold text-highlighted">
-            Kits
-            <span v-if="kits.length" class="text-muted font-normal">
-              ({{ kits.length }})
-            </span>
-          </h2>
-
-          <UTooltip v-if="authenticated" text="Add Kit">
-            <UButton
-              icon="hugeicons:dashboard-square-add"
-              variant="ghost"
-              aria-label="Add Kit"
-              v-bind="addKitTarget"
-            />
-          </UTooltip>
-        </div>
+        <UPageHeader
+          title="Kits"
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        >
+          <template v-if="authenticated" #links>
+            <UTooltip text="Add Kit">
+              <UButton
+                icon="hugeicons:dashboard-square-add"
+                variant="ghost"
+                aria-label="Add Kit"
+                v-bind="addKitTarget"
+              />
+            </UTooltip>
+          </template>
+        </UPageHeader>
 
         <UPageGrid v-if="kits.length">
           <SharedCatalogCard
@@ -191,26 +197,29 @@
 
       <!-- Colors: added and removed, never edited -->
       <section v-if="data.colors?.length || editable" class="space-y-4">
-        <div class="flex items-center justify-between gap-4">
-          <h2 class="text-lg font-semibold text-highlighted">Color Palette</h2>
-
-          <UTooltip v-if="editable" text="Add Colors">
-            <UButton
-              icon="hugeicons:dashboard-circle-add"
-              variant="ghost"
-              aria-label="Add Colors"
-              @click="colorFormOpen = true"
-            />
-          </UTooltip>
-        </div>
+        <UPageHeader
+          title="Color Palette"
+          :description="
+            data.colors?.length
+              ? 'Colors displayed on screen are for reference only - use a physical color fan for accurate matching. Some codes are from the designer and may differ from official references (RAL, Pantone, etc.).'
+              : undefined
+          "
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        >
+          <template v-if="editable" #links>
+            <UTooltip text="Add Colors">
+              <UButton
+                icon="hugeicons:dashboard-circle-add"
+                variant="ghost"
+                aria-label="Add Colors"
+                @click="colorFormOpen = true"
+              />
+            </UTooltip>
+          </template>
+        </UPageHeader>
 
         <template v-if="data.colors?.length">
-          <p class="text-sm text-muted">
-            Colors displayed on screen are for reference only - use a physical
-            color fan for accurate matching. Some codes are from the designer
-            and may differ from official references (RAL, Pantone, etc.).
-          </p>
-
           <div
             class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
           >
