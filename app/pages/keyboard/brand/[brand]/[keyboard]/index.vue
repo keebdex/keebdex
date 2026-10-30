@@ -105,7 +105,7 @@
         <section
           v-for="release in releases"
           :key="release.id"
-          class="space-y-4 py-6 first:pt-0"
+          class="relative space-y-4 py-6 first:pt-0"
         >
           <UPageHeader
             :description="release.description || undefined"
@@ -123,9 +123,19 @@
               </span>
             </template>
 
-            <!-- Ghost, like the variant cards, so they read as the release's
-                 and not the keyboard's actions -->
+            <!-- Add Variant, then the release's own actions; ghost, like the
+                 variant cards, so they read as the release's and not the
+                 keyboard's actions -->
             <template #links>
+              <UTooltip v-if="authenticated" text="Add Variant">
+                <UButton
+                  icon="hugeicons:add-square"
+                  variant="ghost"
+                  aria-label="Add Variant"
+                  v-bind="addVariantTarget(release)"
+                />
+              </UTooltip>
+
               <SharedRecordActions
                 ghost
                 :editable="editable"
@@ -236,15 +246,6 @@
                 />
               </template>
             </UModal>
-
-            <UButton
-              v-if="authenticated"
-              label="Add Variant"
-              icon="hugeicons:add-square"
-              variant="outline"
-              class="w-full min-h-24 justify-center ring-0 border border-default border-dashed rounded-lg"
-              v-bind="addVariantTarget(release)"
-            />
           </UPageGrid>
         </section>
       </UPageList>
