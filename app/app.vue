@@ -1,5 +1,9 @@
 <template>
-  <UApp :toaster="{ max: 5, expand: false }">
+  <!-- Tooltips show at once: they name icon-only buttons -->
+  <UApp
+    :toaster="{ max: 5, expand: false }"
+    :tooltip="{ delayDuration: 0 }"
+  >
     <NuxtLayout>
       <NuxtLoadingIndicator />
       <NuxtPage />

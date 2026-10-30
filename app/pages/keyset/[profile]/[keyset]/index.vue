@@ -5,70 +5,6 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
-
-        <template #right>
-          <UModal v-if="editable" v-model:visible="visible" title="Edit Keyset">
-            <UButton label="Edit" icon="hugeicons:edit-01" />
-
-            <template #body="{ close }">
-              <KeysetModalKeysetForm
-                :is-edit="true"
-                :metadata="data"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UButton
-            v-if="editable"
-            label="Kits"
-            icon="hugeicons:cells"
-            :to="`/keyset/${data.profile_keyset_id}/kit`"
-          />
-
-          <UButton
-            v-if="editable"
-            label="Colors"
-            icon="hugeicons:colors"
-            :to="`/keyset/${data.profile_keyset_id}/color`"
-          />
-
-          <SharedRevisionHistory
-            v-if="editable"
-            ref="history"
-            domain="keyset"
-            :parent-key="`${profile}/${keyset}`"
-            description="Every change to this keyset and its kits, newest first."
-            @reverted="onReverted"
-          />
-
-          <UButton
-            v-else-if="authenticated"
-            label="Add Kit"
-            icon="hugeicons:cells"
-            :to="submitKitLink"
-          />
-
-          <UButton
-            v-if="canSuggest(data)"
-            label="Edit"
-            icon="hugeicons:edit-01"
-            @click="suggest('keyset', data)"
-          />
-
-          <SharedSaveToCollection
-            v-if="authenticated"
-            :item="data"
-            category="keyset"
-            label="Save"
-            @on-select="saveTo"
-          />
-        </template>
       </UDashboardNavbar>
     </template>
 
@@ -93,7 +29,7 @@
           />
         </div>
 
-        <!-- Right: identity, catalog details, group buy history -->
+        <!-- Right: identity and specifications -->
         <div
           :class="['space-y-6', showCover && 'lg:col-span-2 2xl:col-span-1']"
         >
@@ -102,29 +38,42 @@
             :description="data.description"
             :ui="{
               root: 'pt-0 pb-4',
-              // Keep the icon links on the title row at every width
-              wrapper: 'flex-row items-center justify-between',
-              links: 'shrink-0',
-              title: 'text-2xl',
+              // Actions beside the title, like the keyboard page, except
+              // beside the cover from lg to xl, where the column is too
+              // narrow for both
+              wrapper: [
+                'gap-3 sm:flex-row sm:items-start sm:justify-between lg:items-start',
+                showCover && 'lg:flex-col 2xl:flex-row',
+              ],
+              links: 'flex flex-wrap gap-2 shrink-0',
               description: 'text-sm',
             }"
           >
-            <!-- Icon-only reference links beside the title; the tooltip and
-                 aria-label carry the name -->
-            <template v-if="externalLinks.length || canAddCover" #links>
-              <UTooltip
-                v-for="{ label, ...link } in externalLinks"
-                :key="label"
-                :text="label"
-              >
-                <UButton v-bind="link" :aria-label="label" />
-              </UTooltip>
+            <!-- The page's actions; the reference links sit under the specs -->
+            <template v-if="authenticated || canAddCover" #links>
+              <SharedSaveToCollection
+                v-if="authenticated"
+                :item="data"
+                :item-name="fullName"
+                category="keyset"
+                label="Save"
+                keep-label
+                @on-select="saveTo"
+              />
+
+              <SharedRecordActions
+                :editable="editable"
+                :suggestable="canSuggest(data)"
+                label="Keyset"
+                @edit="keysetFormOpen = true"
+                @suggest="suggest('keyset', data)"
+                @history="history?.show()"
+              />
 
               <!-- No cover to show: invite the community to add one -->
               <UTooltip v-if="canAddCover" text="Add Cover">
                 <UButton
                   icon="hugeicons:image-add-02"
-                  variant="ghost"
                   aria-label="Add Cover"
                   @click="suggest('keyset', data)"
                 />
@@ -132,128 +81,75 @@
             </template>
           </UPageHeader>
 
-          <div
-            :class="
-              showCover ? 'space-y-6' : 'grid grid-cols-1 sm:grid-cols-2 gap-6'
-            "
-          >
-            <section v-if="details.length" class="space-y-3">
-              <h2 class="text-xs uppercase tracking-widest text-muted">
-                Details
-              </h2>
-              <SharedDescriptionList
-                :columns="1"
-                orientation="horizontal"
-                :items="details"
-              />
-            </section>
+          <section v-if="specs.length" class="space-y-4">
+            <UPageHeader
+              title="Specifications"
+              :as="detailSectionHeaderAs"
+              :ui="detailSectionHeaderUi"
+            />
+            <SharedSpecList :items="specs" layout="grid" :columns="3" />
+          </section>
 
-            <section v-if="groupBuy.length" class="space-y-3">
-              <h2 class="text-xs uppercase tracking-widest text-muted">
-                Group Buy
-              </h2>
-              <SharedDescriptionList
-                :columns="1"
-                orientation="horizontal"
-                :items="groupBuy"
-              />
-            </section>
+          <!-- Where the set was discussed and how it sold, with labels -->
+          <div v-if="referenceLinks.length" class="flex flex-wrap gap-2">
+            <UButton
+              v-for="link in referenceLinks"
+              :key="link.label"
+              v-bind="link"
+              :ui="{ label: 'block' }"
+            />
           </div>
         </div>
       </div>
 
-      <!-- Kits -->
+      <!-- Kits and colors are headed by section-sized page headers (an h2
+           title), with ghost actions so they don't read as the page's own -->
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-highlighted">
-          Kits
-          <span v-if="kits.length" class="text-muted font-normal">
-            ({{ kits.length }})
-          </span>
-        </h2>
+        <UPageHeader
+          title="Kits"
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        >
+          <template v-if="authenticated" #links>
+            <UTooltip text="Add Kit">
+              <UButton
+                icon="hugeicons:dashboard-square-add"
+                variant="ghost"
+                aria-label="Add Kit"
+                v-bind="addKitTarget"
+              />
+            </UTooltip>
+          </template>
+        </UPageHeader>
 
         <UPageGrid v-if="kits.length">
-          <UPageCard
+          <SharedCatalogCard
             v-for="kit in kits"
             :key="kit.id"
             :title="kitLabel(kit)"
-            :description="kit.description || undefined"
-            reverse
-            spotlight
+            :description="kit.description"
+            :price="
+              kit.price && formatPrice(kit.price, 'USD', { stripZeros: true })
+            "
+            :price-struck="kit.cancelled"
+            :img="kit.img"
+            fallback="/keyset.png"
+            :editable="editable"
+            :suggestable="canSuggest(kit)"
             class="cursor-zoom-in"
-            :ui="{
-              body: 'w-full',
-              description: 'text-sm line-clamp-2',
-              footer: 'pt-3',
-            }"
             @click="openKitPreview(kit)"
+            @edit="openKitForm(kit)"
+            @suggest="suggest('keyset_kit', kit)"
+            @history="showHistory('keyset_kit', kit.id, kitLabel(kit))"
+            @delete="
+              openDelete(
+                'Kit',
+                kitLabel(kit),
+                `/api/keysets/${kit.profile_keyset_id}/kits/${kit.id}`,
+              )
+            "
           >
-            <!-- Name with its group buy price, catalog style -->
-            <template #title>
-              <div class="flex items-baseline justify-between gap-3">
-                <span class="truncate">{{ kitLabel(kit) }}</span>
-                <span
-                  v-if="kit.price"
-                  class="shrink-0 tabular-nums"
-                  :class="kit.cancelled && 'line-through text-muted'"
-                >
-                  {{ formatPrice(kit.price, 'USD', { stripZeros: true }) }}
-                </span>
-              </div>
-            </template>
-
-            <template v-if="kit.qty || canSuggest(kit) || editable" #footer>
-              <div class="flex w-full items-center justify-between gap-2">
-                <div
-                  v-if="kit.qty"
-                  class="flex items-center gap-1.5 text-xs text-muted"
-                >
-                  <UIcon name="hugeicons:package" class="size-4" />
-                  <span class="tabular-nums">
-                    {{ formatNumber(kit.qty) }} units
-                  </span>
-                </div>
-
-                <UTooltip v-if="canSuggest(kit)" text="Edit">
-                  <UButton
-                    icon="hugeicons:edit-01"
-                    size="xs"
-                    variant="ghost"
-                    aria-label="Edit"
-                    class="ms-auto"
-                    @click.stop="suggest('keyset_kit', kit)"
-                  />
-                </UTooltip>
-
-                <UTooltip v-if="editable" text="History">
-                  <UButton
-                    icon="hugeicons:time-quarter-pass"
-                    size="xs"
-                    variant="ghost"
-                    aria-label="History"
-                    class="ms-auto"
-                    @click.stop="
-                      history?.show({
-                        record: {
-                          entityType: 'keyset_kit',
-                          entityId: kit.id,
-                          label: kitLabel(kit),
-                        },
-                      })
-                    "
-                  />
-                </UTooltip>
-              </div>
-            </template>
-
-            <div class="relative">
-              <NuxtImg
-                preset="cover"
-                loading="lazy"
-                decoding="async"
-                :src="kit.img || '/keyset.png'"
-                :alt="kitLabel(kit)"
-                class="w-full aspect-video object-cover rounded"
-              />
+            <template #badges>
               <UBadge
                 v-if="kit.cancelled"
                 label="Cancelled"
@@ -261,50 +157,167 @@
                 variant="solid"
                 class="absolute top-2 right-2"
               />
-              <UButton
-                v-if="!kit.img && canSuggest(kit)"
-                label="Add Photo"
-                icon="hugeicons:image-add-02"
-                size="sm"
-                :ui="{ label: 'block' }"
-                class="absolute bottom-2 right-2"
-                @click.stop="suggest('keyset_kit', kit)"
-              />
-            </div>
-          </UPageCard>
+            </template>
+
+            <template v-if="kit.qty" #footer-start>
+              <div class="flex items-center gap-1.5 text-xs text-muted">
+                <UIcon name="hugeicons:package" class="size-4" />
+                <span class="tabular-nums">
+                  {{ formatNumber(kit.qty) }} units
+                </span>
+              </div>
+            </template>
+          </SharedCatalogCard>
         </UPageGrid>
 
-        <p v-else class="text-sm text-muted">
-          No kits have been added yet.
-          <ULink
-            v-if="authenticated && !editable"
-            :to="submitKitLink"
-            class="text-primary"
-          >
-            Add a kit
-          </ULink>
-        </p>
+        <UEmpty
+          v-else
+          icon="hugeicons:cells"
+          title="No Kits Yet"
+          :description="
+            authenticated
+              ? 'Add the base kit first, then alphas, novelties, and spacebars.'
+              : 'The kits of this keyset have not been added yet.'
+          "
+          :actions="
+            authenticated
+              ? [
+                  {
+                    label: 'Add Kit',
+                    icon: 'hugeicons:dashboard-square-add',
+                    ui: { label: 'block' },
+                    ...addKitTarget,
+                  },
+                ]
+              : []
+          "
+        />
       </section>
 
-      <!-- Colors -->
-      <section v-if="data.colors?.length" class="space-y-4">
-        <h2 class="text-lg font-semibold text-highlighted">Color Palette</h2>
-        <p class="text-sm text-muted">
-          Colors displayed on screen are for reference only - use a physical
-          color fan for accurate matching. Some codes are from the designer and
-          may differ from official references (RAL, Pantone, etc.).
-        </p>
-
-        <div
-          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
+      <!-- Colors: added and removed, never edited -->
+      <section v-if="data.colors?.length || editable" class="space-y-4">
+        <UPageHeader
+          title="Color Palette"
+          :description="
+            data.colors?.length
+              ? 'Colors displayed on screen are for reference only - use a physical color fan for accurate matching. Some codes are from the designer and may differ from official references (RAL, Pantone, etc.).'
+              : undefined
+          "
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
         >
-          <KeysetColorCard
-            v-for="color in data.colors"
-            :key="color.id"
-            v-bind="color.color"
-          />
-        </div>
+          <template v-if="editable" #links>
+            <UTooltip text="Add Colors">
+              <UButton
+                icon="hugeicons:dashboard-circle-add"
+                variant="ghost"
+                aria-label="Add Colors"
+                @click="colorFormOpen = true"
+              />
+            </UTooltip>
+          </template>
+        </UPageHeader>
+
+        <template v-if="data.colors?.length">
+          <div
+            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
+          >
+            <KeysetColorCard
+              v-for="color in data.colors"
+              :key="color.id"
+              v-bind="color.color"
+            >
+              <template v-if="editable" #action>
+                <UTooltip text="Remove">
+                  <UButton
+                    icon="hugeicons:dashboard-circle-remove"
+                    size="xs"
+                    color="error"
+                    variant="ghost"
+                    aria-label="Remove Color"
+                    @click="
+                      openDelete(
+                        'Color',
+                        `${color.color.system} ${color.color.code}`,
+                        `/api/keysets/${color.profile_keyset_id}/colors/${color.id}`,
+                      )
+                    "
+                  />
+                </UTooltip>
+              </template>
+            </KeysetColorCard>
+          </div>
+        </template>
+
+        <UEmpty
+          v-else
+          icon="hugeicons:colors"
+          title="No Colors Yet"
+          description="Add the alpha and modifier colors first, then the accents."
+          :actions="[
+            {
+              label: 'Add Colors',
+              icon: 'hugeicons:dashboard-circle-add',
+              ui: { label: 'block' },
+              onClick: () => (colorFormOpen = true),
+            },
+          ]"
+        />
       </section>
+
+      <template v-if="editable">
+        <SharedRevisionHistory
+          ref="history"
+          domain="keyset"
+          :parent-key="`${profile}/${keyset}`"
+          description="Every change to this keyset and its kits, newest first."
+          @reverted="onReverted"
+        />
+
+        <UModal v-model:open="keysetFormOpen" title="Edit Keyset">
+          <template #body>
+            <KeysetModalKeysetForm
+              :is-edit="true"
+              :metadata="data"
+              @on-success="onFormSuccess"
+            />
+          </template>
+        </UModal>
+
+        <UModal
+          v-model:open="kitForm.open"
+          :title="kitForm.isEdit ? 'Edit Kit' : 'Add Kit'"
+          :description="
+            kitForm.isEdit
+              ? undefined
+              : 'Add the base and alpha kits before novelties, spacebars, and other extras.'
+          "
+        >
+          <template #body>
+            <KeysetModalKeysetKitForm
+              :is-edit="kitForm.isEdit"
+              :metadata="kitForm.metadata"
+              @on-success="onFormSuccess"
+            />
+          </template>
+        </UModal>
+
+        <UModal v-model:open="colorFormOpen" title="Add Colors">
+          <template #body>
+            <KeysetModalKeysetColorForm @on-success="onFormSuccess" />
+          </template>
+        </UModal>
+
+        <SharedConfirmModal
+          v-model:open="deleteTarget.open"
+          :title="`Remove ${deleteTarget.entity}`"
+          :description="`Are you sure you want to remove ${deleteTarget.entity.toLowerCase()} '${deleteTarget.name}'? This action cannot be undone.`"
+          confirm-label="Remove"
+          :loading="deleting"
+          @confirm="confirmDelete"
+        />
+      </template>
+
       <SharedSuggestEditModal
         v-if="suggestTarget"
         v-model:open="suggestOpen"
@@ -410,27 +423,19 @@ const breadcrumbs = computed(() => {
   ]
 })
 
-const externalLinks = computed(() => {
+// The interest check thread and dvorcol's order charts; vendor pages are
+// left out, since they go stale once the group buy ends
+const referenceLinks = computed(() => {
   const links = []
 
-  if (data.value.url) {
-    if (data.value.url.includes('geekhack')) {
-      links.push({
-        label: 'Geekhack',
-        icon: 'hugeicons:comment-01',
-        to: data.value.url,
-        target: '_blank',
-        external: true,
-      })
-    } else {
-      links.push({
-        label: 'Vendor',
-        icon: 'hugeicons:link-square-02',
-        to: data.value.url,
-        target: '_blank',
-        external: true,
-      })
-    }
+  if (data.value.url?.includes('geekhack')) {
+    links.push({
+      label: 'Geekhack',
+      icon: 'hugeicons:comment-01',
+      to: data.value.url,
+      target: '_blank',
+      external: true,
+    })
   }
 
   if (data.value.order_graph) {
@@ -470,6 +475,11 @@ const kits = computed(() => data.value?.kits || [])
 
 const history = useTemplateRef('history')
 
+// History of one kit, from its card
+const showHistory = (entityType, entityId, label) => {
+  history.value?.show({ record: { entityType, entityId, label } })
+}
+
 const kitLabel = (kit) => kit.name || kit.category?.name || 'Kit'
 
 // Prefer the keyset's own cover, then the first kit render; no placeholder
@@ -486,21 +496,28 @@ watch(coverImg, () => {
   coverFailed.value = false
 })
 
-// What the set is: stays true long after the group buy ends
-const details = computed(() =>
-  [
-    { term: 'Designer', description: data.value.designer },
-    { term: 'Row Sculpt', description: data.value.sculpt },
-  ].filter((item) => item.description),
-)
-
-// When and how it was sold: secondary history for collectors
-const groupBuy = computed(() => {
+// What the set is, then when and how it was sold
+const specs = computed(() => {
   const items = [
-    { term: 'IC Date', description: formatDate(data.value.ic_date) },
+    {
+      term: 'Designer',
+      description: data.value.designer,
+      icon: 'hugeicons:user-edit-01',
+    },
+    {
+      term: 'Row Sculpt',
+      description: data.value.sculpt,
+      icon: 'hugeicons:align-vertical-center',
+    },
+    {
+      term: 'IC Date',
+      description: formatDate(data.value.ic_date),
+      icon: 'hugeicons:bulb',
+    },
     {
       term: 'Timeline',
       description: formatDateRange(data.value.start_date, data.value.end_date),
+      icon: 'hugeicons:calendar-03',
     },
   ].filter((item) => item.description)
 
@@ -509,6 +526,7 @@ const groupBuy = computed(() => {
   if (phase) {
     items.push({
       term: 'Status',
+      icon: 'hugeicons:activity-01',
       badge: { label: phase, color: keysetPhaseColors[phase] },
     })
   }
@@ -516,12 +534,43 @@ const groupBuy = computed(() => {
   return items
 })
 
-const submitKitLink = computed(() => ({
-  path: '/keyset/submissions/submit',
-  query: { profile, keyset: data.value.profile_keyset_id },
-}))
+// Staff add a kit in place; others submit one for review
+const addKitTarget = computed(() =>
+  editable.value
+    ? { onClick: () => openKitForm() }
+    : {
+        to: {
+          path: '/keyset/submissions/submit',
+          query: { profile, keyset: data.value.profile_keyset_id },
+        },
+      },
+)
 
-const visible = ref(false)
+const keysetFormOpen = ref(false)
+const colorFormOpen = ref(false)
+const kitForm = reactive({ open: false, isEdit: false, metadata: {} })
+
+const openKitForm = (kit) => {
+  Object.assign(kitForm, {
+    open: true,
+    isEdit: !!kit,
+    metadata: { ...kit },
+  })
+}
+
+const onFormSuccess = () => {
+  keysetFormOpen.value = false
+  colorFormOpen.value = false
+  kitForm.open = false
+  refresh()
+}
+
+const {
+  target: deleteTarget,
+  deleting,
+  open: openDelete,
+  confirm: confirmDelete,
+} = useConfirmDelete(refresh)
 
 const preview = reactive({
   open: false,

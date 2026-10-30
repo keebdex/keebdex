@@ -29,11 +29,7 @@
           </p>
         </div>
 
-        <UTooltip
-          v-if="pagePath(entry)"
-          text="Open History"
-          :delay-duration="0"
-        >
+        <UTooltip v-if="pagePath(entry)" text="Open History">
           <UButton
             icon="hugeicons:time-quarter-pass"
             size="sm"

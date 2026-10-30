@@ -1,6 +1,12 @@
 <template>
   <USlideover :title="`${title} Information`">
-    <UButton icon="hugeicons:information-circle" label="Info" color="info" />
+    <UTooltip text="Info">
+      <UButton
+        icon="hugeicons:information-circle"
+        color="info"
+        :aria-label="`${title} Information`"
+      />
+    </UTooltip>
 
     <template #body>
       <UPageCard

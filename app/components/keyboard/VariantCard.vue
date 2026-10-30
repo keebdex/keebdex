@@ -63,11 +63,7 @@
     </div>
 
     <template #description>
-      <SharedDescriptionList
-        :columns="$device.isMobile && !snapshot ? 1 : 3"
-        :responsive="!snapshot"
-        :items="specs"
-      />
+      <SharedSpecList :items="specs" layout="grid" :columns="3" />
     </template>
 
     <template #leading>
@@ -104,7 +100,7 @@
 
       <SharedSaveToCollection
         v-if="authenticated"
-        :item="keyboard"
+        :item="{ ...variant, release_name: release.name }"
         category="keyboard"
         label="Save"
         @on-select="onSelectCollection"
@@ -159,91 +155,52 @@ const viewMode = ref(view?.viewMode ?? 'single')
 
 const title = computed(() => {
   return formatKeyboardDescription([
-    keyboard.keyboard_name,
-    keyboard.release_name,
-    keyboard.variant_name,
+    keyboard.brand?.name,
+    keyboard.name,
+    release.name,
+    variant.variant_name,
   ])
 })
 
+// The page shows the keyboard's own specs in its header, so the popup lists
+// what this variant adds; the copied image stands alone and keeps them.
 const specs = computed(() => {
-  const price = variant.msrp_price
-    ? formatPrice(variant.msrp_price, variant.currency)
-    : formatPrice(release.msrp_price, release.currency)
-
-  const caseMaterials = variant.case_materials?.length
-    ? variant.case_materials
-    : release.case_materials
-
-  const pcbTypes = variant.pcb_types?.length
-    ? variant.pcb_types
-    : release.pcb_types
-
-  const plateMaterials = variant.plate_materials?.length
-    ? variant.plate_materials
-    : release.plate_materials
-
-  const weightMaterials = variant.weight_materials?.length
-    ? variant.weight_materials
-    : release.weight_materials
+  const keyboardSpecs = snapshot ? keyboardSpecItems(keyboard) : []
 
   return [
     {
       term: 'Release Year',
       description: variant.release_year || release.release_year,
+      icon: 'hugeicons:calendar-03',
     },
-    {
-      term: 'Form Factor',
-      description: keyboard.form_factor,
-    },
-    {
-      term: 'Top Case Styles',
-      description: Array.isArray(keyboard.top_case_styles)
-        ? keyboard.top_case_styles.join(', ')
-        : keyboard.top_case_styles,
-    },
-    {
-      term: 'Mount',
-      description: Array.isArray(keyboard.mount_styles)
-        ? keyboard.mount_styles.join(', ')
-        : keyboard.mount_styles,
-    },
-    {
-      term: 'Typing Angle',
-      description: keyboard.typing_angle ? `${keyboard.typing_angle}°` : null,
-    },
+    ...keyboardSpecs,
     {
       term: 'Finish',
       description: variant.finish_type,
+      icon: 'hugeicons:paint-brush-01',
     },
     {
       term: 'Sale Type',
       description: variant.sale_type,
+      icon: 'hugeicons:shopping-bag-01',
     },
     {
       term: 'Units Produced',
       description: variant.units_produced,
+      icon: 'hugeicons:hashtag',
     },
     {
       term: 'Pricing',
-      description: price,
+      description: variantPrice(variant, release),
+      icon: 'hugeicons:sale-tag-02',
     },
-    {
-      term: 'Case',
-      description: caseMaterials?.length ? caseMaterials.join(', ') : null,
-    },
-    {
-      term: 'PCB',
-      description: pcbTypes?.length ? pcbTypes.join(', ') : null,
-    },
-    {
-      term: 'Plate',
-      description: plateMaterials?.length ? plateMaterials.join(', ') : null,
-    },
-    {
-      term: 'Weight',
-      description: weightMaterials?.length ? weightMaterials.join(', ') : null,
-    },
-  ]
+    // A variant's own materials replace the release's.
+    ...KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
+      term,
+      description: variantMaterials(variant, release, field),
+      icon,
+    })),
+  ].filter((item) => item.description)
 })
 
 const toast = useToast()

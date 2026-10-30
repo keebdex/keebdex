@@ -8,7 +8,7 @@
               v-if="isAdmin"
               color="primary"
               icon="hugeicons:keyboard"
-              label="Add"
+              label="Add Keyset"
             />
 
             <template #body="{ close }">

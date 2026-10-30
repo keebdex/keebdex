@@ -238,11 +238,13 @@ export const isProtectedSuggestionField = (
   key: string,
 ) => SYSTEM_FIELDS.includes(key) || SUGGESTION_ENTITIES[type].protected.includes(key)
 
+/** Published: no review status, or approved; the rest are still in review. */
+export const isApproved = (record?: { review_status?: string | null }) =>
+  !!record && (!record.review_status || record.review_status === 'Approved')
+
 /** Published records take suggestions; the rest are still under review. */
 export const isSuggestable = (record?: { review_status?: string | null }) =>
-  !!record &&
-  (!record.review_status || record.review_status === 'Approved') &&
-  !(record as { deleted?: boolean }).deleted
+  isApproved(record) && !(record as { deleted?: boolean }).deleted
 
 /**
  * Fields that are not columns of the record: a keyset's colors, rows of

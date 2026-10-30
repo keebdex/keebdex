@@ -4,7 +4,9 @@
     :title="title"
     :description="description"
   >
-    <UButton :label="buttonLabel" :icon="icon" />
+    <UTooltip :text="buttonLabel">
+      <UButton :icon="icon" :aria-label="buttonLabel" />
+    </UTooltip>
 
     <template #body>
       <UPageList class="flex gap-4">

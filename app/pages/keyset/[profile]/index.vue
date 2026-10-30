@@ -11,38 +11,40 @@
     @update:keysets="refresh"
   >
     <template #actions>
-      <template v-if="editable && data?.profile">
-        <UModal v-model:open="editing" title="Edit Profile">
-          <UButton icon="hugeicons:edit-01" label="Edit" />
+      <SharedRecordActions
+        v-if="data?.profile"
+        :editable="editable"
+        :suggestable="canSuggest(data.profile)"
+        label="Profile"
+        @edit="editing = true"
+        @suggest="suggest('keyset_profile', data.profile)"
+        @history="history?.show()"
+      />
 
-          <template #body="{ close }">
+      <template v-if="editable && data?.profile">
+        <SharedRevisionHistory
+          ref="history"
+          domain="keyset"
+          :parent-key="profile"
+          description="Every change to this profile, newest first. Its keysets keep their own history."
+          @reverted="refresh()"
+        />
+
+        <UModal v-model:open="editing" title="Edit Profile">
+          <template #body>
             <KeysetModalProfileForm
               :metadata="data.profile"
               is-edit
               @on-success="
                 () => {
-                  close()
+                  editing = false
                   refresh()
                 }
               "
             />
           </template>
         </UModal>
-
-        <SharedRevisionHistory
-          domain="keyset"
-          :parent-key="profile"
-          description="Every change to this profile, newest first. Its keysets keep their own history."
-          @reverted="refresh()"
-        />
       </template>
-
-      <UButton
-        v-else-if="canSuggest(data?.profile)"
-        label="Edit"
-        icon="hugeicons:edit-01"
-        @click="suggest('keyset_profile', data.profile)"
-      />
 
       <SharedSuggestEditModal
         v-if="suggestTarget"
@@ -67,6 +69,7 @@ const { profile } = route.params
 // edits.
 const editable = computed(() => userStore.isEditable(profile))
 const editing = ref(false)
+const history = useTemplateRef('history')
 
 const {
   target: suggestTarget,

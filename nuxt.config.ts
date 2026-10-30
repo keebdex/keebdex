@@ -63,9 +63,6 @@ export default defineNuxtConfig({
     '/artisan/submissions/**': { ssr: false },
     '/keyboard/submissions/**': { ssr: false },
     '/keyset/submissions/**': { ssr: false },
-    '/keyboard/brand/*/*/sort': { ssr: false },
-    '/keyset/*/*/color': { ssr: false },
-    '/keyset/*/*/kit': { ssr: false },
   },
 
   css: ['~/assets/main.css'],

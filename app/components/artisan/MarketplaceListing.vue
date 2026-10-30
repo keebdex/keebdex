@@ -98,7 +98,6 @@
             <UTooltip
               v-for="{ id, artisan } in trade.items"
               :key="id"
-              :delay-duration="0"
               :text="colorwayTitle(artisan)"
             >
               <UAvatar :src="artisan.img" :alt="artisan.name" />
