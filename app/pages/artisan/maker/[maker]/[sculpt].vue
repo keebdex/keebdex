@@ -6,13 +6,11 @@
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
+        <!-- Add keeps its label; the other actions are icon-only, named by
+             their tooltips and aria-labels -->
         <template #right>
           <div class="flex items-center gap-2">
-            <UModal
-              v-if="editable"
-              v-model:visible="visible.create"
-              title="Add Colorway"
-            >
+            <UModal v-if="editable" title="Add Colorway">
               <UButton
                 icon="hugeicons:dashboard-square-add"
                 color="primary"
@@ -46,78 +44,40 @@
               }"
             />
 
-            <UButton
-              v-if="canSuggest(sculpt)"
-              icon="hugeicons:dashboard-square-edit"
-              label="Edit"
-              @click="
+            <SharedRecordActions
+              :editable="editable"
+              :suggestable="canSuggest(sculpt)"
+              :ghost="false"
+              label="Sculpt"
+              @edit="editingSculpt = true"
+              @suggest="
                 suggest('artisan_sculpt', sculpt, {
                   sculpts: sculpt.maker_sculpts,
                 })
               "
+              @history="history?.show()"
+              @delete="
+                openDelete(
+                  'Sculpt',
+                  sculpt.name,
+                  `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
+                )
+              "
             />
 
-            <template v-if="editable">
-              <UModal v-model:visible="visible.edit" title="Edit Sculpt">
-                <UButton icon="hugeicons:dashboard-square-edit" label="Edit" />
+            <USelect
+              v-if="$device.isDesktopOrTablet"
+              v-model="sortValue"
+              :items="sortOptions"
+              :icon="sortIconMap[sortValue]"
+              variant="soft"
+            />
 
-                <template #body="{ close }">
-                  <ArtisanModalSculptForm
-                    :is-edit="true"
-                    :metadata="sculpt"
-                    :sculpts="sculpt.maker_sculpts"
-                    @on-success="
-                      () => {
-                        close()
-                        refresh()
-                      }
-                    "
-                  />
-                </template>
-              </UModal>
-
-              <SharedRevisionHistory
-                ref="history"
-                domain="artisan"
-                :parent-key="`${route.params.maker}/${route.params.sculpt}`"
-                description="Every change to this sculpt and its colorways, newest first."
-                @reverted="onReverted"
-              />
-
-              <USelect
-                v-if="$device.isDesktopOrTablet"
-                v-model="sortValue"
-                :items="sortOptions"
-                :icon="sortIconMap[sortValue]"
-                variant="soft"
-              />
-
-              <SharedProfileDrawer
-                v-if="sculpt.story"
-                :title="sculpt.name"
-                :description="sculpt.story"
-              />
-
-              <UModal
-                title="Delete Sculpt"
-                :description="`Are you sure you want to delete ${sculpt.name}? This action cannot be undone.`"
-              >
-                <UButton
-                  icon="hugeicons:delete-02"
-                  label="Delete"
-                  color="error"
-                />
-
-                <template #footer="{ close }">
-                  <UButton label="Cancel" @click="close" />
-                  <UButton
-                    label="Delete"
-                    color="error"
-                    @click="deleteSculpt(close)"
-                  />
-                </template>
-              </UModal>
-            </template>
+            <SharedProfileDrawer
+              v-if="sculpt.story"
+              :title="sculpt.name"
+              :description="sculpt.story"
+            />
           </div>
         </template>
       </UDashboardNavbar>
@@ -184,6 +144,31 @@
       </UModal>
 
       <template v-if="editable">
+        <SharedRevisionHistory
+          ref="history"
+          :button="false"
+          domain="artisan"
+          :parent-key="`${route.params.maker}/${route.params.sculpt}`"
+          description="Every change to this sculpt and its colorways, newest first."
+          @reverted="onReverted"
+        />
+
+        <UModal v-model:open="editingSculpt" title="Edit Sculpt">
+          <template #body>
+            <ArtisanModalSculptForm
+              :is-edit="true"
+              :metadata="sculpt"
+              :sculpts="sculpt.maker_sculpts"
+              @on-success="
+                () => {
+                  editingSculpt = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
+
         <UModal v-model:open="colorwayForm.open" title="Edit Colorway">
           <template #body>
             <ArtisanModalColorwayForm
@@ -195,7 +180,7 @@
 
         <SharedConfirmModal
           v-model:open="deleteTarget.open"
-          title="Delete Colorway"
+          :title="`Delete ${deleteTarget.entity}`"
           :description="`Are you sure you want to delete ${deleteTarget.name}? This action cannot be undone.`"
           :loading="deleting"
           @confirm="confirmDelete"
@@ -229,7 +214,6 @@
 const appConfig = useAppConfig()
 const route = useRoute()
 const router = useRouter()
-const toast = useToast()
 
 const { page, size, setPage } = usePagination(72)
 
@@ -356,10 +340,10 @@ const {
 } = useSuggestEdit(editable)
 
 const visible = ref({
-  edit: false,
-  create: false,
   card: false,
 })
+
+const editingSculpt = ref(false)
 
 const { addItem } = useCollectionItem()
 
@@ -491,28 +475,15 @@ watch(
   { immediate: true },
 )
 
-const deleteSculpt = async (closeModal) => {
-  try {
-    await $fetch(
-      `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
-      { method: 'delete' },
-    )
-
-    toast.add(
-      successToast('delete', { entity: 'Sculpt', name: sculpt.value.name }),
-    )
-
-    closeModal()
-    navigateTo(`/artisan/maker/${route.params.maker}`)
-  } catch (error) {
-    toast.add(errorToast(error))
-  }
-}
-
 const {
   target: deleteTarget,
   deleting,
   open: openDelete,
   confirm: confirmDelete,
-} = useConfirmDelete(refresh)
+} = useConfirmDelete(() =>
+  // A deleted sculpt has no page left: go back to its maker
+  deleteTarget.entity === 'Sculpt'
+    ? navigateTo(`/artisan/maker/${route.params.maker}`)
+    : refresh(),
+)
 </script>

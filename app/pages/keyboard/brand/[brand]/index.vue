@@ -6,12 +6,10 @@
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
+        <!-- Add keeps its label; the other actions are icon-only, named by
+             their tooltips and aria-labels -->
         <template #right>
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.createKeyboard"
-            title="Add Keyboard"
-          >
+          <UModal v-if="editable" title="Add Keyboard">
             <UButton
               color="primary"
               icon="hugeicons:dashboard-square-add"
@@ -31,40 +29,15 @@
             </template>
           </UModal>
 
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.editBrand"
-            title="Edit Brand"
-          >
-            <UButton icon="hugeicons:edit-01" label="Edit" />
-
-            <template #body="{ close }">
-              <KeyboardModalBrandForm
-                :metadata="data"
-                :is-edit="true"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UButton
-            v-if="canSuggest(data)"
-            label="Edit"
-            icon="hugeicons:edit-01"
-            @click="suggest('keyboard_brand', data)"
-          />
-
-          <SharedRevisionHistory
-            v-if="editable"
-            domain="keyboard"
-            :parent-key="brand"
-            description="Every change to this brand, newest first. Its keyboards keep their own history."
-            @reverted="refresh()"
+          <SharedRecordActions
+            :editable="editable"
+            :suggestable="canSuggest(data)"
+            :deletable="false"
+            :ghost="false"
+            label="Brand"
+            @edit="editing = true"
+            @suggest="suggest('keyboard_brand', data)"
+            @history="history?.show()"
           />
 
           <SharedProfileDrawer
@@ -79,6 +52,32 @@
     </template>
 
     <template #body>
+      <template v-if="editable">
+        <SharedRevisionHistory
+          ref="history"
+          :button="false"
+          domain="keyboard"
+          :parent-key="brand"
+          description="Every change to this brand, newest first. Its keyboards keep their own history."
+          @reverted="refresh()"
+        />
+
+        <UModal v-model:open="editing" title="Edit Brand">
+          <template #body>
+            <KeyboardModalBrandForm
+              :metadata="data"
+              :is-edit="true"
+              @on-success="
+                () => {
+                  editing = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
+      </template>
+
       <UPageGrid v-if="data.keyboards?.length">
         <UPageCard
           v-for="keyboard in data.keyboards"
@@ -146,10 +145,8 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
-const visible = ref({
-  createKeyboard: false,
-  editBrand: false,
-})
+const editing = ref(false)
+const history = useTemplateRef('history')
 
 const { data, refresh } = await useAsyncData(
   () => `keyboard-brand:${brand.value}`,

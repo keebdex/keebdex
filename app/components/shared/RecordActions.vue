@@ -1,18 +1,24 @@
 <template>
-  <!-- Icon-only Edit / History / Delete of one record (a release, variant,
-       kit, or colorway). Staff edit in place and see History and Delete;
-       others with `suggestable` get Edit, which suggests an edit. -->
-  <div v-if="actions.length" class="flex items-center gap-1">
+  <!-- Icon-only Edit / History / Delete of one record (a page, release,
+       variant, kit, or colorway). Staff edit in place and see History and
+       Delete; others with `suggestable` get Edit, which suggests an edit.
+       Ghost on cards and release rows; a page header (`:ghost="false"`)
+       takes the theme's button style, like its other actions. -->
+  <div
+    v-if="actions.length"
+    class="flex items-center"
+    :class="ghost ? 'gap-1' : 'gap-2'"
+  >
     <!-- Tooltips only in the browser: a grid of cards would otherwise render
          up to three tooltip trees per card on the server, for a label the
          aria-label already gives -->
     <ClientOnly v-for="{ tooltip, ...button } in actions" :key="tooltip">
       <UTooltip :text="tooltip">
-        <UButton v-bind="button" variant="ghost" />
+        <UButton v-bind="button" :variant="ghost ? 'ghost' : undefined" />
       </UTooltip>
 
       <template #fallback>
-        <UButton v-bind="button" variant="ghost" />
+        <UButton v-bind="button" :variant="ghost ? 'ghost' : undefined" />
       </template>
     </ClientOnly>
   </div>
@@ -24,6 +30,7 @@ const {
   suggestable,
   label = '',
   deletable = true,
+  ghost = true,
 } = defineProps<{
   // Staff: edit in place, plus History and Delete
   editable?: boolean
@@ -32,6 +39,7 @@ const {
   deletable?: boolean
   // What the record is, for the buttons' accessible names ("Edit Release")
   label?: string
+  ghost?: boolean
 }>()
 
 const emit = defineEmits<{

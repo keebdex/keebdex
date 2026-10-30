@@ -48,7 +48,8 @@
           </span>
         </template>
 
-        <!-- The page's actions sit with the keyboard they act on -->
+        <!-- The page's actions sit with the keyboard they act on: Add keeps
+             its label, the rest are icon-only -->
         <template v-if="authenticated || data.derived_keyboards?.length" #links>
           <UButton
             v-if="authenticated"
@@ -58,32 +59,28 @@
             v-bind="addReleaseTarget"
           />
 
-          <!-- Staff edit in place; others suggest an edit -->
-          <UButton
-            v-if="editable || canSuggest(data)"
-            label="Edit"
-            icon="hugeicons:edit-01"
-            @click="
-              editable ? (keyboardFormOpen = true) : suggest('keyboard', data)
-            "
+          <SharedRecordActions
+            :editable="editable"
+            :suggestable="canSuggest(data)"
+            :deletable="false"
+            :ghost="false"
+            label="Keyboard"
+            @edit="keyboardFormOpen = true"
+            @suggest="suggest('keyboard', data)"
+            @history="history?.show()"
           />
 
           <!-- Ordering needs at least two releases. -->
-          <UButton
+          <UTooltip
             v-if="editable && (data.releases?.length || 0) > 1"
-            :icon="appConfig.ui.icons.sortManual"
-            label="Sort"
-            @click="sortOpen = true"
-          />
-
-          <SharedRevisionHistory
-            v-if="editable"
-            ref="history"
-            domain="keyboard"
-            :parent-key="slug"
-            description="Every change to this keyboard, its releases, and variants, newest first."
-            @reverted="onReverted"
-          />
+            text="Sort Releases"
+          >
+            <UButton
+              :icon="appConfig.ui.icons.sortManual"
+              aria-label="Sort Releases"
+              @click="sortOpen = true"
+            />
+          </UTooltip>
 
           <KeyboardRelatedKeyboardsDrawer
             v-if="data.derived_keyboards?.length"
@@ -264,6 +261,15 @@
       />
 
       <template v-if="editable">
+        <SharedRevisionHistory
+          ref="history"
+          :button="false"
+          domain="keyboard"
+          :parent-key="slug"
+          description="Every change to this keyboard, its releases, and variants, newest first."
+          @reverted="onReverted"
+        />
+
         <UModal v-model:open="keyboardFormOpen" title="Edit Keyboard">
           <template #body>
             <KeyboardModalKeyboardForm

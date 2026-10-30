@@ -6,12 +6,10 @@
           <UBreadcrumb :items="breadcrumbs" />
         </template>
 
+        <!-- Add keeps its label; the other actions are icon-only, named by
+             their tooltips and aria-labels -->
         <template #right>
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.create"
-            title="Add Sculpt"
-          >
+          <UModal v-if="editable" title="Add Sculpt">
             <UButton
               color="primary"
               icon="hugeicons:dashboard-square-add"
@@ -31,40 +29,15 @@
             </template>
           </UModal>
 
-          <UModal
-            v-if="editable"
-            v-model:visible="visible.edit"
-            title="Edit Maker"
-          >
-            <UButton icon="hugeicons:edit-01" label="Edit" />
-
-            <template #body="{ close }">
-              <ArtisanModalMakerForm
-                :is-edit="true"
-                :metadata="maker"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UButton
-            v-if="canSuggest(maker)"
-            label="Edit"
-            icon="hugeicons:edit-01"
-            @click="suggest('artisan_maker', maker)"
-          />
-
-          <SharedRevisionHistory
-            v-if="editable"
-            domain="artisan"
-            :parent-key="route.params.maker"
-            description="Every change to this maker, newest first. Its sculpts keep their own history."
-            @reverted="refresh()"
+          <SharedRecordActions
+            :editable="editable"
+            :suggestable="canSuggest(maker)"
+            :deletable="false"
+            :ghost="false"
+            label="Maker"
+            @edit="editing = true"
+            @suggest="suggest('artisan_maker', maker)"
+            @history="history?.show()"
           />
 
           <UModal
@@ -73,7 +46,13 @@
             title="Customize Pins"
             description="Pin up to 6 sculpts to the top for easy access."
           >
-            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
+            <UTooltip text="Customize Pins">
+              <UButton
+                icon="hugeicons:pin"
+                color="secondary"
+                aria-label="Customize Pins"
+              />
+            </UTooltip>
 
             <template #body="{ close }">
               <ArtisanModalPinSculpt
@@ -95,6 +74,32 @@
     </template>
 
     <template #body>
+      <template v-if="editable">
+        <SharedRevisionHistory
+          ref="history"
+          :button="false"
+          domain="artisan"
+          :parent-key="route.params.maker"
+          description="Every change to this maker, newest first. Its sculpts keep their own history."
+          @reverted="refresh()"
+        />
+
+        <UModal v-model:open="editing" title="Edit Maker">
+          <template #body>
+            <ArtisanModalMakerForm
+              :is-edit="true"
+              :metadata="maker"
+              @on-success="
+                () => {
+                  editing = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
+      </template>
+
       <UPageHeader
         v-if="favoriteSculpts.length"
         headline="Pinned"
@@ -146,10 +151,11 @@ const {
 } = useSuggestEdit(editable)
 
 const visible = ref({
-  create: false,
-  edit: false,
   customize_pins: false,
 })
+
+const editing = ref(false)
+const history = useTemplateRef('history')
 
 const { data: maker, refresh } = await useAsyncData(
   `maker:${route.params.maker}`,

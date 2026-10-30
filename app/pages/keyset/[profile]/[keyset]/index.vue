@@ -62,24 +62,16 @@
                 @on-select="saveTo"
               />
 
-              <!-- Staff edit in place; others suggest an edit -->
-              <UTooltip v-if="editable || canSuggest(data)" text="Edit">
-                <UButton
-                  icon="hugeicons:edit-01"
-                  aria-label="Edit Keyset"
-                  @click="
-                    editable ? (keysetFormOpen = true) : suggest('keyset', data)
-                  "
-                />
-              </UTooltip>
-
-              <UTooltip v-if="editable" text="History">
-                <UButton
-                  icon="hugeicons:time-quarter-pass"
-                  aria-label="Keyset History"
-                  @click="history?.show()"
-                />
-              </UTooltip>
+              <SharedRecordActions
+                :editable="editable"
+                :suggestable="canSuggest(data)"
+                :deletable="false"
+                :ghost="false"
+                label="Keyset"
+                @edit="keysetFormOpen = true"
+                @suggest="suggest('keyset', data)"
+                @history="history?.show()"
+              />
 
               <UTooltip
                 v-for="{ label, ...link } in externalLinks"
@@ -93,7 +85,6 @@
               <UTooltip v-if="canAddCover" text="Add Cover">
                 <UButton
                   icon="hugeicons:image-add-02"
-                  variant="ghost"
                   aria-label="Add Cover"
                   @click="suggest('keyset', data)"
                 />

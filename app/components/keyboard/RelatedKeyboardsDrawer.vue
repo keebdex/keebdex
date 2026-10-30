@@ -4,7 +4,11 @@
     :title="title"
     :description="description"
   >
-    <UButton :label="buttonLabel" :icon="icon" />
+    <!-- Icon-only, like the page header actions other than Add; the label is the
+         tooltip -->
+    <UTooltip :text="buttonLabel">
+      <UButton :icon="icon" :aria-label="buttonLabel" />
+    </UTooltip>
 
     <template #body>
       <UPageList class="flex gap-4">
