@@ -398,21 +398,18 @@ const releases = computed(() =>
   sortBy(
     (data.value?.releases || []).filter(isApproved).map((release) => ({
       ...release,
-      // A release with specs per variant leaves materials to each variant;
-      // prices show on the variant cards.
-      specs: release.variant_specs
-        ? []
-        : KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
-            term,
-            description: joinSpecList(release[field]),
-            icon,
-          })).filter((spec) => spec.description),
-      variants: (release.variants || []).filter(isApproved).map((variant) => ({
-        ...variant,
-        price: variantPrice(variant, release),
-        customSpecs: hasCustomSpecs(variant, release),
-        saveItem: { ...variant, release_name: release.name },
-      })),
+      // Prices show on the variant cards.
+      specs: releaseSpecItems(release, data.value),
+      variants: (release.variants || []).filter(isApproved).map((variant) => {
+        const { price, custom } = resolveVariantSpecs(variant, release)
+
+        return {
+          ...variant,
+          price,
+          customSpecs: custom,
+          saveItem: { ...variant, release_name: release.name },
+        }
+      }),
     })),
     'order',
   ).reverse(),

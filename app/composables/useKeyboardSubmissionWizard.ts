@@ -66,6 +66,7 @@ export const useKeyboardSubmissionWizard = ({
   const release = ref({
     name: '',
     release_year: null,
+    top_case_styles: [],
     currency: 'USD',
     msrp_price: null,
     description: '',
@@ -85,7 +86,7 @@ export const useKeyboardSubmissionWizard = ({
     img_front: '',
     img_back: '',
     photo_credit: '',
-    currency: 'USD',
+    currency: null,
     msrp_price: null,
   }))
 
@@ -101,12 +102,30 @@ export const useKeyboardSubmissionWizard = ({
           )?.label
         : release.value.name
 
+    // A new release's year, price, and materials show as what a variant
+    // inherits; an existing one's come from the keyboard detail.
+    const selected =
+      !isReview && releaseMode.value === 'existing'
+        ? (keyboardDetail.value?.releases || []).find(
+            (r: any) => String(r.id) === String(existingRelease.value.id),
+          )
+        : release.value
+
     return {
-      releases: [{ id: 'draft', name: releaseLabel || 'New Release' }],
+      releases: [
+        { ...selected, id: 'draft', name: releaseLabel || 'New Release' },
+      ],
       brand_slug: owner.key.value,
       brand_keyboard_slug: existingKeyboard.value.id || owner.key.value,
     }
   })
+
+  // The release form narrows the keyboard's layouts: the picked keyboard's,
+  // or the one being proposed.
+  const keyboardForReleaseForm = computed(() => ({
+    releases: [],
+    ...(keyboardMode.value === 'existing' ? keyboardDetail.value : keyboard.value),
+  }))
 
   const uploading = ref(false)
 
@@ -454,6 +473,7 @@ export const useKeyboardSubmissionWizard = ({
     addVariant,
     removeVariant,
     keyboardForVariantForm,
+    keyboardForReleaseForm,
     reviewStatus,
     keyboardUnderReview,
     releaseUnderReview,

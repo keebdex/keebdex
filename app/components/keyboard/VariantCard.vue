@@ -165,15 +165,25 @@ const title = computed(() => {
 // The page shows the keyboard's own specs in its header, so the popup lists
 // what this variant adds; the copied image stands alone and keeps them.
 const specs = computed(() => {
-  const keyboardSpecs = snapshot ? keyboardSpecItems(keyboard) : []
+  // The release's layouts below stand in for the keyboard's
+  const keyboardSpecs = snapshot
+    ? keyboardSpecItems(keyboard).filter(({ term }) => term !== 'Top Case')
+    : []
+  const resolved = resolveVariantSpecs(variant, release)
 
   return [
     {
       term: 'Release Year',
-      description: variant.release_year || release.release_year,
+      description: resolved.year,
       icon: 'hugeicons:calendar-03',
     },
     ...keyboardSpecs,
+    // The layouts this variant's release was sold in
+    {
+      term: 'Top Case',
+      ...listSpec(releaseTopCaseStyles(release, keyboard)),
+      icon: 'hugeicons:layout-top',
+    },
     {
       term: 'Finish',
       description: variant.finish_type,
@@ -191,13 +201,13 @@ const specs = computed(() => {
     },
     {
       term: 'Pricing',
-      description: variantPrice(variant, release),
+      description: resolved.price,
       icon: 'hugeicons:sale-tag-02',
     },
     // A variant's own materials replace the release's.
     ...KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
       term,
-      description: variantMaterials(variant, release, field),
+      ...listSpec(resolved.materials[field]),
       icon,
     })),
   ].filter((item) => item.description)

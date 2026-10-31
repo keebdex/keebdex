@@ -1,17 +1,19 @@
 import { formatPrice } from '~/utils'
 import { keyboardTopCaseStylesEnabled } from '~/utils/schemas/keyboard'
 
-type Priced = {
+type Release = {
   msrp_price?: number | null
   currency?: string | null
-}
-
-type Release = Priced & {
-  variant_specs?: boolean | null
+  release_year?: number | null
   [field: string]: unknown
 }
 
-type Variant = Priced & { [field: string]: unknown }
+type Variant = {
+  msrp_price?: number | null
+  currency?: string | null
+  release_year?: number | null
+  [field: string]: unknown
+}
 
 /** The material specs a release sets for its variants, which may override them. */
 export const KEYBOARD_MATERIAL_SPECS = [
@@ -25,36 +27,80 @@ export const KEYBOARD_MATERIAL_SPECS = [
 export const joinSpecList = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') || null : (value as string) || null
 
-/** A release's shared price; none when each variant sets its own. */
-const releasePrice = (release: Release) =>
-  release.variant_specs
-    ? ''
-    : formatPrice(release.msrp_price, release.currency, { stripZeros: true })
+/** A list spec as a spec list item's text and its `values`, which the list
+ * shows as choices when there are several (a PCB, plate, or layout to pick). */
+export const listSpec = (value: unknown) => ({
+  description: joinSpecList(value),
+  values: Array.isArray(value) ? (value as string[]) : undefined,
+})
 
-/** A variant's own price, else its release's. */
-export const variantPrice = (variant: Variant, release: Release) =>
-  variant.msrp_price
-    ? formatPrice(variant.msrp_price, variant.currency, { stripZeros: true })
-    : releasePrice(release)
+const hasValue = (value: unknown) =>
+  Array.isArray(value) ? value.length > 0 : value != null && value !== ''
 
-/** A variant's own materials for a spec, else its release's. */
-export const variantMaterials = (
-  variant: Variant,
+/**
+ * A variant's specs: each one its own when set, else its release's (a spec is
+ * set once and the level below leaves it empty to inherit). A price of its
+ * own is read in its own currency when it has one, else in the release's.
+ * `custom` is whether the variant overrides the price or a material; a year
+ * of its own is not a spec of its build.
+ */
+export const resolveVariantSpecs = (variant: Variant, release: Release) => {
+  const own = (field: string) => hasValue(variant[field])
+  const pick = (field: string) => (own(field) ? variant[field] : release[field])
+
+  return {
+    year: (pick('release_year') as number | null) ?? null,
+    price: own('msrp_price')
+      ? formatPrice(variant.msrp_price, variant.currency || release.currency, {
+          stripZeros: true,
+        })
+      : formatPrice(release.msrp_price, release.currency, { stripZeros: true }),
+    materials: Object.fromEntries(
+      KEYBOARD_MATERIAL_SPECS.map(({ field }) => [field, pick(field)]),
+    ) as Record<
+      (typeof KEYBOARD_MATERIAL_SPECS)[number]['field'],
+      string[] | null | undefined
+    >,
+    custom:
+      own('msrp_price') ||
+      KEYBOARD_MATERIAL_SPECS.some(({ field }) => own(field)),
+  }
+}
+
+/** The layouts a release was sold in: its own subset, else all of its
+ * keyboard's. Only some form factors have them. */
+export const releaseTopCaseStyles = (
   release: Release,
-  field: string,
+  keyboard: { form_factor?: string | null; top_case_styles?: string[] | null },
 ) =>
-  joinSpecList(
-    (variant[field] as unknown[])?.length ? variant[field] : release[field],
-  )
+  keyboardTopCaseStylesEnabled.includes(keyboard.form_factor || '')
+    ? ((hasValue(release.top_case_styles)
+        ? release.top_case_styles
+        : keyboard.top_case_styles) as string[] | null | undefined)
+    : null
 
-/** Whether a variant sets its own price or materials on a release whose
- * variants otherwise share them. */
-export const hasCustomSpecs = (variant: Variant, release: Release) =>
-  !release.variant_specs &&
-  (!!variant.msrp_price ||
-    KEYBOARD_MATERIAL_SPECS.some(
-      ({ field }) => (variant[field] as unknown[])?.length,
-    ))
+/** A release's specs as spec list items, leaving out unset ones. Its layouts
+ * show only when it narrows its keyboard's, which the page header lists. */
+export const releaseSpecItems = (
+  release: Release,
+  keyboard: { form_factor?: string | null },
+) =>
+  [
+    {
+      term: 'Top Case',
+      ...listSpec(
+        keyboardTopCaseStylesEnabled.includes(keyboard.form_factor || '')
+          ? release.top_case_styles
+          : null,
+      ),
+      icon: 'hugeicons:layout-top',
+    },
+    ...KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
+      term,
+      ...listSpec(release[field]),
+      icon,
+    })),
+  ].filter((spec) => spec.description)
 
 /** A keyboard's own specs, shared by every release, as spec list items;
  * unset ones keep a null description. Top case styles apply only to some
@@ -73,12 +119,12 @@ export const keyboardSpecItems = (keyboard: {
     },
     keyboardTopCaseStylesEnabled.includes(keyboard.form_factor || '') && {
       term: 'Top Case',
-      description: joinSpecList(keyboard.top_case_styles),
+      ...listSpec(keyboard.top_case_styles),
       icon: 'hugeicons:layout-top',
     },
     {
       term: 'Mount',
-      description: joinSpecList(keyboard.mount_styles),
+      ...listSpec(keyboard.mount_styles),
       icon: 'hugeicons:layers-01',
     },
     {
@@ -89,5 +135,6 @@ export const keyboardSpecItems = (keyboard: {
   ].filter((spec) => !!spec) as {
     term: string
     description?: string | null
+    values?: string[]
     icon: string
   }[]

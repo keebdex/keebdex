@@ -63,7 +63,7 @@
         >
           <KeyboardModalReleaseForm
             v-model="release"
-            :keyboard="{ releases: [] }"
+            :keyboard="keyboardForReleaseForm"
             mode="embedded"
           />
         </SharedSubmissionEntityStep>
@@ -148,6 +148,7 @@ const {
   addVariant,
   removeVariant,
   keyboardForVariantForm,
+  keyboardForReleaseForm,
   reviewStatus,
   keyboardUnderReview,
   releaseUnderReview,

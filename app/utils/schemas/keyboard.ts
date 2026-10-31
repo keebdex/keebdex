@@ -82,7 +82,9 @@ export const keyboardSubmissionSchema = keyboardBaseSchema
 export const keyboardReleaseSchema = z.object({
   name: z.string().min(1),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
-  variant_specs: z.boolean().nullish(),
+  top_case_styles: z
+    .array(z.enum(Constants.public.Enums.keyboard_top_case_style))
+    .nullish(),
   currency: z
     .enum(Constants.public.Enums.currency)
     .nullish()

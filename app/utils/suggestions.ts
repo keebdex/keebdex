@@ -199,7 +199,7 @@ export const SUGGESTION_ENTITIES: Record<
       suggest: true,
       keyboard: keyboardOf(record),
     }),
-    protected: ['brand_slug', 'brand_keyboard_slug', 'order', 'variant_specs'],
+    protected: ['brand_slug', 'brand_keyboard_slug', 'order'],
   },
   keyboard: {
     type: 'keyboard',
