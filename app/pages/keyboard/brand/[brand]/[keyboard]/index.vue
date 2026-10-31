@@ -180,72 +180,57 @@
           />
 
           <UPageGrid v-else>
-            <UModal
+            <SharedCatalogCard
               v-for="variant in release.variants"
               :key="variant.id"
-              :ui="{
-                content: 'sm:max-w-3xl',
-              }"
+              :title="variant.variant_name"
+              :description="variant.finish_type"
+              :price="variant.price"
+              :img="variant.img_front || variant.img_back"
+              fallback="/keyboard.png"
+              :editable="editable"
+              :suggestable="canSuggest(variant)"
+              class="cursor-pointer"
+              @click="openVariant(variant, release)"
+              @edit="openVariantForm(variant, release)"
+              @suggest="
+                suggest('keyboard_variant', variant, { keyboard: data })
+              "
+              @history="
+                showHistory(
+                  'keyboard_variant',
+                  variant.id,
+                  variant.variant_name,
+                )
+              "
+              @delete="
+                openDelete(
+                  'Variant',
+                  variant.variant_name,
+                  `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+                )
+              "
             >
-              <SharedCatalogCard
-                :title="variant.variant_name"
-                :description="variant.finish_type"
-                :price="variant.price"
-                :img="variant.img_front || variant.img_back"
-                fallback="/keyboard.png"
-                :editable="editable"
-                :suggestable="canSuggest(variant)"
-                class="cursor-pointer"
-                @edit="openVariantForm(variant, release)"
-                @suggest="
-                  suggest('keyboard_variant', variant, { keyboard: data })
-                "
-                @history="
-                  showHistory(
-                    'keyboard_variant',
-                    variant.id,
-                    variant.variant_name,
-                  )
-                "
-                @delete="
-                  openDelete(
-                    'Variant',
-                    variant.variant_name,
-                    `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
-                  )
-                "
-              >
-                <template #badges>
-                  <UBadge
-                    v-if="variant.customSpecs"
-                    label="Custom Specs"
-                    icon="hugeicons:settings-02"
-                    class="absolute top-2 left-2"
-                  />
-                </template>
-
-                <template v-if="authenticated" #footer-start>
-                  <SharedSaveToCollection
-                    :item="variant.saveItem"
-                    :item-name="variant.variant_name"
-                    category="keyboard"
-                    label="Save"
-                    keep-label
-                    @on-select="saveToCollection"
-                  />
-                </template>
-              </SharedCatalogCard>
-
-              <template #content>
-                <KeyboardVariantCard
-                  :keyboard="data"
-                  :release="release"
-                  :variant="variant"
-                  :authenticated="authenticated"
-                  @save-to="saveToCollection"
+              <template #badges>
+                <UBadge
+                  v-if="variant.customSpecs"
+                  label="Custom Specs"
+                  icon="hugeicons:settings-02"
+                  class="absolute top-2 left-2"
                 />
               </template>
-            </UModal>
+
+              <template v-if="authenticated" #footer-start>
+                <SharedSaveToCollection
+                  :item="variant.saveItem"
+                  :item-name="variant.variant_name"
+                  category="keyboard"
+                  label="Save"
+                  keep-label
+                  @on-select="saveToCollection"
+                />
+              </template>
+            </SharedCatalogCard>
           </UPageGrid>
         </section>
       </UPageList>
@@ -255,6 +240,15 @@
         icon="hugeicons:package"
         title="Nothing Has Shipped Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
+      />
+
+      <KeyboardVariantDrawer
+        v-model:open="variantDrawer.open"
+        :keyboard="data"
+        :release="variantDrawer.release"
+        :variant="variantDrawer.variant"
+        :authenticated="authenticated"
+        @save-to="saveToCollection"
       />
 
       <template v-if="editable">
@@ -526,6 +520,13 @@ const sortOpen = ref(false)
 const onSorted = () => {
   sortOpen.value = false
   refresh()
+}
+
+// One drawer shows whichever variant was opened
+const variantDrawer = reactive({ open: false, release: {}, variant: {} })
+
+const openVariant = (variant, release) => {
+  Object.assign(variantDrawer, { open: true, release, variant })
 }
 
 const { addItem } = useCollectionItem()

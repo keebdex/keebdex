@@ -130,3 +130,70 @@ export const keyboardSpecItems = (keyboard: {
     description?: string | null
     icon: string
   }[]
+
+/** Everything about one variant as spec list items, read from the board
+ * outwards: the keyboard's design (with its release's layouts in place of
+ * all of the keyboard's), then what it is built from, then how it was sold.
+ * Each is resolved through its release. Unset ones stay, shown as a dash
+ * like the keyboard's own, so every variant lists the same specs; Top Case
+ * appears only for form factors that have layouts. */
+export const variantSpecItems = (
+  keyboard: Parameters<typeof keyboardSpecItems>[0],
+  release: Release,
+  variant: Variant & {
+    finish_type?: string | null
+    sale_type?: string | null
+    units_produced?: number | null
+  },
+) => {
+  const resolved = resolveVariantSpecs(variant, release)
+  const material = (field: (typeof KEYBOARD_MATERIAL_SPECS)[number]['field']) => {
+    const { term, icon } = KEYBOARD_MATERIAL_SPECS.find(
+      (spec) => spec.field === field,
+    )!
+    return { term, description: joinSpecList(resolved.materials[field]), icon }
+  }
+
+  return [
+    // Design: form factor, layouts, mount, typing angle
+    ...keyboardSpecItems(keyboard).map((spec) =>
+      spec.term === 'Top Case'
+        ? {
+            ...spec,
+            description: joinSpecList(releaseTopCaseStyles(release, keyboard)),
+          }
+        : spec,
+    ),
+    // Build: the case and its finish, then what sits inside
+    material('case_materials'),
+    {
+      term: 'Finish',
+      description: variant.finish_type,
+      icon: 'hugeicons:paint-brush-01',
+    },
+    material('plate_materials'),
+    material('pcb_types'),
+    material('weight_materials'),
+    // Sale
+    {
+      term: 'Release Year',
+      description: resolved.year,
+      icon: 'hugeicons:calendar-03',
+    },
+    {
+      term: 'Sale Type',
+      description: variant.sale_type,
+      icon: 'hugeicons:shopping-bag-01',
+    },
+    {
+      term: 'Pricing',
+      description: resolved.price,
+      icon: 'hugeicons:sale-tag-02',
+    },
+    {
+      term: 'Units Produced',
+      description: variant.units_produced,
+      icon: 'hugeicons:hashtag',
+    },
+  ]
+}
