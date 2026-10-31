@@ -113,10 +113,7 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
-import {
-  keyboardReleaseSchema,
-  keyboardTopCaseStylesEnabled,
-} from '~/utils/schemas/keyboard'
+import { keyboardReleaseSchema } from '~/utils/schemas/keyboard'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
@@ -164,7 +161,7 @@ const release = ref({
 // A release narrows its keyboard's layouts (all of them for a keyboard that
 // lists none yet); only some form factors have them.
 const topCaseStyleOptions = computed(() =>
-  keyboardTopCaseStylesEnabled.includes(keyboard.form_factor)
+  hasTopCaseStyles(keyboard)
     ? keyboard.top_case_styles?.length
       ? keyboard.top_case_styles
       : Constants.public.Enums.keyboard_top_case_style
@@ -205,9 +202,7 @@ onBeforeMount(() => {
     'plate_materials',
     'weight_materials',
   ]) {
-    if (!Array.isArray(release.value[field])) {
-      release.value[field] = release.value[field] ? [release.value[field]] : []
-    }
+    release.value[field] = toArray(release.value[field])
   }
 
   // Auto-calculate order for new releases

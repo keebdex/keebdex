@@ -5,10 +5,6 @@ import {
 } from '~/utils/schemas/keyboard'
 import { entitySelectionSchema, validateEach } from '~/utils/schemas/common'
 
-// Older keyboards may store a single style instead of an array.
-const toArray = (value: unknown) =>
-  Array.isArray(value) ? value : value ? [value] : []
-
 // Drives the public "submit a keyboard" wizard: pick a brand, pick/create a keyboard,
 // then create the release + variant. Reuses existing single-entity APIs; creating a new
 // keyboard reuses the submission endpoint so the keyboard is owned and Pending, which
@@ -95,15 +91,8 @@ export const useKeyboardSubmissionWizard = ({
   // (see useRepeatableItems above), so the option must always be keyed 'draft' too — the
   // real release id (existing or newly created) is only resolved at submit time.
   const keyboardForVariantForm = computed(() => {
-    const releaseLabel =
-      !isReview && releaseMode.value === 'existing'
-        ? releaseOptions.value.find(
-            (r: any) => r.value === existingRelease.value.id,
-          )?.label
-        : release.value.name
-
-    // A new release's year, price, and materials show as what a variant
-    // inherits; an existing one's come from the keyboard detail.
+    // The picked release, or the new one being written: its name labels the
+    // option, and its year, price, and materials are what a variant inherits
     const selected =
       !isReview && releaseMode.value === 'existing'
         ? (keyboardDetail.value?.releases || []).find(
@@ -113,7 +102,7 @@ export const useKeyboardSubmissionWizard = ({
 
     return {
       releases: [
-        { ...selected, id: 'draft', name: releaseLabel || 'New Release' },
+        { ...selected, id: 'draft', name: selected?.name || 'New Release' },
       ],
       brand_slug: owner.key.value,
       brand_keyboard_slug: existingKeyboard.value.id || owner.key.value,

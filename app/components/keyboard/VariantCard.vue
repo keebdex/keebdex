@@ -1,36 +1,27 @@
 <template>
-  <!-- The variant as a fixed-width card for the copied image: one photo (or
-       front and back side by side) in the view picked in the drawer, every
-       spec, and the wordmark. Rendered only inside SharedSnapshot. -->
+  <!-- The variant as a fixed-width card for the copied image: the photos,
+       title, and specs the drawer shows, and the wordmark. Rendered only
+       inside the drawer's SharedSnapshot. -->
   <UPageCard
     :title="title"
     reverse
     :ui="{
       body: 'w-full',
       description: 'flex flex-col gap-4',
-      leading: 'flex gap-2',
     }"
   >
-    <div v-if="view === 'side'" class="flex gap-2">
-      <div v-for="side in sides" :key="side.label" class="flex-1">
+    <div class="flex gap-2">
+      <div v-for="photo in photos" :key="photo.label" class="flex-1">
         <NuxtImg
-          :src="side.src"
-          :alt="`${title} (${side.label})`"
+          :src="photo.src"
+          :alt="`${title} (${photo.label})`"
           class="aspect-video w-full object-cover rounded"
         />
-        <div class="text-xs text-center italic mt-2">{{ side.label }}</div>
+        <div v-if="photos.length > 1" class="text-xs text-center italic mt-2">
+          {{ photo.label }}
+        </div>
       </div>
     </div>
-    <NuxtImg
-      v-else
-      :src="
-        view === 'back'
-          ? variant.img_back || variant.img_front || '/keyboard.png'
-          : variant.img_front || variant.img_back || '/keyboard.png'
-      "
-      :alt="title"
-      class="aspect-video w-full object-cover rounded"
-    />
 
     <template #description>
       <SharedSpecList :items="specs" layout="grid" :columns="3" />
@@ -47,40 +38,24 @@
 </template>
 
 <script setup>
-const { keyboard, release, variant, view } = defineProps({
-  keyboard: {
-    type: Object,
-    default: () => ({}),
+defineProps({
+  title: {
+    type: String,
+    required: true,
   },
-  release: {
-    type: Object,
-    default: () => ({}),
+  // `variantPhotos()` for the view picked in the drawer
+  photos: {
+    type: Array,
+    required: true,
+  },
+  // `variantSpecItems()`
+  specs: {
+    type: Array,
+    required: true,
   },
   variant: {
     type: Object,
     default: () => ({}),
   },
-  // 'front', 'back', or 'side', as picked in the drawer
-  view: {
-    type: String,
-    default: 'front',
-  },
 })
-
-const title = computed(() =>
-  formatKeyboardDescription([
-    keyboard.brand?.name,
-    keyboard.name,
-    release.name,
-    variant.variant_name,
-  ]),
-)
-
-const sides = computed(() => [
-  { label: 'Front', src: variant.img_front || '/keyboard.png' },
-  { label: 'Back', src: variant.img_back || '/keyboard.png' },
-])
-
-// The image stands alone, so it carries the keyboard's specs too
-const specs = computed(() => variantSpecItems(keyboard, release, variant))
 </script>

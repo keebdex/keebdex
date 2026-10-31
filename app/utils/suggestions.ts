@@ -1,5 +1,5 @@
 import { formatDate } from '~/utils/date'
-import { formatPrice } from '~/utils'
+import { formatPrice, isBlank } from '~/utils'
 import { urlSlugify } from '~/utils/slug'
 import type { KeebModule } from '~/utils/keeb-modules'
 
@@ -303,12 +303,6 @@ export const suggestionRecord = (
   type === 'keyset' && Array.isArray(record.colors)
     ? { ...record, colors: sortedIds(record.colors.map(colorIdOf)) }
     : record
-
-const isBlank = (value: unknown) =>
-  value === null ||
-  value === undefined ||
-  value === '' ||
-  (Array.isArray(value) && !value.length)
 
 // Form values as they are stored: calendar dates as ISO dates, trimmed
 // strings, and blanks as null.

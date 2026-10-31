@@ -33,7 +33,7 @@
           v-model.number="variant.release_year"
           type="number"
           icon="hugeicons:calendar-03"
-          :placeholder="selectedRelease?.release_year ? String(selectedRelease.release_year) : undefined"
+          :placeholder="inherited.year ? String(inherited.year) : undefined"
           class="w-full"
         />
       </UFormField>
@@ -82,7 +82,7 @@
           v-model.number="variant.msrp_price"
           type="number"
           step="0.01"
-          :placeholder="releasePrice || '0.00'"
+          :placeholder="inherited.price || '0.00'"
           class="w-full"
         />
       </UFieldGroup>
@@ -97,7 +97,7 @@
     <UFormField label="Case" name="case_materials">
       <USelectMenu
         v-model="variant.case_materials"
-        :placeholder="releaseSpecPlaceholder('case_materials')"
+        :placeholder="inheritedMaterial('case_materials')"
         :items="Constants.public.Enums.keyboard_material"
         multiple
         class="w-full"
@@ -107,7 +107,7 @@
     <UFormField label="PCB" name="pcb_types">
       <USelectMenu
         v-model="variant.pcb_types"
-        :placeholder="releaseSpecPlaceholder('pcb_types')"
+        :placeholder="inheritedMaterial('pcb_types')"
         :items="Constants.public.Enums.keyboard_pcb_type"
         multiple
         class="w-full"
@@ -117,7 +117,7 @@
     <UFormField label="Plate" name="plate_materials">
       <USelectMenu
         v-model="variant.plate_materials"
-        :placeholder="releaseSpecPlaceholder('plate_materials')"
+        :placeholder="inheritedMaterial('plate_materials')"
         :items="Constants.public.Enums.keyboard_material"
         multiple
         class="w-full"
@@ -127,7 +127,7 @@
     <UFormField label="Weight" name="weight_materials">
       <USelectMenu
         v-model="variant.weight_materials"
-        :placeholder="releaseSpecPlaceholder('weight_materials')"
+        :placeholder="inheritedMaterial('weight_materials')"
         :items="Constants.public.Enums.keyboard_material"
         multiple
         class="w-full"
@@ -279,18 +279,17 @@ const hasFailedImage = computed(
 // own only where it differs.
 const selectedRelease = computed(() =>
   (keyboard.releases || []).find(
-    (release) => Number(release.id) === Number(variant.value.release_id),
+    (release) => String(release.id) === String(variant.value.release_id),
   ),
 )
 
-const releasePrice = computed(() =>
-  formatPrice(selectedRelease.value?.msrp_price, selectedRelease.value?.currency, {
-    stripZeros: true,
-  }),
+// What an empty field inherits, shown as its placeholder
+const inherited = computed(() =>
+  resolveVariantSpecs({}, selectedRelease.value || {}),
 )
 
-const releaseSpecPlaceholder = (field) => {
-  const value = joinSpecList(selectedRelease.value?.[field])
+const inheritedMaterial = (field) => {
+  const value = joinSpecList(inherited.value.materials[field])
   return value ? `Release: ${value}` : undefined
 }
 
@@ -306,11 +305,8 @@ onBeforeMount(() => {
     'plate_materials',
     'weight_materials',
   ]) {
-    if (!Array.isArray(variant.value[field])) {
-      variant.value[field] = variant.value[field] ? [variant.value[field]] : []
-    }
+    variant.value[field] = toArray(variant.value[field])
   }
-
 })
 
 watch(
@@ -395,7 +391,8 @@ const onSubmit = async () => {
   try {
     saving.value = true
 
-    // Empty materials are saved as null: the variant takes its release's
+    // The server saves empty materials as null: the variant takes its
+    // release's
     const data = await $fetch(
       `/api/keyboards/${keyboard.brand_keyboard_slug}/variants`,
       {

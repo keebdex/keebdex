@@ -31,28 +31,23 @@
           aria-label="Photo"
         />
 
-        <div v-if="view === 'side'" class="grid grid-cols-2 gap-2">
-          <figure v-for="side in sides" :key="side.label" class="space-y-1">
+        <div :class="photos.length > 1 && 'grid grid-cols-2 gap-2'">
+          <figure v-for="photo in photos" :key="photo.label" class="space-y-1">
             <NuxtImg
-              :src="side.src"
-              :alt="`${title} (${side.label})`"
+              :src="photo.src"
+              :alt="`${title} (${photo.label})`"
               class="aspect-video w-full object-cover rounded-lg border border-default"
             />
-            <figcaption class="text-xs text-center text-muted">
-              {{ side.label }}
+            <figcaption
+              v-if="photos.length > 1"
+              class="text-xs text-center text-muted"
+            >
+              {{ photo.label }}
             </figcaption>
           </figure>
         </div>
-        <NuxtImg
-          v-else
-          :src="photo"
-          :alt="title"
-          class="aspect-video w-full object-cover rounded-lg border border-default"
-        />
 
-        <div v-if="variant.sale_type || variant.photo_credit" class="flex flex-wrap gap-2">
-          <KeyboardVariantBadges :variant="variant" />
-        </div>
+        <KeyboardVariantBadges :variant="variant" />
       </div>
 
       <section class="space-y-3">
@@ -83,14 +78,14 @@
         @click="copyImage"
       />
 
-      <!-- The copied image: the same variant at a fixed width, in the view
-           picked above -->
+      <!-- The copied image: the same variant at a fixed width, with the
+           photos picked above -->
       <SharedSnapshot ref="snapshotRef" width="48rem">
         <KeyboardVariantCard
-          :keyboard="keyboard"
-          :release="release"
+          :title="title"
+          :photos="photos"
+          :specs="specs"
           :variant="variant"
-          :view="view"
         />
       </SharedSnapshot>
     </template>
@@ -118,14 +113,7 @@ const { keyboard, release, variant } = defineProps({
   authenticated: Boolean,
 })
 
-const title = computed(() =>
-  formatKeyboardDescription([
-    keyboard.brand?.name,
-    keyboard.name,
-    release.name,
-    variant.variant_name,
-  ]),
-)
+const title = computed(() => variantTitle(keyboard, release, variant))
 
 // Front, back, or both side by side, when the variant has both photos
 const view = ref('front')
@@ -147,16 +135,7 @@ watch(
   },
 )
 
-const photo = computed(() =>
-  view.value === 'back'
-    ? variant.img_back || variant.img_front || '/keyboard.png'
-    : variant.img_front || variant.img_back || '/keyboard.png',
-)
-
-const sides = computed(() => [
-  { label: 'Front', src: variant.img_front },
-  { label: 'Back', src: variant.img_back },
-])
+const photos = computed(() => variantPhotos(variant, view.value))
 
 const specs = computed(() => variantSpecItems(keyboard, release, variant))
 
