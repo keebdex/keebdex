@@ -27,13 +27,6 @@ export const KEYBOARD_MATERIAL_SPECS = [
 export const joinSpecList = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') || null : (value as string) || null
 
-/** A list spec as a spec list item's text and its `values`, which the list
- * shows as choices when there are several (a PCB, plate, or layout to pick). */
-export const listSpec = (value: unknown) => ({
-  description: joinSpecList(value),
-  values: Array.isArray(value) ? (value as string[]) : undefined,
-})
-
 const hasValue = (value: unknown) =>
   Array.isArray(value) ? value.length > 0 : value != null && value !== ''
 
@@ -88,7 +81,7 @@ export const releaseSpecItems = (
   [
     {
       term: 'Top Case',
-      ...listSpec(
+      description: joinSpecList(
         keyboardTopCaseStylesEnabled.includes(keyboard.form_factor || '')
           ? release.top_case_styles
           : null,
@@ -97,7 +90,7 @@ export const releaseSpecItems = (
     },
     ...KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
       term,
-      ...listSpec(release[field]),
+      description: joinSpecList(release[field]),
       icon,
     })),
   ].filter((spec) => spec.description)
@@ -119,12 +112,12 @@ export const keyboardSpecItems = (keyboard: {
     },
     keyboardTopCaseStylesEnabled.includes(keyboard.form_factor || '') && {
       term: 'Top Case',
-      ...listSpec(keyboard.top_case_styles),
+      description: joinSpecList(keyboard.top_case_styles),
       icon: 'hugeicons:layout-top',
     },
     {
       term: 'Mount',
-      ...listSpec(keyboard.mount_styles),
+      description: joinSpecList(keyboard.mount_styles),
       icon: 'hugeicons:layers-01',
     },
     {
@@ -135,6 +128,5 @@ export const keyboardSpecItems = (keyboard: {
   ].filter((spec) => !!spec) as {
     term: string
     description?: string | null
-    values?: string[]
     icon: string
   }[]

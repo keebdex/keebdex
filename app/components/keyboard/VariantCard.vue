@@ -181,7 +181,7 @@ const specs = computed(() => {
     // The layouts this variant's release was sold in
     {
       term: 'Top Case',
-      ...listSpec(releaseTopCaseStyles(release, keyboard)),
+      description: joinSpecList(releaseTopCaseStyles(release, keyboard)),
       icon: 'hugeicons:layout-top',
     },
     {
@@ -207,7 +207,7 @@ const specs = computed(() => {
     // A variant's own materials replace the release's.
     ...KEYBOARD_MATERIAL_SPECS.map(({ term, field, icon }) => ({
       term,
-      ...listSpec(resolved.materials[field]),
+      description: joinSpecList(resolved.materials[field]),
       icon,
     })),
   ].filter((item) => item.description)

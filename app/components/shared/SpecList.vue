@@ -1,6 +1,5 @@
 <template>
-  <!-- Icon, label, and value per spec (several `values` are choices, one of
-       which a build takes, shown as chips): `divide` lines them up in a row with
+  <!-- Icon, label, and value per spec: `divide` lines them up in a row with
        subtle separators, `grid` in even columns. Both follow the width they
        are given (container queries), not the screen, so they also fit
        modals and captured images; narrow, they use two columns. -->
@@ -13,15 +12,6 @@
         </dt>
         <dd class="text-sm font-medium text-highlighted">
           <UBadge v-if="spec.badge" v-bind="spec.badge" />
-          <ul
-            v-else-if="(spec.values?.length || 0) > 1"
-            :aria-label="`One of ${spec.description}`"
-            class="flex flex-wrap gap-1 pt-0.5"
-          >
-            <li v-for="value in spec.values" :key="value">
-              <UBadge :label="value" size="sm" variant="outline" />
-            </li>
-          </ul>
           <template v-else>{{ spec.description || '—' }}</template>
         </dd>
       </div>
@@ -36,8 +26,6 @@ const { layout = 'divide', columns = 4 } = defineProps<{
   items: {
     term: string
     description?: string | number | null
-    // Several are choices (e.g. PCB or plate options), shown as chips
-    values?: string[]
     icon?: string
     badge?: BadgeProps
   }[]
