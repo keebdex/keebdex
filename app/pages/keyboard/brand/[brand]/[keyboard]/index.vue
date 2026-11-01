@@ -9,238 +9,411 @@
     </template>
 
     <template #body>
-      <UPageHeader
-        :ui="{
-          root: 'pt-0 pb-6',
-          wrapper: 'gap-4 sm:flex-row sm:items-start sm:justify-between',
-          links: 'flex flex-wrap gap-2 shrink-0',
-          headline: 'mb-1',
-          description: 'text-sm',
-        }"
+      <!-- The catalog entry: the featured photo with the other variants as
+           a filmstrip, beside the keyboard's name, story, and record -->
+      <section
+        class="grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
       >
-        <template #title>
-          <span class="flex items-center gap-3">
-            <UAvatar
-              :src="logoUrl(data.brand?.slug)"
-              :alt="data.brand?.name"
-              size="lg"
-              :ui="{
-                root: 'bg-transparent rounded-none shrink-0',
-                image: data.brand?.invertible_logo
-                  ? 'rounded-none dark:invert'
-                  : 'rounded-none',
-              }"
-            />
-            {{ title }}
-          </span>
-        </template>
-
-        <template v-if="data.original" #headline>
-          <span class="text-sm text-muted font-normal">
-            Based on
-            <ULink
-              :to="`/keyboard/brand/${data.derived_from}`"
-              class="font-medium text-highlighted hover:underline"
-            >
-              {{ originalName }}
-            </ULink>
-          </span>
-        </template>
-
-        <!-- The page's actions sit with the keyboard they act on -->
-        <template v-if="authenticated || data.derived_keyboards?.length" #links>
-          <UButton
-            v-if="authenticated"
-            color="primary"
-            icon="hugeicons:delivery-view-01"
-            label="Add Release"
-            v-bind="addReleaseTarget"
-          />
-
-          <SharedRecordActions
-            :editable="editable"
-            :suggestable="canSuggest(data)"
-            label="Keyboard"
-            @edit="editing = true"
-            @suggest="suggest('keyboard', data)"
-            @history="history?.show()"
-          />
-
-          <!-- Ordering needs at least two releases. -->
-          <UTooltip
-            v-if="editable && (data.releases?.length || 0) > 1"
-            text="Sort Releases"
+        <!-- Stays in view beside the taller record on wide screens -->
+        <figure class="min-w-0 space-y-3 lg:sticky lg:top-0 lg:self-start">
+          <button
+            type="button"
+            class="group relative block w-full overflow-hidden rounded-lg border border-default bg-elevated"
+            :disabled="!featured"
+            :aria-label="featured ? `Open ${featured.name}` : undefined"
+            @click="featured && openVariant(featured.variant, featured.release)"
           >
-            <UButton
-              :icon="appConfig.ui.icons.sortManual"
-              aria-label="Sort Releases"
-              @click="sortOpen = true"
+            <NuxtImg
+              :src="featured?.img || '/keyboard.png'"
+              :alt="featured ? `${title} ${featured.name}` : title"
+              sizes="100vw lg:60vw"
+              fetchpriority="high"
+              class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             />
-          </UTooltip>
+            <figcaption
+              v-if="featured"
+              class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 text-start text-white"
+            >
+              <span class="min-w-0">
+                <span class="block truncate font-semibold">
+                  {{ featured.name }}
+                </span>
+                <span class="block truncate text-xs text-white/75">
+                  {{ featured.releaseName }}
+                  <template v-if="featured.year">
+                    · {{ featured.year }}</template
+                  >
+                </span>
+              </span>
+              <span
+                v-if="featured.price"
+                class="shrink-0 text-sm font-medium tabular-nums"
+              >
+                {{ featured.price }}
+              </span>
+            </figcaption>
+          </button>
 
-          <KeyboardRelatedKeyboardsDrawer
-            v-if="data.derived_keyboards?.length"
-            :keyboards="data.derived_keyboards"
-            title="Derived Designs"
-            description="A collection of keyboards that share this design's DNA through community reworks, official collaborations, and specialized iterations."
-            :button-label="`${data.derived_keyboards.length} Derived`"
-            icon="hugeicons:archive-02"
-          />
-        </template>
-
-        <template #description>
-          <div class="flex flex-col gap-4">
-            <SharedDescription
-              v-if="data.description"
-              :description="data.description"
-            />
-
-            <!-- The keyboard's own specs, shared by every release -->
-            <SharedSpecList :items="keyboardSpecs" />
+          <!-- Every variant with a photo; picking one features it -->
+          <div
+            v-if="photoRows.length > 1"
+            class="flex gap-2 overflow-x-auto pb-1"
+            role="listbox"
+            aria-label="Variants"
+          >
+            <button
+              v-for="row in photoRows"
+              :key="row.id"
+              type="button"
+              role="option"
+              :aria-selected="row.id === featured?.id"
+              :aria-label="row.name"
+              class="shrink-0 overflow-hidden rounded-md border-2 transition-opacity"
+              :class="
+                row.id === featured?.id
+                  ? 'border-primary'
+                  : 'border-transparent opacity-60 hover:opacity-100'
+              "
+              @click="featuredId = row.id"
+            >
+              <NuxtImg
+                :src="row.img"
+                :alt="row.name"
+                sizes="96px"
+                loading="lazy"
+                decoding="async"
+                class="aspect-video w-20 object-cover"
+              />
+            </button>
           </div>
-        </template>
-      </UPageHeader>
+        </figure>
 
-      <UPageList v-if="releases.length" divide>
-        <section
-          v-for="release in releases"
-          :key="release.id"
-          class="relative space-y-4 py-6 first:pt-0"
-        >
+        <div class="min-w-0 space-y-5">
+          <div class="space-y-2">
+            <ULink
+              :to="`/keyboard/brand/${data.brand?.slug}`"
+              class="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-highlighted"
+            >
+              <UAvatar
+                :src="logoUrl(data.brand?.slug)"
+                :alt="data.brand?.name"
+                size="xs"
+                :ui="{
+                  root: 'bg-transparent rounded-none',
+                  image: data.brand?.invertible_logo
+                    ? 'rounded-none dark:invert'
+                    : 'rounded-none',
+                }"
+              />
+              {{ data.brand?.name }}
+            </ULink>
+
+            <h1
+              class="text-3xl sm:text-4xl font-bold tracking-tight text-highlighted text-pretty"
+            >
+              {{ data.name }}
+            </h1>
+
+            <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+              <span
+                class="font-mono uppercase tracking-wider text-dimmed"
+                :title="'Catalog ID'"
+              >
+                {{ data.brand_keyboard_slug }}
+              </span>
+              <span v-if="data.original" class="text-muted">
+                Based on
+                <ULink
+                  :to="`/keyboard/brand/${data.derived_from}`"
+                  class="font-medium text-highlighted hover:underline"
+                >
+                  {{ originalName }}
+                </ULink>
+              </span>
+            </p>
+          </div>
+
+          <SharedDescription
+            v-if="data.description"
+            :description="data.description"
+            class="text-sm text-muted"
+          />
+
+          <!-- The page's actions sit with the keyboard they act on -->
+          <div v-if="authenticated" class="flex flex-wrap gap-2">
+            <UButton
+              color="primary"
+              icon="hugeicons:delivery-view-01"
+              label="Add Release"
+              v-bind="addReleaseTarget"
+            />
+
+            <SharedRecordActions
+              :editable="editable"
+              :suggestable="canSuggest(data)"
+              label="Keyboard"
+              @edit="editing = true"
+              @suggest="suggest('keyboard', data)"
+              @history="history?.show()"
+            />
+
+            <!-- Ordering needs at least two releases. -->
+            <UTooltip
+              v-if="editable && (data.releases?.length || 0) > 1"
+              text="Sort Releases"
+            >
+              <UButton
+                :icon="appConfig.ui.icons.sortManual"
+                aria-label="Sort Releases"
+                @click="sortOpen = true"
+              />
+            </UTooltip>
+          </div>
+
+          <!-- The record: the design every release shares, then what the
+               archive holds about the keyboard as a whole -->
+          <div
+            v-for="group in recordGroups"
+            :key="group.label"
+            class="space-y-1"
+          >
+            <h2
+              class="text-xs font-semibold uppercase tracking-wider text-dimmed"
+            >
+              {{ group.label }}
+            </h2>
+            <dl class="divide-y divide-default border-y border-default">
+              <div
+                v-for="item in group.items"
+                :key="item.term"
+                class="flex items-baseline justify-between gap-4 py-2"
+              >
+                <dt class="flex shrink-0 items-center gap-2 text-sm text-muted">
+                  <UIcon :name="item.icon" class="size-4 self-center" />
+                  {{ item.term }}
+                </dt>
+                <dd
+                  class="min-w-0 text-end text-sm font-medium text-highlighted tabular-nums"
+                >
+                  {{ item.description || '—' }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <template v-if="releases.length">
+        <!-- Every release on a rail, in the release order staff set
+             (newest first): its name and year, story, specs, and its
+             variants as cards -->
+        <section class="space-y-6 border-t border-default pt-8 mt-10">
           <UPageHeader
-            :description="release.description || undefined"
+            title="Production History"
+            :description="historySummary"
             :as="detailSectionHeaderAs"
             :ui="detailSectionHeaderUi"
-          >
-            <template #title>
-              <span class="flex flex-wrap items-center gap-2">
-                {{ release.name }}
-                <UBadge
-                  v-if="release.release_year"
-                  :label="String(release.release_year)"
-                  icon="hugeicons:calendar-03"
-                />
-              </span>
-            </template>
-
-            <!-- Add Variant, then the release's own actions; ghost, like the
-                 variant cards, so they read as the release's and not the
-                 keyboard's actions -->
-            <template #links>
-              <UTooltip v-if="authenticated" text="Add Variant">
-                <UButton
-                  icon="hugeicons:add-square"
-                  variant="ghost"
-                  aria-label="Add Variant"
-                  v-bind="addVariantTarget(release)"
-                />
-              </UTooltip>
-
-              <SharedRecordActions
-                ghost
-                :editable="editable"
-                :suggestable="canSuggest(release)"
-                :deletable="!release.variants?.length"
-                label="Release"
-                @edit="openReleaseForm(release)"
-                @suggest="
-                  suggest('keyboard_release', release, { keyboard: data })
-                "
-                @history="
-                  showHistory('keyboard_release', release.id, release.name)
-                "
-                @delete="
-                  openDelete(
-                    'Release',
-                    release.name,
-                    `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
-                  )
-                "
-              />
-            </template>
-          </UPageHeader>
-
-          <!-- Laid out like the keyboard's specs in the header -->
-          <SharedSpecList
-            v-if="release.specs.length"
-            :items="release.specs"
-            layout="grid"
           />
 
-          <UEmpty
-            v-if="!release.variants.length"
-            icon="hugeicons:layers-01"
-            title="No Variants Yet"
-            :description="
-              authenticated
-                ? 'Add the colorways and finishes this release came in.'
-                : 'The colorways and finishes of this release have not been added yet.'
-            "
-            :actions="addVariantActions(release)"
-          />
-
-          <UPageGrid v-else>
-            <SharedCatalogCard
-              v-for="variant in release.variants"
-              :key="variant.id"
-              :title="variant.variant_name"
-              :description="variant.finish_type"
-              :price="variant.price"
-              :img="variant.img_front || variant.img_back"
-              fallback="/keyboard.png"
-              :editable="editable"
-              :suggestable="canSuggest(variant)"
-              class="cursor-pointer"
-              @click="openVariant(variant, release)"
-              @edit="openVariantForm(variant, release)"
-              @suggest="
-                suggest('keyboard_variant', variant, { keyboard: data })
-              "
-              @history="
-                showHistory(
-                  'keyboard_variant',
-                  variant.id,
-                  variant.variant_name,
-                )
-              "
-              @delete="
-                openDelete(
-                  'Variant',
-                  variant.variant_name,
-                  `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
-                )
-              "
+          <ol class="relative ms-1.5 border-s-2 border-accented">
+            <li
+              v-for="release in releases"
+              :key="release.id"
+              class="relative ps-6 sm:ps-8 pb-10 last:pb-0"
             >
-              <template #badges>
-                <UBadge
-                  v-if="variant.customSpecs"
-                  label="Custom Specs"
-                  icon="hugeicons:settings-02"
-                  class="absolute top-2 left-2"
-                />
-              </template>
+              <span
+                class="absolute -start-[7px] top-2 size-3 rounded-full bg-primary ring-4 ring-(--ui-bg)"
+                aria-hidden="true"
+              />
 
-              <template v-if="authenticated" #footer-start>
-                <SharedSaveToCollection
-                  :item="variant.saveItem"
-                  :item-name="variant.variant_name"
-                  category="keyboard"
-                  label="Save"
-                  keep-label
-                  @on-select="saveToCollection"
-                />
-              </template>
-            </SharedCatalogCard>
-          </UPageGrid>
+              <div
+                class="grid gap-x-8 gap-y-3 sm:grid-cols-[10rem_minmax(0,1fr)]"
+              >
+                <!-- The release names its row on the rail, with its year -->
+                <div class="min-w-0">
+                  <h3
+                    class="text-lg font-semibold leading-tight text-highlighted wrap-break-word"
+                  >
+                    {{ release.name }}
+                  </h3>
+                  <p
+                    v-if="release.release_year"
+                    class="mt-1 text-sm text-muted tabular-nums"
+                  >
+                    {{ release.release_year }}
+                  </p>
+                </div>
+
+                <div class="min-w-0 space-y-3">
+                  <div class="flex items-start gap-2">
+                    <div class="min-w-0 flex-1 space-y-3">
+                      <SharedDescription
+                        v-if="release.description"
+                        :description="release.description"
+                        class="line-clamp-3 text-sm text-muted"
+                      />
+
+                      <SharedSpecList
+                        v-if="release.specs.length"
+                        :items="release.specs"
+                      />
+                    </div>
+
+                    <!-- Ghost, so they read as the release's and not the
+                         keyboard's actions -->
+                    <div class="flex shrink-0 items-center gap-1">
+                      <UTooltip v-if="authenticated" text="Add Variant">
+                        <UButton
+                          icon="hugeicons:add-square"
+                          variant="ghost"
+                          aria-label="Add Variant"
+                          v-bind="addVariantTarget(release)"
+                        />
+                      </UTooltip>
+
+                      <SharedRecordActions
+                        ghost
+                        :editable="editable"
+                        :suggestable="canSuggest(release)"
+                        :deletable="!release.variants?.length"
+                        label="Release"
+                        @edit="openReleaseForm(release)"
+                        @suggest="
+                          suggest('keyboard_release', release, {
+                            keyboard: data,
+                          })
+                        "
+                        @history="
+                          showHistory(
+                            'keyboard_release',
+                            release.id,
+                            release.name,
+                          )
+                        "
+                        @delete="
+                          openDelete(
+                            'Release',
+                            release.name,
+                            `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
+                          )
+                        "
+                      />
+                    </div>
+                  </div>
+
+                  <!-- The release's variants as cards, opening the drawer -->
+                  <UPageGrid
+                    v-if="release.variants.length"
+                    class="lg:grid-cols-2 xl:grid-cols-3"
+                  >
+                    <SharedCatalogCard
+                      v-for="variant in release.variants"
+                      :key="variant.id"
+                      :title="variant.variant_name"
+                      :description="variant.finish_type"
+                      :price="variant.price"
+                      :img="variant.img_front || variant.img_back"
+                      fallback="/keyboard.png"
+                      :editable="editable"
+                      :suggestable="canSuggest(variant)"
+                      class="cursor-pointer"
+                      @click="openVariant(variant, release)"
+                      @edit="openVariantForm(variant, release)"
+                      @suggest="
+                        suggest('keyboard_variant', variant, { keyboard: data })
+                      "
+                      @history="
+                        showHistory(
+                          'keyboard_variant',
+                          variant.id,
+                          variant.variant_name,
+                        )
+                      "
+                      @delete="deleteVariant(variant)"
+                    >
+                      <template #badges>
+                        <UBadge
+                          v-if="variant.customSpecs"
+                          label="Custom Specs"
+                          icon="hugeicons:settings-02"
+                          class="absolute top-2 left-2"
+                        />
+                      </template>
+
+                      <template v-if="authenticated" #footer-start>
+                        <SharedSaveToCollection
+                          :item="variant.saveItem"
+                          :item-name="variant.variant_name"
+                          category="keyboard"
+                          label="Save"
+                          keep-label
+                          @on-select="saveToCollection"
+                        />
+                      </template>
+                    </SharedCatalogCard>
+                  </UPageGrid>
+
+                  <p v-else class="text-sm text-dimmed">
+                    No variants recorded yet.
+                  </p>
+                </div>
+              </div>
+            </li>
+          </ol>
         </section>
-      </UPageList>
+      </template>
 
       <UEmpty
         v-else
         icon="hugeicons:package"
         title="Nothing Has Shipped Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
+        class="mt-10"
       />
+
+      <!-- Where the design comes from and where it went -->
+      <section
+        v-if="data.original || data.derived_keyboards?.length"
+        class="space-y-4 border-t border-default pt-8 mt-10"
+      >
+        <UPageHeader
+          title="Lineage"
+          description="The design this keyboard builds on, and the community reworks, collaborations, and iterations that share its DNA."
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        />
+
+        <UPageGrid>
+          <UPageCard
+            v-if="data.original"
+            :to="`/keyboard/brand/${data.derived_from}`"
+            :title="originalName"
+            description="Original design"
+            icon="hugeicons:git-branch"
+            spotlight
+          />
+
+          <UPageCard
+            v-for="keyboard in data.derived_keyboards"
+            :key="keyboard.brand_keyboard_slug"
+            :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
+            :title="`${keyboard.brand?.name} ${keyboard.name}`"
+            description="Derived design"
+            :container="imageCardContainerClass"
+            reverse
+            spotlight
+          >
+            <NuxtImg
+              preset="cover"
+              loading="lazy"
+              decoding="async"
+              :alt="keyboard.name"
+              :src="keyboard.cover_image || '/keyboard.png'"
+              class="aspect-video w-full rounded object-cover"
+            />
+          </UPageCard>
+        </UPageGrid>
+      </section>
 
       <KeyboardVariantDrawer
         v-model:open="variantDrawer.open"
@@ -409,8 +582,44 @@ const releases = computed(() =>
   ).reverse(),
 )
 
-// Staff add a variant in place; other signed-in users submit one.
-// Staff add a release in place; others submit one for review
+// Every published variant with its specs resolved, in release order, for
+// the record and the featured photo
+const allRows = computed(() =>
+  releases.value.flatMap((release) =>
+    release.variants.map((variant) => variantRow(variant, release)),
+  ),
+)
+
+// The record beside the photo: the design every release shares, then what
+// the archive holds about the keyboard as a whole
+const recordGroups = computed(() => [
+  { label: 'Design', items: keyboardSpecs.value },
+  {
+    label: 'Record',
+    items: keyboardRecordItems(data.value || {}, releases.value, allRows.value),
+  },
+])
+
+// The featured photo: the newest variant with one until another is picked
+const photoRows = computed(() => allRows.value.filter((row) => row.img))
+const featuredId = ref(null)
+
+const featured = computed(
+  () =>
+    photoRows.value.find((row) => row.id === featuredId.value) ||
+    photoRows.value[0] ||
+    null,
+)
+
+const historySummary = computed(() => {
+  const produced = recordGroups.value[1].items[0].description
+
+  return [countLabel(releases.value.length, 'release'), produced]
+    .filter(Boolean)
+    .join(' · ')
+})
+
+// Staff add a release or variant in place; others submit one for review
 const addReleaseTarget = computed(() =>
   editable.value
     ? { onClick: () => openReleaseForm() }
@@ -435,18 +644,6 @@ const addVariantTarget = (release) =>
           },
         },
       }
-
-const addVariantActions = (release) =>
-  authenticated.value
-    ? [
-        {
-          label: 'Add Variant',
-          icon: 'hugeicons:add-square',
-          ui: { label: 'block' },
-          ...addVariantTarget(release),
-        },
-      ]
-    : []
 
 const breadcrumbs = computed(() => {
   return [
@@ -521,6 +718,13 @@ const onSorted = () => {
   sortOpen.value = false
   refresh()
 }
+
+const deleteVariant = (variant) =>
+  openDelete(
+    'Variant',
+    variant.variant_name,
+    `/api/keyboards/${variant.brand_keyboard_slug}/variants/${variant.id}`,
+  )
 
 // One drawer shows whichever variant was opened
 const variantDrawer = reactive({ open: false, release: {}, variant: {} })

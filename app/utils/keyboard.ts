@@ -1,4 +1,10 @@
-import { formatKeyboardDescription, formatPrice, isBlank } from '~/utils'
+import {
+  formatKeyboardDescription,
+  formatNumber,
+  formatPrice,
+  isBlank,
+} from '~/utils'
+import { formatDate } from '~/utils/date'
 import { keyboardTopCaseStylesEnabled } from '~/utils/schemas/keyboard'
 
 // A keyboard, release, or variant: the specs one level sets and the level
@@ -174,6 +180,113 @@ export const variantSpecItems = (
   ]
 }
 
+/** One variant with what the keyboard page's record and featured photo read
+ * from it: its release, and its year, price, sale, finish, and units
+ * resolved through that release (year and units undefined when unset). */
+export const variantRow = (variant: Specs, release: Specs) => {
+  const resolved = resolveVariantSpecs(variant, release)
+
+  return {
+    id: variant.id as number,
+    variant,
+    release,
+    name: variant.variant_name as string,
+    releaseName: release.name as string,
+    year: resolved.year ?? undefined,
+    finish: (variant.finish_type as string | null) || null,
+    sale: (variant.sale_type as string | null) || null,
+    price: resolved.price || null,
+    units: (variant.units_produced as number | null) ?? undefined,
+    img: (variant.img_front || variant.img_back || null) as string | null,
+  }
+}
+
+export type VariantRow = ReturnType<typeof variantRow>
+
+/** The distinct values of a variant field, in first-seen order. */
+const distinct = (values: (string | null)[]) => [
+  ...new Set(values.filter((value): value is string => !!value)),
+]
+
+/**
+ * The keyboard's catalog record: what the archive holds about it as a whole,
+ * worked out from its published releases and their variant rows. Units add
+ * up only the variants with a known run, marked `+` when some are unknown;
+ * Last Verified is the newest verification of the keyboard, a release, or a
+ * variant.
+ */
+export const keyboardRecordItems = (
+  keyboard: Specs,
+  releases: Specs[],
+  rows: VariantRow[],
+) => {
+  const years = [
+    ...releases,
+    ...rows.map((row) => ({ release_year: row.year })),
+  ]
+    .map((item) => item.release_year)
+    .filter((year): year is number => !!year)
+  const first = years.length ? Math.min(...years) : null
+  const last = years.length ? Math.max(...years) : null
+
+  const known = rows.filter((row) => row.units !== undefined)
+  const units = known.reduce((sum, row) => sum + (row.units || 0), 0)
+
+  const verified = [
+    keyboard.verified_at,
+    ...releases.map((release) => release.verified_at),
+    ...rows.map((row) => row.variant.verified_at),
+  ]
+    .filter((date): date is string => !!date)
+    .sort()
+    .at(-1)
+
+  return [
+    {
+      term: 'Produced',
+      description:
+        first && (first === last ? String(first) : `${first} – ${last}`),
+      icon: 'hugeicons:calendar-03',
+    },
+    {
+      term: 'Releases',
+      description: formatNumber(releases.length),
+      icon: 'hugeicons:delivery-view-01',
+    },
+    {
+      term: 'Variants',
+      description: formatNumber(rows.length),
+      icon: 'hugeicons:layers-01',
+    },
+    {
+      term: 'Units Produced',
+      description: known.length
+        ? `${formatNumber(units)}${known.length < rows.length ? '+' : ''}`
+        : null,
+      icon: 'hugeicons:hashtag',
+    },
+    {
+      term: 'Sale Formats',
+      description: distinct(rows.map((row) => row.sale)).join(', ') || null,
+      icon: 'hugeicons:shopping-bag-01',
+    },
+    {
+      term: 'Finishes',
+      description: distinct(rows.map((row) => row.finish)).join(', ') || null,
+      icon: 'hugeicons:paint-brush-01',
+    },
+    {
+      term: 'Last Verified',
+      // The UTC day, read as a local date, so the server and the browser
+      // render the same day whatever the viewer's time zone
+      description: verified
+        ? formatDate(new Date(`${verified.slice(0, 10)}T00:00:00`))
+        : null,
+      icon: 'hugeicons:checkmark-badge-01',
+    },
+  ]
+}
+
 /** A variant's full name: brand, keyboard, release, and variant. */
 export const variantTitle = (keyboard: Specs, release: Specs, variant: Specs) =>
   formatKeyboardDescription([
@@ -186,8 +299,12 @@ export const variantTitle = (keyboard: Specs, release: Specs, variant: Specs) =>
 /** The photos for a view of a variant: `front` or `back` (each falling back
  * to the other, then to the placeholder), or `side` for both. */
 export const variantPhotos = (variant: Specs, view: string) => {
-  const front = (variant.img_front || variant.img_back || '/keyboard.png') as string
-  const back = (variant.img_back || variant.img_front || '/keyboard.png') as string
+  const front = (variant.img_front ||
+    variant.img_back ||
+    '/keyboard.png') as string
+  const back = (variant.img_back ||
+    variant.img_front ||
+    '/keyboard.png') as string
 
   if (view === 'side') {
     return [
@@ -196,5 +313,9 @@ export const variantPhotos = (variant: Specs, view: string) => {
     ]
   }
 
-  return [view === 'back' ? { label: 'Back', src: back } : { label: 'Front', src: front }]
+  return [
+    view === 'back'
+      ? { label: 'Back', src: back }
+      : { label: 'Front', src: front },
+  ]
 }
