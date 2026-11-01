@@ -10,19 +10,29 @@
 
 <script setup>
 // One link per submission wizard; guests sign in from there
-const labels = {
-  artisan: 'Submit a Colorway',
-  keyboard: 'Submit a Keyboard',
-  keyset: 'Submit a Keyset',
-}
-
-const links = KEEB_MODULES.map((module, index) => ({
-  label: labels[module],
-  icon: KEEB_MODULE_ICONS[module],
-  to: `/${module}/submissions/submit`,
-  color: index ? 'neutral' : 'primary',
-  variant: index ? 'outline' : 'solid',
-  size: 'lg',
-  ui: { label: 'block' },
-}))
+const link = { size: 'lg', ui: { label: 'block' } }
+const links = [
+  {
+    ...link,
+    label: 'Submit a Colorway',
+    icon: KEEB_MODULE_ICONS.artisan,
+    to: '/artisan/submissions/submit',
+    color: 'primary',
+    variant: 'solid',
+  },
+  {
+    ...link,
+    label: 'Submit a Keyboard',
+    icon: KEEB_MODULE_ICONS.keyboard,
+    to: '/keyboard/submissions/submit',
+    variant: 'outline',
+  },
+  {
+    ...link,
+    label: 'Submit a Keyset',
+    icon: KEEB_MODULE_ICONS.keyset,
+    to: '/keyset/submissions/submit',
+    variant: 'outline',
+  },
+]
 </script>

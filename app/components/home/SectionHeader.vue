@@ -3,9 +3,7 @@
     class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
   >
     <div class="min-w-0">
-      <p
-        class="flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary"
-      >
+      <p :class="['flex items-center gap-2', homeHeadlineClass]">
         <slot name="headline">{{ headline }}</slot>
       </p>
       <h2

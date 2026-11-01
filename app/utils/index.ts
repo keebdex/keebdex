@@ -176,6 +176,10 @@ export const artisanGridClass =
 export const imageCardContainerClass =
   'h-full grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)]'
 
+// The small mono headline over the home page's hero and section titles
+export const homeHeadlineClass =
+  'font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary'
+
 // A UPageHeader scaled down to head a section of a detail page (a keyboard's
 // releases, a keyset's kits and colors): an h2 title, no border or padding,
 // and the actions beside the title at every width. Pass both to the header

@@ -1,30 +1,30 @@
 <template>
-  <section
-    class="grid items-center gap-10 py-4 sm:py-10 lg:grid-cols-2 lg:gap-16 lg:py-16"
+  <UPageHero
+    orientation="horizontal"
+    headline="The keyboard collector's index"
+    :description="$config.public.site.description"
+    :ui="{
+      // The page already sets the width and gutters
+      container:
+        'px-0 sm:px-0 lg:px-0 py-4 sm:py-10 lg:py-16 gap-10 sm:gap-y-10 lg:gap-16',
+      headline: ['mb-4', homeHeadlineClass],
+      title: 'text-4xl sm:text-5xl xl:text-6xl text-balance',
+      description: 'mt-5 max-w-xl',
+      body: 'mt-8',
+      footer: 'mt-10',
+    }"
   >
-    <div class="flex min-w-0 flex-col items-start">
-      <p
-        class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary"
-      >
-        The keyboard collector's index
-      </p>
+    <template #title>
+      Every artisan, keyset, and keyboard, in
+      <span class="text-primary">one dex</span>.
+    </template>
 
-      <h1
-        class="mt-4 text-4xl font-bold tracking-tight text-highlighted text-balance sm:text-5xl xl:text-6xl"
-      >
-        Every artisan, keyset, and keyboard, in
-        <span class="text-primary">one dex</span>.
-      </h1>
-
-      <p class="mt-5 max-w-xl text-lg text-muted text-pretty sm:text-xl/8">
-        {{ $config.public.site.description }}
-      </p>
-
+    <template #body>
       <UDashboardSearchButton
         label="Search makers, colorways, keysets…"
         variant="outline"
         size="xl"
-        class="mt-8 w-full max-w-lg"
+        class="w-full max-w-lg"
         :ui="{ label: 'block truncate', trailing: 'ms-auto' }"
       />
 
@@ -47,11 +47,10 @@
           :ui="{ label: 'block' }"
         />
       </div>
+    </template>
 
-      <dl
-        v-if="stats.length"
-        class="mt-10 grid w-full grid-cols-2 gap-y-6 sm:grid-cols-4"
-      >
+    <template v-if="stats.length" #footer>
+      <dl class="grid w-full grid-cols-2 gap-y-6 sm:grid-cols-4">
         <div
           v-for="stat in stats"
           :key="stat.label"
@@ -65,10 +64,10 @@
           </dd>
         </div>
       </dl>
-    </div>
+    </template>
 
     <HomeKeycapMosaic v-if="data.showcase.length >= 8" :items="data.showcase" />
-  </section>
+  </UPageHero>
 </template>
 
 <script setup>
