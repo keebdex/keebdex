@@ -2,12 +2,12 @@
 title: Unreleased
 ---
 
-**Keyboards get the archive treatment** — every keyboard now reads like a catalog entry, with a large photo beside its full record, and its releases and variants on one timeline.
+**Keyboards get the archive treatment** — every keyboard now reads like a catalog entry, with a large photo beside its design, and its releases and variants on one timeline.
 
 ### ✨ What's New
 
-- **Keyboard pages** open as a catalog entry: a large photo you can switch between variants from the strip below it, beside the keyboard's design and a record of what Keebdex knows about it, from the years it was produced and how many releases, variants, and units it has, to its sale formats, finishes, and when it was last verified.
-- **Production History** lays every release out on a timeline, named with its year, alongside its story, specs, and its variants as photo cards, so you can follow how a keyboard evolved and open any variant for its full details.
+- **Keyboard pages** open as a catalog entry: a large photo you can switch between variants from the strip below it, beside the keyboard's name, story, and design specs.
+- **Production History** lays every release out on a timeline with its story, specs, and its variants as photo cards, so you can follow how a keyboard evolved and open any variant for its full details.
 - **Lineage** shows the design a keyboard is based on and every keyboard derived from it right on the page.
 
 ### 🐛 Bug Fixes
