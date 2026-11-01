@@ -18,18 +18,19 @@
     <div class="grid items-stretch gap-6 lg:grid-cols-2">
       <!-- Ranks 4–6 sit beside the podium; without them, the podium takes
       the row at the width it would have beside them -->
-      <div
-        :class="[
-          'flex items-end justify-center rounded-2xl border border-default bg-elevated/30 px-4 pt-8 sm:px-8',
-          !aside && 'lg:col-span-2',
-        ]"
+      <UCard
+        variant="subtle"
+        :class="!aside && 'lg:col-span-2'"
+        :ui="{
+          body: 'flex h-full items-end justify-center px-4 pt-8 pb-0 sm:px-8 sm:pt-8 sm:pb-0',
+        }"
       >
         <LeaderboardPodium
           :entries="podium"
           :me-id="me?.user_id"
           class="w-full max-w-xl"
         />
-      </div>
+      </UCard>
 
       <div v-if="aside" class="flex flex-col">
         <UPageList v-if="runnersUp.length" divide>

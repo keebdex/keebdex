@@ -45,30 +45,22 @@
 </template>
 
 <script setup>
-const { data } = await useHomeStatistics()
+const { catalogCount } = await useHomeStatistics()
 
 // "194 makers · 68,000+ colorways", leaving out counts that failed
-const counted = (...parts) =>
-  parts
-    .filter(([n]) => n)
-    .map(([n, unit, format = formatNumber]) =>
-      `${format(n)} ${n === 1 ? unit : `${unit}s`}`,
-    )
+const counted = (...keys) =>
+  keys
+    .filter((key) => catalogCount(key))
+    .map((key) => `${catalogCount(key)} ${key}`)
     .join(' · ')
 
-const modules = computed(() => {
-  const { catalog } = data.value
-
-  return [
+const modules = computed(() => [
     {
       key: 'artisan',
       label: 'Artisans',
       description:
         'Sculpts and colorways from makers around the world, with sale details, stems, and photos.',
-      count: counted(
-        [catalog.makers, 'maker'],
-        [catalog.colorways, 'colorway', formatEstimate],
-      ),
+      count: counted('makers', 'colorways'),
       links: [
         { label: 'Makers', to: '/artisan/maker', icon: 'hugeicons:user-multiple' },
         { label: 'Search', to: '/artisan/search', icon: 'hugeicons:search-01' },
@@ -80,7 +72,7 @@ const modules = computed(() => {
       label: 'Keyboards',
       description:
         'Brands, releases, and variants, with the specs and layouts each one shipped with.',
-      count: counted([catalog.keyboards, 'keyboard']),
+      count: counted('keyboards'),
       links: [
         { label: 'Brands', to: '/keyboard/brand', icon: 'hugeicons:user-multiple' },
         { label: 'Submit One', to: '/keyboard/submissions/submit', icon: 'hugeicons:add-circle' },
@@ -91,13 +83,12 @@ const modules = computed(() => {
       label: 'Keysets',
       description:
         'Profiles, group buys, kits, and colors, followed from interest check to delivery.',
-      count: counted([catalog.keysets, 'keyset']),
+      count: counted('keysets'),
       links: [
         { label: 'Profiles', to: '/keyset', icon: 'hugeicons:cross' },
         { label: 'Group Buys', to: '/keyset/group-buy?status=live', icon: 'hugeicons:live-streaming-02' },
         { label: 'Colors', to: '/keyset/color', icon: 'hugeicons:colors' },
       ],
     },
-  ]
-})
+])
 </script>

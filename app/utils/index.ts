@@ -34,6 +34,10 @@ export const userAvatar = (
 export const formatNumber = (value: number | null | undefined) =>
   value || value === 0 ? new Intl.NumberFormat('en-US').format(value) : ''
 
+// A count the database estimates, as a round figure: "68,000+"
+export const formatEstimate = (value: number) =>
+  `${formatNumber(Math.floor(value / 1000) * 1000)}+`
+
 // Profile rows hold a short name (CYL, SA) apart from the manufacturer (GMK,
 // Signature Plastics); show both unless they say the same thing (JTK JTK)
 export const keysetProfileLabel = (

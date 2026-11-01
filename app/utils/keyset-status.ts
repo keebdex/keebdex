@@ -1,5 +1,5 @@
 import { Constants, type Enums } from '~/types/database.types'
-import { isoToday } from './date'
+import { daysAgo, isoToday } from './date'
 
 // Whether a keyset is going ahead, from the database's `keyset_status` enum:
 // not decided yet (Interest Check), happening from its group buy to delivery
@@ -43,4 +43,23 @@ export const keysetPhase = (
     keyset.end_date >= today
 
   return live ? 'Live' : status
+}
+
+/**
+ * A live group buy's countdown: "9 days left", counting the end date itself,
+ * in warning colors for the last three days, and the share of its days that
+ * have passed. Days are UTC dates, like `keysetPhase`.
+ */
+export const groupBuyCountdown = (
+  keyset: { start_date: string; end_date: string },
+  today = isoToday(),
+) => {
+  const days = daysAgo(today, keyset.end_date) + 1
+  const length = daysAgo(keyset.start_date, keyset.end_date) + 1
+
+  return {
+    label: days <= 1 ? 'Last day' : `${days} days left`,
+    color: days <= 3 ? ('warning' as const) : ('primary' as const),
+    elapsed: Math.round(((length - days + 1) / length) * 100),
+  }
 }

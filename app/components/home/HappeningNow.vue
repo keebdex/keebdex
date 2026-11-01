@@ -15,12 +15,14 @@
       </template>
     </HomeSectionHeader>
 
-    <div class="grid gap-6 lg:grid-cols-3">
+    <!-- Makers take a column and group buys two; either alone takes the row -->
+    <div
+      :class="['grid gap-6', drops.length && keysets.length && 'lg:grid-cols-3']"
+    >
       <UCard
         v-if="drops.length"
         variant="subtle"
-        :class="!keysets.length && 'lg:col-span-3'"
-        :ui="{ header: 'flex items-center justify-between gap-2', body: 'p-0 sm:p-0' }"
+        :ui="cardUi"
       >
         <template #header>
           <h3 class="font-semibold text-highlighted">New from Makers</h3>
@@ -38,7 +40,7 @@
           <li v-for="maker in drops" :key="maker.maker_id">
             <ULink
               :to="`/artisan/maker/${maker.maker_id}`"
-              class="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-elevated/60 sm:px-6"
+              :class="[rowClass, 'gap-3']"
             >
               <UUser
                 :avatar="{
@@ -66,13 +68,13 @@
       <UCard
         v-if="keysets.length"
         variant="subtle"
-        :class="drops.length ? 'lg:col-span-2' : 'lg:col-span-3'"
-        :ui="{ header: 'flex items-center justify-between gap-2', body: 'p-0 sm:p-0' }"
+        :class="drops.length && 'lg:col-span-2'"
+        :ui="cardUi"
       >
         <template #header>
           <h3 class="font-semibold text-highlighted">Closing Soon</h3>
           <UButton
-            :label="`All ${data.keysets.length} Live`"
+            :label="`All ${data.liveCount} Live`"
             to="/keyset/group-buy?status=live"
             variant="link"
             size="sm"
@@ -85,7 +87,7 @@
           <li v-for="keyset in keysets" :key="keyset.profile_keyset_id">
             <ULink
               :to="`/keyset/${keyset.profile_keyset_id}`"
-              class="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-elevated/60 sm:px-6"
+              :class="[rowClass, 'gap-4']"
             >
               <NuxtImg
                 :src="keyset.img || '/keyset.png'"
@@ -132,39 +134,21 @@
 <script setup>
 const { data } = await useHomeStatistics()
 
-// The busiest makers first, about as many rows as fill the height of five
-// group buys beside them; the rest are a click away
-const drops = computed(() =>
-  [...data.value.makers]
-    .sort((a, b) => b.additions - a.additions)
-    .slice(0, 8),
-)
-
-const DAY = 86_400_000
-
-// "9 days left", counting the end date itself, in warning colors for the last
-// three days, and how much of the group buy has passed. Live group buys
-// always hold today, and days are UTC dates, like the query that picks them
-// (liveGroupBuys).
-const closing = ({ start_date, end_date }) => {
-  const today = Date.parse(isoToday())
-  const start = Date.parse(start_date)
-  const end = Date.parse(end_date)
-
-  const days = Math.round((end - today) / DAY) + 1
-  const length = Math.round((end - start) / DAY) + 1
-
-  return {
-    label: days <= 1 ? 'Last day' : `${days} days left`,
-    color: days <= 3 ? 'warning' : 'primary',
-    elapsed: Math.round(((length - days + 1) / length) * 100),
-  }
-}
-
-// The server sorts them by end date, so these close first
+// The server sends the busiest makers (about as many rows as fill the height
+// of the group buys beside them) and the group buys closing first
+const drops = computed(() => data.value.makers)
 const keysets = computed(() =>
-  data.value.keysets
-    .slice(0, 5)
-    .map((keyset) => ({ ...keyset, closing: closing(keyset) })),
+  data.value.keysets.map((keyset) => ({
+    ...keyset,
+    closing: groupBuyCountdown(keyset),
+  })),
 )
+
+// Both lists share one card look, with a row per item
+const cardUi = {
+  header: 'flex items-center justify-between gap-2',
+  body: 'p-0 sm:p-0',
+}
+const rowClass =
+  'flex items-center px-4 py-3 transition-colors hover:bg-elevated/60 sm:px-6'
 </script>

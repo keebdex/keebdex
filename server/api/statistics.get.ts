@@ -1,10 +1,14 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { getLocalTimeZone, today } from '@internationalized/date'
+import { uniqBy } from 'es-toolkit'
 import { sortBy } from 'es-toolkit/compat'
 import { PUBLISHED_FILTER, liveGroupBuys } from '../utils'
 
-// Photos for the home page's keycap mosaic
+// What the home page shows: photos for its keycap mosaic, and the busiest
+// makers and the group buys closing first in Happening Now
 const SHOWCASE_SIZE = 12
+const MAKER_SIZE = 8
+const KEYSET_SIZE = 5
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -34,15 +38,18 @@ export default defineEventHandler(async (event) => {
       .select('maker_id, maker:artisan_makers(name, invertible_logo)')
       .gte('created_at', startOfDay)
       .or(PUBLISHED_FILTER),
-    // Only the fields the home page's live group buys show
+    // The live group buys closing first, with how many are live in all
     liveGroupBuys(
       client
         .from('keysets')
         .select(
-          'name, img, start_date, end_date, profile_id, profile_keyset_id, profile:keyset_profiles(name, manufacturer_id)',
+          'name, img, start_date, end_date, profile_keyset_id, profile:keyset_profiles(name)',
+          { count: 'exact' },
         )
         .or(PUBLISHED_FILTER),
-    ),
+    )
+      .order('end_date')
+      .limit(KEYSET_SIZE),
     // The newest photographed colorways; a few sculpts can fill this many
     // rows, so the mosaic keeps one colorway per sculpt below
     client
@@ -91,9 +98,13 @@ export default defineEventHandler(async (event) => {
       })
     }
   }
-  const makers = [...additions.values()]
+  // The busiest makers first
+  const makers = sortBy(
+    [...additions.values()],
+    [(maker) => -maker.additions, 'name'],
+  ).slice(0, MAKER_SIZE)
 
-  const { data: keysets, error: keysetsError } = liveKeysets
+  const { data: keysets, count: liveCount, error: keysetsError } = liveKeysets
 
   if (keysetsError) {
     throw createError({
@@ -104,19 +115,15 @@ export default defineEventHandler(async (event) => {
 
   // The showcase and the counts only decorate the page, so a failed query
   // leaves them out instead of failing the live data
-  const sculpts = new Set()
-  const showcase = (latest.data || [])
-    .filter(({ maker_sculpt_id }) => {
-      if (sculpts.has(maker_sculpt_id)) return false
-      sculpts.add(maker_sculpt_id)
-      return true
-    })
-    .slice(0, SHOWCASE_SIZE)
-    .map(({ maker_sculpt_id: _, ...colorway }) => colorway)
+  const showcase = uniqBy(latest.data || [], (c) => c.maker_sculpt_id).slice(
+    0,
+    SHOWCASE_SIZE,
+  )
 
   return {
-    makers: sortBy(makers, 'name'),
-    keysets: sortBy(keysets, 'end_date'),
+    makers,
+    keysets,
+    liveCount: liveCount ?? keysets.length,
     showcase,
     catalog: {
       colorways: colorwayCount.count ?? null,

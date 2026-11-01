@@ -24,7 +24,6 @@
         :reverse="index === 1"
         item-class="w-80"
         duration="80s"
-        layout="center"
       >
         <template #default="{ item }">
           <ShoutoutCard :item="item" />
@@ -52,7 +51,7 @@ const { data } = await useAsyncData(
 const testimonials = computed(() => data.value?.data || [])
 
 // Two rows scrolling in opposite directions once there are enough shoutouts;
-// up to three sit still in a grid (HomeMarquee).
+// up to three sit still (HomeMarquee).
 const rows = computed(() => {
   const items = testimonials.value
   if (items.length < 6) return [items]

@@ -1,21 +1,29 @@
 // The home page's live data (GET /api/statistics), fetched once and shared
 // by its hero, Happening Now, and Browse the Dex sections
-export function useHomeStatistics() {
+export async function useHomeStatistics() {
   const empty = () => ({
     makers: [],
     keysets: [],
+    liveCount: 0,
     showcase: [],
     catalog: {} as Record<string, number | null>,
   })
 
-  return useAsyncData(
+  const { data } = await useAsyncData(
     'home-statistics',
     () => $fetch('/api/statistics').catch(empty),
     { default: empty },
   )
+
+  // Each catalog's size as shown, '' when its count failed; colorways are
+  // the database's estimate, so they read as a round figure
+  const catalogCount = (key: 'makers' | 'colorways' | 'keysets' | 'keyboards') => {
+    const value = data.value.catalog[key]
+    if (!value) return ''
+
+    return key === 'colorways' ? formatEstimate(value) : formatNumber(value)
+  }
+
+  return { data, catalogCount }
 }
 
-// The colorway count is the database's estimate, so it reads as a round
-// figure: "68,000+"
-export const formatEstimate = (value: number) =>
-  `${formatNumber(Math.floor(value / 1000) * 1000)}+`

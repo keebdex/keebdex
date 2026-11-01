@@ -8,7 +8,7 @@
     row starts a quarter key in, the third three quarters (Tab, Caps Lock) -->
     <div class="relative grid grid-cols-[repeat(19,minmax(0,1fr))]">
       <ULink
-        v-for="(colorway, index) in keys"
+        v-for="(colorway, index) in items"
         :key="colorway.colorway_id"
         :to="`/artisan/maker/${colorway.maker_id}/${colorway.sculpt_id}?cid=${colorway.colorway_id}`"
         :aria-label="colorway.name"
@@ -35,7 +35,8 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+// Three rows of four keys (the server sends twelve)
+defineProps<{
   items: {
     colorway_id: string
     name: string
@@ -45,13 +46,10 @@ const props = defineProps<{
   }[]
 }>()
 
-// Three rows of four keys
-const keys = computed(() => props.items.slice(0, 12))
-
 // Each row's first key sets where the row starts
-const offsets = Object.fromEntries([
-  [0, 'col-start-1'],
-  [4, 'col-start-2'],
-  [8, 'col-start-4'],
-]) as Record<number, string>
+const offsets: Record<number, string> = {
+  0: 'col-start-1',
+  4: 'col-start-2',
+  8: 'col-start-4',
+}
 </script>

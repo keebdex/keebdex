@@ -61,7 +61,7 @@
           <dd
             class="font-mono text-2xl font-semibold tabular-nums text-highlighted"
           >
-            {{ stat.format(stat.value) }}
+            {{ stat.value }}
           </dd>
         </div>
       </dl>
@@ -73,21 +73,15 @@
 
 <script setup>
 const { authenticated } = storeToRefs(useUserStore())
-const { data } = await useHomeStatistics()
+const { data, catalogCount } = await useHomeStatistics()
 
 // The size of each catalog, leaving out any count that failed
 const stats = computed(() =>
   [
-    { label: 'Makers', value: data.value.catalog.makers },
-    {
-      label: 'Colorways',
-      value: data.value.catalog.colorways,
-      format: formatEstimate,
-    },
-    { label: 'Keysets', value: data.value.catalog.keysets },
-    { label: 'Keyboards', value: data.value.catalog.keyboards },
-  ]
-    .map((stat) => ({ format: formatNumber, ...stat }))
-    .filter((stat) => stat.value),
+    { label: 'Makers', value: catalogCount('makers') },
+    { label: 'Colorways', value: catalogCount('colorways') },
+    { label: 'Keysets', value: catalogCount('keysets') },
+    { label: 'Keyboards', value: catalogCount('keyboards') },
+  ].filter((stat) => stat.value),
 )
 </script>
