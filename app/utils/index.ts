@@ -190,3 +190,12 @@ export const SEARCH_TERM_MIN_LENGTH = 3
 // a form model from an API record.
 export const pickKeys = (source: Record<string, any>, keys: string[]) =>
   Object.fromEntries(keys.map((key) => [key, source?.[key]]))
+
+// Whether a form or record value is unset: null, undefined, an empty string,
+// or an empty list. Unlike lodash's isEmpty, numbers (a price, a year) and
+// booleans count as set.
+export const isBlank = (value: unknown) =>
+  value === null ||
+  value === undefined ||
+  value === '' ||
+  (Array.isArray(value) && !value.length)

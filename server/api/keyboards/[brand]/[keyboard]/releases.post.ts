@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
         'pcb_types',
         'plate_materials',
         'weight_materials',
+        'top_case_styles',
       ],
     }),
     brand_slug: brand,

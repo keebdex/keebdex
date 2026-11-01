@@ -20,6 +20,13 @@
       </UFormField>
     </div>
 
+    <!-- Specs are set once and inherited: what the release leaves empty,
+         each variant sets for itself -->
+    <p class="text-sm text-muted">
+      Fill in only what every variant shares. For commissions or special drops
+      where colorways differ, leave the rest empty and set it on each variant.
+    </p>
+
     <UFormField label="Base Price" name="msrp_price">
       <UFieldGroup class="w-full">
         <USelect v-model="release.currency" :items="currencies" />
@@ -34,53 +41,55 @@
     </UFormField>
 
     <UFormField
-      v-if="!suggest"
-      name="variant_specs"
-      help="Enable this for commissions or special drops where every colorway has different materials or pricing. Disable for standard runs where all boards share the same specs."
+      v-if="topCaseStyleOptions.length"
+      label="Top Case"
+      name="top_case_styles"
+      help="Leave empty when this release came in every layout of the keyboard."
     >
-      <USwitch
-        v-model="release.variant_specs"
-        label="Unique Specs per Variant"
+      <USelectMenu
+        v-model="release.top_case_styles"
+        :items="topCaseStyleOptions"
+        multiple
+        placeholder="All layouts"
+        class="w-full"
       />
     </UFormField>
 
-    <template v-if="!release.variant_specs">
-      <UFormField label="Case" name="case_materials">
-        <USelectMenu
-          v-model="release.case_materials"
-          :items="Constants.public.Enums.keyboard_material"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
+    <UFormField label="Case" name="case_materials">
+      <USelectMenu
+        v-model="release.case_materials"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
-      <UFormField label="PCB" name="pcb_types">
-        <USelectMenu
-          v-model="release.pcb_types"
-          :items="Constants.public.Enums.keyboard_pcb_type"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
+    <UFormField label="PCB" name="pcb_types">
+      <USelectMenu
+        v-model="release.pcb_types"
+        :items="Constants.public.Enums.keyboard_pcb_type"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
-      <UFormField label="Plate" name="plate_materials">
-        <USelectMenu
-          v-model="release.plate_materials"
-          :items="Constants.public.Enums.keyboard_material"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
+    <UFormField label="Plate" name="plate_materials">
+      <USelectMenu
+        v-model="release.plate_materials"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
-      <UFormField label="Weight" name="weight_materials">
-        <USelectMenu
-          v-model="release.weight_materials"
-          :items="Constants.public.Enums.keyboard_material"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
-    </template>
+    <UFormField label="Weight" name="weight_materials">
+      <USelectMenu
+        v-model="release.weight_materials"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
     <UFormField
       label="Description"
@@ -108,7 +117,7 @@ import { keyboardReleaseSchema } from '~/utils/schemas/keyboard'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
-const { metadata, modelValue, isEdit, keyboard, mode, suggest } = defineProps({
+const { metadata, modelValue, isEdit, keyboard, mode } = defineProps({
   metadata: {
     type: Object,
     default: () => ({}),
@@ -127,8 +136,8 @@ const { metadata, modelValue, isEdit, keyboard, mode, suggest } = defineProps({
     default: 'standalone',
     validator: (value) => ['standalone', 'embedded'].includes(value),
   },
-  // Suggest Edit (SharedSuggestionForm): hides the fields a suggestion
-  // cannot change.
+  // Suggest Edit (SharedSuggestionForm) passes it to every form; a release
+  // has no field a suggestion cannot change.
   suggest: Boolean,
 })
 
@@ -140,7 +149,7 @@ const release = ref({
   description: '',
   order: null,
   release_year: null,
-  variant_specs: false,
+  top_case_styles: [],
   pcb_types: [],
   currency: 'USD',
   msrp_price: null,
@@ -148,6 +157,16 @@ const release = ref({
   plate_materials: [],
   weight_materials: [],
 })
+
+// A release narrows its keyboard's layouts (all of them for a keyboard that
+// lists none yet); only some form factors have them.
+const topCaseStyleOptions = computed(() =>
+  hasTopCaseStyles(keyboard)
+    ? keyboard.top_case_styles?.length
+      ? keyboard.top_case_styles
+      : Constants.public.Enums.keyboard_top_case_style
+    : [],
+)
 
 const schema = keyboardReleaseSchema.refine(
   (value) => {
@@ -176,22 +195,14 @@ onBeforeMount(() => {
     brand_keyboard_slug: keyboard.brand_keyboard_slug,
   })
 
-  if (!Array.isArray(release.value.case_materials)) {
-    release.value.case_materials = release.value.case_materials
-      ? [release.value.case_materials]
-      : []
-  }
-
-  if (!Array.isArray(release.value.plate_materials)) {
-    release.value.plate_materials = release.value.plate_materials
-      ? [release.value.plate_materials]
-      : []
-  }
-
-  if (!Array.isArray(release.value.weight_materials)) {
-    release.value.weight_materials = release.value.weight_materials
-      ? [release.value.weight_materials]
-      : []
+  for (const field of [
+    'top_case_styles',
+    'case_materials',
+    'pcb_types',
+    'plate_materials',
+    'weight_materials',
+  ]) {
+    release.value[field] = toArray(release.value[field])
   }
 
   // Auto-calculate order for new releases

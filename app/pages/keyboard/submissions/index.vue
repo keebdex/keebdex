@@ -158,9 +158,11 @@
 
               <template #price-cell="{ row: variantRow }">
                 {{
-                  variantRow.original.msrp_price
-                    ? `${variantRow.original.currency || ''} ${variantRow.original.msrp_price}`.trim()
-                    : '-'
+                  formatPrice(
+                    variantRow.original.msrp_price,
+                    variantRow.original.currency ||
+                      variantRow.original.release?.currency,
+                  ) || '-'
                 }}
               </template>
 

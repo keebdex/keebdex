@@ -24,11 +24,16 @@
         />
       </UFormField>
 
-      <UFormField label="Release Year" name="release_year">
+      <UFormField
+        label="Release Year"
+        name="release_year"
+        help="Only when it came out in another year than its release."
+      >
         <UInput
           v-model.number="variant.release_year"
           type="number"
           icon="hugeicons:calendar-03"
+          :placeholder="inherited.year ? String(inherited.year) : undefined"
           class="w-full"
         />
       </UFormField>
@@ -65,65 +70,69 @@
     <UFormField
       label="MSRP"
       name="msrp_price"
-      help="Leave empty to use the release base price. Only set this if this variant has a different price."
+      help="Leave empty to use the release price. Set a currency only when it was sold in another one than its release."
     >
       <UFieldGroup class="w-full">
-        <USelect v-model="variant.currency" :items="currencies" />
+        <USelect
+          v-model="variant.currency"
+          :items="currencies"
+          :placeholder="selectedRelease?.currency || 'USD'"
+        />
         <UInput
           v-model.number="variant.msrp_price"
           type="number"
           step="0.01"
-          placeholder="0.00"
+          :placeholder="inherited.price || '0.00'"
           class="w-full"
         />
       </UFieldGroup>
     </UFormField>
 
-    <UFormField
-      v-if="!specsPerVariant"
-      name="override_release_specs"
-      help="Enable for special editions with unique pricing or materials. Disable to inherit release defaults."
-    >
-      <UCheckbox v-model="overrideReleaseSpecs" label="Custom Variant Specs" />
+    <!-- Empty fields take the release's value, shown as their placeholder -->
+    <p class="text-sm text-muted">
+      Leave the materials empty to use the release's; set only what this
+      variant changes.
+    </p>
+
+    <UFormField label="Case" name="case_materials">
+      <USelectMenu
+        v-model="variant.case_materials"
+        :placeholder="inheritedMaterial('case_materials')"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
     </UFormField>
 
-    <template v-if="showVariantSpecFields">
-      <UFormField label="Case" name="case_materials">
-        <USelectMenu
-          v-model="variant.case_materials"
-          :items="Constants.public.Enums.keyboard_material"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
+    <UFormField label="PCB" name="pcb_types">
+      <USelectMenu
+        v-model="variant.pcb_types"
+        :placeholder="inheritedMaterial('pcb_types')"
+        :items="Constants.public.Enums.keyboard_pcb_type"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
-      <UFormField label="PCB" name="pcb_types">
-        <USelectMenu
-          v-model="variant.pcb_types"
-          :items="Constants.public.Enums.keyboard_pcb_type"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
+    <UFormField label="Plate" name="plate_materials">
+      <USelectMenu
+        v-model="variant.plate_materials"
+        :placeholder="inheritedMaterial('plate_materials')"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
-      <UFormField label="Plate" name="plate_materials">
-        <USelectMenu
-          v-model="variant.plate_materials"
-          :items="Constants.public.Enums.keyboard_material"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="Weight" name="weight_materials">
-        <USelectMenu
-          v-model="variant.weight_materials"
-          :items="Constants.public.Enums.keyboard_material"
-          multiple
-          class="w-full"
-        />
-      </UFormField>
-    </template>
+    <UFormField label="Weight" name="weight_materials">
+      <USelectMenu
+        v-model="variant.weight_materials"
+        :placeholder="inheritedMaterial('weight_materials')"
+        :items="Constants.public.Enums.keyboard_material"
+        multiple
+        class="w-full"
+      />
+    </UFormField>
 
     <UFormField label="Front Image" name="img_front">
       <UInput
@@ -244,7 +253,7 @@ const variant = ref({
   img_front: '',
   img_back: '',
   photo_credit: '',
-  currency: 'USD',
+  currency: null,
   msrp_price: null,
   case_materials: [],
   pcb_types: [],
@@ -266,40 +275,22 @@ const isUploadingImage = computed(
 const hasFailedImage = computed(
   () => failedFileFront.value || failedFileBack.value,
 )
-const overrideReleaseSpecs = ref(false)
-
-const specsPerVariant = computed(() => {
-  const selectedRelease = keyboard.releases.find(
-    (release) => Number(release.id) === Number(variant.value.release_id),
-  )
-  return selectedRelease?.variant_specs ?? false
-})
-
-const showVariantSpecFields = computed(
-  () => specsPerVariant.value || overrideReleaseSpecs.value,
+// A variant inherits its release's year, price, and materials and sets its
+// own only where it differs.
+const selectedRelease = computed(() =>
+  (keyboard.releases || []).find(
+    (release) => String(release.id) === String(variant.value.release_id),
+  ),
 )
 
-const hasMaterialOverrides = computed(() => {
-  return (
-    !!variant.value.case_materials?.length ||
-    !!variant.value.pcb_types?.length ||
-    !!variant.value.plate_materials?.length ||
-    !!variant.value.weight_materials?.length
-  )
-})
+// What an empty field inherits, shown as its placeholder
+const inherited = computed(() =>
+  resolveVariantSpecs({}, selectedRelease.value || {}),
+)
 
-const setDefaultReleaseYear = () => {
-  if (isEdit) return
-
-  const selectedRelease = keyboard.releases.find(
-    (release) => Number(release.id) === Number(variant.value.release_id),
-  )
-
-  if (!selectedRelease) return
-
-  if (!variant.value.release_year) {
-    variant.value.release_year = selectedRelease.release_year ?? null
-  }
+const inheritedMaterial = (field) => {
+  const value = joinSpecList(inherited.value.materials[field])
+  return value ? `Release: ${value}` : undefined
 }
 
 onBeforeMount(() => {
@@ -314,15 +305,8 @@ onBeforeMount(() => {
     'plate_materials',
     'weight_materials',
   ]) {
-    if (!Array.isArray(variant.value[field])) {
-      variant.value[field] = variant.value[field] ? [variant.value[field]] : []
-    }
+    variant.value[field] = toArray(variant.value[field])
   }
-
-  overrideReleaseSpecs.value =
-    specsPerVariant.value || hasMaterialOverrides.value
-
-  setDefaultReleaseYear()
 })
 
 watch(
@@ -340,13 +324,6 @@ watch(
     emit('update:modelValue', value)
   },
   { deep: true },
-)
-
-watch(
-  () => variant.value.release_id,
-  () => {
-    setDefaultReleaseYear()
-  },
 )
 
 const releaseOptions = computed(() => {
@@ -414,22 +391,13 @@ const onSubmit = async () => {
   try {
     saving.value = true
 
-    const payload = {
-      ...variant.value,
-    }
-
-    if (!showVariantSpecFields.value) {
-      payload.case_materials = null
-      payload.pcb_types = null
-      payload.plate_materials = null
-      payload.weight_materials = null
-    }
-
+    // The server saves empty materials as null: the variant takes its
+    // release's
     const data = await $fetch(
       `/api/keyboards/${keyboard.brand_keyboard_slug}/variants`,
       {
         method: 'post',
-        body: payload,
+        body: variant.value,
       },
     )
 
