@@ -203,6 +203,43 @@
         </div>
       </section>
 
+      <!-- The keyboards built on this design, right under it so many
+           releases don't bury them, in the same grid as other keyboard
+           cards. The original of a derived keyboard is its Based on link in
+           the header. -->
+      <section
+        v-if="data.derived_keyboards?.length"
+        class="space-y-4 border-t border-default pt-8 mt-10"
+      >
+        <UPageHeader
+          title="Derived Designs"
+          description="Community reworks, official collaborations, and iterations that share this design's DNA."
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        />
+
+        <UPageGrid>
+          <UPageCard
+            v-for="keyboard in data.derived_keyboards"
+            :key="keyboard.brand_keyboard_slug"
+            :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
+            :title="`${keyboard.brand?.name} ${keyboard.name}`"
+            :container="imageCardContainerClass"
+            reverse
+            spotlight
+          >
+            <NuxtImg
+              preset="cover"
+              loading="lazy"
+              decoding="async"
+              :alt="keyboard.name"
+              :src="keyboard.cover_image || '/keyboard.png'"
+              class="aspect-video w-full rounded object-cover"
+            />
+          </UPageCard>
+        </UPageGrid>
+      </section>
+
       <template v-if="releases.length">
         <!-- Every release as a UTimeline item, in the release order staff
              set (newest first): its name and actions as the title, then its
@@ -223,7 +260,9 @@
               separator: 'bg-primary',
               wrapper: 'min-w-0 flex-1 pb-10 group-last:pb-0',
               title: 'text-lg font-semibold',
-              description: 'mt-3 space-y-4',
+              // Back to the page's text: the slot's muted, small text would
+              // otherwise reach the cards, which some themes color apart
+              description: 'mt-3 space-y-4 text-base text-default',
             }"
           >
             <template #title="{ item: { release } }">
@@ -267,7 +306,7 @@
               <SharedDescription
                 v-if="release.description"
                 :description="release.description"
-                class="line-clamp-3"
+                class="line-clamp-3 text-sm text-muted"
               />
 
               <SharedSpecList
@@ -342,50 +381,6 @@
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
         class="mt-10"
       />
-
-      <!-- Where the design comes from and where it went -->
-      <section
-        v-if="data.original || data.derived_keyboards?.length"
-        class="space-y-4 border-t border-default pt-8 mt-10"
-      >
-        <UPageHeader
-          title="Lineage"
-          description="The design this keyboard builds on, and the community reworks, collaborations, and iterations that share its DNA."
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        />
-
-        <UPageGrid>
-          <UPageCard
-            v-if="data.original"
-            :to="`/keyboard/brand/${data.derived_from}`"
-            :title="originalName"
-            description="Original design"
-            icon="hugeicons:git-branch"
-            spotlight
-          />
-
-          <UPageCard
-            v-for="keyboard in data.derived_keyboards"
-            :key="keyboard.brand_keyboard_slug"
-            :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
-            :title="`${keyboard.brand?.name} ${keyboard.name}`"
-            description="Derived design"
-            :container="imageCardContainerClass"
-            reverse
-            spotlight
-          >
-            <NuxtImg
-              preset="cover"
-              loading="lazy"
-              decoding="async"
-              :alt="keyboard.name"
-              :src="keyboard.cover_image || '/keyboard.png'"
-              class="aspect-video w-full rounded object-cover"
-            />
-          </UPageCard>
-        </UPageGrid>
-      </section>
 
       <KeyboardVariantDrawer
         v-model:open="variantDrawer.open"

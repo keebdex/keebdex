@@ -8,7 +8,7 @@ title: Unreleased
 
 - **Keyboard pages** open as a catalog entry: a large photo you can switch between variants from the strip below it, beside the keyboard's name, story, and design specs.
 - **Production History** lays every release out on a timeline with its story, specs, and its variants as photo cards, so you can follow how a keyboard evolved and open any variant for its full details.
-- **Lineage** shows the design a keyboard is based on and every keyboard derived from it right on the page.
+- **Derived Designs** sit right under a keyboard's details, so the keyboards built on its design are easy to find even when it has many releases, and a keyboard based on another links to its original next to its name.
 
 ### 🐛 Bug Fixes
 
