@@ -7,13 +7,14 @@
       // The page already sets the width and gutters
       container:
         'px-0 sm:px-0 lg:px-0 py-4 sm:py-10 lg:py-16 gap-10 sm:gap-y-10 lg:gap-16',
-      // Each part rises in after the one above it (home-rise, main.css)
+      // Each part rises in after the one above it (home-rise, main.css); the
+      // title, the largest paint, goes first with the headline
       headline: ['mb-4 home-rise', homeHeadlineClass],
       title:
-        'text-4xl sm:text-5xl xl:text-6xl text-balance home-rise [--i:1]',
-      description: 'mt-5 max-w-xl home-rise [--i:2]',
-      body: 'mt-8 home-rise [--i:3]',
-      footer: 'mt-10 home-rise [--i:4]',
+        'text-4xl sm:text-5xl xl:text-6xl text-balance home-rise',
+      description: 'mt-5 max-w-xl home-rise [--i:1]',
+      body: 'mt-8 home-rise [--i:2]',
+      footer: 'mt-10 home-rise [--i:3]',
     }"
   >
     <template #title>
