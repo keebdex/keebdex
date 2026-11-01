@@ -508,14 +508,10 @@ const specs = computed(() => {
 
 // Staff add a kit in place; others submit one for review
 const addKitTarget = computed(() =>
-  editable.value
-    ? { onClick: () => openKitForm() }
-    : {
-        to: {
-          path: '/keyset/submissions/submit',
-          query: { profile, keyset: data.value.profile_keyset_id },
-        },
-      },
+  submissionTarget(editable.value, () => openKitForm(), 'keyset', {
+    profile,
+    keyset: data.value.profile_keyset_id,
+  }),
 )
 
 const keysetFormOpen = ref(false)

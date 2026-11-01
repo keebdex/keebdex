@@ -1,4 +1,5 @@
 import type { Database } from '~/types/database.types'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 export const formatPrice = (
   amount: number | null | undefined,
@@ -198,6 +199,19 @@ export const detailPageHeaderUi = (withMedia: boolean) => ({
   headline: 'mb-1',
   description: 'text-sm',
 })
+
+// Where an Add button leads: staff (`editable`) open the form in place, and
+// everyone else goes to the module's submission wizard with `query`
+// preselected. Bind the result to the button (`v-bind`).
+export const submissionTarget = (
+  editable: boolean,
+  onClick: () => void,
+  module: KeebModule,
+  query: Record<string, unknown>,
+) =>
+  editable
+    ? { onClick }
+    : { to: { path: `/${module}/submissions/submit`, query } }
 
 export const SEARCH_TERM_MIN_LENGTH = 3
 

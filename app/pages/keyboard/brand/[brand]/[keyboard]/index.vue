@@ -239,9 +239,9 @@
               separator: 'bg-primary',
               wrapper: 'min-w-0 flex-1 pb-10 group-last:pb-0',
               title: 'text-lg font-semibold',
-              // Back to the page's text: the slot's muted, small text would
-              // otherwise reach the cards, which some themes color apart
-              description: 'mt-3 space-y-4 text-base text-default',
+              // The page's text size for the cards; app.config already
+              // gives timeline bodies the page's color
+              description: 'space-y-4 text-base',
             }"
           >
             <template #title="{ item: { release } }">
@@ -579,29 +579,19 @@ watch(activePhoto, (current, previous) => {
 
 // Staff add a release or variant in place; others submit one for review
 const addReleaseTarget = computed(() =>
-  editable.value
-    ? { onClick: () => openReleaseForm() }
-    : {
-        to: {
-          path: '/keyboard/submissions/submit',
-          query: { brand: route.params.brand, keyboard: slug.value },
-        },
-      },
+  submissionTarget(editable.value, () => openReleaseForm(), 'keyboard', {
+    brand: route.params.brand,
+    keyboard: slug.value,
+  }),
 )
 
 const addVariantTarget = (release) =>
-  editable.value
-    ? { onClick: () => openVariantForm({ release_id: release.id }) }
-    : {
-        to: {
-          path: '/keyboard/submissions/submit',
-          query: {
-            brand: route.params.brand,
-            keyboard: slug.value,
-            release: release.id,
-          },
-        },
-      }
+  submissionTarget(
+    editable.value,
+    () => openVariantForm({ release_id: release.id }),
+    'keyboard',
+    { brand: route.params.brand, keyboard: slug.value, release: release.id },
+  )
 
 const breadcrumbs = computed(() => {
   return [

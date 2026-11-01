@@ -1,4 +1,5 @@
 import { formatNumber, formatPrice } from '~/utils'
+import { joinSpecList } from '~/utils/keyboard'
 import {
   artisanSculptCasts,
   artisanSculptDesigns,
@@ -73,7 +74,7 @@ export const colorwaySpecItems = (colorway: Row) => [
   },
   {
     term: 'Stem',
-    description: colorway.stem?.join(', '),
+    description: joinSpecList(colorway.stem),
     icon: 'hugeicons:keyboard',
   },
   {

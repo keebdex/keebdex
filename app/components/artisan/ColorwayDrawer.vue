@@ -17,7 +17,7 @@
       <NuxtImg
         :src="colorway.img || '/artisan.png'"
         :alt="colorway.name"
-        sizes="xs:100vw sm:576px"
+        sizes="xs:100vw sm:528px"
         class="aspect-square w-full rounded-lg border border-default bg-elevated object-cover"
       />
 

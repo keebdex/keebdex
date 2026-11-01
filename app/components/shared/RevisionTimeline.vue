@@ -33,7 +33,6 @@ const TIMELINE_UI = {
   item: 'gap-3',
   wrapper: 'min-w-0 flex-1 pb-6 group-last:pb-0',
   title: 'text-sm/6 font-normal text-muted',
-  description: 'mt-3 text-default',
 }
 
 const dayHeading = (date: string) => {

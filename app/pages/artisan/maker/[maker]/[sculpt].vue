@@ -18,7 +18,7 @@
             <span class="text-sm text-muted font-normal">
               Revision of
               <ULink
-                :to="sculptPath(revisionOf)"
+                :to="`/artisan/maker/${revisionOf.maker_sculpt_id}`"
                 class="font-medium text-highlighted hover:underline"
               >
                 {{ revisionOf.name }}
@@ -142,7 +142,7 @@
               )
             "
           >
-            <!-- Save needs a signed-in user; copying lives in the popup -->
+            <!-- Save needs a signed-in user -->
             <template v-if="authenticated" #footer-start>
               <SharedSaveToCollection
                 :item="colorway"
@@ -336,8 +336,6 @@ const hasDetails = computed(
 
 // The sculpt this one revises: `is_revision_of` holds another of the maker's
 // sculpts' maker_sculpt_id, so the maker's sculpt list has it
-const sculptPath = (item) => `/artisan/maker/${item.maker_sculpt_id}`
-
 const revisionOf = computed(() =>
   sculpt.value?.is_revision_of
     ? sculpt.value.maker_sculpts?.find(
@@ -425,17 +423,12 @@ const newColorwayMetadata = computed(() => ({
 
 // Staff add a colorway in place; other signed-in users submit one
 const addColorwayTarget = computed(() =>
-  editable.value
-    ? { onClick: () => (newColorwayOpen.value = true) }
-    : {
-        to: {
-          path: '/artisan/submissions/submit',
-          query: {
-            maker: route.params.maker,
-            sculpt: route.params.sculpt,
-          },
-        },
-      },
+  submissionTarget(
+    editable.value,
+    () => (newColorwayOpen.value = true),
+    'artisan',
+    { maker: route.params.maker, sculpt: route.params.sculpt },
+  ),
 )
 
 const selectedColorway = ref({})
@@ -444,10 +437,6 @@ const selectedColorway = ref({})
 const withSculpt = (colorway) => {
   const { colorways, ...rest } = sculpt.value
   return { ...colorway, sculpt: rest }
-}
-
-const setSelected = (colorway) => {
-  selectedColorway.value = withSculpt(colorway)
 }
 
 const colorwayForm = reactive({ open: false, metadata: {} })
@@ -477,14 +466,8 @@ const updateColorwayQuery = (cid) => {
 
 // `?cid=` opens a colorway's drawer, so links from search and collections
 // land on it; closing the drawer drops it from the URL
-const openColorway = (colorway) => {
-  setSelected(colorway)
-  detailOpen.value = true
-
-  if (colorwayCid.value !== colorway.colorway_id) {
-    updateColorwayQuery(colorway.colorway_id)
-  }
-}
+// The query watcher below opens the drawer for whatever `cid` is set
+const openColorway = (colorway) => updateColorwayQuery(colorway.colorway_id)
 
 watch(detailOpen, (open) => {
   if (open) return
@@ -535,7 +518,7 @@ const syncColorwayCardFromQuery = () => {
     return
   }
 
-  setSelected(colorway)
+  selectedColorway.value = withSculpt(colorway)
   detailOpen.value = true
 }
 
