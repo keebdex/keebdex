@@ -114,39 +114,23 @@
         </div>
 
         <div class="min-w-0 space-y-5 lg:col-span-2 2xl:col-span-1">
-          <div class="space-y-2">
-            <ULink
-              :to="`/keyboard/brand/${data.brand?.slug}`"
-              class="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-highlighted"
-            >
-              <UAvatar
-                :src="logoUrl(data.brand?.slug)"
-                :alt="data.brand?.name"
-                size="xs"
-                :ui="{
-                  root: 'bg-transparent rounded-none',
-                  image: data.brand?.invertible_logo
-                    ? 'rounded-none dark:invert'
-                    : 'rounded-none',
-                }"
-              />
-              {{ data.brand?.name }}
-            </ULink>
-
-            <h1
-              class="text-3xl sm:text-4xl font-bold tracking-tight text-highlighted text-pretty"
-            >
-              {{ data.name }}
-            </h1>
-
-            <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-              <span
-                class="font-mono uppercase tracking-wider text-dimmed"
-                :title="'Catalog ID'"
-              >
-                {{ data.brand_keyboard_slug }}
-              </span>
-              <span v-if="data.original" class="text-muted">
+          <!-- The keyboard and its actions, as before the catalog entry:
+               actions beside the title, except under it from lg to xl,
+               where the column beside the photos is too narrow for both -->
+          <UPageHeader
+            :ui="{
+              root: 'border-none py-0',
+              wrapper: [
+                'gap-3 sm:flex-row sm:items-start sm:justify-between',
+                'lg:flex-col 2xl:flex-row',
+              ],
+              links: 'flex flex-wrap gap-2 shrink-0',
+              headline: 'mb-1',
+              description: 'text-sm',
+            }"
+          >
+            <template v-if="data.original" #headline>
+              <span class="text-sm text-muted font-normal">
                 Based on
                 <ULink
                   :to="`/keyboard/brand/${data.derived_from}`"
@@ -155,62 +139,84 @@
                   {{ originalName }}
                 </ULink>
               </span>
-            </p>
-          </div>
+            </template>
 
-          <SharedDescription
-            v-if="data.description"
-            :description="data.description"
-            class="text-sm text-muted"
-          />
+            <template #title>
+              <span class="flex items-center gap-3">
+                <UAvatar
+                  :src="logoUrl(data.brand?.slug)"
+                  :alt="data.brand?.name"
+                  size="lg"
+                  :ui="{
+                    root: 'bg-transparent rounded-none shrink-0',
+                    image: data.brand?.invertible_logo
+                      ? 'rounded-none dark:invert'
+                      : 'rounded-none',
+                  }"
+                />
+                {{ title }}
+              </span>
+            </template>
 
-          <!-- The page's actions sit with the keyboard they act on -->
-          <div v-if="authenticated" class="flex flex-wrap gap-2">
-            <UButton
-              color="primary"
-              icon="hugeicons:delivery-view-01"
-              label="Add Release"
-              v-bind="addReleaseTarget"
-            />
-
-            <SharedRecordActions
-              :editable="editable"
-              :suggestable="canSuggest(data)"
-              label="Keyboard"
-              @edit="editing = true"
-              @suggest="suggest('keyboard', data)"
-              @history="history?.show()"
-            />
-
-            <!-- Ordering needs at least two releases. -->
-            <UTooltip
-              v-if="editable && (data.releases?.length || 0) > 1"
-              text="Sort Releases"
-            >
+            <template v-if="authenticated" #links>
               <UButton
-                :icon="appConfig.ui.icons.sortManual"
-                aria-label="Sort Releases"
-                @click="sortOpen = true"
+                color="primary"
+                icon="hugeicons:delivery-view-01"
+                label="Add Release"
+                v-bind="addReleaseTarget"
               />
-            </UTooltip>
-          </div>
 
-          <!-- The design every release shares -->
-          <dl class="divide-y divide-default border-y border-default">
-            <div
-              v-for="item in keyboardSpecs"
-              :key="item.term"
-              class="flex items-baseline justify-between gap-4 py-2"
+              <SharedRecordActions
+                :editable="editable"
+                :suggestable="canSuggest(data)"
+                label="Keyboard"
+                @edit="editing = true"
+                @suggest="suggest('keyboard', data)"
+                @history="history?.show()"
+              />
+
+              <!-- Ordering needs at least two releases. -->
+              <UTooltip
+                v-if="editable && (data.releases?.length || 0) > 1"
+                text="Sort Releases"
+              >
+                <UButton
+                  :icon="appConfig.ui.icons.sortManual"
+                  aria-label="Sort Releases"
+                  @click="sortOpen = true"
+                />
+              </UTooltip>
+            </template>
+
+            <template v-if="data.description" #description>
+              <SharedDescription :description="data.description" />
+            </template>
+          </UPageHeader>
+
+          <!-- The design every release shares, one row each, in as many
+               columns as the column's width allows (container queries), so
+               a wide column doesn't push the values far from their labels -->
+          <div class="@container">
+            <dl
+              class="grid gap-x-8 border-t border-default @md:grid-cols-2 @3xl:grid-cols-3"
             >
-              <dt class="flex shrink-0 items-center gap-2 text-sm text-muted">
-                <UIcon :name="item.icon" class="size-4 self-center" />
-                {{ item.term }}
-              </dt>
-              <dd class="min-w-0 text-end text-sm font-medium text-highlighted">
-                {{ item.description || '—' }}
-              </dd>
-            </div>
-          </dl>
+              <div
+                v-for="item in keyboardSpecs"
+                :key="item.term"
+                class="flex items-baseline justify-between gap-4 border-b border-default py-2"
+              >
+                <dt class="flex shrink-0 items-center gap-2 text-sm text-muted">
+                  <UIcon :name="item.icon" class="size-4 self-center" />
+                  {{ item.term }}
+                </dt>
+                <dd
+                  class="min-w-0 text-end text-sm font-medium text-highlighted"
+                >
+                  {{ item.description || '—' }}
+                </dd>
+              </div>
+            </dl>
+          </div>
         </div>
       </section>
 
