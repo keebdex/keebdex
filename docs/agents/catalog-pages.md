@@ -19,7 +19,7 @@ The public catalog pages: the home page, the keyset pages, and the keyset, keybo
   - `HomeBrowseDex`: one card per catalog with its description, sizes, and links into it.
   - `HomeTopContributors` (hidden while nobody has contributed this month): this month's top three on `LeaderboardPodium` in a panel, beside ranks 4–6 as compact `LeaderboardRow`s and the signed-in user's own rank when they are not among them (the panel takes the row when there is neither); the board renders on the server and the user's rank loads in the browser.
   - `HomeShoutouts`: featured `ShoutoutCard`s (shared with `/shoutouts`), bleeding to the panel's edges, in one row or two opposite rows from six. They go through `HomeMarquee`, which scrolls only when there are more than `max` items (a few repeated items read as duplicates) and otherwise shows them still (`layout`: `grid`, or `center` at the `itemClass` width), keeping cards one width; its marquee sets `ui.content: 'w-auto'`, since `UMarquee`'s `w-full justify-around` spreads short lists apart.
-  - `HomeArtisanGuides`: ArtisanCollector's three guides as a numbered reading order, opening in a new tab.
+  - `HomeArtisanGuides`: ArtisanCollector's three guides as a numbered reading order of `UPageFeature`s (the number in `#leading`, a rule above each that turns primary with its title on hover), opening in a new tab.
   - `HomeContribute`: a closing `UPageCTA` with one link per submission wizard.
 
 ## Keysets

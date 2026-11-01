@@ -8,18 +8,15 @@
 
     <ol class="grid gap-6 md:grid-cols-3">
       <li v-for="(guide, index) in guides" :key="guide.to" class="flex">
-        <UPageCard
+        <UPageFeature
           v-bind="guide"
           target="_blank"
-          variant="ghost"
           class="w-full"
           :ui="{
-            // No padding beside the text, so no hover fill either: the rule
-            // and the title turn primary instead
-            root: 'group border-t-2 border-default rounded-none hover:bg-transparent hover:border-primary transition-colors',
-            container: 'px-0 sm:px-0',
+            // A rule above each guide, turning primary with its title
+            root: 'group border-t-2 border-default pt-4 transition-colors hover:border-primary',
             title:
-              'flex items-start justify-between gap-2 group-hover:text-primary transition-colors',
+              'flex items-start justify-between gap-2 transition-colors group-hover:text-primary',
           }"
         >
           <template #leading>
@@ -35,7 +32,7 @@
               class="size-4 shrink-0 text-dimmed group-hover:text-primary"
             />
           </template>
-        </UPageCard>
+        </UPageFeature>
       </li>
     </ol>
   </section>
