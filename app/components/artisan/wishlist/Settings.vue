@@ -12,13 +12,13 @@
     <UForm :state="tradingConfig" class="flex flex-col gap-6">
       <!-- What the list is for decides its sections and collections -->
       <UTabs
-        v-model="tradingConfig.type"
-        :items="typeItems"
+        :model-value="tradingConfig.type"
+        :items="WISHLIST_TYPE_ITEMS"
         :content="false"
         size="sm"
         aria-label="List type"
         :ui="{ trigger: 'flex-1' }"
-        @update:model-value="resetTradingState"
+        @update:model-value="setType"
       />
 
       <fieldset class="flex flex-col gap-4">
@@ -26,21 +26,13 @@
           {{ trading ? 'Want' : 'List' }}
         </legend>
 
-        <UFormField
-          label="Collection"
-          name="want_collection"
-          :help="
-            tradingConfig.buying.collection
-              ? undefined
-              : 'Start here: pick the collection to turn into a wishlist.'
-          "
-        >
+        <UFormField label="Collection" name="want_collection">
           <USelect
             v-model="tradingConfig.buying.collection"
             :items="collectionItems(tradingConfig.type)"
             label-key="name"
             value-key="id"
-            placeholder="Pick a collection"
+            placeholder="Pick a Collection"
             class="w-full"
           />
         </UFormField>
@@ -68,7 +60,7 @@
             :items="collectionItems('selling')"
             label-key="name"
             value-key="id"
-            placeholder="Pick a collection"
+            placeholder="Pick a Collection"
             class="w-full"
           />
         </UFormField>
@@ -142,56 +134,21 @@
 </template>
 
 <script setup>
-const userStore = useUserStore()
-const { authenticated, collections, social } = storeToRefs(userStore)
+const { authenticated, social } = storeToRefs(useUserStore())
 
-const sidebarOpen = useState('wishlist-sidebar-open', () => true)
-
-const intentMap = {
-  buying: ['keep', 'want'],
-  selling: ['keep', 'sell'],
-  trading: ['keep', 'want'],
-}
+const sidebarOpen = useState(
+  'wishlist-sidebar-open',
+  () => !useDevice().isMobile,
+)
 
 const tradingConfig = useTradingConfig()
-
-const typeItems = [
-  { label: 'Buying', value: 'buying' },
-  { label: 'Selling', value: 'selling' },
-  { label: 'Trading', value: 'trading' },
-]
-
-// The user's artisan collections that fit a list of this type
-const collectionItems = (type) =>
-  collections.value.filter(
-    (c) => c.category === 'artisan' && intentMap[type].includes(c.intent),
-  )
+const { collectionItems, setType } = useWishlistPicker()
 
 // Each group of settings opens with a small mono heading
 const legendClass =
   'mb-3 font-mono text-xs font-medium uppercase tracking-[0.2em] text-muted'
 
-const resetTradingState = () => {
-  tradingConfig.value.buying = {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTB/WTTF',
-  }
-  tradingConfig.value.selling = {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTS/WTT',
-  }
-  tradingConfig.value.fnf_only = false
-  tradingConfig.value.shipping_included = false
-}
-
 const trading = computed(() => tradingConfig.value.type === 'trading')
-watch(trading, () => {
-  if (trading.value) {
-    tradingConfig.value.selling.placeholder = 'WTS/WTT'
-  }
-})
 
 watch(social, (value) => {
   tradingConfig.value.social = value

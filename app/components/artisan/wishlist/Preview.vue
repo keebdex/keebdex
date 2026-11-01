@@ -11,7 +11,7 @@
             Save & Share
           </UButton>
 
-          <!-- Before a collection is picked, the empty state's button opens them. -->
+          <!-- Before a collection is picked, the start screen holds the picker. -->
           <UButton
             v-if="isMobile && hasCollection"
             icon="hugeicons:settings-02"
@@ -90,20 +90,8 @@
           },
         ]"
       />
-      <UEmpty
-        v-else
-        icon="hugeicons:collections-bookmark"
-        title="Your Wishlist Awaits"
-        description="Pick a collection, and we will turn it into a wishlist you can tweak and share."
-        :actions="[
-          {
-            label: 'Pick a Collection',
-            icon: 'hugeicons:settings-02',
-            onClick: () => (sidebarOpen = true),
-            ui: { label: 'block' },
-          },
-        ]"
-      />
+      <!-- No collection picked yet: pick one right here -->
+      <ArtisanWishlistStart v-else />
     </template>
   </UDashboardPanel>
   <SharedProtectedPage
@@ -148,7 +136,9 @@ const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const tradingCfg = useTradingConfig()
-const sidebarOpen = useState('wishlist-sidebar-open', () => true)
+// Open beside the sheet on wide screens; a slideover on phones, where it
+// would cover the start screen
+const sidebarOpen = useState('wishlist-sidebar-open', () => !isMobile)
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
 const { data: collections, refresh } = await useAsyncData(
