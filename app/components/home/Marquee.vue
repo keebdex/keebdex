@@ -2,11 +2,12 @@
   <UMarquee
     v-if="items.length > max"
     pause-on-hover
+    :overlay="false"
     :reverse="reverse"
     :repeat="3"
     :ui="{ content: 'w-auto items-stretch' }"
     :style="{ '--duration': duration }"
-    class="py-1 [--gap:--spacing(6)]"
+    class="py-1 [--gap:--spacing(6)] mask-x-from-95%"
   >
     <div
       v-for="(item, index) in items"
@@ -41,6 +42,8 @@
 <script setup lang="ts">
 // A scrolling row only when the items overflow it; a few items repeated
 // across a marquee read as duplicates, so up to `max` sit still in a grid.
+// The edges fade through a mask rather than UMarquee's overlay, which sits
+// above the cards and covers the one paused under the pointer.
 withDefaults(
   defineProps<{
     items: Record<string, any>[]

@@ -6,6 +6,7 @@ title: Unreleased
 
 ### ✨ What's New
 
+- **A new home page** shows the newest colorways as a wall of keycaps you can open, how big each catalog has grown, and a search bar right under the headline. _Happening Now_ lists today's busiest makers and the group buys closing soonest with how much time is left, and the page ends with a way to submit a colorway, keyset, or keyboard.
 - **Keyboard pages** open as a catalog entry: a large photo you can switch between variants from the strip below it, beside the keyboard's name, story, and design specs.
 - **Production History** lays every release out on a timeline with its story, specs, and its variants as photo cards, so you can follow how a keyboard evolved and open any variant for its full details.
 - **Sculpt pages** open with the sculpt's details: its maker, profile, cast, design, release, collection, and story, with a link to the sculpt it revises. On phones the details fold away under _Sculpt Details_, so the colorways are right there. Opening a colorway slides in a panel with its photo and every detail, from its release and units to its stem, ready to save or turn into a share card.
