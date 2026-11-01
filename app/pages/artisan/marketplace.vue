@@ -18,16 +18,44 @@
 
     <template #body>
       <UPage>
-        <UAlert icon="hugeicons:information-circle" color="info">
-          <template #description>
-            To list your caps here, create a
-            <span class="font-medium">Wishlist</span> or
-            <span class="font-medium">For Sale or Trade</span> collection in
-            <ULink to="/collection" class="underline">My Collection</ULink>,
-            then choose <span class="font-medium">Create Public Link</span>
-            under Share on its page.
+        <!-- How a collection gets here, in the order it happens; folded on
+        phones, where the steps would fill the first screen -->
+        <UCollapsible
+          :default-open="!$device.isMobile"
+          class="rounded-lg bg-elevated/50 ring ring-default"
+        >
+          <UButton
+            label="How to list your caps here"
+            icon="hugeicons:information-circle"
+            trailing-icon="hugeicons:arrow-down-01"
+            variant="ghost"
+            block
+            class="group px-4 py-3 sm:px-5"
+            :ui="{
+              label: 'block flex-1 text-start',
+              trailingIcon:
+                'transition-transform group-data-[state=open]:rotate-180',
+            }"
+          />
+
+          <template #content>
+            <!-- Every step shows as done, since this is a guide rather than
+            a wizard; across the panel, or down it on phones -->
+            <UStepper
+              :items="steps"
+              :default-value="steps.length - 1"
+              :orientation="$device.isMobile ? 'vertical' : 'horizontal'"
+              disabled
+              class="px-4 pb-4 sm:px-5 sm:pb-5"
+              :ui="{
+                // Room between the steps' text, which the separators skip
+                wrapper: 'sm:px-4',
+                description: 'text-pretty',
+                separator: 'opacity-100',
+              }"
+            />
           </template>
-        </UAlert>
+        </UCollapsible>
 
         <ArtisanMarketplaceListing :intent="intent" class="mt-6" />
       </UPage>
@@ -43,6 +71,27 @@ useSeoMeta({
 
 const route = useRoute()
 const router = useRouter()
+
+const steps = [
+  {
+    icon: 'hugeicons:folder-add',
+    title: 'Make a collection',
+    description:
+      'In My Collection, create a Wishlist for caps you want, or a For Sale or Trade collection for caps you have.',
+  },
+  {
+    icon: 'hugeicons:add-circle',
+    title: 'Add your caps',
+    description:
+      'Each cap shows here while Still Looking or Available is on, with a price and Top Priority if you like.',
+  },
+  {
+    icon: 'hugeicons:share-08',
+    title: 'Share it',
+    description:
+      'Choose Create Public Link under Share on its page, and collectors can reach you on Discord.',
+  },
+]
 
 const intentItems = [
   { label: 'All', value: 'all' },

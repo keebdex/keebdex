@@ -18,5 +18,6 @@ title: Unreleased
 
 ### 🚀 Improvements
 
+- **The _Trading Hub_** shows each wishlist and sale as a card with a page of its caps, so you can see what collectors want or offer at a glance, and its steps to get your own caps listed fold away on phones.
 - **Variant details** slide in from any variant with its front and back photos and everything about it, from the keyboard's design to the variant's own materials, ready to save or copy as an image. A release can also name the top case layouts it was sold in, and otherwise shows the keyboard's, and empty specs no longer leave blank labels behind.
 - **Keyset pages** list the designer, row sculpt, dates, and status beside the cover in the same rows as keyboard and sculpt pages, so every catalog page reads the same way. _Save_, _Edit_, and _History_ sit under the keyset's name, the Geekhack thread and order charts are labeled buttons under the specs, and kits and colors are added, edited, and removed right on the page instead of on separate management pages.
