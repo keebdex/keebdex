@@ -18,6 +18,7 @@ title: Unreleased
 
 ### 🚀 Improvements
 
+- **The home page** moves more smoothly: the welcome eases in, the keycap wall drops into place, and each section fades up as you scroll to it, while _Reduce motion_ in your system settings keeps everything still.
 - **The _Wishlist Image_** has a cleaner look: each cap shows its sculpt and maker, with the price, _Top Priority_, and _Found_ or _Sold_ marked right on the photo, and your terms, like _Shipping Included_, sit right beside the caps for sale. Its settings are grouped so it is easier to pick a list type, its collections, and your contacts.
 - **The _Trading Hub_** shows each wishlist and sale as a card with a page of its caps, so you can see what collectors want or offer at a glance, and _How to List Your Caps_ in the toolbar walks you through getting your own caps listed.
 - **Variant details** slide in from any variant with its front and back photos and everything about it, from the keyboard's design to the variant's own materials, ready to save or copy as an image. A release can also name the top case layouts it was sold in, and otherwise shows the keyboard's, and empty specs no longer leave blank labels behind.

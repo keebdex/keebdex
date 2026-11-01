@@ -26,3 +26,43 @@
   --card-width: 380px;
   --card-height: 550px;
 }
+/*
+ * Home page motion, CSS only and off for reduced motion. The hero rises in on
+ * load (`home-rise`, staggered by `--i`), the mosaic's keys drop in
+ * (`home-key`), and sections below fade up as they scroll into view
+ * (`home-reveal`), where the browser has scroll-driven animations; elsewhere
+ * they simply show.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .home-rise {
+    animation: home-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
+
+  .home-key {
+    animation: home-key 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+    animation-delay: calc(250ms + var(--i, 0) * 45ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    .home-reveal {
+      animation: home-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes home-key {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+}

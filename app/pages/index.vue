@@ -14,18 +14,20 @@
       >
         <HomeHero />
 
-        <HomeHappeningNow />
+        <!-- Each section fades up as it scrolls into view (main.css) -->
+        <HomeHappeningNow class="home-reveal" />
 
-        <HomeBrowseDex />
+        <HomeBrowseDex class="home-reveal" />
 
-        <HomeTopContributors />
+        <HomeTopContributors class="home-reveal" />
 
-        <HomeShoutouts />
+        <HomeShoutouts class="home-reveal" />
 
-        <HomeArtisanGuides />
+        <HomeArtisanGuides class="home-reveal" />
 
-        <HomeContribute />
+        <HomeContribute class="home-reveal" />
       </div>
     </template>
   </UDashboardPanel>
 </template>
+

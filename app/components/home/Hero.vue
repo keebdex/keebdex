@@ -7,11 +7,13 @@
       // The page already sets the width and gutters
       container:
         'px-0 sm:px-0 lg:px-0 py-4 sm:py-10 lg:py-16 gap-10 sm:gap-y-10 lg:gap-16',
-      headline: ['mb-4', homeHeadlineClass],
-      title: 'text-4xl sm:text-5xl xl:text-6xl text-balance',
-      description: 'mt-5 max-w-xl',
-      body: 'mt-8',
-      footer: 'mt-10',
+      // Each part rises in after the one above it (home-rise, main.css)
+      headline: ['mb-4 home-rise', homeHeadlineClass],
+      title:
+        'text-4xl sm:text-5xl xl:text-6xl text-balance home-rise [--i:1]',
+      description: 'mt-5 max-w-xl home-rise [--i:2]',
+      body: 'mt-8 home-rise [--i:3]',
+      footer: 'mt-10 home-rise [--i:4]',
     }"
   >
     <template #title>

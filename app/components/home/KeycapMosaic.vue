@@ -13,7 +13,8 @@
         :to="`/artisan/maker/${colorway.maker_id}/${colorway.sculpt_id}?cid=${colorway.colorway_id}`"
         :aria-label="colorway.name"
         :title="colorway.name"
-        :class="['group col-span-4 p-1 sm:p-1.5', offsets[index]]"
+        :class="['home-key group col-span-4 p-1 sm:p-1.5', offsets[index]]"
+        :style="{ '--i': index }"
       >
         <!-- The keycap: its skirt below, the photo as the top face, which
         presses down on hover -->

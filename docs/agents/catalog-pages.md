@@ -21,6 +21,7 @@ The public catalog pages: the home page, the keyset pages, and the keyset, keybo
   - `HomeShoutouts`: featured `ShoutoutCard`s (shared with `/shoutouts`), bleeding to the panel's edges, in one row or two opposite rows from six. They go through `HomeMarquee`, which scrolls only when there are more than `max` items (a few repeated items read as duplicates) and otherwise centers them at the `itemClass` width, keeping cards one width; its marquee sets `ui.content: 'w-auto'`, since `UMarquee`'s `w-full justify-around` spreads short lists apart, and fades its edges with a mask instead of `UMarquee`'s overlay, which sits above the cards and covers the one paused under the pointer.
   - `HomeArtisanGuides`: ArtisanCollector's three guides as a numbered reading order of `UPageFeature`s (the number in `#leading`, a rule above each that turns primary with its title on hover), opening in a new tab.
   - `HomeContribute`: a closing `UPageCTA` with one link per submission wizard.
+  - Motion is CSS only (`app/assets/main.css`) and off under `prefers-reduced-motion`: the hero's parts rise in on load (`home-rise`, staggered through `[--i:n]` in its `ui`), the mosaic's keys drop in one after another (`home-key` with `--i`), and every section after the hero fades up as it scrolls into view (`home-reveal` on its root in `index.vue`, a scroll-driven `view()` timeline; browsers without one show it still).
 
 ## Keysets
 
