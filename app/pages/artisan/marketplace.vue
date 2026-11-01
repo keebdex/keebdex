@@ -13,51 +13,44 @@
             aria-label="Show"
           />
         </template>
+
+        <template #right>
+          <!-- How a collection gets here, in the order it happens; a guide
+          rather than a wizard, so every step shows as done -->
+          <UPopover :content="{ align: 'end' }">
+            <UButton
+              label="How to List Your Caps"
+              aria-label="How to list your caps"
+              icon="hugeicons:information-circle"
+              variant="ghost"
+              size="sm"
+            />
+
+            <template #content>
+              <div class="w-80 max-w-[calc(100vw-2rem)] p-4">
+                <p class="mb-4 text-sm font-semibold text-highlighted">
+                  Get Your Caps Listed
+                </p>
+                <UStepper
+                  :items="steps"
+                  :default-value="steps.length - 1"
+                  orientation="vertical"
+                  disabled
+                  :ui="{
+                    description: 'text-pretty',
+                    separator: 'opacity-100',
+                  }"
+                />
+              </div>
+            </template>
+          </UPopover>
+        </template>
       </UDashboardToolbar>
     </template>
 
     <template #body>
       <UPage>
-        <!-- How a collection gets here, in the order it happens; folded on
-        phones, where the steps would fill the first screen -->
-        <UCollapsible
-          :default-open="!$device.isMobile"
-          class="rounded-lg bg-elevated/50 ring ring-default"
-        >
-          <UButton
-            label="How to list your caps here"
-            icon="hugeicons:information-circle"
-            trailing-icon="hugeicons:arrow-down-01"
-            variant="ghost"
-            block
-            class="group px-4 py-3 sm:px-5"
-            :ui="{
-              label: 'block flex-1 text-start',
-              trailingIcon:
-                'transition-transform group-data-[state=open]:rotate-180',
-            }"
-          />
-
-          <template #content>
-            <!-- Every step shows as done, since this is a guide rather than
-            a wizard; across the panel, or down it on phones -->
-            <UStepper
-              :items="steps"
-              :default-value="steps.length - 1"
-              :orientation="$device.isMobile ? 'vertical' : 'horizontal'"
-              disabled
-              class="px-4 pb-4 sm:px-5 sm:pb-5"
-              :ui="{
-                // Room between the steps' text, which the separators skip
-                wrapper: 'sm:px-4',
-                description: 'text-pretty',
-                separator: 'opacity-100',
-              }"
-            />
-          </template>
-        </UCollapsible>
-
-        <ArtisanMarketplaceListing :intent="intent" class="mt-6" />
+        <ArtisanMarketplaceListing :intent="intent" />
       </UPage>
     </template>
   </UDashboardPanel>
@@ -75,21 +68,21 @@ const router = useRouter()
 const steps = [
   {
     icon: 'hugeicons:folder-add',
-    title: 'Make a collection',
+    title: 'Create a Collection',
     description:
-      'In My Collection, create a Wishlist for caps you want, or a For Sale or Trade collection for caps you have.',
+      'In My Collection, start a Wishlist for caps you are hunting, or a For Sale or Trade collection for caps you are letting go.',
   },
   {
     icon: 'hugeicons:add-circle',
-    title: 'Add your caps',
+    title: 'Add Your Caps',
     description:
-      'Each cap shows here while Still Looking or Available is on, with a price and Top Priority if you like.',
+      'Each cap is listed while Still Looking or Available is on. Add a price or mark Top Priority if you like.',
   },
   {
     icon: 'hugeicons:share-08',
-    title: 'Share it',
+    title: 'Make It Public',
     description:
-      'Choose Create Public Link under Share on its page, and collectors can reach you on Discord.',
+      'Open Share on the collection and choose Create Public Link. Collectors reach you through its Discord username.',
   },
 ]
 
