@@ -10,6 +10,22 @@ export const artisanSpecialSaleFormats = ['Giveaway', 'Commission', 'Auction']
 // Stem types offered in the colorway form
 export const artisanStems = ['MX', 'TMX', 'Alps', 'Topre', 'Choc']
 
+// A sculpt's profile, cast, and design: the form's choices and the labels the
+// sculpt page shows for stored values
+export const artisanSculptProfiles = [
+  { label: 'Sculpted', value: 'sculpted' },
+  { label: 'Blank', value: 'blank' },
+]
+export const artisanSculptCasts = [
+  { label: 'Resin', value: 'resin' },
+  { label: 'Mixed', value: 'mixed' },
+]
+export const artisanSculptDesigns = [
+  { label: 'Physical', value: 'physical' },
+  { label: 'Digital', value: 'digital' },
+  { label: 'Hybrid', value: 'hybrid' },
+]
+
 // Fields the makers' Google Doc sync fills in. Editing one by hand adds it to
 // the record's overridden_fields, so the next sync keeps the edit.
 // apply_edit_suggestion() in the edit_suggestions migration lists the same

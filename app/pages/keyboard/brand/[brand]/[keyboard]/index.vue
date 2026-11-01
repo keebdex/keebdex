@@ -10,207 +10,186 @@
 
     <template #body>
       <!-- The variant photos as a carousel with a filmstrip, beside the
-           keyboard's name, story, and design. Like the keyset page, the
-           photos take 3/5 of the row from lg and half from 2xl, so they
-           don't grow too large on wide screens. -->
-      <section class="grid grid-cols-1 gap-8 lg:grid-cols-5 2xl:grid-cols-2">
-        <!-- Stays in view beside the details on wide screens -->
-        <div
-          class="min-w-0 space-y-3 lg:col-span-3 lg:sticky lg:top-0 lg:self-start 2xl:col-span-1"
-        >
-          <!-- Every variant with a photo, one slide each, with its name,
+           keyboard's name, story, and design -->
+      <SharedDetailHero>
+        <template #media>
+          <div class="space-y-3">
+            <!-- Every variant with a photo, one slide each, with its name,
                release, and price; clicking a slide opens the variant -->
-          <UCarousel
-            v-if="photos.length"
-            ref="photoCarousel"
-            v-slot="{ item, index }"
-            :items="photos"
-            loop
-            :arrows="photos.length > 1"
-            @select="activePhoto = $event"
-          >
-            <figure
-              class="group relative overflow-hidden rounded-lg border border-default bg-elevated"
+            <UCarousel
+              v-if="photos.length"
+              ref="photoCarousel"
+              v-slot="{ item, index }"
+              :items="photos"
+              loop
+              :arrows="photos.length > 1"
+              @select="activePhoto = $event"
             >
-              <button
-                type="button"
-                class="absolute inset-0 z-1"
-                :aria-label="`Open ${item.variant.variant_name}`"
-                @click="openVariant(item.variant, item.release)"
-              />
-              <!-- Only the slides near the current one (and those already
+              <figure
+                class="group relative overflow-hidden rounded-lg border border-default bg-elevated"
+              >
+                <button
+                  type="button"
+                  class="absolute inset-0 z-1"
+                  :aria-label="`Open ${item.variant.variant_name}`"
+                  @click="openVariant(item.variant, item.release)"
+                />
+                <!-- Only the slides near the current one (and those already
                    seen) render their photo, so the server builds one or
                    three images instead of every variant's; the first slide
                    is above the fold -->
-              <NuxtImg
-                v-if="slideShown(index)"
-                :src="item.variant.img"
-                :alt="variantTitle(data, item.release, item.variant)"
-                sizes="xs:96vw lg:48vw 2xl:44vw"
-                :loading="index ? 'lazy' : 'eager'"
-                :fetchpriority="index ? undefined : 'high'"
-                decoding="async"
-                class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-              />
-              <div v-else class="aspect-video w-full" />
-              <figcaption
-                class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 text-white"
-              >
-                <span class="min-w-0">
-                  <span class="block truncate font-semibold">
-                    {{ item.variant.variant_name }}
-                  </span>
-                  <span class="block truncate text-xs text-white/75">
-                    {{ item.release.name }}
-                  </span>
-                </span>
-                <span
-                  v-if="item.variant.price"
-                  class="shrink-0 text-sm font-medium tabular-nums"
+                <NuxtImg
+                  v-if="slideShown(index)"
+                  :src="item.variant.img"
+                  :alt="variantTitle(data, item.release, item.variant)"
+                  sizes="xs:96vw lg:48vw 2xl:44vw"
+                  :loading="index ? 'lazy' : 'eager'"
+                  :fetchpriority="index ? undefined : 'high'"
+                  decoding="async"
+                  class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                />
+                <div v-else class="aspect-video w-full" />
+                <figcaption
+                  class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 text-white"
                 >
-                  {{ item.variant.price }}
-                </span>
-              </figcaption>
-            </figure>
-          </UCarousel>
+                  <span class="min-w-0">
+                    <span class="block truncate font-semibold">
+                      {{ item.variant.variant_name }}
+                    </span>
+                    <span class="block truncate text-xs text-white/75">
+                      {{ item.release.name }}
+                    </span>
+                  </span>
+                  <span
+                    v-if="item.variant.price"
+                    class="shrink-0 text-sm font-medium tabular-nums"
+                  >
+                    {{ item.variant.price }}
+                  </span>
+                </figcaption>
+              </figure>
+            </UCarousel>
 
-          <!-- No photo yet: the placeholder, with nothing to open -->
-          <NuxtImg
-            v-else
-            src="/keyboard.png"
-            :alt="title"
-            class="aspect-video w-full rounded-lg border border-default bg-elevated object-cover"
-          />
+            <!-- No photo yet: the placeholder, with nothing to open -->
+            <NuxtImg
+              v-else
+              src="/keyboard.png"
+              :alt="title"
+              class="aspect-video w-full rounded-lg border border-default bg-elevated object-cover"
+            />
 
-          <!-- The slides as thumbnails, following the carousel both ways -->
-          <div
-            v-if="photos.length > 1"
-            ref="filmstrip"
-            class="flex gap-2 overflow-x-auto pb-1"
-            role="listbox"
-            aria-label="Variants"
-          >
-            <button
-              v-for="(row, index) in photos"
-              :key="row.variant.id"
-              type="button"
-              role="option"
-              :aria-selected="index === activePhoto"
-              :aria-label="row.variant.variant_name"
-              class="shrink-0 overflow-hidden rounded-md border-2 transition-opacity"
-              :class="
-                index === activePhoto
-                  ? 'border-primary'
-                  : 'border-transparent opacity-60 hover:opacity-100'
-              "
-              @click="photoCarousel?.emblaApi?.scrollTo(index)"
+            <!-- The slides as thumbnails, following the carousel both ways -->
+            <div
+              v-if="photos.length > 1"
+              ref="filmstrip"
+              class="flex gap-2 overflow-x-auto pb-1"
+              role="listbox"
+              aria-label="Variants"
             >
-              <NuxtImg
-                :src="row.variant.img"
-                :alt="row.variant.variant_name"
-                sizes="96px"
-                loading="lazy"
-                decoding="async"
-                class="aspect-video w-20 object-cover"
-              />
-            </button>
-          </div>
-        </div>
-
-        <div class="min-w-0 space-y-5 lg:col-span-2 2xl:col-span-1">
-          <!-- The keyboard and its actions: actions beside the title,
-               except under it from lg to xl, where the column beside the
-               photos is too narrow for both -->
-          <UPageHeader
-            :ui="{
-              root: 'border-none py-0',
-              wrapper: [
-                'gap-3 sm:flex-row sm:items-start sm:justify-between',
-                'lg:flex-col 2xl:flex-row',
-              ],
-              links: 'flex flex-wrap gap-2 shrink-0',
-              headline: 'mb-1',
-              description: 'text-sm',
-            }"
-          >
-            <template v-if="data.original" #headline>
-              <span class="text-sm text-muted font-normal">
-                Based on
-                <ULink
-                  :to="`/keyboard/brand/${data.derived_from}`"
-                  class="font-medium text-highlighted hover:underline"
-                >
-                  {{ originalName }}
-                </ULink>
-              </span>
-            </template>
-
-            <template #title>
-              <span class="flex items-center gap-3">
-                <UAvatar
-                  :src="logoUrl(data.brand?.slug)"
-                  :alt="data.brand?.name"
-                  size="lg"
-                  :ui="{
-                    root: 'bg-transparent rounded-none shrink-0',
-                    image: data.brand?.invertible_logo
-                      ? 'rounded-none dark:invert'
-                      : 'rounded-none',
-                  }"
-                />
-                {{ title }}
-              </span>
-            </template>
-
-            <template v-if="authenticated" #links>
-              <UButton
-                color="primary"
-                icon="hugeicons:delivery-view-01"
-                label="Add Release"
-                v-bind="addReleaseTarget"
-              />
-
-              <SharedRecordActions
-                :editable="editable"
-                :suggestable="canSuggest(data)"
-                label="Keyboard"
-                @edit="editing = true"
-                @suggest="suggest('keyboard', data)"
-                @history="history?.show()"
-              />
-
-              <!-- Ordering needs at least two releases. -->
-              <UTooltip
-                v-if="editable && (data.releases?.length || 0) > 1"
-                text="Sort Releases"
+              <button
+                v-for="(row, index) in photos"
+                :key="row.variant.id"
+                type="button"
+                role="option"
+                :aria-selected="index === activePhoto"
+                :aria-label="row.variant.variant_name"
+                class="shrink-0 overflow-hidden rounded-md border-2 transition-opacity"
+                :class="
+                  index === activePhoto
+                    ? 'border-primary'
+                    : 'border-transparent opacity-60 hover:opacity-100'
+                "
+                @click="photoCarousel?.emblaApi?.scrollTo(index)"
               >
-                <UButton
-                  :icon="appConfig.ui.icons.sortManual"
-                  aria-label="Sort Releases"
-                  @click="sortOpen = true"
+                <NuxtImg
+                  :src="row.variant.img"
+                  :alt="row.variant.variant_name"
+                  sizes="96px"
+                  loading="lazy"
+                  decoding="async"
+                  class="aspect-video w-20 object-cover"
                 />
-              </UTooltip>
-            </template>
+              </button>
+            </div>
+          </div>
+        </template>
 
-            <template v-if="data.description" #description>
-              <SharedDescription :description="data.description" />
-            </template>
-          </UPageHeader>
+        <!-- The keyboard and its actions -->
+        <UPageHeader :ui="detailPageHeaderUi(true)">
+          <template v-if="data.original" #headline>
+            <span class="text-sm text-muted font-normal">
+              Based on
+              <ULink
+                :to="`/keyboard/brand/${data.derived_from}`"
+                class="font-medium text-highlighted hover:underline"
+              >
+                {{ originalName }}
+              </ULink>
+            </span>
+          </template>
 
-          <!-- The design every release shares, one row each, in as many
+          <template #title>
+            <span class="flex items-center gap-3">
+              <UAvatar
+                :src="logoUrl(data.brand?.slug)"
+                :alt="data.brand?.name"
+                size="lg"
+                :ui="{
+                  root: 'bg-transparent rounded-none shrink-0',
+                  image: data.brand?.invertible_logo
+                    ? 'rounded-none dark:invert'
+                    : 'rounded-none',
+                }"
+              />
+              {{ title }}
+            </span>
+          </template>
+
+          <template v-if="authenticated" #links>
+            <UButton
+              color="primary"
+              icon="hugeicons:delivery-view-01"
+              label="Add Release"
+              v-bind="addReleaseTarget"
+            />
+
+            <SharedRecordActions
+              :editable="editable"
+              :suggestable="canSuggest(data)"
+              label="Keyboard"
+              @edit="editing = true"
+              @suggest="suggest('keyboard', data)"
+              @history="history?.show()"
+            />
+
+            <!-- Ordering needs at least two releases. -->
+            <UTooltip
+              v-if="editable && (data.releases?.length || 0) > 1"
+              text="Sort Releases"
+            >
+              <UButton
+                :icon="appConfig.ui.icons.sortManual"
+                aria-label="Sort Releases"
+                @click="sortOpen = true"
+              />
+            </UTooltip>
+          </template>
+
+          <template v-if="data.description" #description>
+            <SharedDescription :description="data.description" />
+          </template>
+        </UPageHeader>
+
+        <!-- The design every release shares, one row each, in as many
                columns as the column's width allows -->
-          <SharedSpecList :items="keyboardSpecs" layout="rows" />
-        </div>
-      </section>
+        <SharedSpecList :items="keyboardSpecs" layout="rows" />
+      </SharedDetailHero>
 
       <!-- The keyboards built on this design, right under it so many
            releases don't bury them, in the same grid as other keyboard
            cards. The original of a derived keyboard is its Based on link in
            the header. -->
-      <section
-        v-if="data.derived_keyboards?.length"
-        class="space-y-4 border-t border-default pt-8 mt-10"
-      >
+      <section v-if="data.derived_keyboards?.length" class="space-y-4 pt-4">
         <UPageHeader
           title="Derived Designs"
           description="Community reworks, official collaborations, and iterations that share this design's DNA."
@@ -244,7 +223,7 @@
         <!-- Every release as a UTimeline item, in the release order staff
              set (newest first): its name and actions as the title, then its
              story, specs, and variants as cards, on a primary rail -->
-        <section class="space-y-6 border-t border-default pt-8 mt-10">
+        <section class="space-y-6 pt-4">
           <UPageHeader
             title="Production History"
             :as="detailSectionHeaderAs"
@@ -379,7 +358,7 @@
         icon="hugeicons:package"
         title="Nothing Has Shipped Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
-        class="mt-10"
+        class="mt-4"
       />
 
       <KeyboardVariantDrawer

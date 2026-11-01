@@ -5,129 +5,167 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
+      </UDashboardNavbar>
+    </template>
 
-        <template #right>
-          <UModal v-if="editable" title="Add Colorway">
+    <template #body>
+      <!-- The sculpt's record: its name, the sculpt it revises, its story,
+           and its specs -->
+      <SharedDetailHero>
+        <!-- The sculpt's name alone: the breadcrumb shows its maker -->
+        <UPageHeader :title="sculpt.name" :ui="detailPageHeaderUi(false)">
+          <template v-if="revisionOf" #headline>
+            <span class="text-sm text-muted font-normal">
+              Revision of
+              <ULink
+                :to="sculptPath(revisionOf)"
+                class="font-medium text-highlighted hover:underline"
+              >
+                {{ revisionOf.name }}
+              </ULink>
+            </span>
+          </template>
+
+          <!-- The page's actions sit with the sculpt they act on -->
+          <template v-if="authenticated" #links>
             <UButton
               icon="hugeicons:dashboard-square-add"
               color="primary"
               label="Add Colorway"
+              v-bind="addColorwayTarget"
             />
 
-            <template #body="{ close }">
-              <ArtisanModalColorwayForm
-                :metadata="newColorwayMetadata"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
+            <SharedRecordActions
+              :editable="editable"
+              :suggestable="canSuggest(sculpt)"
+              label="Sculpt"
+              @edit="editingSculpt = true"
+              @suggest="
+                suggest('artisan_sculpt', sculpt, {
+                  sculpts: sculpt.maker_sculpts,
+                })
+              "
+              @history="history?.show()"
+              @delete="
+                openDelete(
+                  'Sculpt',
+                  sculpt.name,
+                  `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
+                  // A deleted sculpt has no page left: go back to its maker
+                  () => navigateTo(`/artisan/maker/${route.params.maker}`),
+                )
+              "
+            />
+          </template>
 
+          <template v-if="sculpt.story && !$device.isMobile" #description>
+            <SharedDescription :description="sculpt.story" />
+          </template>
+        </UPageHeader>
+
+        <!-- On phones the story and specs fold into Sculpt Details, closed
+             by default, so the colorways start on the first screen -->
+        <UCollapsible v-if="$device.isMobile && hasDetails">
           <UButton
-            v-else-if="authenticated"
-            icon="hugeicons:dashboard-square-add"
-            color="primary"
-            label="Add Colorway"
-            :to="{
-              path: '/artisan/submissions/submit',
-              query: {
-                maker: route.params.maker,
-                sculpt: route.params.sculpt,
-              },
+            label="Sculpt Details"
+            :trailing-icon="appConfig.ui.icons.chevronDown"
+            block
+            class="group justify-between"
+            :ui="{
+              label: 'block',
+              trailingIcon:
+                'transition-transform duration-200 group-data-[state=open]:rotate-180',
             }"
           />
 
-          <SharedRecordActions
-            :editable="editable"
-            :suggestable="canSuggest(sculpt)"
-            label="Sculpt"
-            @edit="editingSculpt = true"
-            @suggest="
-              suggest('artisan_sculpt', sculpt, {
-                sculpts: sculpt.maker_sculpts,
-              })
-            "
-            @history="history?.show()"
-            @delete="
-              openDelete(
-                'Sculpt',
-                sculpt.name,
-                `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`,
-                // A deleted sculpt has no page left: go back to its maker
-                () => navigateTo(`/artisan/maker/${route.params.maker}`),
-              )
-            "
-          />
+          <template #content>
+            <div class="space-y-4 pt-4">
+              <SharedDescription
+                v-if="sculpt.story"
+                :description="sculpt.story"
+                class="text-sm text-muted"
+              />
+              <SharedSpecList
+                v-if="sculptSpecs.length"
+                :items="sculptSpecs"
+                layout="rows"
+              />
+            </div>
+          </template>
+        </UCollapsible>
 
-          <SharedProfileDrawer
-            v-if="sculpt.story"
-            :title="sculpt.name"
-            :description="sculpt.story"
-          />
-        </template>
-      </UDashboardNavbar>
+        <!-- Only the specs the catalog has: most sculpts have a few -->
+        <SharedSpecList
+          v-else-if="sculptSpecs.length"
+          :items="sculptSpecs"
+          layout="rows"
+        />
+      </SharedDetailHero>
 
-      <!-- List controls sit in the toolbar, like other list pages, so the
-           navbar keeps only the page's actions -->
-      <UDashboardToolbar>
-        <template #right>
-          <USelect
-            v-model="sortValue"
-            :items="sortOptions"
-            :icon="sortIconMap[sortValue]"
-            variant="soft"
-          />
-        </template>
-      </UDashboardToolbar>
-    </template>
-
-    <template #body>
-      <UPageGrid :class="artisanGridClass">
-        <SharedCatalogCard
-          v-for="colorway in sculpt.colorways"
-          :key="colorway.colorway_id"
-          :title="colorway.name"
-          :img="colorway.img"
-          aspect="square"
-          :editable="editable"
-          :suggestable="canSuggest(colorway)"
-          class="cursor-pointer"
-          @click="openColorwayCard(colorway)"
-          @edit="openColorwayForm(colorway)"
-          @suggest="suggest('artisan_colorway', colorway)"
-          @history="showColorwayHistory(colorway)"
-          @delete="
-            openDelete(
-              'Colorway',
-              colorway.name,
-              `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
-            )
-          "
+      <section class="space-y-4 pt-4">
+        <!-- The list's own control sits with the list -->
+        <UPageHeader
+          title="Colorways"
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
         >
-          <!-- Save needs a signed-in user; copying lives in the popup -->
-          <template v-if="authenticated" #footer-start>
-            <SharedSaveToCollection
-              :item="colorway"
-              :item-name="colorway.name"
-              label="Save"
-              keep-label
-              @on-select="saveTo"
+          <template #links>
+            <USelect
+              v-model="sortValue"
+              :items="sortOptions"
+              :icon="sortIconMap[sortValue]"
+              variant="soft"
+              aria-label="Sort"
             />
           </template>
-        </SharedCatalogCard>
-      </UPageGrid>
+        </UPageHeader>
 
-      <UModal
-        v-model:open="cardOpen"
-        :ui="{
-          content: 'w-fit',
-        }"
-        @update:open="(open) => !open && closeColorwayCard()"
-      >
+        <UPageGrid :class="artisanGridClass">
+          <SharedCatalogCard
+            v-for="colorway in sculpt.colorways"
+            :key="colorway.colorway_id"
+            :title="colorway.name"
+            :img="colorway.img"
+            aspect="square"
+            :editable="editable"
+            :suggestable="canSuggest(colorway)"
+            class="cursor-pointer"
+            @click="openColorway(colorway)"
+            @edit="openColorwayForm(colorway)"
+            @suggest="suggest('artisan_colorway', colorway)"
+            @history="showColorwayHistory(colorway)"
+            @delete="
+              openDelete(
+                'Colorway',
+                colorway.name,
+                `/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}/colorways/${colorway.id}`,
+              )
+            "
+          >
+            <!-- Save needs a signed-in user; copying lives in the popup -->
+            <template v-if="authenticated" #footer-start>
+              <SharedSaveToCollection
+                :item="colorway"
+                :item-name="colorway.name"
+                label="Save"
+                keep-label
+                @on-select="saveTo"
+              />
+            </template>
+          </SharedCatalogCard>
+        </UPageGrid>
+      </section>
+
+      <ArtisanColorwayDrawer
+        v-model:open="detailOpen"
+        :colorway="selectedColorway"
+        :authenticated="authenticated"
+        @save-to="saveTo"
+        @share="cardOpen = true"
+      />
+
+      <!-- Share Card: the trading card popup, over the drawer -->
+      <UModal v-model:open="cardOpen" :ui="{ content: 'w-fit' }">
         <template #content>
           <ArtisanColorwayCard
             v-if="selectedColorway.colorway_id"
@@ -144,6 +182,20 @@
           description="Every change to this sculpt and its colorways, newest first."
           @reverted="onReverted"
         />
+
+        <UModal v-model:open="newColorwayOpen" title="Add Colorway">
+          <template #body>
+            <ArtisanModalColorwayForm
+              :metadata="newColorwayMetadata"
+              @on-success="
+                () => {
+                  newColorwayOpen = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
 
         <UModal v-model:open="editingSculpt" title="Edit Sculpt">
           <template #body>
@@ -276,6 +328,24 @@ const onReverted = ({ entityType, changes }) => {
   refresh()
 }
 
+const sculptSpecs = computed(() => sculptSpecItems(sculpt.value || {}))
+
+const hasDetails = computed(
+  () => !!sculpt.value?.story || sculptSpecs.value.length > 0,
+)
+
+// The sculpt this one revises: `is_revision_of` holds another of the maker's
+// sculpts' maker_sculpt_id, so the maker's sculpt list has it
+const sculptPath = (item) => `/artisan/maker/${item.maker_sculpt_id}`
+
+const revisionOf = computed(() =>
+  sculpt.value?.is_revision_of
+    ? sculpt.value.maker_sculpts?.find(
+        (item) => item.maker_sculpt_id === sculpt.value.is_revision_of,
+      )
+    : null,
+)
+
 const breadcrumbs = computed(() => {
   return [
     {
@@ -331,9 +401,12 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
+// The colorway drawer, and the trading card popup it opens (Share Card)
+const detailOpen = ref(false)
 const cardOpen = ref(false)
 
 const editingSculpt = ref(false)
+const newColorwayOpen = ref(false)
 
 const { addItem } = useCollectionItem()
 
@@ -350,13 +423,24 @@ const newColorwayMetadata = computed(() => ({
   order: (sculpt.value.total_colorways || 0) + 1,
 }))
 
+// Staff add a colorway in place; other signed-in users submit one
+const addColorwayTarget = computed(() =>
+  editable.value
+    ? { onClick: () => (newColorwayOpen.value = true) }
+    : {
+        to: {
+          path: '/artisan/submissions/submit',
+          query: {
+            maker: route.params.maker,
+            sculpt: route.params.sculpt,
+          },
+        },
+      },
+)
+
 const selectedColorway = ref({})
 
-const clearSelected = () => {
-  selectedColorway.value = {}
-}
-
-// A colorway with its sculpt, as the popup and the form take it
+// A colorway with its sculpt, as the drawer, the popup, and the form take it
 const withSculpt = (colorway) => {
   const { colorways, ...rest } = sculpt.value
   return { ...colorway, sculpt: rest }
@@ -391,23 +475,27 @@ const updateColorwayQuery = (cid) => {
   })
 }
 
-const closeColorwayCard = () => {
-  cardOpen.value = false
-  clearSelected()
-
-  if (colorwayCid.value) {
-    updateColorwayQuery()
-  }
-}
-
-const openColorwayCard = (colorway) => {
+// `?cid=` opens a colorway's drawer, so links from search and collections
+// land on it; closing the drawer drops it from the URL
+const openColorway = (colorway) => {
   setSelected(colorway)
-  cardOpen.value = true
+  detailOpen.value = true
 
   if (colorwayCid.value !== colorway.colorway_id) {
     updateColorwayQuery(colorway.colorway_id)
   }
 }
+
+watch(detailOpen, (open) => {
+  if (open) return
+
+  // The drawer keeps its colorway while it slides out
+  cardOpen.value = false
+
+  if (colorwayCid.value) {
+    updateColorwayQuery()
+  }
+})
 
 const history = useTemplateRef('history')
 
@@ -423,8 +511,7 @@ const showColorwayHistory = (colorway) => {
 
 const syncColorwayCardFromQuery = () => {
   if (!colorwayCid.value) {
-    cardOpen.value = false
-    clearSelected()
+    detailOpen.value = false
     return
   }
 
@@ -444,13 +531,12 @@ const syncColorwayCardFromQuery = () => {
   )
 
   if (!colorway) {
-    cardOpen.value = false
-    clearSelected()
+    detailOpen.value = false
     return
   }
 
   setSelected(colorway)
-  cardOpen.value = true
+  detailOpen.value = true
 }
 
 watch(

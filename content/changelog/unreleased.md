@@ -2,12 +2,13 @@
 title: Unreleased
 ---
 
-**Keyboards get the archive treatment** — every keyboard now reads like a catalog entry, with a large photo beside its design, and its releases and variants on one timeline.
+**Catalog pages get the archive treatment** — every keyboard now reads like a catalog entry, with a large photo beside its design and its releases and variants on one timeline, and sculpt pages show their full record and every colorway's details.
 
 ### ✨ What's New
 
 - **Keyboard pages** open as a catalog entry: a large photo you can switch between variants from the strip below it, beside the keyboard's name, story, and design specs.
 - **Production History** lays every release out on a timeline with its story, specs, and its variants as photo cards, so you can follow how a keyboard evolved and open any variant for its full details.
+- **Sculpt pages** open with the sculpt's details: its maker, profile, cast, design, release, collection, and story, with a link to the sculpt it revises. On phones the details fold away under _Sculpt Details_, so the colorways are right there. Opening a colorway slides in a panel with its photo and every detail, from its release and units to its stem, ready to save or turn into a share card.
 - **Derived Designs** sit right under a keyboard's details, so the keyboards built on its design are easy to find even when it has many releases, and a keyboard based on another links to its original next to its name.
 
 ### 🐛 Bug Fixes
@@ -17,4 +18,4 @@ title: Unreleased
 ### 🚀 Improvements
 
 - **Variant details** slide in from any variant with its front and back photos and everything about it, from the keyboard's design to the variant's own materials, ready to save or copy as an image. A release can also name the top case layouts it was sold in, and empty specs no longer leave blank labels behind.
-- **Keyset pages** gather the designer, row sculpt, dates, and status into one _Specifications_ grid with icons, in the same style as keyboard pages. _Save_, _Edit_, and _History_ sit under the keyset's name, the Geekhack thread and order charts are labeled buttons under the specs, and kits and colors are added, edited, and removed right on the page instead of on separate management pages.
+- **Keyset pages** list the designer, row sculpt, dates, and status beside the cover in the same rows as keyboard and sculpt pages, so every catalog page reads the same way. _Save_, _Edit_, and _History_ sit under the keyset's name, the Geekhack thread and order charts are labeled buttons under the specs, and kits and colors are added, edited, and removed right on the page instead of on separate management pages.

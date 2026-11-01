@@ -9,15 +9,10 @@
     </template>
 
     <template #body>
-      <!-- Smaller cover share on wide screens; the page stays full width.
-           Without a usable cover the details spread across the row instead. -->
-      <div
-        :class="
-          showCover && 'grid grid-cols-1 lg:grid-cols-5 2xl:grid-cols-2 gap-8'
-        "
-      >
-        <!-- Left: cover image -->
-        <div v-if="showCover" class="lg:col-span-3 2xl:col-span-1">
+      <!-- The cover beside the keyset's name, story, and specs; without a
+           usable cover the details spread across the row instead -->
+      <SharedDetailHero>
+        <template v-if="showCover" #media>
           <NuxtImg
             fetchpriority="high"
             sizes="xs:96vw lg:48vw 2xl:44vw"
@@ -27,84 +22,62 @@
             @error="coverFailed = true"
             @click="openPreview({ title: fullName, url: coverImg })"
           />
-        </div>
+        </template>
 
-        <!-- Right: identity and specifications -->
-        <div
-          :class="['space-y-6', showCover && 'lg:col-span-2 2xl:col-span-1']"
+        <UPageHeader
+          :title="fullName"
+          :description="data.description"
+          :ui="detailPageHeaderUi(showCover)"
         >
-          <UPageHeader
-            :title="fullName"
-            :description="data.description"
-            :ui="{
-              root: 'pt-0 pb-4',
-              // Actions beside the title, like the keyboard page, except
-              // beside the cover from lg to xl, where the column is too
-              // narrow for both
-              wrapper: [
-                'gap-3 sm:flex-row sm:items-start sm:justify-between lg:items-start',
-                showCover && 'lg:flex-col 2xl:flex-row',
-              ],
-              links: 'flex flex-wrap gap-2 shrink-0',
-              description: 'text-sm',
-            }"
-          >
-            <!-- The page's actions; the reference links sit under the specs -->
-            <template v-if="authenticated || canAddCover" #links>
-              <SharedSaveToCollection
-                v-if="authenticated"
-                :item="data"
-                :item-name="fullName"
-                category="keyset"
-                label="Save"
-                keep-label
-                @on-select="saveTo"
-              />
-
-              <SharedRecordActions
-                :editable="editable"
-                :suggestable="canSuggest(data)"
-                label="Keyset"
-                @edit="keysetFormOpen = true"
-                @suggest="suggest('keyset', data)"
-                @history="history?.show()"
-              />
-
-              <!-- No cover to show: invite the community to add one -->
-              <UTooltip v-if="canAddCover" text="Add Cover">
-                <UButton
-                  icon="hugeicons:image-add-02"
-                  aria-label="Add Cover"
-                  @click="suggest('keyset', data)"
-                />
-              </UTooltip>
-            </template>
-          </UPageHeader>
-
-          <section v-if="specs.length" class="space-y-4">
-            <UPageHeader
-              title="Specifications"
-              :as="detailSectionHeaderAs"
-              :ui="detailSectionHeaderUi"
+          <!-- The page's actions; the reference links sit under the specs -->
+          <template v-if="authenticated || canAddCover" #links>
+            <SharedSaveToCollection
+              v-if="authenticated"
+              :item="data"
+              :item-name="fullName"
+              category="keyset"
+              label="Save"
+              keep-label
+              @on-select="saveTo"
             />
-            <SharedSpecList :items="specs" layout="grid" :columns="3" />
-          </section>
 
-          <!-- Where the set was discussed and how it sold, with labels -->
-          <div v-if="referenceLinks.length" class="flex flex-wrap gap-2">
-            <UButton
-              v-for="link in referenceLinks"
-              :key="link.label"
-              v-bind="link"
-              :ui="{ label: 'block' }"
+            <SharedRecordActions
+              :editable="editable"
+              :suggestable="canSuggest(data)"
+              label="Keyset"
+              @edit="keysetFormOpen = true"
+              @suggest="suggest('keyset', data)"
+              @history="history?.show()"
             />
-          </div>
+
+            <!-- No cover to show: invite the community to add one -->
+            <UTooltip v-if="canAddCover" text="Add Cover">
+              <UButton
+                icon="hugeicons:image-add-02"
+                aria-label="Add Cover"
+                @click="suggest('keyset', data)"
+              />
+            </UTooltip>
+          </template>
+        </UPageHeader>
+
+        <!-- One row per spec, like the keyboard page -->
+        <SharedSpecList v-if="specs.length" :items="specs" layout="rows" />
+
+        <!-- Where the set was discussed and how it sold, with labels -->
+        <div v-if="referenceLinks.length" class="flex flex-wrap gap-2">
+          <UButton
+            v-for="link in referenceLinks"
+            :key="link.label"
+            v-bind="link"
+            :ui="{ label: 'block' }"
+          />
         </div>
-      </div>
+      </SharedDetailHero>
 
       <!-- Kits and colors are headed by section-sized page headers (an h2
            title), with ghost actions so they don't read as the page's own -->
-      <section class="space-y-4">
+      <section class="space-y-4 pt-4">
         <UPageHeader
           title="Kits"
           :as="detailSectionHeaderAs"
@@ -195,7 +168,7 @@
       </section>
 
       <!-- Colors: added and removed, never edited -->
-      <section v-if="data.colors?.length || editable" class="space-y-4">
+      <section v-if="data.colors?.length || editable" class="space-y-4 pt-4">
         <UPageHeader
           title="Color Palette"
           :description="

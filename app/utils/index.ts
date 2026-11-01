@@ -184,6 +184,21 @@ export const detailSectionHeaderUi = {
   links: 'shrink-0',
 }
 
+// The UPageHeader at the top of a detail page, inside `SharedDetailHero`: no
+// border or padding, and the actions beside the title, except under it from
+// lg to xl when media sits beside it, where the column is too narrow for both.
+export const detailPageHeaderUi = (withMedia: boolean) => ({
+  root: 'border-none py-0',
+  wrapper: [
+    // UPageHeader centers its wrapper from lg; keep the title at the start
+    'gap-3 sm:flex-row sm:items-start sm:justify-between lg:items-start',
+    withMedia && 'lg:flex-col 2xl:flex-row',
+  ],
+  links: 'flex flex-wrap gap-2 shrink-0',
+  headline: 'mb-1',
+  description: 'text-sm',
+})
+
 export const SEARCH_TERM_MIN_LENGTH = 3
 
 // Copies `keys` from `source` (missing keys become undefined), e.g. to hydrate
