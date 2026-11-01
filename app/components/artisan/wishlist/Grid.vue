@@ -15,21 +15,29 @@
       <div class="cursor-move">
         <ArtisanWishlistItem :item="item" :buying="buying" :compact="compact">
           <template #actions>
-            <UTooltip text="Priority">
+            <UTooltip
+              v-if="buying && item.exchange"
+              :text="item.priority ? 'Remove Top Priority' : 'Top Priority'"
+            >
               <UButton
-                v-if="buying && item.exchange"
-                icon="hugeicons:shopping-bag-favorite"
-                :color="item.priority ? 'success' : 'neutral'"
-                :size="compact ? 'sm' : 'md'"
+                icon="hugeicons:star"
+                :color="item.priority ? 'primary' : 'neutral'"
+                variant="solid"
+                size="sm"
+                :aria-label="
+                  item.priority ? 'Remove Top Priority' : 'Top Priority'
+                "
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>
 
             <UTooltip text="Remove">
               <UButton
-                icon="hugeicons:shopping-bag-remove"
+                icon="hugeicons:delete-02"
                 color="error"
-                :size="compact ? 'sm' : 'md'"
+                variant="solid"
+                size="sm"
+                aria-label="Remove"
                 @click="$emit('onRemove', item)"
               />
             </UTooltip>
