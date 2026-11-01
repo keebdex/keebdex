@@ -9,73 +9,97 @@
     </template>
 
     <template #body>
-      <!-- The catalog entry: the featured photo with the other variants as
-           a filmstrip, beside the keyboard's name, story, and record -->
-      <section
-        class="grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
-      >
-        <!-- Stays in view beside the taller record on wide screens -->
-        <figure class="min-w-0 space-y-3 lg:sticky lg:top-0 lg:self-start">
-          <button
-            type="button"
-            class="group relative block w-full overflow-hidden rounded-lg border border-default bg-elevated"
-            :disabled="!featured"
-            :aria-label="
-              featured ? `Open ${featured.variant.variant_name}` : undefined
-            "
-            @click="featured && openVariant(featured.variant, featured.release)"
+      <!-- The catalog entry: the variant photos as a carousel with a
+           filmstrip, beside the keyboard's name, story, and design. Like
+           the keyset page, the photos take 3/5 of the row from lg and half
+           from 2xl, so they don't grow too large on wide screens. -->
+      <section class="grid grid-cols-1 gap-8 lg:grid-cols-5 2xl:grid-cols-2">
+        <!-- Stays in view beside the details on wide screens -->
+        <div
+          class="min-w-0 space-y-3 lg:col-span-3 lg:sticky lg:top-0 lg:self-start 2xl:col-span-1"
+        >
+          <!-- Every variant with a photo, one slide each, with its name,
+               release, and price; clicking a slide opens the variant -->
+          <UCarousel
+            v-if="photoRows.length"
+            ref="photoCarousel"
+            v-slot="{ item, index }"
+            :items="photoRows"
+            loop
+            :arrows="photoRows.length > 1"
+            :ui="{ prev: 'start-3 sm:start-3', next: 'end-3 sm:end-3' }"
+            @select="activePhoto = $event"
           >
-            <NuxtImg
-              :src="featured?.img || '/keyboard.png'"
-              :alt="
-                featured ? `${title} ${featured.variant.variant_name}` : title
-              "
-              sizes="100vw lg:60vw"
-              fetchpriority="high"
-              class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-            />
-            <figcaption
-              v-if="featured"
-              class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 text-start text-white"
+            <figure
+              class="group relative overflow-hidden rounded-lg border border-default bg-elevated"
             >
-              <span class="min-w-0">
-                <span class="block truncate font-semibold">
-                  {{ featured.variant.variant_name }}
-                </span>
-                <span class="block truncate text-xs text-white/75">
-                  {{ featured.release.name }}
-                </span>
-              </span>
-              <span
-                v-if="featured.variant.price"
-                class="shrink-0 text-sm font-medium tabular-nums"
+              <button
+                type="button"
+                class="absolute inset-0 z-1"
+                :aria-label="`Open ${item.variant.variant_name}`"
+                @click="openVariant(item.variant, item.release)"
+              />
+              <!-- The first slide is above the fold -->
+              <NuxtImg
+                :src="item.img"
+                :alt="`${title} ${item.variant.variant_name}`"
+                sizes="xs:96vw lg:48vw 2xl:44vw"
+                :loading="index ? 'lazy' : 'eager'"
+                :fetchpriority="index ? undefined : 'high'"
+                decoding="async"
+                class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              />
+              <figcaption
+                class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 text-white"
               >
-                {{ featured.variant.price }}
-              </span>
-            </figcaption>
-          </button>
+                <span class="min-w-0">
+                  <span class="block truncate font-semibold">
+                    {{ item.variant.variant_name }}
+                  </span>
+                  <span class="block truncate text-xs text-white/75">
+                    {{ item.release.name }}
+                  </span>
+                </span>
+                <span
+                  v-if="item.variant.price"
+                  class="shrink-0 text-sm font-medium tabular-nums"
+                >
+                  {{ item.variant.price }}
+                </span>
+              </figcaption>
+            </figure>
+          </UCarousel>
 
-          <!-- Every variant with a photo; picking one features it -->
+          <!-- No photo yet: the placeholder, with nothing to open -->
+          <NuxtImg
+            v-else
+            src="/keyboard.png"
+            :alt="title"
+            class="aspect-video w-full rounded-lg border border-default bg-elevated object-cover"
+          />
+
+          <!-- The slides as thumbnails, following the carousel both ways -->
           <div
             v-if="photoRows.length > 1"
+            ref="filmstrip"
             class="flex gap-2 overflow-x-auto pb-1"
             role="listbox"
             aria-label="Variants"
           >
             <button
-              v-for="row in photoRows"
+              v-for="(row, index) in photoRows"
               :key="row.id"
               type="button"
               role="option"
-              :aria-selected="row.id === featured?.id"
+              :aria-selected="index === activePhoto"
               :aria-label="row.variant.variant_name"
               class="shrink-0 overflow-hidden rounded-md border-2 transition-opacity"
               :class="
-                row.id === featured?.id
+                index === activePhoto
                   ? 'border-primary'
                   : 'border-transparent opacity-60 hover:opacity-100'
               "
-              @click="featuredId = row.id"
+              @click="photoCarousel?.emblaApi?.scrollTo(index)"
             >
               <NuxtImg
                 :src="row.img"
@@ -87,9 +111,9 @@
               />
             </button>
           </div>
-        </figure>
+        </div>
 
-        <div class="min-w-0 space-y-5">
+        <div class="min-w-0 space-y-5 lg:col-span-2 2xl:col-span-1">
           <div class="space-y-2">
             <ULink
               :to="`/keyboard/brand/${data.brand?.slug}`"
@@ -556,7 +580,7 @@ const timelineItems = computed(() =>
   })),
 )
 
-// The featured photo: the newest variant with one until another is picked
+// The carousel's slides: every variant with a photo, newest release first
 const photoRows = computed(() =>
   releases.value.flatMap((release) =>
     release.variants
@@ -569,14 +593,19 @@ const photoRows = computed(() =>
       })),
   ),
 )
-const featuredId = ref(null)
 
-const featured = computed(
-  () =>
-    photoRows.value.find((row) => row.id === featuredId.value) ||
-    photoRows.value[0] ||
-    null,
-)
+const photoCarousel = useTemplateRef('photoCarousel')
+const filmstrip = useTemplateRef('filmstrip')
+const activePhoto = ref(0)
+
+// Keep the current slide's thumbnail in view as the carousel moves
+watch(activePhoto, (index) => {
+  filmstrip.value?.children[index]?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+    inline: 'nearest',
+  })
+})
 
 // Staff add a release or variant in place; others submit one for review
 const addReleaseTarget = computed(() =>
