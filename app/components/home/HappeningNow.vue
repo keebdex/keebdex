@@ -15,11 +15,11 @@
       </template>
     </HomeSectionHeader>
 
-    <div class="grid gap-6 lg:grid-cols-5">
+    <div class="grid gap-6 lg:grid-cols-3">
       <UCard
         v-if="drops.length"
         variant="subtle"
-        :class="keysets.length && 'lg:col-span-2'"
+        :class="!keysets.length && 'lg:col-span-3'"
         :ui="{ header: 'flex items-center justify-between gap-2', body: 'p-0 sm:p-0' }"
       >
         <template #header>
@@ -66,7 +66,7 @@
       <UCard
         v-if="keysets.length"
         variant="subtle"
-        :class="drops.length && 'lg:col-span-3'"
+        :class="drops.length ? 'lg:col-span-2' : 'lg:col-span-3'"
         :ui="{ header: 'flex items-center justify-between gap-2', body: 'p-0 sm:p-0' }"
       >
         <template #header>
@@ -132,11 +132,12 @@
 <script setup>
 const { data } = await useHomeStatistics()
 
-// The busiest makers first; the rest are a click away
+// The busiest makers first, about as many rows as fill the height of five
+// group buys beside them; the rest are a click away
 const drops = computed(() =>
   [...data.value.makers]
     .sort((a, b) => b.additions - a.additions)
-    .slice(0, 6),
+    .slice(0, 8),
 )
 
 const DAY = 86_400_000
