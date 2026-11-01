@@ -88,8 +88,8 @@ const steps = [
 
 const intentItems = [
   { label: 'All', value: 'all' },
-  { label: 'Buying', value: 'want', icon: 'hugeicons:money-bag-02' },
-  { label: 'Selling', value: 'sell', icon: 'hugeicons:sale-tag-02' },
+  { ...TRADE_INTENTS.want, value: 'want' },
+  { ...TRADE_INTENTS.sell, value: 'sell' },
 ]
 
 // kept in the URL; switching starts again from the first page

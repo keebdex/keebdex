@@ -136,17 +136,13 @@
 <script setup>
 const { authenticated, social } = storeToRefs(useUserStore())
 
-const sidebarOpen = useState(
-  'wishlist-sidebar-open',
-  () => !useDevice().isMobile,
-)
+const sidebarOpen = useWishlistSidebar()
 
 const tradingConfig = useTradingConfig()
 const { collectionItems, setType } = useWishlistPicker()
 
 // Each group of settings opens with a small mono heading
-const legendClass =
-  'mb-3 font-mono text-xs font-medium uppercase tracking-[0.2em] text-muted'
+const legendClass = ['mb-3 text-muted', eyebrowClass]
 
 const trading = computed(() => tradingConfig.value.type === 'trading')
 

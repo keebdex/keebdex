@@ -24,7 +24,7 @@
     </div>
 
     <template #description>
-      <SharedSpecList :items="specs" layout="grid" :columns="3" />
+      <SharedSpecList :items="specs" layout="grid" />
     </template>
 
     <template #leading>

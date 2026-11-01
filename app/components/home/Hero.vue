@@ -9,7 +9,7 @@
         'px-0 sm:px-0 lg:px-0 py-4 sm:py-10 lg:py-16 gap-10 sm:gap-y-10 lg:gap-16',
       // Each part rises in after the one above it (home-rise, main.css); the
       // title, the largest paint, goes first with the headline
-      headline: ['mb-4 home-rise', homeHeadlineClass],
+      headline: ['mb-4 text-primary home-rise', eyebrowClass],
       title:
         'text-4xl sm:text-5xl xl:text-6xl text-balance home-rise',
       description: 'mt-5 max-w-xl home-rise [--i:1]',

@@ -103,8 +103,9 @@ export const statusColorMap: Record<string, string> = {
   Rejected: 'error',
 }
 
+// The colorway's name and its sculpt's, or the name alone without a sculpt
 export const colorwayTitle = (colorway: any) =>
-  `${colorway.name} ${colorway?.sculpt.name}`
+  [colorway.name, colorway.sculpt?.name].filter(Boolean).join(' ')
 
 export const formatKeyboardDescription = (names: Array<string | undefined>) => {
   return names.filter((n) => !!n).join(' ')
@@ -176,9 +177,10 @@ export const artisanGridClass =
 export const imageCardContainerClass =
   'h-full grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)]'
 
-// The small mono headline over the home page's hero and section titles
-export const homeHeadlineClass =
-  'font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary'
+// A small mono uppercase eyebrow over a title (the home page's sections, the
+// wishlist settings' groups); callers add its color
+export const eyebrowClass =
+  'font-mono text-xs font-medium uppercase tracking-[0.2em]'
 
 // A UPageHeader scaled down to head a section of a detail page (a keyboard's
 // releases, a keyset's kits and colors): an h2 title, no border or padding,

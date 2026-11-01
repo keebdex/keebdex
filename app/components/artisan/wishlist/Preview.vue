@@ -136,10 +136,7 @@ const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const tradingCfg = useTradingConfig()
-// Open beside the sheet on wide screens; a slideover on phones, where it
-// would cover the start screen
-const sidebarOpen = useState('wishlist-sidebar-open', () => !isMobile)
-const trading = computed(() => tradingCfg.value.type === 'trading')
+const sidebarOpen = useWishlistSidebar()
 
 const { data: collections, refresh } = await useAsyncData(
   // Guests have no collections: skip the request instead of asking the API
@@ -204,20 +201,7 @@ const capture = () => snapshot.value.capture()
 
 const shareOpen = ref(false)
 
-const textSections = computed(() => {
-  const titles = wishlistSectionTitles(tradingCfg.value)
-  const sections = [
-    {
-      title: titles.buying,
-      items: buyingItems.value,
-      buying: tradingCfg.value.type !== 'selling',
-    },
-  ]
-
-  if (trading.value) {
-    sections.push({ title: titles.selling, items: sellingItems.value })
-  }
-
-  return sections
-})
+const textSections = computed(() =>
+  wishlistSections(tradingCfg.value, buyingItems.value, sellingItems.value),
+)
 </script>

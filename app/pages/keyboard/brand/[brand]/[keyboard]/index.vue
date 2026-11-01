@@ -104,7 +104,7 @@
                 <NuxtImg
                   :src="row.variant.img"
                   :alt="row.variant.variant_name"
-                  sizes="96px"
+                  sizes="80px"
                   loading="lazy"
                   decoding="async"
                   class="aspect-video w-20 object-cover"
@@ -202,10 +202,13 @@
             v-for="keyboard in data.derived_keyboards"
             :key="keyboard.brand_keyboard_slug"
             :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
-            :title="`${keyboard.brand?.name} ${keyboard.name}`"
-            :container="imageCardContainerClass"
+            :title="formatKeyboardDescription([keyboard.brand?.name, keyboard.name])"
             reverse
             spotlight
+            :ui="{
+              root: 'h-full flex flex-col',
+              container: imageCardContainerClass,
+            }"
           >
             <NuxtImg
               preset="cover"

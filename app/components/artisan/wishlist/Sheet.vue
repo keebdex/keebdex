@@ -42,7 +42,7 @@
       <h2 class="flex items-center gap-3">
         <span
           class="w-1.5 self-stretch rounded-full"
-          :class="section.accent"
+          :class="section.buying ? 'bg-info' : 'bg-warning'"
         />
         <span
           class="font-bold text-highlighted"
@@ -109,26 +109,11 @@ const { buyingItems, sellingItems, editable, compact } = defineProps({
 const tradingCfg = useTradingConfig()
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
-const titles = computed(() => wishlistSectionTitles(tradingCfg.value))
-
 // Want first, then Have on a trading list; an empty section is left out
 const sections = computed(() =>
-  [
-    {
-      key: 'buying',
-      title: titles.value.buying,
-      items: buyingItems,
-      buying: tradingCfg.value.type !== 'selling',
-      accent: tradingCfg.value.type === 'selling' ? 'bg-warning' : 'bg-info',
-    },
-    trading.value && {
-      key: 'selling',
-      title: titles.value.selling,
-      items: sellingItems,
-      buying: false,
-      accent: 'bg-warning',
-    },
-  ].filter((section) => section && section.items.length),
+  wishlistSections(tradingCfg.value, buyingItems, sellingItems).filter(
+    (section) => section.items.length,
+  ),
 )
 
 // Seller terms; buying lists have none

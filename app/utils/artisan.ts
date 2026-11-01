@@ -48,8 +48,9 @@ export const sculptSpecItems = (sculpt: Row) =>
   ].filter((spec) => spec.description)
 
 /** A colorway's specs as spec list items; unset ones stay, shown as a dash,
- * so every colorway lists the same specs. */
-export const colorwaySpecItems = (colorway: Row) => [
+ * so every colorway lists the same specs. `credit: false` leaves out the
+ * photo credit, which describes the photo rather than the colorway. */
+export const colorwaySpecItems = (colorway: Row, { credit = true } = {}) => [
   {
     term: 'Release',
     description: colorway.release,
@@ -77,9 +78,17 @@ export const colorwaySpecItems = (colorway: Row) => [
     description: joinSpecList(colorway.stem),
     icon: 'hugeicons:keyboard',
   },
-  {
-    term: 'Photo Credit',
-    description: colorway.photo_credit,
-    icon: 'hugeicons:camera-01',
-  },
+  ...(credit
+    ? [
+        {
+          term: 'Photo Credit',
+          description: colorway.photo_credit,
+          icon: 'hugeicons:camera-01',
+        },
+      ]
+    : []),
 ]
+
+/** A colorway's sculpt and maker, for a line under its name: `Sculpt · Maker`. */
+export const colorwayCaption = (colorway: Row) =>
+  [colorway.sculpt?.name, colorway.maker?.name].filter(Boolean).join(' · ')

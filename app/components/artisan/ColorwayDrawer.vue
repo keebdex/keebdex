@@ -4,7 +4,7 @@
        drawer serves the whole sculpt page. -->
   <USlideover
     v-model:open="open"
-    :title="colorway.sculpt ? colorwayTitle(colorway) : colorway.name"
+    :title="colorwayTitle(colorway)"
     :description="colorway.sculpt?.maker_name"
     :ui="{
       // Nuxt UI sets the width as sm:max-w-md, so override it at sm too
@@ -33,7 +33,7 @@
           :as="detailSectionHeaderAs"
           :ui="detailSectionHeaderUi"
         />
-        <SharedSpecList :items="specs" layout="grid" :columns="3" />
+        <SharedSpecList :items="specs" layout="grid" />
       </section>
     </template>
 

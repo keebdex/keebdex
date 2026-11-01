@@ -17,16 +17,14 @@
           <template #actions>
             <UTooltip
               v-if="buying && item.exchange"
-              :text="item.priority ? 'Remove Top Priority' : 'Top Priority'"
+              :text="priorityLabel(item)"
             >
               <UButton
                 icon="hugeicons:star"
                 :color="item.priority ? 'primary' : 'neutral'"
                 variant="solid"
                 size="sm"
-                :aria-label="
-                  item.priority ? 'Remove Top Priority' : 'Top Priority'
-                "
+                :aria-label="priorityLabel(item)"
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>
@@ -76,6 +74,10 @@ const { data, editable, compact } = defineProps({
   // Want items (priority flag, "found" mark); each section drags on its own.
   buying: Boolean,
 })
+
+// The Top Priority button's tooltip and label: what a click does
+const priorityLabel = (item) =>
+  item.priority ? 'Remove Top Priority' : 'Top Priority'
 
 const gridColumns = computed(() => {
   if (compact) return 2

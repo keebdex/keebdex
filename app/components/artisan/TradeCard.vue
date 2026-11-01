@@ -40,9 +40,7 @@
     <template #title>
       <span class="min-w-0 truncate">{{ trade.name }}</span>
       <UBadge
-        :label="buying ? 'Buying' : 'Selling'"
-        :icon="buying ? 'hugeicons:money-bag-02' : 'hugeicons:sale-tag-02'"
-        :color="buying ? 'info' : 'warning'"
+        v-bind="TRADE_INTENTS[trade.intent]"
         variant="subtle"
         size="sm"
         class="shrink-0"
@@ -82,7 +80,6 @@ const { trade } = defineProps({
 
 const CELLS = 6
 
-const buying = computed(() => trade.intent === 'want')
 
 // Always six cells, so cards line up; fewer caps leave empty cells
 const cells = computed(() =>

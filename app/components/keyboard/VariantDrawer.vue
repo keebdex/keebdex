@@ -56,7 +56,7 @@
           :as="detailSectionHeaderAs"
           :ui="detailSectionHeaderUi"
         />
-        <SharedSpecList :items="specs" layout="grid" :columns="3" />
+        <SharedSpecList :items="specs" layout="grid" />
       </section>
     </template>
 

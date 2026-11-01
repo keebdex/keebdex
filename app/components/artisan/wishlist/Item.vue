@@ -77,7 +77,7 @@
         {{ item.artisan.name }}
       </p>
       <p class="truncate text-muted" :class="compact ? 'text-xs' : 'text-sm'">
-        {{ caption }}
+        {{ colorwayCaption(item.artisan) }}
       </p>
     </figcaption>
   </figure>
@@ -96,11 +96,4 @@ const { item, buying } = defineProps({
 
 // Top priority only means something on a list of caps wanted
 const highlighted = computed(() => buying && !!item.priority)
-
-// The sculpt, and its maker when the item carries it
-const caption = computed(() =>
-  [item.artisan.sculpt?.name, item.artisan.maker?.name]
-    .filter(Boolean)
-    .join(' · '),
-)
 </script>

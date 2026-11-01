@@ -62,7 +62,7 @@
               v-for="{ id, priority, asking_price, artisan } in trade.items"
               :key="id"
               :title="artisan.name"
-              :description="colorwayMaker(artisan)"
+              :description="colorwayCaption(artisan)"
               :to="`/artisan/maker/${artisan.maker_id}/${artisan.sculpt_id}?cid=${artisan.colorway_id}`"
               reverse
               :highlight="priority"
@@ -177,9 +177,6 @@ const emptyDescription = computed(() => {
 })
 
 const isBuying = (trade) => trade.intent === 'want'
-
-const colorwayMaker = (artisan) =>
-  [artisan.sculpt?.name, artisan.maker?.name].filter(Boolean).join(' · ')
 
 const copyToClipboard = (discord) => {
   navigator.clipboard.writeText(discord)

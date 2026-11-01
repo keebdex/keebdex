@@ -90,8 +90,8 @@ const { colorway } = defineProps({
 
 // The colorway's details as badges: the ones it has, photo credit aside
 const badges = computed(() =>
-  colorwaySpecItems(colorway)
-    .filter((spec) => spec.description && spec.term !== 'Photo Credit')
+  colorwaySpecItems(colorway, { credit: false })
+    .filter((spec) => spec.description)
     .map(({ description, icon }) => ({ label: description, icon })),
 )
 </script>

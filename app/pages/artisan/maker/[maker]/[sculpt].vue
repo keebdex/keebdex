@@ -464,9 +464,8 @@ const updateColorwayQuery = (cid) => {
   })
 }
 
-// `?cid=` opens a colorway's drawer, so links from search and collections
-// land on it; closing the drawer drops it from the URL
-// The query watcher below opens the drawer for whatever `cid` is set
+// `?cid=` opens a colorway's drawer (the query watcher below), so links from
+// search and collections land on it; closing the drawer drops it from the URL
 const openColorway = (colorway) => updateColorwayQuery(colorway.colorway_id)
 
 watch(detailOpen, (open) => {
