@@ -345,7 +345,6 @@
               :start-index="kitStart"
               loop
               :arrows="previewKits.length > 1"
-              :ui="{ prev: 'start-2 sm:start-2', next: 'end-2 sm:end-2' }"
               @select="preview.kitIndex = $event"
             >
               <NuxtImg

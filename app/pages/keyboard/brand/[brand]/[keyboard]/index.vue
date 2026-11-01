@@ -9,10 +9,10 @@
     </template>
 
     <template #body>
-      <!-- The catalog entry: the variant photos as a carousel with a
-           filmstrip, beside the keyboard's name, story, and design. Like
-           the keyset page, the photos take 3/5 of the row from lg and half
-           from 2xl, so they don't grow too large on wide screens. -->
+      <!-- The variant photos as a carousel with a filmstrip, beside the
+           keyboard's name, story, and design. Like the keyset page, the
+           photos take 3/5 of the row from lg and half from 2xl, so they
+           don't grow too large on wide screens. -->
       <section class="grid grid-cols-1 gap-8 lg:grid-cols-5 2xl:grid-cols-2">
         <!-- Stays in view beside the details on wide screens -->
         <div
@@ -21,13 +21,12 @@
           <!-- Every variant with a photo, one slide each, with its name,
                release, and price; clicking a slide opens the variant -->
           <UCarousel
-            v-if="photoRows.length"
+            v-if="photos.length"
             ref="photoCarousel"
             v-slot="{ item, index }"
-            :items="photoRows"
+            :items="photos"
             loop
-            :arrows="photoRows.length > 1"
-            :ui="{ prev: 'start-3 sm:start-3', next: 'end-3 sm:end-3' }"
+            :arrows="photos.length > 1"
             @select="activePhoto = $event"
           >
             <figure
@@ -39,16 +38,21 @@
                 :aria-label="`Open ${item.variant.variant_name}`"
                 @click="openVariant(item.variant, item.release)"
               />
-              <!-- The first slide is above the fold -->
+              <!-- Only the slides near the current one (and those already
+                   seen) render their photo, so the server builds one or
+                   three images instead of every variant's; the first slide
+                   is above the fold -->
               <NuxtImg
-                :src="item.img"
-                :alt="`${title} ${item.variant.variant_name}`"
+                v-if="slideShown(index)"
+                :src="item.variant.img"
+                :alt="variantTitle(data, item.release, item.variant)"
                 sizes="xs:96vw lg:48vw 2xl:44vw"
                 :loading="index ? 'lazy' : 'eager'"
                 :fetchpriority="index ? undefined : 'high'"
                 decoding="async"
                 class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
               />
+              <div v-else class="aspect-video w-full" />
               <figcaption
                 class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 text-white"
               >
@@ -80,15 +84,15 @@
 
           <!-- The slides as thumbnails, following the carousel both ways -->
           <div
-            v-if="photoRows.length > 1"
+            v-if="photos.length > 1"
             ref="filmstrip"
             class="flex gap-2 overflow-x-auto pb-1"
             role="listbox"
             aria-label="Variants"
           >
             <button
-              v-for="(row, index) in photoRows"
-              :key="row.id"
+              v-for="(row, index) in photos"
+              :key="row.variant.id"
               type="button"
               role="option"
               :aria-selected="index === activePhoto"
@@ -102,7 +106,7 @@
               @click="photoCarousel?.emblaApi?.scrollTo(index)"
             >
               <NuxtImg
-                :src="row.img"
+                :src="row.variant.img"
                 :alt="row.variant.variant_name"
                 sizes="96px"
                 loading="lazy"
@@ -114,9 +118,9 @@
         </div>
 
         <div class="min-w-0 space-y-5 lg:col-span-2 2xl:col-span-1">
-          <!-- The keyboard and its actions, as before the catalog entry:
-               actions beside the title, except under it from lg to xl,
-               where the column beside the photos is too narrow for both -->
+          <!-- The keyboard and its actions: actions beside the title,
+               except under it from lg to xl, where the column beside the
+               photos is too narrow for both -->
           <UPageHeader
             :ui="{
               root: 'border-none py-0',
@@ -194,37 +198,15 @@
           </UPageHeader>
 
           <!-- The design every release shares, one row each, in as many
-               columns as the column's width allows (container queries), so
-               a wide column doesn't push the values far from their labels -->
-          <div class="@container">
-            <dl
-              class="grid gap-x-8 border-t border-default @md:grid-cols-2 @3xl:grid-cols-3"
-            >
-              <div
-                v-for="item in keyboardSpecs"
-                :key="item.term"
-                class="flex items-baseline justify-between gap-4 border-b border-default py-2"
-              >
-                <dt class="flex shrink-0 items-center gap-2 text-sm text-muted">
-                  <UIcon :name="item.icon" class="size-4 self-center" />
-                  {{ item.term }}
-                </dt>
-                <dd
-                  class="min-w-0 text-end text-sm font-medium text-highlighted"
-                >
-                  {{ item.description || '—' }}
-                </dd>
-              </div>
-            </dl>
-          </div>
+               columns as the column's width allows -->
+          <SharedSpecList :items="keyboardSpecs" layout="rows" />
         </div>
       </section>
 
       <template v-if="releases.length">
         <!-- Every release as a UTimeline item, in the release order staff
              set (newest first): its name and actions as the title, then its
-             story, specs, and variants as cards. Every item is marked done,
-             so the whole rail takes the primary color. -->
+             story, specs, and variants as cards, on a primary rail -->
         <section class="space-y-6 border-t border-default pt-8 mt-10">
           <UPageHeader
             title="Production History"
@@ -234,10 +216,11 @@
 
           <UTimeline
             :items="timelineItems"
-            :default-value="timelineItems.length - 1"
             size="sm"
             :ui="{
               item: 'gap-4',
+              indicator: 'bg-primary text-inverted',
+              separator: 'bg-primary',
               wrapper: 'min-w-0 flex-1 pb-10 group-last:pb-0',
               title: 'text-lg font-semibold',
               description: 'mt-3 space-y-4',
@@ -274,13 +257,7 @@
                     @history="
                       showHistory('keyboard_release', release.id, release.name)
                     "
-                    @delete="
-                      openDelete(
-                        'Release',
-                        release.name,
-                        `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
-                      )
-                    "
+                    @delete="deleteRelease(release)"
                   />
                 </div>
               </div>
@@ -309,7 +286,7 @@
                   :title="variant.variant_name"
                   :description="variant.finish_type"
                   :price="variant.price"
-                  :img="variant.img_front || variant.img_back"
+                  :img="variant.img"
                   fallback="/keyboard.png"
                   :editable="editable"
                   :suggestable="canSuggest(variant)"
@@ -560,13 +537,14 @@ const releases = computed(() =>
   sortBy(
     (data.value?.releases || []).filter(isApproved).map((release) => ({
       ...release,
-      // Prices show on the variant cards.
       specs: releaseSpecItems(release, data.value),
       variants: (release.variants || []).filter(isApproved).map((variant) => {
         const { price, custom } = resolveVariantSpecs(variant, release)
 
         return {
           ...variant,
+          // Front photo, else back; prices show on the variant cards
+          img: variant.img_front || variant.img_back,
           price,
           customSpecs: custom,
           saveItem: { ...variant, release_name: release.name },
@@ -580,23 +558,17 @@ const releases = computed(() =>
 // The releases as timeline items, with the release itself for the slots
 const timelineItems = computed(() =>
   releases.value.map((release) => ({
-    value: release.id,
     icon: 'hugeicons:delivery-view-01',
     release,
   })),
 )
 
 // The carousel's slides: every variant with a photo, newest release first
-const photoRows = computed(() =>
+const photos = computed(() =>
   releases.value.flatMap((release) =>
     release.variants
-      .filter((variant) => variant.img_front || variant.img_back)
-      .map((variant) => ({
-        id: variant.id,
-        img: variant.img_front || variant.img_back,
-        variant,
-        release,
-      })),
+      .filter((variant) => variant.img)
+      .map((variant) => ({ variant, release })),
   ),
 )
 
@@ -604,9 +576,27 @@ const photoCarousel = useTemplateRef('photoCarousel')
 const filmstrip = useTemplateRef('filmstrip')
 const activePhoto = ref(0)
 
-// Keep the current slide's thumbnail in view as the carousel moves
-watch(activePhoto, (index) => {
-  filmstrip.value?.children[index]?.scrollIntoView({
+// The current slide and its neighbours (the carousel loops) render their
+// photo, and slides that have done so keep it
+const seenSlides = reactive(new Set())
+
+const isNeighbour = (index, current) => {
+  const count = photos.value.length
+  const offset = (index - current + count) % count
+
+  return offset <= 1 || offset === count - 1
+}
+
+const slideShown = (index) =>
+  isNeighbour(index, activePhoto.value) || seenSlides.has(index)
+
+// Keep the current slide's thumbnail in view as the carousel moves, and keep
+// the photos it brought in
+watch(activePhoto, (current, previous) => {
+  photos.value.forEach((_, index) => {
+    if (isNeighbour(index, previous)) seenSlides.add(index)
+  })
+  filmstrip.value?.children[current]?.scrollIntoView({
     behavior: 'smooth',
     block: 'nearest',
     inline: 'nearest',
@@ -712,6 +702,13 @@ const onSorted = () => {
   sortOpen.value = false
   refresh()
 }
+
+const deleteRelease = (release) =>
+  openDelete(
+    'Release',
+    release.name,
+    `/api/keyboards/${release.brand_keyboard_slug}/releases/${release.id}`,
+  )
 
 const deleteVariant = (variant) =>
   openDelete(

@@ -21,7 +21,7 @@
 <script setup lang="ts" generic="T extends { key: string; date: string }">
 // The revision timelines (Recent Changes, History) in the style of GitHub's
 // commit history, built on `UTimeline`: one item per day (`Changes today`,
-// `Changes yesterday`, `Changes on <date>`) with a commit marker on the line
+// `Changes yesterday`, `Changes on <date>`) with a commit icon as its marker
 // and a bordered box of rows, one per entry, rendered by the default slot.
 // Entries come newest first and sit in the day of their `date`. No item is
 // selected, so the markers and line stay neutral.

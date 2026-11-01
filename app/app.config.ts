@@ -146,6 +146,18 @@ export default defineAppConfig({
         root: 'max-w-(--ui-container)',
       },
     },
+    // Arrows inside the slides, not beside them, at every width (the
+    // position is set by the orientation variant, not the slot)
+    carousel: {
+      variants: {
+        orientation: {
+          horizontal: {
+            prev: 'start-2 sm:start-2',
+            next: 'end-2 sm:end-2',
+          },
+        },
+      },
+    },
     select: {
       slots: {
         content: 'min-w-fit',
