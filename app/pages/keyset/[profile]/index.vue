@@ -208,4 +208,10 @@ useSeoMeta({
   title: computed(() => (title.value ? `${title.value} Keysets` : 'Keysets')),
   description,
 })
+
+defineOgImage('Module', {
+  title: title.value,
+  description: description.value,
+  titleLogo: logoUrl(keysetProfileLogoKey(data.value?.profile)),
+})
 </script>

@@ -259,5 +259,7 @@ const saveTo = (collection, colorway) => {
 useSeoMeta({
   title: () =>
     term.value ? `"${term.value}" – Search Colorways` : 'Search Colorways',
+  description:
+    'Search every artisan colorway on Keebdex by name, across all makers and sculpts.',
 })
 </script>

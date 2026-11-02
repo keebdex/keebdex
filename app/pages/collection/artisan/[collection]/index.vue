@@ -54,10 +54,7 @@
             :to="`/collection/artisan/${route.params.collection}/sort`"
           />
 
-          <UModal
-            v-if="isOwner"
-            title="Edit Collection"
-          >
+          <UModal v-if="isOwner" title="Edit Collection">
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
 
             <template #body="{ close }">
@@ -229,10 +226,7 @@ const { data, status, refresh, deleteCollection, isOwner } = useCollection(
 )
 
 const { removeItem, moveItem, removing, confirmRemove, confirmRemoval } =
-  useCollectionItem(
-  () => route.params.collection,
-  refresh,
-)
+  useCollectionItem(() => route.params.collection, refresh)
 
 // Wishlist and for-sale collections track per-item status and prices
 const listing = computed(() => ['want', 'sell'].includes(data.value?.intent))
@@ -271,7 +265,6 @@ const editListing = ({ artisan, ...item }) => {
     item,
   })
 }
-
 
 // Sync shareOption with saved state whenever the modal is closed
 // (handles initial async data load + reset after close-without-save)
@@ -314,9 +307,29 @@ const sort = computed(
   () => data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name',
 )
 
-useSeoMeta({
-  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
+// Wishlists and sale lists say so, since they are what the Trading Hub links
+const collectionDescription = computed(() => {
+  if (!data.value) return undefined
+
+  const caps = countLabel(data.value.items?.length || 0, 'artisan keycap')
+
+  if (data.value.intent === 'want') {
+    return `${data.value.name}: a wishlist of ${caps} a collector is hunting for on Keebdex.`
+  }
+
+  if (data.value.intent === 'sell') {
+    return `${data.value.name}: ${caps} for sale or trade on Keebdex.`
+  }
+
+  return `${data.value.name}: a collection of ${caps} on Keebdex.`
 })
+
+useSeoMeta({
+  title: () =>
+    data.value?.name ? `${data.value.name} • Collection` : 'Collection',
+  description: collectionDescription,
+})
+
 
 const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),
