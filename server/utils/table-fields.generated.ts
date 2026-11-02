@@ -375,7 +375,6 @@ export const TABLE_FIELDS = {
     "assignments",
     "discord",
     "email",
-    "favorite_makers",
     "full_name",
     "id",
     "leaderboard_hidden",

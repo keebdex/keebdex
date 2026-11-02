@@ -1606,7 +1606,6 @@ export type Database = {
           assignments: string[] | null
           discord: string | null
           email: string
-          favorite_makers: Json
           full_name: string | null
           id: string
           leaderboard_hidden: boolean
@@ -1620,7 +1619,6 @@ export type Database = {
           assignments?: string[] | null
           discord?: string | null
           email: string
-          favorite_makers?: Json
           full_name?: string | null
           id: string
           leaderboard_hidden?: boolean
@@ -1634,7 +1632,6 @@ export type Database = {
           assignments?: string[] | null
           discord?: string | null
           email?: string
-          favorite_makers?: Json
           full_name?: string | null
           id?: string
           leaderboard_hidden?: boolean
