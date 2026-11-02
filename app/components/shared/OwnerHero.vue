@@ -43,7 +43,7 @@
       </template>
 
       <template v-if="description && !$device.isMobile" #description>
-        <SharedDescription :description="description" class="max-w-4xl" />
+        <SharedDescription :description="description" />
       </template>
     </UPageHeader>
 

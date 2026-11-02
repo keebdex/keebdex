@@ -253,7 +253,6 @@ export const detailPageHeaderUi = (withMedia: boolean) => ({
   ],
   links: 'flex flex-wrap gap-2 shrink-0',
   headline: 'mb-1',
-  description: 'text-sm',
 })
 
 // The UPageHeader opening a catalog list (makers, brands, profiles, group
