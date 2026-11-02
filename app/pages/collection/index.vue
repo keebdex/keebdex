@@ -44,29 +44,74 @@
               :key="collection.id"
               :to="`/collection/${collection.category}/${collection.id}`"
               :title="collection.name"
-              :icon="KEEB_MODULE_ICONS[collection.category]"
-              variant="subtle"
+              reverse
               spotlight
               :ui="{
-                root: 'h-full',
-                container: 'h-full',
-                leadingIcon: 'size-6 text-primary',
+                root: 'h-full flex flex-col',
+                container: imageCardContainerClass,
+                body: 'w-full',
                 title: 'truncate',
-                footer: 'mt-auto items-center justify-between',
               }"
             >
-              <template #footer>
-                <span class="font-mono text-sm tabular-nums text-muted">
-                  {{ countLabel(collection.total_items || 0, 'item') }}
-                </span>
+              <!-- A peek at the shelf: its first photos, one to four tiles -->
+              <div class="aspect-video overflow-hidden rounded bg-elevated">
+                <div
+                  v-if="collection.images?.length"
+                  class="grid h-full gap-0.5"
+                  :class="mosaicClass(collection.images.length)"
+                >
+                  <NuxtImg
+                    v-for="(src, index) in collection.images"
+                    :key="index"
+                    :src="src"
+                    :alt="collection.name"
+                    sizes="xs:46vw sm:22vw lg:15vw 2xl:11vw"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover"
+                    :class="collection.images.length === 3 && index === 0 && 'row-span-2'"
+                  />
+                </div>
+                <div
+                  v-else
+                  class="flex h-full flex-col items-center justify-center gap-2 text-dimmed"
+                >
+                  <UIcon
+                    :name="KEEB_MODULE_ICONS[collection.category]"
+                    class="size-10"
+                  />
+                  <span class="text-sm">Nothing here yet</span>
+                </div>
 
-                <div class="flex flex-wrap items-center gap-1.5">
+              </div>
+
+              <!-- Who can see it, then a tag on wishlists and sale lists (a
+                   shelf you keep is the default and needs none) -->
+              <template #description>
+                <div class="flex items-center gap-2 text-sm font-medium">
+                  <span
+                    class="inline-flex items-center gap-1.5"
+                    :class="collection.published ? 'text-primary' : 'text-muted'"
+                  >
+                    <UIcon
+                      :name="
+                        collection.published
+                          ? 'hugeicons:global'
+                          : 'hugeicons:locked'
+                      "
+                      class="size-4"
+                    />
+                    {{ collection.published ? 'Public' : 'Private' }}
+                  </span>
+
                   <UBadge
-                    v-for="tag in collectionTags(collection)"
-                    :key="tag.label"
-                    v-bind="tag"
+                    v-if="
+                      collection.category === 'artisan' &&
+                      INTENTS[collection.intent]
+                    "
+                    v-bind="INTENTS[collection.intent]"
                     variant="subtle"
-                    size="sm"
+                    class="ms-auto"
                   />
                 </div>
               </template>
@@ -148,23 +193,17 @@ const modules = Constants.public.Enums.module.map((module) => ({
   value: module.toLowerCase(),
 }))
 
-// What an artisan collection is for (labels from the collection form, colors
-// and icons from the Trading Hub; other catalogs have no intent), then
-// whether it is shared
-const INTENT_TAGS = Object.fromEntries(
-  collectionIntentItems.map(({ value, label }) => [
-    value,
-    { icon: 'hugeicons:archive-02', ...TRADE_INTENTS[value], label },
-  ]),
-)
+// Tags of artisan wishlists and sale lists, in the Trading Hub's colors and
+// icons
+const INTENTS = {
+  want: { ...TRADE_INTENTS.want, label: 'Wishlist' },
+  sell: { ...TRADE_INTENTS.sell, label: 'For Sale or Trade' },
+}
 
-const collectionTags = (collection) =>
-  [
-    collection.category === 'artisan' && INTENT_TAGS[collection.intent],
-    collection.published
-      ? { label: 'Public', icon: 'hugeicons:global', color: 'primary' }
-      : { label: 'Private', icon: 'hugeicons:locked' },
-  ].filter(Boolean)
+// One photo fills the cover, two sit side by side, three put the first
+// beside the other two, four make a 2x2 grid
+const mosaicClass = (count) =>
+  count === 1 ? 'grid-cols-1' : count === 2 ? 'grid-cols-2' : 'grid-cols-2 grid-rows-2'
 
 const groupedCollections = computed(() =>
   modules
