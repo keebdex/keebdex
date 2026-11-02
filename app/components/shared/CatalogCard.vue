@@ -2,10 +2,12 @@
   <!-- A catalog grid card (keyboard variant, keyset kit, artisan colorway):
        image, name with its price, a short description, then a footer with
        `footer-start` (Save, units) on the left and the record's actions on
-       the right. Clicks on the card itself are the page's (`@click`). -->
+       the right. Clicks on the card itself are the page's (`@click`), or it
+       links to `to` (a sculpt, keyboard, or keyset in a list). -->
   <UPageCard
     :title="title"
     :description="description || undefined"
+    :to="to"
     reverse
     spotlight
     :ui="cardUi"
@@ -61,7 +63,11 @@
     </div>
 
     <template v-if="$slots['footer-start'] || editable || suggestable" #footer>
-      <div class="flex w-full flex-wrap items-center gap-2" @click.stop>
+      <!-- Above the card's link, so Save and the actions stay clickable -->
+      <div
+        class="relative z-10 flex w-full flex-wrap items-center gap-2"
+        @click.stop
+      >
         <slot name="footer-start" />
 
         <SharedRecordActions
@@ -82,6 +88,7 @@
 <script setup lang="ts">
 const {
   description = '',
+  to = undefined,
   price = '',
   img = '',
   fallback = '',
@@ -89,6 +96,7 @@ const {
 } = defineProps<{
   title: string
   description?: string | null
+  to?: string
   // Already formatted
   price?: string | null
   // Cancelled: the price is shown struck through

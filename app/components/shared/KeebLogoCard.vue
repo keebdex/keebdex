@@ -1,25 +1,34 @@
 <template>
+  <!-- A maker, brand, or profile in a catalog list: its logo on a tile of a
+       fixed shape, so logos of any size line up, then the name and an
+       optional line under it (a maker's country) -->
   <UPageCard
     :title="title"
+    :description="description || undefined"
     reverse
     spotlight
     :to="to"
     :ui="{
       root: 'h-full',
-      wrapper: 'items-center',
+      container: imageCardContainerClass,
+      title: 'truncate',
+      description: 'text-sm truncate',
     }"
   >
-    <div class="flex items-center p-6">
+    <div
+      class="flex items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
+      :class="aspect === 'video' ? 'aspect-video' : 'aspect-square'"
+    >
       <NuxtImg
         loading="lazy"
+        decoding="async"
         :src="imageSrc"
         :alt="title"
-        class="mx-auto my-auto overflow-hidden object-contain h-auto w-full"
+        class="max-h-full max-w-full object-contain"
         :class="{
           // `dark:` follows the `.dark` class, so SSR with a `system` color
           // mode still renders the right class instead of a hydration mismatch
           'dark:invert': invertible || imageSrc === fallbackSrc,
-          [`aspect-${props.aspect}`]: props.aspect,
         }"
         @error="handleError"
       />
@@ -32,6 +41,10 @@ const props = defineProps({
   title: {
     type: String,
     required: true,
+  },
+  description: {
+    type: String,
+    default: '',
   },
   to: {
     type: String,
@@ -47,7 +60,7 @@ const props = defineProps({
   },
   aspect: {
     type: String,
-    default: '',
+    default: 'square',
   },
 })
 
@@ -68,9 +81,5 @@ function handleError() {
 
 watch(logoSrc, (value) => {
   imageSrc.value = value
-})
-
-watch(fallbackSrc, (value) => {
-  if (imageSrc.value !== logoSrc.value) imageSrc.value = value
 })
 </script>

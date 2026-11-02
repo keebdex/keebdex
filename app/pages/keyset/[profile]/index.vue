@@ -1,27 +1,78 @@
 <template>
-  <KeysetListing
-    :title="title"
-    :description="description"
-    :keysets="keysets"
-    :total="data?.count"
-    :profile="data?.profile"
-    :page="page"
-    :size="size"
-    @update:page="setPage"
-    @update:keysets="refresh"
-  >
-    <template #actions>
-      <SharedRecordActions
-        v-if="data?.profile"
-        :editable="editable"
-        :suggestable="canSuggest(data.profile)"
-        label="Profile"
-        @edit="editing = true"
-        @suggest="suggest('keyset_profile', data.profile)"
-        @history="history?.show()"
-      />
+  <UDashboardPanel v-if="data?.profile" :id="`keyset-profile-${profile}`">
+    <template #header>
+      <UDashboardNavbar :title="title">
+        <template v-if="$device.isDesktopOrTablet" #left>
+          <UBreadcrumb :items="breadcrumbs" />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-      <template v-if="editable && data?.profile">
+    <template #body>
+      <SharedOwnerHero
+        :title="title"
+        :slug="profile"
+        invertible
+        :description="description"
+        :specs="profileSpecs"
+        details-label="Profile Details"
+      >
+        <template v-if="authenticated" #actions>
+          <UButton
+            color="primary"
+            icon="hugeicons:keyboard"
+            label="Add Keyset"
+            v-bind="addKeysetTarget"
+          />
+
+          <SharedRecordActions
+            :editable="editable"
+            :suggestable="canSuggest(data.profile)"
+            label="Profile"
+            @edit="editing = true"
+            @suggest="suggest('keyset_profile', data.profile)"
+            @history="history?.show()"
+          />
+        </template>
+      </SharedOwnerHero>
+
+      <section class="space-y-4 pt-4">
+        <UPageHeader
+          title="Keysets"
+          :description="data.count ? countLabel(data.count, 'keyset') : undefined"
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        />
+
+        <KeysetGrid
+          :keysets="keysets"
+          :total="data.count"
+          :page="page"
+          :size="size"
+          @update:page="setPage"
+        >
+          <template #empty>
+            <UEmpty
+              icon="hugeicons:keyboard"
+              title="No Keysets Yet"
+              description="Know a set in this profile? Submit it and our staff will review it before it goes public."
+              :actions="[
+                {
+                  label: 'Add Keyset',
+                  icon: 'hugeicons:add-square',
+                  ui: { label: 'block' },
+                  to: {
+                    path: '/keyset/submissions/submit',
+                    query: { profile },
+                  },
+                },
+              ]"
+            />
+          </template>
+        </KeysetGrid>
+      </section>
+
+      <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
           domain="keyset"
@@ -29,6 +80,20 @@
           description="Every change to this profile, newest first. Its keysets keep their own history."
           @reverted="refresh()"
         />
+
+        <UModal v-model:open="addingKeyset" title="Add Keyset">
+          <template #body>
+            <KeysetModalKeysetForm
+              :metadata="{ profile_id: profile }"
+              @on-success="
+                () => {
+                  addingKeyset = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
 
         <UModal v-model:open="editing" title="Edit Profile">
           <template #body>
@@ -54,12 +119,14 @@
         :form-props="suggestTarget.formProps"
       />
     </template>
-  </KeysetListing>
+  </UDashboardPanel>
+  <SharedRedirectPage v-else to="/keyset" />
 </template>
 
 <script setup>
 const route = useRoute()
 const userStore = useUserStore()
+const { authenticated } = storeToRefs(userStore)
 const { manufacturers } = useKeysetProfiles()
 
 const { profile } = route.params
@@ -69,6 +136,7 @@ const { profile } = route.params
 // edits.
 const editable = computed(() => userStore.isEditable(profile))
 const editing = ref(false)
+const addingKeyset = ref(false)
 const history = useTemplateRef('history')
 
 const {
@@ -104,6 +172,47 @@ const title = computed(
   () => keysetProfileLabel(data.value?.profile) || manufacturers.value[profile],
 )
 const description = computed(() => data.value?.profile?.description)
+
+// Staff add a keyset in place; everyone else goes to the submission wizard
+const addKeysetTarget = computed(() =>
+  submissionTarget(
+    editable.value,
+    () => (addingKeyset.value = true),
+    'keyset',
+    { profile },
+  ),
+)
+
+const profileSpecs = computed(() =>
+  [
+    {
+      term: 'Profile',
+      icon: 'hugeicons:layers-01',
+      description: data.value?.profile?.profile,
+    },
+    {
+      term: 'Manufacturer',
+      icon: 'hugeicons:factory',
+      description: data.value?.profile?.manufacturer,
+    },
+    {
+      term: 'Keysets',
+      icon: 'hugeicons:keyboard',
+      description: formatNumber(data.value?.count || null),
+    },
+  ].filter((spec) => spec.description),
+)
+
+const breadcrumbs = computed(() => [
+  {
+    label: 'Profiles',
+    icon: 'hugeicons:cross',
+    to: '/keyset',
+  },
+  {
+    label: title.value,
+  },
+])
 
 useSeoMeta({
   title: computed(() => (title.value ? `${title.value} Keysets` : 'Keysets')),

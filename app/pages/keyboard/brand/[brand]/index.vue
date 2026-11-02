@@ -5,27 +5,26 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
+      </UDashboardNavbar>
+    </template>
 
-        <template #right>
-          <UModal v-if="editable" title="Add Keyboard">
-            <UButton
-              color="primary"
-              icon="hugeicons:dashboard-square-add"
-              label="Add Keyboard"
-            />
-
-            <template #body="{ close }">
-              <KeyboardModalKeyboardForm
-                :brand-slug="brand"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
+    <template #body>
+      <SharedOwnerHero
+        :title="data.name"
+        :slug="data.slug"
+        :invertible="data.invertible_logo"
+        :description="data.bio"
+        :specs="brandSpecs"
+        :links="brandLinks"
+        details-label="Brand Details"
+      >
+        <template v-if="authenticated" #actions>
+          <UButton
+            color="primary"
+            icon="hugeicons:dashboard-square-add"
+            label="Add Keyboard"
+            v-bind="addKeyboardTarget"
+          />
 
           <SharedRecordActions
             :editable="editable"
@@ -35,19 +34,57 @@
             @suggest="suggest('keyboard_brand', data)"
             @history="history?.show()"
           />
-
-          <SharedProfileDrawer
-            :title="data.name"
-            :slug="data.slug"
-            :invertible="data.invertible_logo"
-            :description="data.bio"
-            :links="brandLinks"
-          />
         </template>
-      </UDashboardNavbar>
-    </template>
+      </SharedOwnerHero>
 
-    <template #body>
+      <section class="space-y-4 pt-4">
+        <UPageHeader
+          title="Keyboards"
+          :description="
+            data.keyboards?.length
+              ? countLabel(data.keyboards.length, 'keyboard')
+              : undefined
+          "
+          :as="detailSectionHeaderAs"
+          :ui="detailSectionHeaderUi"
+        />
+
+        <UPageGrid v-if="data.keyboards?.length">
+          <SharedCatalogCard
+            v-for="keyboard in data.keyboards"
+            :key="keyboard.slug"
+            :title="keyboard.name"
+            :description="keyboard.description"
+            :img="keyboard.cover_image"
+            fallback="/keyboard.png"
+            :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
+          >
+            <template v-if="keyboard.form_factor" #badges>
+              <UBadge
+                :label="keyboard.form_factor"
+                variant="solid"
+                class="absolute top-2 left-2"
+              />
+            </template>
+          </SharedCatalogCard>
+        </UPageGrid>
+
+        <UEmpty
+          v-else
+          icon="hugeicons:keyboard"
+          title="This Lineup Is Still Blank"
+          description="Know one of their boards? Submit it and our staff will review it before it goes public."
+          :actions="[
+            {
+              label: 'Add Keyboard',
+              icon: 'hugeicons:add-square',
+              ui: { label: 'block' },
+              to: { path: '/keyboard/submissions/submit', query: { brand } },
+            },
+          ]"
+        />
+      </section>
+
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
@@ -56,6 +93,20 @@
           description="Every change to this brand, newest first. Its keyboards keep their own history."
           @reverted="refresh()"
         />
+
+        <UModal v-model:open="addingKeyboard" title="Add Keyboard">
+          <template #body>
+            <KeyboardModalKeyboardForm
+              :brand-slug="brand"
+              @on-success="
+                () => {
+                  addingKeyboard = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
 
         <UModal v-model:open="editing" title="Edit Brand">
           <template #body>
@@ -73,46 +124,6 @@
         </UModal>
       </template>
 
-      <UPageGrid v-if="data.keyboards?.length">
-        <UPageCard
-          v-for="keyboard in data.keyboards"
-          :key="keyboard.slug"
-          :to="`/keyboard/brand/${brand}/${keyboard.slug}`"
-          :title="keyboard.name"
-          :description="keyboard.description"
-          reverse
-          spotlight
-          :ui="{
-            root: 'h-full flex flex-col',
-            container: imageCardContainerClass,
-            description: 'line-clamp-3',
-          }"
-        >
-          <NuxtImg
-            preset="cover"
-            loading="lazy"
-            decoding="async"
-            :alt="keyboard.name"
-            :src="keyboard.cover_image || '/keyboard.png'"
-            class="aspect-video w-full object-cover"
-          />
-        </UPageCard>
-      </UPageGrid>
-
-      <UEmpty
-        v-else
-        icon="hugeicons:keyboard"
-        title="This Lineup Is Still Blank"
-        description="Know one of their boards? Submit it and our staff will review it before it goes public."
-        :actions="[
-          {
-            label: 'Add Keyboard',
-            icon: 'hugeicons:add-square',
-            to: { path: '/keyboard/submissions/submit', query: { brand } },
-          },
-        ]"
-      />
-
       <SharedSuggestEditModal
         v-if="suggestTarget"
         v-model:open="suggestOpen"
@@ -128,6 +139,7 @@
 <script setup>
 const route = useRoute()
 const userStore = useUserStore()
+const { authenticated } = storeToRefs(userStore)
 
 const brand = computed(() => String(route.params.brand || ''))
 
@@ -141,6 +153,7 @@ const {
 } = useSuggestEdit(editable)
 
 const editing = ref(false)
+const addingKeyboard = ref(false)
 const history = useTemplateRef('history')
 
 const { data, refresh } = await useAsyncData(
@@ -163,6 +176,31 @@ const breadcrumbs = computed(() => {
     },
   ]
 })
+
+// Staff add a keyboard in place; everyone else goes to the submission wizard
+const addKeyboardTarget = computed(() =>
+  submissionTarget(
+    editable.value,
+    () => (addingKeyboard.value = true),
+    'keyboard',
+    { brand: brand.value },
+  ),
+)
+
+const brandSpecs = computed(() =>
+  [
+    {
+      term: 'Country',
+      icon: 'hugeicons:location-01',
+      description: countryName(data.value?.country_origin),
+    },
+    {
+      term: 'Keyboards',
+      icon: 'hugeicons:keyboard',
+      description: formatNumber(data.value?.keyboards?.length || null),
+    },
+  ].filter((spec) => spec.description),
+)
 
 const description = computed(() => {
   if (data.value?.bio) {

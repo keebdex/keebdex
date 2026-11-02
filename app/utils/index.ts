@@ -172,6 +172,10 @@ export const getRoleLabel = (
 export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
 
+// Grids of wide logo cards (keyboard brands, keyset profiles)
+export const logoGridClass =
+  'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 4xl:grid-cols-7 gap-4'
+
 // UPageCard container for cards with an image above the title. The column is
 // pinned to the card so a long footer cannot widen it (and the image with it)
 export const imageCardContainerClass =
@@ -209,6 +213,57 @@ export const detailPageHeaderUi = (withMedia: boolean) => ({
   headline: 'mb-1',
   description: 'text-sm',
 })
+
+// The UPageHeader opening a catalog list (makers, brands, profiles, group
+// buys, collections): the module as a mono eyebrow in the primary color, a
+// large title and a sentence, and the page's actions on the right, like the
+// home page's section headers
+export const listingPageHeaderUi = {
+  root: 'border-none py-0',
+  wrapper: 'gap-4 sm:flex-row sm:items-end sm:justify-between lg:items-end',
+  headline: ['mb-2 text-primary', eyebrowClass],
+  title: 'text-2xl sm:text-3xl',
+  description: 'mt-2 text-muted text-pretty',
+  links: 'flex flex-wrap gap-2 shrink-0',
+}
+
+// Rows whose `key` contains every word of `query`, ignoring case and accents;
+// a list's filter box (makers, brands, profiles, sculpts)
+const folded = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+
+export const filterByName = <T extends Record<string, any>>(
+  items: T[],
+  query: string,
+  key: keyof T = 'name',
+) => {
+  const words = folded(query).split(/\s+/).filter(Boolean)
+
+  if (!words.length) return items
+
+  return items.filter((item) => {
+    const name = folded(String(item[key] ?? ''))
+    return words.every((word) => name.includes(word))
+  })
+}
+
+// A country's English name from its ISO code (`country_origin`, as the maker
+// and brand forms store it, e.g. `vn`); codes ICU does not know (flag-icons'
+// `gb-eng`) show as they are
+const regionNames = new Intl.DisplayNames(['en-US'], { type: 'region' })
+
+export const countryName = (code?: string | null) => {
+  if (!code) return ''
+
+  try {
+    return regionNames.of(code.toUpperCase()) || code.toUpperCase()
+  } catch {
+    return code.toUpperCase()
+  }
+}
 
 // Where an Add button leads: staff (`editable`) open the form in place, and
 // everyone else goes to the module's submission wizard with `query`
