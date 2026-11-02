@@ -14,7 +14,6 @@
         :slug="data.slug"
         :invertible="data.invertible_logo"
         :description="data.bio"
-        :specs="brandSpecs"
         :links="brandLinks"
         details-label="Brand Details"
       >
@@ -37,18 +36,7 @@
         </template>
       </SharedOwnerHero>
 
-      <section class="space-y-4 pt-4">
-        <UPageHeader
-          title="Keyboards"
-          :description="
-            data.keyboards?.length
-              ? countLabel(data.keyboards.length, 'keyboard')
-              : undefined
-          "
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        />
-
+      <section class="pt-4">
         <UPageGrid v-if="data.keyboards?.length">
           <SharedCatalogCard
             v-for="keyboard in data.keyboards"
@@ -185,21 +173,6 @@ const addKeyboardTarget = computed(() =>
     'keyboard',
     { brand: brand.value },
   ),
-)
-
-const brandSpecs = computed(() =>
-  [
-    {
-      term: 'Country',
-      icon: 'hugeicons:location-01',
-      description: countryName(data.value?.country_origin),
-    },
-    {
-      term: 'Keyboards',
-      icon: 'hugeicons:keyboard',
-      description: formatNumber(data.value?.keyboards?.length || null),
-    },
-  ].filter((spec) => spec.description),
 )
 
 const description = computed(() => {

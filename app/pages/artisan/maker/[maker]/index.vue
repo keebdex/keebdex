@@ -51,30 +51,15 @@
         </template>
       </SharedOwnerHero>
 
-      <section v-if="pinnedSculpts.length" class="space-y-4 pt-4">
-        <UPageHeader
-          title="Pinned"
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        />
-
-        <UPageGrid :class="artisanGridClass">
-          <SharedCatalogCard
-            v-for="sculpt in pinnedSculpts"
-            :key="sculpt.id"
-            v-bind="sculptCard(sculpt)"
-          />
-        </UPageGrid>
-      </section>
-
       <section class="space-y-4 pt-4">
+        <!-- Only long lists get a header, for their filter -->
         <UPageHeader
+          v-if="sculpts.length > 12"
           title="Sculpts"
-          :description="countLabel(otherSculpts.length, 'sculpt')"
           :as="detailSectionHeaderAs"
           :ui="detailSectionHeaderUi"
         >
-          <template v-if="sculpts.length > 12" #links>
+          <template #links>
             <UInput
               v-model="query"
               icon="hugeicons:search-01"
@@ -85,12 +70,21 @@
           </template>
         </UPageHeader>
 
-        <UPageGrid v-if="otherSculpts.length" :class="artisanGridClass">
+        <!-- Pinned sculpts first, marked with a pin -->
+        <UPageGrid v-if="sortedSculpts.length" :class="artisanGridClass">
           <SharedCatalogCard
-            v-for="sculpt in otherSculpts"
+            v-for="sculpt in sortedSculpts"
             :key="sculpt.id"
             v-bind="sculptCard(sculpt)"
-          />
+          >
+            <template v-if="isPinned(sculpt)" #badges>
+              <UIcon
+                name="hugeicons:pin"
+                class="absolute top-2 right-2 size-4 text-primary"
+                aria-label="Pinned"
+              />
+            </template>
+          </SharedCatalogCard>
         </UPageGrid>
 
         <UEmpty
@@ -109,7 +103,7 @@
         />
 
         <UEmpty
-          v-else-if="!pinnedSculpts.length"
+          v-else
           icon="hugeicons:dashboard-square-add"
           title="No Sculpts Yet"
           description="Know one of their sculpts? Submit it and our staff will review it before it goes public."
@@ -207,13 +201,15 @@ const { data: maker, refresh } = await useAsyncData(
 
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])
-const matching = computed(() => filterByName(sculpts.value, query.value))
-const pinnedSculpts = computed(() =>
-  matching.value.filter((s) => favSculpts.value.includes(s.sculpt_id)),
-)
-const otherSculpts = computed(() =>
-  matching.value.filter((s) => !favSculpts.value.includes(s.sculpt_id)),
-)
+const isPinned = (sculpt) => favSculpts.value.includes(sculpt.sculpt_id)
+const sortedSculpts = computed(() => {
+  const matching = filterByName(sculpts.value, query.value)
+
+  return [
+    ...matching.filter(isPinned),
+    ...matching.filter((s) => !isPinned(s)),
+  ]
+})
 
 // Staff add a sculpt in place; everyone else goes to the submission wizard
 const addSculptTarget = computed(() =>
@@ -241,33 +237,16 @@ const sculptCard = (sculpt) => ({
   to: `/artisan/maker/${sculpt.maker_id}/${sculpt.sculpt_id}`,
 })
 
-const colorwayCount = computed(() =>
-  sculpts.value.reduce((sum, s) => sum + (s.total_colorways || 0), 0),
-)
-
 const makerSpecs = computed(() =>
-  [
-    {
-      term: 'Country',
-      icon: 'hugeicons:location-01',
-      description: countryName(maker.value?.country_origin),
-    },
-    {
-      term: 'Founded',
-      icon: 'hugeicons:calendar-03',
-      description: maker.value?.founded,
-    },
-    {
-      term: 'Sculpts',
-      icon: 'hugeicons:dashboard-square-01',
-      description: formatNumber(sculpts.value.length || null),
-    },
-    {
-      term: 'Colorways',
-      icon: 'hugeicons:paint-board',
-      description: formatNumber(colorwayCount.value || null),
-    },
-  ].filter((spec) => spec.description),
+  maker.value?.founded
+    ? [
+        {
+          term: 'Founded',
+          icon: 'hugeicons:calendar-03',
+          description: maker.value.founded,
+        },
+      ]
+    : [],
 )
 
 const makerLinks = computed(() => {

@@ -1,10 +1,9 @@
 <template>
   <!-- A maker, brand, or profile in a catalog list: its logo on a tile of a
-       fixed shape, so logos of any size line up, then the name and an
-       optional line under it (a maker's country) -->
+       fixed shape, so logos of any size line up, then the name; pinned ones
+       are marked with a pin -->
   <UPageCard
     :title="title"
-    :description="description || undefined"
     reverse
     spotlight
     :to="to"
@@ -12,13 +11,18 @@
       root: 'h-full',
       container: imageCardContainerClass,
       title: 'truncate',
-      description: 'text-sm truncate',
     }"
   >
     <div
-      class="flex items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
-      :class="aspect === 'video' ? 'aspect-video' : 'aspect-square'"
+      class="relative flex aspect-square items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
     >
+      <UIcon
+        v-if="pinned"
+        name="hugeicons:pin"
+        class="absolute top-2 right-2 size-4 text-primary"
+        aria-label="Pinned"
+      />
+
       <NuxtImg
         loading="lazy"
         decoding="async"
@@ -42,10 +46,6 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  description: {
-    type: String,
-    default: '',
-  },
   to: {
     type: String,
     required: true,
@@ -58,10 +58,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  aspect: {
-    type: String,
-    default: 'square',
-  },
+  pinned: Boolean,
 })
 
 const {

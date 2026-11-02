@@ -11,8 +11,17 @@
         :description="description"
         :ui="listingPageHeaderUi"
       >
-        <template v-if="editable" #links>
-          <UModal v-model:open="adding" title="Add Keyset Profile">
+        <template #links>
+          <UInput
+            v-if="groups.length"
+            v-model="query"
+            icon="hugeicons:search-01"
+            placeholder="Filter profiles"
+            aria-label="Filter profiles"
+            class="w-full sm:w-60"
+          />
+
+          <UModal v-if="editable" v-model:open="adding" title="Add Keyset Profile">
             <UButton
               color="primary"
               icon="hugeicons:add-square"
@@ -34,14 +43,7 @@
       </UPageHeader>
 
       <template v-if="groups.length">
-        <UInput
-          v-model="query"
-          icon="hugeicons:search-01"
-          placeholder="Filter profiles"
-          aria-label="Filter profiles"
-          class="w-full sm:w-72"
-        />
-
+        <!-- Grouped by keycap profile; the group's name heads it -->
         <section
           v-for="group in matchingGroups"
           :key="group.label"
@@ -49,19 +51,17 @@
         >
           <UPageHeader
             :title="group.label"
-            :description="countLabel(group.profiles.length, 'profile')"
             :as="detailSectionHeaderAs"
             :ui="detailSectionHeaderUi"
           />
 
-          <UPageGrid :class="logoGridClass">
+          <UPageGrid :class="artisanGridClass">
             <SharedKeebLogoCard
               v-for="item in group.profiles"
               :key="item.id"
               :title="item.name"
               :to="`/keyset/${item.id}`"
               :slug="item.id"
-              aspect="video"
               invertible
             />
           </UPageGrid>

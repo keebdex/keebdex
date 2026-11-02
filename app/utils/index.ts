@@ -167,14 +167,11 @@ export const getRoleLabel = (
   return mapping ? mapping.label : role.charAt(0).toUpperCase() + role.slice(1)
 }
 
-// Artisan grids (colorways, sculpts, makers); colorway images use the
-// `square` image preset sized for these columns
+// Grids of square cards: artisan colorways and sculpts, and the maker, brand,
+// and profile lists; colorway images use the `square` image preset sized for
+// these columns
 export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
-
-// Grids of wide logo cards (keyboard brands, keyset profiles)
-export const logoGridClass =
-  'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 4xl:grid-cols-7 gap-4'
 
 // UPageCard container for cards with an image above the title. The column is
 // pinned to the card so a long footer cannot widen it (and the image with it)
@@ -248,21 +245,6 @@ export const filterByName = <T extends Record<string, any>>(
     const name = folded(String(item[key] ?? ''))
     return words.every((word) => name.includes(word))
   })
-}
-
-// A country's English name from its ISO code (`country_origin`, as the maker
-// and brand forms store it, e.g. `vn`); codes ICU does not know (flag-icons'
-// `gb-eng`) show as they are
-const regionNames = new Intl.DisplayNames(['en-US'], { type: 'region' })
-
-export const countryName = (code?: string | null) => {
-  if (!code) return ''
-
-  try {
-    return regionNames.of(code.toUpperCase()) || code.toUpperCase()
-  } catch {
-    return code.toUpperCase()
-  }
 }
 
 // Where an Add button leads: staff (`editable`) open the form in place, and

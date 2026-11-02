@@ -27,8 +27,6 @@
       </UPageHeader>
 
       <template v-if="groupedCollections.length">
-        <SharedSpecList :items="summary" />
-
         <section
           v-for="group in groupedCollections"
           :key="group.value"
@@ -36,7 +34,6 @@
         >
           <UPageHeader
             :title="`${group.label} Collections`"
-            :description="countLabel(group.items.length, 'collection')"
             :as="detailSectionHeaderAs"
             :ui="detailSectionHeaderUi"
           />
@@ -47,8 +44,7 @@
               :key="collection.id"
               :to="`/collection/${collection.category}/${collection.id}`"
               :title="collection.name"
-              :description="countLabel(collection.total_items || 0, 'item')"
-              :icon="collectionIcon(collection)"
+              :icon="KEEB_MODULE_ICONS[collection.category]"
               variant="subtle"
               spotlight
               :ui="{
@@ -56,23 +52,23 @@
                 container: 'h-full',
                 leadingIcon: 'size-6 text-primary',
                 title: 'truncate',
-                footer: 'mt-auto',
+                footer: 'mt-auto items-center justify-between',
               }"
             >
               <template #footer>
-                <UBadge
-                  v-if="intentLabel(collection)"
-                  :label="intentLabel(collection)"
-                  variant="outline"
-                />
-                <UBadge
-                  :label="collection.published ? 'Public' : 'Private'"
-                  :icon="
-                    collection.published ? 'hugeicons:global' : 'hugeicons:locked'
-                  "
-                  :color="collection.published ? 'primary' : undefined"
-                  variant="soft"
-                />
+                <span class="font-mono text-sm tabular-nums text-muted">
+                  {{ countLabel(collection.total_items || 0, 'item') }}
+                </span>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <UBadge
+                    v-for="tag in collectionTags(collection)"
+                    :key="tag.label"
+                    v-bind="tag"
+                    variant="subtle"
+                    size="sm"
+                  />
+                </div>
               </template>
             </UPageCard>
           </UPageGrid>
@@ -152,39 +148,21 @@ const modules = Constants.public.Enums.module.map((module) => ({
   value: module.toLowerCase(),
 }))
 
-// What an artisan collection is for; other catalogs have no intent
-const intentLabel = (collection) =>
-  collection.category === 'artisan'
-    ? collectionIntentItems.find((item) => item.value === collection.intent)
-        ?.label
-    : ''
+// What an artisan collection is for (other catalogs have no intent), then
+// whether it is shared
+const INTENT_TAGS = {
+  keep: { label: 'My Collection', icon: 'hugeicons:archive-02' },
+  want: { label: 'Wishlist', icon: TRADE_INTENTS.want.icon, color: TRADE_INTENTS.want.color },
+  sell: { label: 'For Sale or Trade', icon: TRADE_INTENTS.sell.icon, color: TRADE_INTENTS.sell.color },
+}
 
-const collectionIcon = (collection) =>
-  (collection.category === 'artisan' && TRADE_INTENTS[collection.intent]?.icon) ||
-  KEEB_MODULE_ICONS[collection.category] ||
-  'hugeicons:folder-library'
-
-const summary = computed(() => [
-  {
-    term: 'Collections',
-    icon: 'hugeicons:folder-library',
-    description: formatNumber(collections.value.length),
-  },
-  {
-    term: 'Items',
-    icon: 'hugeicons:package',
-    description: formatNumber(
-      collections.value.reduce((sum, c) => sum + (c.total_items || 0), 0),
-    ),
-  },
-  {
-    term: 'Public',
-    icon: 'hugeicons:global',
-    description: formatNumber(
-      collections.value.filter((c) => c.published).length,
-    ),
-  },
-])
+const collectionTags = (collection) =>
+  [
+    collection.category === 'artisan' && INTENT_TAGS[collection.intent],
+    collection.published
+      ? { label: 'Public', icon: 'hugeicons:global', color: 'primary' }
+      : { label: 'Private', icon: 'hugeicons:locked' },
+  ].filter(Boolean)
 
 const groupedCollections = computed(() =>
   modules

@@ -11,7 +11,15 @@
         :description="description"
         :ui="listingPageHeaderUi"
       >
-        <template v-if="authenticated" #links>
+        <template #links>
+          <UInput
+            v-model="query"
+            icon="hugeicons:search-01"
+            placeholder="Filter makers"
+            aria-label="Filter makers"
+            class="w-full sm:w-60"
+          />
+
           <UModal v-if="isAdmin" v-model:open="adding" title="Add Maker">
             <UButton color="primary" icon="hugeicons:add-team" label="Add Maker" />
 
@@ -28,6 +36,7 @@
           </UModal>
 
           <UModal
+            v-if="authenticated"
             v-model:open="customize"
             title="Customize Pins"
             description="Pin up to 6 makers to the top for easy access."
@@ -43,69 +52,39 @@
         </template>
       </UPageHeader>
 
-      <section v-if="pinnedMakers.length" class="space-y-4 pt-4">
-        <UPageHeader
-          title="Pinned"
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
+      <!-- Pinned makers first, marked with a pin -->
+      <UPageGrid v-if="sortedMakers.length" :class="artisanGridClass">
+        <SharedKeebLogoCard
+          v-for="maker in sortedMakers"
+          :key="maker.maker_id"
+          :title="maker.name"
+          :to="`/artisan/maker/${maker.maker_id}`"
+          :slug="maker.maker_id"
+          :invertible="maker.invertible_logo"
+          :pinned="isPinned(maker)"
         />
+      </UPageGrid>
 
-        <UPageGrid :class="artisanGridClass">
-          <SharedKeebLogoCard
-            v-for="maker in pinnedMakers"
-            :key="maker.maker_id"
-            v-bind="cardProps(maker)"
-          />
-        </UPageGrid>
-      </section>
-
-      <section class="space-y-4 pt-4">
-        <UPageHeader
-          title="All Makers"
-          :description="countLabel(otherMakers.length, 'maker')"
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        >
-          <template #links>
-            <UInput
-              v-model="query"
-              icon="hugeicons:search-01"
-              placeholder="Filter makers"
-              aria-label="Filter makers"
-              class="w-40 sm:w-60"
-            />
-          </template>
-        </UPageHeader>
-
-        <UPageGrid v-if="otherMakers.length" :class="artisanGridClass">
-          <SharedKeebLogoCard
-            v-for="maker in otherMakers"
-            :key="maker.maker_id"
-            v-bind="cardProps(maker)"
-          />
-        </UPageGrid>
-
-        <UEmpty
-          v-else-if="query"
-          icon="hugeicons:search-remove"
-          title="No Makers Match"
-          :description="`Nothing matches “${query}”. Try a shorter name, or submit the maker if they are missing.`"
-          :actions="[
-            {
-              label: 'Clear Filter',
-              icon: 'hugeicons:cancel-01',
-              ui: { label: 'block' },
-              onClick: () => (query = ''),
-            },
-            {
-              label: 'Submit a Maker',
-              icon: 'hugeicons:add-circle',
-              to: '/artisan/submissions/submit',
-              ui: { label: 'block' },
-            },
-          ]"
-        />
-      </section>
+      <UEmpty
+        v-else-if="query"
+        icon="hugeicons:search-remove"
+        title="No Makers Match"
+        :description="`Nothing matches “${query}”. Try a shorter name, or submit the maker if they are missing.`"
+        :actions="[
+          {
+            label: 'Clear Filter',
+            icon: 'hugeicons:cancel-01',
+            ui: { label: 'block' },
+            onClick: () => (query = ''),
+          },
+          {
+            label: 'Submit a Maker',
+            icon: 'hugeicons:add-circle',
+            to: '/artisan/submissions/submit',
+            ui: { label: 'block' },
+          },
+        ]"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -126,11 +105,10 @@ const { data, refresh } = await useAsyncData(
   () => $fetch('/api/makers'),
   {
     transform: (makers) =>
-      makers.map(({ maker_id, name, invertible_logo, country_origin }) => ({
+      makers.map(({ maker_id, name, invertible_logo }) => ({
         maker_id,
         name,
         invertible_logo,
-        country_origin,
       })),
   },
 )
@@ -143,21 +121,15 @@ const customize = ref(false)
 const query = ref('')
 
 const makers = computed(() => data.value || [])
-const isPinned = (maker) => Object.hasOwn(favorites.value, maker.maker_id)
+const isPinned = (maker) =>
+  authenticated.value && Object.hasOwn(favorites.value, maker.maker_id)
 
-const matching = computed(() => filterByName(makers.value, query.value))
-const pinnedMakers = computed(() =>
-  authenticated.value ? matching.value.filter(isPinned) : [],
-)
-const otherMakers = computed(() =>
-  matching.value.filter((m) => !pinnedMakers.value.includes(m)),
-)
+const sortedMakers = computed(() => {
+  const matching = filterByName(makers.value, query.value)
 
-const cardProps = (maker) => ({
-  title: maker.name,
-  description: countryName(maker.country_origin),
-  to: `/artisan/maker/${maker.maker_id}`,
-  slug: maker.maker_id,
-  invertible: maker.invertible_logo,
+  return [
+    ...matching.filter(isPinned),
+    ...matching.filter((m) => !isPinned(m)),
+  ]
 })
 </script>

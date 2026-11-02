@@ -2,7 +2,7 @@
   <!-- A catalog grid card (keyboard variant, keyset kit, artisan colorway):
        image, name with its price, a short description, then a footer with
        `footer-start` (Save, units) on the left and the record's actions on
-       the right. Clicks on the card itself are the page's (`@click`), or it
+       the right (`footer-end`, then the record's actions). Clicks on the card itself are the page's (`@click`), or it
        links to `to` (a sculpt, keyboard, or keyset in a list). -->
   <UPageCard
     :title="title"
@@ -37,6 +37,7 @@
         :alt="title"
         :src="img || fallback"
         class="w-full h-full object-cover"
+        :class="dimmed && 'grayscale'"
       />
       <!-- No photo and no stand-in image: an icon, with Add Photo under it -->
       <div
@@ -62,7 +63,10 @@
       <slot name="badges" />
     </div>
 
-    <template v-if="$slots['footer-start'] || editable || suggestable" #footer>
+    <template
+      v-if="$slots['footer-start'] || $slots['footer-end'] || editable || suggestable"
+      #footer
+    >
       <!-- Above the card's link, so Save and the actions stay clickable -->
       <div
         class="relative z-10 flex w-full flex-wrap items-center gap-2"
@@ -70,16 +74,22 @@
       >
         <slot name="footer-start" />
 
-        <SharedRecordActions
-          ghost
-          :editable="editable"
-          :suggestable="suggestable"
-          class="ms-auto"
-          @edit="emit('edit')"
-          @suggest="emit('suggest')"
-          @history="emit('history')"
-          @delete="emit('delete')"
-        />
+        <!-- Ghost icon buttons on the right: the page's own (`footer-end`,
+             e.g. a collection item's Edit Listing and Remove), then the
+             record's Edit / History / Delete -->
+        <div class="ms-auto flex items-center gap-1">
+          <slot name="footer-end" />
+
+          <SharedRecordActions
+            ghost
+            :editable="editable"
+            :suggestable="suggestable"
+            @edit="emit('edit')"
+            @suggest="emit('suggest')"
+            @history="emit('history')"
+            @delete="emit('delete')"
+          />
+        </div>
       </div>
     </template>
   </UPageCard>
@@ -105,6 +115,8 @@ const {
   // Stand-in image when there is no photo; without one, an icon
   fallback?: string
   aspect?: 'video' | 'square'
+  // Greyed out (a found or sold cap, an item gone from the catalog)
+  dimmed?: boolean
   // Passed to `SharedRecordActions`; suggesters also get Add Photo, which
   // suggests an edit like Edit does
   editable?: boolean

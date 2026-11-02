@@ -51,7 +51,7 @@
 
     <template #body>
       <UPageGrid v-if="sortedCollections.length">
-        <UPageCard
+        <SharedCatalogCard
           v-for="{ id, keyboard } in sortedCollections"
           :key="id"
           :title="keyboard.variant_name"
@@ -62,54 +62,50 @@
               keyboard?.release?.name,
             ])
           "
-          variant="subtle"
-          reverse
+          :img="keyboard.img_front || keyboard.img_back"
+          fallback="/keyboard.png"
+          :to="
+            keyboard.release?.brand_keyboard_slug
+              ? `/keyboard/brand/${keyboard.release.brand_keyboard_slug}`
+              : undefined
+          "
         >
-          <NuxtImg
-            preset="cover"
-            loading="lazy"
-            decoding="async"
-            :alt="keyboard.variant_name"
-            :src="keyboard.img_front || keyboard.img_back || '/keyboard.png'"
-            class="aspect-[16/9] w-full object-cover"
-          />
-
-          <template v-if="isOwner" #footer>
+          <template v-if="isOwner" #footer-start>
             <SharedSaveToCollection
               category="keyboard"
               label="Move"
+              keep-label
               :item="{ id, keyboard }"
               :move="true"
               icon="hugeicons:move-to"
               @on-select="moveTo"
             />
+          </template>
 
-            <UModal
-              v-model:visible="visible.remove"
-              title="Remove Keyboard"
-              :description="`Are you sure you want to remove ${formatKeyboardDescription([keyboard?.brand?.name, keyboard?.release?.keyboard?.name, keyboard?.release?.name, keyboard?.variant_name])}?`"
-            >
+          <template v-if="isOwner" #footer-end>
+            <UTooltip text="Remove">
               <UButton
-                label="Remove"
                 icon="hugeicons:bookmark-minus-02"
                 color="error"
+                variant="ghost"
+                :aria-label="`Remove ${keyboard.variant_name}`"
+                @click="confirmRemove(id, keyboard)"
               />
-
-              <template #footer="{ close }">
-                <UButton label="Cancel" @click="close" />
-                <UButton
-                  label="Remove"
-                  color="error"
-                  @click="remove(id, keyboard)"
-                />
-              </template>
-            </UModal>
+            </UTooltip>
           </template>
-        </UPageCard>
+        </SharedCatalogCard>
       </UPageGrid>
 
+      <SharedConfirmModal
+        v-model:open="removing.open"
+        title="Remove Keyboard"
+        :description="`Are you sure you want to remove ${removing.name}?`"
+        confirm-label="Remove"
+        @confirm="remove"
+      />
+
       <UEmpty
-        v-else-if="status === 'success'"
+        v-if="!sortedCollections.length && status === 'success'"
         icon="hugeicons:keyboard"
         title="No Boards on the Bench"
         description="Save keyboard variants from their pages to fill this collection."
@@ -163,19 +159,27 @@ const moveTo = (collection, { id, keyboard }) => {
   moveItem(collection, id, contextName)
 }
 
-const remove = (id, keyboard) => {
-  const contextName = formatKeyboardDescription([
+// One confirm dialog for removing any item
+const removing = reactive({ open: false, id: null, name: '' })
+
+const confirmRemove = (id, keyboard) => {
+  const name = formatKeyboardDescription([
     keyboard?.brand?.name,
     keyboard?.release?.keyboard?.name,
     keyboard?.release?.name,
     keyboard?.variant_name,
   ])
-  removeItem(id, contextName, 'Keyboard')
+
+  Object.assign(removing, { open: true, id, name })
+}
+
+const remove = () => {
+  removing.open = false
+  removeItem(removing.id, removing.name, 'Keyboard')
 }
 
 const visible = ref({
   edit: false,
   delete: false,
-  remove: false,
 })
 </script>

@@ -34,16 +34,7 @@
         </template>
       </UPageHeader>
 
-      <section class="space-y-4 pt-4">
-        <UPageHeader
-          :title="status === 'live' ? 'Open for Orders' : 'Gathering Interest'"
-          :description="
-            data?.count ? countLabel(data.count, 'keyset') : undefined
-          "
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        />
-
+      <section class="pt-4">
         <KeysetGrid
           :keysets="data?.keysets"
           :total="data?.count"

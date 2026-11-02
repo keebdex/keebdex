@@ -36,14 +36,7 @@
         </template>
       </SharedOwnerHero>
 
-      <section class="space-y-4 pt-4">
-        <UPageHeader
-          title="Keysets"
-          :description="data.count ? countLabel(data.count, 'keyset') : undefined"
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        />
-
+      <section class="pt-4">
         <KeysetGrid
           :keysets="keysets"
           :total="data.count"
@@ -194,11 +187,6 @@ const profileSpecs = computed(() =>
       term: 'Manufacturer',
       icon: 'hugeicons:factory',
       description: data.value?.profile?.manufacturer,
-    },
-    {
-      term: 'Keysets',
-      icon: 'hugeicons:keyboard',
-      description: formatNumber(data.value?.count || null),
     },
   ].filter((spec) => spec.description),
 )
