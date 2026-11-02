@@ -46,13 +46,16 @@
             </UTooltip>
 
             <template #body="{ close }">
-              <ArtisanModalPinMaker :makers="makers" @on-success="close" />
+              <ArtisanModalPinMaker
+                :makers="pinnedFirst"
+                @on-success="close"
+              />
             </template>
           </UModal>
         </template>
       </UPageHeader>
 
-      <!-- Pinned makers first, marked with a pin -->
+      <!-- Pinned makers first, with a pin beside the name -->
       <UPageGrid v-if="sortedMakers.length" :class="artisanGridClass">
         <SharedKeebLogoCard
           v-for="maker in sortedMakers"
@@ -124,12 +127,12 @@ const makers = computed(() => data.value || [])
 const isPinned = (maker) =>
   authenticated.value && Object.hasOwn(favorites.value, maker.maker_id)
 
-const sortedMakers = computed(() => {
-  const matching = filterByName(makers.value, query.value)
-
-  return [
-    ...matching.filter(isPinned),
-    ...matching.filter((m) => !isPinned(m)),
-  ]
-})
+// The pin modal lists them this way too, so the pinned ones lead
+const pinnedFirst = computed(() => [
+  ...makers.value.filter(isPinned),
+  ...makers.value.filter((m) => !isPinned(m)),
+])
+const sortedMakers = computed(() =>
+  filterByName(pinnedFirst.value, query.value),
+)
 </script>

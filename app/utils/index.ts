@@ -173,6 +173,9 @@ export const getRoleLabel = (
 export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
 
+// The pin beside a pinned maker's or sculpt's name in a list
+export const PINNED_ICON = 'solar:pin-bold'
+
 // UPageCard container for cards with an image above the title. The column is
 // pinned to the card so a long footer cannot widen it (and the image with it)
 export const imageCardContainerClass =

@@ -1,7 +1,7 @@
 <template>
   <!-- A maker, brand, or profile in a catalog list: its logo on a tile of a
        fixed shape, so logos of any size line up, then the name; pinned ones
-       are marked with a pin -->
+       get a pin beside the name, clear of the logo -->
   <UPageCard
     :title="title"
     reverse
@@ -10,18 +10,25 @@
     :ui="{
       root: 'h-full',
       container: imageCardContainerClass,
-      title: 'truncate',
+      // Full width, so the pin sits at the end of the name's row
+      body: 'w-full',
     }"
   >
+    <template #title>
+      <div class="flex items-center justify-between gap-2">
+        <span class="truncate">{{ title }}</span>
+        <UIcon
+          v-if="pinned"
+          :name="PINNED_ICON"
+          class="size-4 shrink-0 text-primary"
+          aria-label="Pinned"
+        />
+      </div>
+    </template>
+
     <div
-      class="relative flex aspect-square items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
+      class="flex aspect-square items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
     >
-      <UIcon
-        v-if="pinned"
-        name="hugeicons:pin"
-        class="absolute top-2 right-2 size-4 text-primary"
-        aria-label="Pinned"
-      />
 
       <NuxtImg
         loading="lazy"

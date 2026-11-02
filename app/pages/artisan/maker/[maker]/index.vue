@@ -45,7 +45,10 @@
             </UTooltip>
 
             <template #body="{ close }">
-              <ArtisanModalPinSculpt :sculpts="sculpts" @on-success="close" />
+              <ArtisanModalPinSculpt
+                :sculpts="pinnedFirst"
+                @on-success="close"
+              />
             </template>
           </UModal>
         </template>
@@ -70,21 +73,14 @@
           </template>
         </UPageHeader>
 
-        <!-- Pinned sculpts first, marked with a pin -->
+        <!-- Pinned sculpts first, with a pin beside the name -->
         <UPageGrid v-if="sortedSculpts.length" :class="artisanGridClass">
           <SharedCatalogCard
             v-for="sculpt in sortedSculpts"
             :key="sculpt.id"
             v-bind="sculptCard(sculpt)"
-          >
-            <template v-if="isPinned(sculpt)" #badges>
-              <UIcon
-                name="hugeicons:pin"
-                class="absolute top-2 right-2 size-4 text-primary"
-                aria-label="Pinned"
-              />
-            </template>
-          </SharedCatalogCard>
+            :pinned="isPinned(sculpt)"
+          />
         </UPageGrid>
 
         <UEmpty
@@ -202,14 +198,14 @@ const { data: maker, refresh } = await useAsyncData(
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])
 const isPinned = (sculpt) => favSculpts.value.includes(sculpt.sculpt_id)
-const sortedSculpts = computed(() => {
-  const matching = filterByName(sculpts.value, query.value)
-
-  return [
-    ...matching.filter(isPinned),
-    ...matching.filter((s) => !isPinned(s)),
-  ]
-})
+// The pin modal lists them this way too, so the pinned ones lead
+const pinnedFirst = computed(() => [
+  ...sculpts.value.filter(isPinned),
+  ...sculpts.value.filter((s) => !isPinned(s)),
+])
+const sortedSculpts = computed(() =>
+  filterByName(pinnedFirst.value, query.value),
+)
 
 // Staff add a sculpt in place; everyone else goes to the submission wizard
 const addSculptTarget = computed(() =>
@@ -221,16 +217,10 @@ const addSculptTarget = computed(() =>
   ),
 )
 
-// A sculpt links to its page: the newest colorway's photo, its collection,
-// and how many colorways it has
+// A sculpt links to its page: the newest colorway's photo and its collection
 const sculptCard = (sculpt) => ({
   title: sculpt.name,
-  description: [
-    sculpt.total_colorways && countLabel(sculpt.total_colorways, 'colorway'),
-    sculpt.collection,
-  ]
-    .filter(Boolean)
-    .join(' · '),
+  description: sculpt.collection,
   img: sculpt.img,
   fallback: '/artisan.png',
   aspect: 'square',
