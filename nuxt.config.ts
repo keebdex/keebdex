@@ -6,9 +6,14 @@ const revision = execSync('git rev-parse --short HEAD').toString().trim()
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-// Rendered on the client and kept out of search results. A header rather than
-// a robots meta tag, which crawlers would only see after running the app
-const privatePage = { ssr: false, headers: { 'x-robots-tag': 'noindex' } }
+// Rendered on the client and kept out of search results and the sitemap. A
+// header rather than a robots meta tag, which crawlers would only see after
+// running the app
+const privatePage = {
+  ssr: false,
+  headers: { 'x-robots-tag': 'noindex' },
+  sitemap: false as const,
+}
 
 // Cloudflare builds (an explicit preset, or Pages / Workers CI, which Nitro
 // detects the same way) store Nuxt Content collections in D1.
@@ -82,6 +87,7 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     'nuxt-og-image',
+    '@nuxtjs/sitemap',
   ],
 
   fonts: {
@@ -172,6 +178,16 @@ export default defineNuxtConfig({
   // no request host to build them from (NUXT_SITE_URL overrides it)
   site: {
     url: app.homepage,
+  },
+
+  // /sitemap.xml: the static pages come from app/pages, the catalog pages
+  // from the source (published rows only). Built on request and cached for an
+  // hour per Worker isolate, so new pages show up without a deploy
+  sitemap: {
+    sources: ['/api/__sitemap__/urls'],
+    // A redirect and two tools without content of their own
+    exclude: ['/keyboard', '/artisan/search', '/artisan/wishlist'],
+    cacheMaxAgeSeconds: 60 * 60,
   },
 
   supabase: {
