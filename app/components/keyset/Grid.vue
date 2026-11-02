@@ -22,8 +22,6 @@
           <SharedSaveToCollection
             :item="keyset"
             category="keyset"
-            label="Save"
-            keep-label
             @on-select="saveTo"
           />
         </template>

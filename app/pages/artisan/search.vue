@@ -71,7 +71,7 @@
           </ULink>
 
           <UPageGrid :class="artisanGridClass">
-            <UPageCard
+            <SharedCatalogCard
               v-for="colorway in group.items"
               :key="colorway.id"
               :title="colorway.name"
@@ -80,29 +80,19 @@
                   ? colorway.sculpt.name
                   : `${colorway.maker.name} ${colorway.sculpt.name}`
               "
+              :img="colorway.img"
+              aspect="square"
               :to="`/artisan/maker/${colorway.maker_id}/${colorway.sculpt_id}?cid=${colorway.colorway_id}`"
-              reverse
-              spotlight
-              :ui="{
-                root: 'h-full',
-                container: imageCardContainerClass,
-              }"
             >
-              <div class="aspect-square overflow-hidden relative">
-                <NuxtImg
-                  preset="square"
-                  loading="lazy"
-                  decoding="async"
-                  :alt="colorway.name"
-                  :src="colorway.img"
-                  class="w-full h-full object-cover rounded"
+              <!-- Save needs a signed-in user -->
+              <template v-if="authenticated" #footer-start>
+                <SharedSaveToCollection
+                  :item="colorway"
+                  :item-name="colorway.name"
+                  @on-select="saveTo"
                 />
-              </div>
-
-              <template v-if="authenticated" #footer>
-                <SharedSaveToCollection :item="colorway" @on-select="saveTo" />
               </template>
-            </UPageCard>
+            </SharedCatalogCard>
           </UPageGrid>
         </section>
 

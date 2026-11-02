@@ -66,8 +66,6 @@
         :item="{ ...variant, release_name: release.name }"
         :item-name="variant.variant_name"
         category="keyboard"
-        label="Save"
-        keep-label
         @on-select="(collection, item) => emit('saveTo', collection, item)"
       />
 

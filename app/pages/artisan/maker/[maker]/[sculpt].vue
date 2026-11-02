@@ -147,8 +147,6 @@
               <SharedSaveToCollection
                 :item="colorway"
                 :item-name="colorway.name"
-                label="Save"
-                keep-label
                 @on-select="saveTo"
               />
             </template>

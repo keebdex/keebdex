@@ -340,8 +340,6 @@
                       :item="variant.saveItem"
                       :item-name="variant.variant_name"
                       category="keyboard"
-                      label="Save"
-                      keep-label
                       @on-select="saveToCollection"
                     />
                   </template>

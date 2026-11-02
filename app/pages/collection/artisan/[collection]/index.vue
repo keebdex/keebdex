@@ -147,8 +147,6 @@
             <SharedSaveToCollection
               v-else
               :item="{ ...rest, artisan }"
-              label="Move"
-              keep-label
               :move="true"
               icon="hugeicons:move-to"
               @on-select="moveTo"

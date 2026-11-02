@@ -36,8 +36,6 @@
               :item="data"
               :item-name="fullName"
               category="keyset"
-              label="Save"
-              keep-label
               @on-select="saveTo"
             />
 

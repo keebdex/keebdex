@@ -61,8 +61,6 @@
           <template v-if="isOwner" #footer-start>
             <SharedSaveToCollection
               category="keyset"
-              label="Move"
-              keep-label
               :item="{ id, keyset }"
               :move="true"
               icon="hugeicons:move-to"

@@ -71,8 +71,6 @@
           <template v-if="isOwner" #footer-start>
             <SharedSaveToCollection
               category="keyboard"
-              label="Move"
-              keep-label
               :item="{ id, keyboard }"
               :move="true"
               icon="hugeicons:move-to"

@@ -42,8 +42,6 @@
         v-if="authenticated"
         :item="colorway"
         :item-name="colorway.name"
-        label="Save"
-        keep-label
         @on-select="(collection, item) => emit('saveTo', collection, item)"
       />
 
