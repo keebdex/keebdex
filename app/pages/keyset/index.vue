@@ -7,20 +7,11 @@
     <template #body>
       <UPageHeader
         headline="Keysets"
-        title="Profiles"
+        title="Profiles by Manufacturer"
         :description="description"
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UInput
-            v-if="groups.length"
-            v-model="query"
-            icon="hugeicons:search-01"
-            placeholder="Filter profiles"
-            aria-label="Filter profiles"
-            class="w-full sm:w-60"
-          />
-
           <UModal v-if="editable" v-model:open="adding" title="Add Keyset Profile">
             <UButton
               color="primary"
@@ -42,49 +33,63 @@
         </template>
       </UPageHeader>
 
-      <template v-if="groups.length">
-        <!-- Grouped by keycap profile; the group's name heads it -->
-        <section
-          v-for="group in matchingGroups"
-          :key="group.label"
-          class="space-y-4 pt-4"
-        >
-          <UPageHeader
-            :title="group.label"
-            :as="detailSectionHeaderAs"
-            :ui="detailSectionHeaderUi"
-          />
-
-          <UPageGrid :class="artisanGridClass">
-            <SharedKeebLogoCard
-              v-for="item in group.profiles"
-              :key="item.id"
-              :title="item.name"
-              :to="`/keyset/${item.id}`"
-              :slug="item.id"
-              invertible
-            />
-          </UPageGrid>
-        </section>
-
-        <UEmpty
-          v-if="!matchingGroups.length"
-          icon="hugeicons:search-remove"
-          title="No Profiles Match"
-          :description="`Nothing matches “${query}”. Try a shorter name, or the manufacturer's.`"
-          :actions="[
-            {
-              label: 'Clear Filter',
-              icon: 'hugeicons:cancel-01',
-              ui: { label: 'block' },
-              onClick: () => (query = ''),
-            },
-          ]"
+      <!-- One card per manufacturer, its logo shown once: sets are named
+           after the maker and the profile (GMK CYL), and one maker can make
+           several profiles. A maker with one profile links straight to it;
+           one with several opens a picker. -->
+      <UPageGrid v-if="manufacturers.length" :class="artisanGridClass">
+        <SharedKeebLogoCard
+          v-for="maker in manufacturers"
+          :key="maker.id"
+          :title="maker.name"
+          :slug="maker.id"
+          :to="
+            maker.profiles.length === 1
+              ? `/keyset/${maker.profiles[0].profile_id}`
+              : undefined
+          "
+          invertible
+          :class="maker.profiles.length > 1 && 'cursor-pointer'"
+          @click="maker.profiles.length > 1 && (picking = maker)"
         />
-      </template>
+      </UPageGrid>
+
+      <!-- The profiles of a maker with several -->
+      <UModal
+        :open="!!picking"
+        :title="picking?.name"
+        description="Pick a profile to see its keysets."
+        @update:open="(open) => !open && (picking = null)"
+      >
+        <template #body>
+          <!-- One row across the modal: two columns, three from three
+               profiles (a plain grid: `UPageGrid`'s columns follow the screen,
+               not the modal). The padding keeps the cards' rings clear of the
+               modal body's scroll edge, which would clip their top. -->
+          <div
+            class="grid grid-cols-2 gap-3 p-0.5"
+            :class="picking?.profiles.length > 2 && 'sm:grid-cols-3'"
+          >
+            <UPageCard
+              v-for="item in picking?.profiles"
+              :key="item.profile_id"
+              :to="`/keyset/${item.profile_id}`"
+              :title="item.name"
+              :description="
+                item.profile && item.profile !== item.name
+                  ? item.profile
+                  : undefined
+              "
+              variant="subtle"
+              spotlight
+              :ui="{ title: 'truncate' }"
+            />
+          </div>
+        </template>
+      </UModal>
 
       <UEmpty
-        v-else-if="status !== 'pending'"
+        v-if="!manufacturers.length && status !== 'pending'"
         icon="hugeicons:cross"
         title="No Profiles Yet"
         description="Submit a keyset to add the first profile to the dex."
@@ -102,6 +107,8 @@
 </template>
 
 <script setup>
+import { sortBy } from 'es-toolkit/compat'
+
 // Legacy `/keyset?status=…` links point at the group buy tabs.
 definePageMeta({
   middleware: [
@@ -116,8 +123,10 @@ definePageMeta({
   ],
 })
 
+// Sets go by who makes them and the profile (GMK CYL), so the page lists
+// manufacturers rather than profiles
 const description =
-  'Browse keycap profiles and manufacturers, then drill into each catalog of keysets.'
+  'Keysets go by their manufacturer and keycap profile, like GMK CYL. Pick a manufacturer to browse its keysets, or choose a profile when it makes more than one.'
 
 useSeoMeta({
   title: 'Keyset Profiles',
@@ -128,24 +137,28 @@ const userStore = useUserStore()
 // Admins and editors without assignments (nobody is assigned a profile).
 const editable = computed(() => userStore.isEditable('keyset'))
 const adding = ref(false)
-const query = ref('')
+// The maker whose profiles the picker shows
+const picking = ref(null)
 
-const { groupedProfiles, status, refresh } = useKeysetProfiles()
+const { profiles, status, refresh } = useKeysetProfiles()
 
-const groups = computed(() =>
-  Object.entries(groupedProfiles.value).map(([label, items]) => ({
-    label,
-    profiles: Object.entries(items).map(([id, name]) => ({ id, name })),
-  })),
-)
+// Profiles under their manufacturer (by its logo key; a profile without one
+// stands alone), both by name
+const manufacturers = computed(() => {
+  const byMaker = {}
 
-// The filter keeps groups that still have a match
-const matchingGroups = computed(() =>
-  groups.value
-    .map((group) => ({
-      ...group,
-      profiles: filterByName(group.profiles, query.value),
-    }))
-    .filter((group) => group.profiles.length),
-)
+  for (const item of profiles.value) {
+    const id = item.manufacturer_id || item.profile_id
+
+    byMaker[id] ??= { id, name: item.manufacturer || item.name, profiles: [] }
+    byMaker[id].profiles.push(item)
+  }
+
+  return sortBy(Object.values(byMaker), (maker) => maker.name.toLowerCase()).map(
+    (maker) => ({
+      ...maker,
+      profiles: sortBy(maker.profiles, (item) => item.name.toLowerCase()),
+    }),
+  )
+})
 </script>

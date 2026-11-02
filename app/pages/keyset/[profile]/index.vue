@@ -11,7 +11,7 @@
     <template #body>
       <SharedOwnerHero
         :title="title"
-        :slug="profile"
+        :slug="data.profile.manufacturer_id || profile"
         invertible
         :description="description"
         :specs="profileSpecs"

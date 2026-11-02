@@ -12,15 +12,6 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UInput
-            v-if="brands.length"
-            v-model="query"
-            icon="hugeicons:search-01"
-            placeholder="Filter brands"
-            aria-label="Filter brands"
-            class="w-full sm:w-60"
-          />
-
           <UModal v-if="editable" v-model:open="adding" title="Add Keyboard Brand">
             <UButton color="primary" icon="hugeicons:add-team" label="Add Brand" />
 
@@ -38,9 +29,9 @@
         </template>
       </UPageHeader>
 
-      <UPageGrid v-if="matching.length" :class="artisanGridClass">
+      <UPageGrid v-if="brands.length" :class="artisanGridClass">
         <SharedKeebLogoCard
-          v-for="brand in matching"
+          v-for="brand in brands"
           :key="brand.slug"
           :title="brand.name"
           :to="`/keyboard/brand/${brand.slug}`"
@@ -49,26 +40,6 @@
         />
       </UPageGrid>
 
-      <UEmpty
-        v-else-if="query"
-        icon="hugeicons:search-remove"
-        title="No Brands Match"
-        :description="`Nothing matches “${query}”. Try a shorter name, or submit the brand with one of its keyboards.`"
-        :actions="[
-          {
-            label: 'Clear Filter',
-            icon: 'hugeicons:cancel-01',
-            ui: { label: 'block' },
-            onClick: () => (query = ''),
-          },
-          {
-            label: 'Submit a Keyboard',
-            icon: 'hugeicons:add-circle',
-            to: '/keyboard/submissions/submit',
-            ui: { label: 'block' },
-          },
-        ]"
-      />
 
       <UEmpty
         v-else
@@ -115,8 +86,6 @@ const userStore = useUserStore()
 const editable = computed(() => userStore.isEditable('keyboard'))
 
 const adding = ref(false)
-const query = ref('')
 
 const brands = computed(() => data.value || [])
-const matching = computed(() => filterByName(brands.value, query.value))
 </script>

@@ -227,29 +227,6 @@ export const listingPageHeaderUi = {
   links: 'flex flex-wrap gap-2 shrink-0',
 }
 
-// Rows whose `key` contains every word of `query`, ignoring case and accents;
-// a list's filter box (makers, brands, profiles, sculpts)
-const folded = (value: string) =>
-  value
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-
-export const filterByName = <T extends Record<string, any>>(
-  items: T[],
-  query: string,
-  key: keyof T = 'name',
-) => {
-  const words = folded(query).split(/\s+/).filter(Boolean)
-
-  if (!words.length) return items
-
-  return items.filter((item) => {
-    const name = folded(String(item[key] ?? ''))
-    return words.every((word) => name.includes(word))
-  })
-}
-
 // Where an Add button leads: staff (`editable`) open the form in place, and
 // everyone else goes to the module's submission wizard with `query`
 // preselected. Bind the result to the button (`v-bind`).

@@ -55,48 +55,16 @@
       </SharedOwnerHero>
 
       <section class="space-y-4 pt-4">
-        <!-- Only long lists get a header, for their filter -->
-        <UPageHeader
-          v-if="sculpts.length > 12"
-          title="Sculpts"
-          :as="detailSectionHeaderAs"
-          :ui="detailSectionHeaderUi"
-        >
-          <template #links>
-            <UInput
-              v-model="query"
-              icon="hugeicons:search-01"
-              placeholder="Filter sculpts"
-              aria-label="Filter sculpts"
-              class="w-40 sm:w-60"
-            />
-          </template>
-        </UPageHeader>
-
         <!-- Pinned sculpts first, with a pin beside the name -->
-        <UPageGrid v-if="sortedSculpts.length" :class="artisanGridClass">
+        <UPageGrid v-if="pinnedFirst.length" :class="artisanGridClass">
           <SharedCatalogCard
-            v-for="sculpt in sortedSculpts"
+            v-for="sculpt in pinnedFirst"
             :key="sculpt.id"
             v-bind="sculptCard(sculpt)"
             :pinned="isPinned(sculpt)"
           />
         </UPageGrid>
 
-        <UEmpty
-          v-else-if="query"
-          icon="hugeicons:search-remove"
-          title="No Sculpts Match"
-          :description="`None of ${maker.name}'s sculpts matches “${query}”.`"
-          :actions="[
-            {
-              label: 'Clear Filter',
-              icon: 'hugeicons:cancel-01',
-              ui: { label: 'block' },
-              onClick: () => (query = ''),
-            },
-          ]"
-        />
 
         <UEmpty
           v-else
@@ -184,7 +152,6 @@ const {
 
 const editing = ref(false)
 const addingSculpt = ref(false)
-const query = ref('')
 const history = useTemplateRef('history')
 
 const { data: maker, refresh } = await useAsyncData(
@@ -203,9 +170,7 @@ const pinnedFirst = computed(() => [
   ...sculpts.value.filter(isPinned),
   ...sculpts.value.filter((s) => !isPinned(s)),
 ])
-const sortedSculpts = computed(() =>
-  filterByName(pinnedFirst.value, query.value),
-)
+
 
 // Staff add a sculpt in place; everyone else goes to the submission wizard
 const addSculptTarget = computed(() =>

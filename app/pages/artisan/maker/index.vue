@@ -12,14 +12,6 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UInput
-            v-model="query"
-            icon="hugeicons:search-01"
-            placeholder="Filter makers"
-            aria-label="Filter makers"
-            class="w-full sm:w-60"
-          />
-
           <UModal v-if="isAdmin" v-model:open="adding" title="Add Maker">
             <UButton color="primary" icon="hugeicons:add-team" label="Add Maker" />
 
@@ -56,9 +48,9 @@
       </UPageHeader>
 
       <!-- Pinned makers first, with a pin beside the name -->
-      <UPageGrid v-if="sortedMakers.length" :class="artisanGridClass">
+      <UPageGrid v-if="pinnedFirst.length" :class="artisanGridClass">
         <SharedKeebLogoCard
-          v-for="maker in sortedMakers"
+          v-for="maker in pinnedFirst"
           :key="maker.maker_id"
           :title="maker.name"
           :to="`/artisan/maker/${maker.maker_id}`"
@@ -68,26 +60,6 @@
         />
       </UPageGrid>
 
-      <UEmpty
-        v-else-if="query"
-        icon="hugeicons:search-remove"
-        title="No Makers Match"
-        :description="`Nothing matches “${query}”. Try a shorter name, or submit the maker if they are missing.`"
-        :actions="[
-          {
-            label: 'Clear Filter',
-            icon: 'hugeicons:cancel-01',
-            ui: { label: 'block' },
-            onClick: () => (query = ''),
-          },
-          {
-            label: 'Submit a Maker',
-            icon: 'hugeicons:add-circle',
-            to: '/artisan/submissions/submit',
-            ui: { label: 'block' },
-          },
-        ]"
-      />
     </template>
   </UDashboardPanel>
 </template>
@@ -121,7 +93,6 @@ const { authenticated, isAdmin, favorites } = storeToRefs(userStore)
 
 const adding = ref(false)
 const customize = ref(false)
-const query = ref('')
 
 const makers = computed(() => data.value || [])
 const isPinned = (maker) =>
@@ -132,7 +103,5 @@ const pinnedFirst = computed(() => [
   ...makers.value.filter(isPinned),
   ...makers.value.filter((m) => !isPinned(m)),
 ])
-const sortedMakers = computed(() =>
-  filterByName(pinnedFirst.value, query.value),
-)
+
 </script>
