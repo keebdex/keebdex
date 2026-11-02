@@ -5,27 +5,26 @@
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
+      </UDashboardNavbar>
+    </template>
 
-        <template #right>
-          <UModal v-if="editable" title="Add Sculpt">
-            <UButton
-              color="primary"
-              icon="hugeicons:dashboard-square-add"
-              label="Add Sculpt"
-            />
-
-            <template #body="{ close }">
-              <ArtisanModalSculptForm
-                :sculpts="sculpts"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
+    <template #body>
+      <SharedOwnerHero
+        :title="maker.name"
+        :slug="maker.maker_id"
+        :invertible="maker.invertible_logo"
+        :description="maker.bio"
+        :specs="makerSpecs"
+        :links="makerLinks"
+        details-label="Maker Details"
+      >
+        <template v-if="authenticated" #actions>
+          <UButton
+            color="primary"
+            icon="hugeicons:dashboard-square-add"
+            label="Add Sculpt"
+            v-bind="addSculptTarget"
+          />
 
           <SharedRecordActions
             :editable="editable"
@@ -42,33 +41,50 @@
             description="Pin up to 6 sculpts to the top for easy access."
           >
             <UTooltip text="Customize Pins">
-              <UButton
-                icon="hugeicons:pin"
-                color="secondary"
-                aria-label="Customize Pins"
-              />
+              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
             </UTooltip>
 
             <template #body="{ close }">
               <ArtisanModalPinSculpt
-                :sculpts="favoriteSculpts.concat(otherSculpts)"
+                :sculpts="pinnedFirst"
                 @on-success="close"
               />
             </template>
           </UModal>
-
-          <SharedProfileDrawer
-            :title="maker.name"
-            :slug="maker.maker_id"
-            :invertible="maker.invertible_logo"
-            :description="maker.bio"
-            :links="makerLinks"
-          />
         </template>
-      </UDashboardNavbar>
-    </template>
+      </SharedOwnerHero>
 
-    <template #body>
+      <section class="space-y-4 pt-4">
+        <!-- Pinned sculpts first, with a pin beside the name -->
+        <UPageGrid v-if="pinnedFirst.length" :class="artisanGridClass">
+          <SharedCatalogCard
+            v-for="sculpt in pinnedFirst"
+            :key="sculpt.id"
+            v-bind="sculptCard(sculpt)"
+            :pinned="isPinned(sculpt)"
+          />
+        </UPageGrid>
+
+
+        <UEmpty
+          v-else
+          icon="hugeicons:dashboard-square-add"
+          title="No Sculpts Yet"
+          description="Know one of their sculpts? Submit it and our staff will review it before it goes public."
+          :actions="[
+            {
+              label: 'Add Sculpt',
+              icon: 'hugeicons:add-square',
+              ui: { label: 'block' },
+              to: {
+                path: '/artisan/submissions/submit',
+                query: { maker: maker.maker_id },
+              },
+            },
+          ]"
+        />
+      </section>
+
       <template v-if="editable">
         <SharedRevisionHistory
           ref="history"
@@ -77,6 +93,20 @@
           description="Every change to this maker, newest first. Its sculpts keep their own history."
           @reverted="refresh()"
         />
+
+        <UModal v-model:open="addingSculpt" title="Add Sculpt">
+          <template #body>
+            <ArtisanModalSculptForm
+              :sculpts="sculpts"
+              @on-success="
+                () => {
+                  addingSculpt = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
 
         <UModal v-model:open="editing" title="Edit Maker">
           <template #body>
@@ -94,30 +124,6 @@
         </UModal>
       </template>
 
-      <UPageHeader
-        v-if="favoriteSculpts.length"
-        headline="Pinned"
-        :ui="{
-          headline: 'text-md',
-        }"
-      >
-        <UPageGrid :class="artisanGridClass">
-          <ArtisanSculptCard
-            v-for="sculpt in favoriteSculpts"
-            :key="sculpt.id"
-            :sculpt="sculpt"
-          />
-        </UPageGrid>
-      </UPageHeader>
-
-      <UPageGrid :class="artisanGridClass">
-        <ArtisanSculptCard
-          v-for="sculpt in otherSculpts"
-          :key="sculpt.id"
-          :sculpt="sculpt"
-        />
-      </UPageGrid>
-
       <SharedSuggestEditModal
         v-if="suggestTarget"
         v-model:open="suggestOpen"
@@ -133,7 +139,7 @@
 <script setup>
 const route = useRoute()
 const userStore = useUserStore()
-const { favorites } = storeToRefs(userStore)
+const { authenticated, favorites } = storeToRefs(userStore)
 
 const editable = computed(() => userStore.isEditable(maker.value?.maker_id))
 
@@ -145,6 +151,7 @@ const {
 } = useSuggestEdit(editable)
 
 const editing = ref(false)
+const addingSculpt = ref(false)
 const history = useTemplateRef('history')
 
 const { data: maker, refresh } = await useAsyncData(
@@ -157,12 +164,45 @@ const { data: maker, refresh } = await useAsyncData(
 
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])
-const favoriteSculpts = computed(() => {
-  return sculpts.value.filter((s) => favSculpts.value.includes(s.sculpt_id))
+const isPinned = (sculpt) => favSculpts.value.includes(sculpt.sculpt_id)
+// The pin modal lists them this way too, so the pinned ones lead
+const pinnedFirst = computed(() => [
+  ...sculpts.value.filter(isPinned),
+  ...sculpts.value.filter((s) => !isPinned(s)),
+])
+
+
+// Staff add a sculpt in place; everyone else goes to the submission wizard
+const addSculptTarget = computed(() =>
+  submissionTarget(
+    editable.value,
+    () => (addingSculpt.value = true),
+    'artisan',
+    { maker: route.params.maker },
+  ),
+)
+
+// A sculpt links to its page: the newest colorway's photo and its collection
+const sculptCard = (sculpt) => ({
+  title: sculpt.name,
+  description: sculpt.collection,
+  img: sculpt.img,
+  fallback: '/artisan.png',
+  aspect: 'square',
+  to: `/artisan/maker/${sculpt.maker_id}/${sculpt.sculpt_id}`,
 })
-const otherSculpts = computed(() => {
-  return sculpts.value.filter((s) => !favSculpts.value.includes(s.sculpt_id))
-})
+
+const makerSpecs = computed(() =>
+  maker.value?.founded
+    ? [
+        {
+          term: 'Founded',
+          icon: 'hugeicons:calendar-03',
+          description: maker.value.founded,
+        },
+      ]
+    : [],
+)
 
 const makerLinks = computed(() => {
   const items = []

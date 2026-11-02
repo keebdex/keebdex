@@ -105,35 +105,25 @@
       />
 
       <UPageGrid v-if="sortedCollections.length" :class="artisanGridClass">
-        <UPageCard
+        <SharedCatalogCard
           v-for="{ artisan, ...rest } in sortedCollections"
           :key="rest.id"
           :title="artisan.name"
-          :description="artisan?.sculpt.name"
-          reverse
-          spotlight
+          :description="artisan?.sculpt?.name"
+          :img="artisan.img"
+          fallback="/artisan.png"
+          aspect="square"
+          :dimmed="(listing && !rest.exchange) || artisan.deleted"
           :highlight="rest.priority"
-          :ui="{
-            container: imageCardContainerClass,
-            wrapper: 'flex-1',
-          }"
+          :to="
+            artisan.deleted
+              ? undefined
+              : `/artisan/maker/${artisan.maker_sculpt_id}?cid=${artisan.colorway_id}`
+          "
         >
-          <div class="relative aspect-square overflow-hidden">
-            <NuxtImg
-              preset="square"
-              loading="lazy"
-              decoding="async"
-              :alt="artisan.name"
-              :src="artisan.img"
-              class="h-full object-cover rounded"
-              :class="{
-                grayscale: (listing && !rest.exchange) || artisan.deleted,
-              }"
-            />
-            <span
-              v-if="listing && !rest.exchange"
-              class="absolute inset-0 flex items-center justify-center"
-            >
+          <!-- Found (wishlist) or sold (for sale) -->
+          <template v-if="listing && !rest.exchange" #badges>
+            <span class="absolute inset-0 flex items-center justify-center">
               <UIcon
                 v-if="buying"
                 name="hugeicons:tick-double-02"
@@ -145,72 +135,86 @@
                 class="text-error text-9xl"
               />
             </span>
-          </div>
+          </template>
 
-          <template v-if="isOwner && artisan.deleted" #footer>
+          <template v-if="isOwner" #footer-start>
             <UButton
+              v-if="artisan.deleted"
               icon="hugeicons:clean"
               color="warning"
+              label="Clear Outdated"
+              :ui="{ label: 'block' }"
               @click="remove(rest.id, artisan)"
-            >
-              Clear Outdated
-            </UButton>
-          </template>
-          <template v-else-if="isOwner" #footer>
-            <UModal
-              v-if="listing"
-              v-model:visible="visible.edit_item"
-              :title="`Edit ${colorwayTitle(artisan)} Listing`"
-            >
-              <UTooltip text="Edit Listing">
-                <UButton icon="hugeicons:file-edit" />
-              </UTooltip>
-
-              <template #body="{ close }">
-                <CollectionModalCollectionItemForm
-                  :metadata="rest"
-                  :buying="buying"
-                  @on-success="
-                    () => {
-                      close()
-                      refresh()
-                    }
-                  "
-                />
-              </template>
-            </UModal>
-
+            />
             <SharedSaveToCollection
+              v-else
               :item="{ ...rest, artisan }"
+              label="Move"
+              keep-label
               :move="true"
               icon="hugeicons:move-to"
               @on-select="moveTo"
             />
-
-            <UModal
-              v-model:visible="visible.remove"
-              title="Remove Artisan"
-              :description="`Are you sure you want to remove ${colorwayTitle(artisan)}?`"
-            >
-              <UTooltip text="Remove">
-                <UButton icon="hugeicons:bookmark-minus-02" color="error" />
-              </UTooltip>
-
-              <template #footer="{ close }">
-                <UButton label="Cancel" @click="close" />
-                <UButton
-                  label="Remove"
-                  color="error"
-                  @click="remove(rest.id, artisan)"
-                />
-              </template>
-            </UModal>
           </template>
-        </UPageCard>
+
+          <template v-if="isOwner && !artisan.deleted" #footer-end>
+            <UTooltip v-if="listing" text="Edit Listing">
+              <UButton
+                icon="hugeicons:edit-01"
+                variant="ghost"
+                :aria-label="`Edit ${colorwayTitle(artisan)} listing`"
+                @click="editListing({ ...rest, artisan })"
+              />
+            </UTooltip>
+
+            <UTooltip text="Remove">
+              <UButton
+                icon="hugeicons:bookmark-minus-02"
+                color="error"
+                variant="ghost"
+                :aria-label="`Remove ${colorwayTitle(artisan)}`"
+                @click="confirmRemove(rest.id, artisan)"
+              />
+            </UTooltip>
+          </template>
+        </SharedCatalogCard>
       </UPageGrid>
 
+      <template v-if="isOwner">
+        <UModal
+          v-model:open="listingItem.open"
+          :title="`Edit ${listingItem.name} Listing`"
+        >
+          <template #body>
+            <CollectionModalCollectionItemForm
+              :metadata="listingItem.item"
+              :buying="buying"
+              @on-success="
+                () => {
+                  listingItem.open = false
+                  refresh()
+                }
+              "
+            />
+          </template>
+        </UModal>
+
+        <SharedConfirmModal
+          v-model:open="removing.open"
+          title="Remove Artisan"
+          :description="`Are you sure you want to remove ${removing.name}?`"
+          confirm-label="Remove"
+          @confirm="
+            () => {
+              removing.open = false
+              remove(removing.id, removing.colorway)
+            }
+          "
+        />
+      </template>
+
       <UEmpty
-        v-else-if="status === 'success'"
+        v-if="!sortedCollections.length && status === 'success'"
         icon="hugeicons:alien-01"
         title="No Artisans Have Moved In Yet"
         description="Save artisans from their pages and they will settle in right here."
@@ -263,9 +267,28 @@ const visible = ref({
   share: false,
   edit: false,
   delete: false,
-  remove: false,
-  edit_item: false,
 })
+
+// One listing form and one confirm dialog for every item
+const listingItem = reactive({ open: false, name: '', item: null })
+const removing = reactive({ open: false, id: null, name: '', colorway: null })
+
+const editListing = ({ artisan, ...item }) => {
+  Object.assign(listingItem, {
+    open: true,
+    name: colorwayTitle(artisan),
+    item,
+  })
+}
+
+const confirmRemove = (id, colorway) => {
+  Object.assign(removing, {
+    open: true,
+    id,
+    name: colorwayTitle(colorway),
+    colorway,
+  })
+}
 
 // Sync shareOption with saved state whenever the modal is closed
 // (handles initial async data load + reset after close-without-save)

@@ -1,10 +1,19 @@
 <template>
   <UDashboardPanel id="artisan-makers">
     <template #header>
-      <UDashboardNavbar title="Artisan Makers">
-        <template #right>
-          <UModal v-if="isAdmin" v-model:visible="visible" title="Add Maker">
-            <UButton color="primary" icon="hugeicons:add-team" label="Add" />
+      <UDashboardNavbar title="Artisan Makers" />
+    </template>
+
+    <template #body>
+      <UPageHeader
+        headline="Artisans"
+        title="Makers"
+        :description="description"
+        :ui="listingPageHeaderUi"
+      >
+        <template #links>
+          <UModal v-if="isAdmin" v-model:open="adding" title="Add Maker">
+            <UButton color="primary" icon="hugeicons:add-team" label="Add Maker" />
 
             <template #body="{ close }">
               <ArtisanModalMakerForm
@@ -20,62 +29,48 @@
 
           <UModal
             v-if="authenticated"
-            v-model:visible="customize"
+            v-model:open="customize"
             title="Customize Pins"
             description="Pin up to 6 makers to the top for easy access."
           >
-            <UButton icon="hugeicons:pin" color="secondary" label="Pins" />
+            <UTooltip text="Customize Pins">
+              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+            </UTooltip>
 
             <template #body="{ close }">
               <ArtisanModalPinMaker
-                :makers="favoriteMakers.concat(otherMakers)"
+                :makers="pinnedFirst"
                 @on-success="close"
               />
             </template>
           </UModal>
         </template>
-      </UDashboardNavbar>
-    </template>
-
-    <template #body>
-      <UPageHeader
-        v-if="authenticated && favoriteMakers.length"
-        headline="Pinned"
-        :ui="{
-          headline: 'text-md',
-        }"
-      >
-        <UPageGrid :class="artisanGridClass">
-          <SharedKeebLogoCard
-            v-for="maker in favoriteMakers"
-            :key="maker.maker_id"
-            :title="maker.name"
-            :to="`/artisan/maker/${maker.maker_id}`"
-            :slug="maker.maker_id"
-            :invertible="maker.invertible_logo"
-            aspect="square"
-          />
-        </UPageGrid>
       </UPageHeader>
 
-      <UPageGrid :class="artisanGridClass">
+      <!-- Pinned makers first, with a pin beside the name -->
+      <UPageGrid v-if="pinnedFirst.length" :class="artisanGridClass">
         <SharedKeebLogoCard
-          v-for="maker in otherMakers"
+          v-for="maker in pinnedFirst"
           :key="maker.maker_id"
           :title="maker.name"
           :to="`/artisan/maker/${maker.maker_id}`"
           :slug="maker.maker_id"
           :invertible="maker.invertible_logo"
-          aspect="square"
+          :pinned="isPinned(maker)"
         />
       </UPageGrid>
+
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
+const description =
+  'Every artisan maker in the dex, from long-running studios to new names. Pick one to browse their sculpts and colorways.'
+
 useSeoMeta({
   title: 'Artisan Makers',
+  description,
 })
 
 // The grid and the pin modal only read these; the full rows (bios,
@@ -96,14 +91,17 @@ const { data, refresh } = await useAsyncData(
 const userStore = useUserStore()
 const { authenticated, isAdmin, favorites } = storeToRefs(userStore)
 
-const visible = ref(false)
+const adding = ref(false)
 const customize = ref(false)
 
-const favoriteMakers = computed(() => {
-  return data.value.filter((m) => Object.keys(favorites.value).includes(m.maker_id))
-})
+const makers = computed(() => data.value || [])
+const isPinned = (maker) =>
+  authenticated.value && Object.hasOwn(favorites.value, maker.maker_id)
 
-const otherMakers = computed(() => {
-  return data.value.filter((m) => !Object.keys(favorites.value).includes(m.maker_id))
-})
+// The pin modal lists them this way too, so the pinned ones lead
+const pinnedFirst = computed(() => [
+  ...makers.value.filter(isPinned),
+  ...makers.value.filter((m) => !isPinned(m)),
+])
+
 </script>

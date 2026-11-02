@@ -1,14 +1,22 @@
 <template>
   <UDashboardPanel v-if="authenticated" id="collection">
     <template #header>
-      <UDashboardNavbar title="My Collection">
-        <template #right>
-          <UModal v-model:visible="visible" title="Add Collection">
+      <UDashboardNavbar title="My Collection" />
+    </template>
+
+    <template #body>
+      <UPageHeader
+        headline="Collection"
+        title="My Collection"
+        description="Every shelf you keep, hunt for, or trade from, grouped by catalog."
+        :ui="listingPageHeaderUi"
+      >
+        <template #links>
+          <UModal v-model:open="adding" title="Add Collection">
             <UButton
-              v-if="authenticated"
               color="primary"
               icon="hugeicons:bookmark-add-02"
-              label="Add"
+              label="Add Collection"
             />
 
             <template #body="{ close }">
@@ -16,44 +24,70 @@
             </template>
           </UModal>
         </template>
-      </UDashboardNavbar>
-    </template>
+      </UPageHeader>
 
-    <template #body>
-      <UPageList v-if="groupedCollections.length" divide>
-        <UPageCard
-          v-for="(group, idx) in groupedCollections"
+      <template v-if="groupedCollections.length">
+        <section
+          v-for="group in groupedCollections"
           :key="group.value"
-          :title="group.label"
-          variant="ghost"
-          :ui="{
-            container: `!px-0 ${idx === 0 ? 'first:pt-0' : ''}`,
-          }"
+          class="space-y-4 pt-4"
         >
-          <UPageGrid>
+          <UPageHeader
+            :title="`${group.label} Collections`"
+            :as="detailSectionHeaderAs"
+            :ui="detailSectionHeaderUi"
+          />
+
+          <UPageGrid class="gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             <UPageCard
               v-for="collection in group.items"
-              v-bind="collection"
               :key="collection.id"
               :to="`/collection/${collection.category}/${collection.id}`"
               :title="collection.name"
-              :description="`${collection.total_items} items`"
-              :icon="
-                collection.published ? 'hugeicons:global' : 'hugeicons:locked'
-              "
+              :icon="KEEB_MODULE_ICONS[collection.category]"
               variant="subtle"
+              spotlight
               :ui="{
-                leadingIcon: !collection.published && 'text-dimmed',
+                root: 'h-full',
+                container: 'h-full',
+                leadingIcon: 'size-6 text-primary',
+                title: 'truncate',
+                footer: 'mt-auto items-center justify-between',
               }"
-            />
+            >
+              <template #footer>
+                <span class="font-mono text-sm tabular-nums text-muted">
+                  {{ countLabel(collection.total_items || 0, 'item') }}
+                </span>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <UBadge
+                    v-for="tag in collectionTags(collection)"
+                    :key="tag.label"
+                    v-bind="tag"
+                    variant="subtle"
+                    size="sm"
+                  />
+                </div>
+              </template>
+            </UPageCard>
           </UPageGrid>
-        </UPageCard>
-      </UPageList>
+        </section>
+      </template>
+
       <UEmpty
         v-else
         icon="hugeicons:collections-bookmark"
         title="An Empty Shelf, Full of Potential"
         description="Create a collection to start showing off your keebs."
+        :actions="[
+          {
+            label: 'Add Collection',
+            icon: 'hugeicons:bookmark-add-02',
+            ui: { label: 'block' },
+            onClick: () => (adding = true),
+          },
+        ]"
       />
     </template>
   </UDashboardPanel>
@@ -107,12 +141,28 @@ onBeforeMount(() => {
   if (authenticated.value) userStore.fetchUserCollections(user.value.uid)
 })
 
-const visible = ref(false)
+const adding = ref(false)
 
 const modules = Constants.public.Enums.module.map((module) => ({
   label: module,
   value: module.toLowerCase(),
 }))
+
+// What an artisan collection is for (other catalogs have no intent), then
+// whether it is shared
+const INTENT_TAGS = {
+  keep: { label: 'My Collection', icon: 'hugeicons:archive-02' },
+  want: { label: 'Wishlist', icon: TRADE_INTENTS.want.icon, color: TRADE_INTENTS.want.color },
+  sell: { label: 'For Sale or Trade', icon: TRADE_INTENTS.sell.icon, color: TRADE_INTENTS.sell.color },
+}
+
+const collectionTags = (collection) =>
+  [
+    collection.category === 'artisan' && INTENT_TAGS[collection.intent],
+    collection.published
+      ? { label: 'Public', icon: 'hugeicons:global', color: 'primary' }
+      : { label: 'Private', icon: 'hugeicons:locked' },
+  ].filter(Boolean)
 
 const groupedCollections = computed(() =>
   modules

@@ -165,7 +165,7 @@ Read the matching file before working on one of these features; each holds its s
 - Notifications: `docs/agents/notifications.md`
 - Announcements: `docs/agents/announcements.md`
 - Theme Preset System: `docs/agents/theme-presets.md`
-- Catalog Pages (home, keyset pages, keyset, keyboard, and sculpt detail pages, the colorway drawer, shared detail-page heroes, cards, and header actions): `docs/agents/catalog-pages.md`
+- Catalog Pages (home, catalog lists and the maker, brand, and profile pages, keyset pages, keyset, keyboard, and sculpt detail pages, the colorway drawer, shared detail-page heroes, cards, and header actions): `docs/agents/catalog-pages.md`
 - Artisan Forms and Wishlist (sculpt renames, colorway stems, Wishlist Image builder): `docs/agents/artisan.md`
 - Collections, Save to Collection, and the Trading Hub: `docs/agents/collections.md`
 - Leaderboard: `docs/agents/leaderboard.md`

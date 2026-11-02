@@ -167,10 +167,14 @@ export const getRoleLabel = (
   return mapping ? mapping.label : role.charAt(0).toUpperCase() + role.slice(1)
 }
 
-// Artisan grids (colorways, sculpts, makers); colorway images use the
-// `square` image preset sized for these columns
+// Grids of square cards: artisan colorways and sculpts, and the maker, brand,
+// and profile lists; colorway images use the `square` image preset sized for
+// these columns
 export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
+
+// The pin beside a pinned maker's or sculpt's name in a list
+export const PINNED_ICON = 'solar:pin-bold'
 
 // UPageCard container for cards with an image above the title. The column is
 // pinned to the card so a long footer cannot widen it (and the image with it)
@@ -209,6 +213,19 @@ export const detailPageHeaderUi = (withMedia: boolean) => ({
   headline: 'mb-1',
   description: 'text-sm',
 })
+
+// The UPageHeader opening a catalog list (makers, brands, profiles, group
+// buys, collections): the module as a mono eyebrow in the primary color, a
+// large title and a sentence, and the page's actions on the right, like the
+// home page's section headers
+export const listingPageHeaderUi = {
+  root: 'border-none py-0',
+  wrapper: 'gap-4 sm:flex-row sm:items-end sm:justify-between lg:items-end',
+  headline: ['mb-2 text-primary', eyebrowClass],
+  title: 'text-2xl sm:text-3xl',
+  description: 'mt-2 text-muted text-pretty',
+  links: 'flex flex-wrap gap-2 shrink-0',
+}
 
 // Where an Add button leads: staff (`editable`) open the form in place, and
 // everyone else goes to the module's submission wizard with `query`

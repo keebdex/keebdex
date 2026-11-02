@@ -1,4 +1,9 @@
 <template>
+  <!-- A maker, brand, or profile in a catalog list: its logo on a tile of a
+       fixed shape, so logos of any size line up, then the name; pinned ones
+       get a pin beside the name, clear of the logo. Without `to` the card
+       is not a link, and its `footer` holds links of its own (a
+       manufacturer's profiles). -->
   <UPageCard
     :title="title"
     reverse
@@ -6,24 +11,45 @@
     :to="to"
     :ui="{
       root: 'h-full',
-      wrapper: 'items-center',
+      container: imageCardContainerClass,
+      // Full width, so the pin sits at the end of the name's row
+      body: 'w-full',
     }"
   >
-    <div class="flex items-center p-6">
+    <template #title>
+      <div class="flex items-center justify-between gap-2">
+        <span class="truncate">{{ title }}</span>
+        <UIcon
+          v-if="pinned"
+          :name="PINNED_ICON"
+          class="size-4 shrink-0 text-primary"
+          aria-label="Pinned"
+        />
+      </div>
+    </template>
+
+    <div
+      class="flex aspect-square items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
+    >
+
       <NuxtImg
         loading="lazy"
+        decoding="async"
         :src="imageSrc"
         :alt="title"
-        class="mx-auto my-auto overflow-hidden object-contain h-auto w-full"
+        class="max-h-full max-w-full object-contain"
         :class="{
           // `dark:` follows the `.dark` class, so SSR with a `system` color
           // mode still renders the right class instead of a hydration mismatch
           'dark:invert': invertible || imageSrc === fallbackSrc,
-          [`aspect-${props.aspect}`]: props.aspect,
         }"
         @error="handleError"
       />
     </div>
+
+    <template v-if="$slots.footer" #footer>
+      <slot name="footer" />
+    </template>
   </UPageCard>
 </template>
 
@@ -35,7 +61,7 @@ const props = defineProps({
   },
   to: {
     type: String,
-    required: true,
+    default: undefined,
   },
   slug: {
     type: String,
@@ -45,10 +71,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  aspect: {
-    type: String,
-    default: '',
-  },
+  pinned: Boolean,
 })
 
 const {
@@ -68,9 +91,5 @@ function handleError() {
 
 watch(logoSrc, (value) => {
   imageSrc.value = value
-})
-
-watch(fallbackSrc, (value) => {
-  if (imageSrc.value !== logoSrc.value) imageSrc.value = value
 })
 </script>

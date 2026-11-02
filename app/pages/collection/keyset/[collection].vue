@@ -51,59 +51,51 @@
 
     <template #body>
       <UPageGrid v-if="sortedCollections.length">
-        <UPageCard
+        <SharedCatalogCard
           v-for="{ id, keyset } in sortedCollections"
           :key="keyset.id"
           :title="keyset.name"
           :description="keyset.designer"
-          variant="subtle"
-          reverse
+          :img="keyset.img"
+          fallback="/keyset.png"
+          :to="`/keyset/${keyset.profile_keyset_id}`"
         >
-          <NuxtImg
-            preset="cover"
-            loading="lazy"
-            decoding="async"
-            :alt="keyset.name"
-            :src="keyset.img || '/keyset.png'"
-            class="aspect-[16/9] w-full object-cover"
-          />
-
-          <template v-if="isOwner" #footer>
+          <template v-if="isOwner" #footer-start>
             <SharedSaveToCollection
               category="keyset"
               label="Move"
+              keep-label
               :item="{ id, keyset }"
               :move="true"
               icon="hugeicons:move-to"
               @on-select="moveTo"
             />
+          </template>
 
-            <UModal
-              v-model:visible="visible.remove"
-              title="Remove Keyset"
-              :description="`Are you sure you want to remove ${keyset.name}?`"
-            >
+          <template v-if="isOwner" #footer-end>
+            <UTooltip text="Remove">
               <UButton
-                label="Remove"
                 icon="hugeicons:bookmark-minus-02"
                 color="error"
+                variant="ghost"
+                :aria-label="`Remove ${keyset.name}`"
+                @click="confirmRemove(id, keyset.name)"
               />
-
-              <template #footer="{ close }">
-                <UButton label="Cancel" @click="close" />
-                <UButton
-                  label="Delete"
-                  color="error"
-                  @click="removeItem(id, keyset.name)"
-                />
-              </template>
-            </UModal>
+            </UTooltip>
           </template>
-        </UPageCard>
+        </SharedCatalogCard>
       </UPageGrid>
 
+      <SharedConfirmModal
+        v-model:open="removing.open"
+        title="Remove Keyset"
+        :description="`Are you sure you want to remove ${removing.name}?`"
+        confirm-label="Remove"
+        @confirm="remove"
+      />
+
       <UEmpty
-        v-else-if="status === 'success'"
+        v-if="!sortedCollections.length && status === 'success'"
         icon="hugeicons:grid-view"
         title="Not a Single Keycap Here"
         description="Save keysets from their pages to start building this collection."
@@ -153,6 +145,17 @@ const sortedCollections = computed(() => {
 const visible = ref({
   edit: false,
   delete: false,
-  remove: false,
 })
+
+// One confirm dialog for removing any item
+const removing = reactive({ open: false, id: null, name: '' })
+
+const confirmRemove = (id, name) => {
+  Object.assign(removing, { open: true, id, name })
+}
+
+const remove = () => {
+  removing.open = false
+  removeItem(removing.id, removing.name)
+}
 </script>
