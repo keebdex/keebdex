@@ -7,7 +7,10 @@
         </template>
 
         <template #right>
-          <UModal v-if="isOwner" title="Edit Collection">
+          <UModal
+            v-if="isOwner"
+            title="Edit Collection"
+          >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
 
             <template #body="{ close }">
@@ -106,6 +109,7 @@ const route = useRoute()
 
 const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
+  'keyset',
 )
 const { moveItem, removing, confirmRemove, confirmRemoval } = useCollectionItem(
   () => route.params.collection,
@@ -115,14 +119,6 @@ const { moveItem, removing, confirmRemove, confirmRemoval } = useCollectionItem(
 const moveTo = (collection, item) => {
   moveItem(collection, item.id, item.keyset.name)
 }
-
-useSeoMeta({
-  title: () =>
-    data.value?.name ? `${data.value.name} • Collection` : 'Collection',
-  description: () =>
-    data.value &&
-    `${data.value.name}: a collection of ${countLabel(data.value.items?.length || 0, 'keyset')} on Keebdex.`,
-})
 
 const breadcrumbs = computed(() => {
   return [

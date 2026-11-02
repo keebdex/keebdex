@@ -58,21 +58,25 @@ export default defineNuxtConfig({
     '/privacy': { prerender: true },
     '/why-choose-keebdex': { prerender: true },
 
-    // Private pages hold nothing a search engine could show
     '/account/**': privatePage,
     '/admin/**': privatePage,
     '/notifications': privatePage,
     '/recent-changes': privatePage,
     '/collection': privatePage,
     '/collection/artisan/*/sort': privatePage,
-    '/artisan/wishlist': { ssr: false },
+    // Tools without content of their own stay out of the sitemap
+    '/artisan/wishlist': { ssr: false, sitemap: false },
     // Long lists (up to 1000 trade items, 72 search results) take 50-150 ms
     // to render on the server
     '/artisan/marketplace': { ssr: false },
-    '/artisan/search': { ssr: false },
+    '/artisan/search': { ssr: false, sitemap: false },
     '/artisan/submissions/**': privatePage,
     '/keyboard/submissions/**': privatePage,
     '/keyset/submissions/**': privatePage,
+
+    '/keyboard': { redirect: '/keyboard/brand' },
+    // The sitemap's catalog pages, rebuilt at most hourly like the sitemap
+    '/api/__sitemap__/urls': { cache: { maxAge: 60 * 60 } },
   },
 
   css: ['~/assets/main.css'],
@@ -180,13 +184,10 @@ export default defineNuxtConfig({
     url: app.homepage,
   },
 
-  // /sitemap.xml: the static pages come from app/pages, the catalog pages
-  // from the source (published rows only). Built on request and cached for an
-  // hour per Worker isolate, so new pages show up without a deploy
+  // /sitemap.xml (see AGENTS.md): static pages from app/pages, catalog pages
+  // from the source, cached for an hour per Worker isolate
   sitemap: {
     sources: ['/api/__sitemap__/urls'],
-    // A redirect and two tools without content of their own
-    exclude: ['/keyboard', '/artisan/search', '/artisan/wishlist'],
     cacheMaxAgeSeconds: 60 * 60,
   },
 
