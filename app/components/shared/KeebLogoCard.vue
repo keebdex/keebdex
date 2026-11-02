@@ -27,8 +27,10 @@
       </div>
     </template>
 
+    <!-- The padding scales with the tile, so a wide grid cell still leaves
+         the logo room around it -->
     <div
-      class="flex aspect-square items-center justify-center overflow-hidden rounded bg-elevated/50 p-5 sm:p-6"
+      class="flex aspect-square items-center justify-center overflow-hidden rounded bg-elevated/50 p-[14%]"
     >
 
       <NuxtImg
