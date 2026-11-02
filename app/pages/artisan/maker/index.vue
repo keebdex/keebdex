@@ -30,15 +30,19 @@
           <UModal
             v-if="authenticated"
             title="Customize Pins"
-            description="Pin up to 6 makers to the top for easy access."
+            description="Pin makers to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
               <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
             </UTooltip>
 
             <template #body="{ close }">
-              <ArtisanModalPinMaker
-                :makers="sortedMakers"
+              <SharedPinForm
+                :items="makers.all"
+                value-key="maker_id"
+                logos
+                :selected="makers.pinned.map((maker) => maker.maker_id)"
+                :save="(ids) => userStore.savePinnedOwners('artisan', ids)"
                 @on-success="close"
               />
             </template>
@@ -46,18 +50,28 @@
         </template>
       </UPageHeader>
 
-      <!-- Pinned makers first, with a pin beside the name -->
-      <UPageGrid :class="artisanGridClass">
-        <SharedKeebLogoCard
-          v-for="maker in sortedMakers"
-          :key="maker.maker_id"
-          :title="maker.name"
-          :to="`/artisan/maker/${maker.maker_id}`"
-          :slug="maker.maker_id"
-          :invertible="maker.invertible_logo"
-          :pinned="isPinned(maker)"
-        />
-      </UPageGrid>
+      <!-- Pinned makers get a group of their own above the rest; without
+           pins the list follows the header directly -->
+      <section
+        v-for="(group, index) in makers.groups"
+        :key="group.label"
+        :class="['space-y-3', index ? 'pt-8' : 'pt-4']"
+      >
+        <SharedPinGroupLabel v-if="makers.pinned.length" :pinned="group.pinned">
+          {{ group.label }}
+        </SharedPinGroupLabel>
+
+        <UPageGrid :class="artisanGridClass">
+          <SharedKeebLogoCard
+            v-for="maker in group.items"
+            :key="maker.maker_id"
+            :title="maker.name"
+            :to="`/artisan/maker/${maker.maker_id}`"
+            :slug="maker.maker_id"
+            :invertible="maker.invertible_logo"
+          />
+        </UPageGrid>
+      </section>
     </template>
   </UDashboardPanel>
 </template>
@@ -87,10 +101,10 @@ const { data, refresh } = await useAsyncData(
 )
 
 const userStore = useUserStore()
-const { authenticated, isAdmin, favorites } = storeToRefs(userStore)
+const { authenticated, isAdmin, pinnedMakers } = storeToRefs(userStore)
 
 const isPinned = (maker) =>
-  authenticated.value && Object.hasOwn(favorites.value, maker.maker_id)
+  authenticated.value && Object.hasOwn(pinnedMakers.value, maker.maker_id)
 
-const sortedMakers = computed(() => pinnedFirst(data.value || [], isPinned))
+const makers = computed(() => splitPinned(data.value || [], isPinned))
 </script>

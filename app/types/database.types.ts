@@ -673,7 +673,9 @@ export type Database = {
           release_year: number | null
           review_status: Database["public"]["Enums"]["review_status"] | null
           submitted_by: string | null
-          variant_specs: boolean | null
+          top_case_styles:
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           verified_at: string | null
           verified_by: string | null
           weight_materials:
@@ -699,7 +701,9 @@ export type Database = {
           release_year?: number | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           submitted_by?: string | null
-          variant_specs?: boolean | null
+          top_case_styles?:
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           verified_at?: string | null
           verified_by?: string | null
           weight_materials?:
@@ -725,7 +729,9 @@ export type Database = {
           release_year?: number | null
           review_status?: Database["public"]["Enums"]["review_status"] | null
           submitted_by?: string | null
-          variant_specs?: boolean | null
+          top_case_styles?:
+            | Database["public"]["Enums"]["keyboard_top_case_style"][]
+            | null
           verified_at?: string | null
           verified_by?: string | null
           weight_materials?:
@@ -1604,6 +1610,7 @@ export type Database = {
           full_name: string | null
           id: string
           leaderboard_hidden: boolean
+          pins: Json
           qq: string | null
           reddit: string | null
           role: string | null
@@ -1617,6 +1624,7 @@ export type Database = {
           full_name?: string | null
           id: string
           leaderboard_hidden?: boolean
+          pins?: Json
           qq?: string | null
           reddit?: string | null
           role?: string | null
@@ -1630,6 +1638,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           leaderboard_hidden?: boolean
+          pins?: Json
           qq?: string | null
           reddit?: string | null
           role?: string | null

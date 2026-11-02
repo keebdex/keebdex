@@ -16,13 +16,6 @@
     <template #title>
       <div class="flex items-baseline justify-between gap-3">
         <span class="truncate">{{ title }}</span>
-        <!-- Pinned: a pin beside the name, clear of the photo -->
-        <UIcon
-          v-if="pinned"
-          :name="PINNED_ICON"
-          class="size-4 shrink-0 self-center text-primary"
-          aria-label="Pinned"
-        />
         <span
           v-if="price"
           class="shrink-0 tabular-nums"
@@ -121,8 +114,6 @@ const {
   aspect?: 'video' | 'square'
   // Greyed out (a found or sold cap, an item gone from the catalog)
   dimmed?: boolean
-  // A pinned sculpt: marked with a pin beside the name
-  pinned?: boolean
   // Passed to `SharedRecordActions`; suggesters also get Add Photo, which
   // suggests an edit like Edit does
   editable?: boolean

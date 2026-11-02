@@ -26,22 +26,55 @@
               />
             </template>
           </UModal>
+
+          <UModal
+            v-if="authenticated"
+            title="Customize Pins"
+            description="Pin brands to keep them at the top of the list."
+          >
+            <UTooltip text="Customize Pins">
+              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+            </UTooltip>
+
+            <template #body="{ close }">
+              <SharedPinForm
+                :items="brands.all"
+                value-key="slug"
+                logos
+                :selected="brands.pinned.map((brand) => brand.slug)"
+                :save="(ids) => userStore.savePinnedOwners('keyboard', ids)"
+                @on-success="close"
+              />
+            </template>
+          </UModal>
         </template>
       </UPageHeader>
 
-      <UPageGrid v-if="brands.length" :class="artisanGridClass">
-        <SharedKeebLogoCard
-          v-for="brand in brands"
-          :key="brand.slug"
-          :title="brand.name"
-          :to="`/keyboard/brand/${brand.slug}`"
-          :slug="brand.slug"
-          :invertible="brand.invertible_logo"
-        />
-      </UPageGrid>
+      <!-- Pinned brands get a group of their own above the rest; without
+           pins the list follows the header directly -->
+      <section
+        v-for="(group, index) in brands.groups"
+        :key="group.label"
+        :class="['space-y-3', index ? 'pt-8' : 'pt-4']"
+      >
+        <SharedPinGroupLabel v-if="brands.pinned.length" :pinned="group.pinned">
+          {{ group.label }}
+        </SharedPinGroupLabel>
+
+        <UPageGrid :class="artisanGridClass">
+          <SharedKeebLogoCard
+            v-for="brand in group.items"
+            :key="brand.slug"
+            :title="brand.name"
+            :to="`/keyboard/brand/${brand.slug}`"
+            :slug="brand.slug"
+            :invertible="brand.invertible_logo"
+          />
+        </UPageGrid>
+      </section>
 
       <UEmpty
-        v-else
+        v-if="!brands.all.length"
         icon="hugeicons:keyboard"
         title="No Brands Yet"
         description="Submit a keyboard to add the first brand to the dex."
@@ -82,8 +115,11 @@ const { data, refresh } = await useAsyncData(
 )
 
 const userStore = useUserStore()
+const { authenticated, pinnedBrands } = storeToRefs(userStore)
 const editable = computed(() => userStore.isEditable('keyboard'))
 
+const isPinned = (brand) =>
+  authenticated.value && Object.hasOwn(pinnedBrands.value, brand.slug)
 
-const brands = computed(() => data.value || [])
+const brands = computed(() => splitPinned(data.value || [], isPinned))
 </script>

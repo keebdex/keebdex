@@ -8,7 +8,9 @@ export const useUserStore = defineStore('user', {
     role: null,
     assignments: null,
     collections: [],
-    favorites: [],
+    // users.pins: per catalog (`artisan`, `keyboard`), each pinned maker or
+    // brand mapped to its pinned sculpts or keyboards
+    pins: {},
     social: {},
     leaderboardHidden: false,
     appearance: {},
@@ -19,6 +21,8 @@ export const useUserStore = defineStore('user', {
     authenticated: (state) => state.user && state.user.email_verified,
     isAdmin: (state) => state.role === 'admin',
     isModerator: (state) => canManageAnyAssignment(state),
+    pinnedMakers: (state) => state.pins.artisan || {},
+    pinnedBrands: (state) => state.pins.keyboard || {},
   },
   actions: {
     setCurrentUser(authUser) {
@@ -61,7 +65,7 @@ export const useUserStore = defineStore('user', {
         if (this.user.uid !== uid) return
 
         if (!data) {
-          this.favorites = []
+          this.pins = {}
           this.role = null
           this.assignments = []
           this.appearance = {}
@@ -69,7 +73,7 @@ export const useUserStore = defineStore('user', {
           return
         }
 
-        this.favorites = data.favorite_makers || []
+        this.pins = data.pins || {}
 
         this.social = {
           discord: data.discord || this.social.discord,
@@ -127,6 +131,30 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         console.error('fetch collections error', uid, error)
       }
+    },
+    async savePins(pins) {
+      await $fetch(`/api/users/${this.user.uid}`, {
+        method: 'post',
+        body: { pins },
+      })
+
+      this.pins = pins
+    },
+    // A catalog's pinned makers or brands, keeping each one's pinned children
+    savePinnedOwners(module, ids) {
+      const current = this.pins[module] || {}
+
+      return this.savePins({
+        ...this.pins,
+        [module]: Object.fromEntries(ids.map((id) => [id, current[id] || []])),
+      })
+    },
+    // A pinned maker's sculpts or a pinned brand's keyboards
+    savePinnedChildren(module, owner, ids) {
+      return this.savePins({
+        ...this.pins,
+        [module]: { ...this.pins[module], [owner]: ids },
+      })
     },
     isEditable(page) {
       return canManageAssignment(this, page)
