@@ -16,7 +16,7 @@ title: Unreleased
 
 - Links you share from Keebdex now preview the page you shared instead of the home page, and search results show full keyset names, such as _GMK CYL Olivia_.
 - An address that leads nowhere, such as a renamed keyset, now shows a _Not Found_ page with a way back home instead of an empty page or an error.
-- A keyboard variant shows its full name, both when opened and in the copied image, and _Save_ there adds the right variant to your collection.
+- A keyboard variant shows its full name, both when opened and in the copied image, and _Save_ there adds the right variant to your collection. Variants sold as a giveaway, commission, auction, or friends and family no longer show their release's price, only one of their own.
 
 ### 🚀 Improvements
 

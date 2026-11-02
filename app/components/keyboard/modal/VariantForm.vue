@@ -70,7 +70,11 @@
     <UFormField
       label="MSRP"
       name="msrp_price"
-      help="Leave empty to use the release price. Set a currency only when it was sold in another one than its release."
+      :help="
+        inheritsReleasePrice(variant)
+          ? 'Leave empty to use the release price. Set a currency only when it was sold in another one than its release.'
+          : 'A special sale does not take the release price: set its own, or leave it empty when it had none.'
+      "
     >
       <UFieldGroup class="w-full">
         <USelect
@@ -226,13 +230,12 @@ const { metadata, modelValue, isEdit, keyboard, mode, suggest } = defineProps({
 const toast = useToast()
 const currencies = Constants.public.Enums.currency
 const saleFormatEnums = Constants.public.Enums.sale_format
-const specialFormats = ['Giveaway', 'Commission', 'Auction', 'Friends & Family']
 const saleFormats = [
   {
     type: 'label',
     label: 'Standard',
   },
-  ...saleFormatEnums.filter((format) => !specialFormats.includes(format)),
+  ...saleFormatEnums.filter((format) => !SPECIAL_SALE_FORMATS.includes(format)),
   {
     type: 'separator',
   },
@@ -240,7 +243,7 @@ const saleFormats = [
     type: 'label',
     label: 'Special',
   },
-  ...saleFormatEnums.filter((format) => specialFormats.includes(format)),
+  ...saleFormatEnums.filter((format) => SPECIAL_SALE_FORMATS.includes(format)),
 ]
 
 const variant = ref({
@@ -283,9 +286,13 @@ const selectedRelease = computed(() =>
   ),
 )
 
-// What an empty field inherits, shown as its placeholder
+// What an empty field inherits, shown as its placeholder; a special sale
+// takes no price from its release
 const inherited = computed(() =>
-  resolveVariantSpecs({}, selectedRelease.value || {}),
+  resolveVariantSpecs(
+    { sale_type: variant.value.sale_type },
+    selectedRelease.value || {},
+  ),
 )
 
 const inheritedMaterial = (field) => {

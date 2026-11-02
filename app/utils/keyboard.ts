@@ -39,10 +39,24 @@ const sameList = (a: unknown, b: unknown) =>
 export const hasTopCaseStyles = (keyboard: Specs) =>
   keyboardTopCaseStylesEnabled.includes(keyboard.form_factor || '')
 
+/** Sale types outside the release's regular sale (its raffle, FCFS, or
+ * fulfillment), which never take the release's price. */
+export const SPECIAL_SALE_FORMATS = [
+  'Giveaway',
+  'Commission',
+  'Auction',
+  'Friends & Family',
+]
+
+/** Whether a variant takes its release's price when it has none of its own. */
+export const inheritsReleasePrice = (variant: Specs) =>
+  !SPECIAL_SALE_FORMATS.includes(variant.sale_type as string)
+
 /**
  * A variant's specs: each one its own when set, else its release's (a spec is
  * set once and the level below leaves it empty to inherit). A price of its
- * own is read in its own currency when it has one, else in the release's.
+ * own is read in its own currency when it has one, else in the release's; a
+ * special sale (`SPECIAL_SALE_FORMATS`) shows only a price of its own.
  * `custom` is whether the variant is built differently from its release: a
  * material of its own that differs from the release's. A price of its own
  * shows on its card, and a year of its own is not a spec of its build.
@@ -55,7 +69,9 @@ export const resolveVariantSpecs = (variant: Specs, release: Specs) => {
   return {
     year: (pick('release_year') as number | null) ?? null,
     price: formatPrice(
-      pick('msrp_price') as number | null,
+      (own('msrp_price') || inheritsReleasePrice(variant)
+        ? pick('msrp_price')
+        : null) as number | null,
       (own('msrp_price') && variant.currency) || release.currency,
       { stripZeros: true },
     ),
