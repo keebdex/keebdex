@@ -71,8 +71,6 @@
           <template v-if="isOwner" #footer-start>
             <SharedSaveToCollection
               category="keyboard"
-              label="Move"
-              keep-label
               :item="{ id, keyboard }"
               :move="true"
               icon="hugeicons:move-to"
@@ -119,15 +117,12 @@ const route = useRoute()
 
 const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
+  'keyboard',
 )
 const { moveItem, removing, confirmRemove, confirmRemoval } = useCollectionItem(
   () => route.params.collection,
   refresh,
 )
-
-useSeoMeta({
-  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
-})
 
 const breadcrumbs = computed(() => {
   return [

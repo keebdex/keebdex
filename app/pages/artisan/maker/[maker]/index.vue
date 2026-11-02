@@ -150,13 +150,15 @@ const editing = ref(false)
 const addingSculpt = ref(false)
 const history = useTemplateRef('history')
 
-const { data: maker, refresh } = await useAsyncData(
+const { data: maker, refresh, error } = await useAsyncData(
   `maker:${route.params.maker}`,
   () => $fetch(`/api/makers/${route.params.maker}`),
   {
     watch: [() => route.params.maker],
   },
 )
+
+throwIfNotFound(error.value)
 
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])
@@ -241,16 +243,20 @@ const breadcrumbs = computed(() => {
   ]
 })
 
+const description = computed(
+  () =>
+    maker.value?.bio ||
+    `Artisan keycap sculpts and colorways by ${maker.value?.name}.`,
+)
+
 useSeoMeta({
-  title: maker.value?.name,
-  description: maker.value?.bio,
-  ogDescription: maker.value?.bio,
-  twitterDescription: maker.value?.bio,
+  title: () => maker.value?.name,
+  description,
 })
 
 defineOgImage('Module', {
   title: maker.value?.name,
-  description: maker.value?.bio,
+  description: description.value,
   titleLogo: logoUrl(maker.value?.maker_id),
 })
 </script>

@@ -36,13 +36,18 @@ onMounted(() => {
   })
 })
 
-const { name, description, homepage } = config.public.site
+const { name, description } = config.public.site
+const route = useRoute()
 
 useHead({
   htmlAttrs: {
     lang: 'en',
   },
-  link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+  link: [
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+    // Made absolute by the seo plugin
+    { rel: 'canonical', href: () => route.path },
+  ],
 })
 
 // Pages rendered on the client only (`ssr: false` in routeRules) are never
@@ -57,12 +62,12 @@ useSeoMeta({
     return chunk ? `${chunk} - ${name}` : name
   },
   description,
+  // og:title and og:description follow each page's title and description
+  // (the seo plugin)
   ogType: 'website',
-  ogUrl: homepage,
-  ogTitle: name,
-  ogDescription: description,
+  ogSiteName: name,
+  ogLocale: 'en_US',
+  ogUrl: () => route.path,
   twitterCard: 'summary_large_image',
-  twitterTitle: name,
-  twitterDescription: description,
 })
 </script>

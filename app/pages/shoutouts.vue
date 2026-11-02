@@ -118,5 +118,6 @@ useInfiniteScroll(
 
 useSeoMeta({
   title: 'Shoutouts',
+  description: 'What keyboard collectors are saying about Keebdex.',
 })
 </script>

@@ -147,7 +147,7 @@ const query = computed(() => {
   }
 })
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData(
   route.path,
   () => $fetch('/api/keysets', { query: query.value }),
   {
@@ -155,10 +155,18 @@ const { data, refresh } = await useAsyncData(
   },
 )
 
+throwIfNotFound(error.value)
+
 const keysets = computed(() => data.value?.keysets || [])
 
 const title = computed(() => keysetProfileLabel(data.value?.profile))
-const description = computed(() => data.value?.profile?.description)
+const description = computed(
+  () =>
+    data.value?.profile?.description ||
+    (title.value
+      ? `Browse every ${title.value} keyset on Keebdex.`
+      : undefined),
+)
 
 // Staff add a keyset in place; everyone else goes to the submission wizard
 const addKeysetTarget = computed(() =>
@@ -199,7 +207,11 @@ const breadcrumbs = computed(() => [
 useSeoMeta({
   title: computed(() => (title.value ? `${title.value} Keysets` : 'Keysets')),
   description,
-  ogDescription: description,
-  twitterDescription: description,
+})
+
+defineOgImage('Module', {
+  title: title.value,
+  description: description.value,
+  titleLogo: logoUrl(keysetProfileLogoKey(data.value?.profile)),
 })
 </script>

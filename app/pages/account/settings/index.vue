@@ -78,6 +78,7 @@
 </template>
 
 <script setup>
+useSeoMeta({ title: 'Profile Settings' })
 const userStore = useUserStore()
 const { user, social, leaderboardHidden } = storeToRefs(userStore)
 

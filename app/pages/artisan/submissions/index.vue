@@ -166,6 +166,8 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useSeoMeta({ title: 'Artisan Submissions' })
+
 const { view, links: viewLinks } = useSubmissionViews()
 
 const columns = [

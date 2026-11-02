@@ -22,6 +22,8 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useSeoMeta({ title: 'Submit a Keyset' })
+
 const onSuccess = () => {
   navigateTo('/keyset/submissions')
 }

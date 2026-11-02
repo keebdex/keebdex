@@ -1,4 +1,8 @@
-export const useCollection = (collectionId: MaybeRefOrGetter<string>) => {
+// `item` names what the collection holds (`keyset`), for its description
+export const useCollection = (
+  collectionId: MaybeRefOrGetter<string>,
+  item: string,
+) => {
   const userStore = useUserStore()
   const { collections } = storeToRefs(userStore)
   const router = useRouter()
@@ -38,6 +42,27 @@ export const useCollection = (collectionId: MaybeRefOrGetter<string>) => {
       !!data.value?.uid &&
       data.value.uid === (userStore.user as { uid?: string }).uid,
   )
+
+  // Read through getters: the collection loads after setup, also on the server
+  useSeoMeta({
+    title: () =>
+      data.value?.name ? `${data.value.name} • Collection` : 'Collection',
+    description: () => {
+      if (!data.value) return undefined
+
+      const { name, intent, items } = data.value
+      const count = countLabel(items?.length || 0, item)
+
+      // Wishlists and sale lists are what the Trading Hub links to
+      if (intent === 'want') {
+        return `${name}: a wishlist of ${count} a collector is hunting for on Keebdex.`
+      }
+      if (intent === 'sell') {
+        return `${name}: ${count} for sale or trade on Keebdex.`
+      }
+      return `${name}: a collection of ${count} on Keebdex.`
+    },
+  })
 
   return {
     data,

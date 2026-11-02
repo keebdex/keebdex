@@ -22,6 +22,8 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useSeoMeta({ title: 'Submit an Artisan' })
+
 const onSuccess = () => {
   navigateTo('/artisan/submissions')
 }

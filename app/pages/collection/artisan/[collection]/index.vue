@@ -147,8 +147,6 @@
             <SharedSaveToCollection
               v-else
               :item="{ ...rest, artisan }"
-              label="Move"
-              keep-label
               :move="true"
               icon="hugeicons:move-to"
               @on-select="moveTo"
@@ -226,6 +224,7 @@ const toast = useToast()
 
 const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
+  'artisan keycap',
 )
 
 const { removeItem, moveItem, removing, confirmRemove, confirmRemoval } =
@@ -313,10 +312,6 @@ const copyShareUrl = async () => {
 const sort = computed(
   () => data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name',
 )
-
-useSeoMeta({
-  title: data.value?.name ? `${data.value.name} • Collection` : 'Collection',
-})
 
 const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),

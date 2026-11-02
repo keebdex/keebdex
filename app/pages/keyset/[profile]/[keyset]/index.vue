@@ -36,8 +36,6 @@
               :item="data"
               :item-name="fullName"
               category="keyset"
-              label="Save"
-              keep-label
               @on-select="saveTo"
             />
 
@@ -366,13 +364,15 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData(
   `keyset/${profile}/${keyset}`,
   () => $fetch(`/api/keysets/${profile}/${keyset}`),
   {
     watch: [() => profile, () => keyset],
   },
 )
+
+throwIfNotFound(error.value)
 
 // Reverting a rename moves the page back to its old address.
 const onReverted = ({ entityType, changes }) => {
@@ -598,20 +598,26 @@ const saveTo = (collection, item) => {
   addItem(collection, { keyset_item_id: item.profile_keyset_id }, item.name)
 }
 
+// Search titles keep the manufacturer (GMK CYL Olivia), which the heading
+// leaves to the breadcrumbs
 const meta = computed(() => {
+  if (!data.value) {
+    return { title: manufacturers.value[profile] }
+  }
+
+  const title = `${keysetProfileLabel(data.value.profile)} ${data.value.name}`
+
   return {
-    title: data.value
-      ? `${data.value.profile.name} ${data.value.name}`
-      : manufacturers.value[profile],
-    description: data.value?.description,
+    title,
+    description:
+      data.value.description ||
+      `Kits, colors, and group buy details of the ${title} keyset.`,
   }
 })
 
 useSeoMeta({
-  title: meta.value.title,
-  description: meta.value.description,
-  ogDescription: meta.value.description,
-  twitterDescription: meta.value.description,
+  title: () => meta.value.title,
+  description: () => meta.value.description,
 })
 
 defineOgImage('Base', {

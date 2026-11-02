@@ -6,6 +6,15 @@ const revision = execSync('git rev-parse --short HEAD').toString().trim()
 
 const isProduction = process.env.NODE_ENV === 'production'
 
+// Rendered on the client and kept out of search results and the sitemap. A
+// header rather than a robots meta tag, which crawlers would only see after
+// running the app
+const privatePage = {
+  ssr: false,
+  headers: { 'x-robots-tag': 'noindex' },
+  sitemap: false as const,
+}
+
 // Cloudflare builds (an explicit preset, or Pages / Workers CI, which Nitro
 // detects the same way) store Nuxt Content collections in D1.
 const isCloudflare =
@@ -49,20 +58,25 @@ export default defineNuxtConfig({
     '/privacy': { prerender: true },
     '/why-choose-keebdex': { prerender: true },
 
-    '/account/**': { ssr: false },
-    '/admin/**': { ssr: false },
-    '/notifications': { ssr: false },
-    '/recent-changes': { ssr: false },
-    '/collection': { ssr: false },
-    '/collection/artisan/*/sort': { ssr: false },
-    '/artisan/wishlist': { ssr: false },
+    '/account/**': privatePage,
+    '/admin/**': privatePage,
+    '/notifications': privatePage,
+    '/recent-changes': privatePage,
+    '/collection': privatePage,
+    '/collection/artisan/*/sort': privatePage,
+    // Tools without content of their own stay out of the sitemap
+    '/artisan/wishlist': { ssr: false, sitemap: false },
     // Long lists (up to 1000 trade items, 72 search results) take 50-150 ms
     // to render on the server
     '/artisan/marketplace': { ssr: false },
-    '/artisan/search': { ssr: false },
-    '/artisan/submissions/**': { ssr: false },
-    '/keyboard/submissions/**': { ssr: false },
-    '/keyset/submissions/**': { ssr: false },
+    '/artisan/search': { ssr: false, sitemap: false },
+    '/artisan/submissions/**': privatePage,
+    '/keyboard/submissions/**': privatePage,
+    '/keyset/submissions/**': privatePage,
+
+    '/keyboard': { redirect: '/keyboard/brand' },
+    // The sitemap's catalog pages, rebuilt at most hourly like the sitemap
+    '/api/__sitemap__/urls': { cache: { maxAge: 60 * 60 } },
   },
 
   css: ['~/assets/main.css'],
@@ -77,6 +91,7 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     'nuxt-og-image',
+    '@nuxtjs/sitemap',
   ],
 
   fonts: {
@@ -167,6 +182,13 @@ export default defineNuxtConfig({
   // no request host to build them from (NUXT_SITE_URL overrides it)
   site: {
     url: app.homepage,
+  },
+
+  // /sitemap.xml (see AGENTS.md): static pages from app/pages, catalog pages
+  // from the source, cached for an hour per Worker isolate
+  sitemap: {
+    sources: ['/api/__sitemap__/urls'],
+    cacheMaxAgeSeconds: 60 * 60,
   },
 
   supabase: {

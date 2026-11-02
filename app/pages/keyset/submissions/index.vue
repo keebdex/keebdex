@@ -270,6 +270,8 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useSeoMeta({ title: 'Keyset Submissions' })
+
 const { view, links: viewLinks } = useSubmissionViews()
 
 const groupColumns = [

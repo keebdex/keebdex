@@ -22,6 +22,8 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useSeoMeta({ title: 'Submit a Keyboard' })
+
 const onSuccess = () => {
   navigateTo('/keyboard/submissions')
 }

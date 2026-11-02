@@ -6,7 +6,7 @@ import type {
 } from '~/types/database.types'
 import { TABLE_FIELDS } from './table-fields.generated'
 
-type PublicTable = keyof Database['public']['Tables']
+export type PublicTable = keyof Database['public']['Tables']
 
 export type TableField<T extends PublicTable> = Extract<
   keyof TablesInsert<T> | keyof TablesUpdate<T>,

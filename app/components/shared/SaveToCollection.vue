@@ -7,20 +7,18 @@
       content: 'w-48',
     }"
   >
-    <!-- A tooltip only names the button while its label is hidden -->
-    <UTooltip :text="move ? 'Move' : 'Save'" :disabled="keepLabel">
-      <UButton
-        :id="`${item.colorway_id || item.profile_keyset_id || item.id || 'item'}-save-to`"
-        :label="label"
-        :icon="icon"
-        :ui="keepLabel ? { label: 'block' } : undefined"
-        :aria-label="
-          itemName
-            ? `${action} ${itemName} to a collection`
-            : `${action} to a collection`
-        "
-      />
-    </UTooltip>
+    <!-- Labeled on every screen (Save or Move), unlike other icon buttons -->
+    <UButton
+      :id="`${item.colorway_id || item.profile_keyset_id || item.id || 'item'}-save-to`"
+      :label="action"
+      :icon="icon"
+      :ui="{ label: 'block' }"
+      :aria-label="
+        itemName
+          ? `${action} ${itemName} to a collection`
+          : `${action} to a collection`
+      "
+    />
   </UDropdownMenu>
 
   <UModal v-model:open="creating" title="Add Collection">
@@ -52,18 +50,12 @@ const { item, category, move, itemName } = defineProps({
     default: 'artisan',
   },
   move: Boolean,
-  label: {
-    type: String,
-    default: undefined,
-  },
   icon: {
     type: String,
     default: 'hugeicons:bookmark-add-02',
   },
-  // Keep the label on phones too, where icon buttons drop it.
-  keepLabel: Boolean,
   // Names the item in the button's accessible name ("Save Blue to a
-  // collection"), since the button is often icon-only.
+  // collection").
   itemName: {
     type: String,
     default: undefined,

@@ -31,3 +31,13 @@
   </UDashboardPanel>
 </template>
 
+<script setup lang="ts">
+// The home page names what the site holds in its title, without the
+// " - Keebdex" suffix, and keeps the site-wide OG image from app.vue
+useSeoMeta({
+  titleTemplate: '%s',
+  title: 'Keebdex: Artisan Keycaps, Keysets, and Keyboards',
+  description:
+    'Keebdex catalogs artisan keycaps, keysets, and mechanical keyboards. Browse makers and group buys, track your collection, and trade caps with other collectors.',
+})
+</script>

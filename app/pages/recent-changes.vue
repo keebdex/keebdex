@@ -75,6 +75,8 @@ const router = useRouter()
 const toast = useToast()
 const { isModerator } = storeToRefs(useUserStore())
 
+useSeoMeta({ title: 'Recent Changes' })
+
 const domainItems = [
   { label: 'All', value: 'all' },
   ...KEEB_MODULES.map((value) => ({

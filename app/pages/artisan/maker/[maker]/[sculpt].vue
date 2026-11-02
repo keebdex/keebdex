@@ -147,8 +147,6 @@
               <SharedSaveToCollection
                 :item="colorway"
                 :item-name="colorway.name"
-                label="Save"
-                keep-label
                 @on-select="saveTo"
               />
             </template>
@@ -296,7 +294,7 @@ watch(sortValue, (newValue) => {
   sortOrder.value = order
 })
 
-const { data: sculpt, refresh } = await useAsyncData(
+const { data: sculpt, refresh, error } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
   () =>
     $fetch(`/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`, {
@@ -312,6 +310,8 @@ const { data: sculpt, refresh } = await useAsyncData(
     watch: [page, sortField, sortOrder, () => route.query.cid],
   },
 )
+
+throwIfNotFound(error.value)
 
 // Reverting a rename moves the sculpt back to its old slug.
 const onReverted = ({ entityType, changes }) => {
@@ -371,18 +371,21 @@ const breadcrumbs = computed(() => {
   ]
 })
 
+const description = computed(
+  () =>
+    sculpt.value?.story ||
+    `Every colorway of the ${sculpt.value?.name} artisan keycap by ${sculpt.value?.maker_name}.`,
+)
+
 useSeoMeta({
-  title: sculpt.value
-    ? `${sculpt.value.name} • ${sculpt.value.maker_name}`
-    : '',
-  description: sculpt.value?.story,
-  ogDescription: sculpt.value?.story,
-  twitterDescription: sculpt.value?.story,
+  title: () =>
+    sculpt.value ? `${sculpt.value.name} • ${sculpt.value.maker_name}` : '',
+  description,
 })
 
 defineOgImage('Module', {
   title: sculpt.value?.name,
-  description: sculpt.value?.story,
+  description: description.value,
   headline: sculpt.value?.maker_name,
   headlineLogo: logoUrl(sculpt.value?.maker_id),
 })

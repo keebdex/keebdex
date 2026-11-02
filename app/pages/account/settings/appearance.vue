@@ -133,6 +133,8 @@ import {
   type ThemePreset,
 } from '~/utils/theme-presets'
 
+useSeoMeta({ title: 'Appearance Settings' })
+
 const colorMode = useColorMode()
 const { themeId, presets, setTheme } = useAppTheme()
 
