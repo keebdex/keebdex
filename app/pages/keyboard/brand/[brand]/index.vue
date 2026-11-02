@@ -187,9 +187,7 @@ const brandLinks = computed(() => ownerLinks(data.value))
 
 useSeoMeta({
   title: computed(() => data.value?.name || 'Keyboard Brands'),
-  description: description.value,
-  ogDescription: description.value,
-  twitterDescription: description.value,
+  description,
 })
 
 defineOgImage('Module', {

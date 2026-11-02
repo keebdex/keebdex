@@ -241,16 +241,20 @@ const breadcrumbs = computed(() => {
   ]
 })
 
+const description = computed(
+  () =>
+    maker.value?.bio ||
+    `Artisan keycap sculpts and colorways by ${maker.value?.name}.`,
+)
+
 useSeoMeta({
-  title: maker.value?.name,
-  description: maker.value?.bio,
-  ogDescription: maker.value?.bio,
-  twitterDescription: maker.value?.bio,
+  title: () => maker.value?.name,
+  description,
 })
 
 defineOgImage('Module', {
   title: maker.value?.name,
-  description: maker.value?.bio,
+  description: description.value,
   titleLogo: logoUrl(maker.value?.maker_id),
 })
 </script>

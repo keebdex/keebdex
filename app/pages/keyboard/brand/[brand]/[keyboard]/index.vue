@@ -711,10 +711,8 @@ const description = computed(() => {
 })
 
 useSeoMeta({
-  title: title.value,
-  description: description.value,
-  ogDescription: description.value,
-  twitterDescription: description.value,
+  title,
+  description,
 })
 
 defineOgImage('Module', {

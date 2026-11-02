@@ -281,6 +281,8 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useSeoMeta({ title: 'Keyboard Submissions' })
+
 const { view, links: viewLinks } = useSubmissionViews()
 
 const groupColumns = [

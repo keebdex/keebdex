@@ -119,7 +119,5 @@ const description = computed(() => tab.value?.description)
 useSeoMeta({
   title: computed(() => tab.value?.title),
   description,
-  ogDescription: description,
-  twitterDescription: description,
 })
 </script>

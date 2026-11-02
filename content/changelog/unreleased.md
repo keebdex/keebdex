@@ -14,6 +14,7 @@ title: Unreleased
 
 ### 🐛 Bug Fixes
 
+- Links you share from Keebdex now preview the page you shared, with its own title and description, instead of the home page's, and search results show the full keyset name, such as _GMK CYL Olivia_.
 - A keyboard variant now shows its full name, both when opened and in the copied image, and _Save_ there adds that variant to your collection instead of the wrong item.
 
 ### 🚀 Improvements

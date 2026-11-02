@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('keysets')
     .select(
-      '*, kits:keyset_kits(*, category:kit_categories(name)), colors:keyset_colors(*, color:colors(*)), profile:keyset_profiles(name)',
+      '*, kits:keyset_kits(*, category:kit_categories(name)), colors:keyset_colors(*, color:colors(*)), profile:keyset_profiles(name, manufacturer)',
     )
     // .select('*, artisans:artisan_colorways(*), kits:keyset_kits(*)')
     .eq('profile_keyset_id', `${params?.profile}/${params?.keyset}`)

@@ -6,6 +6,10 @@ const revision = execSync('git rev-parse --short HEAD').toString().trim()
 
 const isProduction = process.env.NODE_ENV === 'production'
 
+// Rendered on the client and kept out of search results. A header rather than
+// a robots meta tag, which crawlers would only see after running the app
+const privatePage = { ssr: false, headers: { 'x-robots-tag': 'noindex' } }
+
 // Cloudflare builds (an explicit preset, or Pages / Workers CI, which Nitro
 // detects the same way) store Nuxt Content collections in D1.
 const isCloudflare =
@@ -49,20 +53,21 @@ export default defineNuxtConfig({
     '/privacy': { prerender: true },
     '/why-choose-keebdex': { prerender: true },
 
-    '/account/**': { ssr: false },
-    '/admin/**': { ssr: false },
-    '/notifications': { ssr: false },
-    '/recent-changes': { ssr: false },
-    '/collection': { ssr: false },
-    '/collection/artisan/*/sort': { ssr: false },
+    // Private pages hold nothing a search engine could show
+    '/account/**': privatePage,
+    '/admin/**': privatePage,
+    '/notifications': privatePage,
+    '/recent-changes': privatePage,
+    '/collection': privatePage,
+    '/collection/artisan/*/sort': privatePage,
     '/artisan/wishlist': { ssr: false },
     // Long lists (up to 1000 trade items, 72 search results) take 50-150 ms
     // to render on the server
     '/artisan/marketplace': { ssr: false },
     '/artisan/search': { ssr: false },
-    '/artisan/submissions/**': { ssr: false },
-    '/keyboard/submissions/**': { ssr: false },
-    '/keyset/submissions/**': { ssr: false },
+    '/artisan/submissions/**': privatePage,
+    '/keyboard/submissions/**': privatePage,
+    '/keyset/submissions/**': privatePage,
   },
 
   css: ['~/assets/main.css'],

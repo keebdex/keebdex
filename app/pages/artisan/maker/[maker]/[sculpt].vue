@@ -371,18 +371,21 @@ const breadcrumbs = computed(() => {
   ]
 })
 
+const description = computed(
+  () =>
+    sculpt.value?.story ||
+    `Every colorway of the ${sculpt.value?.name} artisan keycap by ${sculpt.value?.maker_name}.`,
+)
+
 useSeoMeta({
-  title: sculpt.value
-    ? `${sculpt.value.name} • ${sculpt.value.maker_name}`
-    : '',
-  description: sculpt.value?.story,
-  ogDescription: sculpt.value?.story,
-  twitterDescription: sculpt.value?.story,
+  title: () =>
+    sculpt.value ? `${sculpt.value.name} • ${sculpt.value.maker_name}` : '',
+  description,
 })
 
 defineOgImage('Module', {
   title: sculpt.value?.name,
-  description: sculpt.value?.story,
+  description: description.value,
   headline: sculpt.value?.maker_name,
   headlineLogo: logoUrl(sculpt.value?.maker_id),
 })
