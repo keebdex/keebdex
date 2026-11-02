@@ -9,7 +9,6 @@
         <template #right>
           <UModal
             v-if="isOwner"
-            v-model:visible="visible.edit"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
@@ -29,7 +28,6 @@
           </UModal>
 
           <UModal
-            v-model:visible="visible.delete"
             title="Delete Collection"
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
@@ -86,19 +84,19 @@
         </SharedCatalogCard>
       </UPageGrid>
 
+      <UEmpty
+        v-else-if="status === 'success'"
+        icon="hugeicons:grid-view"
+        title="Not a Single Keycap Here"
+        description="Save keysets from their pages to start building this collection."
+      />
+
       <SharedConfirmModal
         v-model:open="removing.open"
         title="Remove Keyset"
         :description="`Are you sure you want to remove ${removing.name}?`"
         confirm-label="Remove"
-        @confirm="remove"
-      />
-
-      <UEmpty
-        v-if="!sortedCollections.length && status === 'success'"
-        icon="hugeicons:grid-view"
-        title="Not a Single Keycap Here"
-        description="Save keysets from their pages to start building this collection."
+        @confirm="confirmRemoval"
       />
     </template>
   </UDashboardPanel>
@@ -112,7 +110,7 @@ const route = useRoute()
 const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
 )
-const { moveItem, removeItem } = useCollectionItem(
+const { moveItem, removing, confirmRemove, confirmRemoval } = useCollectionItem(
   () => route.params.collection,
   refresh,
 )
@@ -141,21 +139,4 @@ const breadcrumbs = computed(() => {
 const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], ['keyset.name'])
 })
-
-const visible = ref({
-  edit: false,
-  delete: false,
-})
-
-// One confirm dialog for removing any item
-const removing = reactive({ open: false, id: null, name: '' })
-
-const confirmRemove = (id, name) => {
-  Object.assign(removing, { open: true, id, name })
-}
-
-const remove = () => {
-  removing.open = false
-  removeItem(removing.id, removing.name)
-}
 </script>

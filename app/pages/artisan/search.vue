@@ -86,8 +86,6 @@
               :ui="{
                 root: 'h-full',
                 container: imageCardContainerClass,
-                // keep the footer buttons above the card's link overlay
-                footer: 'relative z-10',
               }"
             >
               <div class="aspect-square overflow-hidden relative">

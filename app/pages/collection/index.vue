@@ -148,13 +148,15 @@ const modules = Constants.public.Enums.module.map((module) => ({
   value: module.toLowerCase(),
 }))
 
-// What an artisan collection is for (other catalogs have no intent), then
+// What an artisan collection is for (labels from the collection form, colors
+// and icons from the Trading Hub; other catalogs have no intent), then
 // whether it is shared
-const INTENT_TAGS = {
-  keep: { label: 'My Collection', icon: 'hugeicons:archive-02' },
-  want: { label: 'Wishlist', icon: TRADE_INTENTS.want.icon, color: TRADE_INTENTS.want.color },
-  sell: { label: 'For Sale or Trade', icon: TRADE_INTENTS.sell.icon, color: TRADE_INTENTS.sell.color },
-}
+const INTENT_TAGS = Object.fromEntries(
+  collectionIntentItems.map(({ value, label }) => [
+    value,
+    { icon: 'hugeicons:archive-02', ...TRADE_INTENTS[value], label },
+  ]),
+)
 
 const collectionTags = (collection) =>
   [

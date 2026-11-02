@@ -53,6 +53,12 @@ export const keysetProfileLabel = (
   return name ? `${manufacturer} ${name}` : manufacturer
 }
 
+// A keyset profile's logo key: its manufacturer's (logo files are keyed by
+// manufacturer, GMK's for CYL and MTNU), else the profile's own
+export const keysetProfileLogoKey = (
+  profile?: { manufacturer_id?: string | null; profile_id?: string } | null,
+) => profile?.manufacturer_id || profile?.profile_id || ''
+
 /**
  * Select items for profiles grouped by keycap profile (`groupedProfiles` from
  * `GET /api/keysets/profiles`): a label per group, then its profiles.
@@ -175,6 +181,34 @@ export const artisanGridClass =
 
 // The pin beside a pinned maker's or sculpt's name in a list
 export const PINNED_ICON = 'solar:pin-bold'
+
+// Pinned items first, each part in its own order; the lists and their
+// Customize Pins modals share this order
+export const pinnedFirst = <T>(items: T[], isPinned: (item: T) => boolean) => {
+  const pinned: T[] = []
+  const others: T[] = []
+
+  for (const item of items) (isPinned(item) ? pinned : others).push(item)
+
+  return [...pinned, ...others]
+}
+
+// A maker's or brand's own links (website and socials), opened in a new tab
+const OWNER_LINKS = [
+  { key: 'website', label: 'Website', icon: 'hugeicons:globe-02' },
+  { key: 'instagram', label: 'Instagram', icon: 'hugeicons:instagram' },
+  { key: 'discord', label: 'Discord', icon: 'hugeicons:discord' },
+] as const
+
+export const ownerLinks = (
+  owner?: Partial<Record<(typeof OWNER_LINKS)[number]['key'], string | null>>,
+) =>
+  OWNER_LINKS.filter(({ key }) => owner?.[key]).map(({ key, label, icon }) => ({
+    label,
+    icon,
+    to: owner![key]!,
+    target: '_blank',
+  }))
 
 // UPageCard container for cards with an image above the title. The column is
 // pinned to the card so a long footer cannot widen it (and the image with it)

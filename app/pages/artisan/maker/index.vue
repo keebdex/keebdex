@@ -12,7 +12,7 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UModal v-if="isAdmin" v-model:open="adding" title="Add Maker">
+          <UModal v-if="isAdmin" title="Add Maker">
             <UButton color="primary" icon="hugeicons:add-team" label="Add Maker" />
 
             <template #body="{ close }">
@@ -29,7 +29,6 @@
 
           <UModal
             v-if="authenticated"
-            v-model:open="customize"
             title="Customize Pins"
             description="Pin up to 6 makers to the top for easy access."
           >
@@ -39,7 +38,7 @@
 
             <template #body="{ close }">
               <ArtisanModalPinMaker
-                :makers="pinnedFirst"
+                :makers="sortedMakers"
                 @on-success="close"
               />
             </template>
@@ -48,9 +47,9 @@
       </UPageHeader>
 
       <!-- Pinned makers first, with a pin beside the name -->
-      <UPageGrid v-if="pinnedFirst.length" :class="artisanGridClass">
+      <UPageGrid :class="artisanGridClass">
         <SharedKeebLogoCard
-          v-for="maker in pinnedFirst"
+          v-for="maker in sortedMakers"
           :key="maker.maker_id"
           :title="maker.name"
           :to="`/artisan/maker/${maker.maker_id}`"
@@ -59,7 +58,6 @@
           :pinned="isPinned(maker)"
         />
       </UPageGrid>
-
     </template>
   </UDashboardPanel>
 </template>
@@ -91,17 +89,8 @@ const { data, refresh } = await useAsyncData(
 const userStore = useUserStore()
 const { authenticated, isAdmin, favorites } = storeToRefs(userStore)
 
-const adding = ref(false)
-const customize = ref(false)
-
-const makers = computed(() => data.value || [])
 const isPinned = (maker) =>
   authenticated.value && Object.hasOwn(favorites.value, maker.maker_id)
 
-// The pin modal lists them this way too, so the pinned ones lead
-const pinnedFirst = computed(() => [
-  ...makers.value.filter(isPinned),
-  ...makers.value.filter((m) => !isPinned(m)),
-])
-
+const sortedMakers = computed(() => pinnedFirst(data.value || [], isPinned))
 </script>

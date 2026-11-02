@@ -56,7 +56,6 @@
 
           <UModal
             v-if="isOwner"
-            v-model:visible="visible.edit"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
@@ -76,7 +75,6 @@
           </UModal>
 
           <UModal
-            v-model:visible="visible.delete"
             title="Delete Collection"
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
@@ -173,12 +171,19 @@
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${colorwayTitle(artisan)}`"
-                @click="confirmRemove(rest.id, artisan)"
+                @click="confirmRemove(rest.id, colorwayTitle(artisan))"
               />
             </UTooltip>
           </template>
         </SharedCatalogCard>
       </UPageGrid>
+
+      <UEmpty
+        v-else-if="status === 'success'"
+        icon="hugeicons:alien-01"
+        title="No Artisans Have Moved In Yet"
+        description="Save artisans from their pages and they will settle in right here."
+      />
 
       <template v-if="isOwner">
         <UModal
@@ -204,21 +209,9 @@
           title="Remove Artisan"
           :description="`Are you sure you want to remove ${removing.name}?`"
           confirm-label="Remove"
-          @confirm="
-            () => {
-              removing.open = false
-              remove(removing.id, removing.colorway)
-            }
-          "
+          @confirm="confirmRemoval"
         />
       </template>
-
-      <UEmpty
-        v-if="!sortedCollections.length && status === 'success'"
-        icon="hugeicons:alien-01"
-        title="No Artisans Have Moved In Yet"
-        description="Save artisans from their pages and they will settle in right here."
-      />
     </template>
   </UDashboardPanel>
 </template>
@@ -235,7 +228,8 @@ const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
 )
 
-const { removeItem, moveItem } = useCollectionItem(
+const { removeItem, moveItem, removing, confirmRemove, confirmRemoval } =
+  useCollectionItem(
   () => route.params.collection,
   refresh,
 )
@@ -265,13 +259,10 @@ const shareItems = computed(() => [
 
 const visible = ref({
   share: false,
-  edit: false,
-  delete: false,
 })
 
-// One listing form and one confirm dialog for every item
+// One listing form for every item
 const listingItem = reactive({ open: false, name: '', item: null })
-const removing = reactive({ open: false, id: null, name: '', colorway: null })
 
 const editListing = ({ artisan, ...item }) => {
   Object.assign(listingItem, {
@@ -281,14 +272,6 @@ const editListing = ({ artisan, ...item }) => {
   })
 }
 
-const confirmRemove = (id, colorway) => {
-  Object.assign(removing, {
-    open: true,
-    id,
-    name: colorwayTitle(colorway),
-    colorway,
-  })
-}
 
 // Sync shareOption with saved state whenever the modal is closed
 // (handles initial async data load + reset after close-without-save)

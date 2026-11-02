@@ -17,7 +17,7 @@
         :ui="listingPageHeaderUi"
       >
         <template v-if="isAdmin" #links>
-          <UModal v-model:open="adding" title="Add Keyset">
+          <UModal title="Add Keyset">
             <UButton color="primary" icon="hugeicons:keyboard" label="Add Keyset" />
 
             <template #body="{ close }">
@@ -100,7 +100,6 @@ if (!validStatuses.includes(route.query.status)) {
 }
 
 const { isAdmin } = storeToRefs(useUserStore())
-const adding = ref(false)
 
 const { page, size, setPage } = usePagination(36)
 

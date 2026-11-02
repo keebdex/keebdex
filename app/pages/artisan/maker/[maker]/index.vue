@@ -46,7 +46,7 @@
 
             <template #body="{ close }">
               <ArtisanModalPinSculpt
-                :sculpts="pinnedFirst"
+                :sculpts="sortedSculpts"
                 @on-success="close"
               />
             </template>
@@ -54,17 +54,16 @@
         </template>
       </SharedOwnerHero>
 
-      <section class="space-y-4 pt-4">
+      <section class="pt-4">
         <!-- Pinned sculpts first, with a pin beside the name -->
-        <UPageGrid v-if="pinnedFirst.length" :class="artisanGridClass">
+        <UPageGrid v-if="sortedSculpts.length" :class="artisanGridClass">
           <SharedCatalogCard
-            v-for="sculpt in pinnedFirst"
+            v-for="sculpt in sortedSculpts"
             :key="sculpt.id"
             v-bind="sculptCard(sculpt)"
             :pinned="isPinned(sculpt)"
           />
         </UPageGrid>
-
 
         <UEmpty
           v-else
@@ -76,10 +75,7 @@
               label: 'Add Sculpt',
               icon: 'hugeicons:add-square',
               ui: { label: 'block' },
-              to: {
-                path: '/artisan/submissions/submit',
-                query: { maker: maker.maker_id },
-              },
+              ...addSculptTarget,
             },
           ]"
         />
@@ -165,12 +161,7 @@ const { data: maker, refresh } = await useAsyncData(
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])
 const isPinned = (sculpt) => favSculpts.value.includes(sculpt.sculpt_id)
-// The pin modal lists them this way too, so the pinned ones lead
-const pinnedFirst = computed(() => [
-  ...sculpts.value.filter(isPinned),
-  ...sculpts.value.filter((s) => !isPinned(s)),
-])
-
+const sortedSculpts = computed(() => pinnedFirst(sculpts.value, isPinned))
 
 // Staff add a sculpt in place; everyone else goes to the submission wizard
 const addSculptTarget = computed(() =>
@@ -205,34 +196,7 @@ const makerSpecs = computed(() =>
 )
 
 const makerLinks = computed(() => {
-  const items = []
-
-  if (maker.value?.website) {
-    items.push({
-      label: 'Website',
-      icon: 'hugeicons:globe-02',
-      to: maker.value.website,
-      target: '_blank',
-    })
-  }
-
-  if (maker.value?.instagram) {
-    items.push({
-      label: 'Instagram',
-      icon: 'hugeicons:instagram',
-      to: maker.value.instagram,
-      target: '_blank',
-    })
-  }
-
-  if (maker.value?.discord) {
-    items.push({
-      label: 'Discord',
-      icon: 'hugeicons:discord',
-      to: maker.value.discord,
-      target: '_blank',
-    })
-  }
+  const items = ownerLinks(maker.value)
 
   if (maker.value?.artisancollector) {
     items.push({

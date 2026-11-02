@@ -1,9 +1,8 @@
 <template>
   <!-- A maker, brand, or profile in a catalog list: its logo on a tile of a
        fixed shape, so logos of any size line up, then the name; pinned ones
-       get a pin beside the name, clear of the logo. Without `to` the card
-       is not a link, and its `footer` holds links of its own (a
-       manufacturer's profiles). -->
+       get a pin beside the name, clear of the logo. Without `to` it is not a
+       link (a manufacturer with several profiles opens a picker instead). -->
   <UPageCard
     :title="title"
     reverse
@@ -46,10 +45,6 @@
         @error="handleError"
       />
     </div>
-
-    <template v-if="$slots.footer" #footer>
-      <slot name="footer" />
-    </template>
   </UPageCard>
 </template>
 

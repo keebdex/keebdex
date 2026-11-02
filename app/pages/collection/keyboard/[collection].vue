@@ -9,7 +9,6 @@
         <template #right>
           <UModal
             v-if="isOwner"
-            v-model:visible="visible.edit"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
@@ -29,7 +28,6 @@
           </UModal>
 
           <UModal
-            v-model:visible="visible.delete"
             title="Delete Collection"
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
@@ -89,26 +87,26 @@
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${keyboard.variant_name}`"
-                @click="confirmRemove(id, keyboard)"
+                @click="confirmRemove(id, variantName(keyboard), 'Keyboard')"
               />
             </UTooltip>
           </template>
         </SharedCatalogCard>
       </UPageGrid>
 
+      <UEmpty
+        v-else-if="status === 'success'"
+        icon="hugeicons:keyboard"
+        title="No Boards on the Bench"
+        description="Save keyboard variants from their pages to fill this collection."
+      />
+
       <SharedConfirmModal
         v-model:open="removing.open"
         title="Remove Keyboard"
         :description="`Are you sure you want to remove ${removing.name}?`"
         confirm-label="Remove"
-        @confirm="remove"
-      />
-
-      <UEmpty
-        v-if="!sortedCollections.length && status === 'success'"
-        icon="hugeicons:keyboard"
-        title="No Boards on the Bench"
-        description="Save keyboard variants from their pages to fill this collection."
+        @confirm="confirmRemoval"
       />
     </template>
   </UDashboardPanel>
@@ -122,7 +120,7 @@ const route = useRoute()
 const { data, status, refresh, deleteCollection, isOwner } = useCollection(
   () => route.params.collection,
 )
-const { moveItem, removeItem } = useCollectionItem(
+const { moveItem, removing, confirmRemove, confirmRemoval } = useCollectionItem(
   () => route.params.collection,
   refresh,
 )
@@ -148,38 +146,16 @@ const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], ['keyboard.variant_name'])
 })
 
+// Brand, keyboard, release, and variant, as toasts and the dialog name it
+const variantName = (keyboard) =>
+  formatKeyboardDescription([
+    keyboard?.brand?.name,
+    keyboard?.release?.keyboard?.name,
+    keyboard?.release?.name,
+    keyboard?.variant_name,
+  ])
+
 const moveTo = (collection, { id, keyboard }) => {
-  const contextName = formatKeyboardDescription([
-    keyboard?.brand?.name,
-    keyboard?.release?.keyboard?.name,
-    keyboard?.release?.name,
-    keyboard?.variant_name,
-  ])
-
-  moveItem(collection, id, contextName)
+  moveItem(collection, id, variantName(keyboard))
 }
-
-// One confirm dialog for removing any item
-const removing = reactive({ open: false, id: null, name: '' })
-
-const confirmRemove = (id, keyboard) => {
-  const name = formatKeyboardDescription([
-    keyboard?.brand?.name,
-    keyboard?.release?.keyboard?.name,
-    keyboard?.release?.name,
-    keyboard?.variant_name,
-  ])
-
-  Object.assign(removing, { open: true, id, name })
-}
-
-const remove = () => {
-  removing.open = false
-  removeItem(removing.id, removing.name, 'Keyboard')
-}
-
-const visible = ref({
-  edit: false,
-  delete: false,
-})
 </script>

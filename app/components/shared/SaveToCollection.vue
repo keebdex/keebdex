@@ -7,7 +7,8 @@
       content: 'w-48',
     }"
   >
-    <UTooltip :text="move ? 'Move' : 'Save'">
+    <!-- A tooltip only names the button while its label is hidden -->
+    <UTooltip :text="move ? 'Move' : 'Save'" :disabled="keepLabel">
       <UButton
         :id="`${item.colorway_id || item.profile_keyset_id || item.id || 'item'}-save-to`"
         :label="label"

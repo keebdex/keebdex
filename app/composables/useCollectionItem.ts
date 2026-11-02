@@ -80,5 +80,40 @@ export const useCollectionItem = (
       })
   }
 
-  return { addItem, removeItem, moveItem }
+  // One confirm dialog per page for removing any item: `confirmRemove` fills
+  // it, `confirmRemoval` removes the item. Bind `removing.open` and
+  // `removing.name` to a `SharedConfirmModal`.
+  const removing = reactive({
+    open: false,
+    id: null as string | number | null,
+    name: '',
+    entity: undefined as string | undefined,
+  })
+
+  const confirmRemove = (
+    itemId: string | number,
+    label: string,
+    entityName?: string,
+  ) => {
+    Object.assign(removing, {
+      open: true,
+      id: itemId,
+      name: label,
+      entity: entityName,
+    })
+  }
+
+  const confirmRemoval = () => {
+    removing.open = false
+    return removeItem(removing.id!, removing.name, removing.entity)
+  }
+
+  return {
+    addItem,
+    removeItem,
+    moveItem,
+    removing,
+    confirmRemove,
+    confirmRemoval,
+  }
 }

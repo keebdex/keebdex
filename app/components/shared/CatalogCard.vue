@@ -1,9 +1,10 @@
 <template>
   <!-- A catalog grid card (keyboard variant, keyset kit, artisan colorway):
        image, name with its price, a short description, then a footer with
-       `footer-start` (Save, units) on the left and the record's actions on
-       the right (`footer-end`, then the record's actions). Clicks on the card itself are the page's (`@click`), or it
-       links to `to` (a sculpt, keyboard, or keyset in a list). -->
+       `footer-start` (Save, units) on the left and, on the right, the page's
+       own actions (`footer-end`) then the record's. Clicks on the card itself
+       are the page's (`@click`), or it links to `to` (a sculpt, keyboard, or
+       keyset in a list). -->
   <UPageCard
     :title="title"
     :description="description || undefined"
@@ -23,7 +24,7 @@
           aria-label="Pinned"
         />
         <span
-          v-else-if="price"
+          v-if="price"
           class="shrink-0 tabular-nums"
           :class="priceStruck && 'line-through text-muted'"
         >
@@ -74,11 +75,7 @@
       v-if="$slots['footer-start'] || $slots['footer-end'] || editable || suggestable"
       #footer
     >
-      <!-- Above the card's link, so Save and the actions stay clickable -->
-      <div
-        class="relative z-10 flex w-full flex-wrap items-center gap-2"
-        @click.stop
-      >
+      <div class="flex w-full flex-wrap items-center gap-2" @click.stop>
         <slot name="footer-start" />
 
         <!-- Ghost icon buttons on the right: the page's own (`footer-end`,

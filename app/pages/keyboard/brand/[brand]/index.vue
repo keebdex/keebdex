@@ -67,7 +67,7 @@
               label: 'Add Keyboard',
               icon: 'hugeicons:add-square',
               ui: { label: 'block' },
-              to: { path: '/keyboard/submissions/submit', query: { brand } },
+              ...addKeyboardTarget,
             },
           ]"
         />
@@ -183,38 +183,7 @@ const description = computed(() => {
   return `Explore keyboards from ${data.value?.name} and discover their unique features, designs, and innovations in the world of mechanical keyboards.`
 })
 
-const brandLinks = computed(() => {
-  const items = []
-
-  if (data.value?.website) {
-    items.push({
-      label: 'Website',
-      icon: 'hugeicons:globe-02',
-      to: data.value.website,
-      target: '_blank',
-    })
-  }
-
-  if (data.value?.instagram) {
-    items.push({
-      label: 'Instagram',
-      icon: 'hugeicons:instagram',
-      to: data.value.instagram,
-      target: '_blank',
-    })
-  }
-
-  if (data.value?.discord) {
-    items.push({
-      label: 'Discord',
-      icon: 'hugeicons:discord',
-      to: data.value.discord,
-      target: '_blank',
-    })
-  }
-
-  return items
-})
+const brandLinks = computed(() => ownerLinks(data.value))
 
 useSeoMeta({
   title: computed(() => data.value?.name || 'Keyboard Brands'),

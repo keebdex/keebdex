@@ -12,7 +12,7 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UModal v-if="editable" v-model:open="adding" title="Add Keyboard Brand">
+          <UModal v-if="editable" title="Add Keyboard Brand">
             <UButton color="primary" icon="hugeicons:add-team" label="Add Brand" />
 
             <template #body="{ close }">
@@ -39,7 +39,6 @@
           :invertible="brand.invertible_logo"
         />
       </UPageGrid>
-
 
       <UEmpty
         v-else
@@ -85,7 +84,6 @@ const { data, refresh } = await useAsyncData(
 const userStore = useUserStore()
 const editable = computed(() => userStore.isEditable('keyboard'))
 
-const adding = ref(false)
 
 const brands = computed(() => data.value || [])
 </script>

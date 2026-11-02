@@ -12,7 +12,7 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UModal v-if="editable" v-model:open="adding" title="Add Keyset Profile">
+          <UModal v-if="editable" title="Add Keyset Profile">
             <UButton
               color="primary"
               icon="hugeicons:add-square"
@@ -36,60 +36,61 @@
       <!-- One card per manufacturer, its logo shown once: sets are named
            after the maker and the profile (GMK CYL), and one maker can make
            several profiles. A maker with one profile links straight to it;
-           one with several opens a picker. -->
-      <UPageGrid v-if="manufacturers.length" :class="artisanGridClass">
-        <SharedKeebLogoCard
-          v-for="maker in manufacturers"
-          :key="maker.id"
-          :title="maker.name"
-          :slug="maker.id"
-          :to="
-            maker.profiles.length === 1
-              ? `/keyset/${maker.profiles[0].profile_id}`
-              : undefined
-          "
-          invertible
-          :class="maker.profiles.length > 1 && 'cursor-pointer'"
-          @click="maker.profiles.length > 1 && (picking = maker)"
-        />
+           one with several opens a picker of them. -->
+      <UPageGrid v-if="makers.length" :class="artisanGridClass">
+        <template v-for="maker in makers" :key="maker.id">
+          <SharedKeebLogoCard
+            v-if="maker.profiles.length === 1"
+            :title="maker.name"
+            :slug="maker.id"
+            :to="`/keyset/${maker.profiles[0].profile_id}`"
+            invertible
+          />
+
+          <UModal
+            v-else
+            :title="maker.name"
+            description="Pick a profile to see its keysets."
+          >
+            <SharedKeebLogoCard
+              :title="maker.name"
+              :slug="maker.id"
+              invertible
+              class="cursor-pointer"
+            />
+
+            <template #body>
+              <!-- One row across the modal: two columns, three from three
+                   profiles (a plain grid: `UPageGrid`'s columns follow the
+                   screen, not the modal). The theme's modal body has no top
+                   padding (`body: '!pt-0'`) and scrolls, which would clip the
+                   cards' top rings; `p-0.5` keeps them clear. -->
+              <div
+                class="grid grid-cols-2 gap-3 p-0.5"
+                :class="maker.profiles.length > 2 && 'sm:grid-cols-3'"
+              >
+                <UPageCard
+                  v-for="item in maker.profiles"
+                  :key="item.profile_id"
+                  :to="`/keyset/${item.profile_id}`"
+                  :title="item.name"
+                  :description="
+                    item.profile && item.profile !== item.name
+                      ? item.profile
+                      : undefined
+                  "
+                  variant="subtle"
+                  spotlight
+                  :ui="{ title: 'truncate' }"
+                />
+              </div>
+            </template>
+          </UModal>
+        </template>
       </UPageGrid>
 
-      <!-- The profiles of a maker with several -->
-      <UModal
-        :open="!!picking"
-        :title="picking?.name"
-        description="Pick a profile to see its keysets."
-        @update:open="(open) => !open && (picking = null)"
-      >
-        <template #body>
-          <!-- One row across the modal: two columns, three from three
-               profiles (a plain grid: `UPageGrid`'s columns follow the screen,
-               not the modal). The padding keeps the cards' rings clear of the
-               modal body's scroll edge, which would clip their top. -->
-          <div
-            class="grid grid-cols-2 gap-3 p-0.5"
-            :class="picking?.profiles.length > 2 && 'sm:grid-cols-3'"
-          >
-            <UPageCard
-              v-for="item in picking?.profiles"
-              :key="item.profile_id"
-              :to="`/keyset/${item.profile_id}`"
-              :title="item.name"
-              :description="
-                item.profile && item.profile !== item.name
-                  ? item.profile
-                  : undefined
-              "
-              variant="subtle"
-              spotlight
-              :ui="{ title: 'truncate' }"
-            />
-          </div>
-        </template>
-      </UModal>
-
       <UEmpty
-        v-if="!manufacturers.length && status !== 'pending'"
+        v-else-if="status !== 'pending'"
         icon="hugeicons:cross"
         title="No Profiles Yet"
         description="Submit a keyset to add the first profile to the dex."
@@ -107,6 +108,7 @@
 </template>
 
 <script setup>
+import { groupBy } from 'es-toolkit'
 import { sortBy } from 'es-toolkit/compat'
 
 // Legacy `/keyset?status=…` links point at the group buy tabs.
@@ -136,29 +138,20 @@ useSeoMeta({
 const userStore = useUserStore()
 // Admins and editors without assignments (nobody is assigned a profile).
 const editable = computed(() => userStore.isEditable('keyset'))
-const adding = ref(false)
-// The maker whose profiles the picker shows
-const picking = ref(null)
-
 const { profiles, status, refresh } = useKeysetProfiles()
 
-// Profiles under their manufacturer (by its logo key; a profile without one
-// stands alone), both by name
-const manufacturers = computed(() => {
-  const byMaker = {}
-
-  for (const item of profiles.value) {
-    const id = item.manufacturer_id || item.profile_id
-
-    byMaker[id] ??= { id, name: item.manufacturer || item.name, profiles: [] }
-    byMaker[id].profiles.push(item)
-  }
-
-  return sortBy(Object.values(byMaker), (maker) => maker.name.toLowerCase()).map(
-    (maker) => ({
-      ...maker,
-      profiles: sortBy(maker.profiles, (item) => item.name.toLowerCase()),
-    }),
-  )
-})
+// Profiles under their manufacturer (keyed like its logo, so a profile
+// without one stands alone), both by name
+const makers = computed(() =>
+  sortBy(
+    Object.entries(groupBy(profiles.value, keysetProfileLogoKey)).map(
+      ([id, items]) => ({
+        id,
+        name: items[0].manufacturer || items[0].name,
+        profiles: sortBy(items, (item) => item.name.toLowerCase()),
+      }),
+    ),
+    (maker) => maker.name.toLowerCase(),
+  ),
+)
 </script>

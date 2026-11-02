@@ -5,6 +5,21 @@
        labeled buttons. On phones everything under the name folds into
        `detailsLabel`, closed by default, so the list starts on the first
        screen. -->
+  <!-- The specs and links, shown in the collapsible on phones and under the
+       header elsewhere -->
+  <DefineDetails>
+    <SharedSpecList v-if="specs.length" :items="specs" layout="rows" />
+
+    <div v-if="links.length" class="flex flex-wrap gap-2">
+      <UButton
+        v-for="link in links"
+        :key="link.label"
+        v-bind="link"
+        :ui="{ label: 'block' }"
+      />
+    </div>
+  </DefineDetails>
+
   <SharedDetailHero>
     <UPageHeader :ui="detailPageHeaderUi(false)">
       <template #title>
@@ -52,36 +67,18 @@
             :description="description"
             class="text-sm text-muted"
           />
-          <SharedSpecList v-if="specs.length" :items="specs" layout="rows" />
-          <div v-if="links.length" class="flex flex-wrap gap-2">
-            <UButton
-              v-for="link in links"
-              :key="link.label"
-              v-bind="link"
-              :ui="{ label: 'block' }"
-            />
-          </div>
+          <ReuseDetails />
         </div>
       </template>
     </UCollapsible>
 
-    <template v-else-if="!$device.isMobile">
-      <SharedSpecList v-if="specs.length" :items="specs" layout="rows" />
-
-      <div v-if="links.length" class="flex flex-wrap gap-2">
-        <UButton
-          v-for="link in links"
-          :key="link.label"
-          v-bind="link"
-          :ui="{ label: 'block' }"
-        />
-      </div>
-    </template>
+    <ReuseDetails v-else-if="!$device.isMobile" />
   </SharedDetailHero>
 </template>
 
 <script setup lang="ts">
 import type { ButtonProps } from '@nuxt/ui'
+import { createReusableTemplate } from '@vueuse/core'
 
 const {
   slug = '',
@@ -108,6 +105,7 @@ const {
 defineSlots<{ actions?(): any }>()
 
 const appConfig = useAppConfig()
+const [DefineDetails, ReuseDetails] = createReusableTemplate()
 
 const hasDetails = computed(
   () => !!description || specs.length > 0 || links.length > 0,

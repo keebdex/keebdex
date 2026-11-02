@@ -11,7 +11,7 @@
     <template #body>
       <SharedOwnerHero
         :title="title"
-        :slug="data.profile.manufacturer_id || profile"
+        :slug="keysetProfileLogoKey(data.profile)"
         invertible
         :description="description"
         :specs="profileSpecs"
@@ -54,10 +54,7 @@
                   label: 'Add Keyset',
                   icon: 'hugeicons:add-square',
                   ui: { label: 'block' },
-                  to: {
-                    path: '/keyset/submissions/submit',
-                    query: { profile },
-                  },
+                  ...addKeysetTarget,
                 },
               ]"
             />
@@ -120,7 +117,6 @@
 const route = useRoute()
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
-const { manufacturers } = useKeysetProfiles()
 
 const { profile } = route.params
 
@@ -161,9 +157,7 @@ const { data, refresh } = await useAsyncData(
 
 const keysets = computed(() => data.value?.keysets || [])
 
-const title = computed(
-  () => keysetProfileLabel(data.value?.profile) || manufacturers.value[profile],
-)
+const title = computed(() => keysetProfileLabel(data.value?.profile))
 const description = computed(() => data.value?.profile?.description)
 
 // Staff add a keyset in place; everyone else goes to the submission wizard
