@@ -147,13 +147,15 @@ const query = computed(() => {
   }
 })
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData(
   route.path,
   () => $fetch('/api/keysets', { query: query.value }),
   {
     watch: [page],
   },
 )
+
+throwIfNotFound(error.value)
 
 const keysets = computed(() => data.value?.keysets || [])
 

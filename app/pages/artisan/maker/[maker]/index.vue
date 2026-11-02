@@ -150,13 +150,15 @@ const editing = ref(false)
 const addingSculpt = ref(false)
 const history = useTemplateRef('history')
 
-const { data: maker, refresh } = await useAsyncData(
+const { data: maker, refresh, error } = await useAsyncData(
   `maker:${route.params.maker}`,
   () => $fetch(`/api/makers/${route.params.maker}`),
   {
     watch: [() => route.params.maker],
   },
 )
+
+throwIfNotFound(error.value)
 
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
 const favSculpts = computed(() => favorites.value[route.params.maker] || [])

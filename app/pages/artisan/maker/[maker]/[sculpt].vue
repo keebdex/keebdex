@@ -296,7 +296,7 @@ watch(sortValue, (newValue) => {
   sortOrder.value = order
 })
 
-const { data: sculpt, refresh } = await useAsyncData(
+const { data: sculpt, refresh, error } = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
   () =>
     $fetch(`/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`, {
@@ -312,6 +312,8 @@ const { data: sculpt, refresh } = await useAsyncData(
     watch: [page, sortField, sortOrder, () => route.query.cid],
   },
 )
+
+throwIfNotFound(error.value)
 
 // Reverting a rename moves the sculpt back to its old slug.
 const onReverted = ({ entityType, changes }) => {

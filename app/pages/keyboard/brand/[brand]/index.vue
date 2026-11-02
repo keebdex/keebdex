@@ -144,13 +144,15 @@ const editing = ref(false)
 const addingKeyboard = ref(false)
 const history = useTemplateRef('history')
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData(
   () => `keyboard-brand:${brand.value}`,
   () => $fetch(`/api/keyboards/brands/${brand.value}`),
   {
     watch: [brand],
   },
 )
+
+throwIfNotFound(error.value)
 
 const breadcrumbs = computed(() => {
   return [

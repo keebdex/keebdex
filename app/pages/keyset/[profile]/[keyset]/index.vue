@@ -366,13 +366,15 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData(
   `keyset/${profile}/${keyset}`,
   () => $fetch(`/api/keysets/${profile}/${keyset}`),
   {
     watch: [() => profile, () => keyset],
   },
 )
+
+throwIfNotFound(error.value)
 
 // Reverting a rename moves the page back to its old address.
 const onReverted = ({ entityType, changes }) => {

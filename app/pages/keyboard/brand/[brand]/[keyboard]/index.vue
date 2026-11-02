@@ -476,13 +476,15 @@ const {
   suggest,
 } = useSuggestEdit(editable)
 
-const { data, refresh } = await useAsyncData(
+const { data, refresh, error } = await useAsyncData(
   () => `keyboard:${slug.value}`,
   () => $fetch(`/api/keyboards/${slug.value}`),
   {
     watch: [slug],
   },
 )
+
+throwIfNotFound(error.value)
 
 // Reverting a rename moves the page back to its old address.
 const onReverted = ({ entityType, changes }) => {
