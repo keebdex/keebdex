@@ -109,7 +109,7 @@ const links = computed(() => [
     },
     {
       label: 'Donate',
-      icon: 'hugeicons:paypal',
+      icon: 'solar:hand-heart-bold-duotone',
       class: 'cursor-pointer text-donator hover:text-donator',
       ui: {
         linkLeadingIcon: 'text-donator group-hover:text-donator',

@@ -13,23 +13,44 @@
             aria-label="Show"
           />
         </template>
+
+        <template #right>
+          <!-- How a collection gets here, in the order it happens; a guide
+          rather than a wizard, so every step shows as done -->
+          <UPopover :content="{ align: 'end' }">
+            <UButton
+              label="How to List Your Caps"
+              aria-label="How to list your caps"
+              icon="hugeicons:information-circle"
+              variant="ghost"
+              size="sm"
+            />
+
+            <template #content>
+              <div class="w-80 max-w-[calc(100vw-2rem)] p-4">
+                <p class="mb-4 text-sm font-semibold text-highlighted">
+                  Get Your Caps Listed
+                </p>
+                <UStepper
+                  :items="steps"
+                  :default-value="steps.length - 1"
+                  orientation="vertical"
+                  disabled
+                  :ui="{
+                    description: 'text-pretty',
+                    separator: 'opacity-100',
+                  }"
+                />
+              </div>
+            </template>
+          </UPopover>
+        </template>
       </UDashboardToolbar>
     </template>
 
     <template #body>
       <UPage>
-        <UAlert icon="hugeicons:information-circle" color="info">
-          <template #description>
-            To list your caps here, create a
-            <span class="font-medium">Wishlist</span> or
-            <span class="font-medium">For Sale or Trade</span> collection in
-            <ULink to="/collection" class="underline">My Collection</ULink>,
-            then choose <span class="font-medium">Create Public Link</span>
-            under Share on its page.
-          </template>
-        </UAlert>
-
-        <ArtisanMarketplaceListing :intent="intent" class="mt-6" />
+        <ArtisanMarketplaceListing :intent="intent" />
       </UPage>
     </template>
   </UDashboardPanel>
@@ -44,10 +65,31 @@ useSeoMeta({
 const route = useRoute()
 const router = useRouter()
 
+const steps = [
+  {
+    icon: 'hugeicons:folder-add',
+    title: 'Create a Collection',
+    description:
+      'In My Collection, start a Wishlist for caps you are hunting, or a For Sale or Trade collection for caps you are letting go.',
+  },
+  {
+    icon: 'hugeicons:add-circle',
+    title: 'Add Your Caps',
+    description:
+      'Each cap is listed while Still Looking or Available is on. Add a price or mark Top Priority if you like.',
+  },
+  {
+    icon: 'hugeicons:share-08',
+    title: 'Make It Public',
+    description:
+      'Open Share on the collection and choose Create Public Link. Collectors reach you through its Discord username.',
+  },
+]
+
 const intentItems = [
   { label: 'All', value: 'all' },
-  { label: 'Buying', value: 'want', icon: 'hugeicons:money-bag-02' },
-  { label: 'Selling', value: 'sell', icon: 'hugeicons:sale-tag-02' },
+  { ...TRADE_INTENTS.want, value: 'want' },
+  { ...TRADE_INTENTS.sell, value: 'sell' },
 ]
 
 // kept in the URL; switching starts again from the first page

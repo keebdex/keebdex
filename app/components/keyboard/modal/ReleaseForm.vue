@@ -50,7 +50,7 @@
         v-model="release.top_case_styles"
         :items="topCaseStyleOptions"
         multiple
-        placeholder="All layouts"
+        :placeholder="inheritedTopCaseStyles"
         class="w-full"
       />
     </UFormField>
@@ -168,6 +168,13 @@ const topCaseStyleOptions = computed(() =>
     : [],
 )
 
+// Left empty, a release takes its keyboard's layouts, shown as the
+// placeholder like the variant form shows what it takes from its release
+const inheritedTopCaseStyles = computed(() => {
+  const value = joinSpecList(keyboard.top_case_styles)
+  return value ? `Keyboard: ${value}` : 'All layouts'
+})
+
 const schema = keyboardReleaseSchema.refine(
   (value) => {
     const normalized = value.name.trim().toLowerCase()
@@ -247,7 +254,10 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        successToast(isEdit ? 'update' : 'add', { entity: 'Release', name: release.value.name }),
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Release',
+          name: release.value.name,
+        }),
       )
       emit('onSuccess', data)
     })

@@ -27,15 +27,19 @@
     </UFormField>
 
     <UFormField label="Profile" name="profile">
-      <UTabs v-model="sculpt.profile" size="sm" :items="profiles" />
+      <UTabs
+        v-model="sculpt.profile"
+        size="sm"
+        :items="artisanSculptProfiles"
+      />
     </UFormField>
 
     <UFormField label="Cast" name="cast">
-      <UTabs v-model="sculpt.cast" size="sm" :items="casts" />
+      <UTabs v-model="sculpt.cast" size="sm" :items="artisanSculptCasts" />
     </UFormField>
 
     <UFormField label="Design" name="design">
-      <UTabs v-model="sculpt.design" size="sm" :items="designs" />
+      <UTabs v-model="sculpt.design" size="sm" :items="artisanSculptDesigns" />
     </UFormField>
 
     <UFormField
@@ -90,7 +94,13 @@
 </template>
 
 <script setup>
-import { sculptGdocManagedFields, sculptSchema } from '~/utils/schemas/artisan'
+import {
+  artisanSculptCasts,
+  artisanSculptDesigns,
+  artisanSculptProfiles,
+  sculptGdocManagedFields,
+  sculptSchema,
+} from '~/utils/schemas/artisan'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
 
@@ -155,20 +165,6 @@ const collectionOptions = computed(() => {
     new Set(sculpts.map((item) => item.collection).filter(Boolean)),
   ).sort()
 })
-
-const profiles = [
-  { label: 'Sculpted', value: 'sculpted' },
-  { label: 'Blank', value: 'blank' },
-]
-const casts = [
-  { label: 'Resin', value: 'resin' },
-  { label: 'Mixed', value: 'mixed' },
-]
-const designs = [
-  { label: 'Physical', value: 'physical' },
-  { label: 'Digital', value: 'digital' },
-  { label: 'Hybrid', value: 'hybrid' },
-]
 
 const onSubmit = async () => {
   if (mode !== 'standalone') return

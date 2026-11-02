@@ -75,14 +75,22 @@ const materialItems = (materials: Partial<Record<MaterialField, unknown>>) =>
     icon,
   }))
 
+/** The layouts a release came in: its own when it narrows its keyboard's,
+ * else every layout of the keyboard (left empty, a release inherits them). */
+export const releaseTopCaseStyles = (release: Specs, keyboard: Specs) =>
+  isBlank(release.top_case_styles)
+    ? keyboard.top_case_styles
+    : release.top_case_styles
+
 /** A release's specs as spec list items, leaving out unset ones. Its layouts
- * show only when it narrows its keyboard's, which the page header lists. */
+ * are its own or, left empty, its keyboard's, for form factors that have
+ * them. */
 export const releaseSpecItems = (release: Specs, keyboard: Specs) =>
   [
     {
       term: 'Top Case',
       description: hasTopCaseStyles(keyboard)
-        ? joinSpecList(release.top_case_styles)
+        ? joinSpecList(releaseTopCaseStyles(release, keyboard))
         : null,
       icon: 'hugeicons:layout-top',
     },
@@ -138,9 +146,7 @@ export const variantSpecItems = (
     // Design: form factor, layouts, mount, typing angle
     ...keyboardSpecItems({
       ...keyboard,
-      top_case_styles: isBlank(release.top_case_styles)
-        ? keyboard.top_case_styles
-        : release.top_case_styles,
+      top_case_styles: releaseTopCaseStyles(release, keyboard),
     }),
     // Build: the case and its finish, then what sits inside
     caseMaterials,
@@ -186,8 +192,12 @@ export const variantTitle = (keyboard: Specs, release: Specs, variant: Specs) =>
 /** The photos for a view of a variant: `front` or `back` (each falling back
  * to the other, then to the placeholder), or `side` for both. */
 export const variantPhotos = (variant: Specs, view: string) => {
-  const front = (variant.img_front || variant.img_back || '/keyboard.png') as string
-  const back = (variant.img_back || variant.img_front || '/keyboard.png') as string
+  const front = (variant.img_front ||
+    variant.img_back ||
+    '/keyboard.png') as string
+  const back = (variant.img_back ||
+    variant.img_front ||
+    '/keyboard.png') as string
 
   if (view === 'side') {
     return [
@@ -196,5 +206,9 @@ export const variantPhotos = (variant: Specs, view: string) => {
     ]
   }
 
-  return [view === 'back' ? { label: 'Back', src: back } : { label: 'Front', src: front }]
+  return [
+    view === 'back'
+      ? { label: 'Back', src: back }
+      : { label: 'Front', src: front },
+  ]
 }

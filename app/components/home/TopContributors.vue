@@ -1,70 +1,73 @@
 <template>
-  <UPageSection
-    v-if="podium.length"
-    title="Top Contributors"
-    orientation="horizontal"
-    reverse
-    description="The collectors who added the most to Keebdex this month."
-  >
-    <template v-if="runnersUp.length || ownRank" #body>
-      <UPageList v-if="runnersUp.length" divide>
-        <LeaderboardRow
-          v-for="entry in runnersUp"
-          :key="entry.user_id"
-          :entry="entry"
-          :highlight="entry.user_id === me?.user_id"
-          compact
-        />
-      </UPageList>
-
-      <!-- A hidden user's rank counts them among the visible collectors, so
-      someone else holds it on the board; say so -->
-      <p v-if="ownRank" class="mt-4 text-sm text-muted">
-        <template v-if="leaderboardHidden">
-          You're hidden from the leaderboard. You'd be
-        </template>
-        <template v-else>You're</template>
-        <span class="font-semibold text-highlighted">#{{ ownRank.rank }}</span>
-        this month with
-        <span class="font-semibold text-highlighted">
-          {{ countLabel(ownRank.points, 'point') }}</span
-        >.
-        <ULink
-          v-if="leaderboardHidden"
-          to="/account/settings"
-          class="underline"
-        >
-          Change it
-        </ULink>
-      </p>
-    </template>
-
-    <template #links>
-      <UButton
-        label="Full Leaderboard"
-        to="/leaderboard?period=month"
-        trailing-icon="hugeicons:arrow-right-02"
-        :ui="{ label: 'block' }"
-      />
-      <UDropdownMenu :items="submitItems">
+  <section v-if="podium.length" class="flex flex-col gap-8">
+    <HomeSectionHeader
+      headline="Community"
+      title="Top Contributors"
+      description="The collectors who added the most to Keebdex this month."
+    >
+      <template #links>
         <UButton
-          label="Start Contributing"
-          icon="hugeicons:add-circle"
-          color="primary"
-          variant="ghost"
+          label="Full Leaderboard"
+          to="/leaderboard?period=month"
+          trailing-icon="hugeicons:arrow-right-02"
           :ui="{ label: 'block' }"
         />
-      </UDropdownMenu>
-    </template>
+      </template>
+    </HomeSectionHeader>
 
-    <!-- Opposite the guides above, so the two sections read apart; stacked
-    on phones, the podium comes first and ranks 4–6 follow it -->
-    <LeaderboardPodium
-      :entries="podium"
-      :me-id="me?.user_id"
-      class="w-full"
-    />
-  </UPageSection>
+    <div class="grid items-stretch gap-6 lg:grid-cols-2">
+      <!-- Ranks 4–6 sit beside the podium; without them, the podium takes
+      the row at the width it would have beside them -->
+      <UCard
+        variant="subtle"
+        :class="!aside && 'lg:col-span-2'"
+        :ui="{
+          body: 'flex h-full items-end justify-center px-4 pt-8 pb-0 sm:px-8 sm:pt-8 sm:pb-0',
+        }"
+      >
+        <LeaderboardPodium
+          :entries="podium"
+          :me-id="me?.user_id"
+          class="w-full max-w-xl"
+        />
+      </UCard>
+
+      <div v-if="aside" class="flex flex-col">
+        <UPageList v-if="runnersUp.length" divide>
+          <LeaderboardRow
+            v-for="entry in runnersUp"
+            :key="entry.user_id"
+            :entry="entry"
+            :highlight="entry.user_id === me?.user_id"
+            compact
+          />
+        </UPageList>
+
+        <!-- A hidden user's rank counts them among the visible collectors, so
+        someone else holds it on the board; say so -->
+        <p v-if="ownRank" class="mt-4 text-sm text-muted">
+          <template v-if="leaderboardHidden">
+            You're hidden from the leaderboard. You'd be
+          </template>
+          <template v-else>You're</template>
+          <span class="font-semibold text-highlighted"
+            >#{{ ownRank.rank }}</span
+          >
+          this month with
+          <span class="font-semibold text-highlighted">
+            {{ countLabel(ownRank.points, 'point') }}</span
+          >.
+          <ULink
+            v-if="leaderboardHidden"
+            to="/account/settings"
+            class="underline"
+          >
+            Change it
+          </ULink>
+        </p>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -86,11 +89,5 @@ const me = useLeaderboardMe({ period: 'month' })
 
 // The caller's own rank when they are not among the six shown
 const ownRank = computed(() => leaderboardOwnRow(entries.value, me.value))
-
-// Start Contributing opens the submission wizard of the module picked
-const submitItems = KEEB_MODULES.map((module) => ({
-  label: KEEB_MODULE_LABELS[module],
-  icon: KEEB_MODULE_ICONS[module],
-  to: `/${module}/submissions/submit`,
-}))
+const aside = computed(() => runnersUp.value.length || ownRank.value)
 </script>

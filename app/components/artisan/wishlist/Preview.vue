@@ -11,7 +11,7 @@
             Save & Share
           </UButton>
 
-          <!-- Before a collection is picked, the empty state's button opens them. -->
+          <!-- Before a collection is picked, the start screen holds the picker. -->
           <UButton
             v-if="isMobile && hasCollection"
             icon="hugeicons:settings-02"
@@ -90,20 +90,8 @@
           },
         ]"
       />
-      <UEmpty
-        v-else
-        icon="hugeicons:collections-bookmark"
-        title="Your Wishlist Awaits"
-        description="Pick a collection, and we will turn it into a wishlist you can tweak and share."
-        :actions="[
-          {
-            label: 'Pick a Collection',
-            icon: 'hugeicons:settings-02',
-            onClick: () => (sidebarOpen = true),
-            ui: { label: 'block' },
-          },
-        ]"
-      />
+      <!-- No collection picked yet: pick one right here -->
+      <ArtisanWishlistStart v-else />
     </template>
   </UDashboardPanel>
   <SharedProtectedPage
@@ -148,8 +136,7 @@ const userStore = useUserStore()
 const { authenticated, user } = storeToRefs(userStore)
 
 const tradingCfg = useTradingConfig()
-const sidebarOpen = useState('wishlist-sidebar-open', () => true)
-const trading = computed(() => tradingCfg.value.type === 'trading')
+const sidebarOpen = useWishlistSidebar()
 
 const { data: collections, refresh } = await useAsyncData(
   // Guests have no collections: skip the request instead of asking the API
@@ -214,20 +201,7 @@ const capture = () => snapshot.value.capture()
 
 const shareOpen = ref(false)
 
-const textSections = computed(() => {
-  const titles = wishlistSectionTitles(tradingCfg.value)
-  const sections = [
-    {
-      title: titles.buying,
-      items: buyingItems.value,
-      buying: tradingCfg.value.type !== 'selling',
-    },
-  ]
-
-  if (trading.value) {
-    sections.push({ title: titles.selling, items: sellingItems.value })
-  }
-
-  return sections
-})
+const textSections = computed(() =>
+  wishlistSections(tradingCfg.value, buyingItems.value, sellingItems.value),
+)
 </script>

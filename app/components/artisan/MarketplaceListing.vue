@@ -1,24 +1,22 @@
 <template>
   <div>
-    <UPageList v-if="status === 'pending' && !trades.length" divide>
+    <UPageGrid v-if="status === 'pending' && !trades.length">
       <div
-        v-for="index in 5"
+        v-for="index in 6"
         :key="index"
-        class="flex flex-col lg:flex-row lg:items-center gap-4 py-4"
+        class="flex flex-col gap-4 rounded-lg p-4 ring ring-default"
       >
-        <div class="flex-1 space-y-2">
-          <USkeleton class="h-5 w-48" />
-          <USkeleton class="h-4 w-72 max-w-full" />
-        </div>
-        <div class="flex -space-x-2">
+        <div class="grid grid-cols-3 gap-1.5">
           <USkeleton
-            v-for="avatar in 8"
-            :key="avatar"
-            class="size-10 rounded-full ring-2 ring-bg"
+            v-for="cell in 6"
+            :key="cell"
+            class="aspect-square rounded-md"
           />
         </div>
+        <USkeleton class="h-5 w-48" />
+        <USkeleton class="h-4 w-64 max-w-full" />
       </div>
-    </UPageList>
+    </UPageGrid>
 
     <UEmpty
       v-else-if="!trades.length"
@@ -35,7 +33,7 @@
       ]"
     />
 
-    <UPageList v-else divide>
+    <UPageGrid v-else>
       <USlideover
         v-for="trade in trades"
         :key="trade.id"
@@ -50,60 +48,7 @@
           content: 'sm:max-w-4xl',
         }"
       >
-        <UPageCard
-          variant="ghost"
-          orientation="horizontal"
-          :ui="{
-            root: 'cursor-pointer',
-            container: 'lg:items-center',
-            description: 'mt-1 space-y-1',
-          }"
-        >
-          <template #title>
-            <span class="flex flex-wrap items-center gap-2">
-              {{ trade.name }}
-              <UBadge
-                :label="isBuying(trade) ? 'Buying' : 'Selling'"
-                :icon="intentIcon(trade)"
-                :color="isBuying(trade) ? 'info' : 'warning'"
-                variant="subtle"
-                size="sm"
-              />
-            </span>
-          </template>
-
-          <template #description>
-            <p v-if="trade.message" class="line-clamp-2">
-              {{ trade.message }}
-            </p>
-            <p
-              class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted"
-            >
-              <span v-if="trade.contact" class="flex items-center gap-1">
-                <UIcon name="hugeicons:discord" class="size-4" />
-                {{ trade.contact }}
-              </span>
-              <span class="flex items-center gap-1">
-                <UIcon name="hugeicons:package" class="size-4" />
-                {{ countLabel(trade.items.length, 'cap') }}
-              </span>
-              <span class="flex items-center gap-1">
-                <UIcon name="hugeicons:calendar-03" class="size-4" />
-                {{ formatDate(trade.created_at) }}
-              </span>
-            </p>
-          </template>
-
-          <UAvatarGroup size="xl" :max="avatarMax" class="lg:justify-end">
-            <UTooltip
-              v-for="{ id, artisan } in trade.items"
-              :key="id"
-              :text="colorwayTitle(artisan)"
-            >
-              <UAvatar :src="artisan.img" :alt="artisan.name" />
-            </UTooltip>
-          </UAvatarGroup>
-        </UPageCard>
+        <ArtisanTradeCard :trade="trade" />
 
         <template #body>
           <div v-if="trade.message" class="text-muted whitespace-pre-line mb-4">
@@ -117,7 +62,7 @@
               v-for="{ id, priority, asking_price, artisan } in trade.items"
               :key="id"
               :title="artisan.name"
-              :description="colorwayMaker(artisan)"
+              :description="colorwayCaption(artisan)"
               :to="`/artisan/maker/${artisan.maker_id}/${artisan.sculpt_id}?cid=${artisan.colorway_id}`"
               reverse
               :highlight="priority"
@@ -181,7 +126,7 @@
           </div>
         </template>
       </USlideover>
-    </UPageList>
+    </UPageGrid>
 
     <UPagination
       v-if="total > size"
@@ -198,8 +143,6 @@
 </template>
 
 <script setup>
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-
 const { intent } = defineProps({
   // 'want', 'sell', or 'all'
   intent: {
@@ -227,18 +170,6 @@ const { data, status } = await useAsyncData(
 const trades = computed(() => data.value?.data || [])
 const total = computed(() => data.value?.total || 0)
 
-// As many avatars as fit on one row: below lg they span the full width,
-// from lg they share the row with the collection details
-const breakpoints = useBreakpoints(breakpointsTailwind)
-const avatarMax = computed(() => {
-  if (breakpoints['2xl'].value) return 14
-  if (breakpoints.xl.value) return 10
-  if (breakpoints.lg.value) return 7
-  if (breakpoints.md.value) return 14
-  if (breakpoints.sm.value) return 10
-  return 7
-})
-
 const emptyDescription = computed(() => {
   if (intent === 'want') return 'Nobody is looking for caps right now.'
   if (intent === 'sell') return 'Nobody is selling caps right now.'
@@ -246,12 +177,6 @@ const emptyDescription = computed(() => {
 })
 
 const isBuying = (trade) => trade.intent === 'want'
-
-const intentIcon = (trade) =>
-  isBuying(trade) ? 'hugeicons:money-bag-02' : 'hugeicons:sale-tag-02'
-
-const colorwayMaker = (artisan) =>
-  [artisan.sculpt?.name, artisan.maker?.name].filter(Boolean).join(' · ')
 
 const copyToClipboard = (discord) => {
   navigator.clipboard.writeText(discord)

@@ -88,30 +88,10 @@ const { colorway } = defineProps({
   },
 })
 
+// The colorway's details as badges: the ones it has, photo credit aside
 const badges = computed(() =>
-  [
-    colorway.release && {
-      label: colorway.release,
-      icon: 'hugeicons:calendar-03',
-    },
-    colorway.sale_type && {
-      label: colorway.sale_type,
-      icon: 'hugeicons:tag-01',
-    },
-    colorway.price && {
-      label: formatPrice(colorway.price, colorway.currency, {
-        stripZeros: true,
-      }),
-      icon: 'hugeicons:money-03',
-    },
-    colorway.qty && {
-      label: formatNumber(colorway.qty),
-      icon: 'hugeicons:package',
-    },
-    colorway.stem?.length && {
-      label: colorway.stem.join(', '),
-      icon: 'hugeicons:keyboard',
-    },
-  ].filter(Boolean),
+  colorwaySpecItems(colorway, { credit: false })
+    .filter((spec) => spec.description)
+    .map(({ description, icon }) => ({ label: description, icon })),
 )
 </script>

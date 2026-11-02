@@ -1,120 +1,90 @@
 <template>
-  <div class="bg-(--ui-bg) p-4 flex flex-col gap-4" :style="sheetStyle">
-    <UPageHeader
-      :ui="{
-        root: 'border-none',
-        links: compact ? 'flex-wrap' : undefined,
-      }"
+  <div
+    class="flex flex-col gap-8 bg-(--ui-bg)"
+    :class="[
+      compact ? 'p-3' : 'p-6',
+      // The editor shows the sheet as the page it exports to
+      editable && 'rounded-xl shadow-sm ring ring-default',
+    ]"
+    :style="sheetStyle"
+  >
+    <header
+      class="flex flex-wrap items-center justify-between gap-4 border-b border-default pb-5"
+      :class="compact && 'flex-col items-start'"
     >
-      <template #title>
-        <AppWordmark size="xl" />
-      </template>
+      <AppWordmark :size="compact ? 'lg' : 'xl'" />
 
-      <template #links>
+      <div v-if="contacts.length" class="flex flex-wrap gap-2">
         <UBadge
-          v-if="tradingCfg.social.discord"
-          icon="hugeicons:discord"
+          v-for="contact in contacts"
+          :key="contact.icon"
+          :icon="contact.icon"
+          :label="contact.label"
           size="xl"
-          class="text-(--color-discord) bg-transparent"
-        >
-          {{ tradingCfg.social.discord }}
-        </UBadge>
-
-        <UBadge
-          v-if="tradingCfg.social.reddit"
-          icon="hugeicons:reddit"
-          size="xl"
-          class="text-(--color-reddit) bg-transparent"
-        >
-          {{ tradingCfg.social.reddit }}
-        </UBadge>
-
-        <UBadge
-          v-if="tradingCfg.social.qq"
-          icon="basil:qq-outline"
-          size="xl"
-          class="text-(--color-qq) bg-transparent"
-        >
-          {{ tradingCfg.social.qq }}
-        </UBadge>
-
-        <UBadge
-          v-if="tradingCfg.shipping_included"
-          icon="hugeicons:package-moving"
-          size="xl"
-          color="info"
-          class="bg-transparent"
-        >
-          Shipping Included
-        </UBadge>
-      </template>
-
-      <template #description>
-        <UAlert
-          v-if="editable && totalItems > 24"
-          icon="hugeicons:information-circle"
-          variant="subtle"
-          color="info"
-          class="mt-4"
-        >
-          <template #description>
-            For optimal image display, it's <strong>recommended</strong> to keep
-            your wishlist between 16-24 items.
-          </template>
-        </UAlert>
-
-        <UAlert
-          v-if="tradingCfg.fnf_only"
-          icon="hugeicons:alert-02"
-          title="No PayPal Buyer Protection"
-          description="Please note that the seller does not accept PayPal Goods & Services (G&S). This means that if you choose to proceed with the transaction, you will not have PayPal's buyer protection in place."
-          variant="subtle"
-          color="warning"
-          class="mt-4"
+          :class="[contact.class, 'bg-transparent']"
         />
-      </template>
-    </UPageHeader>
+      </div>
+    </header>
 
-    <USeparator
-      v-if="buyingItems.length"
-      :label="titles.buying"
-      :ui="{
-        label: compact
-          ? 'text-2xl font-bold text-info'
-          : 'text-3xl sm:text-4xl font-bold text-info',
-      }"
+    <UAlert
+      v-if="editable && totalItems > 24"
+      icon="hugeicons:information-circle"
+      variant="subtle"
+      color="info"
+      description="The image reads best with 16 to 24 caps."
     />
 
-    <ArtisanWishlistGrid
-      :data="buyingItems"
-      :editable="editable"
-      :compact="compact"
-      :buying="tradingCfg.type !== 'selling'"
-      @on-remove="$emit('remove', $event)"
-      @on-highlight="$emit('highlight', $event)"
-    />
+    <section
+      v-for="section in sections"
+      :key="section.key"
+      class="flex flex-col gap-4"
+    >
+      <h2 class="flex items-center gap-3">
+        <span
+          class="w-1.5 self-stretch rounded-full"
+          :class="section.buying ? 'bg-info' : 'bg-warning'"
+        />
+        <span
+          class="font-bold text-highlighted"
+          :class="compact ? 'text-2xl' : 'text-4xl'"
+        >
+          {{ section.title }}
+        </span>
+        <!-- The seller's terms, beside the caps they apply to, where buyers
+        read the prices -->
+        <span
+          v-if="!section.buying && terms.length"
+          class="ms-auto flex flex-wrap items-center justify-end gap-x-4 gap-y-1 font-semibold"
+          :class="compact ? 'text-xs' : 'text-sm'"
+        >
+          <span
+            v-for="term in terms"
+            :key="term.label"
+            class="flex items-center gap-1"
+            :class="term.class"
+          >
+            <UIcon :name="term.icon" class="size-4 shrink-0" />
+            {{ term.label }}
+          </span>
+        </span>
+      </h2>
 
-    <USeparator
-      v-if="sellingItems.length && trading"
-      :label="titles.selling"
-      :ui="{
-        label: compact
-          ? 'text-2xl font-bold text-warning'
-          : 'text-3xl sm:text-4xl font-bold text-warning',
-      }"
-    />
+      <ArtisanWishlistGrid
+        :data="section.items"
+        :editable="editable"
+        :compact="compact"
+        :buying="section.buying"
+        @on-remove="$emit('remove', $event)"
+        @on-highlight="$emit('highlight', $event)"
+      />
+    </section>
 
-    <ArtisanWishlistGrid
-      v-if="trading"
-      :data="sellingItems"
-      :editable="editable"
-      :compact="compact"
-      @on-remove="$emit('remove', $event)"
-    />
-
-    <USeparator class="mt-8">
-      <AppWordmark />
-    </USeparator>
+    <footer
+      class="flex items-center justify-between gap-4 border-t border-default pt-4 text-muted"
+    >
+      <span class="font-mono text-sm">{{ formatDate(isoToday()) }}</span>
+      <AppWordmark size="sm" domain />
+    </footer>
   </div>
 </template>
 
@@ -139,13 +109,52 @@ const { buyingItems, sellingItems, editable, compact } = defineProps({
 const tradingCfg = useTradingConfig()
 const trading = computed(() => tradingCfg.value.type === 'trading')
 
-const titles = computed(() => wishlistSectionTitles(tradingCfg.value))
+// Want first, then Have on a trading list; an empty section is left out
+const sections = computed(() =>
+  wishlistSections(tradingCfg.value, buyingItems, sellingItems).filter(
+    (section) => section.items.length,
+  ),
+)
+
+// Seller terms; buying lists have none
+const terms = computed(() =>
+  [
+    tradingCfg.value.shipping_included && {
+      label: 'Shipping Included',
+      icon: 'hugeicons:package-moving',
+      class: 'text-info',
+    },
+    tradingCfg.value.fnf_only && {
+      label: 'PayPal F&F Only, No Buyer Protection',
+      icon: 'hugeicons:alert-02',
+      class: 'text-warning',
+    },
+  ].filter(Boolean),
+)
+
+const contacts = computed(() => {
+  const { discord, reddit, qq } = tradingCfg.value.social
+
+  return [
+    discord && {
+      icon: 'hugeicons:discord',
+      label: discord,
+      class: 'text-(--color-discord)',
+    },
+    reddit && {
+      icon: 'hugeicons:reddit',
+      label: reddit,
+      class: 'text-(--color-reddit)',
+    },
+    qq && { icon: 'basil:qq-outline', label: qq, class: 'text-(--color-qq)' },
+  ].filter(Boolean)
+})
 
 const totalItems = computed(
   () => buyingItems.length + (trading.value ? sellingItems.length : 0),
 )
 
-// Widest section decides the sheet width (plus the p-4 padding).
+// Widest section decides the sheet width (plus the p-6 padding).
 const sheetColumns = computed(() => {
   const columns = (items) =>
     items.length ? wishlistColumns(items.length, tradingCfg.value.columns) : 0
@@ -160,7 +169,7 @@ const sheetColumns = computed(() => {
 const sheetStyle = computed(() => {
   if (compact) return undefined
 
-  const width = `calc(${wishlistGridWidth(sheetColumns.value)} + 2rem)`
+  const width = `calc(${wishlistGridWidth(sheetColumns.value)} + 3rem)`
 
   return editable
     ? { width: `min(100%, ${width})`, marginInline: 'auto' }

@@ -1,34 +1,36 @@
 <template>
-  <UPageSection
-    v-if="testimonials.length"
-    headline="Shoutouts"
-    title="What People Say"
-    description="Collectors and makers on how they use Keebdex."
-    :links="[
-      {
-        to: '/shoutouts',
-        label: 'All Shoutouts',
-        variant: 'ghost',
-        trailingIcon: 'solar:map-arrow-right-bold-duotone',
-        ui: { label: 'block' },
-      },
-    ]"
-    :ui="{ container: 'overflow-hidden', body: 'flex flex-col gap-6' }"
-  >
-    <HomeMarquee
-      v-for="(row, index) in rows"
-      :key="index"
-      :items="row"
-      :reverse="index === 1"
-      item-class="w-80"
-      duration="80s"
-      layout="center"
+  <section v-if="testimonials.length" class="flex flex-col gap-8">
+    <HomeSectionHeader
+      headline="Shoutouts"
+      title="What People Say"
+      description="Collectors and makers on how they use Keebdex."
     >
-      <template #default="{ item }">
-        <ShoutoutCard :item="item" />
+      <template #links>
+        <UButton
+          label="All Shoutouts"
+          to="/shoutouts"
+          variant="ghost"
+          trailing-icon="hugeicons:arrow-right-02"
+          :ui="{ label: 'block' }"
+        />
       </template>
-    </HomeMarquee>
-  </UPageSection>
+    </HomeSectionHeader>
+
+    <div class="flex flex-col gap-6">
+      <HomeMarquee
+        v-for="(row, index) in rows"
+        :key="index"
+        :items="row"
+        :reverse="index === 1"
+        item-class="w-80"
+        duration="80s"
+      >
+        <template #default="{ item }">
+          <ShoutoutCard :item="item" />
+        </template>
+      </HomeMarquee>
+    </div>
+  </section>
 </template>
 
 <script setup>
@@ -49,7 +51,7 @@ const { data } = await useAsyncData(
 const testimonials = computed(() => data.value?.data || [])
 
 // Two rows scrolling in opposite directions once there are enough shoutouts;
-// up to three sit still in a grid (HomeMarquee).
+// up to three sit still (HomeMarquee).
 const rows = computed(() => {
   const items = testimonials.value
   if (items.length < 6) return [items]

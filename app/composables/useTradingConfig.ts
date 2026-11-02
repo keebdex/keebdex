@@ -29,3 +29,49 @@ export const useTradingConfig = () => {
 }
 
 export { createDefaultTradingConfig }
+
+/**
+ * Whether the wishlist settings are open: beside the sheet on wide screens at
+ * first, closed on phones, where the slideover would cover the start screen.
+ */
+export const useWishlistSidebar = () =>
+  useState('wishlist-sidebar-open', () => !useDevice().isMobile)
+
+/** The kinds of list a wishlist image can be, in the order they are offered. */
+export const WISHLIST_TYPE_ITEMS = [
+  { label: 'Buying', value: 'buying' },
+  { label: 'Selling', value: 'selling' },
+  { label: 'Trading', value: 'trading' },
+]
+
+// Collection intents each list type draws from; a trading list's Have
+// section draws from the selling ones
+const WISHLIST_INTENTS: Record<string, string[]> = {
+  buying: ['keep', 'want'],
+  selling: ['keep', 'sell'],
+  trading: ['keep', 'want'],
+}
+
+/**
+ * The list type and collection pickers' logic, shared by the settings and
+ * the start screen: the user's artisan collections that fit a list type, and
+ * a type change, which clears the picked collections, titles, and terms.
+ */
+export const useWishlistPicker = () => {
+  const { collections } = storeToRefs(useUserStore())
+  const config = useTradingConfig()
+
+  const collectionItems = (type: string) =>
+    collections.value.filter(
+      (c: any) =>
+        c.category === 'artisan' && WISHLIST_INTENTS[type]?.includes(c.intent),
+    )
+
+  const setType = (type: string) => {
+    const { social, columns } = config.value
+
+    config.value = { ...createDefaultTradingConfig(social), columns, type }
+  }
+
+  return { collectionItems, setType }
+}

@@ -25,6 +25,38 @@ export const wishlistSectionTitles = ({ type, buying, selling }: any) => ({
   selling: selling.title || selling.placeholder,
 })
 
+/**
+ * A list's sections, shared by the image and the text: the first one (Want,
+ * or the caps for sale on a selling list), then Have on a trading list.
+ * `buying` marks a section of caps wanted.
+ */
+export const wishlistSections = (
+  config: any,
+  buyingItems: any[],
+  sellingItems: any[],
+) => {
+  const titles = wishlistSectionTitles(config)
+  const sections = [
+    {
+      key: 'buying',
+      title: titles.buying,
+      items: buyingItems,
+      buying: config.type !== 'selling',
+    },
+  ]
+
+  if (config.type === 'trading') {
+    sections.push({
+      key: 'selling',
+      title: titles.selling,
+      items: sellingItems,
+      buying: false,
+    })
+  }
+
+  return sections
+}
+
 export type WishlistTextFormat = 'markdown' | 'plain'
 
 interface WishlistTextSection {

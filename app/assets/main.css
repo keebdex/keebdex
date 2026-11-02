@@ -26,3 +26,42 @@
   --card-width: 380px;
   --card-height: 550px;
 }
+/*
+ * Home page motion, off for reduced motion; `--i` staggers. The section
+ * reveal needs scroll-driven animations, so elsewhere sections just show.
+ * `backwards` holds the start state only until each animation runs, then
+ * lets go, so nothing stays composited once it settles.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .home-rise {
+    animation: home-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
+
+  .home-key {
+    animation: home-key 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
+    animation-delay: calc(250ms + var(--i, 0) * 45ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    .home-reveal {
+      animation: home-rise linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes home-key {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+}

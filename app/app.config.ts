@@ -146,6 +146,26 @@ export default defineAppConfig({
         root: 'max-w-(--ui-container)',
       },
     },
+    // Item bodies in the page's text, set apart from the title: the default
+    // muted, small text would reach what they hold (cards, rows), which some
+    // themes color apart from other pages
+    timeline: {
+      slots: {
+        description: 'mt-3 text-default',
+      },
+    },
+    // Arrows inside the slides, not beside them, at every width (the
+    // position is set by the orientation variant, not the slot)
+    carousel: {
+      variants: {
+        orientation: {
+          horizontal: {
+            prev: 'start-2 sm:start-2',
+            next: 'end-2 sm:end-2',
+          },
+        },
+      },
+    },
     select: {
       slots: {
         content: 'min-w-fit',

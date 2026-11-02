@@ -9,179 +9,142 @@
       container: 'border-none',
     }"
   >
-    <UForm :state="tradingConfig" class="space-y-4">
-      <UFormField label="Type" name="type">
-        <USelect
-          v-model="tradingConfig.type"
-          :items="typeItems"
-          class="w-full"
-          @update:model-value="resetTradingState"
-        />
-      </UFormField>
+    <UForm :state="tradingConfig" class="flex flex-col gap-6">
+      <!-- What the list is for decides its sections and collections -->
+      <UTabs
+        :model-value="tradingConfig.type"
+        :items="WISHLIST_TYPE_ITEMS"
+        :content="false"
+        size="sm"
+        aria-label="List type"
+        :ui="{ trigger: 'flex-1' }"
+        @update:model-value="setType"
+      />
 
-      <UFormField
-        :label="`Layout - ${tradingConfig.columns} Column${tradingConfig.columns === 1 ? '' : 's'}`"
-        name="layout_columns"
-      >
-        <USlider v-model="tradingConfig.columns" :min="1" :max="10" />
-      </UFormField>
+      <fieldset class="flex flex-col gap-4">
+        <legend :class="legendClass">
+          {{ trading ? 'Want' : 'List' }}
+        </legend>
 
-      <USeparator label="Trade Details" />
+        <UFormField label="Collection" name="want_collection">
+          <USelect
+            v-model="tradingConfig.buying.collection"
+            :items="collectionItems(tradingConfig.type)"
+            label-key="name"
+            value-key="id"
+            placeholder="Pick a Collection"
+            class="w-full"
+          />
+        </UFormField>
 
-      <UFormField :label="trading ? 'Want Title' : 'Title'" name="want_title">
-        <UInput
-          v-model.trim="tradingConfig.buying.title"
-          icon="hugeicons:text-font"
-          :placeholder="
-            tradingConfig.type === 'selling'
-              ? tradingConfig.selling.placeholder
-              : tradingConfig.buying.placeholder
-          "
-          class="w-full"
-        />
-      </UFormField>
+        <UFormField label="Title" name="want_title">
+          <UInput
+            v-model.trim="tradingConfig.buying.title"
+            icon="hugeicons:text-font"
+            :placeholder="
+              tradingConfig.type === 'selling'
+                ? tradingConfig.selling.placeholder
+                : tradingConfig.buying.placeholder
+            "
+            class="w-full"
+          />
+        </UFormField>
+      </fieldset>
 
-      <UFormField
-        :label="trading ? 'Want Collection' : 'Collection'"
-        name="want_collection"
-        :help="
-          tradingConfig.buying.collection
-            ? undefined
-            : 'Start here: pick the collection to turn into a wishlist.'
-        "
-      >
-        <USelect
-          v-model="tradingConfig.buying.collection"
-          :items="
-            collections.filter(
-              (c) =>
-                c.category === 'artisan' &&
-                intentMap[tradingConfig.type].includes(c.intent),
-            )
-          "
-          label-key="name"
-          value-key="id"
-          class="w-full"
-        />
-      </UFormField>
+      <fieldset v-if="trading" class="flex flex-col gap-4">
+        <legend :class="legendClass">Have</legend>
 
-      <UFormField v-if="trading" label="Have Title" name="have_title">
-        <UInput
-          v-model.trim="tradingConfig.selling.title"
-          icon="hugeicons:text-font"
-          :placeholder="tradingConfig.selling.placeholder"
-          class="w-full"
-        />
-      </UFormField>
+        <UFormField label="Collection" name="have_collection">
+          <USelect
+            v-model="tradingConfig.selling.collection"
+            :items="collectionItems('selling')"
+            label-key="name"
+            value-key="id"
+            placeholder="Pick a Collection"
+            class="w-full"
+          />
+        </UFormField>
 
-      <UFormField v-if="trading" label="Have Collection" name="have_collection">
-        <USelect
-          v-model="tradingConfig.selling.collection"
-          :items="
-            collections.filter(
-              (c) =>
-                c.category === 'artisan' &&
-                intentMap.selling.includes(c.intent),
-            )
-          "
-          label-key="name"
-          value-key="id"
-          class="w-full"
-        />
-      </UFormField>
+        <UFormField label="Title" name="have_title">
+          <UInput
+            v-model.trim="tradingConfig.selling.title"
+            icon="hugeicons:text-font"
+            :placeholder="tradingConfig.selling.placeholder"
+            class="w-full"
+          />
+        </UFormField>
+      </fieldset>
 
-      <USeparator label="Social" />
+      <fieldset class="flex flex-col gap-4">
+        <legend :class="legendClass">Layout</legend>
 
-      <UFormField label="Discord" name="discord">
+        <UFormField
+          :label="countLabel(tradingConfig.columns, 'column')"
+          name="layout_columns"
+        >
+          <USlider v-model="tradingConfig.columns" :min="1" :max="10" />
+        </UFormField>
+      </fieldset>
+
+      <fieldset class="flex flex-col gap-4">
+        <legend :class="legendClass">Contact</legend>
+
         <UInput
           v-model.trim="tradingConfig.social.discord"
           icon="hugeicons:discord"
-          placeholder="username#1234"
+          placeholder="Discord username"
+          aria-label="Discord"
           class="w-full"
         />
-      </UFormField>
-
-      <UFormField label="Reddit" name="reddit">
         <UInput
           v-model.trim="tradingConfig.social.reddit"
           icon="hugeicons:reddit"
           placeholder="u/username"
+          aria-label="Reddit"
           class="w-full"
         />
-      </UFormField>
-
-      <UFormField label="QQ" name="qq">
         <UInput
           v-model.trim="tradingConfig.social.qq"
           icon="hugeicons:bubble-chat"
-          placeholder="00000000"
+          placeholder="QQ number"
+          aria-label="QQ"
           class="w-full"
         />
-      </UFormField>
+      </fieldset>
 
-      <!-- Seller preferences; buying lists have none. -->
-      <template v-if="tradingConfig.type !== 'buying'">
-        <USeparator label="Preferences" />
+      <!-- Seller terms; buying lists have none. -->
+      <fieldset
+        v-if="tradingConfig.type !== 'buying'"
+        class="flex flex-col gap-3"
+      >
+        <legend :class="legendClass">Terms</legend>
 
-        <UFormField>
-          <UCheckbox
-            v-model="tradingConfig.fnf_only"
-            label="I do not accept PayPal G&S"
-          />
-        </UFormField>
-
-        <UFormField>
-          <UCheckbox
-            v-model="tradingConfig.shipping_included"
-            label="Shipping included"
-          />
-        </UFormField>
-      </template>
+        <USwitch
+          v-model="tradingConfig.shipping_included"
+          label="Shipping included"
+        />
+        <USwitch
+          v-model="tradingConfig.fnf_only"
+          label="PayPal F&F only"
+          description="Buyers get no PayPal buyer protection."
+        />
+      </fieldset>
     </UForm>
   </USidebar>
 </template>
 
 <script setup>
-const userStore = useUserStore()
-const { authenticated, collections, social } = storeToRefs(userStore)
+const { authenticated, social } = storeToRefs(useUserStore())
 
-const sidebarOpen = useState('wishlist-sidebar-open', () => true)
-
-const intentMap = {
-  buying: ['keep', 'want'],
-  selling: ['keep', 'sell'],
-  trading: ['keep', 'want'],
-}
+const sidebarOpen = useWishlistSidebar()
 
 const tradingConfig = useTradingConfig()
+const { collectionItems, setType } = useWishlistPicker()
 
-const typeItems = [
-  { label: 'Buying', value: 'buying' },
-  { label: 'Selling', value: 'selling' },
-  { label: 'Trading', value: 'trading' },
-]
-
-const resetTradingState = () => {
-  tradingConfig.value.buying = {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTB/WTTF',
-  }
-  tradingConfig.value.selling = {
-    collection: undefined,
-    title: '',
-    placeholder: 'WTS/WTT',
-  }
-  tradingConfig.value.fnf_only = false
-  tradingConfig.value.shipping_included = false
-}
+// Each group of settings opens with a small mono heading
+const legendClass = ['mb-3 text-muted', eyebrowClass]
 
 const trading = computed(() => tradingConfig.value.type === 'trading')
-watch(trading, () => {
-  if (trading.value) {
-    tradingConfig.value.selling.placeholder = 'WTS/WTT'
-  }
-})
 
 watch(social, (value) => {
   tradingConfig.value.social = value

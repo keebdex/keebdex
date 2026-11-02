@@ -24,3 +24,9 @@ export const collectionIntentItems: {
     value: 'sell',
   },
 ]
+
+/** How a Trading Hub listing reads, by its collection's intent. */
+export const TRADE_INTENTS = {
+  want: { label: 'Buying', icon: 'hugeicons:money-bag-02', color: 'info' },
+  sell: { label: 'Selling', icon: 'hugeicons:sale-tag-02', color: 'warning' },
+} as const

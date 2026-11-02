@@ -1,4 +1,5 @@
 import type { Database } from '~/types/database.types'
+import type { KeebModule } from '~/utils/keeb-modules'
 
 export const formatPrice = (
   amount: number | null | undefined,
@@ -32,6 +33,10 @@ export const userAvatar = (
 
 export const formatNumber = (value: number | null | undefined) =>
   value || value === 0 ? new Intl.NumberFormat('en-US').format(value) : ''
+
+// A count the database estimates, as a round figure: "68,000+"
+export const formatEstimate = (value: number) =>
+  `${formatNumber(Math.floor(value / 1000) * 1000)}+`
 
 // Profile rows hold a short name (CYL, SA) apart from the manufacturer (GMK,
 // Signature Plastics); show both unless they say the same thing (JTK JTK)
@@ -98,8 +103,9 @@ export const statusColorMap: Record<string, string> = {
   Rejected: 'error',
 }
 
+// The colorway's name and its sculpt's, or the name alone without a sculpt
 export const colorwayTitle = (colorway: any) =>
-  `${colorway.name} ${colorway?.sculpt.name}`
+  [colorway.name, colorway.sculpt?.name].filter(Boolean).join(' ')
 
 export const formatKeyboardDescription = (names: Array<string | undefined>) => {
   return names.filter((n) => !!n).join(' ')
@@ -171,6 +177,11 @@ export const artisanGridClass =
 export const imageCardContainerClass =
   'h-full grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)]'
 
+// A small mono uppercase eyebrow over a title (the home page's sections, the
+// wishlist settings' groups); callers add its color
+export const eyebrowClass =
+  'font-mono text-xs font-medium uppercase tracking-[0.2em]'
+
 // A UPageHeader scaled down to head a section of a detail page (a keyboard's
 // releases, a keyset's kits and colors): an h2 title, no border or padding,
 // and the actions beside the title at every width. Pass both to the header
@@ -183,6 +194,34 @@ export const detailSectionHeaderUi = {
   description: 'mt-1 text-sm text-start',
   links: 'shrink-0',
 }
+
+// The UPageHeader at the top of a detail page, inside `SharedDetailHero`: no
+// border or padding, and the actions beside the title, except under it from
+// lg to xl when media sits beside it, where the column is too narrow for both.
+export const detailPageHeaderUi = (withMedia: boolean) => ({
+  root: 'border-none py-0',
+  wrapper: [
+    // UPageHeader centers its wrapper from lg; keep the title at the start
+    'gap-3 sm:flex-row sm:items-start sm:justify-between lg:items-start',
+    withMedia && 'lg:flex-col 2xl:flex-row',
+  ],
+  links: 'flex flex-wrap gap-2 shrink-0',
+  headline: 'mb-1',
+  description: 'text-sm',
+})
+
+// Where an Add button leads: staff (`editable`) open the form in place, and
+// everyone else goes to the module's submission wizard with `query`
+// preselected. Bind the result to the button (`v-bind`).
+export const submissionTarget = (
+  editable: boolean,
+  onClick: () => void,
+  module: KeebModule,
+  query: Record<string, unknown>,
+) =>
+  editable
+    ? { onClick }
+    : { to: { path: `/${module}/submissions/submit`, query } }
 
 export const SEARCH_TERM_MIN_LENGTH = 3
 

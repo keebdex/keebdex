@@ -15,21 +15,27 @@
       <div class="cursor-move">
         <ArtisanWishlistItem :item="item" :buying="buying" :compact="compact">
           <template #actions>
-            <UTooltip text="Priority">
+            <UTooltip
+              v-if="buying && item.exchange"
+              :text="priorityLabel(item)"
+            >
               <UButton
-                v-if="buying && item.exchange"
-                icon="hugeicons:shopping-bag-favorite"
-                :color="item.priority ? 'success' : 'neutral'"
-                :size="compact ? 'sm' : 'md'"
+                icon="hugeicons:star"
+                :color="item.priority ? 'primary' : 'neutral'"
+                variant="solid"
+                size="sm"
+                :aria-label="priorityLabel(item)"
                 @click="$emit('onHighlight', item.id)"
               />
             </UTooltip>
 
             <UTooltip text="Remove">
               <UButton
-                icon="hugeicons:shopping-bag-remove"
+                icon="hugeicons:delete-02"
                 color="error"
-                :size="compact ? 'sm' : 'md'"
+                variant="solid"
+                size="sm"
+                aria-label="Remove"
                 @click="$emit('onRemove', item)"
               />
             </UTooltip>
@@ -68,6 +74,10 @@ const { data, editable, compact } = defineProps({
   // Want items (priority flag, "found" mark); each section drags on its own.
   buying: Boolean,
 })
+
+// The Top Priority button's tooltip and label: what a click does
+const priorityLabel = (item) =>
+  item.priority ? 'Remove Top Priority' : 'Top Priority'
 
 const gridColumns = computed(() => {
   if (compact) return 2
