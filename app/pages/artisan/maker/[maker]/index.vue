@@ -36,17 +36,27 @@
           />
 
           <UModal
-            v-if="Object.hasOwn(favorites, maker.maker_id)"
+            v-if="Object.hasOwn(pinnedMakers, maker.maker_id)"
             title="Customize Pins"
-            description="Pin up to 6 sculpts to the top for easy access."
+            description="Pin sculpts to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
               <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
             </UTooltip>
 
             <template #body="{ close }">
-              <ArtisanModalPinSculpt
-                :sculpts="sortedSculpts"
+              <SharedPinForm
+                :items="sculptList.all"
+                value-key="sculpt_id"
+                :selected="sculptList.pinned.map((sculpt) => sculpt.sculpt_id)"
+                :save="
+                  (ids) =>
+                    userStore.savePinnedChildren(
+                      'artisan',
+                      route.params.maker,
+                      ids,
+                    )
+                "
                 @on-success="close"
               />
             </template>
@@ -54,19 +64,31 @@
         </template>
       </SharedOwnerHero>
 
-      <section class="pt-4">
-        <!-- Pinned sculpts first, with a pin beside the name -->
-        <UPageGrid v-if="sortedSculpts.length" :class="artisanGridClass">
+      <!-- Pinned sculpts get a group of their own above the rest; without
+           pins the grid follows the hero directly -->
+      <section
+        v-for="(group, index) in sculptList.groups"
+        :key="group.label"
+        :class="['space-y-3', index ? 'pt-8' : 'pt-4']"
+      >
+        <SharedPinGroupLabel
+          v-if="sculptList.pinned.length"
+          :pinned="group.pinned"
+        >
+          {{ group.label }}
+        </SharedPinGroupLabel>
+
+        <UPageGrid :class="artisanGridClass">
           <SharedCatalogCard
-            v-for="sculpt in sortedSculpts"
+            v-for="sculpt in group.items"
             :key="sculpt.id"
             v-bind="sculptCard(sculpt)"
-            :pinned="isPinned(sculpt)"
           />
         </UPageGrid>
+      </section>
 
+      <section v-if="!sculpts.length" class="pt-4">
         <UEmpty
-          v-else
           icon="hugeicons:dashboard-square-add"
           title="No Sculpts Yet"
           description="Know one of their sculpts? Submit it and our staff will review it before it goes public."
@@ -135,7 +157,7 @@
 <script setup>
 const route = useRoute()
 const userStore = useUserStore()
-const { authenticated, favorites } = storeToRefs(userStore)
+const { authenticated, pinnedMakers } = storeToRefs(userStore)
 
 const editable = computed(() => userStore.isEditable(maker.value?.maker_id))
 
@@ -161,9 +183,9 @@ const { data: maker, refresh, error } = await useAsyncData(
 throwIfNotFound(error.value)
 
 const sculpts = computed(() => Object.values(maker.value?.sculpts || {}))
-const favSculpts = computed(() => favorites.value[route.params.maker] || [])
+const favSculpts = computed(() => pinnedMakers.value[route.params.maker] || [])
 const isPinned = (sculpt) => favSculpts.value.includes(sculpt.sculpt_id)
-const sortedSculpts = computed(() => pinnedFirst(sculpts.value, isPinned))
+const sculptList = computed(() => splitPinned(sculpts.value, isPinned))
 
 // Staff add a sculpt in place; everyone else goes to the submission wizard
 const addSculptTarget = computed(() =>

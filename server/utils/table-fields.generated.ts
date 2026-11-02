@@ -182,7 +182,7 @@ export const TABLE_FIELDS = {
     "release_year",
     "review_status",
     "submitted_by",
-    "variant_specs",
+    "top_case_styles",
     "verified_at",
     "verified_by",
     "weight_materials"
@@ -379,6 +379,7 @@ export const TABLE_FIELDS = {
     "full_name",
     "id",
     "leaderboard_hidden",
+    "pins",
     "qq",
     "reddit",
     "role"

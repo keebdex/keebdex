@@ -179,18 +179,26 @@ export const getRoleLabel = (
 export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
 
-// The pin beside a pinned maker's or sculpt's name in a list
+// The pin on the Pinned label over a list's pinned makers or sculpts
 export const PINNED_ICON = 'solar:pin-bold'
 
-// Pinned items first, each part in its own order; the lists and their
-// Customize Pins modals share this order
-export const pinnedFirst = <T>(items: T[], isPinned: (item: T) => boolean) => {
+// A list's pinned items and the rest, each in its own order: `groups` for the
+// list (Pinned, then Others, empty ones dropped) and `all`, pinned first, for
+// its Customize Pins modal
+export const splitPinned = <T>(items: T[], isPinned: (item: T) => boolean) => {
   const pinned: T[] = []
   const others: T[] = []
 
   for (const item of items) (isPinned(item) ? pinned : others).push(item)
 
-  return [...pinned, ...others]
+  return {
+    pinned,
+    all: [...pinned, ...others],
+    groups: [
+      { label: 'Pinned', pinned: true, items: pinned },
+      { label: 'Others', pinned: false, items: others },
+    ].filter((group) => group.items.length),
+  }
 }
 
 // A maker's or brand's own links (website and socials), opened in a new tab

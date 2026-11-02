@@ -33,13 +33,48 @@
             @suggest="suggest('keyboard_brand', data)"
             @history="history?.show()"
           />
+
+          <UModal
+            v-if="Object.hasOwn(pinnedBrands, brand)"
+            title="Customize Pins"
+            description="Pin keyboards to keep them at the top of the list."
+          >
+            <UTooltip text="Customize Pins">
+              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+            </UTooltip>
+
+            <template #body="{ close }">
+              <SharedPinForm
+                :items="keyboards.all"
+                value-key="slug"
+                :selected="keyboards.pinned.map((keyboard) => keyboard.slug)"
+                :save="
+                  (ids) => userStore.savePinnedChildren('keyboard', brand, ids)
+                "
+                @on-success="close"
+              />
+            </template>
+          </UModal>
         </template>
       </SharedOwnerHero>
 
-      <section class="pt-4">
-        <UPageGrid v-if="data.keyboards?.length">
+      <!-- Pinned keyboards get a group of their own above the rest; without
+           pins the grid follows the hero directly -->
+      <section
+        v-for="(group, index) in keyboards.groups"
+        :key="group.label"
+        :class="['space-y-3', index ? 'pt-8' : 'pt-4']"
+      >
+        <SharedPinGroupLabel
+          v-if="keyboards.pinned.length"
+          :pinned="group.pinned"
+        >
+          {{ group.label }}
+        </SharedPinGroupLabel>
+
+        <UPageGrid>
           <SharedCatalogCard
-            v-for="keyboard in data.keyboards"
+            v-for="keyboard in group.items"
             :key="keyboard.slug"
             :title="keyboard.name"
             :description="keyboard.description"
@@ -56,9 +91,10 @@
             </template>
           </SharedCatalogCard>
         </UPageGrid>
+      </section>
 
+      <section v-if="!keyboards.all.length" class="pt-4">
         <UEmpty
-          v-else
           icon="hugeicons:keyboard"
           title="This Lineup Is Still Blank"
           description="Know one of their boards? Submit it and our staff will review it before it goes public."
@@ -127,7 +163,7 @@
 <script setup>
 const route = useRoute()
 const userStore = useUserStore()
-const { authenticated } = storeToRefs(userStore)
+const { authenticated, pinnedBrands } = storeToRefs(userStore)
 
 const brand = computed(() => String(route.params.brand || ''))
 
@@ -153,6 +189,12 @@ const { data, refresh, error } = await useAsyncData(
 )
 
 throwIfNotFound(error.value)
+
+const favKeyboards = computed(() => pinnedBrands.value[brand.value] || [])
+const isPinned = (keyboard) => favKeyboards.value.includes(keyboard.slug)
+const keyboards = computed(() =>
+  splitPinned(data.value?.keyboards || [], isPinned),
+)
 
 const breadcrumbs = computed(() => {
   return [
