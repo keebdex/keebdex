@@ -1,14 +1,17 @@
 <template>
   <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar :title="data?.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
+    </template>
 
-        <template #right>
+    <template #body>
+      <UPageHeader
+        :title="data?.name"
+        :description="data?.message"
+        :ui="detailPageHeaderUi(false)"
+      >
+        <template v-if="isOwner" #links>
           <UModal
-            v-if="isOwner"
             v-model:visible="visible.share"
             title="Share Collection"
             description="Control the visibility of this collection and generate a shareable link if needed."
@@ -48,14 +51,12 @@
           </UModal>
 
           <UButton
-            v-if="isOwner"
             :icon="appConfig.ui.icons.sortManual"
             label="Manual Sort"
             :to="`/collection/artisan/${route.params.collection}/sort`"
           />
 
           <UModal
-            v-if="isOwner"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
@@ -79,7 +80,6 @@
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
             <UButton
-              v-if="isOwner"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
@@ -91,10 +91,8 @@
             </template>
           </UModal>
         </template>
-      </UDashboardNavbar>
-    </template>
+      </UPageHeader>
 
-    <template #body>
       <UAlert
         v-if="hasOutdated"
         description="Outdated items found during database sync. Please remove and re-add from the maker page if needed before deletion."
@@ -332,9 +330,6 @@ const breadcrumbs = computed(() => {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',
       to: '/collection',
-    },
-    {
-      label: data.value?.name,
     },
   ]
 })

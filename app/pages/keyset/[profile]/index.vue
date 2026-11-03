@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel v-if="data?.profile" :id="`keyset-profile-${profile}`">
     <template #header>
-      <UDashboardNavbar :title="title">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>
@@ -198,9 +194,6 @@ const breadcrumbs = computed(() => [
     label: 'Profiles',
     icon: 'hugeicons:cross',
     to: '/keyset',
-  },
-  {
-    label: title.value,
   },
 ])
 

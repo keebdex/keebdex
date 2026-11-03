@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel id="keyset-group-buys">
     <template #header>
-      <UDashboardNavbar title="Group Buys" />
+      <UDashboardNavbar title="Keysets" />
 
       <UDashboardToolbar>
         <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
@@ -11,7 +11,6 @@
 
     <template #body>
       <UPageHeader
-        headline="Keysets"
         :title="tab.title"
         :description="tab.description"
         :ui="listingPageHeaderUi"

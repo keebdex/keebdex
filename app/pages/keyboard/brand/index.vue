@@ -1,12 +1,11 @@
 <template>
   <UDashboardPanel id="keyboard-brands">
     <template #header>
-      <UDashboardNavbar title="Keyboard Brands" />
+      <UDashboardNavbar title="Keyboards" />
     </template>
 
     <template #body>
       <UPageHeader
-        headline="Keyboards"
         title="Brands"
         :description="description"
         :ui="listingPageHeaderUi"

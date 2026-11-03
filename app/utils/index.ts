@@ -263,13 +263,11 @@ export const detailPageHeaderUi = (withMedia: boolean) => ({
 })
 
 // The UPageHeader opening a catalog list (makers, brands, profiles, group
-// buys, collections): the module as a mono eyebrow in the primary color, a
-// large title and a sentence, and the page's actions on the right, like the
-// home page's section headers
+// buys, collections): a large title and a sentence, and the page's actions on
+// the right. The module is named by the navbar, so there is no headline
 export const listingPageHeaderUi = {
   root: 'border-none py-0',
   wrapper: 'gap-4 sm:flex-row sm:items-end sm:justify-between lg:items-end',
-  headline: ['mb-2 text-primary', eyebrowClass],
   title: 'text-2xl sm:text-3xl',
   description: 'mt-2 text-muted text-pretty',
   links: 'flex flex-wrap gap-2 shrink-0',

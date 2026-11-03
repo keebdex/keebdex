@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel :id="`${route.params.maker}-${route.params.sculpt}`">
     <template #header>
-      <UDashboardNavbar :title="sculpt.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>
@@ -364,9 +360,6 @@ const breadcrumbs = computed(() => {
             : 'rounded-none',
         },
       },
-    },
-    {
-      label: sculpt.value.name,
     },
   ]
 })

@@ -1,12 +1,11 @@
 <template>
   <UDashboardPanel id="artisan-makers">
     <template #header>
-      <UDashboardNavbar title="Artisan Makers" />
+      <UDashboardNavbar title="Artisans" />
     </template>
 
     <template #body>
       <UPageHeader
-        headline="Artisans"
         title="Makers"
         :description="description"
         :ui="listingPageHeaderUi"

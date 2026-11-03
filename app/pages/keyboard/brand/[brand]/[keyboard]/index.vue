@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel v-if="data" :id="`keyboard-${slug}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>
@@ -616,9 +612,6 @@ const breadcrumbs = computed(() => {
             : 'rounded-none',
         },
       },
-    },
-    {
-      label: data.value?.name,
     },
   ]
 })

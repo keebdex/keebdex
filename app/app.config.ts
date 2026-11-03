@@ -59,6 +59,18 @@ export default defineAppConfig({
         variant: 'soft',
       },
     },
+    // Below lg the menu button sits on the right of every navbar, leaving the
+    // left to the title or a back button, and the menu's close button matches
+    dashboardNavbar: {
+      defaultVariants: {
+        toggleSide: 'right',
+      },
+    },
+    dashboardSidebar: {
+      defaultVariants: {
+        toggleSide: 'right',
+      },
+    },
     button: {
       slots: {
         base: 'cursor-pointer',

@@ -1,14 +1,17 @@
 <template>
   <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar :title="data?.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
+    </template>
 
-        <template #right>
+    <template #body>
+      <UPageHeader
+        :title="data?.name"
+        :description="data?.message"
+        :ui="detailPageHeaderUi(false)"
+      >
+        <template v-if="isOwner" #links>
           <UModal
-            v-if="isOwner"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
@@ -32,7 +35,6 @@
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
             <UButton
-              v-if="isOwner"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
@@ -44,10 +46,8 @@
             </template>
           </UModal>
         </template>
-      </UDashboardNavbar>
-    </template>
+      </UPageHeader>
 
-    <template #body>
       <UPageGrid v-if="sortedCollections.length">
         <SharedCatalogCard
           v-for="{ id, keyboard } in sortedCollections"
@@ -130,9 +130,6 @@ const breadcrumbs = computed(() => {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',
       to: '/collection',
-    },
-    {
-      label: data.value?.name,
     },
   ]
 })

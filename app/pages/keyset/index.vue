@@ -1,12 +1,11 @@
 <template>
   <UDashboardPanel id="keyset-profiles">
     <template #header>
-      <UDashboardNavbar title="Keyset Profiles" />
+      <UDashboardNavbar title="Keysets" />
     </template>
 
     <template #body>
       <UPageHeader
-        headline="Keysets"
         title="Profiles by Manufacturer"
         :description="description"
         :ui="listingPageHeaderUi"

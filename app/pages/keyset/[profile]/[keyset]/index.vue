@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel :id="`keyset-${profile}-${keyset}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>
@@ -394,11 +390,13 @@ const onReverted = ({ entityType, changes }) => {
 const breadcrumbs = computed(() => {
   return [
     {
-      label: manufacturers.value[profile],
-      to: `/keyset/${profile}`,
+      label: 'Profiles',
+      icon: 'hugeicons:cross',
+      to: '/keyset',
     },
     {
-      label: data.value.name,
+      label: manufacturers.value[profile],
+      to: `/keyset/${profile}`,
     },
   ]
 })

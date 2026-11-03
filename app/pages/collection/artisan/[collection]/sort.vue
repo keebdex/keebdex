@@ -1,10 +1,7 @@
 <template>
   <UDashboardPanel :id="`collection-${route.params.collection}-sort`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
+      <SharedBreadcrumbNavbar :items="breadcrumbs">
 
         <template #right>
           <UButton
@@ -14,7 +11,7 @@
             @click="saveCustomSorting"
           />
         </template>
-      </UDashboardNavbar>
+      </SharedBreadcrumbNavbar>
     </template>
 
     <template #body>

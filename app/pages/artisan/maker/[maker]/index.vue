@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel v-if="maker" :id="`artisan-maker-${route.params.maker}`">
     <template #header>
-      <UDashboardNavbar :title="maker.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>
@@ -258,9 +254,6 @@ const breadcrumbs = computed(() => {
       label: 'Makers',
       icon: 'hugeicons:user-multiple',
       to: '/artisan/maker',
-    },
-    {
-      label: maker.value.name,
     },
   ]
 })

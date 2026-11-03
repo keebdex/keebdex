@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel id="keyset-color">
     <template #header>
-      <UDashboardNavbar title="Colors" />
+      <UDashboardNavbar title="Keysets" />
 
       <UDashboardToolbar>
         <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
@@ -11,7 +11,6 @@
 
     <template #body>
       <UPageHeader
-        headline="Keysets"
         title="Color Swatches"
         description="Every color keycaps are matched to, from GMK and SP codes to Pantone and RAL. Open a swatch for its values and the keysets that use it."
         :ui="listingPageHeaderUi"

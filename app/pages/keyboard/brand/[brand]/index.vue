@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel v-if="data" :id="`keyboard-brand-${brand}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>
@@ -202,9 +198,6 @@ const breadcrumbs = computed(() => {
       label: 'Brands',
       icon: 'hugeicons:user-multiple',
       to: '/keyboard/brand',
-    },
-    {
-      label: data.value?.name,
     },
   ]
 })
