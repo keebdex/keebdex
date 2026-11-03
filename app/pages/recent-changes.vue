@@ -1,12 +1,31 @@
 <template>
   <SharedRedirectPage v-if="!isModerator" to="/" />
 
-  <UDashboardPanel v-else id="recent-changes">
-    <template #header>
-      <UDashboardNavbar title="Recent Changes" />
+  <div v-else class="flex min-h-0 flex-1 *:min-h-0">
+    <UDashboardPanel
+      id="recent-changes"
+      :default-size="28"
+      :min-size="22"
+      :max-size="36"
+      resizable
+      :class="revisionId ? 'max-lg:hidden' : undefined"
+    >
+      <template #header>
+        <UDashboardNavbar title="Recent Changes">
+          <template #right>
+            <USelect
+              v-model="source"
+              :items="sourceItems"
+              :icon="sourceIcon"
+              variant="soft"
+              size="sm"
+              class="w-40"
+              aria-label="Changed by"
+            />
+          </template>
+        </UDashboardNavbar>
 
-      <UDashboardToolbar>
-        <template #left>
+        <UDashboardToolbar>
           <UTabs
             v-model="domain"
             :items="domainItems"
@@ -14,26 +33,17 @@
             size="xs"
             aria-label="Module"
           />
-        </template>
+        </UDashboardToolbar>
+      </template>
 
-        <template #right>
-          <USelect
-            v-model="source"
-            :items="sourceItems"
-            :icon="sourceIcon"
-            variant="soft"
-            size="sm"
-            class="w-44"
-            aria-label="Changed by"
-          />
-        </template>
-      </UDashboardToolbar>
-    </template>
+      <template #body>
+        <p class="text-sm text-muted">
+          Every change to the pages you manage, newest first. Select an entry
+          to review what changed and revert it.
+        </p>
 
-    <template #body>
-      <div class="mx-auto w-full lg:max-w-3xl space-y-6">
         <div v-if="loading && !revisions.length" class="space-y-3">
-          <USkeleton v-for="i in 5" :key="i" class="h-24 w-full" />
+          <USkeleton v-for="i in 5" :key="i" class="h-28 w-full" />
         </div>
 
         <UEmpty
@@ -45,7 +55,11 @@
         />
 
         <template v-else>
-          <SharedRecentChangesList :entries="entries" />
+          <SharedRecentChangesList
+            :entries="entries"
+            :selected="selectedEntry"
+            @select="(entry) => (revisionId = entry.revisions[0]!.id)"
+          />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -57,19 +71,38 @@
             />
           </div>
         </template>
-      </div>
-    </template>
-  </UDashboardPanel>
+      </template>
+    </UDashboardPanel>
+
+    <SharedRecentChangesDetail
+      v-if="revisionId"
+      :entry="selectedEntry"
+      :revision-id="revisionId"
+      @select="(id) => (revisionId = id)"
+      @close="revisionId = null"
+      @reverted="load()"
+    />
+
+    <div v-else class="hidden flex-1 items-center justify-center p-6 lg:flex">
+      <UEmpty
+        icon="hugeicons:git-compare"
+        title="No Change Selected"
+        description="Select an entry to see what changed, field by field, and undo or restore it."
+      />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { Revision } from '~/utils/revisions'
 
-// Recent Changes (staff only): every revision of the pages in the caller's
-// scope, newest first, with consecutive changes to one sculpt, keyset or
-// keyboard grouped together (`SharedRecentChangesList`), paged by 20 groups.
-// Diffs and Undo / Restore stay in each page's History slideover, which the
-// entries open (`?history=1`). Filters live in the URL (`domain`, `source`).
+// Recent Changes (staff only), as a list and a detail side by side: every
+// revision of the pages in the caller's scope, newest first, with
+// consecutive changes to one page grouped into an entry
+// (`SharedRecentChangesList`, paged by 20 groups), and the selected revision
+// with its diff and Undo / Restore (`SharedRecentChangesDetail`). On phones
+// the detail replaces the list, with a back button. Filters (`domain`,
+// `source`) and the selected revision (`rev`) live in the URL.
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -107,8 +140,15 @@ const queryValue = (key: string, items: { value: string }[]) => {
   return items.some((item) => item.value === value) ? String(value) : 'all'
 }
 
+const queryRevision = () => {
+  const id = Number(route.query.rev)
+
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
 const domain = ref(queryValue('domain', domainItems))
 const source = ref(queryValue('source', sourceItems))
+const revisionId = ref(queryRevision())
 
 const sourceIcon = computed(
   () => sourceItems.find((item) => item.value === source.value)?.icon,
@@ -134,6 +174,13 @@ const hasMore = ref(false)
 const loading = ref(false)
 
 const entries = computed(() => groupRecentChanges(revisions.value))
+
+const selectedEntry = computed(
+  () =>
+    entries.value.find((entry) =>
+      entry.revisions.some((revision) => revision.id === revisionId.value),
+    ) || null,
+)
 
 const load = async (older = false) => {
   loading.value = true
@@ -163,15 +210,17 @@ const load = async (older = false) => {
   }
 }
 
-watch([domain, source], () => {
+watch([domain, source, revisionId], () => {
   router.replace({
     query: {
       domain: domain.value === 'all' ? undefined : domain.value,
       source: source.value === 'all' ? undefined : source.value,
+      rev: revisionId.value || undefined,
     },
   })
-  load()
 })
+
+watch([domain, source], () => load())
 
 // The staff profile loads after the page on a fresh visit.
 watch(

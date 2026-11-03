@@ -1,52 +1,26 @@
 <template>
-  <SharedRevisionTimeline :entries="items">
+  <SharedRevisionDays :entries="items">
     <template #default="{ entry }">
-      <div class="flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <UBadge
-              :label="revisionEntityLabel(entry.revision)"
-              variant="outline"
-              size="sm"
-              class="shrink-0"
-            />
-            <!-- The whole row opens the revision -->
-            <button
-              type="button"
-              class="truncate text-start font-semibold text-highlighted hover:text-primary focus:outline-none after:absolute after:inset-0"
-              @click="emit('select', entry.revision)"
-            >
-              {{ title(entry.revision) }}
-            </button>
-          </div>
-
-          <p class="mt-1 text-xs text-muted">
-            <SharedRevisionAuthors :revisions="[entry.revision]" />
-            {{ revisionVerb(entry.revision) }}
-            ·
-            <time :datetime="entry.date" :title="formatDate(entry.date)">
-              {{ formatTimeAgo(entry.date) }}
-            </time>
-          </p>
-        </div>
-
-        <UIcon
-          name="hugeicons:arrow-right-01"
-          class="size-4 shrink-0 text-dimmed"
-          aria-hidden="true"
-        />
-      </div>
+      <SharedRevisionCard
+        :icon="revisionEntityIcon(entry.revision)"
+        :icon-label="revisionEntityLabel(entry.revision)"
+        :title="title(entry.revision)"
+        :revisions="entry.revisions"
+        :date="entry.date"
+        :verb="revisionVerb(entry.revision)"
+        @select="emit('select', entry.revision)"
+      />
     </template>
-  </SharedRevisionTimeline>
+  </SharedRevisionDays>
 </template>
 
 <script setup lang="ts">
 import type { Revision } from '~/utils/revisions'
 
-// History of a page on the commit-style timeline (`SharedRevisionTimeline`):
-// a row per revision, leading with the record's kind and its own name, then
-// who changed it, what they did, and when. Selecting one opens it in the
-// History slideover.
+// History of a page, in the cards Recent Changes uses (`SharedRevisionDays`,
+// `SharedRevisionCard`): a card per revision with the record's kind as the
+// icon avatar, its own name, who changed it, what they did, and when.
+// Selecting one opens it in the History slideover.
 const props = defineProps<{ revisions: Revision[] }>()
 
 const emit = defineEmits<{ select: [revision: Revision] }>()
@@ -56,12 +30,12 @@ const items = computed(() =>
     key: `rev-${revision.id}`,
     date: revision.created_at,
     revision,
+    // Stable across renders, for the card's authors.
+    revisions: [revision],
   })),
 )
 
-// The page itself goes by its full name (its kind is the badge).
+// The page itself goes by its full name (its kind is the avatar).
 const title = (revision: Revision) =>
-  isPageRevision(revision)
-    ? revision.label || revisionRecordName(revision)
-    : revisionRecordName(revision)
+  (isPageRevision(revision) && revision.label) || revisionRecordName(revision)
 </script>

@@ -265,6 +265,12 @@ const colorCount = (count: number) =>
   `${count} ${count === 1 ? 'color' : 'colors'}`
 
 /** Ids without duplicates, sorted ascending, as color lists are compared. */
+/** Items of a list on this side only, e.g. a keyset's colors removed or added. */
+export const onlyIn = (value: unknown, other: unknown) =>
+  Array.isArray(value)
+    ? value.filter((item) => !(Array.isArray(other) && other.includes(item)))
+    : []
+
 export const sortedIds = (ids: number[]) =>
   [...new Set(ids)].sort((a, b) => a - b)
 

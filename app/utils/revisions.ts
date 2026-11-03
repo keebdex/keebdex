@@ -7,9 +7,12 @@ import {
   SUGGESTION_ENTITIES,
   isProtectedSuggestionField,
   sameSuggestionValue,
+  suggestionFieldLabel,
 } from '~/utils/suggestions'
 import { userAvatar } from '~/utils'
+import { daysAgo, formatDate, startOfDay } from '~/utils/date'
 import type { SuggestionEntityType } from '~/utils/suggestions'
+import { KEEB_MODULE_ICONS } from '~/utils/keeb-modules'
 import type { KeebModule } from '~/utils/keeb-modules'
 
 /**
@@ -246,6 +249,27 @@ export const revisionRecordName = (revision: Revision) => {
   )
 }
 
+/**
+ * Icons of the record kinds, for History rows: the sidebar's where it has
+ * one (the module icons for sculpts, keysets and keyboards; Makers, Brands
+ * and Profiles), the rest picked to match.
+ */
+const ENTITY_ICONS: Record<SuggestionEntityType, string> = {
+  artisan_maker: 'hugeicons:user-multiple',
+  artisan_sculpt: KEEB_MODULE_ICONS.artisan,
+  artisan_colorway: 'hugeicons:paint-board',
+  keyset_profile: 'hugeicons:cross',
+  keyset: KEEB_MODULE_ICONS.keyset,
+  keyset_kit: 'hugeicons:package',
+  keyboard_brand: 'hugeicons:user-multiple',
+  keyboard: KEEB_MODULE_ICONS.keyboard,
+  keyboard_release: 'hugeicons:rocket-01',
+  keyboard_variant: 'hugeicons:layers-01',
+}
+
+export const revisionEntityIcon = (revision: Pick<Revision, 'entity_type'>) =>
+  ENTITY_ICONS[revision.entity_type] || 'hugeicons:file-01'
+
 /** `Colorway`, `Kit`, `Keyboard`. */
 export const revisionEntityLabel = (revision: Pick<Revision, 'entity_type'>) =>
   SUGGESTION_ENTITIES[revision.entity_type]?.label || 'Record'
@@ -330,20 +354,35 @@ export const revisionCurrentDiff = (
  */
 export const revertableFields = (
   revision: RevisionDetail,
-  mode: 'undo' | 'restore',
+  diffs: RevisionFieldDiff[],
 ) =>
-  (mode === 'undo'
-    ? revisionChangeDiff(revision)
-    : revisionCurrentDiff(revision)
-  ).filter(
+  diffs.filter(
     (diff) => !isProtectedSuggestionField(revision.entity_type, diff.key),
   )
 
-/** Fields of an undo that changed again since the revision. */
-export const undoConflicts = (revision: RevisionDetail) =>
-  revertableFields(revision, 'undo')
+/** Fields of an undo (`revertableFields` of the change) changed again since. */
+export const undoConflicts = (
+  revision: RevisionDetail,
+  undoFields: RevisionFieldDiff[],
+) =>
+  undoFields
     .filter((diff) => differs(revision.current?.[diff.key], diff.after))
     .map((diff) => diff.key)
+
+/** `Name, Price and Status`, from field keys. */
+export const revisionFieldList = (keys: string[]) => {
+  const labels = keys.map(suggestionFieldLabel)
+
+  return labels.length > 1
+    ? `${labels.slice(0, -1).join(', ')} and ${labels.at(-1)}`
+    : labels[0] || ''
+}
+
+/** What a revert wrote, for the page to reload or follow a renamed slug. */
+export interface RevisionRevert {
+  entityType: string
+  changes: Record<string, unknown>
+}
 
 /**
  * Sync-managed fields a revert locks against the Google Doc or maker website
@@ -425,4 +464,40 @@ export const groupRecentChanges = (
   }
 
   return entries
+}
+
+/** `Changes today`, `Changes yesterday`, `Changes on Nov 1, 2026`. */
+const revisionDayHeading = (date: string) => {
+  const days = daysAgo(date)
+
+  if (days === 0) return 'Changes today'
+  if (days === 1) return 'Changes yesterday'
+
+  return `Changes on ${formatDate(date)}`
+}
+
+/**
+ * Entries (newest first) by the day of their `date`, for the revision
+ * timelines and Recent Changes.
+ */
+export const groupRevisionsByDay = <T extends { date: string }>(
+  entries: T[],
+) => {
+  const days: { value: string; title: string; entries: T[] }[] = []
+
+  for (const entry of entries) {
+    const value = String(startOfDay(entry.date).getTime())
+    const last = days.at(-1)
+
+    if (last?.value === value) last.entries.push(entry)
+    else {
+      days.push({
+        value,
+        title: revisionDayHeading(entry.date),
+        entries: [entry],
+      })
+    }
+  }
+
+  return days
 }

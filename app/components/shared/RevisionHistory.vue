@@ -1,77 +1,50 @@
 <template>
   <USlideover
     v-model:open="open"
-    :title="detail ? detailTitle : 'History'"
-    :ui="{ content: 'sm:max-w-2xl' }"
+    :description="selectedId ? undefined : listDescription"
+    :ui="{
+      content: 'sm:max-w-2xl',
+      wrapper: 'min-w-0 flex-1',
+      body: 'flex flex-col gap-4 sm:gap-6',
+      close: 'static',
+    }"
   >
-    <!-- A revision's header says who made it and when -->
-    <template #description>
-      <span v-if="detail">
-        <SharedRevisionAuthors :revisions="[detail]" />
-        {{ revisionVerb(detail) }} ·
-        <time
-          :datetime="detail.created_at"
-          :title="formatTimeAgo(detail.created_at)"
-        >
-          {{ formatDateTime(detail.created_at) }}
-        </time>
+    <!-- A revision goes back to the list from the title, like a page -->
+    <template #title>
+      <span class="flex items-center gap-1">
+        <UTooltip v-if="selectedId" text="All Changes">
+          <UButton
+            icon="hugeicons:arrow-left-02"
+            variant="ghost"
+            size="sm"
+            aria-label="All Changes"
+            class="-ms-1.5"
+            @click="selectedId = null"
+          />
+        </UTooltip>
+        History
       </span>
-      <template v-else-if="!selectedId">{{ listDescription }}</template>
+    </template>
+
+    <!-- Every page's changes, beside the close button (kept in the row) -->
+    <template #actions>
+      <UTooltip text="Recent Changes">
+        <UButton
+          icon="hugeicons:time-quarter-pass"
+          variant="ghost"
+          aria-label="Recent Changes"
+          to="/recent-changes"
+        />
+      </UTooltip>
     </template>
 
     <template #body>
-      <!-- One revision: what it changed, or how it compares with now -->
-      <div v-if="selectedId" class="space-y-4">
-        <div v-if="detailLoading && !detail" class="space-y-3">
-          <USkeleton v-for="i in 3" :key="i" class="h-16 w-full" />
-        </div>
-
-        <template v-else-if="detail">
-          <UAlert
-            v-if="!detail.current"
-            icon="hugeicons:alert-02"
-            color="warning"
-            variant="subtle"
-            title="Record Deleted"
-            description="This record no longer exists, so its revisions can only be viewed."
-          />
-
-          <UAlert
-            v-else-if="view === 'change' && conflicts.length"
-            icon="hugeicons:alert-02"
-            color="warning"
-            variant="subtle"
-            title="Edited Again"
-            :description="`${fieldList(conflicts)} changed again after this revision, so it can no longer be undone. Restore the revision instead to bring the whole record back to it.`"
-          />
-
-          <UTabs
-            v-model="view"
-            :items="viewItems"
-            :content="false"
-            size="sm"
-            class="w-full"
-          />
-
-          <SharedRevisionDiff
-            v-if="view === 'change'"
-            :diffs="changeDiffs"
-            :before-values="detail.before || {}"
-            :after-values="detail.snapshot"
-            :highlight="conflicts"
-            empty="This revision changed no fields that can be shown."
-          />
-
-          <SharedRevisionDiff
-            v-else
-            :diffs="currentDiffs"
-            :labels="['Current', 'This Revision']"
-            :before-values="detail.current || {}"
-            :after-values="detail.snapshot"
-            empty="The record still matches this revision."
-          />
-        </template>
-      </div>
+      <!-- One revision, as Recent Changes shows it -->
+      <SharedRevisionDetail
+        v-if="selectedId"
+        :revision-id="selectedId"
+        @reverted="onReverted"
+      />
 
       <!-- All revisions of the page, or of one of its records -->
       <div v-else class="space-y-4">
@@ -112,7 +85,7 @@
         />
 
         <template v-else>
-          <SharedRevisionList :revisions="revisions" @select="select" />
+          <SharedRevisionList :revisions="revisions" @select="selectedId = $event.id" />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -127,60 +100,11 @@
       </div>
     </template>
 
-    <!-- The list links to every page's changes; a revision has its actions -->
-    <template v-if="!selectedId" #footer>
-      <UButton
-        label="Recent Changes"
-        icon="hugeicons:time-quarter-pass"
-        to="/recent-changes"
-        trailing-icon="hugeicons:arrow-right-02"
-        class="ms-auto"
-        :ui="{ label: 'block' }"
-      />
-    </template>
-
-    <!-- A revision: back to the list on the left, its actions on the right -->
-    <template v-else #footer>
-      <div class="flex w-full flex-wrap items-center justify-between gap-2">
-        <UButton
-          icon="hugeicons:arrow-left-02"
-          label="All Changes"
-          @click="selectedId = null"
-        />
-
-        <div v-if="detail?.current" class="flex flex-wrap gap-2">
-          <UButton
-            v-if="detail.action === 'update'"
-            label="Undo"
-            icon="hugeicons:undo-02"
-            :disabled="!undoFields.length || !!conflicts.length"
-            @click="confirm('undo')"
-          />
-          <UButton
-            label="Restore"
-            icon="hugeicons:arrow-turn-backward"
-            color="primary"
-            :disabled="!restoreFields.length"
-            @click="confirm('restore')"
-          />
-        </div>
-      </div>
-    </template>
   </USlideover>
-
-  <SharedConfirmModal
-    v-model:open="confirmOpen"
-    :title="confirmTitle"
-    :description="confirmDescription"
-    :confirm-label="confirmMode === 'undo' ? 'Undo' : 'Restore'"
-    confirm-color="primary"
-    :loading="reverting"
-    @confirm="revert"
-  />
 </template>
 
 <script setup lang="ts">
-import type { Revision, RevisionDetail } from '~/utils/revisions'
+import type { Revision, RevisionRevert } from '~/utils/revisions'
 
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
@@ -191,9 +115,10 @@ interface RevisionRecord {
 }
 
 // History slideover of a page (staff only), opened through `show()` (from
-// `SharedRecordActions`' History button): the revisions of the
-// record and its children, loaded when opened, with a diff per revision and
-// Undo / Restore. `show({ record })` (exposed)
+// `SharedRecordActions`' History button): the revisions of the record and
+// its children, loaded when opened, in the cards Recent Changes uses
+// (`SharedRevisionList`), and a revision as Recent Changes shows it
+// (`SharedRevisionDetail`, diff and Undo / Restore). `show({ record })` (exposed)
 // narrows it to one child record, e.g. from a colorway card. `?history=1`
 // opens it on load and `&rev=<id>` opens that revision (links from Recent
 // Changes). Emits `reverted` with the fields the revert wrote, so the page
@@ -209,9 +134,7 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{
-  reverted: [revert: { entityType: string; changes: Record<string, unknown> }]
-}>()
+const emit = defineEmits<{ reverted: [revert: RevisionRevert] }>()
 
 const toast = useToast()
 const route = useRoute()
@@ -257,19 +180,12 @@ const load = async (older = false) => {
   }
 }
 
-// Revision to open once the slideover is open (deep link or show()).
-const pendingRevision = ref<number | null>(null)
+// The open revision, if any (deep link or show()).
+const selectedId = ref<number | null>(null)
 
 const start = () => {
   revisions.value = []
   hasMore.value = false
-  selectedId.value = null
-
-  if (pendingRevision.value) {
-    selectRevision(pendingRevision.value)
-    pendingRevision.value = null
-  }
-
   load()
 }
 
@@ -278,7 +194,7 @@ const show = (
   options: { record?: RevisionRecord | null; revisionId?: number } = {},
 ) => {
   record.value = options.record ?? null
-  pendingRevision.value = options.revisionId ?? null
+  selectedId.value = options.revisionId ?? null
 
   if (open.value) start()
   else open.value = true
@@ -307,145 +223,8 @@ onMounted(() => {
 
 defineExpose({ show })
 
-// Selected revision ------------------------------------------------------------
-
-const selectedId = ref<number | null>(null)
-const detail = ref<RevisionDetail | null>(null)
-const detailLoading = ref(false)
-const view = ref<'change' | 'current'>('change')
-
-const loadDetail = async (id: number) => {
-  detailLoading.value = true
-
-  try {
-    const result = await $fetch<RevisionDetail>(`/api/revisions/${id}`)
-
-    if (selectedId.value === id) detail.value = result
-  } catch (error) {
-    toast.add(errorToast(error))
-    selectedId.value = null
-  } finally {
-    detailLoading.value = false
-  }
-}
-
-const selectRevision = (id: number) => {
-  detail.value = null
-  view.value = 'change'
-  selectedId.value = id
-  loadDetail(id)
-}
-
-const select = (revision: Revision) => selectRevision(revision.id)
-
-watch(selectedId, (id) => {
-  if (!id) detail.value = null
-})
-
-const viewItems = computed(() => [
-  { label: 'This Change', value: 'change' },
-  {
-    label: 'Compare with Current',
-    value: 'current',
-    disabled: !detail.value?.current,
-  },
-])
-
-const detailTitle = computed(() =>
-  detail.value
-    ? detail.value.label || revisionEntityLabel(detail.value)
-    : 'Revision',
-)
-
-const changeDiffs = computed(() =>
-  detail.value ? revisionChangeDiff(detail.value) : [],
-)
-const currentDiffs = computed(() =>
-  detail.value ? revisionCurrentDiff(detail.value) : [],
-)
-const undoFields = computed(() =>
-  detail.value ? revertableFields(detail.value, 'undo') : [],
-)
-const restoreFields = computed(() =>
-  detail.value ? revertableFields(detail.value, 'restore') : [],
-)
-const conflicts = computed(() =>
-  detail.value?.current && detail.value.action === 'update'
-    ? undoConflicts(detail.value)
-    : [],
-)
-
-const fieldList = (keys: string[]) => {
-  const labels = keys.map(suggestionFieldLabel)
-
-  return labels.length > 1
-    ? `${labels.slice(0, -1).join(', ')} and ${labels.at(-1)}`
-    : labels[0] || ''
-}
-
-// Undo / Restore -------------------------------------------------------------------
-
-const confirmOpen = ref(false)
-const confirmMode = ref<'undo' | 'restore'>('undo')
-const reverting = ref(false)
-
-const confirm = (mode: 'undo' | 'restore') => {
-  confirmMode.value = mode
-  confirmOpen.value = true
-}
-
-const confirmTitle = computed(() =>
-  confirmMode.value === 'undo' ? 'Undo This Change' : 'Restore This Revision',
-)
-
-const confirmDescription = computed(() => {
-  if (!detail.value) return undefined
-
-  const keys = (
-    confirmMode.value === 'undo' ? undoFields.value : restoreFields.value
-  ).map((diff) => diff.key)
-  const locked = syncLockedFields(detail.value, keys)
-  const action =
-    confirmMode.value === 'undo'
-      ? `${fieldList(keys)} will go back to the values before this change.`
-      : `${fieldList(keys)} will go back to the values of this revision.`
-  const warning = locked.length
-    ? ` ${fieldList(locked)} will stop updating from the maker's ${
-        detail.value.current?.source === 'scraper' ? 'website' : 'Google Doc'
-      }.`
-    : ''
-
-  return `${action}${warning} The change is saved as a new revision, so it can be reverted too.`
-})
-
-const revert = async () => {
-  if (!detail.value) return
-
-  const revision = detail.value
-  reverting.value = true
-
-  try {
-    const { changes } = await $fetch<{ changes: Record<string, unknown> }>(
-      `/api/revisions/${revision.id}/revert`,
-      {
-        method: 'POST',
-        body: { mode: confirmMode.value },
-      },
-    )
-
-    toast.add(
-      successToast('update', {
-        entity: revisionEntityLabel(revision),
-        name: revision.label,
-      }),
-    )
-    confirmOpen.value = false
-    emit('reverted', { entityType: revision.entity_type, changes })
-    await Promise.all([load(), loadDetail(revision.id)])
-  } catch (error) {
-    toast.add(errorToast(error, { showOriginalMessage: true }))
-  } finally {
-    reverting.value = false
-  }
+const onReverted = (revert: RevisionRevert) => {
+  emit('reverted', revert)
+  load()
 }
 </script>
