@@ -10,10 +10,36 @@
     :ui="{
       // Nuxt UI sets the width as sm:max-w-md, so override it at sm too
       content: 'sm:max-w-lg',
+      wrapper: 'min-w-0 flex-1',
       body: 'space-y-6',
-      footer: 'flex flex-wrap gap-2',
+      close: 'static',
     }"
   >
+    <!-- Edit and Delete beside the close button (kept in the row) -->
+    <template v-if="color && manage && editable" #actions>
+      <UTooltip text="Edit">
+        <UButton
+          icon="hugeicons:dashboard-circle-edit"
+          variant="ghost"
+          aria-label="Edit"
+          @click="$emit('edit', color)"
+        />
+      </UTooltip>
+      <!-- A color a keyset uses cannot be deleted (keyset_colors restricts it) -->
+      <UTooltip
+        v-if="isAdmin && color.keysets && !color.keysets.length"
+        text="Delete"
+      >
+        <UButton
+          icon="hugeicons:delete-02"
+          color="error"
+          variant="ghost"
+          aria-label="Delete"
+          @click="$emit('delete', color)"
+        />
+      </UTooltip>
+    </template>
+
     <template #body>
       <template v-if="color">
         <div
@@ -102,25 +128,6 @@
         icon="hugeicons:paint-board"
         title="Color Not Found"
         description="This color is not in the catalog. It may have been removed."
-      />
-    </template>
-
-    <template v-if="color && manage && editable" #footer>
-      <UButton
-        icon="hugeicons:dashboard-circle-edit"
-        label="Edit"
-        :ui="{ label: 'block' }"
-        @click="$emit('edit', color)"
-      />
-      <!-- A color a keyset uses cannot be deleted (keyset_colors restricts it) -->
-      <UButton
-        v-if="isAdmin && color.keysets && !color.keysets.length"
-        icon="hugeicons:delete-02"
-        label="Delete"
-        color="error"
-        variant="ghost"
-        :ui="{ label: 'block' }"
-        @click="$emit('delete', color)"
       />
     </template>
   </USlideover>
