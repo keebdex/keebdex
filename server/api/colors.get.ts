@@ -1,5 +1,7 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { omitSensitive } from '../utils'
+
+// What the pickers, the color form, and the Colors page use
+const COLUMNS = 'id, system, code, name, hex'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -15,11 +17,17 @@ export default defineEventHandler(async (event) => {
     .map(Number)
     .filter((id) => Number.isInteger(id) && id > 0)
     .slice(0, 200)
+  // `usage=1`: how many keysets use each color (the Colors page)
+  const usage = query.usage === '1'
 
   const from = (page - 1) * size
   const to = page * size - 1
 
-  let dbQuery = client.from('colors').select('*', { count: 'exact' })
+  let dbQuery = client
+    .from('colors')
+    .select(`${COLUMNS}${usage ? ', keysets:keyset_colors(count)' : ''}`, {
+      count: 'exact',
+    })
 
   if (system) {
     dbQuery = dbQuery.eq('system', system)
@@ -48,7 +56,11 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    data: data?.map(omitSensitive) || [],
+    data:
+      data?.map(({ keysets, ...color }: any) => ({
+        ...color,
+        ...(usage && { keyset_count: keysets?.[0]?.count ?? 0 }),
+      })) || [],
     count: count || 0,
     page,
     size,

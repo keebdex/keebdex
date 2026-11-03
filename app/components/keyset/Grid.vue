@@ -9,7 +9,7 @@
         :title="
           keyset.profile ? `${keyset.profile.name} ${keyset.name}` : keyset.name
         "
-        :description="cardDescription(keyset)"
+        :description="keysetDateLabel(keyset)"
         :img="keyset.img"
         fallback="/keyset.png"
         :to="`/keyset/${keyset.profile_keyset_id}`"
@@ -92,14 +92,6 @@ const cards = computed(() => {
 
 const userStore = useUserStore()
 const { authenticated } = storeToRefs(userStore)
-
-// The group buy window when there is one, else the interest check date
-const cardDescription = (keyset) => {
-  const range = formatDateRange(keyset.start_date, keyset.end_date)
-  if (range) return range
-
-  return keyset.ic_date ? `IC ${formatDate(keyset.ic_date)}` : ''
-}
 
 const { addItem } = useCollectionItem()
 

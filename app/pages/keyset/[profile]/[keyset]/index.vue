@@ -189,36 +189,34 @@
           </template>
         </UPageHeader>
 
-        <template v-if="data.colors?.length">
-          <div
-            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-4"
+        <div v-if="data.colors?.length" :class="colorPaletteGridClass">
+          <KeysetColorTile
+            v-for="color in data.colors"
+            :key="color.id"
+            :color="color.color"
+            compact
+            @select="selectColor"
           >
-            <KeysetColorCard
-              v-for="color in data.colors"
-              :key="color.id"
-              v-bind="color.color"
-            >
-              <template v-if="editable" #action>
-                <UTooltip text="Remove">
-                  <UButton
-                    icon="hugeicons:dashboard-circle-remove"
-                    size="xs"
-                    color="error"
-                    variant="ghost"
-                    aria-label="Remove Color"
-                    @click="
-                      openDelete(
-                        'Color',
-                        `${color.color.system} ${color.color.code}`,
-                        `/api/keysets/${color.profile_keyset_id}/colors/${color.id}`,
-                      )
-                    "
-                  />
-                </UTooltip>
-              </template>
-            </KeysetColorCard>
-          </div>
-        </template>
+            <template v-if="editable" #action>
+              <UTooltip text="Remove">
+                <UButton
+                  icon="hugeicons:dashboard-circle-remove"
+                  size="xs"
+                  color="error"
+                  variant="ghost"
+                  aria-label="Remove Color"
+                  @click="
+                    openDelete(
+                      'Color',
+                      `${color.color.system} ${color.color.code}`,
+                      `/api/keysets/${color.profile_keyset_id}/colors/${color.id}`,
+                    )
+                  "
+                />
+              </UTooltip>
+            </template>
+          </KeysetColorTile>
+        </div>
 
         <UEmpty
           v-else
@@ -288,6 +286,16 @@
           @confirm="confirmDelete"
         />
       </template>
+
+      <!-- A palette color's values and the other keysets that use it -->
+      <KeysetColorDrawer
+        v-model:open="colorDrawerOpen"
+        :color-id="selectedColorId"
+        :preview="
+          data.colors?.find((item) => item.color.id === selectedColorId)?.color
+        "
+        :exclude="`${profile}/${keyset}`"
+      />
 
       <SharedSuggestEditModal
         v-if="suggestTarget"
@@ -516,6 +524,13 @@ const addKitTarget = computed(() =>
 
 const keysetFormOpen = ref(false)
 const colorFormOpen = ref(false)
+
+// The open palette color is in the URL (`?color=<id>`), as on the Colors page
+const {
+  id: selectedColorId,
+  open: colorDrawerOpen,
+  select: selectColor,
+} = useQuerySelection('color')
 const kitForm = reactive({ open: false, isEdit: false, metadata: {} })
 
 const openKitForm = (kit) => {

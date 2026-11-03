@@ -1,5 +1,5 @@
 import { Constants, type Enums } from '~/types/database.types'
-import { daysAgo, isoToday } from './date'
+import { daysAgo, formatDate, formatDateRange, isoToday } from './date'
 
 // Whether a keyset is going ahead, from the database's `keyset_status` enum:
 // not decided yet (Interest Check), happening from its group buy to delivery
@@ -63,3 +63,15 @@ export const groupBuyCountdown = (
     elapsed: Math.round(((length - days + 1) / length) * 100),
   }
 }
+
+/**
+ * The date a keyset is known by: its group buy window when there is one,
+ * else its interest check date, else nothing.
+ */
+export const keysetDateLabel = (keyset: {
+  start_date?: string | null
+  end_date?: string | null
+  ic_date?: string | null
+}) =>
+  formatDateRange(keyset.start_date, keyset.end_date) ||
+  (keyset.ic_date ? `IC ${formatDate(keyset.ic_date)}` : '')
