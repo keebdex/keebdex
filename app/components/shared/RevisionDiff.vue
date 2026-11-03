@@ -103,7 +103,6 @@ import type { RevisionFieldDiff } from '~/utils/revisions'
 const props = withDefaults(
   defineProps<{
     diffs: RevisionFieldDiff[]
-    labels?: [string, string]
     beforeValues?: Record<string, any>
     afterValues?: Record<string, any>
     highlight?: string[]
@@ -111,7 +110,6 @@ const props = withDefaults(
     empty?: string
   }>(),
   {
-    labels: () => ['Before', 'After'],
     beforeValues: () => ({}),
     afterValues: () => ({}),
     highlight: () => [],
@@ -140,51 +138,39 @@ const KIND_COLORS = {
   removed: 'error',
 } as const
 
-const isEmpty = (value: unknown) =>
-  value == null ||
-  value === '' ||
-  (Array.isArray(value) && !value.length)
-
-// Items on one side only, e.g. a keyset's colors removed or added.
-const only = (value: unknown, other: unknown) =>
-  Array.isArray(value)
-    ? value.filter((item) => !(Array.isArray(other) && other.includes(item)))
-    : []
+// Before in red, after in green; a side without a value stays untinted.
+const SIDES = [
+  { label: 'Before', tone: 'removed', color: 'error', tint: 'bg-error/5' },
+  { label: 'After', tone: 'added', color: 'success', tint: 'bg-success/5' },
+] as const
 
 const rows = computed(() =>
   props.diffs.map((diff) => {
-    const kind: DiffKind = isEmpty(diff.before)
+    const kind: DiffKind = isBlank(diff.before)
       ? 'added'
-      : isEmpty(diff.after)
+      : isBlank(diff.after)
         ? 'removed'
         : 'modified'
+    const values = [diff.before, diff.after]
+    const records = [props.beforeValues, props.afterValues]
 
     return {
       key: diff.key,
       label: suggestionFieldLabel(diff.key),
       kind,
-      sides: [
-        {
-          label: props.labels[0],
-          value: diff.before,
-          values: props.beforeValues,
-          empty: isEmpty(diff.before),
-          only: only(diff.before, diff.after),
-          color: 'error' as const,
-          tone: 'removed' as const,
-          class: isEmpty(diff.before) ? undefined : 'bg-error/5',
-        },
-        {
-          label: props.labels[1],
-          value: diff.after,
-          values: props.afterValues,
-          empty: isEmpty(diff.after),
-          only: only(diff.after, diff.before),
-          color: 'success' as const,
-          tone: 'added' as const,
-          class: isEmpty(diff.after) ? undefined : 'bg-success/5',
-        },
-      ],
+      sides: SIDES.map((side, index) => {
+        const value = values[index]
+        const empty = isBlank(value)
+
+        return {
+          ...side,
+          value,
+          values: records[index],
+          empty,
+          only: onlyIn(value, values[1 - index]),
+          class: empty ? undefined : side.tint,
+        }
+      }),
     }
   }),
 )

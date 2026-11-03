@@ -26,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+import type { RevisionColor } from '~/utils/revisions'
+
 // One side of a changed field (edit suggestions, revision diffs): an image
 // as a thumbnail, a keyset's colors as swatches (`highlight` lists the ids
 // only on this side, tinted `color`), anything else as formatted text.
@@ -59,9 +61,13 @@ const TONE_CLASS = {
 const colors = computed(() => props.field === 'colors')
 const image = computed(() => isImageSuggestionField(props.field))
 
-const { details } = useKeysetColorDetails(() =>
-  colors.value && Array.isArray(props.value) ? (props.value as number[]) : [],
-)
+// Only a keyset's colors load color details (the field never changes).
+const { details } =
+  props.field === 'colors'
+    ? useKeysetColorDetails(() =>
+        Array.isArray(props.value) ? (props.value as number[]) : [],
+      )
+    : { details: ref<Record<number, RevisionColor>>({}) }
 
 const colorLabel = (id: number) => keysetColorLabel(details.value[id] || { id })
 

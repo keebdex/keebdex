@@ -2,7 +2,12 @@
   <USlideover
     v-model:open="open"
     :description="selectedId ? undefined : listDescription"
-    :ui="{ content: 'sm:max-w-2xl', wrapper: 'min-w-0 flex-1' }"
+    :ui="{
+      content: 'sm:max-w-2xl',
+      wrapper: 'min-w-0 flex-1',
+      body: 'flex flex-col gap-4 sm:gap-6',
+      close: 'static',
+    }"
   >
     <!-- A revision goes back to the list from the title, like a page -->
     <template #title>
@@ -21,7 +26,7 @@
       </span>
     </template>
 
-    <!-- Every page's changes, beside the close button (absolutely placed) -->
+    <!-- Every page's changes, beside the close button (kept in the row) -->
     <template #actions>
       <UTooltip text="Recent Changes">
         <UButton
@@ -29,7 +34,6 @@
           variant="ghost"
           aria-label="Recent Changes"
           to="/recent-changes"
-          class="me-9 sm:me-7"
         />
       </UTooltip>
     </template>
@@ -81,7 +85,7 @@
         />
 
         <template v-else>
-          <SharedRevisionList :revisions="revisions" @select="select" />
+          <SharedRevisionList :revisions="revisions" @select="selectedId = $event.id" />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -100,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Revision } from '~/utils/revisions'
+import type { Revision, RevisionRevert } from '~/utils/revisions'
 
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
@@ -130,9 +134,7 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{
-  reverted: [revert: { entityType: string; changes: Record<string, unknown> }]
-}>()
+const emit = defineEmits<{ reverted: [revert: RevisionRevert] }>()
 
 const toast = useToast()
 const route = useRoute()
@@ -178,19 +180,12 @@ const load = async (older = false) => {
   }
 }
 
-// Revision to open once the slideover is open (deep link or show()).
-const pendingRevision = ref<number | null>(null)
+// The open revision, if any (deep link or show()).
+const selectedId = ref<number | null>(null)
 
 const start = () => {
   revisions.value = []
   hasMore.value = false
-  selectedId.value = null
-
-  if (pendingRevision.value) {
-    selectRevision(pendingRevision.value)
-    pendingRevision.value = null
-  }
-
   load()
 }
 
@@ -199,7 +194,7 @@ const show = (
   options: { record?: RevisionRecord | null; revisionId?: number } = {},
 ) => {
   record.value = options.record ?? null
-  pendingRevision.value = options.revisionId ?? null
+  selectedId.value = options.revisionId ?? null
 
   if (open.value) start()
   else open.value = true
@@ -228,20 +223,7 @@ onMounted(() => {
 
 defineExpose({ show })
 
-// Selected revision ------------------------------------------------------------
-
-const selectedId = ref<number | null>(null)
-
-const selectRevision = (id: number) => {
-  selectedId.value = id
-}
-
-const select = (revision: Revision) => selectRevision(revision.id)
-
-const onReverted = (revert: {
-  entityType: string
-  changes: Record<string, unknown>
-}) => {
+const onReverted = (revert: RevisionRevert) => {
   emit('reverted', revert)
   load()
 }

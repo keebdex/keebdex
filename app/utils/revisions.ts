@@ -7,6 +7,7 @@ import {
   SUGGESTION_ENTITIES,
   isProtectedSuggestionField,
   sameSuggestionValue,
+  suggestionFieldLabel,
 } from '~/utils/suggestions'
 import { userAvatar } from '~/utils'
 import { daysAgo, formatDate, startOfDay } from '~/utils/date'
@@ -353,20 +354,35 @@ export const revisionCurrentDiff = (
  */
 export const revertableFields = (
   revision: RevisionDetail,
-  mode: 'undo' | 'restore',
+  diffs: RevisionFieldDiff[],
 ) =>
-  (mode === 'undo'
-    ? revisionChangeDiff(revision)
-    : revisionCurrentDiff(revision)
-  ).filter(
+  diffs.filter(
     (diff) => !isProtectedSuggestionField(revision.entity_type, diff.key),
   )
 
-/** Fields of an undo that changed again since the revision. */
-export const undoConflicts = (revision: RevisionDetail) =>
-  revertableFields(revision, 'undo')
+/** Fields of an undo (`revertableFields` of the change) changed again since. */
+export const undoConflicts = (
+  revision: RevisionDetail,
+  undoFields: RevisionFieldDiff[],
+) =>
+  undoFields
     .filter((diff) => differs(revision.current?.[diff.key], diff.after))
     .map((diff) => diff.key)
+
+/** `Name, Price and Status`, from field keys. */
+export const revisionFieldList = (keys: string[]) => {
+  const labels = keys.map(suggestionFieldLabel)
+
+  return labels.length > 1
+    ? `${labels.slice(0, -1).join(', ')} and ${labels.at(-1)}`
+    : labels[0] || ''
+}
+
+/** What a revert wrote, for the page to reload or follow a renamed slug. */
+export interface RevisionRevert {
+  entityType: string
+  changes: Record<string, unknown>
+}
 
 /**
  * Sync-managed fields a revert locks against the Google Doc or maker website
@@ -451,7 +467,7 @@ export const groupRecentChanges = (
 }
 
 /** `Changes today`, `Changes yesterday`, `Changes on Nov 1, 2026`. */
-export const revisionDayHeading = (date: string) => {
+const revisionDayHeading = (date: string) => {
   const days = daysAgo(date)
 
   if (days === 0) return 'Changes today'

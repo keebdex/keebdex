@@ -17,11 +17,11 @@
         </template>
 
         <template #right>
-          <UTooltip v-if="pagePath" text="Open History">
+          <UTooltip v-if="page?.path" text="Open History">
             <UButton
               icon="hugeicons:time-quarter-pass"
               aria-label="Open History"
-              :to="`${pagePath}?history=1&rev=${revisionId}`"
+              :to="`${page.path}?history=1&rev=${revisionId}`"
             />
           </UTooltip>
         </template>
@@ -44,39 +44,38 @@
           </h3>
 
           <div class="flex max-h-36 flex-wrap gap-2 overflow-y-auto">
-            <button
+            <UButton
               v-for="(revision, index) in revisions"
               :key="revision.id"
-              type="button"
+              :icon="revisionIcon(revision)"
+              :label="revisionRecordName(revision)"
               :aria-pressed="revision.id === revisionId"
-              :class="[
-                'inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-primary',
-                revision.id === revisionId
-                  ? 'border-inverted bg-inverted text-inverted'
-                  : 'border-default bg-default text-toned hover:bg-elevated',
-              ]"
+              :active="revision.id === revisionId"
+              variant="outline"
+              active-variant="solid"
+              size="xs"
+              class="max-w-full rounded-full"
+              :ui="{ label: 'block truncate' }"
               @click="emit('select', revision.id)"
             >
-              <UIcon :name="revisionIcon(revision)" class="size-3.5 shrink-0" />
-              <span class="truncate font-medium">
-                {{ chipName(revision) }}
-              </span>
-              <time
-                :datetime="revision.created_at"
-                :title="formatDateTime(revision.created_at)"
-                class="shrink-0 opacity-70"
-              >
-                {{ formatTimeAgo(revision.created_at) }}
-              </time>
-              <UBadge
-                v-if="index === 0"
-                label="Latest"
-                color="warning"
-                variant="solid"
-                size="sm"
-                class="shrink-0 rounded-full px-1.5 py-0 text-[10px] leading-4"
-              />
-            </button>
+              <template #trailing>
+                <time
+                  :datetime="revision.created_at"
+                  :title="formatDateTime(revision.created_at)"
+                  class="shrink-0 opacity-70"
+                >
+                  {{ formatTimeAgo(revision.created_at) }}
+                </time>
+                <UBadge
+                  v-if="index === 0"
+                  label="Latest"
+                  color="warning"
+                  variant="solid"
+                  size="sm"
+                  class="shrink-0 rounded-full px-1.5 py-0 text-[10px] leading-4"
+                />
+              </template>
+            </UButton>
           </div>
         </section>
       </SharedRevisionDetail>
@@ -88,7 +87,6 @@
 import type { BreadcrumbItem } from '@nuxt/ui'
 import type {
   RecentChangesEntry,
-  Revision,
   RevisionDetail as RevisionDetailType,
 } from '~/utils/revisions'
 
@@ -129,8 +127,6 @@ const page = computed(() => {
     : null
 })
 
-const pagePath = computed(() => page.value?.path)
-
 const breadcrumb = computed<BreadcrumbItem[]>(() =>
   page.value
     ? [
@@ -142,10 +138,4 @@ const breadcrumb = computed<BreadcrumbItem[]>(() =>
       ]
     : [],
 )
-
-// The page itself goes by its full name, its records by their own.
-const chipName = (revision: Revision) =>
-  isPageRevision(revision)
-    ? revisionEntityLabel(revision)
-    : revisionRecordName(revision)
 </script>

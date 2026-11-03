@@ -66,12 +66,6 @@ const after = computed(() =>
     : props.after,
 )
 
-// Items on one side only: removed before, added after.
-const only = (value: unknown, other: unknown) =>
-  Array.isArray(value)
-    ? value.filter((item) => !(Array.isArray(other) && other.includes(item)))
-    : []
-
 const label = computed(() => props.label || suggestionFieldLabel(props.field))
 
 const sides = computed(() => [
@@ -79,14 +73,14 @@ const sides = computed(() => [
     label: props.labels[0],
     value: before.value,
     values: props.beforeValues,
-    only: only(before.value, after.value),
+    only: onlyIn(before.value, after.value),
     color: 'error' as const,
   },
   {
     label: props.labels[1],
     value: after.value,
     values: props.afterValues,
-    only: only(after.value, before.value),
+    only: onlyIn(after.value, before.value),
     color: 'success' as const,
   },
 ])

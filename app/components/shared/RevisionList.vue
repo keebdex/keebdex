@@ -5,7 +5,7 @@
         :icon="revisionEntityIcon(entry.revision)"
         :icon-label="revisionEntityLabel(entry.revision)"
         :title="title(entry.revision)"
-        :revisions="[entry.revision]"
+        :revisions="entry.revisions"
         :date="entry.date"
         :verb="revisionVerb(entry.revision)"
         @select="emit('select', entry.revision)"
@@ -30,12 +30,12 @@ const items = computed(() =>
     key: `rev-${revision.id}`,
     date: revision.created_at,
     revision,
+    // Stable across renders, for the card's authors.
+    revisions: [revision],
   })),
 )
 
 // The page itself goes by its full name (its kind is the avatar).
 const title = (revision: Revision) =>
-  isPageRevision(revision)
-    ? revision.label || revisionRecordName(revision)
-    : revisionRecordName(revision)
+  (isPageRevision(revision) && revision.label) || revisionRecordName(revision)
 </script>
