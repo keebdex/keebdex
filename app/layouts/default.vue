@@ -6,6 +6,7 @@
       v-model:collapsed="collapsed"
       collapsible
       resizable
+      :menu="{ side: 'right' }"
       class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
