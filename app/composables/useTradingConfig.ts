@@ -31,11 +31,12 @@ export const useTradingConfig = () => {
 export { createDefaultTradingConfig }
 
 /**
- * Whether the wishlist settings are open: beside the sheet on wide screens at
- * first, closed on phones, where the slideover would cover the start screen.
+ * Whether the wishlist settings are open. They always sit beside the sheet on
+ * wide screens; below `lg` `USidebar` starts its slideover closed and restores
+ * this value when the window widens, so it stays `true` there.
  */
 export const useWishlistSidebar = () =>
-  useState('wishlist-sidebar-open', () => !useDevice().isMobile)
+  useState('wishlist-sidebar-open', () => true)
 
 /** The kinds of list a wishlist image can be, in the order they are offered. */
 export const WISHLIST_TYPE_ITEMS = [

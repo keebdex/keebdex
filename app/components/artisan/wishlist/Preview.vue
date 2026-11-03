@@ -11,18 +11,15 @@
             Save & Share
           </UButton>
 
-          <!-- Before a collection is picked, the start screen holds the picker. -->
+          <!-- The settings sit beside the sheet from lg up; below it they open
+          in a slideover. Before a collection is picked, the start screen
+          holds the picker. -->
           <UButton
-            v-if="isMobile && hasCollection"
+            v-if="hasCollection"
             icon="hugeicons:settings-02"
             aria-label="Wishlist Settings"
-            @click="sidebarOpen = !sidebarOpen"
-          />
-          <UButton
-            v-else-if="!isMobile"
-            icon="hugeicons:layout-align-right"
-            :label="sidebarOpen ? 'Hide Settings' : 'Show Settings'"
-            @click="sidebarOpen = !sidebarOpen"
+            class="lg:hidden"
+            @click="sidebarOpen = true"
           />
         </template>
       </UDashboardNavbar>

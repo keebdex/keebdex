@@ -21,7 +21,7 @@ title: Unreleased
 ### 🚀 Improvements
 
 - **The home page** eases in as you scroll, and _Reduce motion_ in your system settings keeps it still.
-- **The _Wishlist Image_** marks the price, _Top Priority_, and _Found_ or _Sold_ right on each cap, with your terms beside the caps for sale, and its settings are grouped so lists, collections, and contacts are easier to pick.
+- **The _Wishlist Image_** marks the price, _Top Priority_, and _Found_ or _Sold_ right on each cap, with your terms beside the caps for sale, and its settings are grouped so lists, collections, and contacts are easier to pick. On wide screens the settings stay open beside your image, and on phones the gear button opens them.
 - **The _Trading Hub_** shows each wishlist and sale as a card of its caps, and _How to List Your Caps_ walks you through listing your own.
 - **Variant details** slide in from any variant with its front and back photos and full specs, ready to save or copy as an image, and empty specs no longer leave blank labels.
 - **Catalog lists** match the new catalog pages: profiles are grouped under their maker, so GMK's CYL and MTNU share one card, owner pages show the logo, story, and links up front, group buys show the days left, and colorway search uses the same cards as sculpt pages.

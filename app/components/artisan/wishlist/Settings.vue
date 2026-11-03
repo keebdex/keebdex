@@ -7,8 +7,27 @@
     side="right"
     :ui="{
       container: 'border-none',
+      // Padded like the preview's navbar so both titles line up
+      header: 'sm:px-6',
     }"
   >
+    <!-- A heading like the navbar's title, so themes give both the same
+    heading font; the sidebar's own title is a plain paragraph. -->
+    <template #header="{ close }">
+      <h2 class="flex-1 truncate font-semibold text-highlighted">
+        Wishlist Settings
+      </h2>
+
+      <!-- Wide screens always show the settings; only the slideover closes -->
+      <UButton
+        :icon="appConfig.ui.icons.close"
+        variant="ghost"
+        aria-label="Close"
+        class="lg:hidden"
+        @click="close"
+      />
+    </template>
+
     <UForm :state="tradingConfig" class="flex flex-col gap-6">
       <!-- What the list is for decides its sections and collections -->
       <UTabs
@@ -136,6 +155,7 @@
 <script setup>
 const { authenticated, social } = storeToRefs(useUserStore())
 
+const appConfig = useAppConfig()
 const sidebarOpen = useWishlistSidebar()
 
 const tradingConfig = useTradingConfig()
