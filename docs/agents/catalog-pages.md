@@ -15,6 +15,8 @@ Each layer of a page's top answers one question, so no name is shown twice:
 
 Tool pages (`/admin/**`, submissions, notifications, recent changes, leaderboard, the settings shell, the Wishlist Image builder, a collection's manual sort) have no page header: the navbar holds the title and the page's actions in `#right`, with a filter there only where the toolbar has no room (Recent Changes' _Changed by_ in its narrow list panel).
 
+These layers are for the catalog and tool pages. Info pages (`/about`, `/why-choose-keebdex`, `/privacy`, `/shoutouts`, `/changelog`) follow their own convention: a centered `UPageSection` hero (icon, title, description) opens the body instead of a `UPageHeader`, and the navbar shows only on phones (`$device.isMobileOrTablet`).
+
 ## Detail page conventions
 
 - **Cards**: variant cards, keyset kit cards, and the colorway cards of the sculpt page and `/artisan/search` are one `SharedCatalogCard`: the image (`aspect` `video` with a `fallback` image, or `square` with an icon placeholder), the name with a formatted `price` (`price-struck` when cancelled), a two-line description, a `badges` slot over the image, Add Photo (for suggesters, emits `suggest` like Edit), and a footer with `footer-start` (`SharedSaveToCollection`, always labeled _Save_ or _Move_, or a kit's units) on the left and, on the right, the page's own ghost icon buttons (`footer-end`) then Edit / History / Delete. The footer wraps the icons to a second row on narrow cards.

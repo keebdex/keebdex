@@ -28,6 +28,7 @@ authors:
 - **Catalog lists** match the new pages: profiles are grouped under their maker, owner pages show the logo, story, and links up front, group buys show the days left, and keyset pages list the designer, dates, and status beside the cover with the Geekhack thread and order charts under the specs.
 - **Navigation** is simpler: the top bar says where you are while the page names itself once below it, phones get a back button to the page above, and the sidebar keeps only Leaderboard, Notifications, Feedback, and Donate at the bottom. Your profile menu holds the rest, including _Appearance_ with its _Theme_ and _Palette_ choices.
 - **Wide screens** keep every page's content at a comfortable width in the middle, so grids, tables, and forms no longer stretch across an ultrawide monitor.
+- **The _Changelog_** has a _Releases_ index, beside the notes on computers and folded into a bar on phones, that follows where you are and jumps to any release, with a link you can share.
 - **Pins** have no limit, work for keyboard brands and keyboards too, and sit in their own _Pinned_ group above the rest.
 - **_My Collection_** previews each shelf's first photos and shows whether it is public, a wishlist, or for sale, and items inside use the same cards as catalog pages.
 - **The _Wishlist Image_** marks the price, _Top Priority_, and _Found_ or _Sold_ on each cap, with your terms beside the caps for sale, and the _Trading Hub_ shows each list as a card of its caps with a guide to listing your own.

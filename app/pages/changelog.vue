@@ -6,7 +6,7 @@
 
     <template #body>
       <UPageSection
-        title="What's New"
+        title="Changelog"
         :description
         icon="solar:history-bold-duotone"
         :ui="{ body: 'mt-0' }"
@@ -23,35 +23,58 @@
           </div>
         </template>
 
-        <UChangelogVersions
-          as="main"
-          :indicator-motion="false"
-          :ui="{
-            indicator:
-              'inset-y-0 bg-transparent bg-linear-to-b from-primary/60 via-(--ui-border) via-30% to-transparent',
-          }"
+        <div
+          class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10"
         >
-          <UChangelogVersion
-            v-for="{ page, dot, ...version } in versions"
-            :key="version.tag"
-            v-bind="version"
-            :ui="{
-              ...dot,
-              root: 'group/version flex items-start',
-              container: 'max-w-xl min-w-0',
-              header: 'border-b border-default pb-4',
-              title:
-                'text-3xl transition-colors duration-300 group-hover/version:text-primary',
-              date: 'text-xs/9 text-highlighted font-mono',
-              indicator:
-                'sticky top-0 pt-16 -mt-16 sm:pt-24 sm:-mt-24 lg:pt-32 lg:-mt-32',
-            }"
+          <UChangelogVersions
+            as="main"
+            :ui="{ root: 'py-8 sm:py-12' }"
+            :indicator-motion="false"
           >
-            <template #body>
-              <ContentRenderer :value="page" />
+            <UChangelogVersion
+              v-for="{ page, ...version } in versions"
+              :key="version.tag"
+              v-bind="version"
+              :ui="{
+                container: 'max-w-xl min-w-0 lg:ms-40',
+                header: 'border-b border-default pb-4',
+                title: 'text-3xl',
+              }"
+            >
+              <template #title>
+                <span
+                  :id="anchor(version.tag)"
+                  class="scroll-mt-28 lg:scroll-mt-16"
+                >
+                  {{ version.title }}
+                </span>
+              </template>
+
+              <template #body>
+                <ContentRenderer :value="page" />
+              </template>
+            </UChangelogVersion>
+          </UChangelogVersions>
+
+          <UContentToc
+            title="Releases"
+            :links="tocLinks"
+            highlight
+            class="order-first lg:order-last lg:self-start"
+            :ui="{
+              root: '-top-4 sm:-top-6 max-h-svh',
+              linkText: 'flex-1',
+            }"
+            @move="scrollToRelease"
+          >
+            <template #link="{ link }">
+              <span class="min-w-0 flex-1 truncate">{{ link.text }}</span>
+              <span class="ms-2 shrink-0 font-mono text-xs text-dimmed">
+                {{ link.version }}
+              </span>
             </template>
-          </UChangelogVersion>
-        </UChangelogVersions>
+          </UContentToc>
+        </div>
       </UPageSection>
     </template>
   </UDashboardPanel>
@@ -104,29 +127,14 @@ const toAuthor = (author) =>
         target: author.to ? '_blank' : undefined,
       }
 
-// Timeline dots follow the badge color; the unreleased notes pulse, since
-// those changes are live right now.
-const releaseDot = ({ version, prerelease }) => {
-  if (!version) {
-    return {
-      dot: 'ring-info/50',
-      dotInner: 'bg-info motion-safe:animate-pulse',
-    }
-  }
-  return {
-    dot: 'transition-transform duration-300 group-hover/version:scale-125',
-    dotInner: prerelease ? 'bg-warning' : 'bg-success',
-  }
-}
-
 // The top glow fades in once the page has mounted.
 const glowVisible = ref(false)
 onMounted(() => requestAnimationFrame(() => (glowVisible.value = true)))
 
 // The unreleased notes are titled after the release they follow, so they do
 // not read as unavailable. Releases come newest first.
-const latestVersion = computed(
-  () => releases.value?.find((release) => release.version)?.version,
+const latestRelease = computed(() =>
+  releases.value?.find((release) => release.version),
 )
 
 const versions = computed(() =>
@@ -135,16 +143,42 @@ const versions = computed(() =>
     .map((release) => ({
       tag: release.version || 'unreleased',
       title:
-        release.version || !latestVersion.value
+        release.version || !latestRelease.value
           ? release.title
-          : `Since v${latestVersion.value}`,
+          : `Since v${latestRelease.value.version}`,
       date: release.date,
       page: release,
       badge: releaseBadge(release),
-      dot: releaseDot(release),
       authors: release.authors?.map(toAuthor),
     })),
 )
+
+const anchor = (tag) => `release-${tag.replaceAll('.', '-')}`
+
+// The Releases index (UContentToc) spies on each release title. Its links
+// push the hash through the router, which scrolls only the window, so the
+// panel body is scrolled here, also for a direct link with a hash. The
+// router's own scroll runs after the push and would cut a smooth scroll
+// short, so this one waits a frame.
+const tocLinks = computed(() =>
+  versions.value.map(({ tag, title }) => ({
+    id: anchor(tag),
+    text: title,
+    depth: 2,
+    version: tag === 'unreleased' ? 'Live' : `v${tag}`,
+  })),
+)
+
+const scrollToRelease = (id, behavior = 'smooth') =>
+  requestAnimationFrame(() =>
+    document.getElementById(id)?.scrollIntoView({ behavior, block: 'start' }),
+  )
+
+const route = useRoute()
+onMounted(() => {
+  if (route.hash)
+    scrollToRelease(decodeURIComponent(route.hash.slice(1)), 'instant')
+})
 
 useSeoMeta({
   title: 'Changelog',
