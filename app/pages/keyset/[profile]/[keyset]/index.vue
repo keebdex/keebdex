@@ -1,11 +1,7 @@
 <template>
   <UDashboardPanel :id="`keyset-${profile}-${keyset}`">
     <template #header>
-      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
-        <template v-if="$device.isDesktopOrTablet" #left>
-          <UBreadcrumb :items="breadcrumbs" />
-        </template>
-      </UDashboardNavbar>
+      <SharedBreadcrumbNavbar :items="breadcrumbs" />
     </template>
 
     <template #body>

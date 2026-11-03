@@ -8,7 +8,7 @@ The public catalog pages: the home page, the catalog lists (makers, brands, prof
 
 Each layer of a page's top answers one question, so no name is shown twice:
 
-- **Navbar** (`UDashboardNavbar`): where the page is. A module's page shows the module as its title. A page inside it (owner, detail, collection) shows a `UBreadcrumb` on desktop that ends at the parent page, whose item sets `active: false` so it is neither highlighted nor `aria-current`; the navbar `title` (phones) is that parent's label (`breadcrumbs.at(-1).label`). Content pages put no actions here.
+- **Navbar** (`UDashboardNavbar`): where the page is. A module's page shows the module as its title. A page inside it (owner, detail, collection) uses `SharedBreadcrumbNavbar` with its `breadcrumbs`: the `UBreadcrumb` on desktop and tablets, and on phones a back button to the last item with a link, labeled with its name (icon-only beside the page's title when the trail ends with the page itself, as on manual sort); `#right` passes through. The trail ends at the parent page, whose item sets `active: false` so it is neither highlighted nor `aria-current`. Content pages put no actions here.
 - **Toolbar** (`UDashboardToolbar`): how to view the page: view switchers, tabs, search, filters.
 - **Page header** (`UPageHeader`, first in the body): what the page is and what can be done on it: the title, a description, and every page action in `#links`. No `headline` repeating the module.
 
