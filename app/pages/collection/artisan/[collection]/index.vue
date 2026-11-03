@@ -14,10 +14,10 @@
           <CollectionHeaderActions
             :collection="data"
             @updated="refresh"
-            @delete="deleteCollection"
+            @deleted="onDeleted"
           >
             <UModal
-              v-model:open="visible.share"
+              v-model:open="shareOpen"
               title="Share Collection"
               description="Control the visibility of this collection and generate a shareable link if needed."
             >
@@ -177,7 +177,7 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const toast = useToast()
 
-const { data, status, refresh, deleteCollection, isOwner } = useCollection(
+const { data, status, refresh, onDeleted, isOwner } = useCollection(
   () => route.params.collection,
   'artisan keycap',
 )
@@ -208,9 +208,7 @@ const shareItems = computed(() => [
   },
 ])
 
-const visible = ref({
-  share: false,
-})
+const shareOpen = ref(false)
 
 // One listing form for every item
 const listingItem = reactive({ open: false, name: '', item: null })
@@ -226,7 +224,7 @@ const editListing = ({ artisan, ...item }) => {
 // Sync shareOption with saved state whenever the modal is closed
 // (handles initial async data load + reset after close-without-save)
 watchEffect(() => {
-  if (!visible.value.share) {
+  if (!shareOpen.value) {
     shareOption.value = data.value?.published ? 'public' : 'private'
   }
 })
@@ -260,13 +258,7 @@ const copyShareUrl = async () => {
   toast.add(noticeToast('copied'))
 }
 
-// Maker & Sculpt or Colorway Name; a custom order saved before the Manual
-// Sort page was removed falls back to the default
-const sort = computed(() =>
-  data.value?.sort_by?.startsWith('artisan.')
-    ? data.value.sort_by
-    : 'artisan.maker_sculpt_id|artisan.name',
-)
+const sort = computed(() => artisanCollectionSort(data.value?.sort_by))
 
 const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),

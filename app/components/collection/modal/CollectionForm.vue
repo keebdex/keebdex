@@ -38,7 +38,7 @@
         <URadioGroup
           v-model="collection.sort_by"
           variant="table"
-          :items="sortItems"
+          :items="artisanCollectionSortItems"
         />
       </UFormField>
     </template>
@@ -128,19 +128,6 @@ const categoryItems = Constants.public.Enums.module.map((value) => ({
   value: value.toLowerCase(),
 }))
 
-const sortItems = [
-  {
-    label: 'Maker & Sculpt',
-    description: 'Grouped by maker, then sculpt, then colorway name.',
-    value: 'artisan.maker_sculpt_id|artisan.name',
-  },
-  {
-    label: 'Colorway Name',
-    description: 'Grouped by maker, then colorway name, then sculpt.',
-    value: 'artisan.name|artisan.maker_sculpt_id',
-  },
-]
-
 const collection = ref<CollectionState>({
   name: '',
   category: 'artisan',
@@ -153,13 +140,8 @@ const collection = ref<CollectionState>({
 onBeforeMount(() => {
   const { items: _items, ...rest } = metadata
   Object.assign(collection.value, rest)
-  // Artisan collections no longer offer a custom order (removed with the
-  // Manual Sort page): those that had one pick the default again
-  if (
-    collection.value.category === 'artisan' &&
-    !sortItems.some(({ value }) => value === collection.value.sort_by)
-  ) {
-    collection.value.sort_by = sortItems[0]!.value
+  if (collection.value.category === 'artisan') {
+    collection.value.sort_by = artisanCollectionSort(collection.value.sort_by)
   }
   // Older rows may have no contact yet; offer the profile's Discord
   collection.value.contact ||= discord.value

@@ -18,7 +18,7 @@
     </span>
   </span>
 
-  <!-- Only the star on phones, beside the editor's actions -->
+  <!-- Only the star when compact (the editor on phones) -->
   <UBadge
     v-if="buying && item.priority"
     :label="compact ? undefined : 'Top Priority'"

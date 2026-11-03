@@ -1,8 +1,8 @@
 <template>
   <!-- Icon-only Edit / History / Delete of one record (a page, release,
        variant, kit, or colorway), each named by its tooltip and aria-label.
-       Staff edit in place and see History, and Delete where the page handles
-       `@delete`; others with `suggestable` get Edit, which suggests an edit.
+       Staff edit in place, and see History and Delete where the page handles
+       `@history` and `@delete`; others with `suggestable` get Edit, which suggests an edit.
        Page headers take the theme's button style, like their other actions;
        cards and release rows pass `ghost`. -->
   <div
@@ -31,8 +31,8 @@ const {
   suggestable,
   label = '',
   deletable = true,
-  history = true,
   ghost,
+  onHistory = undefined,
   onDelete = undefined,
 } = defineProps<{
   // Staff: edit in place, plus History and Delete
@@ -42,19 +42,18 @@ const {
   // A data rule on top of `@delete`, e.g. a release only once its variants
   // are gone
   deletable?: boolean
-  // Off for records without a revision history (a user's collection)
-  history?: boolean
   // What the record is, for the buttons' accessible names ("Edit Release")
   label?: string
   ghost?: boolean
-  // `@delete`: Delete shows only where the page handles it
+  // `@history` and `@delete`: each shows only where the page handles it
+  // (a user's collection has no history)
+  onHistory?: () => void
   onDelete?: () => void
 }>()
 
 const emit = defineEmits<{
   edit: []
   suggest: []
-  history: []
 }>()
 
 const ariaLabel = (action: string) => (label ? `${action} ${label}` : action)
@@ -76,14 +75,14 @@ const actions = computed(() => {
 
   return [
     edit,
-    ...(history
+    ...(onHistory
       ? [
           {
             tooltip: 'History',
             icon: 'hugeicons:time-quarter-pass',
             variant,
             'aria-label': label ? `${label} History` : 'History',
-            onClick: () => emit('history'),
+            onClick: onHistory,
           },
         ]
       : []),

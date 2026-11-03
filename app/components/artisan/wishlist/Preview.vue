@@ -195,7 +195,8 @@ const saveOrder = (visible) => {
     if (shown.has(item.id)) {
       anchor = item.id
     } else {
-      followers.set(anchor, [...(followers.get(anchor) || []), item])
+      if (!followers.has(anchor)) followers.set(anchor, [])
+      followers.get(anchor).push(item)
     }
   }
 
@@ -210,13 +211,35 @@ const saveOrder = (visible) => {
   if (!changed.length) return
 
   // Kept on the items so the next drag starts from the saved order
-  changed.forEach(({ item, order }) => (item.order = order))
+  const pending = pendingOrders.get(collectionId) || new Map()
+  changed.forEach(({ item, order }) => {
+    item.order = order
+    pending.set(item.id, order)
+  })
+  pendingOrders.set(collectionId, pending)
 
-  $fetch(`/api/users/${user.value.uid}/collections/${collectionId}/sort`, {
-    method: 'post',
-    body: changed.map(({ item, order }) => ({ id: item.id, order })),
-  }).catch((error) => toast.add(errorToast(error)))
+  clearTimeout(flushTimer)
+  flushTimer = setTimeout(flushOrders, 600)
 }
+
+// Drags in quick succession are saved together, one request per collection
+// (each moved cap is still its own update on the server)
+const pendingOrders = new Map()
+let flushTimer
+
+const flushOrders = () => {
+  clearTimeout(flushTimer)
+  pendingOrders.forEach((orders, collectionId) =>
+    $fetch(`/api/users/${user.value.uid}/collections/${collectionId}/sort`, {
+      method: 'post',
+      body: [...orders].map(([id, order]) => ({ id, order })),
+    }).catch((error) => toast.add(errorToast(error))),
+  )
+  pendingOrders.clear()
+}
+
+// Leaving the page right after a drag still saves it
+onBeforeUnmount(flushOrders)
 
 const snapshot = useTemplateRef('snapshot')
 const filename = computed(() => `wishlist-${tradingCfg.value.type}`)

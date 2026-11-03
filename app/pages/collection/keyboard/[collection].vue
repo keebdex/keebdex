@@ -14,7 +14,7 @@
           <CollectionHeaderActions
             :collection="data"
             @updated="refresh"
-            @delete="deleteCollection"
+            @deleted="onDeleted"
           />
         </template>
       </UPageHeader>
@@ -86,7 +86,7 @@ import { sortBy } from 'es-toolkit/compat'
 
 const route = useRoute()
 
-const { data, status, refresh, deleteCollection, isOwner } = useCollection(
+const { data, status, refresh, onDeleted, isOwner } = useCollection(
   () => route.params.collection,
   'keyboard',
 )
