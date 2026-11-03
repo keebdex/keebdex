@@ -96,10 +96,12 @@ const collapsed = ref(false)
 const routesMenuKey = ref(0)
 const { paletteItems } = useThemeMenu()
 const { routes, personalLinks } = useSidebarNavigation(collapsed)
+const { isModerator } = storeToRefs(useUserStore())
 
 const links = computed(() => [
   [
     ...personalLinks.value,
+    // Kept in sight, so reporting a problem never takes a search
     {
       label: 'Feedback',
       icon: 'hugeicons:message-question',
@@ -133,7 +135,16 @@ const groups = computed(() => [
     label: 'Links',
     items: [
       ...links.value.flat(),
-      // About and Changelog live in the profile menu, not the sidebar
+      // The profile menu's staff and About links, which the sidebar leaves out
+      ...(isModerator.value
+        ? [
+            {
+              label: 'Recent Changes',
+              icon: 'hugeicons:time-quarter-pass',
+              to: '/recent-changes',
+            },
+          ]
+        : []),
       { label: 'About', icon: 'hugeicons:badge-info', to: '/about' },
       { label: 'Changelog', icon: 'hugeicons:scroll-text', to: '/changelog' },
     ],

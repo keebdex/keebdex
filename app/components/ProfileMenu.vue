@@ -39,7 +39,7 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user, role, isAdmin } = storeToRefs(userStore)
+const { authenticated, user, role, isAdmin, isModerator } = storeToRefs(userStore)
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -87,30 +87,48 @@ const items = computed(() => {
       }
     : null
 
-  const theme = {
-    label: 'Theme',
-    icon: 'hugeicons:dark-mode',
-    children: keepOpen(colorModeItems.value),
-  }
-
-  const palette = {
-    label: 'Palette',
+  // Light/dark mode and the palette in one submenu, a group each
+  const appearance = {
+    label: 'Appearance',
     icon: 'hugeicons:paint-board',
-    children: keepOpen(paletteItems.value),
+    children: [
+      keepOpen(colorModeItems.value),
+      keepOpen(paletteItems.value),
+    ],
   }
 
-  const about = [
-    {
-      label: 'About',
-      icon: 'hugeicons:badge-info',
-      to: '/about',
-    },
-    {
-      label: 'Changelog',
-      icon: 'hugeicons:scroll-text',
-      to: '/changelog',
-    },
+  // Staff tools: the revisions of the pages they manage, and for admins the
+  // management pages
+  const staff = [
+    ...(isModerator.value
+      ? [
+          {
+            label: 'Recent Changes',
+            icon: 'hugeicons:time-quarter-pass',
+            to: '/recent-changes',
+          },
+        ]
+      : []),
+    ...(management ? [management] : []),
   ]
+
+  // Rarely needed, so folded into one submenu (Feedback sits in the sidebar)
+  const about = {
+    label: 'About',
+    icon: 'hugeicons:badge-info',
+    children: [
+      {
+        label: 'About Keebdex',
+        icon: 'hugeicons:badge-info',
+        to: '/about',
+      },
+      {
+        label: 'Changelog',
+        icon: 'hugeicons:scroll-text',
+        to: '/changelog',
+      },
+    ],
+  }
 
   return authenticated.value
     ? [
@@ -129,11 +147,10 @@ const items = computed(() => {
             icon: 'hugeicons:settings-02',
             to: '/account/settings',
           },
-          theme,
-          palette,
+          appearance,
+          about,
         ],
-        ...(management ? [[management]] : []),
-        about,
+        ...(staff.length ? [staff] : []),
         [
           {
             label: 'Sign Out',
@@ -154,8 +171,7 @@ const items = computed(() => {
             },
           },
         ],
-        [theme, palette],
-        about,
+        [appearance, about],
       ]
 })
 

@@ -2,10 +2,11 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import type { Ref } from 'vue'
 
 // The sidebar's catalog sections and its footer links (Leaderboard,
-// Notifications, Recent Changes). The layout adds the links that open its own modals.
+// Notifications). The layout adds Donate, which opens its own modal; staff
+// tools and help live in the profile menu.
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const route = useRoute()
-  const { authenticated, isModerator } = storeToRefs(useUserStore())
+  const { authenticated } = storeToRefs(useUserStore())
   const { unread: unreadNotifications } = useNotifications()
   const { unread: unreadAnnouncements } = useAnnouncements()
   const { total: pendingReviews } = usePendingReviews()
@@ -145,16 +146,6 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
               size: 'sm',
             }
           : undefined,
-      })
-    }
-
-    // Staff only: revisions of the pages they manage.
-    if (isModerator.value) {
-      items.push({
-        label: 'Recent Changes',
-        icon: 'hugeicons:time-quarter-pass',
-        to: '/recent-changes',
-        active: route.path === '/recent-changes',
       })
     }
 
