@@ -10,7 +10,7 @@ title: Unreleased
 - **Keyboard pages** open as a catalog entry: a large photo, switchable between variants, beside the keyboard's name, story, and design specs.
 - **Production History** lays every release out on a timeline with its story, specs, and variants, so you can follow how a keyboard evolved.
 - **Sculpt pages** open with the sculpt's maker, profile, cast, design, release, and story, folded under _Sculpt Details_ on phones. Opening a colorway slides in a panel with its photo and every detail, ready to save or turn into a share card.
-- **Color Swatches** lay every keycap color out as a wall of swatches, with a tab per matching system and a search by code or name. Opening one shows its hex and RGB values, ready to copy, and the keysets that use it.
+- **Color Swatches** lay every keycap color out as a wall of swatches, with a tab per matching system and a search by code or name. Opening one shows its hex and RGB values, ready to copy, and the keysets that use it. A keyset's _Color Palette_ uses the same swatches, so you can jump from any of its colors to the other sets that share it.
 - **Derived Designs** sit right under a keyboard's details, and a keyboard based on another links to its original next to its name.
 
 ### 🐛 Bug Fixes

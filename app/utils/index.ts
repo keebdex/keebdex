@@ -179,6 +179,13 @@ export const getRoleLabel = (
 export const artisanGridClass =
   'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
 
+// Grids of color swatches (`KeysetColorTile`): the Colors page, and the
+// denser one of a keyset's palette, with compact tiles
+export const colorSwatchGridClass =
+  'grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6'
+export const colorPaletteGridClass =
+  'grid grid-cols-3 gap-x-3 gap-y-4 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8'
+
 // The pin on the Pinned label over a list's pinned makers or sculpts
 export const PINNED_ICON = 'solar:pin-bold'
 

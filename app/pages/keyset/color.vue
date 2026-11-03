@@ -39,7 +39,7 @@
 
         <div
           v-if="colors.length"
-          class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
+          :class="colorSwatchGridClass"
         >
           <KeysetColorTile
             v-for="color in colors"
@@ -52,7 +52,7 @@
         <!-- A first load, before any swatch has come back -->
         <div
           v-else-if="pending"
-          class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
+          :class="colorSwatchGridClass"
         >
           <div v-for="cell in 12" :key="cell" class="space-y-2">
             <USkeleton class="aspect-4/3 w-full rounded-lg" />
@@ -100,6 +100,7 @@
         ref="drawer"
         v-model:open="drawerOpen"
         :color-id="selectedId"
+        manage
         :preview="colors.find((color) => color.id === selectedId)"
         @edit="openForm"
         @delete="removeColor"

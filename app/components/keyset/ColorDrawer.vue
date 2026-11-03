@@ -1,6 +1,8 @@
 <template>
   <!-- One color in full: the swatch, its codes, and the keysets that use it,
-       with Edit and Delete for staff. One drawer serves the Colors page. -->
+       with Edit and Delete for staff where colors are managed (`manage`, the
+       Colors page). One drawer serves a page: the Colors page, or a keyset's
+       palette, which leaves its own keyset out (`exclude`). -->
   <USlideover
     v-model:open="open"
     :title="color ? `${color.system} ${color.code}` : 'Color'"
@@ -38,7 +40,7 @@
 
         <section class="space-y-3">
           <UPageHeader
-            title="Used In"
+            :title="exclude ? 'Also Used In' : 'Used In'"
             :as="detailSectionHeaderAs"
             :ui="detailSectionHeaderUi"
           />
@@ -76,7 +78,11 @@
           </ul>
 
           <p v-else class="text-sm text-muted">
-            No keyset in the catalog uses this color yet.
+            {{
+              exclude
+                ? 'No other keyset in the catalog uses this color yet.'
+                : 'No keyset in the catalog uses this color yet.'
+            }}
           </p>
         </section>
       </template>
@@ -89,7 +95,7 @@
       />
     </template>
 
-    <template v-if="color && editable" #footer>
+    <template v-if="color && manage && editable" #footer>
       <UButton
         icon="hugeicons:dashboard-circle-edit"
         label="Edit"
@@ -122,6 +128,13 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  // Show Edit and Delete to staff
+  manage: Boolean,
+  // A keyset's `profile_keyset_id` to leave out of the list (its own page)
+  exclude: {
+    type: String,
+    default: '',
+  },
 })
 
 defineEmits(['edit', 'delete'])
@@ -143,12 +156,20 @@ const { data, status, refresh } = useAsyncData(
       : Promise.resolve(null),
 )
 
+// The last color shown stays while the drawer slides closed, so its content
+// does not blank out mid-animation
+let last = null
 const color = computed(() => {
-  if (!props.colorId) return null
+  if (!props.colorId) return last
 
-  return data.value?.id === props.colorId ? data.value : props.preview
+  last = data.value?.id === props.colorId ? data.value : props.preview
+  return last
 })
-const keysets = computed(() => color.value?.keysets || [])
+const keysets = computed(() =>
+  (color.value?.keysets || []).filter(
+    (keyset) => keyset.profile_keyset_id !== props.exclude,
+  ),
+)
 const light = computed(() => isLightColor(color.value?.hex || ''))
 
 const specs = computed(() => {
