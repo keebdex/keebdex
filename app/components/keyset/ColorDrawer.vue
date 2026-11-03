@@ -49,8 +49,15 @@
             <USkeleton v-for="row in 2" :key="row" class="h-12 w-full" />
           </div>
 
-          <ul v-else-if="keysets.length" class="divide-y divide-default">
-            <li v-for="keyset in keysets" :key="keyset.id">
+          <!-- UPageList is role="list", so each row is its listitem; `relative`
+               anchors the divider it draws under the row -->
+          <UPageList v-else-if="keysets.length" divide>
+            <div
+              v-for="keyset in keysets"
+              :key="keyset.id"
+              role="listitem"
+              class="relative"
+            >
               <ULink
                 :to="`/keyset/${keyset.profile_keyset_id}`"
                 class="group flex items-center gap-3 py-2.5"
@@ -69,13 +76,16 @@
                   >
                     {{ keyset.profile?.name }} {{ keyset.name }}
                   </span>
-                  <span class="block truncate text-xs text-muted">
+                  <span
+                    v-if="keysetDates(keyset)"
+                    class="block truncate text-xs text-muted"
+                  >
                     {{ keysetDates(keyset) }}
                   </span>
                 </span>
               </ULink>
-            </li>
-          </ul>
+            </div>
+          </UPageList>
 
           <p v-else class="text-sm text-muted">
             {{
@@ -178,18 +188,18 @@ const specs = computed(() => {
   return [
     { term: 'System', description: color.value?.system },
     { term: 'Code', description: color.value?.code },
-    { term: 'Name', description: color.value?.name },
     { term: 'Hex', description: color.value?.hex?.toUpperCase() },
     { term: 'RGB', description: rgb?.join(', ') },
   ]
 })
 
-// The group buy window when there is one, else the interest check date
+// The group buy window when there is one, else the interest check date;
+// a keyset with neither shows only its name
 const keysetDates = (keyset) => {
   const range = formatDateRange(keyset.start_date, keyset.end_date)
   if (range) return range
 
-  return keyset.ic_date ? `IC ${formatDate(keyset.ic_date)}` : keyset.status
+  return keyset.ic_date ? `IC ${formatDate(keyset.ic_date)}` : ''
 }
 
 const copyHex = async () => {

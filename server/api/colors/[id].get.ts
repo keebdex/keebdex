@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('colors')
     .select(
-      'id, system, code, name, hex, keysets:keyset_colors(keyset:keysets(id, name, img, profile_keyset_id, start_date, end_date, ic_date, status, review_status, profile:keyset_profiles(name)))',
+      'id, system, code, name, hex, keysets:keyset_colors(keyset:keysets(id, name, img, profile_keyset_id, start_date, end_date, ic_date, review_status, profile:keyset_profiles(name)))',
     )
     .eq('id', id)
     .maybeSingle()
