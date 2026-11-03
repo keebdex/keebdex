@@ -141,7 +141,7 @@ Read the matching file before working on one of these features; each holds its s
 
 ## Git and Documentation
 
-- Commit messages follow Conventional Commits through commitlint. Do not create commits, branches, or pull requests unless explicitly requested; writing the PR notes file described below is not a commit.
+- Commit messages follow Conventional Commits through commitlint. Do not create commits, branches, or pull requests unless explicitly requested; a request to commit also covers the branch the commit goes on. Writing the PR notes file described below is not a commit.
 - Write user-facing notes for unreleased changes in `content/changelog/unreleased.md` (create it with `title: Unreleased` frontmatter when it is missing); `CHANGELOG.md` only points there. Release notes are read by collectors, not developers: each entry is a full, present-tense sentence about what users see or can now do and why it helps, merged with any entry on the same feature, and internal work users never see is left out. Follow "Release notes" in `docs/agents/releases.md` for the shape, and use its release steps to cut a release. Edit a released version in its `content/changelog/v<version>.md`, never on GitHub, whose releases are copies of those files.
 
 ## Plans, PR Notes, and Keeping Instructions Current
