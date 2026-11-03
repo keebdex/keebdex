@@ -1,6 +1,6 @@
 <template>
   <!-- One swatch, on the Colors page and in a keyset's palette: the color
-       with its hex on it, then the system and code, the name, and how many
+       with its hex centered on it, then the system and code, the name, and how many
        keysets use it when known. The button's ::after covers the whole tile,
        so the `action` slot (e.g. Remove, beside the name: on the swatch it
        would be lost on pale colors) sits above it. `compact` is the smaller
@@ -10,16 +10,16 @@
     :class="compact ? 'gap-1.5' : 'gap-2'"
   >
     <span
-      class="flex w-full items-end ring-1 ring-default ring-inset transition-transform duration-150 group-hover:-translate-y-0.5 motion-reduce:transition-none"
+      class="flex w-full items-center justify-center ring-1 ring-default ring-inset transition-transform duration-150 group-hover:-translate-y-0.5 motion-reduce:transition-none"
       :class="
-        compact ? 'aspect-3/2 rounded-md p-1.5' : 'aspect-4/3 rounded-lg p-2.5'
+        compact ? 'aspect-3/2 rounded-md' : 'aspect-4/3 rounded-lg'
       "
       :style="{ backgroundColor: color.hex }"
     >
       <span
         class="font-mono uppercase"
         :class="[
-          compact ? 'text-[0.625rem]' : 'text-xs',
+          compact ? 'text-xs' : 'text-sm',
           isLightColor(color.hex) ? 'text-black/70' : 'text-white/80',
         ]"
       >
