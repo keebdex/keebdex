@@ -35,38 +35,10 @@ const TIMELINE_UI = {
   title: 'text-sm/6 font-normal text-muted',
 }
 
-const dayHeading = (date: string) => {
-  const days = daysAgo(date)
-
-  if (days === 0) return 'Changes today'
-  if (days === 1) return 'Changes yesterday'
-
-  return `Changes on ${formatDate(date)}`
-}
-
-const days = computed(() => {
-  const result: {
-    value: string
-    title: string
-    icon: string
-    entries: T[]
-  }[] = []
-
-  for (const entry of props.entries) {
-    const value = String(startOfDay(entry.date).getTime())
-    const last = result.at(-1)
-
-    if (last?.value === value) last.entries.push(entry)
-    else {
-      result.push({
-        value,
-        title: dayHeading(entry.date),
-        icon: 'hugeicons:git-commit',
-        entries: [entry],
-      })
-    }
-  }
-
-  return result
-})
+const days = computed(() =>
+  groupRevisionsByDay(props.entries).map((day) => ({
+    ...day,
+    icon: 'hugeicons:git-commit',
+  })),
+)
 </script>

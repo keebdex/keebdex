@@ -1,27 +1,91 @@
 <template>
-  <div
-    v-if="diffs.length"
-    class="divide-y divide-default rounded-lg border border-default"
-  >
-    <SharedSuggestionChange
-      v-for="diff in diffs"
-      :key="diff.key"
-      :field="diff.key"
-      :before="diff.before"
-      :after="diff.after"
-      :before-values="beforeValues"
-      :after-values="afterValues"
-      :labels="labels"
+  <div v-if="rows.length" class="space-y-3">
+    <div
+      v-for="row in rows"
+      :key="row.key"
+      class="overflow-hidden rounded-lg border border-default bg-default"
     >
-      <template v-if="highlight.includes(diff.key)" #actions>
-        <UBadge
-          label="Changed Since"
-          color="warning"
-          variant="soft"
-          size="sm"
-        />
-      </template>
-    </SharedSuggestionChange>
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b border-default bg-elevated/50 px-4 py-2.5"
+      >
+        <span class="text-sm font-semibold text-highlighted">
+          {{ row.label }}
+        </span>
+
+        <div class="flex flex-wrap items-center gap-1.5">
+          <UBadge
+            v-if="highlight.includes(row.key)"
+            label="Changed Since"
+            color="warning"
+            variant="outline"
+            size="sm"
+          />
+          <UBadge
+            :label="KIND_LABELS[row.kind]"
+            :icon="KIND_ICONS[row.kind]"
+            :color="KIND_COLORS[row.kind]"
+            variant="subtle"
+            size="sm"
+          />
+        </div>
+      </div>
+
+      <!-- Side by side: before on the left, after on the right -->
+      <div
+        v-if="layout === 'split'"
+        class="grid divide-y divide-default sm:grid-cols-2 sm:divide-x sm:divide-y-0"
+      >
+        <div
+          v-for="side in row.sides"
+          :key="side.label"
+          :class="['min-w-0 space-y-1.5 p-4', side.class]"
+        >
+          <p class="text-xs font-medium tracking-wide text-muted uppercase">
+            {{ side.label }}
+          </p>
+          <SharedSuggestionValue
+            :field="row.key"
+            :value="side.value"
+            :values="side.values"
+            :alt="row.label"
+            :highlight="side.only"
+            :color="side.color"
+            :tone="side.empty ? undefined : side.tone"
+          />
+        </div>
+      </div>
+
+      <!-- Unified: the removed value, then the added one -->
+      <div v-else class="divide-y divide-default">
+        <template v-for="side in row.sides" :key="side.label">
+          <div
+            v-if="!side.empty"
+            :class="['flex min-w-0 items-start gap-3 px-4 py-3', side.class]"
+          >
+            <span
+              :class="[
+                'w-3 shrink-0 font-mono text-sm leading-5 select-none',
+                side.tone === 'removed' ? 'text-error' : 'text-success',
+              ]"
+              :aria-label="side.label"
+            >
+              {{ side.tone === 'removed' ? '−' : '+' }}
+            </span>
+            <div class="min-w-0 flex-1">
+              <SharedSuggestionValue
+                :field="row.key"
+                :value="side.value"
+                :values="side.values"
+                :alt="row.label"
+                :highlight="side.only"
+                :color="side.color"
+                :tone="side.tone"
+              />
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
   </div>
 
   <p v-else class="text-sm text-muted">{{ empty }}</p>
@@ -30,16 +94,20 @@
 <script setup lang="ts">
 import type { RevisionFieldDiff } from '~/utils/revisions'
 
-// Field-by-field comparison for the History slideover, built on the edit
-// suggestion rows (labels, formatted values, image thumbnails). `highlight`
-// marks fields edited again since the revision.
-withDefaults(
+// Field-by-field comparison of a revision (History, Recent Changes): a card
+// per field, named by its suggestion label and marked Added, Modified or
+// Removed, with the value before and after side by side (`split`) or one
+// under the other (`unified`, removed in red, added in green). Values render
+// like edit suggestions do (formatted text, image thumbnails, color
+// swatches). `highlight` marks fields edited again since the revision.
+const props = withDefaults(
   defineProps<{
     diffs: RevisionFieldDiff[]
     labels?: [string, string]
     beforeValues?: Record<string, any>
     afterValues?: Record<string, any>
     highlight?: string[]
+    layout?: 'split' | 'unified'
     empty?: string
   }>(),
   {
@@ -47,7 +115,77 @@ withDefaults(
     beforeValues: () => ({}),
     afterValues: () => ({}),
     highlight: () => [],
+    layout: 'split',
     empty: 'No fields to compare.',
   },
+)
+
+type DiffKind = 'added' | 'modified' | 'removed'
+
+const KIND_LABELS: Record<DiffKind, string> = {
+  added: 'Added',
+  modified: 'Modified',
+  removed: 'Removed',
+}
+
+const KIND_ICONS: Record<DiffKind, string> = {
+  added: 'hugeicons:add-01',
+  modified: 'hugeicons:edit-02',
+  removed: 'hugeicons:remove-01',
+}
+
+const KIND_COLORS = {
+  added: 'success',
+  modified: 'warning',
+  removed: 'error',
+} as const
+
+const isEmpty = (value: unknown) =>
+  value == null ||
+  value === '' ||
+  (Array.isArray(value) && !value.length)
+
+// Items on one side only, e.g. a keyset's colors removed or added.
+const only = (value: unknown, other: unknown) =>
+  Array.isArray(value)
+    ? value.filter((item) => !(Array.isArray(other) && other.includes(item)))
+    : []
+
+const rows = computed(() =>
+  props.diffs.map((diff) => {
+    const kind: DiffKind = isEmpty(diff.before)
+      ? 'added'
+      : isEmpty(diff.after)
+        ? 'removed'
+        : 'modified'
+
+    return {
+      key: diff.key,
+      label: suggestionFieldLabel(diff.key),
+      kind,
+      sides: [
+        {
+          label: props.labels[0],
+          value: diff.before,
+          values: props.beforeValues,
+          empty: isEmpty(diff.before),
+          only: only(diff.before, diff.after),
+          color: 'error' as const,
+          tone: 'removed' as const,
+          class: isEmpty(diff.before) ? undefined : 'bg-error/5',
+        },
+        {
+          label: props.labels[1],
+          value: diff.after,
+          values: props.afterValues,
+          empty: isEmpty(diff.after),
+          only: only(diff.after, diff.before),
+          color: 'success' as const,
+          tone: 'added' as const,
+          class: isEmpty(diff.after) ? undefined : 'bg-success/5',
+        },
+      ],
+    }
+  }),
 )
 </script>

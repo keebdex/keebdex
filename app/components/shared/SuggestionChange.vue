@@ -13,35 +13,14 @@
     <div class="grid gap-3 sm:grid-cols-2">
       <div v-for="side in sides" :key="side.label" class="min-w-0 space-y-1">
         <p class="text-xs text-muted">{{ side.label }}</p>
-        <SharedDiffImage
-          v-if="image && side.value"
-          :src="String(side.value)"
+        <SharedSuggestionValue
+          :field="field"
+          :value="side.value"
+          :values="side.values"
           :alt="label"
+          :highlight="side.only"
+          :color="side.color"
         />
-        <div
-          v-else-if="colors && Array.isArray(side.value)"
-          class="flex flex-wrap gap-1.5"
-        >
-          <UBadge
-            v-for="id in side.value"
-            :key="id"
-            :label="colorLabel(id)"
-            :color="side.only.includes(id) ? side.color : undefined"
-            variant="subtle"
-            size="sm"
-          >
-            <template #leading>
-              <span
-                class="size-2.5 shrink-0 rounded-full ring ring-default"
-                :style="{ backgroundColor: details[id]?.hex }"
-              />
-            </template>
-          </UBadge>
-          <span v-if="!side.value.length" class="text-sm">—</span>
-        </div>
-        <p v-else class="text-sm whitespace-pre-line break-words">
-          {{ formatSuggestionValue(field, side.value, side.values) }}
-        </p>
       </div>
     </div>
 
@@ -87,12 +66,6 @@ const after = computed(() =>
     : props.after,
 )
 
-const { details } = useKeysetColorDetails(() =>
-  colors.value ? [...ids(before.value), ...ids(after.value)] : [],
-)
-
-const colorLabel = (id: number) => keysetColorLabel(details.value[id] || { id })
-
 // Items on one side only: removed before, added after.
 const only = (value: unknown, other: unknown) =>
   Array.isArray(value)
@@ -100,7 +73,6 @@ const only = (value: unknown, other: unknown) =>
     : []
 
 const label = computed(() => props.label || suggestionFieldLabel(props.field))
-const image = computed(() => isImageSuggestionField(props.field))
 
 const sides = computed(() => [
   {

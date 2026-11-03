@@ -9,6 +9,7 @@ import {
   sameSuggestionValue,
 } from '~/utils/suggestions'
 import { userAvatar } from '~/utils'
+import { daysAgo, formatDate, startOfDay } from '~/utils/date'
 import type { SuggestionEntityType } from '~/utils/suggestions'
 import type { KeebModule } from '~/utils/keeb-modules'
 
@@ -425,4 +426,40 @@ export const groupRecentChanges = (
   }
 
   return entries
+}
+
+/** `Changes today`, `Changes yesterday`, `Changes on Nov 1, 2026`. */
+export const revisionDayHeading = (date: string) => {
+  const days = daysAgo(date)
+
+  if (days === 0) return 'Changes today'
+  if (days === 1) return 'Changes yesterday'
+
+  return `Changes on ${formatDate(date)}`
+}
+
+/**
+ * Entries (newest first) by the day of their `date`, for the revision
+ * timelines and Recent Changes.
+ */
+export const groupRevisionsByDay = <T extends { date: string }>(
+  entries: T[],
+) => {
+  const days: { value: string; title: string; entries: T[] }[] = []
+
+  for (const entry of entries) {
+    const value = String(startOfDay(entry.date).getTime())
+    const last = days.at(-1)
+
+    if (last?.value === value) last.entries.push(entry)
+    else {
+      days.push({
+        value,
+        title: revisionDayHeading(entry.date),
+        entries: [entry],
+      })
+    }
+  }
+
+  return days
 }

@@ -42,7 +42,7 @@
             color="warning"
             variant="subtle"
             title="Edited Again"
-            :description="`${fieldList(conflicts)} changed again after this revision, so it can no longer be undone. Restore the revision instead to bring the whole record back to it.`"
+            :description="`${revisionFieldList(conflicts)} changed again after this revision, so it can no longer be undone. Restore the revision instead to bring the whole record back to it.`"
           />
 
           <UTabs
@@ -180,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Revision, RevisionDetail } from '~/utils/revisions'
+import type { Revision } from '~/utils/revisions'
 
 import type { SuggestionEntityType } from '~/utils/suggestions'
 
@@ -309,143 +309,33 @@ defineExpose({ show })
 
 // Selected revision ------------------------------------------------------------
 
-const selectedId = ref<number | null>(null)
-const detail = ref<RevisionDetail | null>(null)
-const detailLoading = ref(false)
-const view = ref<'change' | 'current'>('change')
+const {
+  selectedId,
+  detail,
+  detailLoading,
+  view,
+  viewItems,
+  detailTitle,
+  changeDiffs,
+  currentDiffs,
+  undoFields,
+  restoreFields,
+  conflicts,
+  selectRevision,
+  confirmOpen,
+  confirmMode,
+  confirmTitle,
+  confirmDescription,
+  reverting,
+  confirm,
+  revert,
+} = useRevisionDetail({
+  onReverted: (revert) => {
+    emit('reverted', revert)
 
-const loadDetail = async (id: number) => {
-  detailLoading.value = true
-
-  try {
-    const result = await $fetch<RevisionDetail>(`/api/revisions/${id}`)
-
-    if (selectedId.value === id) detail.value = result
-  } catch (error) {
-    toast.add(errorToast(error))
-    selectedId.value = null
-  } finally {
-    detailLoading.value = false
-  }
-}
-
-const selectRevision = (id: number) => {
-  detail.value = null
-  view.value = 'change'
-  selectedId.value = id
-  loadDetail(id)
-}
+    return load()
+  },
+})
 
 const select = (revision: Revision) => selectRevision(revision.id)
-
-watch(selectedId, (id) => {
-  if (!id) detail.value = null
-})
-
-const viewItems = computed(() => [
-  { label: 'This Change', value: 'change' },
-  {
-    label: 'Compare with Current',
-    value: 'current',
-    disabled: !detail.value?.current,
-  },
-])
-
-const detailTitle = computed(() =>
-  detail.value
-    ? detail.value.label || revisionEntityLabel(detail.value)
-    : 'Revision',
-)
-
-const changeDiffs = computed(() =>
-  detail.value ? revisionChangeDiff(detail.value) : [],
-)
-const currentDiffs = computed(() =>
-  detail.value ? revisionCurrentDiff(detail.value) : [],
-)
-const undoFields = computed(() =>
-  detail.value ? revertableFields(detail.value, 'undo') : [],
-)
-const restoreFields = computed(() =>
-  detail.value ? revertableFields(detail.value, 'restore') : [],
-)
-const conflicts = computed(() =>
-  detail.value?.current && detail.value.action === 'update'
-    ? undoConflicts(detail.value)
-    : [],
-)
-
-const fieldList = (keys: string[]) => {
-  const labels = keys.map(suggestionFieldLabel)
-
-  return labels.length > 1
-    ? `${labels.slice(0, -1).join(', ')} and ${labels.at(-1)}`
-    : labels[0] || ''
-}
-
-// Undo / Restore -------------------------------------------------------------------
-
-const confirmOpen = ref(false)
-const confirmMode = ref<'undo' | 'restore'>('undo')
-const reverting = ref(false)
-
-const confirm = (mode: 'undo' | 'restore') => {
-  confirmMode.value = mode
-  confirmOpen.value = true
-}
-
-const confirmTitle = computed(() =>
-  confirmMode.value === 'undo' ? 'Undo This Change' : 'Restore This Revision',
-)
-
-const confirmDescription = computed(() => {
-  if (!detail.value) return undefined
-
-  const keys = (
-    confirmMode.value === 'undo' ? undoFields.value : restoreFields.value
-  ).map((diff) => diff.key)
-  const locked = syncLockedFields(detail.value, keys)
-  const action =
-    confirmMode.value === 'undo'
-      ? `${fieldList(keys)} will go back to the values before this change.`
-      : `${fieldList(keys)} will go back to the values of this revision.`
-  const warning = locked.length
-    ? ` ${fieldList(locked)} will stop updating from the maker's ${
-        detail.value.current?.source === 'scraper' ? 'website' : 'Google Doc'
-      }.`
-    : ''
-
-  return `${action}${warning} The change is saved as a new revision, so it can be reverted too.`
-})
-
-const revert = async () => {
-  if (!detail.value) return
-
-  const revision = detail.value
-  reverting.value = true
-
-  try {
-    const { changes } = await $fetch<{ changes: Record<string, unknown> }>(
-      `/api/revisions/${revision.id}/revert`,
-      {
-        method: 'POST',
-        body: { mode: confirmMode.value },
-      },
-    )
-
-    toast.add(
-      successToast('update', {
-        entity: revisionEntityLabel(revision),
-        name: revision.label,
-      }),
-    )
-    confirmOpen.value = false
-    emit('reverted', { entityType: revision.entity_type, changes })
-    await Promise.all([load(), loadDetail(revision.id)])
-  } catch (error) {
-    toast.add(errorToast(error, { showOriginalMessage: true }))
-  } finally {
-    reverting.value = false
-  }
-}
 </script>
