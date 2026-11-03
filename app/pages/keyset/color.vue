@@ -1,215 +1,243 @@
 <template>
   <UDashboardPanel id="keyset-color">
     <template #header>
-      <UDashboardNavbar :title="meta.title">
-        <template v-if="editable" #right>
-          <UModal v-model:visible="visible" title="Add Color">
-            <UButton
-              icon="hugeicons:color-picker"
-              label="Add"
-              color="primary"
-            />
+      <UDashboardNavbar title="Colors" />
 
-            <template #body="{ close }">
-              <KeysetModalColorForm
-                :is-edit="!!selectedColor?.id"
-                :metadata="selectedColor"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <KeysetModalColorImportForm @on-success="refresh" />
-        </template>
-      </UDashboardNavbar>
+      <UDashboardToolbar>
+        <!-- NOTE: The `-mx-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
+      </UDashboardToolbar>
     </template>
 
     <template #body>
-      <div
-        class="flex flex-col gap-2 px-4 py-3.5 border-b border-accented sm:flex-row"
+      <UPageHeader
+        headline="Keysets"
+        title="Color Swatches"
+        description="Every color keycaps are matched to, from GMK and SP codes to Pantone and RAL. Open a swatch for its values and the keysets that use it."
+        :ui="listingPageHeaderUi"
       >
-        <USelect
-          v-model="system"
-          :items="systemFilters"
-          class="w-full sm:w-56"
-        />
+        <template v-if="editable" #links>
+          <UButton
+            color="primary"
+            icon="hugeicons:color-picker"
+            label="Add Color"
+            @click="openForm()"
+          />
+          <KeysetModalColorImportForm @on-success="refresh" />
+        </template>
+      </UPageHeader>
 
+      <section class="space-y-6 pt-4">
         <UInput
           v-model="term"
-          icon="hugeicons:filter"
-          placeholder="What's your hue?"
-          class="w-full"
+          icon="hugeicons:search-01"
+          :placeholder="`Search ${systemLabel} by code or name`"
+          aria-label="Search colors"
+          :loading="pending"
+          class="w-full sm:max-w-sm"
         />
-      </div>
 
-      <UTable
-        sticky
-        :loading="status === 'pending'"
-        :data="data.data"
-        :columns="columns"
-      >
-        <template #hex-cell="{ row }">
-          <KeysetColorSwatch :color="row.original.hex" />
-        </template>
+        <div
+          v-if="colors.length"
+          class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
+        >
+          <KeysetColorTile
+            v-for="color in colors"
+            :key="color.id"
+            :color="color"
+            @select="selectColor"
+          />
+        </div>
 
-        <template v-if="editable" #action-cell="{ row }">
-          <div class="flex gap-2">
-            <UModal
-              v-model:visible="visible"
-              title="Edit Color"
-              @after:leave="setSelectedColor"
-            >
-              <UButton
-                label="Edit"
-                icon="hugeicons:dashboard-circle-edit"
-                size="sm"
-                @click="setSelectedColor(row.original)"
-              />
-
-              <template #body="{ close }">
-                <KeysetModalColorForm
-                  :is-edit="true"
-                  :metadata="selectedColor"
-                  @on-success="
-                    () => {
-                      close()
-                      setSelectedColor()
-                      refresh()
-                    }
-                  "
-                />
-              </template>
-            </UModal>
-
-            <UModal
-              v-if="isAdmin"
-              v-model:visible="deleteColor"
-              title="Remove Color"
-              description="Are you sure you want to continue? This action cannot be undone."
-            >
-              <UButton
-                label="Delete"
-                icon="hugeicons:dashboard-circle-remove"
-                size="sm"
-                color="error"
-              />
-
-              <template #footer="{ close }">
-                <UButton label="Cancel" @click="close" />
-                <UButton
-                  label="Remove"
-                  color="error"
-                  @click="confirmDelete(row.original)"
-                />
-              </template>
-            </UModal>
+        <!-- A first load, before any swatch has come back -->
+        <div
+          v-else-if="pending"
+          class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
+        >
+          <div v-for="cell in 12" :key="cell" class="space-y-2">
+            <USkeleton class="aspect-4/3 w-full rounded-lg" />
+            <USkeleton class="h-4 w-2/3" />
           </div>
-        </template>
-      </UTable>
+        </div>
 
-      <UPagination
-        v-if="data.count > size"
-        :page="page"
-        :items-per-page="size"
-        :total="data.count"
-        class="border-t border-default pt-4 mt-auto"
-        :ui="{
-          list: 'justify-center',
-        }"
-        @update:page="setPage"
+        <UEmpty
+          v-else
+          icon="hugeicons:paint-board"
+          title="No Matching Colors"
+          :description="
+            debouncedTerm
+              ? `Nothing in ${systemLabel} matches “${debouncedTerm}”. Try a code such as N9 or a name such as Red.`
+              : `No ${systemLabel} colors have been added yet.`
+          "
+          :actions="
+            debouncedTerm
+              ? [
+                  {
+                    label: 'Clear Search',
+                    icon: 'hugeicons:cancel-01',
+                    onClick: () => (term = ''),
+                    ui: { label: 'block' },
+                  },
+                ]
+              : undefined
+          "
+        />
+
+        <UPagination
+          v-if="data.count > size"
+          :page="page"
+          :items-per-page="size"
+          :total="data.count"
+          class="border-t border-default pt-4"
+          :ui="{
+            list: 'justify-center',
+          }"
+          @update:page="setPage"
+        />
+      </section>
+
+      <KeysetColorDrawer
+        ref="drawer"
+        v-model:open="drawerOpen"
+        :color-id="selectedId"
+        :preview="colors.find((color) => color.id === selectedId)"
+        @edit="openForm"
+        @delete="removeColor"
+      />
+
+      <UModal
+        v-if="editable"
+        v-model:open="formOpen"
+        :title="editing?.id ? 'Edit Color' : 'Add Color'"
+      >
+        <template #body>
+          <KeysetModalColorForm
+            :is-edit="!!editing?.id"
+            :metadata="editing"
+            @on-success="onSaved"
+          />
+        </template>
+      </UModal>
+
+      <SharedConfirmModal
+        v-model:open="deleteTarget.open"
+        :title="`Delete ${deleteTarget.entity}`"
+        :description="`Are you sure you want to delete ${deleteTarget.entity.toLowerCase()} '${deleteTarget.name}'? This action cannot be undone.`"
+        confirm-label="Delete"
+        :loading="deleting"
+        @confirm="confirmDelete"
       />
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
+import { refDebounced } from '@vueuse/core'
 import { Constants } from '~/types/database.types'
 
-const userStore = useUserStore()
-const { isAdmin } = storeToRefs(userStore)
-const editable = computed(() => userStore.isEditable())
-const toast = useToast()
+const route = useRoute()
+const router = useRouter()
 
-const { page, size, setPage, resetPage } = usePagination(10)
+const userStore = useUserStore()
+const editable = computed(() => userStore.isEditable())
+
+const SYSTEMS = Constants.public.Enums.keyset_color_matching_system
+
+// The matching system is a tab in the URL (`?system=GMK`), like the group
+// buy tabs; any other value shows every system
+const system = computed(() =>
+  SYSTEMS.includes(route.query.system) ? route.query.system : undefined,
+)
+const systemLabel = computed(() => system.value || 'all colors')
+
+const links = computed(() => [
+  {
+    label: 'All',
+    to: { path: route.path },
+    active: !system.value,
+  },
+  ...SYSTEMS.map((value) => ({
+    label: value,
+    to: { path: route.path, query: { system: value } },
+    active: system.value === value,
+  })),
+])
+
+// 48 fills whole rows at two, three, four, and six columns
+const { page, size, setPage, resetPage } = usePagination(48)
 
 const term = ref('')
-const system = ref('all')
-const systemFilters = [
-  { label: 'All Matching Systems', value: 'all' },
-  ...Constants.public.Enums.keyset_color_matching_system.map((s) => ({
-    label: s,
-    value: s,
-  })),
-]
+const debouncedTerm = refDebounced(
+  computed(() => term.value.trim()),
+  300,
+)
 
 const { data, status, refresh } = useAdvancedSearch('/api/colors', {
   key: 'keyset-colors',
-  term,
+  term: debouncedTerm,
   minLength: 0,
-  pagination: {
-    page,
-    size,
-  },
-  filters: {
-    system: computed(() => (system.value !== 'all' ? system.value : undefined)),
+  pagination: { page, size },
+  filters: { system, usage: '1' },
+})
+
+const colors = computed(() => data.value?.data || [])
+const pending = computed(() => status.value === 'pending')
+
+watch(debouncedTerm, resetPage)
+
+// The open color is in the URL too (`?color=<id>`), so a swatch can be linked
+const selectedId = computed(() => Number(route.query.color) || null)
+const drawerOpen = computed({
+  get: () => !!selectedId.value,
+  set: (value) => {
+    if (!value) selectColor(null)
   },
 })
 
-watch([term, system], resetPage)
-
-const columns = [
-  {
-    accessorKey: 'system',
-    header: 'System',
-  },
-  {
-    accessorKey: 'code',
-    header: 'Code',
-  },
-  {
-    accessorKey: 'name',
-    header: 'Name',
-  },
-  {
-    accessorKey: 'hex',
-    header: 'Color',
-  },
-  {
-    id: 'action',
-  },
-]
-
-const visible = ref(false)
-const selectedColor = ref({})
-const setSelectedColor = (color) => {
-  selectedColor.value = color
-}
-
-const deleteColor = ref(false)
-const confirmDelete = (color) => {
-  $fetch(`/api/colors/${color.id}`, {
-    method: 'delete',
+const selectColor = (color) => {
+  router.replace({
+    path: route.path,
+    query: { ...route.query, color: color?.id || undefined },
   })
-    .then(() => {
-      toast.add(successToast('delete', { entity: 'Color', name: color.name }))
-
-      refresh()
-    })
-    .catch((error) => {
-      toast.add(errorToast(error))
-    })
 }
 
-const meta = {
+const drawer = useTemplateRef('drawer')
+
+const formOpen = ref(false)
+const editing = ref({})
+
+const openForm = (color = {}) => {
+  editing.value = { ...color }
+  formOpen.value = true
+}
+
+const onSaved = () => {
+  formOpen.value = false
+  refresh()
+  if (editing.value.id) drawer.value?.refresh()
+}
+
+const {
+  target: deleteTarget,
+  deleting,
+  open: openDelete,
+  confirm: confirmDelete,
+} = useConfirmDelete(() => {
+  selectColor(null)
+  refresh()
+})
+
+const removeColor = (color) => {
+  openDelete(
+    'Color',
+    `${color.system} ${color.code}`,
+    `/api/colors/${color.id}`,
+  )
+}
+
+useSeoMeta({
   title: 'Color Swatches',
   description:
-    'Explore the vibrant world of keycap colors! Browse our extensive collection of color swatches, from classic hues to unique shades.',
-}
-
-useSeoMeta(meta)
+    'Browse keycap colors from GMK, SP, Pantone, and RAL, with hex values and the keysets that use each one.',
+})
 </script>
