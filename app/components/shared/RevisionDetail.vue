@@ -45,32 +45,28 @@
   </div>
 
   <!-- What it changed, side by side or unified; the default slot leads the
-       band, e.g. the change navigator of a Recent Changes entry. The band's
-       background spans the panel, its content the capped width. -->
+       band, e.g. the change navigator of a Recent Changes entry. The band
+       stays inside the capped width, so its border never outruns the diff. -->
   <div
-    class="-mx-4 border-y border-default bg-elevated/50 px-4 py-3 sm:-mx-6 sm:px-6"
+    class="mx-auto flex w-full flex-wrap items-center justify-between gap-3 rounded-md border border-default bg-elevated/50 px-4 py-3 lg:max-w-6xl"
   >
-    <div
-      class="mx-auto flex w-full flex-wrap items-center justify-between gap-3 lg:max-w-6xl"
-    >
-      <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-        <slot />
+    <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+      <slot />
 
-        <span class="text-sm text-muted">
-          <template v-if="detail">
-            {{ countLabel(changeDiffs.length, 'field') }} changed
-          </template>
-        </span>
-      </div>
-
-      <UTabs
-        v-model="layout"
-        :items="layoutItems"
-        :content="false"
-        size="xs"
-        aria-label="View mode"
-      />
+      <span class="text-sm text-muted">
+        <template v-if="detail">
+          {{ countLabel(changeDiffs.length, 'field') }} changed
+        </template>
+      </span>
     </div>
+
+    <UTabs
+      v-model="layout"
+      :items="layoutItems"
+      :content="false"
+      size="xs"
+      aria-label="View mode"
+    />
   </div>
 
   <div
