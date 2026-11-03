@@ -3,6 +3,8 @@
     <template #header>
       <UDashboardNavbar title="Wishlist Preview">
         <template #right>
+          <ArtisanWishlistTips v-if="hasCollection" :total-items="totalItems" />
+
           <UButton
             v-if="totalItems"
             icon="hugeicons:image-download-02"
@@ -26,22 +28,6 @@
     </template>
 
     <template v-if="totalItems" #body>
-      <UAlert
-        v-if="!dragHintSeen"
-        icon="hugeicons:drag-drop"
-        color="info"
-        variant="subtle"
-        title="Make It Yours"
-        :description="
-          isMobile
-            ? 'Press and hold a card, then drag it to reorder your list.'
-            : 'Drag cards to reorder your list.'
-        "
-        close
-        class="mx-auto max-w-3xl shrink-0"
-        @update:open="dragHintSeen = true"
-      />
-
       <ArtisanWishlistSheet
         :buying-items="buyingItems"
         :selling-items="sellingItems"
@@ -166,16 +152,13 @@ watchEffect(() => {
   ]
 })
 
-// Shown once the wishlist has items, until dismissed.
-const dragHintSeen = useCookie('wishlist-drag-hint-seen', {
-  default: () => false,
-  maxAge: 60 * 60 * 24 * 365,
-})
-
 const hasCollection = computed(() => !!tradingCfg.value.buying.collection)
 
+// Caps on the sheet: Have only counts on a trading list
 const totalItems = computed(
-  () => buyingItems.value.length + sellingItems.value.length,
+  () =>
+    buyingItems.value.length +
+    (tradingCfg.value.type === 'trading' ? sellingItems.value.length : 0),
 )
 
 watch(authenticated, () => refresh())

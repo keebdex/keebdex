@@ -32,7 +32,7 @@ authors:
 - **The _Changelog_** has a _Releases_ index, beside the notes on computers and folded into a bar on phones, that follows where you are and jumps to any release, with a link you can share.
 - **Pins** have no limit, work for keyboard brands and keyboards too, and sit in their own _Pinned_ group above the rest.
 - **_My Collection_** previews each shelf's first photos and shows whether it is public, a wishlist, or for sale, and items inside use the same cards as catalog pages.
-- **The _Wishlist Image_** marks the price, _Top Priority_, and _Found_ or _Sold_ on each cap, with your terms beside the caps for sale, and your wishlist and for-sale collections show the same marks. It remembers the order you drag your caps into, while caps you remove only leave that one image. The _Trading Hub_ shows each list as a card of its caps with a guide to listing your own.
+- **The _Wishlist Image_** marks the price, _Top Priority_, and _Found_ or _Sold_ on each cap, with your terms beside the caps for sale, and your wishlist and for-sale collections show the same marks. It remembers the order you drag your caps into, while caps you remove only leave that one image, and a lightbulb next to _Save & Share_ gathers tips on getting the most out of it. The _Trading Hub_ shows each list as a card of its caps with a guide to listing your own.
 - **_Recent Changes_** lets staff step through each edit beside the list, compare fields side by side or one under the other, and undo or restore it without leaving the page, and staff can manage a keyset's kits and colors right on its page.
 
 ### ⚠️ Breaking Changes
