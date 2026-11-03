@@ -34,70 +34,39 @@
         @loaded="detail = $event"
         @reverted="emit('reverted')"
       >
-        <!-- The entry's changes (one per record), newest first: step through them or pick one.
-             The panel can be narrow, so the picker sizes to it, not the window. -->
-        <section
-          v-if="revisions.length > 1"
-          class="flex flex-wrap items-center justify-between gap-2"
-        >
-          <h3
-            class="flex items-center gap-2 text-xs font-semibold tracking-wide text-muted uppercase"
-          >
-            <UIcon name="hugeicons:time-quarter-pass" class="size-4 text-primary" />
+        <!-- The entry's changes (one per record), newest first -->
+        <div v-if="revisions.length > 1" class="flex items-center gap-3">
+          <span class="text-sm font-semibold text-highlighted">
             Change {{ position + 1 }} of {{ revisions.length }}
-          </h3>
+          </span>
 
-          <div class="flex min-w-0 flex-1 basis-64 items-center justify-end gap-1">
+          <UFieldGroup>
             <UTooltip text="Newer Change">
               <UButton
                 icon="hugeicons:arrow-left-01"
-                variant="ghost"
+                variant="outline"
                 aria-label="Newer Change"
                 :disabled="position <= 0"
                 @click="step(-1)"
               />
             </UTooltip>
-
-            <USelectMenu
-              :model-value="revisionId"
-              :items="changeItems"
-              value-key="value"
-              :icon="changeItems[position]?.icon"
-              :search-input="{ placeholder: 'Find a change...' }"
-              aria-label="Change"
-              class="w-full max-w-72 min-w-0"
-              :ui="{ content: 'min-w-80' }"
-              @update:model-value="(id) => id && emit('select', id)"
-            >
-              <template #item-trailing="{ index }">
-                <UBadge
-                  v-if="index === 0"
-                  label="Latest"
-                  color="warning"
-                  variant="subtle"
-                  size="sm"
-                />
-              </template>
-            </USelectMenu>
-
             <UTooltip text="Older Change">
               <UButton
                 icon="hugeicons:arrow-right-01"
-                variant="ghost"
+                variant="outline"
                 aria-label="Older Change"
                 :disabled="position >= revisions.length - 1"
                 @click="step(1)"
               />
             </UTooltip>
-          </div>
-        </section>
+          </UFieldGroup>
+        </div>
       </SharedRevisionDetail>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup lang="ts">
-import { upperFirst } from 'es-toolkit'
 import type { BreadcrumbItem } from '@nuxt/ui'
 import type {
   RecentChangesEntry,
@@ -106,9 +75,9 @@ import type {
 
 // The detail side of Recent Changes: a navbar with the page's breadcrumb and
 // Open History, then one revision of the selected entry (`revisionId`, from
-// `?rev=`) as History shows it (`SharedRevisionDetail`), with the entry's
-// other changes in a picker (searchable, any number of them) between Newer
-// and Older buttons. An entry is a run of changes to one page, one per
+// `?rev=`) as History shows it (`SharedRevisionDetail`), with Change N of M
+// and Newer / Older buttons leading its diff band to step through the
+// entry's other changes. An entry is a run of changes to one page, one per
 // record, so they are called changes, not revisions of one record.
 // The entry can be missing for a deep link to a revision not loaded in the
 // list; the revision then names its page itself. Emits `reverted` so the
@@ -127,25 +96,6 @@ const emit = defineEmits<{
 const detail = ref<RevisionDetailType | null>(null)
 
 const revisions = computed(() => props.entry?.revisions || [])
-
-// The entry's changes for the picker, by what tells them apart: the record's
-// kind and name. Who made them and when is in the heading above (a run of
-// changes is usually one sync); the action shows only when the entry mixes
-// them, e.g. a kit added and another edited.
-const mixedActions = computed(
-  () => new Set(revisions.value.map(revisionVerb)).size > 1,
-)
-
-const changeItems = computed(() =>
-  revisions.value.map((revision) => ({
-    value: revision.id,
-    label: revisionRecordName(revision),
-    description: mixedActions.value
-      ? upperFirst(revisionVerb(revision))
-      : undefined,
-    icon: revisionEntityIcon(revision),
-  })),
-)
 
 const position = computed(() =>
   revisions.value.findIndex((revision) => revision.id === props.revisionId),

@@ -40,29 +40,28 @@
     </div>
   </div>
 
-  <!-- E.g. the other changes of a Recent Changes entry -->
-  <slot />
-
-  <!-- What it changed, side by side or unified -->
+  <!-- What it changed, side by side or unified; the default slot leads the
+       band, e.g. the change navigator of a Recent Changes entry -->
   <div
     class="-mx-4 flex flex-wrap items-center justify-between gap-3 border-y border-default bg-elevated/50 px-4 py-3 sm:-mx-6 sm:px-6"
   >
-    <span class="text-sm text-muted">
-      <template v-if="detail">
-        {{ countLabel(changeDiffs.length, 'field') }} changed
-      </template>
-    </span>
+    <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+      <slot />
 
-    <div class="flex items-center gap-2">
-      <span class="text-sm text-muted max-sm:hidden">View Mode</span>
-      <UTabs
-        v-model="layout"
-        :items="layoutItems"
-        :content="false"
-        size="xs"
-        aria-label="View mode"
-      />
+      <span class="text-sm text-muted">
+        <template v-if="detail">
+          {{ countLabel(changeDiffs.length, 'field') }} changed
+        </template>
+      </span>
     </div>
+
+    <UTabs
+      v-model="layout"
+      :items="layoutItems"
+      :content="false"
+      size="xs"
+      aria-label="View mode"
+    />
   </div>
 
   <div v-if="detailLoading && !detail" class="space-y-3">
@@ -114,9 +113,9 @@ import type { RevisionDetail, RevisionRevert } from '~/utils/revisions'
 
 // One revision, as History and Recent Changes both show it, in a panel or
 // slideover body (both lay their children out with a gap): its record with
-// who made it and when, Undo and Restore Revision, the default slot (Recent
-// Changes puts the entry's other changes there), a band with how many fields
-// changed and the view mode (side by side or unified), and the field diff
+// who made it and when, Undo and Restore Revision, a band led by the default
+// slot (Recent Changes puts the entry's change navigator there) with how many
+// fields changed and the view mode (side by side or unified), and the field diff
 // against the record before it. Undo and Restore go through a confirmation
 // that names the fields they write. Emits `loaded` with the revision, and
 // `reverted` with the fields a revert wrote, after which it reloads.

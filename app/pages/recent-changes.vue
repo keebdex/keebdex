@@ -32,6 +32,7 @@
             :content="false"
             size="xs"
             aria-label="Module"
+            class="w-full"
           />
         </UDashboardToolbar>
       </template>
