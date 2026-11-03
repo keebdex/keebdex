@@ -5,7 +5,7 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="min-w-0 w-full">
+      <UPageCard variant="subtle" class="min-w-0">
         <template #header>
           Contribute a keyset and one of its kits. Submissions are reviewed by
           our staff before they appear publicly.

@@ -1,6 +1,6 @@
 <template>
   <!-- The revision: its record, who made it, and Undo / Restore -->
-  <div class="flex w-full flex-wrap items-start justify-between gap-4">
+  <div class="flex flex-wrap items-start justify-between gap-4">
     <div class="min-w-0 space-y-1">
       <USkeleton v-if="!detail" class="h-7 w-64" />
       <h2 v-else class="text-2xl font-semibold text-highlighted text-pretty">
@@ -43,7 +43,7 @@
   <!-- What it changed, side by side or unified; the default slot leads the
        band, e.g. the change navigator of a Recent Changes entry. -->
   <div
-    class="flex w-full flex-wrap items-center justify-between gap-3 rounded-md border border-default bg-elevated/50 px-4 py-3"
+    class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-default bg-elevated/50 px-4 py-3"
   >
     <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
       <slot />
@@ -64,11 +64,11 @@
     />
   </div>
 
-  <div v-if="detailLoading && !detail" class="w-full space-y-3">
+  <div v-if="detailLoading && !detail" class="space-y-3">
     <USkeleton v-for="i in 3" :key="i" class="h-28 w-full" />
   </div>
 
-  <div v-else-if="detail" class="w-full space-y-4">
+  <div v-else-if="detail" class="space-y-4">
     <UAlert
       v-if="!detail.current"
       icon="hugeicons:alert-02"

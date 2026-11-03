@@ -2,6 +2,10 @@
 @import '@nuxt/ui';
 
 @theme {
+  /* Where every dashboard panel's content stops (app.config.ts); the image
+     presets in nuxt.config.ts are measured against it */
+  --container-panel: 96rem;
+
   --font-sans: 'Reddit Sans', sans-serif;
   --font-mono: 'Reddit Mono', monospace;
   --font-dosis: 'Dosis', sans-serif;

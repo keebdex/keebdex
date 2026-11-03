@@ -38,7 +38,7 @@
                   v-if="slideShown(index)"
                   :src="item.variant.img"
                   :alt="variantTitle(data, item.release, item.variant)"
-                  sizes="xs:96vw lg:48vw 2xl:44vw"
+                  sizes="xs:96vw lg:48vw 2xl:44vw 3xl:752px"
                   :loading="index ? 'lazy' : 'eager'"
                   :fetchpriority="index ? undefined : 'high'"
                   decoding="async"

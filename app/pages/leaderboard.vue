@@ -32,7 +32,7 @@
     </template>
 
     <template #body>
-      <UPage class="w-full">
+      <UPage>
         <template v-if="status === 'pending' && !entries.length">
           <div class="mt-4 grid grid-cols-3 items-end gap-2 sm:gap-6">
             <div

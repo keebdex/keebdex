@@ -18,7 +18,7 @@
     <template #body>
       <UPageCard
         variant="subtle"
-        class="min-w-0 w-full"
+        class="min-w-0"
         :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
       >
         <template #header>

@@ -5,7 +5,7 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="min-w-0 w-full">
+      <UPageCard variant="subtle" class="min-w-0">
         <template #header>
           Contribute a keyboard and one of its releases. Submissions are
           reviewed by our staff before they appear publicly.

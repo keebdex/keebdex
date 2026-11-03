@@ -22,7 +22,7 @@
       <UPageCard
         v-if="view === 'new'"
         variant="subtle"
-        class="space-y-4 min-w-0 w-full"
+        class="space-y-4 min-w-0"
         :ui="{ container: 'min-w-0', wrapper: 'min-w-0' }"
       >
         <template #header>

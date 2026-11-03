@@ -11,7 +11,7 @@
         <template v-if="showCover" #media>
           <NuxtImg
             fetchpriority="high"
-            sizes="xs:96vw lg:48vw 2xl:44vw"
+            sizes="xs:96vw lg:48vw 2xl:44vw 3xl:752px"
             :src="coverImg"
             :alt="fullName"
             class="w-full aspect-video rounded-lg border border-default object-cover cursor-zoom-in"
