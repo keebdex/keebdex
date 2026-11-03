@@ -1,6 +1,10 @@
 <template>
-  <!-- The revision: its record, who made it, and Undo / Restore -->
-  <div class="flex flex-wrap items-start justify-between gap-4">
+  <!-- The revision: its record, who made it, and Undo / Restore. Its parts
+       share the width of tables and queues (lg:max-w-6xl), centered, so a
+       wide panel does not stretch the two sides of the diff apart. -->
+  <div
+    class="mx-auto flex w-full flex-wrap items-start justify-between gap-4 lg:max-w-6xl"
+  >
     <div class="min-w-0 space-y-1">
       <USkeleton v-if="!detail" class="h-7 w-64" />
       <h2 v-else class="text-2xl font-semibold text-highlighted text-pretty">
@@ -41,34 +45,42 @@
   </div>
 
   <!-- What it changed, side by side or unified; the default slot leads the
-       band, e.g. the change navigator of a Recent Changes entry -->
+       band, e.g. the change navigator of a Recent Changes entry. The band's
+       background spans the panel, its content the capped width. -->
   <div
-    class="-mx-4 flex flex-wrap items-center justify-between gap-3 border-y border-default bg-elevated/50 px-4 py-3 sm:-mx-6 sm:px-6"
+    class="-mx-4 border-y border-default bg-elevated/50 px-4 py-3 sm:-mx-6 sm:px-6"
   >
-    <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-      <slot />
+    <div
+      class="mx-auto flex w-full flex-wrap items-center justify-between gap-3 lg:max-w-6xl"
+    >
+      <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+        <slot />
 
-      <span class="text-sm text-muted">
-        <template v-if="detail">
-          {{ countLabel(changeDiffs.length, 'field') }} changed
-        </template>
-      </span>
+        <span class="text-sm text-muted">
+          <template v-if="detail">
+            {{ countLabel(changeDiffs.length, 'field') }} changed
+          </template>
+        </span>
+      </div>
+
+      <UTabs
+        v-model="layout"
+        :items="layoutItems"
+        :content="false"
+        size="xs"
+        aria-label="View mode"
+      />
     </div>
-
-    <UTabs
-      v-model="layout"
-      :items="layoutItems"
-      :content="false"
-      size="xs"
-      aria-label="View mode"
-    />
   </div>
 
-  <div v-if="detailLoading && !detail" class="space-y-3">
+  <div
+    v-if="detailLoading && !detail"
+    class="mx-auto w-full space-y-3 lg:max-w-6xl"
+  >
     <USkeleton v-for="i in 3" :key="i" class="h-28 w-full" />
   </div>
 
-  <div v-else-if="detail" class="space-y-4">
+  <div v-else-if="detail" class="mx-auto w-full space-y-4 lg:max-w-6xl">
     <UAlert
       v-if="!detail.current"
       icon="hugeicons:alert-02"
