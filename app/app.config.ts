@@ -61,6 +61,14 @@ export default defineAppConfig({
     },
     // Below lg the menu button sits on the right of every navbar, leaving the
     // left to the title or a back button, and the menu's close button matches
+    // On very wide screens a panel's content stops at 96rem, centered. It is
+    // padding, not a max width, so the scrollbar stays at the panel's edge
+    // and narrower pages (tables, forms) keep their own caps inside it
+    dashboardPanel: {
+      slots: {
+        body: 'lg:px-[max(--spacing(6),calc((100%-96rem)/2))]',
+      },
+    },
     dashboardNavbar: {
       defaultVariants: {
         toggleSide: 'right',
