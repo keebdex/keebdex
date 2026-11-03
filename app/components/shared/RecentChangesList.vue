@@ -27,14 +27,26 @@
               aria-hidden="true"
             />
 
-            <span class="flex items-center justify-between gap-2">
-              <UBadge
-                :label="KEEB_MODULE_LABELS[entry.domain]"
-                :icon="KEEB_MODULE_ICONS[entry.domain]"
-                variant="subtle"
-                size="sm"
-                class="shrink-0"
-              />
+            <span class="flex items-center gap-3">
+              <UTooltip :text="KEEB_MODULE_LABELS[entry.domain]">
+                <UAvatar
+                  :icon="KEEB_MODULE_ICONS[entry.domain]"
+                  role="img"
+                  :aria-label="KEEB_MODULE_LABELS[entry.domain]"
+                  :ui="{ icon: isSelected(entry) ? 'text-primary' : undefined }"
+                  class="shrink-0"
+                />
+              </UTooltip>
+
+              <span
+                :class="[
+                  'min-w-0 flex-1 truncate font-semibold',
+                  isSelected(entry) ? 'text-primary' : 'text-highlighted',
+                ]"
+              >
+                {{ entry.name }}
+              </span>
+
               <UIcon
                 name="hugeicons:arrow-right-01"
                 :class="[
@@ -42,15 +54,6 @@
                   isSelected(entry) ? 'text-primary' : 'text-dimmed',
                 ]"
               />
-            </span>
-
-            <span
-              :class="[
-                'mt-2 block truncate font-semibold',
-                isSelected(entry) ? 'text-primary' : 'text-highlighted',
-              ]"
-            >
-              {{ entry.name }}
             </span>
 
             <span
@@ -83,7 +86,8 @@
 import type { RecentChangesEntry } from '~/utils/revisions'
 
 // The list side of Recent Changes: entries by day, each a card for a run of
-// changes to a page (`groupRecentChanges`) with its module, its name, who
+// changes to a page (`groupRecentChanges`) with its module as an icon
+// avatar (named by its tooltip, as History names record kinds), its name, who
 // changed it, when, and how many changes. Selecting a card opens it in
 // `SharedRecentChangesDetail`; the selected one is outlined in the primary
 // color.

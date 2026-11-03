@@ -20,7 +20,7 @@
     </template>
 
     <template #body>
-      <!-- One revision: what it changed, or how it compares with now -->
+      <!-- One revision: what it changed -->
       <div v-if="selectedId" class="space-y-4">
         <div v-if="detailLoading && !detail" class="space-y-3">
           <USkeleton v-for="i in 3" :key="i" class="h-16 w-full" />
@@ -37,7 +37,7 @@
           />
 
           <UAlert
-            v-else-if="view === 'change' && conflicts.length"
+            v-else-if="conflicts.length"
             icon="hugeicons:alert-02"
             color="warning"
             variant="subtle"
@@ -45,30 +45,12 @@
             :description="`${revisionFieldList(conflicts)} changed again after this revision, so it can no longer be undone. Restore the revision instead to bring the whole record back to it.`"
           />
 
-          <UTabs
-            v-model="view"
-            :items="viewItems"
-            :content="false"
-            size="sm"
-            class="w-full"
-          />
-
           <SharedRevisionDiff
-            v-if="view === 'change'"
             :diffs="changeDiffs"
             :before-values="detail.before || {}"
             :after-values="detail.snapshot"
             :highlight="conflicts"
             empty="This revision changed no fields that can be shown."
-          />
-
-          <SharedRevisionDiff
-            v-else
-            :diffs="currentDiffs"
-            :labels="['Current', 'This Revision']"
-            :before-values="detail.current || {}"
-            :after-values="detail.snapshot"
-            empty="The record still matches this revision."
           />
         </template>
       </div>
@@ -313,11 +295,8 @@ const {
   selectedId,
   detail,
   detailLoading,
-  view,
-  viewItems,
   detailTitle,
   changeDiffs,
-  currentDiffs,
   undoFields,
   restoreFields,
   conflicts,

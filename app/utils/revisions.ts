@@ -11,6 +11,7 @@ import {
 import { userAvatar } from '~/utils'
 import { daysAgo, formatDate, startOfDay } from '~/utils/date'
 import type { SuggestionEntityType } from '~/utils/suggestions'
+import { KEEB_MODULE_ICONS } from '~/utils/keeb-modules'
 import type { KeebModule } from '~/utils/keeb-modules'
 
 /**
@@ -246,6 +247,27 @@ export const revisionRecordName = (revision: Revision) => {
     revisionEntityLabel(revision)
   )
 }
+
+/**
+ * Icons of the record kinds, for History rows: the sidebar's where it has
+ * one (the module icons for sculpts, keysets and keyboards; Makers, Brands
+ * and Profiles), the rest picked to match.
+ */
+const ENTITY_ICONS: Record<SuggestionEntityType, string> = {
+  artisan_maker: 'hugeicons:user-multiple',
+  artisan_sculpt: KEEB_MODULE_ICONS.artisan,
+  artisan_colorway: 'hugeicons:paint-board',
+  keyset_profile: 'hugeicons:cross',
+  keyset: KEEB_MODULE_ICONS.keyset,
+  keyset_kit: 'hugeicons:package',
+  keyboard_brand: 'hugeicons:user-multiple',
+  keyboard: KEEB_MODULE_ICONS.keyboard,
+  keyboard_release: 'hugeicons:rocket-01',
+  keyboard_variant: 'hugeicons:layers-01',
+}
+
+export const revisionEntityIcon = (revision: Pick<Revision, 'entity_type'>) =>
+  ENTITY_ICONS[revision.entity_type] || 'hugeicons:file-01'
 
 /** `Colorway`, `Kit`, `Keyboard`. */
 export const revisionEntityLabel = (revision: Pick<Revision, 'entity_type'>) =>

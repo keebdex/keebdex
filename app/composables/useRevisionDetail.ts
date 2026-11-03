@@ -11,8 +11,8 @@ export const revisionFieldList = (keys: string[]) => {
 
 /**
  * One revision opened from History or Recent Changes: loads it
- * (`GET /api/revisions/:id`), compares it with the record before it (_This
- * Change_) or now (_Compare with Current_), and undoes or restores it
+ * (`GET /api/revisions/:id`), compares it with the record before it, and
+ * undoes or restores it
  * through a confirmation (`confirm(mode)`, then `revert()`). `onReverted`
  * gets the fields the revert wrote, after which the revision reloads.
  */
@@ -29,7 +29,6 @@ export const useRevisionDetail = (
   const selectedId = ref<number | null>(null)
   const detail = ref<RevisionDetail | null>(null)
   const detailLoading = ref(false)
-  const view = ref<'change' | 'current'>('change')
 
   const loadDetail = async (id: number) => {
     detailLoading.value = true
@@ -48,7 +47,6 @@ export const useRevisionDetail = (
 
   const selectRevision = (id: number) => {
     detail.value = null
-    view.value = 'change'
     selectedId.value = id
     loadDetail(id)
   }
@@ -56,15 +54,6 @@ export const useRevisionDetail = (
   watch(selectedId, (id) => {
     if (!id) detail.value = null
   })
-
-  const viewItems = computed(() => [
-    { label: 'This Change', value: 'change' },
-    {
-      label: 'Compare with Current',
-      value: 'current',
-      disabled: !detail.value?.current,
-    },
-  ])
 
   const detailTitle = computed(() =>
     detail.value
@@ -74,9 +63,6 @@ export const useRevisionDetail = (
 
   const changeDiffs = computed(() =>
     detail.value ? revisionChangeDiff(detail.value) : [],
-  )
-  const currentDiffs = computed(() =>
-    detail.value ? revisionCurrentDiff(detail.value) : [],
   )
   const undoFields = computed(() =>
     detail.value ? revertableFields(detail.value, 'undo') : [],
@@ -162,11 +148,8 @@ export const useRevisionDetail = (
     selectedId,
     detail,
     detailLoading,
-    view,
-    viewItems,
     detailTitle,
     changeDiffs,
-    currentDiffs,
     undoFields,
     restoreFields,
     conflicts,

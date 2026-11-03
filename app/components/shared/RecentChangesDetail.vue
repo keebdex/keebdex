@@ -123,6 +123,12 @@
       <div
         class="-mx-4 flex flex-wrap items-center justify-between gap-3 border-y border-default bg-elevated/50 px-4 py-3 sm:-mx-6 sm:px-6"
       >
+        <span class="text-sm text-muted">
+          <template v-if="detail">
+            {{ countLabel(changeDiffs.length, 'field') }} changed
+          </template>
+        </span>
+
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted max-sm:hidden">View Mode</span>
           <UTabs
@@ -133,14 +139,6 @@
             aria-label="View mode"
           />
         </div>
-
-        <UTabs
-          v-model="view"
-          :items="viewItems"
-          :content="false"
-          size="xs"
-          aria-label="Compare"
-        />
       </div>
 
       <div v-if="detailLoading && !detail" class="space-y-3">
@@ -158,7 +156,7 @@
         />
 
         <UAlert
-          v-else-if="view === 'change' && conflicts.length"
+          v-else-if="conflicts.length"
           icon="hugeicons:alert-02"
           color="warning"
           variant="subtle"
@@ -167,23 +165,12 @@
         />
 
         <SharedRevisionDiff
-          v-if="view === 'change'"
           :diffs="changeDiffs"
           :layout="layout"
           :before-values="detail.before || {}"
           :after-values="detail.snapshot"
           :highlight="conflicts"
           empty="This revision changed no fields that can be shown."
-        />
-
-        <SharedRevisionDiff
-          v-else
-          :diffs="currentDiffs"
-          :layout="layout"
-          :labels="['Current', 'This Revision']"
-          :before-values="detail.current || {}"
-          :after-values="detail.snapshot"
-          empty="The record still matches this revision."
         />
       </div>
     </template>
@@ -206,8 +193,8 @@ import type { RecentChangesEntry, Revision } from '~/utils/revisions'
 
 // The detail side of Recent Changes: one revision of the selected entry
 // (`revisionId`, from `?rev=`), with the entry's other changes as chips to
-// switch between, the field diff (side by side or unified, this change or
-// compared with the record now), and Undo / Restore (`useRevisionDetail`).
+// switch between, the field diff (side by side or unified), and Undo /
+// Restore (`useRevisionDetail`).
 // The entry can be missing for a deep link to a revision not loaded in the
 // list; the revision then names its page itself. Emits `reverted` so the
 // list reloads, and `close` (the back button on phones).
@@ -225,11 +212,8 @@ const emit = defineEmits<{
 const {
   detail,
   detailLoading,
-  view,
-  viewItems,
   detailTitle,
   changeDiffs,
-  currentDiffs,
   undoFields,
   restoreFields,
   conflicts,
