@@ -20,7 +20,7 @@
         class="font-mono uppercase"
         :class="[
           compact ? 'text-xs' : 'text-sm',
-          isLightColor(color.hex) ? 'text-black/70' : 'text-white/80',
+          contrastTextClass(color.hex),
         ]"
       >
         {{ color.hex }}

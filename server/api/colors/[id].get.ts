@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { sortBy } from 'es-toolkit/compat'
-import { omitSensitive } from '../../utils'
+import { PUBLISHED_FILTER } from '../../utils'
 
 // One color and the published keysets that use it (the Colors page drawer)
 export default defineEventHandler(async (event) => {
@@ -12,11 +12,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Color not found.' })
   }
 
+  // Keysets under review stay in the review queue, as on the catalog pages
   const { data, error } = await client
     .from('colors')
     .select(
-      'id, system, code, name, hex, keysets:keyset_colors(keyset:keysets(id, name, img, profile_keyset_id, start_date, end_date, ic_date, review_status, profile:keyset_profiles(name)))',
+      'id, system, code, name, hex, keysets:keyset_colors(keyset:keysets!inner(id, name, img, profile_keyset_id, start_date, end_date, ic_date, profile:keyset_profiles(name)))',
     )
+    .or(PUBLISHED_FILTER, { referencedTable: 'keysets.keyset' })
     .eq('id', id)
     .maybeSingle()
 
@@ -28,21 +30,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Color not found.' })
   }
 
-  // Keysets under review stay in the review queue, as on the catalog pages
-  const keysets = data.keysets
-    .map(({ keyset }) => keyset)
-    .filter(
-      (keyset) =>
-        keyset &&
-        (!keyset.review_status || keyset.review_status === 'Approved'),
-    )
-    .map(({ review_status: _, ...keyset }) => keyset)
-
   return {
-    ...omitSensitive(data),
+    ...data,
     // Newest first: the group buy, else the interest check
-    keysets: sortBy(keysets, [
-      (keyset) => keyset.start_date || keyset.ic_date || '',
-    ]).reverse(),
+    keysets: sortBy(
+      data.keysets.map(({ keyset }) => keyset),
+      [(keyset) => keyset.start_date || keyset.ic_date || ''],
+    ).reverse(),
   }
 })

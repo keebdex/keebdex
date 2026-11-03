@@ -526,20 +526,11 @@ const keysetFormOpen = ref(false)
 const colorFormOpen = ref(false)
 
 // The open palette color is in the URL (`?color=<id>`), as on the Colors page
-const router = useRouter()
-const selectedColorId = computed(() => Number(route.query.color) || null)
-const selectColor = (color) => {
-  router.replace({
-    path: route.path,
-    query: { ...route.query, color: color?.id || undefined },
-  })
-}
-const colorDrawerOpen = computed({
-  get: () => !!selectedColorId.value,
-  set: (value) => {
-    if (!value) selectColor(null)
-  },
-})
+const {
+  id: selectedColorId,
+  open: colorDrawerOpen,
+  select: selectColor,
+} = useQuerySelection('color')
 const kitForm = reactive({ open: false, isEdit: false, metadata: {} })
 
 const openKitForm = (kit) => {

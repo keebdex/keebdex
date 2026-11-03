@@ -48,7 +48,7 @@
         >
           <span
             class="font-mono text-sm uppercase"
-            :class="light ? 'text-black/70' : 'text-white/80'"
+            :class="contrastTextClass(color.hex)"
           >
             {{ color.hex }}
           </span>
@@ -57,7 +57,7 @@
             icon="hugeicons:copy-01"
             variant="ghost"
             aria-label="Copy hex"
-            :class="light ? 'text-black/70' : 'text-white/80'"
+            :class="contrastTextClass(color.hex)"
             @click="copyHex"
           />
         </div>
@@ -103,10 +103,10 @@
                     {{ keyset.profile?.name }} {{ keyset.name }}
                   </span>
                   <span
-                    v-if="keysetDates(keyset)"
+                    v-if="keyset.dates"
                     class="block truncate text-xs text-muted"
                   >
-                    {{ keysetDates(keyset) }}
+                    {{ keyset.dates }}
                   </span>
                 </span>
               </ULink>
@@ -135,7 +135,7 @@
 
 <script setup>
 const props = defineProps({
-  // The color's id, from the page's `?color=` query
+  // The color's id, from the page's `?color=` query (kept while closing)
   colorId: {
     type: Number,
     default: null,
@@ -164,30 +164,25 @@ const editable = computed(() => userStore.isEditable())
 
 const toast = useToast()
 
-// The key follows the id, so each color loads when it is opened
-const { data, status, refresh } = useAsyncData(
+// The key follows the id, so each color loads when it is opened (in the
+// browser only: the drawer opens there, and SSR would only store a null)
+const { data, status } = useAsyncData(
   () => `keyset-color-${props.colorId}`,
   () =>
     props.colorId
       ? $fetch(`/api/colors/${props.colorId}`)
       : Promise.resolve(null),
+  { server: false },
 )
 
-// The last color shown stays while the drawer slides closed, so its content
-// does not blank out mid-animation
-let last = null
-const color = computed(() => {
-  if (!props.colorId) return last
-
-  last = data.value?.id === props.colorId ? data.value : props.preview
-  return last
-})
+const color = computed(() =>
+  data.value?.id === props.colorId ? data.value : props.preview,
+)
 const keysets = computed(() =>
-  (color.value?.keysets || []).filter(
-    (keyset) => keyset.profile_keyset_id !== props.exclude,
-  ),
+  (color.value?.keysets || [])
+    .filter((keyset) => keyset.profile_keyset_id !== props.exclude)
+    .map((keyset) => ({ ...keyset, dates: keysetDateLabel(keyset) })),
 )
-const light = computed(() => isLightColor(color.value?.hex || ''))
 
 const specs = computed(() => {
   const rgb = hexToRgb(color.value?.hex || '')
@@ -200,14 +195,6 @@ const specs = computed(() => {
   ]
 })
 
-// The group buy window when there is one, else the interest check date;
-// a keyset with neither shows only its name
-const keysetDates = (keyset) => {
-  const range = formatDateRange(keyset.start_date, keyset.end_date)
-  if (range) return range
-
-  return keyset.ic_date ? `IC ${formatDate(keyset.ic_date)}` : ''
-}
 
 const copyHex = async () => {
   try {
@@ -218,5 +205,4 @@ const copyHex = async () => {
   }
 }
 
-defineExpose({ refresh })
 </script>

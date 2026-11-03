@@ -28,3 +28,7 @@ export const isLightColor = (hex: string) => {
 
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.179
 }
+
+/** Text that reads on a swatch of this color, a little see-through. */
+export const contrastTextClass = (hex: string) =>
+  isLightColor(hex) ? 'text-black/70' : 'text-white/80'

@@ -97,7 +97,6 @@
       </section>
 
       <KeysetColorDrawer
-        ref="drawer"
         v-model:open="drawerOpen"
         :color-id="selectedId"
         manage
@@ -137,7 +136,6 @@ import { refDebounced } from '@vueuse/core'
 import { Constants } from '~/types/database.types'
 
 const route = useRoute()
-const router = useRouter()
 
 const userStore = useUserStore()
 const editable = computed(() => userStore.isEditable())
@@ -187,22 +185,11 @@ const pending = computed(() => status.value === 'pending')
 watch(debouncedTerm, resetPage)
 
 // The open color is in the URL too (`?color=<id>`), so a swatch can be linked
-const selectedId = computed(() => Number(route.query.color) || null)
-const drawerOpen = computed({
-  get: () => !!selectedId.value,
-  set: (value) => {
-    if (!value) selectColor(null)
-  },
-})
-
-const selectColor = (color) => {
-  router.replace({
-    path: route.path,
-    query: { ...route.query, color: color?.id || undefined },
-  })
-}
-
-const drawer = useTemplateRef('drawer')
+const {
+  id: selectedId,
+  open: drawerOpen,
+  select: selectColor,
+} = useQuerySelection('color')
 
 const formOpen = ref(false)
 const editing = ref({})
@@ -215,7 +202,7 @@ const openForm = (color = {}) => {
 const onSaved = () => {
   formOpen.value = false
   refresh()
-  if (editing.value.id) drawer.value?.refresh()
+  if (editing.value.id) refreshNuxtData(`keyset-color-${editing.value.id}`)
 }
 
 const {
