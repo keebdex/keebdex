@@ -22,6 +22,7 @@ authors:
 - Shared links preview the page you shared instead of the home page, and search results show full keyset names, such as _GMK CYL Olivia_.
 - An address that leads nowhere, such as a renamed keyset, shows a _Not Found_ page with a way back home instead of an empty page or an error.
 - A keyboard variant shows its full name when opened and in copied images, _Save_ adds the right variant, and variants sold as a giveaway, commission, auction, or friends and family show their own price instead of their release's.
+- Opening a link to one of your private collections, or reloading its page, shows the collection instead of an empty page.
 
 ### 🚀 Improvements
 

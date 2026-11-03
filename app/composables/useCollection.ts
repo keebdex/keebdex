@@ -8,9 +8,14 @@ export const useCollection = (
   const router = useRouter()
   const toast = useToast()
 
+  // During SSR, `useRequestFetch` forwards the visitor's cookies, so the
+  // owner's private collection passes RLS on a direct load too ($fetch
+  // would call the API as a guest and get a 404).
+  const requestFetch = useRequestFetch()
+
   const { data, status, refresh } = useAsyncData(
     `collection-${toValue(collectionId)}`,
-    () => $fetch(`/api/collections/${toValue(collectionId)}`),
+    () => requestFetch(`/api/collections/${toValue(collectionId)}`),
   )
 
   watch(
