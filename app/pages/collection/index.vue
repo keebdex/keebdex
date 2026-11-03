@@ -64,7 +64,7 @@
                     :key="index"
                     :src="src"
                     :alt="collection.name"
-                    sizes="xs:46vw sm:22vw lg:15vw 2xl:11vw"
+                    sizes="xs:46vw sm:22vw lg:15vw 2xl:11vw 3xl:192px"
                     loading="lazy"
                     decoding="async"
                     class="h-full w-full object-cover"

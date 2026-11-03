@@ -6,6 +6,7 @@
         description: 'mt-1 text-xs leading-relaxed text-muted',
       },
       pageSection: {
+        container: sectionContainer,
         headline: 'font-mono text-xs uppercase tracking-[0.24em] text-muted',
       },
     }"
@@ -13,7 +14,7 @@
     <UDashboardPanel
       id="brand"
       :ui="{
-        body: 'overflow-y-scroll snap-y snap-mandatory scroll-smooth p-0',
+        body: 'overflow-y-scroll snap-y snap-mandatory scroll-smooth py-0',
       }"
     >
       <template v-if="$device.isMobileOrTablet" #header>
@@ -51,13 +52,13 @@
         <!-- Hero -->
         <section
           :ref="(el) => (sectionRefs[0] = el)"
-          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center py-20"
         >
-          <div class="max-w-5xl w-full mx-auto">
+          <div class="w-full">
             <UPageSection
               headline="keebdex.org — Brand Guidelines"
               :ui="{
-                container: 'space-y-12',
+                container: `${sectionContainer} space-y-12`,
                 description: 'space-y-8 text-default',
               }"
             >
@@ -100,7 +101,7 @@
           headline="01 - Logo"
           title="The Wordmark"
           description='The Keebdex wordmark combines a bold typographic treatment with a minimal Esc key motif — the small bar beneath "keeb" references the Escape key, the most iconic key on any collector&apos;s board.'
-          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center py-20"
         >
           <!-- Mobile: rows / Tablet+: 2x2 grid -->
           <div
@@ -161,7 +162,7 @@
           headline="02 - Favicon & App Icon"
           title="The Mark"
           description='The mark distills the wordmark into "kd" — short for keebdex — with the Esc bar below. Used as favicon, app icon, and avatar across all platforms.'
-          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center py-20"
         >
           <div
             class="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:divide-x sm:divide-default sm:gap-0"
@@ -204,7 +205,7 @@
           headline="03 - Colors"
           title="Color Palette"
           description="Teal anchors the brand — precise, focused, and distinct from the saturated palettes common in the keyboard space."
-          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center py-20"
         >
           <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <UPageCard
@@ -238,7 +239,7 @@
           headline="04 - Typography"
           title="Type System"
           description="Two fonts, clear roles. Dosis is reserved exclusively for the logo and wordmark. Reddit Sans handles all UI text — headers, body, labels."
-          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center py-20"
         >
           <div
             class="flex flex-col divide-y divide-default overflow-hidden rounded-xl border border-default"
@@ -291,7 +292,7 @@
           headline="05 - Usage"
           title="Do's & Don'ts"
           description="Keep the logo clean and consistent across all surfaces."
-          class="relative flex min-h-dvh snap-start flex-col items-center justify-center px-8 py-20"
+          class="relative flex min-h-dvh snap-start flex-col items-center justify-center py-20"
         >
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="relative">
@@ -390,8 +391,8 @@
           :ref="(el) => (sectionRefs[6] = el)"
           class="snap-start"
           :ui="{
-            root: 'relative flex min-h-dvh flex-col items-center justify-center px-8 py-20',
-            container: 'w-full max-w-5xl',
+            root: 'relative flex min-h-dvh flex-col items-center justify-center py-20',
+            container: sectionContainer,
           }"
         >
           <UPageCTA
@@ -411,7 +412,7 @@
           />
 
           <div
-            class="absolute inset-x-8 bottom-6 flex flex-wrap items-center justify-between gap-4 border-t border-default pt-6"
+            class="absolute inset-x-0 bottom-6 flex flex-wrap items-center justify-between gap-4 border-t border-default pt-6"
           >
             <AppWordmark size="md" variant="auto" />
             <p class="font-mono text-xs text-muted">
@@ -425,6 +426,10 @@
 </template>
 
 <script setup>
+// Sections fill the panel's shared width (its body pads the sides) instead
+// of UContainer's narrower width and gutters
+const sectionContainer = 'max-w-none px-0 sm:px-0 lg:px-0'
+
 const sectionLabels = [
   'Overview',
   '01 · Logo',

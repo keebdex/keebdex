@@ -87,13 +87,14 @@ const items = computed(() => {
       }
     : null
 
-  // Light/dark mode and the palette in one submenu, a group each
+  // Light/dark mode and the palette in one submenu, a labeled group each,
+  // named as on the Appearance settings page
   const appearance = {
     label: 'Appearance',
     icon: 'hugeicons:paint-board',
     children: [
-      keepOpen(colorModeItems.value),
-      keepOpen(paletteItems.value),
+      [{ type: 'label', label: 'Theme' }, ...keepOpen(colorModeItems.value)],
+      [{ type: 'label', label: 'Palette' }, ...keepOpen(paletteItems.value)],
     ],
   }
 

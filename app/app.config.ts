@@ -59,6 +59,14 @@ export default defineAppConfig({
         variant: 'soft',
       },
     },
+    // On very wide screens a panel's content stops at --container-panel
+    // (main.css), centered. It is padding, not a max width, so the scrollbar
+    // stays at the panel's edge
+    dashboardPanel: {
+      slots: {
+        body: 'lg:px-[max(--spacing(6),calc((100%-var(--container-panel))/2))]',
+      },
+    },
     // Below lg the menu button sits on the right of every navbar, leaving the
     // left to the title or a back button, and the menu's close button matches
     dashboardNavbar: {
@@ -142,7 +150,7 @@ export default defineAppConfig({
       },
     },
     pageGrid: {
-      base: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-6 gap-4',
+      base: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4',
     },
     pageHeader: {
       slots: {

@@ -5,7 +5,7 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="mx-auto min-w-0 w-full lg:max-w-3xl">
+      <UPageCard variant="subtle" class="min-w-0">
         <template #header>
           Contribute a colorway for a maker and sculpt. It will show with a
           Pending Review badge until a moderator approves it.
