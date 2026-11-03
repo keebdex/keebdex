@@ -3,7 +3,7 @@
        tablets, and on phones, where a trail does not fit, a back button to
        the parent page (the last item with a link). A trail that ends at the
        parent shows the parent's name on the button; one that ends at the page
-       itself (manual sort) keeps the button icon-only beside its title. -->
+       itself keeps the button icon-only beside its title. -->
   <UDashboardNavbar>
     <template #left>
       <UBreadcrumb

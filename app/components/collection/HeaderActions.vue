@@ -1,8 +1,8 @@
 <template>
   <!-- A collection page's header actions, in the detail-page order: the
        page's labeled primary action (default slot, e.g. Share), then Edit and
-       Delete as `SharedRecordActions` (a collection has no history), then
-       the page's icon-only tools (`tools`, e.g. Manual Sort). Owner only. -->
+       Delete as `SharedRecordActions` (a collection has no history). Owner
+       only. -->
   <slot />
 
   <SharedRecordActions
@@ -12,8 +12,6 @@
     @edit="editing = true"
     @delete="deleting.open = true"
   />
-
-  <slot name="tools" />
 
   <UModal v-model:open="editing" title="Edit Collection">
     <template #body>

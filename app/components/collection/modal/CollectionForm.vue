@@ -139,12 +139,6 @@ const sortItems = [
     description: 'Grouped by maker, then colorway name, then sculpt.',
     value: 'artisan.name|artisan.maker_sculpt_id',
   },
-  {
-    label: 'Custom Order',
-    description:
-      'Your own order, arranged with Manual Sort on the collection page.',
-    value: 'order|asc',
-  },
 ]
 
 const collection = ref<CollectionState>({
@@ -159,6 +153,14 @@ const collection = ref<CollectionState>({
 onBeforeMount(() => {
   const { items: _items, ...rest } = metadata
   Object.assign(collection.value, rest)
+  // Artisan collections no longer offer a custom order (removed with the
+  // Manual Sort page): those that had one pick the default again
+  if (
+    collection.value.category === 'artisan' &&
+    !sortItems.some(({ value }) => value === collection.value.sort_by)
+  ) {
+    collection.value.sort_by = sortItems[0]!.value
+  }
   // Older rows may have no contact yet; offer the profile's Discord
   collection.value.contact ||= discord.value
 })

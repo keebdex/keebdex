@@ -58,16 +58,6 @@
                 />
               </template>
             </UModal>
-
-            <template #tools>
-              <UTooltip text="Manual Sort">
-                <UButton
-                  :icon="appConfig.ui.icons.sortManual"
-                  aria-label="Manual Sort"
-                  :to="`/collection/artisan/${route.params.collection}/sort`"
-                />
-              </UTooltip>
-            </template>
           </CollectionHeaderActions>
         </template>
       </UPageHeader>
@@ -183,7 +173,6 @@
 <script setup>
 import { sortBy } from 'es-toolkit/compat'
 
-const appConfig = useAppConfig()
 const config = useRuntimeConfig()
 const route = useRoute()
 const toast = useToast()
@@ -271,22 +260,24 @@ const copyShareUrl = async () => {
   toast.add(noticeToast('copied'))
 }
 
-const sort = computed(
-  () => data.value?.sort_by || 'artisan.maker_sculpt_id|artisan.name',
+// Maker & Sculpt or Colorway Name; a custom order saved before the Manual
+// Sort page was removed falls back to the default
+const sort = computed(() =>
+  data.value?.sort_by?.startsWith('artisan.')
+    ? data.value.sort_by
+    : 'artisan.maker_sculpt_id|artisan.name',
 )
 
 const hasOutdated = computed(() =>
   (data.value?.items || []).some((i) => i.artisan?.deleted),
 )
 
-const sortedCollections = computed(() => {
-  const iteratees =
-    sort.value === 'order|asc'
-      ? sort.value.split('|')
-      : ['artisan.maker_id', ...sort.value.split('|')]
-
-  return sortBy(data.value?.items || [], iteratees)
-})
+const sortedCollections = computed(() =>
+  sortBy(data.value?.items || [], [
+    'artisan.maker_id',
+    ...sort.value.split('|'),
+  ]),
+)
 
 const breadcrumbs = computed(() => {
   return [

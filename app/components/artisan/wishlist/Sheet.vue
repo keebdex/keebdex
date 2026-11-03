@@ -76,6 +76,7 @@
         :buying="section.buying"
         @on-remove="$emit('remove', $event)"
         @on-highlight="$emit('highlight', $event)"
+        @on-reorder="$emit('reorder', $event)"
       />
     </section>
 
@@ -89,7 +90,7 @@
 </template>
 
 <script setup>
-defineEmits(['remove', 'highlight'])
+defineEmits(['remove', 'highlight', 'reorder'])
 
 const { buyingItems, sellingItems, editable, compact } = defineProps({
   buyingItems: {
