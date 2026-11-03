@@ -135,19 +135,18 @@ export default defineNuxtConfig({
       xl: 1280,
       '2xl': 1536,
       '3xl': 1792,
-      '4xl': 2048,
     },
     presets: {
-      // Artisan colorways in artisanGridClass: 2 / md 3 / lg 4 / 2xl 6 / 4xl 9
-      // columns
+      // Artisan colorways in artisanGridClass: 2 / md 3 / lg 4 / 2xl 6
+      // columns, at most 256px once panel content stops at 96rem (3xl)
       square: {
-        sizes: 'xs:42vw md:28vw lg:18vw 2xl:13vw 4xl:8vw',
+        sizes: 'xs:42vw md:28vw lg:18vw 2xl:13vw 3xl:256px',
         densities: 'x1 x2 x3',
       },
-      // Keyset and keyboard covers in UPageGrid: 1 / sm 2 / lg 3 / 2xl 4 /
-      // 3xl 6 columns
+      // Keyset and keyboard covers in UPageGrid: 1 / sm 2 / lg 3 / 2xl 4
+      // columns, at most 384px once panel content stops at 96rem (3xl)
       cover: {
-        sizes: 'xs:92vw sm:44vw lg:25vw 2xl:19vw 3xl:13vw',
+        sizes: 'xs:92vw sm:44vw lg:25vw 2xl:19vw 3xl:384px',
         densities: 'x1 x2 x3',
       },
       // Review queue thumbnails (size-10 / size-12)

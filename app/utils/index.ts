@@ -175,9 +175,9 @@ export const getRoleLabel = (
 
 // Grids of square cards: artisan colorways and sculpts, and the maker, brand,
 // and profile lists; colorway images use the `square` image preset sized for
-// these columns
+// these columns. Six is the most: panel content stops at 96rem
 export const artisanGridClass =
-  'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 4xl:grid-cols-9 gap-4'
+  'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4'
 
 // Grids of color swatches (`KeysetColorTile`): the Colors page, and the
 // denser one of a keyset's palette, with compact tiles
