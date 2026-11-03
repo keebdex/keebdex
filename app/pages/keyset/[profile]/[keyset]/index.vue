@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`keyset-${profile}-${keyset}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -391,14 +391,19 @@ const onReverted = ({ entityType, changes }) => {
   refresh()
 }
 
+// The trail ends at the parent page (shown, not marked current): the page
+// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
-      label: manufacturers.value[profile],
-      to: `/keyset/${profile}`,
+      label: 'Profiles',
+      icon: 'hugeicons:cross',
+      to: '/keyset',
     },
     {
-      label: data.value.name,
+      label: manufacturers.value[profile],
+      to: `/keyset/${profile}`,
+      active: false,
     },
   ]
 })

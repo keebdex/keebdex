@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel :id="`${route.params.maker}-${route.params.sculpt}`">
     <template #header>
-      <UDashboardNavbar :title="sculpt.name">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -344,6 +344,8 @@ const revisionOf = computed(() =>
     : null,
 )
 
+// The trail ends at the parent page (shown, not marked current): the page
+// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
@@ -354,6 +356,7 @@ const breadcrumbs = computed(() => {
     {
       label: sculpt.value.maker_name,
       to: `/artisan/maker/${sculpt.value.maker_id}?page=${page.value}`,
+      active: false,
       avatar: {
         src: logoUrl(sculpt.value.maker_id),
         alt: sculpt.value.maker_name,
@@ -364,9 +367,6 @@ const breadcrumbs = computed(() => {
             : 'rounded-none',
         },
       },
-    },
-    {
-      label: sculpt.value.name,
     },
   ]
 })

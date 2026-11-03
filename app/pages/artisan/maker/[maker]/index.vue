@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel v-if="maker" :id="`artisan-maker-${route.params.maker}`">
     <template #header>
-      <UDashboardNavbar :title="maker.name">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -252,15 +252,15 @@ const makerLinks = computed(() => {
   return items
 })
 
+// The trail ends at the parent page (shown, not marked current): the page
+// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
       icon: 'hugeicons:user-multiple',
       to: '/artisan/maker',
-    },
-    {
-      label: maker.value.name,
+      active: false,
     },
   ]
 })

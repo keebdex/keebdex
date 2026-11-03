@@ -1,14 +1,21 @@
 <template>
   <UDashboardPanel :id="`collection-${route.params.collection}`">
     <template #header>
-      <UDashboardNavbar :title="data?.name">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
+      </UDashboardNavbar>
+    </template>
 
-        <template #right>
+    <template #body>
+      <UPageHeader
+        :title="data?.name"
+        :description="data?.message"
+        :ui="detailPageHeaderUi(false)"
+      >
+        <template v-if="isOwner" #links>
           <UModal
-            v-if="isOwner"
             title="Edit Collection"
           >
             <UButton icon="hugeicons:bookmark-02" label="Edit" />
@@ -32,7 +39,6 @@
             :description="`Are you sure you want to delete ${data?.name}?`"
           >
             <UButton
-              v-if="isOwner"
               label="Delete"
               icon="hugeicons:bookmark-remove-02"
               color="error"
@@ -44,10 +50,8 @@
             </template>
           </UModal>
         </template>
-      </UDashboardNavbar>
-    </template>
+      </UPageHeader>
 
-    <template #body>
       <UPageGrid v-if="sortedCollections.length">
         <SharedCatalogCard
           v-for="{ id, keyset } in sortedCollections"
@@ -118,15 +122,15 @@ const moveTo = (collection, item) => {
   moveItem(collection, item.id, item.keyset.name)
 }
 
+// The trail ends at My Collection (shown, not marked current): the page
+// header names this collection
 const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',
       to: '/collection',
-    },
-    {
-      label: data.value?.name,
+      active: false,
     },
   ]
 })

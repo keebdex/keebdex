@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel v-if="data?.profile" :id="`keyset-profile-${profile}`">
     <template #header>
-      <UDashboardNavbar :title="title">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -193,14 +193,14 @@ const profileSpecs = computed(() =>
   ].filter((spec) => spec.description),
 )
 
+// The trail ends at the parent page (shown, not marked current): the page
+// header names this one
 const breadcrumbs = computed(() => [
   {
     label: 'Profiles',
     icon: 'hugeicons:cross',
     to: '/keyset',
-  },
-  {
-    label: title.value,
+    active: false,
   },
 ])
 

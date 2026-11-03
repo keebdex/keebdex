@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel v-if="data" :id="`keyboard-${slug}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -596,6 +596,8 @@ const addVariantTarget = (release) =>
     { brand: route.params.brand, keyboard: slug.value, release: release.id },
   )
 
+// The trail ends at the parent page (shown, not marked current): the page
+// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
@@ -606,6 +608,7 @@ const breadcrumbs = computed(() => {
     {
       label: data.value?.brand?.name,
       to: `/keyboard/brand/${route.params.brand}`,
+      active: false,
       avatar: {
         src: logoUrl(route.params.brand),
         alt: data.value?.brand?.name,
@@ -616,9 +619,6 @@ const breadcrumbs = computed(() => {
             : 'rounded-none',
         },
       },
-    },
-    {
-      label: data.value?.name,
     },
   ]
 })

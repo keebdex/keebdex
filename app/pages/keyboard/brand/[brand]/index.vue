@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel v-if="data" :id="`keyboard-brand-${brand}`">
     <template #header>
-      <UDashboardNavbar :title="data.name">
+      <UDashboardNavbar :title="breadcrumbs.at(-1).label">
         <template v-if="$device.isDesktopOrTablet" #left>
           <UBreadcrumb :items="breadcrumbs" />
         </template>
@@ -196,15 +196,15 @@ const keyboards = computed(() =>
   splitPinned(data.value?.keyboards || [], isPinned),
 )
 
+// The trail ends at the parent page (shown, not marked current): the page
+// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
       label: 'Brands',
       icon: 'hugeicons:user-multiple',
       to: '/keyboard/brand',
-    },
-    {
-      label: data.value?.name,
+      active: false,
     },
   ]
 })

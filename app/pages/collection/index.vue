@@ -1,12 +1,11 @@
 <template>
   <UDashboardPanel v-if="authenticated" id="collection">
     <template #header>
-      <UDashboardNavbar title="My Collection" />
+      <UDashboardNavbar title="Collection" />
     </template>
 
     <template #body>
       <UPageHeader
-        headline="Collection"
         title="My Collection"
         description="Every shelf you keep, hunt for, or trade from, grouped by catalog."
         :ui="listingPageHeaderUi"
