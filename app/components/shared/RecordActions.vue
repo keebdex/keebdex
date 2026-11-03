@@ -31,6 +31,7 @@ const {
   suggestable,
   label = '',
   deletable = true,
+  history = true,
   ghost,
   onDelete = undefined,
 } = defineProps<{
@@ -41,6 +42,8 @@ const {
   // A data rule on top of `@delete`, e.g. a release only once its variants
   // are gone
   deletable?: boolean
+  // Off for records without a revision history (a user's collection)
+  history?: boolean
   // What the record is, for the buttons' accessible names ("Edit Release")
   label?: string
   ghost?: boolean
@@ -73,13 +76,17 @@ const actions = computed(() => {
 
   return [
     edit,
-    {
-      tooltip: 'History',
-      icon: 'hugeicons:time-quarter-pass',
-      variant,
-      'aria-label': label ? `${label} History` : 'History',
-      onClick: () => emit('history'),
-    },
+    ...(history
+      ? [
+          {
+            tooltip: 'History',
+            icon: 'hugeicons:time-quarter-pass',
+            variant,
+            'aria-label': label ? `${label} History` : 'History',
+            onClick: () => emit('history'),
+          },
+        ]
+      : []),
     ...(onDelete && deletable
       ? [
           {

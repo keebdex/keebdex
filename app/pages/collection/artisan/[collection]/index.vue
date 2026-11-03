@@ -11,85 +11,64 @@
         :ui="detailPageHeaderUi(false)"
       >
         <template v-if="isOwner" #links>
-          <UModal
-            v-model:visible="visible.share"
-            title="Share Collection"
-            description="Control the visibility of this collection and generate a shareable link if needed."
+          <CollectionHeaderActions
+            :collection="data"
+            @updated="refresh"
+            @delete="deleteCollection"
           >
-            <UButton icon="hugeicons:share-03" label="Share" />
-
-            <template #body>
-              <URadioGroup
-                v-model="shareOption"
-                variant="table"
-                indicator="end"
-                :items="shareItems"
-              />
-            </template>
-
-            <template v-if="shareOption === 'public'" #footer>
-              <UInput :model-value="shareUrl" readonly class="flex-1" />
-              <UButton
-                label="Copy Link"
-                icon="hugeicons:copy-link"
-                loading-auto
-                @click="copyShareUrl"
-              />
-            </template>
-            <template
-              v-else-if="shareOption === 'private' && data?.published"
-              #footer="{ close }"
+            <UModal
+              v-model:open="visible.share"
+              title="Share Collection"
+              description="Control the visibility of this collection and generate a shareable link if needed."
             >
-              <UButton label="Cancel" variant="ghost" @click="close" />
               <UButton
-                label="Make Private"
-                color="error"
-                loading-auto
-                @click="saveShareOption(close)"
+                icon="hugeicons:share-03"
+                label="Share"
+                :ui="{ label: 'block' }"
               />
+
+              <template #body>
+                <URadioGroup
+                  v-model="shareOption"
+                  variant="table"
+                  indicator="end"
+                  :items="shareItems"
+                />
+              </template>
+
+              <template v-if="shareOption === 'public'" #footer>
+                <UInput :model-value="shareUrl" readonly class="flex-1" />
+                <UButton
+                  label="Copy Link"
+                  icon="hugeicons:copy-link"
+                  loading-auto
+                  @click="copyShareUrl"
+                />
+              </template>
+              <template
+                v-else-if="shareOption === 'private' && data?.published"
+                #footer="{ close }"
+              >
+                <UButton label="Cancel" variant="ghost" @click="close" />
+                <UButton
+                  label="Make Private"
+                  color="error"
+                  loading-auto
+                  @click="saveShareOption(close)"
+                />
+              </template>
+            </UModal>
+
+            <template #tools>
+              <UTooltip text="Manual Sort">
+                <UButton
+                  :icon="appConfig.ui.icons.sortManual"
+                  aria-label="Manual Sort"
+                  :to="`/collection/artisan/${route.params.collection}/sort`"
+                />
+              </UTooltip>
             </template>
-          </UModal>
-
-          <UButton
-            :icon="appConfig.ui.icons.sortManual"
-            label="Manual Sort"
-            :to="`/collection/artisan/${route.params.collection}/sort`"
-          />
-
-          <UModal
-            title="Edit Collection"
-          >
-            <UButton icon="hugeicons:bookmark-02" label="Edit" />
-
-            <template #body="{ close }">
-              <CollectionModalCollectionForm
-                :metadata="data"
-                :is-edit="true"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UModal
-            title="Delete Collection"
-            :description="`Are you sure you want to delete ${data?.name}?`"
-          >
-            <UButton
-              label="Delete"
-              icon="hugeicons:bookmark-remove-02"
-              color="error"
-            />
-
-            <template #footer="{ close }">
-              <UButton label="Cancel" @click="close" />
-              <UButton label="Delete" color="error" @click="deleteCollection" />
-            </template>
-          </UModal>
+          </CollectionHeaderActions>
         </template>
       </UPageHeader>
 
@@ -110,27 +89,16 @@
           fallback="/artisan.png"
           aspect="square"
           :dimmed="(listing && !rest.exchange) || artisan.deleted"
-          :highlight="rest.priority"
+          :highlight="buying && rest.priority"
           :to="
             artisan.deleted
               ? undefined
               : `/artisan/maker/${artisan.maker_sculpt_id}?cid=${artisan.colorway_id}`
           "
         >
-          <!-- Found (wishlist) or sold (for sale) -->
-          <template v-if="listing && !rest.exchange" #badges>
-            <span class="absolute inset-0 flex items-center justify-center">
-              <UIcon
-                v-if="buying"
-                name="hugeicons:tick-double-02"
-                class="text-success text-9xl"
-              />
-              <UIcon
-                v-else
-                name="hugeicons:unavailable"
-                class="text-error text-9xl"
-              />
-            </span>
+          <!-- The same marks as the Wishlist Image -->
+          <template v-if="listing" #badges>
+            <ArtisanListingMarks :item="rest" :buying="buying" />
           </template>
 
           <template v-if="isOwner" #footer-start>
@@ -226,10 +194,7 @@ const { data, status, refresh, deleteCollection, isOwner } = useCollection(
 )
 
 const { removeItem, moveItem, removing, confirmRemove, confirmRemoval } =
-  useCollectionItem(
-  () => route.params.collection,
-  refresh,
-)
+  useCollectionItem(() => route.params.collection, refresh)
 
 // Wishlist and for-sale collections track per-item status and prices
 const listing = computed(() => ['want', 'sell'].includes(data.value?.intent))
@@ -268,7 +233,6 @@ const editListing = ({ artisan, ...item }) => {
     item,
   })
 }
-
 
 // Sync shareOption with saved state whenever the modal is closed
 // (handles initial async data load + reset after close-without-save)

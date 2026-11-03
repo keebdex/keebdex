@@ -11,6 +11,7 @@
     :to="to"
     reverse
     spotlight
+    :highlight="highlight"
     :ui="cardUi"
   >
     <template #title>
@@ -65,7 +66,12 @@
     </div>
 
     <template
-      v-if="$slots['footer-start'] || $slots['footer-end'] || editable || suggestable"
+      v-if="
+        $slots['footer-start'] ||
+        $slots['footer-end'] ||
+        editable ||
+        suggestable
+      "
       #footer
     >
       <div class="flex w-full flex-wrap items-center gap-2" @click.stop>
@@ -114,6 +120,8 @@ const {
   aspect?: 'video' | 'square'
   // Greyed out (a found or sold cap, an item gone from the catalog)
   dimmed?: boolean
+  // Outlined in the primary color (a wishlist's top priority cap)
+  highlight?: boolean
   // Passed to `SharedRecordActions`; suggesters also get Add Photo, which
   // suggests an edit like Edit does
   editable?: boolean
