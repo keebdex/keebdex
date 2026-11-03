@@ -10,7 +10,7 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="space-y-4 mx-auto min-w-0 w-full lg:max-w-6xl">
+      <UPageCard variant="subtle" class="space-y-4 min-w-0 w-full">
         <NuxtPage />
       </UPageCard>
     </template>

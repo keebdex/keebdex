@@ -33,7 +33,7 @@
     <template #body>
       <div
         v-if="tab === 'announcements'"
-        class="mx-auto w-full lg:max-w-3xl space-y-6"
+        class="w-full space-y-6"
       >
         <div
           v-if="!announcementsLoaded"
@@ -102,7 +102,7 @@
         </template>
       </div>
 
-      <div v-else class="mx-auto w-full lg:max-w-3xl space-y-6">
+      <div v-else class="w-full space-y-6">
         <div
           v-if="!cursor.loaded && cursor.loading"
           class="flex justify-center py-16 text-dimmed"
