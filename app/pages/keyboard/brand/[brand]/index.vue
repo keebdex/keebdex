@@ -192,15 +192,12 @@ const keyboards = computed(() =>
   splitPinned(data.value?.keyboards || [], isPinned),
 )
 
-// The trail ends at the parent page (shown, not marked current): the page
-// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
       label: 'Brands',
       icon: 'hugeicons:user-multiple',
       to: '/keyboard/brand',
-      active: false,
     },
   ]
 })

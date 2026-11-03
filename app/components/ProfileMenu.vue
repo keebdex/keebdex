@@ -99,35 +99,15 @@ const items = computed(() => {
 
   // Staff tools: the revisions of the pages they manage, and for admins the
   // management pages
-  const staff = [
-    ...(isModerator.value
-      ? [
-          {
-            label: 'Recent Changes',
-            icon: 'hugeicons:time-quarter-pass',
-            to: '/recent-changes',
-          },
-        ]
-      : []),
-    ...(management ? [management] : []),
-  ]
+  const staff = [isModerator.value && RECENT_CHANGES_LINK, management].filter(
+    Boolean,
+  )
 
   // Rarely needed, so folded into one submenu (Feedback sits in the sidebar)
   const about = {
     label: 'About',
     icon: 'hugeicons:badge-info',
-    children: [
-      {
-        label: 'About Keebdex',
-        icon: 'hugeicons:badge-info',
-        to: '/about',
-      },
-      {
-        label: 'Changelog',
-        icon: 'hugeicons:scroll-text',
-        to: '/changelog',
-      },
-    ],
+    children: ABOUT_LINKS,
   }
 
   return authenticated.value

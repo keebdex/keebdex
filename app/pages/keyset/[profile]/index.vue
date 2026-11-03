@@ -189,14 +189,11 @@ const profileSpecs = computed(() =>
   ].filter((spec) => spec.description),
 )
 
-// The trail ends at the parent page (shown, not marked current): the page
-// header names this one
 const breadcrumbs = computed(() => [
   {
     label: 'Profiles',
     icon: 'hugeicons:cross',
     to: '/keyset',
-    active: false,
   },
 ])
 

@@ -8,7 +8,7 @@
     <template #left>
       <UBreadcrumb
         v-if="$device.isDesktopOrTablet"
-        :items="items"
+        :items="trail"
         class="min-w-0"
       />
 
@@ -44,6 +44,13 @@ const props = defineProps<{
 }>()
 
 const appConfig = useAppConfig()
+
+// Linked items are pages above this one, never the current page: a trail
+// that ends at the parent shows it without highlight or `aria-current`, since
+// the page header already names the page
+const trail = computed(() =>
+  props.items.map((item) => (item.to ? { ...item, active: false } : item)),
+)
 
 const parent = computed(() => props.items.findLast((item) => item.to))
 

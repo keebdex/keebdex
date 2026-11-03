@@ -136,17 +136,8 @@ const groups = computed(() => [
     items: [
       ...links.value.flat(),
       // The profile menu's staff and About links, which the sidebar leaves out
-      ...(isModerator.value
-        ? [
-            {
-              label: 'Recent Changes',
-              icon: 'hugeicons:time-quarter-pass',
-              to: '/recent-changes',
-            },
-          ]
-        : []),
-      { label: 'About', icon: 'hugeicons:badge-info', to: '/about' },
-      { label: 'Changelog', icon: 'hugeicons:scroll-text', to: '/changelog' },
+      ...(isModerator.value ? [RECENT_CHANGES_LINK] : []),
+      ...ABOUT_LINKS,
     ],
   },
   {

@@ -387,8 +387,6 @@ const onReverted = ({ entityType, changes }) => {
   refresh()
 }
 
-// The trail ends at the parent page (shown, not marked current): the page
-// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
@@ -399,7 +397,6 @@ const breadcrumbs = computed(() => {
     {
       label: manufacturers.value[profile],
       to: `/keyset/${profile}`,
-      active: false,
     },
   ]
 })

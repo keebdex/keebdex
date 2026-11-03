@@ -248,15 +248,12 @@ const makerLinks = computed(() => {
   return items
 })
 
-// The trail ends at the parent page (shown, not marked current): the page
-// header names this one
 const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
       icon: 'hugeicons:user-multiple',
       to: '/artisan/maker',
-      active: false,
     },
   ]
 })

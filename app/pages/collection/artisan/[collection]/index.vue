@@ -324,15 +324,12 @@ const sortedCollections = computed(() => {
   return sortBy(data.value?.items || [], iteratees)
 })
 
-// The trail ends at My Collection (shown, not marked current): the page
-// header names this collection
 const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
       icon: 'hugeicons:collections-bookmark',
       to: '/collection',
-      active: false,
     },
   ]
 })
