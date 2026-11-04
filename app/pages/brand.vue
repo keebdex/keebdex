@@ -70,8 +70,7 @@
                 <p
                   class="text-lg font-medium leading-relaxed text-muted text-start"
                 >
-                  The ultimate platform for keyboard collectors to curate, sync,
-                  and showcase their collections.
+                  {{ $config.public.site.description }}
                 </p>
 
                 <div class="flex gap-12">
@@ -514,7 +513,7 @@ const typeScales = [
     weight: '700',
     use: 'Headings',
     size: '32px',
-    sample: "The Collector's Platform",
+    sample: "The keyboard collector's index",
   },
   {
     family: 'Reddit Sans',
@@ -529,7 +528,7 @@ const typeScales = [
     use: 'Body text',
     size: '16px',
     sample:
-      'Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.',
+      'Look up any maker, sculpt, colorway, keyset, or group buy from one search.',
     muted: true,
   },
   {

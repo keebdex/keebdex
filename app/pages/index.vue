@@ -38,6 +38,6 @@ useSeoMeta({
   titleTemplate: '%s',
   title: 'Keebdex: Artisan Keycaps, Keysets, and Keyboards',
   description:
-    'Keebdex catalogs artisan keycaps, keysets, and mechanical keyboards. Browse makers and group buys, track your collection, and trade caps with other collectors.',
+    "Keebdex is the collector's index of artisan keycaps, keysets, and keyboards, and the place to keep track of your own collection. Look up any maker, sculpt, colorway, keyset, or group buy from one search.",
 })
 </script>

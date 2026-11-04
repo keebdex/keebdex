@@ -140,8 +140,8 @@ import { resolvePresetToken } from '~/utils/theme-presets'
 
 const { authenticated } = storeToRefs(useUserStore())
 
-const description =
-  'Keebdex is a catalog of artisan keycaps, keysets, and keyboards, made for the collectors who hunt, keep, and trade them.'
+// The site description (package.json), which the home page also shows
+const { description } = useRuntimeConfig().public.site
 
 // The sections fill the panel, which sets the width and gutters, and the
 // titles step down from the hero's size
