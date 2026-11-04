@@ -47,7 +47,7 @@ export const INFO_PAGES = [
 
 export const ABOUT_LINKS = INFO_PAGES.filter(({ to }) =>
   ['/about', '/changelog'].includes(to),
-).map(({ label, icon, to }) => ({ label, icon, to }))
+)
 
 // The sidebar's catalog sections and its footer links (Leaderboard,
 // Notifications). The layout adds Feedback and Donate, which open its own

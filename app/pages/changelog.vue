@@ -120,60 +120,64 @@
                 container: 'flex flex-col gap-8',
               }"
             >
-            <nav
-              v-if="item.sections.length"
-              :aria-label="`In ${item.title}`"
-              class="hidden lg:block"
-            >
-              <p class="font-semibold text-highlighted">In this release</p>
-              <ul class="mt-3 flex flex-col border-s border-default">
-                <li v-for="section in item.sections" :key="section.id">
-                  <a
-                    :href="`#${section.id}`"
-                    class="-ms-px flex items-center justify-between gap-3 border-s border-transparent py-1.5 ps-3 text-muted hover:border-primary hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
-                    @click.prevent="scrollToSection(item.tag, section.id)"
-                  >
-                    <span class="truncate">{{ section.text }}</span>
-                    <span
-                      v-if="section.count"
-                      class="text-xs text-dimmed tabular-nums"
+              <nav
+                v-if="item.sections.length"
+                :aria-label="`In ${item.title}`"
+                class="hidden lg:block"
+              >
+                <p class="font-semibold text-highlighted">In this release</p>
+                <ul class="mt-3 flex flex-col border-s border-default">
+                  <li v-for="section in item.sections" :key="section.id">
+                    <a
+                      :href="`#${section.id}`"
+                      class="-ms-px flex items-center justify-between gap-3 border-s border-transparent py-1.5 ps-3 text-muted hover:border-primary hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+                      @click.prevent="scrollToSection(item.tag, section.id)"
                     >
-                      {{ section.count }}
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
+                      <span class="truncate">{{ section.text }}</span>
+                      <span
+                        v-if="section.count"
+                        class="text-xs text-dimmed tabular-nums"
+                      >
+                        {{ section.count }}
+                      </span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
 
-            <dl class="flex flex-wrap gap-x-8 gap-y-4 lg:flex-col">
-            <div>
-              <dt class="text-muted">
-                {{ item.releaseBadge.term }}
-              </dt>
-              <dd class="mt-1">
-                <UBadge :label="item.releaseBadge.label" :color="item.releaseBadge.color" variant="subtle" />
-              </dd>
-            </div>
-            <div v-if="item.date">
-              <dt class="text-muted">Released</dt>
-              <dd class="mt-1 font-medium text-highlighted">
-                <time :datetime="String(item.date).slice(0, 10)">
-                  {{ formatDate(item.date) }}
-                </time>
-              </dd>
-            </div>
-            <div v-if="item.authors?.length">
-              <dt class="text-muted">Made by</dt>
-              <dd class="mt-2 flex flex-col gap-2">
-                <UUser
-                  v-for="author in item.authors"
-                  :key="author.name"
-                  v-bind="author"
-                  size="sm"
-                />
-              </dd>
-            </div>
-            </dl>
+              <dl class="flex flex-wrap gap-x-8 gap-y-4 lg:flex-col">
+                <div>
+                  <dt class="text-muted">
+                    {{ item.releaseBadge.term }}
+                  </dt>
+                  <dd class="mt-1">
+                    <UBadge
+                      :label="item.releaseBadge.label"
+                      :color="item.releaseBadge.color"
+                      variant="subtle"
+                    />
+                  </dd>
+                </div>
+                <div v-if="item.date">
+                  <dt class="text-muted">Released</dt>
+                  <dd class="mt-1 font-medium text-highlighted">
+                    <time :datetime="String(item.date).slice(0, 10)">
+                      {{ formatDate(item.date) }}
+                    </time>
+                  </dd>
+                </div>
+                <div v-if="item.authors?.length">
+                  <dt class="text-muted">Made by</dt>
+                  <dd class="mt-2 flex flex-col gap-2">
+                    <UUser
+                      v-for="author in item.authors"
+                      :key="author.name"
+                      v-bind="author"
+                      size="sm"
+                    />
+                  </dd>
+                </div>
+              </dl>
             </UPageAside>
           </template>
         </UPage>
@@ -242,8 +246,7 @@ const releaseSections = (release) => {
       (node) => Array.isArray(node) && node[1]?.id === link.id,
     )
     const list = nodes[index + 1]
-    const count =
-      Array.isArray(list) && list[0] === 'ul' ? list.length - 2 : 0
+    const count = Array.isArray(list) && list[0] === 'ul' ? list.length - 2 : 0
 
     return { id: link.id, text: link.text, count }
   })

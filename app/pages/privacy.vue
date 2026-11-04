@@ -33,9 +33,8 @@
 const UPDATED_AT = '2026-11-04'
 const CONTACT_EMAIL = 'contact@keebdex.org'
 
-// The panel already sets the width and gutters
 const sectionUi = {
-  container: 'max-w-none px-0 sm:px-0 lg:px-0 py-12 sm:py-16 lg:py-16',
+  container: `${panelContainerClass} py-12 sm:py-16`,
 }
 
 // Written from what the app stores: keep it true when data or cookies change
@@ -200,7 +199,6 @@ const sections = [
         to: `mailto:${CONTACT_EMAIL}`,
         icon: 'solar:letter-bold-duotone',
         color: 'primary',
-        size: 'lg',
         ui: { label: 'block' },
       },
     ],

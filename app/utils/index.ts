@@ -225,6 +225,11 @@ export const ownerLinks = (
     target: '_blank',
   }))
 
+// Drops UContainer's width and side gutters from a UPageHero or UPageSection
+// inside a dashboard panel, whose body already sets both; add the section's
+// own padding and gap after it
+export const panelContainerClass = 'max-w-none px-0 sm:px-0 lg:px-0'
+
 // UPageCard container for cards with an image above the title. The column is
 // pinned to the card so a long footer cannot widen it (and the image with it)
 export const imageCardContainerClass =

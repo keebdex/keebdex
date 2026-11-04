@@ -3,10 +3,8 @@
     :title
     :description
     :ui="{
-      // The panel already sets the width and gutters, and the hero stays
-      // left aligned above the page's content
-      container:
-        'max-w-none px-0 sm:px-0 lg:px-0 pt-2 pb-10 sm:pt-8 sm:pb-14 lg:pt-8 lg:pb-14 gap-0 sm:gap-y-0',
+      // The hero stays left aligned above the page's content
+      container: `${panelContainerClass} pt-2 pb-10 sm:pt-8 sm:pb-14 lg:pt-8 lg:pb-14 gap-0 sm:gap-y-0`,
       wrapper: 'text-start',
       headline: 'mb-10 sm:mb-12',
       title: 'max-w-4xl text-4xl sm:text-5xl lg:text-6xl text-balance',

@@ -60,7 +60,7 @@
               <NuxtImg
                 :src="colorway.img"
                 alt=""
-                sizes="160px"
+                sizes="96px sm:128px lg:144px"
                 loading="lazy"
                 decoding="async"
                 class="size-full object-cover"
@@ -146,8 +146,7 @@ const description =
 // The sections fill the panel, which sets the width and gutters, and the
 // titles step down from the hero's size
 const sectionUi = {
-  container:
-    'max-w-none px-0 sm:px-0 lg:px-0 sm:py-10 lg:py-12 gap-8 sm:gap-10 lg:gap-12',
+  container: `${panelContainerClass} sm:py-10 lg:py-12 gap-8 sm:gap-10 lg:gap-12`,
   title: 'text-2xl sm:text-3xl lg:text-3xl',
 }
 
@@ -161,7 +160,10 @@ const img = useImage()
 const shareCards = computed(() =>
   showcase.value
     .slice(0, 2)
-    .map((colorway) => ({ ...colorway, img: img(colorway.img, { width: 400 }) })),
+    .map((colorway) => ({
+      ...colorway,
+      img: img(colorway.img, { width: 400 }),
+    })),
 )
 
 const wizardSteps = [
@@ -225,7 +227,7 @@ const groups = [
         icon: 'solar:pallete-2-bold-duotone',
         title: 'Every Keycap Color',
         description:
-          'Browse every keycap color as a wall of swatches, filter it by matching system or search by code or name, and see each color\'s hex and RGB values and the keysets that use it.',
+          "Browse every keycap color as a wall of swatches, filter it by matching system or search by code or name, and see each color's hex and RGB values and the keysets that use it.",
       },
       {
         icon: 'solar:calendar-mark-bold-duotone',
@@ -297,15 +299,14 @@ const groups = [
         icon: 'solar:bell-bold-duotone',
         title: 'Hear Back',
         description:
-          'Get notified when a submission is approved or rejected, with the moderator\'s note, and choose what you hear about in your settings.',
+          "Get notified when a submission is approved or rejected, with the moderator's note, and choose what you hear about in your settings.",
       },
     ],
   },
   {
     id: 'yours',
     title: 'Make It Yours',
-    description:
-      'A catalog you will want to open every day, on any screen.',
+    description: 'A catalog you will want to open every day, on any screen.',
     features: [
       {
         icon: 'solar:palette-bold-duotone',
