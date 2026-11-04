@@ -19,7 +19,9 @@
         <UInput
           v-model="user.email"
           icon="solar:letter-bold-duotone"
-          :trailing-icon="user.email_verified && 'solar:verified-check-bold-duotone'"
+          :trailing-icon="
+            user.email_verified && 'solar:verified-check-bold-duotone'
+          "
           disabled
           class="w-full"
           :ui="{
@@ -32,7 +34,9 @@
         <UInput
           v-model="social.discord"
           icon="simple-icons:discord"
-          :trailing-icon="discordVerified && 'solar:verified-check-bold-duotone'"
+          :trailing-icon="
+            discordVerified && 'solar:verified-check-bold-duotone'
+          "
           class="w-full"
           :ui="{
             trailingIcon: 'text-primary',
@@ -49,11 +53,7 @@
       </UFormField>
 
       <UFormField label="QQ" name="qq">
-        <UInput
-          v-model="social.qq"
-          icon="solar:chat-round-bold-duotone"
-          class="w-full"
-        />
+        <UInput v-model="social.qq" icon="simple-icons:qq" class="w-full" />
       </UFormField>
 
       <UButton block color="primary" type="submit" loading-auto> Save </UButton>

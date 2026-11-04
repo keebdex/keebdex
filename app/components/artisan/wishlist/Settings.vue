@@ -124,7 +124,7 @@
         />
         <UInput
           v-model.trim="tradingConfig.social.qq"
-          icon="solar:chat-round-bold-duotone"
+          icon="simple-icons:qq"
           placeholder="QQ number"
           aria-label="QQ"
           class="w-full"

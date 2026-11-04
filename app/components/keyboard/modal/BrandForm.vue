@@ -54,7 +54,7 @@
     <UFormField label="Instagram" name="instagram">
       <UInput
         v-model.trim="brand.instagram"
-        icon="simple-icons:instagram"
+        icon="solar:camera-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -157,7 +157,10 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        successToast(isEdit ? 'update' : 'add', { entity: 'Brand', name: brand.value.name }),
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Brand',
+          name: brand.value.name,
+        }),
       )
       emit('onSuccess', data)
     })

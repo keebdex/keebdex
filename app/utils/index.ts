@@ -211,7 +211,11 @@ export const splitPinned = <T>(items: T[], isPinned: (item: T) => boolean) => {
 // A maker's or brand's own links (website and socials), opened in a new tab
 const OWNER_LINKS = [
   { key: 'website', label: 'Website', icon: 'solar:earth-bold-duotone' },
-  { key: 'instagram', label: 'Instagram', icon: 'simple-icons:instagram' },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    icon: 'solar:camera-square-bold-duotone',
+  },
   { key: 'discord', label: 'Discord', icon: 'simple-icons:discord' },
 ] as const
 
