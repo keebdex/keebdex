@@ -110,10 +110,37 @@
             <ContentRenderer :value="item.page" class="mt-5" />
           </div>
 
-          <!-- What the release is, beside its notes from lg -->
-          <dl
-            class="flex flex-wrap gap-x-8 gap-y-4 border-t border-default pt-6 text-sm lg:sticky lg:top-0 lg:flex-col lg:self-start lg:border-t-0 lg:pt-0"
+          <!-- Beside the notes from lg, sticking as they scroll: what is in
+          the release, then what the release is -->
+          <aside
+            class="flex flex-col gap-8 border-t border-default pt-6 text-sm lg:sticky lg:top-0 lg:self-start lg:border-t-0 lg:pt-0"
           >
+            <nav
+              v-if="item.sections.length"
+              :aria-label="`In ${item.title}`"
+              class="hidden lg:block"
+            >
+              <p class="font-semibold text-highlighted">In this release</p>
+              <ul class="mt-3 flex flex-col border-s border-default">
+                <li v-for="section in item.sections" :key="section.id">
+                  <a
+                    :href="`#${section.id}`"
+                    class="-ms-px flex items-center justify-between gap-3 border-s border-transparent py-1.5 ps-3 text-muted hover:border-primary hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+                    @click.prevent="scrollToSection(item.tag, section.id)"
+                  >
+                    <span class="truncate">{{ section.text }}</span>
+                    <span
+                      v-if="section.count"
+                      class="text-xs text-dimmed tabular-nums"
+                    >
+                      {{ section.count }}
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+
+            <dl class="flex flex-wrap gap-x-8 gap-y-4 lg:flex-col">
             <div>
               <dt class="text-muted">
                 {{ item.page.version ? 'Version' : 'Running build' }}
@@ -141,7 +168,8 @@
                 />
               </dd>
             </div>
-          </dl>
+            </dl>
+          </aside>
         </article>
       </div>
     </template>
@@ -197,6 +225,33 @@ const toAuthor = (author) =>
         target: author.to ? '_blank' : undefined,
       }
 
+// The notes' sections (### headings) with how many changes each lists,
+// for the "In this release" list
+const releaseSections = (release) => {
+  const nodes = release.body?.value || []
+  const links = release.body?.toc?.links || []
+
+  return links.map((link) => {
+    const index = nodes.findIndex(
+      (node) => Array.isArray(node) && node[1]?.id === link.id,
+    )
+    const list = nodes[index + 1]
+    const count =
+      Array.isArray(list) && list[0] === 'ul' ? list.length - 2 : 0
+
+    return { id: link.id, text: link.text, count }
+  })
+}
+
+// The heading ids repeat in every release, so a section is found inside
+// the release being read rather than by the hash, which names the release
+const scrollToSection = (tag, id) =>
+  document
+    .getElementById(anchor(tag))
+    ?.closest('article')
+    ?.querySelector(`[id="${CSS.escape(id)}"]`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
 // The unreleased notes are titled after the release they follow, so they do
 // not read as unavailable. Releases come newest first.
 const latestRelease = computed(() =>
@@ -217,6 +272,7 @@ const versions = computed(() =>
       page: release,
       releaseBadge: releaseBadge(release),
       authors: release.authors?.map(toAuthor),
+      sections: releaseSections(release),
     })),
 )
 
