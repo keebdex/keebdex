@@ -12,107 +12,18 @@
         </p>
       </SharedInfoHero>
 
-      <UPage
-        class="gap-10 pb-14"
-        :ui="{ left: 'lg:col-span-3', center: 'lg:col-span-7' }"
-      >
-        <!-- On this page, sticking beside the policy from lg and above it
-        on smaller screens, where the aside would otherwise be hidden; the
-        panel body scrolls, so it sticks to its top. Plain fragment links:
-        the browser scrolls the panel body to them -->
-        <template #left>
-          <UPageAside
-            :ui="{ root: 'block py-0 lg:top-0 lg:max-h-svh lg:self-start lg:py-0' }"
-          >
-            <nav aria-labelledby="policy-contents">
-              <h2
-                id="policy-contents"
-                class="text-sm font-semibold text-highlighted"
-              >
-                On this page
-              </h2>
-              <ul class="mt-3 flex flex-col gap-2 border-s border-default">
-                <li v-for="section in sections" :key="section.id">
-                  <a
-                    :href="`#${section.id}`"
-                    class="-ms-px block border-s border-transparent ps-4 text-sm text-muted hover:border-primary hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
-                  >
-                    {{ section.title }}
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </UPageAside>
-        </template>
-
-        <div class="min-w-0">
-          <!-- The whole policy in four sentences -->
-          <UPageCard
-            as="aside"
-            variant="subtle"
-            aria-labelledby="policy-summary"
-            class="max-w-3xl"
-          >
-            <h2
-              id="policy-summary"
-              class="text-lg font-semibold text-highlighted"
-            >
-              The short version
-            </h2>
-            <ul class="mt-4 flex flex-col gap-3">
-              <li
-                v-for="point in summary"
-                :key="point.text"
-                class="flex gap-3 text-pretty text-default"
-              >
-                <UIcon
-                  :name="point.icon"
-                  class="mt-0.5 size-5 shrink-0 text-primary"
-                />
-                {{ point.text }}
-              </li>
-            </ul>
-          </UPageCard>
-
-          <section
-            v-for="section in sections"
-            :id="section.id"
-            :key="section.id"
-            class="mt-12 max-w-3xl scroll-mt-4"
-          >
-            <h2 class="text-2xl font-semibold text-highlighted">
-              {{ section.title }}
-            </h2>
-            <p
-              v-if="section.intro"
-              class="mt-3 leading-7 text-pretty text-muted"
-            >
-              {{ section.intro }}
-            </p>
-            <dl
-              v-if="section.items"
-              class="mt-5 divide-y divide-default border-y border-default"
-            >
-              <div
-                v-for="item in section.items"
-                :key="item.term"
-                class="grid gap-1 py-4 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-6"
-              >
-                <dt class="font-medium text-highlighted">{{ item.term }}</dt>
-                <dd class="leading-7 text-pretty text-muted">
-                  {{ item.detail }}
-                </dd>
-              </div>
-            </dl>
-            <p
-              v-if="section.outro"
-              class="mt-4 leading-7 text-pretty text-muted"
-            >
-              {{ section.outro }}
-            </p>
-          </section>
-        </div>
-      </UPage>
+      <!-- One UPageSection per part of the policy, its details as the
+      section's features -->
+      <UPageSection
+        v-for="section in sections"
+        :id="section.id"
+        :key="section.id"
+        :title="section.title"
+        :description="section.description"
+        :features="section.features"
+        :links="section.links"
+        :ui="sectionUi"
+      />
     </template>
   </UDashboardPanel>
 </template>
@@ -120,81 +31,81 @@
 <script setup>
 // Change this whenever the policy's content changes
 const UPDATED_AT = '2026-11-04'
+const CONTACT_EMAIL = 'contact@keebdex.org'
 
-const summary = [
-  {
-    icon: 'hugeicons:user-account',
-    text: 'We keep only what your Google or Discord sign-in shares and what you add to Keebdex yourself.',
-  },
-  {
-    icon: 'hugeicons:view-off-slash',
-    text: 'Your email address is never shown on public pages, and private collections stay private.',
-  },
-  {
-    icon: 'hugeicons:cookie',
-    text: 'Cookies keep you signed in and remember your theme. There are no ads and no tracking scripts.',
-  },
-  {
-    icon: 'hugeicons:cancel-01',
-    text: 'We never sell your information, and you can ask us to delete your account at any time.',
-  },
-]
+// The panel already sets the width and gutters
+const sectionUi = {
+  container: 'max-w-none px-0 sm:px-0 lg:px-0 py-12 sm:py-16 lg:py-16',
+}
 
+// Written from what the app stores: keep it true when data or cookies change
 const sections = [
   {
-    id: 'what-we-collect',
-    title: 'What we collect',
-    intro:
-      'Browsing Keebdex needs no account. When you sign in or add something, we keep the following:',
-    items: [
+    id: 'information-we-keep',
+    title: 'Information we keep',
+    description:
+      'Browsing Keebdex needs no account. When you sign in or add something, we keep only what your sign-in shares and what you add yourself.',
+    features: [
       {
-        term: 'Your account',
-        detail:
+        icon: 'solar:user-circle-bold-duotone',
+        title: 'Your account',
+        description:
           'The name, email address, and profile picture your Google or Discord account shares when you sign in.',
       },
       {
-        term: 'Your profile',
-        detail:
+        icon: 'solar:user-rounded-bold-duotone',
+        title: 'Your profile',
+        description:
           'The Discord, Reddit, or QQ names you add in your settings, and whether you appear on the leaderboard.',
       },
       {
-        term: 'Your collections',
-        detail:
+        icon: 'solar:bookmark-square-bold-duotone',
+        title: 'Your collections',
+        description:
           'The collections you create and what you save to them, including the prices, contact, and message you add to a wishlist or a for-sale collection.',
       },
       {
-        term: 'Your contributions',
-        detail:
+        icon: 'solar:upload-bold-duotone',
+        title: 'Your contributions',
+        description:
           'The submissions and edit suggestions you send, the images you upload with them, and who sent each one.',
       },
       {
-        term: 'Your preferences',
-        detail: 'The theme and color mode you pick, so they follow you to every device.',
+        icon: 'solar:palette-bold-duotone',
+        title: 'Your preferences',
+        description:
+          'The theme and color mode you pick, so they follow you to every device.',
       },
       {
-        term: 'Feedback',
-        detail:
-          'The messages you send through Feedback. Without an account, that is also the name and the optional email you enter.',
+        icon: 'solar:chat-round-dots-bold-duotone',
+        title: 'Feedback',
+        description:
+          'The messages you send through Feedback. Without an account, also the name and the optional email you enter.',
       },
     ],
   },
   {
     id: 'who-can-see-it',
     title: 'Who can see it',
-    items: [
+    description:
+      'Your email address is never shown on a public page, and your collections stay private until you share them.',
+    features: [
       {
-        term: 'Everyone',
-        detail:
-          'Your name and profile picture on the leaderboard (unless you hide yourself in your settings), and the collections you make public by sharing them, with their Discord contact when they are listed in the Trading Hub.',
+        icon: 'solar:global-bold-duotone',
+        title: 'Everyone',
+        description:
+          'Your name and profile picture on the leaderboard (unless you hide yourself in your settings), the collections and wishlist images you share, the Discord contact of lists in the Trading Hub, and approved submissions as part of the catalog.',
       },
       {
-        term: 'Moderators',
-        detail:
-          'The name and email address on the submissions and edit suggestions they review, so they can credit you and follow up.',
+        icon: 'solar:shield-user-bold-duotone',
+        title: 'Staff',
+        description:
+          'The name and email address on the submissions and edit suggestions they review, so they can credit you and follow up, and the messages you send through Feedback.',
       },
       {
-        term: 'Only you',
-        detail:
+        icon: 'solar:lock-keyhole-bold-duotone',
+        title: 'Only you',
+        description:
           'Your private collections, your preferences, and your email address everywhere else.',
       },
     ],
@@ -202,58 +113,97 @@ const sections = [
   {
     id: 'cookies',
     title: 'Cookies',
-    intro:
-      'Keebdex uses a few cookies, all of them needed for the site to work the way you set it up:',
-    items: [
+    description:
+      'Keebdex uses only the cookies the site needs to work the way you set it up. There are no ads and no advertising or third-party analytics scripts.',
+    features: [
       {
-        term: 'Sign-in',
-        detail: 'Keeps you signed in between visits.',
+        icon: 'solar:login-2-bold-duotone',
+        title: 'Sign-in',
+        description: 'Keeps you signed in between visits.',
       },
       {
-        term: 'Appearance',
-        detail: 'Remembers your theme and color mode, even when you are signed out.',
+        icon: 'solar:pallete-2-bold-duotone',
+        title: 'Appearance',
+        description:
+          'Remembers your theme, color mode, and sidebar size, even when you are signed out.',
       },
       {
-        term: 'Your choices',
-        detail:
+        icon: 'solar:settings-bold-duotone',
+        title: 'Your choices',
+        description:
           'Remembers that you have seen the cookie notice, and the text format you last copied a wishlist in.',
       },
     ],
-    outro:
-      'Keebdex shows no ads and runs no advertising or third-party analytics scripts.',
   },
   {
     id: 'services-we-use',
     title: 'Services we use',
-    intro:
-      'Keebdex is built on a few services that handle your information on our behalf: Supabase stores the database and handles sign-in, Cloudflare hosts the site and its images, and Google or Discord confirm who you are when you sign in. We do not sell or rent your information to anyone.',
+    description:
+      'A few services handle your information on our behalf. We never sell or rent your information to anyone.',
+    features: [
+      {
+        icon: 'simple-icons:supabase',
+        title: 'Supabase',
+        description: 'Stores the database and handles sign-in.',
+      },
+      {
+        icon: 'simple-icons:cloudflare',
+        title: 'Cloudflare',
+        description: 'Hosts the site and its images.',
+      },
+      {
+        icon: 'solar:shield-check-bold-duotone',
+        title: 'Google and Discord',
+        description: 'Confirm who you are when you sign in.',
+      },
+    ],
   },
   {
     id: 'your-choices',
     title: 'Your choices',
-    items: [
+    description: 'You stay in control of what Keebdex keeps and shows.',
+    features: [
       {
-        term: 'Change your profile',
-        detail:
+        icon: 'solar:pen-new-square-bold-duotone',
+        title: 'Change your profile',
+        description:
           'Edit your social names and leave the leaderboard from your account settings.',
       },
       {
-        term: 'Control your collections',
-        detail:
+        icon: 'solar:eye-closed-bold-duotone',
+        title: 'Control your collections',
+        description:
           'Make a shared collection private again, or delete a collection and everything in it.',
       },
       {
-        term: 'Delete your account',
-        detail:
-          'Send us a message through Feedback and we will remove your account and the information tied to it.',
+        icon: 'solar:user-cross-bold-duotone',
+        title: 'Delete your account',
+        description:
+          'Send us a message through Feedback or by email and we will remove your account and the information tied to it.',
       },
     ],
   },
   {
     id: 'changes',
     title: 'Changes to this policy',
-    intro:
+    description:
       'When this policy changes, we update it on this page and change the date at the top. Using Keebdex after a change means you accept the updated policy.',
+  },
+  {
+    id: 'contact-us',
+    title: 'Contact us',
+    description:
+      'Questions about your data, or a request to see, change, or delete it? Email us and we will get back to you.',
+    links: [
+      {
+        label: CONTACT_EMAIL,
+        to: `mailto:${CONTACT_EMAIL}`,
+        icon: 'solar:letter-bold-duotone',
+        color: 'primary',
+        size: 'lg',
+        ui: { label: 'block' },
+      },
+    ],
   },
 ]
 
