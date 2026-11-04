@@ -14,16 +14,14 @@
 
         <div
           ref="releaseLine"
-          class="-mx-1 min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto px-1 pb-2 [scrollbar-width:none]"
-          @scroll.passive="updateScroll"
+          class="-mx-1 min-w-0 flex-1 snap-x snap-mandatory scroll-px-1 overflow-x-auto px-1 pb-2 [scrollbar-width:none]"
         >
           <UTimeline
-            v-model="selected"
+            :model-value="selected"
             :items="versions"
             value-key="tag"
             orientation="horizontal"
             size="3xs"
-            color="primary"
             :ui="{
               root: 'w-max',
               // The whole item opens its release; the title stays the
@@ -61,10 +59,6 @@
               </button>
             </template>
 
-            <template #description="{ item }">
-              {{ item.page.description }}
-            </template>
-
             <template #date="{ item }">
               {{ item.date ? formatDate(item.date) : 'Live now' }}
             </template>
@@ -77,14 +71,14 @@
             icon="hugeicons:arrow-left-01"
             variant="outline"
             aria-label="Newer releases"
-            :disabled="!canScroll.back"
+            :disabled="arrivedState.left"
             @click="scrollReleases(-1)"
           />
           <UButton
             icon="hugeicons:arrow-right-01"
             variant="outline"
             aria-label="Older releases"
-            :disabled="!canScroll.forward"
+            :disabled="arrivedState.right"
             @click="scrollReleases(1)"
           />
         </UFieldGroup>
@@ -93,11 +87,16 @@
       <!-- One release at a time; the others stay rendered (hidden) for
       search engines and direct links -->
       <div class="pb-12">
-        <article
+        <UPage
           v-for="item in versions"
           v-show="item.tag === selected"
           :key="item.tag"
-          class="mt-6 grid gap-8 border-t border-default pt-8 lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-16"
+          as="article"
+          class="mt-6 gap-8 border-t border-default pt-8"
+          :ui="{
+            center: 'lg:col-span-7',
+            right: 'order-last lg:col-span-3',
+          }"
         >
           <div class="min-w-0 max-w-2xl">
             <h2
@@ -111,10 +110,16 @@
           </div>
 
           <!-- Beside the notes from lg, sticking as they scroll: what is in
-          the release, then what the release is -->
-          <aside
-            class="flex flex-col gap-8 border-t border-default pt-6 text-sm lg:sticky lg:top-0 lg:self-start lg:border-t-0 lg:pt-0"
-          >
+          the release, then what the release is. Below the notes on smaller
+          screens, where the aside would otherwise be hidden; the panel body
+          scrolls, so it sticks to its top -->
+          <template #right>
+            <UPageAside
+              :ui="{
+                root: 'block border-t border-default pt-6 pb-0 text-sm lg:top-0 lg:max-h-svh lg:self-start lg:border-t-0 lg:py-0',
+                container: 'flex flex-col gap-8',
+              }"
+            >
             <nav
               v-if="item.sections.length"
               :aria-label="`In ${item.title}`"
@@ -143,10 +148,10 @@
             <dl class="flex flex-wrap gap-x-8 gap-y-4 lg:flex-col">
             <div>
               <dt class="text-muted">
-                {{ item.page.version ? 'Version' : 'Running build' }}
+                {{ item.releaseBadge.term }}
               </dt>
               <dd class="mt-1">
-                <UBadge v-bind="item.releaseBadge" />
+                <UBadge :label="item.releaseBadge.label" :color="item.releaseBadge.color" variant="subtle" />
               </dd>
             </div>
             <div v-if="item.date">
@@ -169,15 +174,16 @@
               </dd>
             </div>
             </dl>
-          </aside>
-        </article>
+            </UPageAside>
+          </template>
+        </UPage>
       </div>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
-import { useResizeObserver } from '@vueuse/core'
+import { useResizeObserver, useScroll } from '@vueuse/core'
 
 const description =
   'Everything new in Keebdex, release by release. The changes at the top are already live and go out with the next release.'
@@ -195,11 +201,11 @@ const { data: releases } = await useAsyncData('changelog', () =>
 const { buildId } = useRuntimeConfig().app
 
 const releaseBadge = ({ version, prerelease }) => {
-  if (!version) return { label: buildId, color: 'info', variant: 'subtle' }
+  if (!version) return { term: 'Running build', label: buildId, color: 'info' }
   if (prerelease) {
-    return { label: 'Pre-release', color: 'warning', variant: 'subtle' }
+    return { term: 'Version', label: 'Pre-release', color: 'warning' }
   }
-  return { label: `v${version}`, color: 'success', variant: 'subtle' }
+  return { term: 'Version', label: `v${version}`, color: 'success' }
 }
 
 const toAuthor = (author) =>
@@ -269,6 +275,8 @@ const versions = computed(() =>
           ? release.title
           : `Since v${latestRelease.value.version}`,
       date: release.date,
+      // The first paragraph of the notes, as Nuxt Content extracts it
+      description: release.description,
       page: release,
       releaseBadge: releaseBadge(release),
       authors: release.authors?.map(toAuthor),
@@ -301,15 +309,11 @@ watch(
 // The release line scrolls sideways: the arrows move it a screen at a
 // time, and are off at either end
 const releaseLine = useTemplateRef('releaseLine')
-const canScroll = reactive({ back: false, forward: false })
-
-const updateScroll = () => {
-  const line = releaseLine.value
-  if (!line) return
-  // A few pixels of slack: the snap stops at the line's side padding
-  canScroll.back = line.scrollLeft > 8
-  canScroll.forward = line.scrollLeft + line.clientWidth < line.scrollWidth - 8
-}
+// Its ends, for the arrows; measured again when the line resizes
+const { arrivedState, measure } = useScroll(releaseLine, {
+  offset: { left: 1, right: 1 },
+})
+useResizeObserver(releaseLine, measure)
 
 const scrollReleases = (direction) =>
   releaseLine.value?.scrollBy({
@@ -319,12 +323,10 @@ const scrollReleases = (direction) =>
 
 // A direct link to an older release brings it into the line's view
 onMounted(() => {
-  updateScroll()
   const index = versions.value.findIndex((v) => v.tag === selected.value)
   const item = releaseLine.value?.querySelectorAll('[data-slot=item]')[index]
   item?.scrollIntoView({ block: 'nearest', inline: 'start' })
 })
-useResizeObserver(releaseLine, updateScroll)
 
 // A release picked after scrolling down a long one brings its title back
 // into view; the panel body is the scroller

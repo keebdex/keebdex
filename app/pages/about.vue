@@ -76,12 +76,12 @@
           class="relative mx-auto grid w-full max-w-xs justify-items-center py-4 [--card-width:min(13rem,60vw)]"
         >
           <ArtisanColorwayShareCard
-            :colorway="showcase[1]"
+            :colorway="shareCards[1]"
             simple
             class="col-start-1 row-start-1 -translate-x-8 -rotate-6 shadow-lg"
           />
           <ArtisanColorwayShareCard
-            :colorway="showcase[0]"
+            :colorway="shareCards[0]"
             simple
             class="col-start-1 row-start-1 translate-x-8 rotate-3 shadow-lg"
           />
@@ -108,9 +108,9 @@
           class="mx-auto grid w-full max-w-sm grid-cols-2 gap-2"
         >
           <li
-            v-for="preset in presets"
+            v-for="preset in swatches"
             :key="preset.id"
-            :style="presetStyle(preset)"
+            :style="preset.style"
             class="flex items-center gap-3 rounded-lg border border-default p-3"
           >
             <!-- The preset's background and primary color, in each mode
@@ -147,13 +147,22 @@ const description =
 // titles step down from the hero's size
 const sectionUi = {
   container:
-    'max-w-none px-0 sm:px-0 lg:px-0 py-8 sm:py-10 lg:py-12 gap-8 sm:gap-10 lg:gap-12',
+    'max-w-none px-0 sm:px-0 lg:px-0 sm:py-10 lg:py-12 gap-8 sm:gap-10 lg:gap-12',
   title: 'text-2xl sm:text-3xl lg:text-3xl',
 }
 
 // The live colorways the home page shows (GET /api/statistics, shared)
 const { data: statistics } = await useHomeStatistics()
 const showcase = computed(() => statistics.value.showcase)
+
+// The share card shows its photo as stored, so the two decorative ones
+// get a resized copy instead of the original
+const img = useImage()
+const shareCards = computed(() =>
+  showcase.value
+    .slice(0, 2)
+    .map((colorway) => ({ ...colorway, img: img(colorway.img, { width: 400 }) })),
+)
 
 const wizardSteps = [
   {
@@ -174,10 +183,12 @@ const wizardSteps = [
 ]
 
 // Each preset's own background, primary, and border colors in both modes,
-// so the swatches look like the themes they apply
+// so the swatches look like the themes they apply (worked out once)
 const { presets } = useAppTheme()
-const presetStyle = (preset) =>
-  Object.fromEntries(
+const swatches = presets.map((preset) => ({
+  id: preset.id,
+  label: preset.label,
+  style: Object.fromEntries(
     ['light', 'dark'].flatMap((mode) =>
       [
         ['bg', '--ui-bg'],
@@ -188,7 +199,8 @@ const presetStyle = (preset) =>
         resolvePresetToken(preset, mode, token),
       ]),
     ),
-  )
+  ),
+}))
 
 const groups = [
   {

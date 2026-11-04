@@ -10,10 +10,44 @@ export const RECENT_CHANGES_LINK = {
   to: '/recent-changes',
 }
 
-export const ABOUT_LINKS = [
-  { label: 'About Keebdex', icon: 'hugeicons:badge-info', to: '/about' },
-  { label: 'Changelog', icon: 'hugeicons:scroll-text', to: '/changelog' },
+// The info pages, in the order of the keycap row that opens each of them
+// (SharedInfoHero), with the short name the keycap shows
+export const INFO_PAGES = [
+  {
+    label: 'About Keebdex',
+    legend: 'About',
+    icon: 'hugeicons:badge-info',
+    to: '/about',
+  },
+  {
+    label: 'Why Choose Keebdex?',
+    legend: 'Compare',
+    icon: 'hugeicons:balance-scale',
+    to: '/why-choose-keebdex',
+  },
+  {
+    label: 'Changelog',
+    legend: 'Changelog',
+    icon: 'hugeicons:scroll-text',
+    to: '/changelog',
+  },
+  {
+    label: 'Shoutouts',
+    legend: 'Shoutouts',
+    icon: 'hugeicons:bubble-chat-favourite',
+    to: '/shoutouts',
+  },
+  {
+    label: 'Privacy Policy',
+    legend: 'Privacy',
+    icon: 'hugeicons:shield-user',
+    to: '/privacy',
+  },
 ]
+
+export const ABOUT_LINKS = INFO_PAGES.filter(({ to }) =>
+  ['/about', '/changelog'].includes(to),
+).map(({ label, icon, to }) => ({ label, icon, to }))
 
 // The sidebar's catalog sections and its footer links (Leaderboard,
 // Notifications). The layout adds Feedback and Donate, which open its own

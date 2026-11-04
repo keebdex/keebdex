@@ -5,10 +5,7 @@
     </template>
 
     <template #body>
-      <SharedInfoHero
-        title="Shoutouts"
-        description="What keyboard collectors are saying about Keebdex."
-      />
+      <SharedInfoHero title="Shoutouts" :description />
 
       <div class="pb-10">
         <div
@@ -44,6 +41,8 @@
 
 <script setup>
 import { useInfiniteScroll } from '@vueuse/core'
+
+const description = 'What keyboard collectors are saying about Keebdex.'
 
 const toast = useToast()
 
@@ -123,6 +122,6 @@ useInfiniteScroll(
 
 useSeoMeta({
   title: 'Shoutouts',
-  description: 'What keyboard collectors are saying about Keebdex.',
+  description,
 })
 </script>

@@ -12,34 +12,46 @@
         </p>
       </SharedInfoHero>
 
-      <div
-        class="grid gap-10 pb-14 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-16"
+      <UPage
+        class="gap-10 pb-14"
+        :ui="{ left: 'lg:col-span-3', center: 'lg:col-span-7' }"
       >
-        <!-- Plain fragment links: the browser scrolls the panel body to them -->
-        <nav aria-labelledby="policy-contents" class="lg:sticky lg:top-0 lg:self-start">
-          <h2
-            id="policy-contents"
-            class="text-sm font-semibold text-highlighted"
+        <!-- On this page, sticking beside the policy from lg and above it
+        on smaller screens, where the aside would otherwise be hidden; the
+        panel body scrolls, so it sticks to its top. Plain fragment links:
+        the browser scrolls the panel body to them -->
+        <template #left>
+          <UPageAside
+            :ui="{ root: 'block py-0 lg:top-0 lg:max-h-svh lg:self-start lg:py-0' }"
           >
-            On this page
-          </h2>
-          <ul class="mt-3 flex flex-col gap-2 border-s border-default">
-            <li v-for="section in sections" :key="section.id">
-              <a
-                :href="`#${section.id}`"
-                class="-ms-px block border-s border-transparent ps-4 text-sm text-muted hover:border-primary hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+            <nav aria-labelledby="policy-contents">
+              <h2
+                id="policy-contents"
+                class="text-sm font-semibold text-highlighted"
               >
-                {{ section.title }}
-              </a>
-            </li>
-          </ul>
-        </nav>
+                On this page
+              </h2>
+              <ul class="mt-3 flex flex-col gap-2 border-s border-default">
+                <li v-for="section in sections" :key="section.id">
+                  <a
+                    :href="`#${section.id}`"
+                    class="-ms-px block border-s border-transparent ps-4 text-sm text-muted hover:border-primary hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    {{ section.title }}
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </UPageAside>
+        </template>
 
         <div class="min-w-0">
           <!-- The whole policy in four sentences -->
-          <aside
+          <UPageCard
+            as="aside"
+            variant="subtle"
             aria-labelledby="policy-summary"
-            class="max-w-3xl rounded-lg bg-elevated p-5 ring ring-default sm:p-6"
+            class="max-w-3xl"
           >
             <h2
               id="policy-summary"
@@ -60,7 +72,7 @@
                 {{ point.text }}
               </li>
             </ul>
-          </aside>
+          </UPageCard>
 
           <section
             v-for="section in sections"
@@ -100,7 +112,7 @@
             </p>
           </section>
         </div>
-      </div>
+      </UPage>
     </template>
   </UDashboardPanel>
 </template>

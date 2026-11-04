@@ -20,15 +20,15 @@
       legend sits top-left like a real key's, its name below as a sublegend. -->
       <nav aria-label="About Keebdex">
         <ul class="grid grid-cols-5 gap-1.5 sm:flex sm:gap-2">
-          <li v-for="(page, index) in INFO_PAGES" :key="page.to">
+          <li v-for="(page, index) in pages" :key="page.to">
             <NuxtLink
               :to="page.to"
               :aria-label="page.label"
-              :aria-current="page.to === route.path ? 'page' : undefined"
+              :aria-current="page.current ? 'page' : undefined"
               :style="{ '--i': index }"
               :class="[
                 'home-key group block rounded-xl bg-accented p-1 shadow-sm ring transition-[padding,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none',
-                page.to === route.path
+                page.current
                   ? 'pt-2 pb-1 ring-primary/60 shadow-none'
                   : 'pb-2.5 ring-default hover:pt-1.5 hover:pb-2',
               ]"
@@ -40,7 +40,7 @@
                   :name="page.icon"
                   :class="[
                     'size-5',
-                    page.to === route.path
+                    page.current
                       ? 'text-primary'
                       : 'text-muted group-hover:text-highlighted',
                   ]"
@@ -64,6 +64,8 @@
 </template>
 
 <script setup lang="ts">
+import { INFO_PAGES } from '~/composables/useSidebarNavigation'
+
 // The opening of every info page (/about, /why-choose-keebdex, /changelog,
 // /shoutouts, /privacy), a UPageHero: the keycap row that moves between them
 // as its headline, then the page's title and description, left aligned, and
@@ -74,22 +76,7 @@ defineProps<{
 }>()
 
 const route = useRoute()
-
-const INFO_PAGES = [
-  { label: 'About Keebdex', legend: 'About', icon: 'hugeicons:badge-info', to: '/about' },
-  {
-    label: 'Why Choose Keebdex?',
-    legend: 'Compare',
-    icon: 'hugeicons:balance-scale',
-    to: '/why-choose-keebdex',
-  },
-  { label: 'Changelog', legend: 'Changelog', icon: 'hugeicons:scroll-text', to: '/changelog' },
-  {
-    label: 'Shoutouts',
-    legend: 'Shoutouts',
-    icon: 'hugeicons:bubble-chat-favourite',
-    to: '/shoutouts',
-  },
-  { label: 'Privacy Policy', legend: 'Privacy', icon: 'hugeicons:shield-user', to: '/privacy' },
-]
+const pages = computed(() =>
+  INFO_PAGES.map((page) => ({ ...page, current: page.to === route.path })),
+)
 </script>
