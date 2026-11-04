@@ -5,84 +5,67 @@
     </template>
 
     <template #body>
-      <UPageSection
-        title="Changelog"
-        :description
-        icon="solar:history-bold-duotone"
-        :ui="{ body: 'mt-0' }"
+      <SharedInfoHero title="Changelog" :description />
+
+      <div
+        class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10"
       >
-        <template #top>
-          <div
-            aria-hidden="true"
-            class="pointer-events-none absolute -inset-x-4 -top-4 -z-10 h-48 sm:-inset-x-6 sm:-top-6 bg-linear-to-b from-primary/15 to-transparent transition-opacity duration-700 motion-reduce:transition-none"
-            :class="glowVisible ? 'opacity-100' : 'opacity-0'"
-          >
-            <div
-              class="h-px bg-linear-to-r from-transparent via-primary to-transparent"
-            />
-          </div>
-        </template>
-
-        <div
-          class="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10"
+        <UChangelogVersions
+          as="main"
+          :ui="{ root: 'pb-8 sm:pb-12' }"
+          :indicator-motion="false"
         >
-          <UChangelogVersions
-            as="main"
-            :ui="{ root: 'py-8 sm:py-12' }"
-            :indicator-motion="false"
-          >
-            <UChangelogVersion
-              v-for="{ page, ...version } in versions"
-              :key="version.tag"
-              v-bind="version"
-              :ui="{
-                container: 'max-w-xl min-w-0 lg:ms-40',
-                header: 'border-b border-default pb-4',
-                title: 'text-3xl',
-              }"
-            >
-              <template #title>
-                <span
-                  :id="anchor(version.tag)"
-                  class="scroll-mt-28 lg:scroll-mt-16"
-                >
-                  {{ version.title }}
-                </span>
-              </template>
-
-              <template #body>
-                <ContentRenderer :value="page" />
-              </template>
-            </UChangelogVersion>
-          </UChangelogVersions>
-
-          <UContentToc
-            title="Releases"
-            :links="tocLinks"
-            highlight
-            class="order-first lg:order-last lg:self-start"
+          <UChangelogVersion
+            v-for="{ page, ...version } in versions"
+            :key="version.tag"
+            v-bind="version"
             :ui="{
-              root: '-top-4 sm:-top-6 max-h-svh',
-              linkText: 'flex-1',
+              container: 'max-w-xl min-w-0 lg:ms-40',
+              header: 'border-b border-default pb-4',
+              title: 'text-3xl',
             }"
-            @move="scrollToRelease"
           >
-            <template #link="{ link }">
-              <span class="min-w-0 flex-1 truncate">{{ link.text }}</span>
-              <span class="ms-2 shrink-0 font-mono text-xs text-dimmed">
-                {{ link.version }}
+            <template #title>
+              <span
+                :id="anchor(version.tag)"
+                class="scroll-mt-28 lg:scroll-mt-16"
+              >
+                {{ version.title }}
               </span>
             </template>
-          </UContentToc>
-        </div>
-      </UPageSection>
+
+            <template #body>
+              <ContentRenderer :value="page" />
+            </template>
+          </UChangelogVersion>
+        </UChangelogVersions>
+
+        <UContentToc
+          title="Releases"
+          :links="tocLinks"
+          highlight
+          class="order-first lg:order-last lg:self-start"
+          :ui="{
+            root: '-top-4 sm:-top-6 max-h-svh',
+            linkText: 'flex-1',
+          }"
+          @move="scrollToRelease"
+        >
+          <template #link="{ link }">
+            <span class="min-w-0 flex-1 truncate">{{ link.text }}</span>
+            <span class="ms-2 shrink-0 font-mono text-xs text-dimmed">
+              {{ link.version }}
+            </span>
+          </template>
+        </UContentToc>
+      </div>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
 const description =
-  'See every update and improvement we ship. Built with your feedback, designed for collectors.'
+  'Everything new in Keebdex, release by release. The changes at the top are already live and go out with the next release.'
 
 // Releases live in content/changelog, one file per version (see
 // content.config.ts), so the page needs no GitHub API at runtime. The notes
@@ -126,10 +109,6 @@ const toAuthor = (author) =>
         to: author.to,
         target: author.to ? '_blank' : undefined,
       }
-
-// The top glow fades in once the page has mounted.
-const glowVisible = ref(false)
-onMounted(() => requestAnimationFrame(() => (glowVisible.value = true)))
 
 // The unreleased notes are titled after the release they follow, so they do
 // not read as unavailable. Releases come newest first.

@@ -1,11 +1,16 @@
 <template>
   <UDashboardPanel id="shoutouts">
+    <template v-if="$device.isMobileOrTablet" #header>
+      <UDashboardNavbar title="Shoutouts" />
+    </template>
+
     <template #body>
-      <UPageSection
-        icon="solar:chat-round-like-bold-duotone"
+      <SharedInfoHero
         title="Shoutouts"
-        description="What the community is saying about us"
-      >
+        description="What keyboard collectors are saying about Keebdex."
+      />
+
+      <div class="pb-10">
         <div
           v-if="status === 'pending'"
           class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -32,7 +37,7 @@
             />
           </div>
         </template>
-      </UPageSection>
+      </div>
     </template>
   </UDashboardPanel>
 </template>

@@ -5,17 +5,17 @@
     </template>
 
     <template #body>
-      <UPageSection :title="title" :description="description">
-        <UPageCard>
-          <UPricingTable
-            :tiers="tiers"
-            :sections="sections"
-            :ui="{
-              tierTitleWrapper: 'justify-center',
-            }"
-          />
-        </UPageCard>
-      </UPageSection>
+      <SharedInfoHero :title :description />
+
+      <UPageCard class="mb-10">
+        <UPricingTable
+          :tiers="tiers"
+          :sections="sections"
+          :ui="{
+            tierTitleWrapper: 'justify-center',
+          }"
+        />
+      </UPageCard>
     </template>
   </UDashboardPanel>
 </template>
@@ -25,6 +25,8 @@ const tiers = ref([
   {
     id: 'keebdex',
     title: 'Keebdex',
+    description:
+      'Catalogs keyboards, keysets, and artisans, and keeps track of the ones you own, want, and trade.',
     highlight: true,
     button: {
       label: 'Start Exploring',
@@ -40,6 +42,8 @@ const tiers = ref([
   {
     id: 'keycaplendar',
     title: 'KeycapLendar',
+    description:
+      'Follows keyset group buys: which vendors carry a set, and when its sale opens and closes.',
     button: {
       label: 'Visit Alternative',
       icon: 'solar:calendar-bold-duotone',
@@ -54,6 +58,8 @@ const tiers = ref([
   {
     id: 'archivist',
     title: 'Keycap Archivist',
+    description:
+      'Puts the artisan listings kept in shared Google Docs on a simple website.',
     button: {
       label: 'Visit Alternative',
       icon: 'solar:archive-down-minimlistic-bold-duotone',
@@ -197,7 +203,7 @@ const sections = ref([
 
 const title = 'Why Choose Keebdex?'
 const description =
-  'A modern platform built for collectors. See how Keebdex outpaces alternatives with better data management, intuitive editing, and powerful tools designed for the full keyboard trinity: keyboards, keysets, and artisans.'
+  'Keebdex, KeycapLendar, and Keycap Archivist each do a different job for collectors. Here is how they compare, so you can pick the one that fits how you collect.'
 
 useSeoMeta({
   title,
