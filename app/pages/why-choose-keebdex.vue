@@ -5,17 +5,17 @@
     </template>
 
     <template #body>
-      <UPageSection :title="title" :description="description">
-        <UPageCard>
-          <UPricingTable
-            :tiers="tiers"
-            :sections="sections"
-            :ui="{
-              tierTitleWrapper: 'justify-center',
-            }"
-          />
-        </UPageCard>
-      </UPageSection>
+      <SharedInfoHero :title :description />
+
+      <UPageCard class="mb-10">
+        <UPricingTable
+          :tiers="tiers"
+          :sections="sections"
+          :ui="{
+            tierTitleWrapper: 'justify-center',
+          }"
+        />
+      </UPageCard>
     </template>
   </UDashboardPanel>
 </template>
@@ -25,6 +25,8 @@ const tiers = ref([
   {
     id: 'keebdex',
     title: 'Keebdex',
+    description:
+      'Catalogs keyboards, keysets, and artisans in one place, and tracks what you own, want, or trade.',
     highlight: true,
     button: {
       label: 'Start Exploring',
@@ -40,6 +42,8 @@ const tiers = ref([
   {
     id: 'keycaplendar',
     title: 'KeycapLendar',
+    description:
+      'Follows keyset group buys: which vendors carry a set, and when its sale opens and closes.',
     button: {
       label: 'Visit Alternative',
       icon: 'solar:calendar-bold-duotone',
@@ -54,6 +58,8 @@ const tiers = ref([
   {
     id: 'archivist',
     title: 'Keycap Archivist',
+    description:
+      'Puts the artisan listings kept in shared Google Docs on a simple website.',
     button: {
       label: 'Visit Alternative',
       icon: 'solar:archive-down-minimlistic-bold-duotone',
@@ -131,7 +137,7 @@ const sections = ref([
         title: 'Editing & Community Submissions',
         tiers: {
           keebdex:
-            'Staff edit instantly, and any signed-in collector can propose new entries through a guided wizard, reviewed by moderators',
+            'Any signed-in collector can propose new entries through a guided wizard, or fix details and add photos on any page, reviewed by moderators',
           keycaplendar:
             'Site content is actively curated by editors for keyset listings',
           archivist:
@@ -166,7 +172,7 @@ const sections = ref([
         title: 'Saved Preferences',
         tiers: {
           keebdex:
-            'Collections, theme presets, and light or dark mode sync across devices with your account',
+            'Collections, pins, theme presets, and light or dark mode sync across devices with your account',
           keycaplendar:
             'Favourite, bought, and hidden sets, saved filter presets, and theme or density settings sync with your account',
           archivist: 'Minimal personalization and syncing options',
@@ -176,7 +182,7 @@ const sections = ref([
         title: 'Wishlist Sharing',
         tiers: {
           keebdex:
-            'Artisan wishlist images or Discord/Reddit-ready text on any device, plus trading-card colorway previews',
+            'Wishlist images with prices, priorities, and Found or Sold marks in your own order, or Discord/Reddit-ready text, plus colorway cards to copy or download',
           keycaplendar:
             'Favourite, bought, and hidden marks help track sets, but not as a shareable visual wishlist',
           archivist: 'Static images generated server-side',
@@ -197,7 +203,7 @@ const sections = ref([
 
 const title = 'Why Choose Keebdex?'
 const description =
-  'A modern platform built for collectors. See how Keebdex outpaces alternatives with better data management, intuitive editing, and powerful tools designed for the full keyboard trinity: keyboards, keysets, and artisans.'
+  'Keebdex, KeycapLendar, and Keycap Archivist each do a different job for collectors. Here is how they compare, so you can pick the one that fits how you collect.'
 
 useSeoMeta({
   title,

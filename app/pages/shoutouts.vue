@@ -1,11 +1,13 @@
 <template>
   <UDashboardPanel id="shoutouts">
+    <template v-if="$device.isMobileOrTablet" #header>
+      <UDashboardNavbar title="Shoutouts" />
+    </template>
+
     <template #body>
-      <UPageSection
-        icon="solar:chat-round-like-bold-duotone"
-        title="Shoutouts"
-        description="What the community is saying about us"
-      >
+      <SharedInfoHero title="Shoutouts" :description />
+
+      <div class="pb-10">
         <div
           v-if="status === 'pending'"
           class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -32,13 +34,15 @@
             />
           </div>
         </template>
-      </UPageSection>
+      </div>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
 import { useInfiniteScroll } from '@vueuse/core'
+
+const description = 'What keyboard collectors are saying about Keebdex.'
 
 const toast = useToast()
 
@@ -118,6 +122,6 @@ useInfiniteScroll(
 
 useSeoMeta({
   title: 'Shoutouts',
-  description: 'What keyboard collectors are saying about Keebdex.',
+  description,
 })
 </script>
