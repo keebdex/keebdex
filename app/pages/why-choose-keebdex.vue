@@ -137,7 +137,7 @@ const sections = ref([
         title: 'Editing & Community Submissions',
         tiers: {
           keebdex:
-            'Staff edit instantly, and any signed-in collector can propose new entries through a guided wizard, reviewed by moderators',
+            'Any signed-in collector can propose new entries through a guided wizard, or fix details and add photos on any page, reviewed by moderators',
           keycaplendar:
             'Site content is actively curated by editors for keyset listings',
           archivist:
@@ -172,7 +172,7 @@ const sections = ref([
         title: 'Saved Preferences',
         tiers: {
           keebdex:
-            'Collections, theme presets, and light or dark mode sync across devices with your account',
+            'Collections, pins, theme presets, and light or dark mode sync across devices with your account',
           keycaplendar:
             'Favourite, bought, and hidden sets, saved filter presets, and theme or density settings sync with your account',
           archivist: 'Minimal personalization and syncing options',
@@ -182,7 +182,7 @@ const sections = ref([
         title: 'Wishlist Sharing',
         tiers: {
           keebdex:
-            'Artisan wishlist images or Discord/Reddit-ready text on any device, plus trading-card colorway previews',
+            'Wishlist images with prices, priorities, and Found or Sold marks in your own order, or Discord/Reddit-ready text, plus colorway cards to copy or download',
           keycaplendar:
             'Favourite, bought, and hidden marks help track sets, but not as a shareable visual wishlist',
           archivist: 'Static images generated server-side',

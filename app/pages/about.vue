@@ -221,6 +221,18 @@ const groups = [
         description:
           'Find any keyboard, keyset, maker, sculpt, or colorway from one search box that updates as you type, with results grouped by category so you can jump straight to its page.',
       },
+      {
+        icon: 'hugeicons:colors',
+        title: 'Every Keycap Color',
+        description:
+          'Browse every keycap color as a wall of swatches, filter it by matching system or search by code or name, and see each color\'s hex and RGB values and the keysets that use it.',
+      },
+      {
+        icon: 'hugeicons:live-streaming-02',
+        title: 'Group Buys on Time',
+        description:
+          'Live group buys follow their own dates, so a set shows up when its sale opens and leaves when it closes, and the home page lists the ones closing soonest.',
+      },
     ],
   },
   {
@@ -233,7 +245,7 @@ const groups = [
         icon: 'hugeicons:collections-bookmark',
         title: 'Collections for Everything',
         description:
-          'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections can be a shelf of caps you own, a wishlist, or caps for sale or trade, with prices and a custom order.',
+          'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections can be a shelf of caps you own, a wishlist, or caps for sale or trade, and you can pin the makers, profiles, brands, and keyboards you visit most.',
       },
       {
         icon: 'hugeicons:user-account',
@@ -253,7 +265,7 @@ const groups = [
         icon: 'hugeicons:share-08',
         title: 'Made to Be Shared',
         description:
-          'Share artisan collections by link, and turn wishlists and colorway or keyboard cards into images ready for Discord, Reddit, or any community.',
+          'Share collections by link, and turn your wishlist into an image with prices, Top Priority, and Found or Sold on each cap, in the order you drag them. Any colorway becomes a card to copy or download, in your theme or as a trading card.',
       },
       {
         icon: 'hugeicons:store-01',
@@ -281,6 +293,12 @@ const groups = [
         description:
           'Spot a wrong date or a missing photo? Suggest a fix from the page itself, and a moderator reviews it before it changes.',
       },
+      {
+        icon: 'hugeicons:notification-02',
+        title: 'Hear Back',
+        description:
+          'Get notified when a submission is approved or rejected, with the moderator\'s note, and choose what you hear about in your settings.',
+      },
     ],
   },
   {
@@ -305,8 +323,10 @@ const groups = [
   },
 ]
 
+// Named like the menu link, so it skips the " - Keebdex" suffix
 useSeoMeta({
-  title: 'About',
+  titleTemplate: '%s',
+  title: 'About Keebdex',
   description,
 })
 </script>
