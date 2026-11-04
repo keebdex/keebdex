@@ -210,25 +210,25 @@ const groups = [
       'The whole keyboard trinity in one place, instead of a spreadsheet for each.',
     features: [
       {
-        icon: 'hugeicons:database-01',
+        icon: 'solar:database-bold-duotone',
         title: 'One Catalog for the Trinity',
         description:
           'Keyboards, keysets, and artisans live together in one managed database, moving beyond the artisan-only Google Docs into detailed pages you can browse, search, and collect.',
       },
       {
-        icon: 'hugeicons:search-01',
+        icon: 'solar:magnifer-bold-duotone',
         title: 'Search Everything',
         description:
           'Find any keyboard, keyset, maker, sculpt, or colorway from one search box that updates as you type, with results grouped by category so you can jump straight to its page.',
       },
       {
-        icon: 'hugeicons:colors',
+        icon: 'solar:pallete-2-bold-duotone',
         title: 'Every Keycap Color',
         description:
           'Browse every keycap color as a wall of swatches, filter it by matching system or search by code or name, and see each color\'s hex and RGB values and the keysets that use it.',
       },
       {
-        icon: 'hugeicons:live-streaming-02',
+        icon: 'solar:calendar-mark-bold-duotone',
         title: 'Group Buys on Time',
         description:
           'Live group buys follow their own dates, so a set shows up when its sale opens and leaves when it closes, and the home page lists the ones closing soonest.',
@@ -242,13 +242,13 @@ const groups = [
       'Keep a record of every cap, set, and board, and of the ones you are still chasing.',
     features: [
       {
-        icon: 'hugeicons:collections-bookmark',
+        icon: 'solar:bookmark-square-bold-duotone',
         title: 'Collections for Everything',
         description:
           'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections can be a shelf of caps you own, a wishlist, or caps for sale or trade, and you can pin the makers, profiles, brands, and keyboards you visit most.',
       },
       {
-        icon: 'hugeicons:user-account',
+        icon: 'solar:refresh-circle-bold-duotone',
         title: 'Synced Everywhere',
         description:
           'Sign in with your Google or Discord account. Your collections, theme, and color mode follow you, so everything looks the same on every device you use.',
@@ -262,13 +262,13 @@ const groups = [
       'Show your collection off, and find the people who have the cap you want.',
     features: [
       {
-        icon: 'hugeicons:share-08',
+        icon: 'solar:share-bold-duotone',
         title: 'Made to Be Shared',
         description:
           'Share collections by link, and turn your wishlist into an image with prices, Top Priority, and Found or Sold on each cap, in the order you drag them. Any colorway becomes a card to copy or download, in your theme or as a trading card.',
       },
       {
-        icon: 'hugeicons:store-01',
+        icon: 'solar:shop-bold-duotone',
         title: 'Trading Hub',
         description:
           'Make a wishlist or a for-sale collection public and it is listed in the Trading Hub, where buyers and sellers find each other and reach out on Discord.',
@@ -282,19 +282,19 @@ const groups = [
       'The catalog grows with its collectors, and every approved contribution earns points on the leaderboard.',
     features: [
       {
-        icon: 'hugeicons:add-circle',
+        icon: 'solar:add-circle-bold-duotone',
         title: 'Community Submissions',
         description:
           'Propose colorways, kits, and keyboard variants, or a whole new sculpt, keyset, or keyboard, through a guided step-by-step wizard, reviewed by moderators before going live.',
       },
       {
-        icon: 'hugeicons:edit-02',
+        icon: 'solar:pen-new-square-bold-duotone',
         title: 'Suggest an Edit',
         description:
           'Spot a wrong date or a missing photo? Suggest a fix from the page itself, and a moderator reviews it before it changes.',
       },
       {
-        icon: 'hugeicons:notification-02',
+        icon: 'solar:bell-bold-duotone',
         title: 'Hear Back',
         description:
           'Get notified when a submission is approved or rejected, with the moderator\'s note, and choose what you hear about in your settings.',
@@ -308,13 +308,13 @@ const groups = [
       'A catalog you will want to open every day, on any screen.',
     features: [
       {
-        icon: 'hugeicons:paint-board',
+        icon: 'solar:palette-bold-duotone',
         title: 'Themes Inspired by Keysets',
         description:
           'Pick from a growing set of theme presets, each with its own colors, fonts, and component style, in light, dark, or system mode. Your choice is saved to your account.',
       },
       {
-        icon: 'hugeicons:smart-phone-01',
+        icon: 'solar:smartphone-bold-duotone',
         title: 'Fast on Every Screen',
         description:
           'Clear layouts that work from phones to wide monitors, with images sized for your device so every page stays fast, even on a phone.',
