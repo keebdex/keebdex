@@ -37,7 +37,10 @@
             description="Pin sculpts to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="solar:pin-bold-duotone" aria-label="Customize Pins" />
+              <UButton
+                icon="solar:pin-bold-duotone"
+                aria-label="Customize Pins"
+              />
             </UTooltip>
 
             <template #body="{ close }">
@@ -88,14 +91,18 @@
           icon="solar:widget-add-bold-duotone"
           title="No Sculpts Yet"
           description="Know one of their sculpts? Submit it and our staff will review it before it goes public."
-          :actions="[
-            {
-              label: 'Add Sculpt',
-              icon: 'solar:add-square-bold-duotone',
-              ui: { label: 'block' },
-              ...addSculptTarget,
-            },
-          ]"
+          :actions="
+            authenticated
+              ? undefined
+              : [
+                  {
+                    label: 'Add Sculpt',
+                    icon: 'solar:add-square-bold-duotone',
+                    ui: { label: 'block' },
+                    ...addSculptTarget,
+                  },
+                ]
+          "
         />
       </section>
 
@@ -168,7 +175,11 @@ const editing = ref(false)
 const addingSculpt = ref(false)
 const history = useTemplateRef('history')
 
-const { data: maker, refresh, error } = await useAsyncData(
+const {
+  data: maker,
+  refresh,
+  error,
+} = await useAsyncData(
   `maker:${route.params.maker}`,
   () => $fetch(`/api/makers/${route.params.maker}`),
   {

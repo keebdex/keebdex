@@ -124,14 +124,6 @@
         icon="solar:bookmark-square-bold-duotone"
         title="An Empty Shelf, Full of Potential"
         description="Create a collection to start showing off your keebs."
-        :actions="[
-          {
-            label: 'Add Collection',
-            icon: 'solar:bookmark-plus-bold-duotone',
-            ui: { label: 'block' },
-            onClick: () => (adding = true),
-          },
-        ]"
       />
     </template>
   </UDashboardPanel>

@@ -146,18 +146,6 @@
               ? 'Add the base kit first, then alphas, novelties, and spacebars.'
               : 'The kits of this keyset have not been added yet.'
           "
-          :actions="
-            authenticated
-              ? [
-                  {
-                    label: 'Add Kit',
-                    icon: 'solar:widget-add-bold-duotone',
-                    ui: { label: 'block' },
-                    ...addKitTarget,
-                  },
-                ]
-              : []
-          "
         />
       </section>
 
@@ -219,14 +207,6 @@
           icon="solar:palette-round-bold-duotone"
           title="No Colors Yet"
           description="Add the alpha and modifier colors first, then the accents."
-          :actions="[
-            {
-              label: 'Add Colors',
-              icon: 'solar:widget-add-bold-duotone',
-              ui: { label: 'block' },
-              onClick: () => (colorFormOpen = true),
-            },
-          ]"
         />
       </section>
 

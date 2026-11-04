@@ -156,14 +156,6 @@
               icon="solar:bell-bing-bold-duotone"
               title="No Announcements Yet"
               description="Publish news for everyone, guests, signed-in users, or staff."
-              :actions="[
-                {
-                  label: 'New Announcement',
-                  icon: 'solar:add-circle-bold-duotone',
-                  ui: { label: 'block' },
-                  onClick: () => openEditor(null),
-                },
-              ]"
             />
           </template>
         </UTable>

@@ -36,7 +36,10 @@
             description="Pin keyboards to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="solar:pin-bold-duotone" aria-label="Customize Pins" />
+              <UButton
+                icon="solar:pin-bold-duotone"
+                aria-label="Customize Pins"
+              />
             </UTooltip>
 
             <template #body="{ close }">
@@ -94,14 +97,18 @@
           icon="solar:keyboard-bold-duotone"
           title="This Lineup Is Still Blank"
           description="Know one of their boards? Submit it and our staff will review it before it goes public."
-          :actions="[
-            {
-              label: 'Add Keyboard',
-              icon: 'solar:add-square-bold-duotone',
-              ui: { label: 'block' },
-              ...addKeyboardTarget,
-            },
-          ]"
+          :actions="
+            authenticated
+              ? undefined
+              : [
+                  {
+                    label: 'Add Keyboard',
+                    icon: 'solar:add-square-bold-duotone',
+                    ui: { label: 'block' },
+                    ...addKeyboardTarget,
+                  },
+                ]
+          "
         />
       </section>
 

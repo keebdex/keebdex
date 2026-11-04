@@ -45,14 +45,18 @@
               icon="solar:keyboard-bold-duotone"
               title="No Keysets Yet"
               description="Know a set in this profile? Submit it and our staff will review it before it goes public."
-              :actions="[
-                {
-                  label: 'Add Keyset',
-                  icon: 'solar:add-square-bold-duotone',
-                  ui: { label: 'block' },
-                  ...addKeysetTarget,
-                },
-              ]"
+              :actions="
+                authenticated
+                  ? undefined
+                  : [
+                      {
+                        label: 'Add Keyset',
+                        icon: 'solar:add-square-bold-duotone',
+                        ui: { label: 'block' },
+                        ...addKeysetTarget,
+                      },
+                    ]
+              "
             />
           </template>
         </KeysetGrid>
