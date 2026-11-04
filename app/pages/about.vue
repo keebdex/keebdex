@@ -24,49 +24,171 @@
         />
       </SharedInfoHero>
 
-      <!-- What collectors do here, one group per row: the group on the left,
-      what Keebdex gives them for it on the right -->
-      <div class="pb-10">
-        <section
-          v-for="group in groups"
-          :key="group.title"
-          :aria-labelledby="`about-${group.id}`"
-          class="grid gap-6 border-t border-default py-10 sm:py-12 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-12 xl:gap-16"
-        >
-          <div>
-            <h2
-              :id="`about-${group.id}`"
-              class="text-2xl font-semibold text-balance text-highlighted"
-            >
-              {{ group.title }}
-            </h2>
-            <p class="mt-2 max-w-md text-pretty text-muted">
-              {{ group.description }}
-            </p>
-          </div>
+      <!-- What collectors do here, one section per group, zigzagging: the
+      group's text on one side, a piece of the real app on the other -->
+      <UPageSection
+        v-for="(group, index) in groups"
+        :key="group.id"
+        :title="group.title"
+        :description="group.description"
+        :features="group.features"
+        orientation="horizontal"
+        :reverse="index % 2 === 1"
+        :ui="sectionUi"
+      >
+        <!-- The newest colorways as a wall of keycaps, as on the home page,
+        sized so each photo matches the binder page's below -->
+        <HomeKeycapMosaic
+          v-if="group.id === 'find' && showcase.length >= 8"
+          :items="showcase"
+          class="mx-auto w-full max-w-[34.25rem]"
+        />
 
-          <ul class="grid gap-x-12 gap-y-8 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            <li v-for="feature in group.features" :key="feature.title">
-              <UIcon :name="feature.icon" class="size-6 text-primary" />
-              <h3 class="mt-3 font-semibold text-highlighted">
-                {{ feature.title }}
-              </h3>
-              <p class="mt-1.5 max-w-prose text-pretty text-muted">
-                {{ feature.description }}
-              </p>
-            </li>
-          </ul>
-        </section>
-      </div>
+        <!-- A binder page of caps, like a collection's -->
+        <UPageCard
+          v-else-if="group.id === 'collect' && showcase.length >= 9"
+          variant="subtle"
+          aria-hidden="true"
+          class="mx-auto w-full max-w-xs"
+        >
+          <div class="grid grid-cols-3 gap-2">
+            <div
+              v-for="colorway in showcase.slice(0, 9)"
+              :key="colorway.colorway_id"
+              class="aspect-square overflow-hidden rounded-md bg-elevated"
+            >
+              <NuxtImg
+                :src="colorway.img"
+                alt=""
+                sizes="160px"
+                loading="lazy"
+                decoding="async"
+                class="size-full object-cover"
+              />
+            </div>
+          </div>
+        </UPageCard>
+
+        <!-- Two share cards fanned out, as they are copied for Discord -->
+        <div
+          v-else-if="group.id === 'share' && showcase.length >= 2"
+          aria-hidden="true"
+          class="relative mx-auto grid w-full max-w-xs justify-items-center py-4 [--card-width:min(13rem,60vw)]"
+        >
+          <ArtisanColorwayShareCard
+            :colorway="showcase[1]"
+            simple
+            class="col-start-1 row-start-1 -translate-x-8 -rotate-6 shadow-lg"
+          />
+          <ArtisanColorwayShareCard
+            :colorway="showcase[0]"
+            simple
+            class="col-start-1 row-start-1 translate-x-8 rotate-3 shadow-lg"
+          />
+        </div>
+
+        <!-- The submission wizard's steps -->
+        <UPageCard
+          v-else-if="group.id === 'contribute'"
+          variant="subtle"
+          class="mx-auto w-full max-w-xs"
+        >
+          <UStepper
+            :items="wizardSteps"
+            orientation="vertical"
+            :default-value="wizardSteps.length - 1"
+            disabled
+            :ui="{ trigger: 'size-8' }"
+          />
+        </UPageCard>
+
+        <!-- Every theme, as a swatch of its own colors -->
+        <ul
+          v-else-if="group.id === 'yours'"
+          class="mx-auto grid w-full max-w-sm grid-cols-2 gap-2"
+        >
+          <li
+            v-for="preset in presets"
+            :key="preset.id"
+            :style="presetStyle(preset)"
+            class="flex items-center gap-3 rounded-lg border border-default p-3"
+          >
+            <!-- The preset's background and primary color, in each mode
+            through classes, since SSR cannot know a system color mode -->
+            <span
+              class="grid size-8 shrink-0 grid-cols-2 overflow-hidden rounded-md ring ring-[var(--swatch-border-light)] dark:ring-[var(--swatch-border-dark)]"
+            >
+              <span
+                class="bg-[var(--swatch-bg-light)] dark:bg-[var(--swatch-bg-dark)]"
+              />
+              <span
+                class="bg-[var(--swatch-primary-light)] dark:bg-[var(--swatch-primary-dark)]"
+              />
+            </span>
+            <span class="min-w-0 truncate text-sm font-medium text-highlighted">
+              {{ preset.label }}
+            </span>
+          </li>
+        </ul>
+      </UPageSection>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
+import { resolvePresetToken } from '~/utils/theme-presets'
+
 const { authenticated } = storeToRefs(useUserStore())
 
 const description =
   'Keebdex is a catalog of artisan keycaps, keysets, and keyboards, made for the collectors who hunt, keep, and trade them.'
+
+// The sections fill the panel, which sets the width and gutters, and the
+// titles step down from the hero's size
+const sectionUi = {
+  container:
+    'max-w-none px-0 sm:px-0 lg:px-0 py-8 sm:py-10 lg:py-12 gap-8 sm:gap-10 lg:gap-12',
+  title: 'text-2xl sm:text-3xl lg:text-3xl',
+}
+
+// The live colorways the home page shows (GET /api/statistics, shared)
+const { data: statistics } = await useHomeStatistics()
+const showcase = computed(() => statistics.value.showcase)
+
+const wizardSteps = [
+  {
+    title: 'Maker',
+    description: 'Pick the maker, or propose a new one.',
+    icon: 'hugeicons:user-multiple',
+  },
+  {
+    title: 'Sculpt',
+    description: 'Choose the sculpt, or add it with its photos.',
+    icon: 'hugeicons:dashboard-square-02',
+  },
+  {
+    title: 'Colorway',
+    description: 'Add the colorways, then send them for review.',
+    icon: 'hugeicons:paint-board',
+  },
+]
+
+// Each preset's own background, primary, and border colors in both modes,
+// so the swatches look like the themes they apply
+const { presets } = useAppTheme()
+const presetStyle = (preset) =>
+  Object.fromEntries(
+    ['light', 'dark'].flatMap((mode) =>
+      [
+        ['bg', '--ui-bg'],
+        ['primary', '--ui-primary'],
+        ['border', '--ui-border'],
+      ].map(([name, token]) => [
+        `--swatch-${name}-${mode}`,
+        resolvePresetToken(preset, mode, token),
+      ]),
+    ),
+  )
 
 const groups = [
   {
@@ -152,7 +274,8 @@ const groups = [
   {
     id: 'yours',
     title: 'Make It Yours',
-    description: 'A catalog you will want to open every day, on any screen.',
+    description:
+      'A catalog you will want to open every day, on any screen.',
     features: [
       {
         icon: 'hugeicons:paint-board',

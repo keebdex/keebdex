@@ -26,7 +26,7 @@ const tiers = ref([
     id: 'keebdex',
     title: 'Keebdex',
     description:
-      'Catalogs keyboards, keysets, and artisans, and keeps track of the ones you own, want, and trade.',
+      'Catalogs keyboards, keysets, and artisans in one place, and tracks what you own, want, or trade.',
     highlight: true,
     button: {
       label: 'Start Exploring',
