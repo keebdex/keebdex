@@ -111,7 +111,7 @@ const links = computed(() => [
       },
     },
     {
-      label: 'Donate',
+      label: 'Support',
       icon: 'solar:hand-heart-bold-duotone',
       class: 'cursor-pointer text-donator hover:text-donator',
       ui: {

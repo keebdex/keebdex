@@ -161,7 +161,7 @@ export const roleMap: Record<
     color: 'info',
   },
   donator: {
-    label: 'Donator',
+    label: 'Supporter',
     icon: 'solar:user-heart-line-duotone',
     class: 'text-donator',
     color: 'success',

@@ -73,7 +73,7 @@ const ROLE_LABELS: Record<string, string> = {
   editor: 'an Editor',
   maker: 'a Maker',
   designer: 'a Designer',
-  donator: 'a Donator',
+  donator: 'a Supporter',
 }
 
 const REGISTRY: Record<string, NotificationRenderer> = {

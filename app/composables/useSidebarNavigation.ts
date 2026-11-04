@@ -50,7 +50,7 @@ export const ABOUT_LINKS = INFO_PAGES.filter(({ to }) =>
 )
 
 // The sidebar's catalog sections and its footer links (Leaderboard,
-// Notifications). The layout adds Feedback and Donate, which open its own
+// Notifications). The layout adds Feedback and Support, which open its own
 // modals; staff tools and the About links live in the profile menu.
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const route = useRoute()
