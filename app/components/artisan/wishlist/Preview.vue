@@ -7,7 +7,7 @@
 
           <UButton
             v-if="totalItems"
-            icon="solar:gallery-download-bold-duotone"
+            icon="solar:gallery-download-line-duotone"
             @click="shareOpen = true"
           >
             Save & Share
@@ -18,7 +18,7 @@
           holds the picker. -->
           <UButton
             v-if="hasCollection"
-            icon="solar:settings-bold-duotone"
+            icon="solar:settings-line-duotone"
             aria-label="Wishlist Settings"
             class="lg:hidden"
             @click="sidebarOpen = true"
@@ -61,13 +61,13 @@
         :actions="[
           {
             label: 'Pick Another Collection',
-            icon: 'solar:settings-bold-duotone',
+            icon: 'solar:settings-line-duotone',
             onClick: () => (sidebarOpen = true),
             ui: { label: 'block' },
           },
           {
             label: 'Browse Makers',
-            icon: 'solar:magnifer-bold-duotone',
+            icon: 'solar:magnifer-line-duotone',
             color: 'neutral',
             to: '/artisan/maker',
             ui: { label: 'block' },

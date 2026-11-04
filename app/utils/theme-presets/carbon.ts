@@ -9,7 +9,7 @@ const inputDefaults = {
 export default {
   id: 'carbon',
   label: 'Carbon',
-  icon: 'solar:atom-bold-duotone',
+  icon: 'solar:atom-line-duotone',
   ui: {
     colors: {
       primary: 'carbon',

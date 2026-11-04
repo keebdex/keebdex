@@ -16,7 +16,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="solar:widget-add-bold-duotone"
+            icon="solar:widget-add-line-duotone"
             label="Add Keyboard"
             v-bind="addKeyboardTarget"
           />
@@ -37,7 +37,7 @@
           >
             <UTooltip text="Customize Pins">
               <UButton
-                icon="solar:pin-bold-duotone"
+                icon="solar:pin-line-duotone"
                 aria-label="Customize Pins"
               />
             </UTooltip>
@@ -103,7 +103,7 @@
               : [
                   {
                     label: 'Add Keyboard',
-                    icon: 'solar:add-square-bold-duotone',
+                    icon: 'solar:add-square-line-duotone',
                     ui: { label: 'block' },
                     ...addKeyboardTarget,
                   },
@@ -203,7 +203,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Brands',
-      icon: 'solar:users-group-rounded-bold-duotone',
+      icon: 'solar:users-group-rounded-line-duotone',
       to: '/keyboard/brand',
     },
   ]

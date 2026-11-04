@@ -104,7 +104,7 @@ const links = computed(() => [
     // Kept in sight, so reporting a problem never takes a search
     {
       label: 'Feedback',
-      icon: 'solar:chat-round-question-mark-bold-duotone',
+      icon: 'solar:chat-round-question-mark-line-duotone',
       class: 'cursor-pointer',
       onSelect() {
         toggle('feedback')

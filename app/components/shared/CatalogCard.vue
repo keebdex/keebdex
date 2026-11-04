@@ -46,7 +46,7 @@
         v-else
         class="w-full h-full bg-elevated flex flex-col items-center justify-center gap-3 text-dimmed"
       >
-        <UIcon name="solar:gallery-bold-duotone" class="size-10" />
+        <UIcon name="solar:gallery-line-duotone" class="size-10" />
         <UButton
           v-if="suggestable"
           v-bind="addPhotoButton"
@@ -144,7 +144,7 @@ const cardUi = {
 
 const addPhotoButton = {
   label: 'Add Photo',
-  icon: 'solar:gallery-add-bold-duotone',
+  icon: 'solar:gallery-add-line-duotone',
   size: 'sm',
   ui: { label: 'block' },
 } as const

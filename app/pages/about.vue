@@ -9,7 +9,7 @@
         <UButton
           :label="authenticated ? 'My Collection' : 'Start Collecting'"
           to="/collection"
-          icon="solar:bookmark-square-bold-duotone"
+          icon="solar:bookmark-square-line-duotone"
           color="primary"
           size="lg"
           :ui="{ label: 'block' }"
@@ -158,29 +158,27 @@ const showcase = computed(() => statistics.value.showcase)
 // get a resized copy instead of the original
 const img = useImage()
 const shareCards = computed(() =>
-  showcase.value
-    .slice(0, 2)
-    .map((colorway) => ({
-      ...colorway,
-      img: img(colorway.img, { width: 400 }),
-    })),
+  showcase.value.slice(0, 2).map((colorway) => ({
+    ...colorway,
+    img: img(colorway.img, { width: 400 }),
+  })),
 )
 
 const wizardSteps = [
   {
     title: 'Maker',
     description: 'Pick the maker, or propose a new one.',
-    icon: 'solar:users-group-rounded-bold-duotone',
+    icon: 'solar:users-group-rounded-line-duotone',
   },
   {
     title: 'Sculpt',
     description: 'Choose the sculpt, or add it with its photos.',
-    icon: 'solar:widget-bold-duotone',
+    icon: 'solar:widget-line-duotone',
   },
   {
     title: 'Colorway',
     description: 'Add the colorways, then send them for review.',
-    icon: 'solar:palette-bold-duotone',
+    icon: 'solar:palette-line-duotone',
   },
 ]
 
@@ -296,7 +294,7 @@ const groups = [
           'Spot a wrong date or a missing photo? Suggest a fix from the page itself, and a moderator reviews it before it changes.',
       },
       {
-        icon: 'solar:bell-bold-duotone',
+        icon: 'solar:notification-unread-lines-bold-duotone',
         title: 'Hear Back',
         description:
           "Get notified when a submission is approved or rejected, with the moderator's note, and choose what you hear about in your settings.",

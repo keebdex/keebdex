@@ -8,7 +8,7 @@
     <UFormField label="Variant Name" name="variant_name" required>
       <UInput
         v-model.trim="variant.variant_name"
-        icon="solar:text-square-bold-duotone"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -32,7 +32,7 @@
         <UInput
           v-model.number="variant.release_year"
           type="number"
-          icon="solar:calendar-bold-duotone"
+          icon="solar:calendar-line-duotone"
           :placeholder="inherited.year ? String(inherited.year) : undefined"
           class="w-full"
         />
@@ -44,7 +44,7 @@
         <USelect
           v-model="variant.sale_type"
           :items="saleFormats"
-          icon="solar:tag-price-bold-duotone"
+          icon="solar:tag-price-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -53,7 +53,7 @@
         <UInput
           v-model.number="variant.units_produced"
           type="number"
-          icon="solar:box-bold-duotone"
+          icon="solar:box-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -94,8 +94,8 @@
 
     <!-- Empty fields take the release's value, shown as their placeholder -->
     <p class="text-sm text-muted">
-      Leave the materials empty to use the release's; set only what this
-      variant changes.
+      Leave the materials empty to use the release's; set only what this variant
+      changes.
     </p>
 
     <UFormField label="Case" name="case_materials">
@@ -141,7 +141,7 @@
     <UFormField label="Front Image" name="img_front">
       <UInput
         v-model.trim="variant.img_front"
-        icon="solar:gallery-bold-duotone"
+        icon="solar:gallery-line-duotone"
         class="w-full"
       />
 
@@ -158,7 +158,7 @@
     <UFormField label="Back Image" name="img_back">
       <UInput
         v-model.trim="variant.img_back"
-        icon="solar:gallery-bold-duotone"
+        icon="solar:gallery-line-duotone"
         class="w-full"
       />
 
@@ -175,7 +175,7 @@
     <UFormField label="Photo Credit" name="photo_credit">
       <UInput
         v-model.trim="variant.photo_credit"
-        icon="solar:camera-add-bold-duotone"
+        icon="solar:camera-add-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -197,11 +197,7 @@
 import { Constants } from '~/types/database.types'
 import { keyboardVariantStandaloneSchema } from '~/utils/schemas/keyboard'
 
-const emit = defineEmits([
-  'onSuccess',
-  'update:modelValue',
-  'update:uploading',
-])
+const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:uploading'])
 
 const { metadata, modelValue, isEdit, keyboard, mode, suggest } = defineProps({
   metadata: {
@@ -341,8 +337,7 @@ const releaseOptions = computed(() => {
 })
 
 const uploadImage = async (file, field, uploadState) => {
-  const failedState =
-    field === 'img_front' ? failedFileFront : failedFileBack
+  const failedState = field === 'img_front' ? failedFileFront : failedFileBack
   failedState.value = false
 
   // Removed image: a failed upload no longer blocks saving
@@ -377,11 +372,7 @@ watch(uploadedFileBack, (file) =>
 )
 
 const onSubmit = async () => {
-  if (
-    mode !== 'standalone' ||
-    isUploadingImage.value ||
-    hasFailedImage.value
-  ) {
+  if (mode !== 'standalone' || isUploadingImage.value || hasFailedImage.value) {
     return
   }
 
@@ -409,7 +400,10 @@ const onSubmit = async () => {
     )
 
     toast.add(
-      successToast(isEdit ? 'update' : 'add', { entity: 'Variant', name: variant.value.variant_name }),
+      successToast(isEdit ? 'update' : 'add', {
+        entity: 'Variant',
+        name: variant.value.variant_name,
+      }),
     )
     uploadedFileFront.value = null
     uploadedFileBack.value = null

@@ -33,7 +33,7 @@
           <UBadge
             v-if="release.release_year"
             :label="String(release.release_year)"
-            icon="solar:calendar-bold-duotone"
+            icon="solar:calendar-line-duotone"
             class="tabular-nums"
           />
           <span class="w-20 shrink-0 text-right text-xs text-muted">

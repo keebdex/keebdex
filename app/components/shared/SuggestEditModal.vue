@@ -12,7 +12,7 @@
       <div v-else class="space-y-4">
         <UAlert
           v-if="pending && !reviewing"
-          icon="solar:file-pen-bold-duotone"
+          icon="solar:file-pen-line-duotone"
           color="info"
           variant="subtle"
           title="Waiting for Review"
@@ -46,7 +46,7 @@
               <template #actions>
                 <UButton
                   label="Undo"
-                  icon="solar:undo-left-bold-duotone"
+                  icon="solar:undo-left-line-duotone"
                   size="xs"
                   variant="ghost"
                   :ui="{ label: 'block' }"

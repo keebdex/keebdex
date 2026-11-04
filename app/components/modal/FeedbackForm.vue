@@ -3,7 +3,7 @@
     <UFormField v-if="!authenticated" label="Name" name="name" required>
       <UInput
         v-model.trim="feedback.name"
-        icon="solar:user-circle-bold-duotone"
+        icon="solar:user-circle-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -31,7 +31,7 @@
     >
       <UInput
         v-model.trim="feedback.email"
-        icon="solar:letter-bold-duotone"
+        icon="solar:letter-line-duotone"
         placeholder="you@domain.com"
         class="w-full"
       />

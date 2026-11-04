@@ -44,7 +44,7 @@
               category="keyboard"
               :item="{ id, keyboard }"
               :move="true"
-              icon="solar:move-to-folder-bold-duotone"
+              icon="solar:move-to-folder-line-duotone"
               @on-select="moveTo"
             />
           </template>
@@ -52,7 +52,7 @@
           <template v-if="isOwner" #footer-end>
             <UTooltip text="Remove">
               <UButton
-                icon="solar:bookmark-minus-bold-duotone"
+                icon="solar:bookmark-minus-line-duotone"
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${keyboard.variant_name}`"
@@ -99,7 +99,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
-      icon: 'solar:bookmark-square-bold-duotone',
+      icon: 'solar:bookmark-square-line-duotone',
       to: '/collection',
     },
   ]

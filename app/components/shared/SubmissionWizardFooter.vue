@@ -32,7 +32,7 @@
         v-if="userStore.isModerator"
         label="Save & Approve"
         color="success"
-        icon="solar:check-circle-bold-duotone"
+        icon="solar:check-circle-line-duotone"
         :loading="wizard.savingAction === 'approve'"
         :disabled="wizard.reviewBusy"
         @click="wizard.onReviewAction('approve')"
@@ -43,7 +43,7 @@
         label="Delete"
         color="error"
         variant="soft"
-        icon="solar:trash-bin-minimalistic-bold-duotone"
+        icon="solar:trash-bin-minimalistic-line-duotone"
         :disabled="wizard.reviewBusy"
         @click="deleteOpen = true"
       />

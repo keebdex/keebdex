@@ -33,7 +33,7 @@ export const useCookieConsent = () => {
       title: 'We Use Cookies',
       description:
         'To improve your experience. By using our site, you agree to our use of cookies.',
-      icon: 'solar:shield-check-bold-duotone',
+      icon: 'solar:shield-check-line-duotone',
       duration: 0,
       close: false,
       actions: [

@@ -24,19 +24,19 @@ const { user } = storeToRefs(userStore)
 const links = [
   {
     label: 'Profile',
-    icon: 'solar:user-bold-duotone',
+    icon: 'solar:user-line-duotone',
     to: '/account/settings',
     avatar: userAvatar(user.value.picture, user.value.name),
     exact: true,
   },
   {
     label: 'Appearance',
-    icon: 'solar:palette-bold-duotone',
+    icon: 'solar:palette-line-duotone',
     to: '/account/settings/appearance',
   },
   {
     label: 'Notifications',
-    icon: 'solar:bell-bold-duotone',
+    icon: 'solar:notification-unread-lines-line-duotone',
     to: '/account/settings/notifications',
   },
 ]

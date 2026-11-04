@@ -9,7 +9,7 @@
       <UFormField label="Name" name="name">
         <UInput
           v-model="user.name"
-          icon="solar:user-circle-bold-duotone"
+          icon="solar:user-circle-line-duotone"
           disabled
           class="w-full"
         />
@@ -18,9 +18,9 @@
       <UFormField label="Email" name="email">
         <UInput
           v-model="user.email"
-          icon="solar:letter-bold-duotone"
+          icon="solar:letter-line-duotone"
           :trailing-icon="
-            user.email_verified && 'solar:verified-check-bold-duotone'
+            user.email_verified && 'solar:verified-check-line-duotone'
           "
           disabled
           class="w-full"
@@ -35,7 +35,7 @@
           v-model="social.discord"
           icon="simple-icons:discord"
           :trailing-icon="
-            discordVerified && 'solar:verified-check-bold-duotone'
+            discordVerified && 'solar:verified-check-line-duotone'
           "
           class="w-full"
           :ui="{

@@ -114,12 +114,12 @@ const terms = computed(() =>
   [
     tradingCfg.value.shipping_included && {
       label: 'Shipping Included',
-      icon: 'solar:delivery-bold-duotone',
+      icon: 'solar:delivery-line-duotone',
       class: 'text-info',
     },
     tradingCfg.value.fnf_only && {
       label: 'PayPal F&F Only, No Buyer Protection',
-      icon: 'solar:danger-triangle-bold-duotone',
+      icon: 'solar:danger-triangle-line-duotone',
       class: 'text-warning',
     },
   ].filter(Boolean),

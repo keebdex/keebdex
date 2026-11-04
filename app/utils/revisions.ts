@@ -91,8 +91,9 @@ export interface RevisionColor {
 }
 
 /** A color as keysets list it (`GMK N9`), or its id until it is loaded. */
-export const keysetColorLabel = (color: Partial<RevisionColor> & { id: number }) =>
-  color.system ? `${color.system} ${color.code}` : `Color ${color.id}`
+export const keysetColorLabel = (
+  color: Partial<RevisionColor> & { id: number },
+) => (color.system ? `${color.system} ${color.code}` : `Color ${color.id}`)
 
 export interface RevisionDetail extends Revision {
   snapshot: Record<string, unknown>
@@ -122,19 +123,19 @@ const BOT_SOURCES: RevisionSource[] = [
 
 const SOURCE_ICONS: Partial<Record<RevisionSource, string>> = {
   gdoc: 'simple-icons:googledocs',
-  scraper: 'solar:earth-bold-duotone',
-  vendor: 'solar:shop-bold-duotone',
-  'image-sync': 'solar:gallery-send-bold-duotone',
-  maintenance: 'solar:settings-minimalistic-bold-duotone',
-  sql: 'solar:database-bold-duotone',
-  suggestion: 'solar:pen-2-bold-duotone',
-  revert: 'solar:undo-left-bold-duotone',
+  scraper: 'solar:earth-line-duotone',
+  vendor: 'solar:shop-line-duotone',
+  'image-sync': 'solar:gallery-send-line-duotone',
+  maintenance: 'solar:settings-minimalistic-line-duotone',
+  sql: 'solar:database-line-duotone',
+  suggestion: 'solar:pen-2-line-duotone',
+  revert: 'solar:undo-left-line-duotone',
 }
 
 const ACTION_ICONS: Record<RevisionAction, string> = {
-  insert: 'solar:file-add-bold-duotone',
-  update: 'solar:file-pen-bold-duotone',
-  delete: 'solar:file-remove-bold-duotone',
+  insert: 'solar:file-add-line-duotone',
+  update: 'solar:file-pen-line-duotone',
+  delete: 'solar:file-remove-line-duotone',
 }
 
 export const REVISION_ACTION_LABELS: Record<RevisionAction, string> = {
@@ -161,7 +162,9 @@ const person = (
 ): RevisionAuthor => ({
   key: `user:${id}`,
   name: name || fallback,
-  avatar: avatar ? userAvatar(avatar, name) : { icon: 'solar:user-bold-duotone' },
+  avatar: avatar
+    ? userAvatar(avatar, name)
+    : { icon: 'solar:user-line-duotone' },
   bot: false,
 })
 
@@ -255,20 +258,20 @@ export const revisionRecordName = (revision: Revision) => {
  * and Profiles), the rest picked to match.
  */
 const ENTITY_ICONS: Record<SuggestionEntityType, string> = {
-  artisan_maker: 'solar:users-group-rounded-bold-duotone',
+  artisan_maker: 'solar:users-group-rounded-line-duotone',
   artisan_sculpt: KEEB_MODULE_ICONS.artisan,
-  artisan_colorway: 'solar:palette-bold-duotone',
-  keyset_profile: 'solar:add-square-bold-duotone',
+  artisan_colorway: 'solar:palette-line-duotone',
+  keyset_profile: 'solar:add-square-line-duotone',
   keyset: KEEB_MODULE_ICONS.keyset,
-  keyset_kit: 'solar:box-bold-duotone',
-  keyboard_brand: 'solar:users-group-rounded-bold-duotone',
+  keyset_kit: 'solar:box-line-duotone',
+  keyboard_brand: 'solar:users-group-rounded-line-duotone',
   keyboard: KEEB_MODULE_ICONS.keyboard,
-  keyboard_release: 'solar:rocket-bold-duotone',
-  keyboard_variant: 'solar:layers-bold-duotone',
+  keyboard_release: 'solar:rocket-line-duotone',
+  keyboard_variant: 'solar:layers-line-duotone',
 }
 
 export const revisionEntityIcon = (revision: Pick<Revision, 'entity_type'>) =>
-  ENTITY_ICONS[revision.entity_type] || 'solar:file-bold-duotone'
+  ENTITY_ICONS[revision.entity_type] || 'solar:file-line-duotone'
 
 /** `Colorway`, `Kit`, `Keyboard`. */
 export const revisionEntityLabel = (revision: Pick<Revision, 'entity_type'>) =>

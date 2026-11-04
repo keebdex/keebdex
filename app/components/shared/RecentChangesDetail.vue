@@ -19,7 +19,7 @@
         <template #right>
           <UTooltip v-if="page?.path" text="Open History">
             <UButton
-              icon="solar:clock-circle-bold-duotone"
+              icon="solar:clock-circle-line-duotone"
               aria-label="Open History"
               :to="`${page.path}?history=1&rev=${revisionId}`"
             />

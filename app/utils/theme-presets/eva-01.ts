@@ -3,7 +3,7 @@ import { palette, type ThemePreset } from './types'
 export default {
   id: 'eva-01',
   label: 'EVA-01',
-  icon: 'solar:bot-bold-duotone',
+  icon: 'solar:bot-line-duotone',
   ui: {
     colors: {
       primary: 'eva-purple',

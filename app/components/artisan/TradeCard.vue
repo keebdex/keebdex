@@ -49,19 +49,17 @@
 
     <template #description>
       <p v-if="trade.message" class="line-clamp-2">{{ trade.message }}</p>
-      <p
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted"
-      >
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
         <span v-if="trade.contact" class="flex min-w-0 items-center gap-1">
           <UIcon name="simple-icons:discord" class="size-4 shrink-0" />
           <span class="truncate">{{ trade.contact }}</span>
         </span>
         <span class="flex items-center gap-1">
-          <UIcon name="solar:box-bold-duotone" class="size-4" />
+          <UIcon name="solar:box-line-duotone" class="size-4" />
           {{ countLabel(trade.items.length, 'cap') }}
         </span>
         <span class="flex items-center gap-1">
-          <UIcon name="solar:calendar-bold-duotone" class="size-4" />
+          <UIcon name="solar:calendar-line-duotone" class="size-4" />
           {{ formatDate(trade.created_at) }}
         </span>
       </p>
@@ -79,7 +77,6 @@ const { trade } = defineProps({
 })
 
 const CELLS = 6
-
 
 // Always six cells, so cards line up; fewer caps leave empty cells
 const cells = computed(() =>

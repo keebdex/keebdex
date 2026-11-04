@@ -4,7 +4,7 @@
       <UFormField label="Release Name" name="name" required>
         <UInput
           v-model.trim="release.name"
-          icon="solar:tag-bold-duotone"
+          icon="solar:tag-line-duotone"
           placeholder="e.g. Round 1"
           class="w-full"
         />
@@ -14,7 +14,7 @@
         <UInput
           v-model.number="release.release_year"
           type="number"
-          icon="solar:calendar-bold-duotone"
+          icon="solar:calendar-line-duotone"
           class="w-full"
         />
       </UFormField>

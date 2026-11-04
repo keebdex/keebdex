@@ -5,7 +5,7 @@
         <template #right>
           <UButton
             label="Submit a Keyset"
-            icon="solar:add-bold-duotone"
+            icon="solar:add-line-duotone"
             to="/keyset/submissions/submit"
           />
         </template>

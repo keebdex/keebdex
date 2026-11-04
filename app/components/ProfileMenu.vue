@@ -16,8 +16,10 @@
     <UButton
       v-else
       :label="collapsed ? undefined : 'Sign In'"
-      icon="solar:login-2-bold-duotone"
-      :trailing-icon="collapsed ? undefined : 'solar:sort-vertical-bold-duotone'"
+      icon="solar:login-2-line-duotone"
+      :trailing-icon="
+        collapsed ? undefined : 'solar:sort-vertical-line-duotone'
+      "
       variant="ghost"
       block
       :ui="{ label: 'block' }"
@@ -39,7 +41,8 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user, role, isAdmin, isModerator } = storeToRefs(userStore)
+const { authenticated, user, role, isAdmin, isModerator } =
+  storeToRefs(userStore)
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -61,26 +64,26 @@ const items = computed(() => {
   const management = isAdmin.value
     ? {
         label: 'Management',
-        icon: 'solar:widget-5-bold-duotone',
+        icon: 'solar:widget-5-line-duotone',
         children: [
           {
             label: 'Users',
-            icon: 'solar:users-group-two-rounded-bold-duotone',
+            icon: 'solar:users-group-two-rounded-line-duotone',
             to: '/admin/users',
           },
           {
             label: 'Announcements',
-            icon: 'solar:bell-bing-bold-duotone',
+            icon: 'solar:bell-bing-line-duotone',
             to: '/admin/announcements',
           },
           {
             label: 'Feedback',
-            icon: 'solar:chat-round-question-mark-bold-duotone',
+            icon: 'solar:chat-round-question-mark-line-duotone',
             to: '/admin/feedbacks',
           },
           {
             label: 'Shoutouts',
-            icon: 'solar:quote-bold-duotone',
+            icon: 'solar:quote-line-duotone',
             to: '/admin/shoutouts',
           },
         ],
@@ -91,7 +94,7 @@ const items = computed(() => {
   // named as on the Appearance settings page
   const appearance = {
     label: 'Appearance',
-    icon: 'solar:palette-bold-duotone',
+    icon: 'solar:palette-line-duotone',
     children: [
       [{ type: 'label', label: 'Theme' }, ...keepOpen(colorModeItems.value)],
       [{ type: 'label', label: 'Palette' }, ...keepOpen(paletteItems.value)],
@@ -107,7 +110,7 @@ const items = computed(() => {
   // Rarely needed, so folded into one submenu (Feedback sits in the sidebar)
   const about = {
     label: 'About',
-    icon: 'solar:info-square-bold-duotone',
+    icon: 'solar:info-square-line-duotone',
     children: ABOUT_LINKS,
   }
 
@@ -125,7 +128,7 @@ const items = computed(() => {
         [
           {
             label: 'Settings',
-            icon: 'solar:settings-bold-duotone',
+            icon: 'solar:settings-line-duotone',
             to: '/account/settings',
           },
           appearance,
@@ -135,7 +138,7 @@ const items = computed(() => {
         [
           {
             label: 'Sign Out',
-            icon: 'solar:logout-2-bold-duotone',
+            icon: 'solar:logout-2-line-duotone',
             onSelect() {
               logout()
             },
@@ -146,7 +149,7 @@ const items = computed(() => {
         [
           {
             label: 'Sign In',
-            icon: 'solar:login-2-bold-duotone',
+            icon: 'solar:login-2-line-duotone',
             onSelect() {
               toggleShowLogin()
             },

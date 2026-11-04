@@ -8,7 +8,7 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="brand.name"
-        icon="solar:text-square-bold-duotone"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -22,7 +22,7 @@
     >
       <UInput
         v-model.trim="brand.slug"
-        icon="solar:hashtag-bold-duotone"
+        icon="solar:hashtag-line-duotone"
         placeholder="my-brand"
         class="w-full"
       />
@@ -34,7 +34,7 @@
         :items="country"
         label-key="name"
         value-key="code"
-        icon="solar:global-bold-duotone"
+        icon="solar:global-line-duotone"
         class="w-full"
       >
         <template #item-leading="{ item }">
@@ -46,7 +46,7 @@
     <UFormField label="Website" name="website">
       <UInput
         v-model.trim="brand.website"
-        icon="solar:earth-bold-duotone"
+        icon="solar:earth-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -54,7 +54,7 @@
     <UFormField label="Instagram" name="instagram">
       <UInput
         v-model.trim="brand.instagram"
-        icon="solar:camera-square-bold-duotone"
+        icon="solar:camera-square-line-duotone"
         class="w-full"
       />
     </UFormField>

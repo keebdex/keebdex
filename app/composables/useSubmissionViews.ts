@@ -12,21 +12,19 @@ export const useSubmissionViews = () => {
     () => counts.value?.[route.path.split('/')[1] as KeebModule],
   )
 
-  const view = computed(() =>
-    route.query.view === 'edits' ? 'edits' : 'new',
-  )
+  const view = computed(() => (route.query.view === 'edits' ? 'edits' : 'new'))
 
   const links = computed(() => [
     {
       label: 'New',
-      icon: 'solar:file-add-bold-duotone',
+      icon: 'solar:file-add-line-duotone',
       to: { path: route.path },
       active: view.value === 'new',
       badge: pendingBadge(pending.value?.submissions || 0),
     },
     {
       label: 'Edits',
-      icon: 'solar:pen-2-bold-duotone',
+      icon: 'solar:pen-2-line-duotone',
       to: { path: route.path, query: { view: 'edits' } },
       active: view.value === 'edits',
       badge: pendingBadge(pending.value?.edits || 0),

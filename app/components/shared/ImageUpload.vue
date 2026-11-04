@@ -2,7 +2,7 @@
   <UFileUpload
     v-model="file"
     accept="image/*"
-    icon="solar:gallery-send-bold-duotone"
+    icon="solar:gallery-send-line-duotone"
     layout="grid"
     reset
     label="Click to browse or drag & drop an image to upload"
@@ -26,12 +26,15 @@
           v-if="loading"
           class="absolute inset-0 flex items-center justify-center bg-default/60"
         >
-          <UIcon name="solar:refresh-bold-duotone" class="size-6 animate-spin" />
+          <UIcon
+            name="solar:refresh-line-duotone"
+            class="size-6 animate-spin"
+          />
         </div>
 
         <div class="absolute top-2 right-2 flex gap-1">
           <UButton
-            icon="solar:gallery-send-bold-duotone"
+            icon="solar:gallery-send-line-duotone"
             label="Replace"
             variant="solid"
             size="xs"
@@ -40,7 +43,7 @@
             @click="open()"
           />
           <UButton
-            icon="solar:trash-bin-minimalistic-bold-duotone"
+            icon="solar:trash-bin-minimalistic-line-duotone"
             variant="solid"
             size="xs"
             aria-label="Remove image"

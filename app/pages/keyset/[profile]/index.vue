@@ -16,7 +16,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="solar:keyboard-bold-duotone"
+            icon="solar:keyboard-line-duotone"
             label="Add Keyset"
             v-bind="addKeysetTarget"
           />
@@ -51,7 +51,7 @@
                   : [
                       {
                         label: 'Add Keyset',
-                        icon: 'solar:add-square-bold-duotone',
+                        icon: 'solar:add-square-line-duotone',
                         ui: { label: 'block' },
                         ...addKeysetTarget,
                       },
@@ -182,12 +182,12 @@ const profileSpecs = computed(() =>
   [
     {
       term: 'Profile',
-      icon: 'solar:layers-bold-duotone',
+      icon: 'solar:layers-line-duotone',
       description: data.value?.profile?.profile,
     },
     {
       term: 'Manufacturer',
-      icon: 'solar:buildings-bold-duotone',
+      icon: 'solar:buildings-line-duotone',
       description: data.value?.profile?.manufacturer,
     },
   ].filter((spec) => spec.description),
@@ -196,7 +196,7 @@ const profileSpecs = computed(() =>
 const breadcrumbs = computed(() => [
   {
     label: 'Profiles',
-    icon: 'solar:add-square-bold-duotone',
+    icon: 'solar:add-square-line-duotone',
     to: '/keyset',
   },
 ])

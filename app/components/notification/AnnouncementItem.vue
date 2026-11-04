@@ -13,7 +13,7 @@
     <template v-if="unread" #actions>
       <UTooltip text="Mark as read">
         <UButton
-          icon="solar:letter-opened-bold-duotone"
+          icon="solar:letter-opened-line-duotone"
           variant="ghost"
           size="xs"
           aria-label="Mark as read"

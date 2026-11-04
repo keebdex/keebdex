@@ -14,7 +14,7 @@
           <UModal v-if="editable" title="Add Keyset Profile">
             <UButton
               color="primary"
-              icon="solar:add-square-bold-duotone"
+              icon="solar:add-square-line-duotone"
               label="Add Profile"
             />
 
@@ -96,7 +96,7 @@
         :actions="[
           {
             label: 'Submit a Keyset',
-            icon: 'solar:add-circle-bold-duotone',
+            icon: 'solar:add-circle-line-duotone',
             to: '/keyset/submissions/submit',
             ui: { label: 'block' },
           },

@@ -43,7 +43,10 @@
               class="flex flex-col items-center gap-3"
             >
               <USkeleton class="size-14 sm:size-20 rounded-full" />
-              <USkeleton class="w-full rounded-t-lg rounded-b-none" :class="height" />
+              <USkeleton
+                class="w-full rounded-t-lg rounded-b-none"
+                :class="height"
+              />
             </div>
           </div>
 
@@ -99,7 +102,7 @@
                   class="flex justify-center py-1 text-muted"
                   aria-hidden="true"
                 >
-                  <UIcon name="solar:menu-dots-bold-duotone" class="size-5" />
+                  <UIcon name="solar:menu-dots-line-duotone" class="size-5" />
                 </div>
 
                 <div v-if="entry.user_id === me?.user_id">
@@ -146,7 +149,7 @@ const periodItems = [
 
 const moduleItems = [
   // Icons only on phones, so both tab groups fit the toolbar
-  { label: 'All', icon: 'solar:infinity-bold-duotone', value: 'all' },
+  { label: 'All', icon: 'solar:infinity-line-duotone', value: 'all' },
   ...KEEB_MODULES.map((value) => ({
     label: KEEB_MODULE_LABELS[value],
     icon: KEEB_MODULE_ICONS[value],
@@ -162,7 +165,8 @@ const queryValue = (key: string, value: string, fallback: string) =>
   })
 
 const period = computed<LeaderboardPeriod>({
-  get: () => (isLeaderboardPeriod(route.query.period) ? route.query.period : 'all'),
+  get: () =>
+    isLeaderboardPeriod(route.query.period) ? route.query.period : 'all',
   set: (value) => queryValue('period', value, 'all'),
 })
 

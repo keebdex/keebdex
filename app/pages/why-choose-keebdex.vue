@@ -30,7 +30,7 @@ const tiers = ref([
     highlight: true,
     button: {
       label: 'Start Exploring',
-      icon: 'solar:palette-bold-duotone',
+      icon: 'solar:palette-line-duotone',
       variant: 'subtle',
       color: 'primary',
       to: '/',
@@ -46,7 +46,7 @@ const tiers = ref([
       'Follows keyset group buys: which vendors carry a set, and when its sale opens and closes.',
     button: {
       label: 'Visit Alternative',
-      icon: 'solar:calendar-bold-duotone',
+      icon: 'solar:calendar-line-duotone',
       variant: 'soft',
       to: 'https://keycaplendar.firebaseapp.com/',
       target: '_blank',
@@ -62,7 +62,7 @@ const tiers = ref([
       'Puts the artisan listings kept in shared Google Docs on a simple website.',
     button: {
       label: 'Visit Alternative',
-      icon: 'solar:archive-down-minimlistic-bold-duotone',
+      icon: 'solar:archive-down-minimlistic-line-duotone',
       variant: 'soft',
       to: 'https://keycap-archivist.com',
       target: '_blank',

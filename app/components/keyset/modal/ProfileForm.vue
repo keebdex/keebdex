@@ -8,7 +8,7 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="profile.name"
-        icon="solar:text-square-bold-duotone"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -22,7 +22,7 @@
     >
       <UInput
         v-model.trim="profile.profile_id"
-        icon="solar:text-square-bold-duotone"
+        icon="solar:text-format-line-duotone"
         class="w-full"
         placeholder="gmk-cyl"
       />
@@ -40,7 +40,7 @@
     <UFormField label="Manufacturer" name="manufacturer">
       <UInput
         v-model.trim="profile.manufacturer"
-        icon="solar:buildings-bold-duotone"
+        icon="solar:buildings-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -52,7 +52,7 @@
     >
       <UInput
         v-model.trim="profile.manufacturer_id"
-        icon="solar:hashtag-bold-duotone"
+        icon="solar:hashtag-line-duotone"
         class="w-full"
       />
     </UFormField>

@@ -4,7 +4,7 @@
       <h2
         class="flex items-center gap-2 text-xs font-semibold tracking-wide text-muted uppercase"
       >
-        <UIcon name="solar:calendar-bold-duotone" class="size-4 shrink-0" />
+        <UIcon name="solar:calendar-line-duotone" class="size-4 shrink-0" />
         {{ day.title }}
       </h2>
 

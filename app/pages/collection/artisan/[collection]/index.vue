@@ -22,7 +22,7 @@
               description="Control the visibility of this collection and generate a shareable link if needed."
             >
               <UButton
-                icon="solar:share-circle-bold-duotone"
+                icon="solar:share-circle-line-duotone"
                 label="Share"
                 :ui="{ label: 'block' }"
               />
@@ -40,7 +40,7 @@
                 <UInput :model-value="shareUrl" readonly class="flex-1" />
                 <UButton
                   label="Copy Link"
-                  icon="solar:link-bold-duotone"
+                  icon="solar:link-line-duotone"
                   loading-auto
                   @click="copyShareUrl"
                 />
@@ -65,7 +65,7 @@
       <UAlert
         v-if="hasOutdated"
         description="Outdated items found during database sync. Please remove and re-add from the maker page if needed before deletion."
-        icon="solar:user-block-bold-duotone"
+        icon="solar:user-block-line-duotone"
         color="warning"
       />
 
@@ -94,7 +94,7 @@
           <template v-if="isOwner" #footer-start>
             <UButton
               v-if="artisan.deleted"
-              icon="solar:broom-bold-duotone"
+              icon="solar:broom-line-duotone"
               color="warning"
               label="Clear Outdated"
               :ui="{ label: 'block' }"
@@ -104,7 +104,7 @@
               v-else
               :item="{ ...rest, artisan }"
               :move="true"
-              icon="solar:move-to-folder-bold-duotone"
+              icon="solar:move-to-folder-line-duotone"
               @on-select="moveTo"
             />
           </template>
@@ -112,7 +112,7 @@
           <template v-if="isOwner && !artisan.deleted" #footer-end>
             <UTooltip v-if="listing" text="Edit Listing">
               <UButton
-                icon="solar:pen-bold-duotone"
+                icon="solar:pen-line-duotone"
                 variant="ghost"
                 :aria-label="`Edit ${colorwayTitle(artisan)} listing`"
                 @click="editListing({ ...rest, artisan })"
@@ -121,7 +121,7 @@
 
             <UTooltip text="Remove">
               <UButton
-                icon="solar:bookmark-minus-bold-duotone"
+                icon="solar:bookmark-minus-line-duotone"
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${colorwayTitle(artisan)}`"
@@ -196,7 +196,7 @@ const shareItems = computed(() => [
     label: 'Keep Private',
     description: 'Only you have access',
     value: 'private',
-    icon: 'solar:lock-bold-duotone',
+    icon: 'solar:lock-line-duotone',
   },
   {
     label: 'Create Public Link',
@@ -204,7 +204,7 @@ const shareItems = computed(() => [
       ? 'Anyone with the link can view, and it is listed in the Trading Hub'
       : 'Anyone with the link can view',
     value: 'public',
-    icon: 'solar:global-bold-duotone',
+    icon: 'solar:global-line-duotone',
   },
 ])
 
@@ -275,7 +275,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
-      icon: 'solar:bookmark-square-bold-duotone',
+      icon: 'solar:bookmark-square-line-duotone',
       to: '/collection',
     },
   ]

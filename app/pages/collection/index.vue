@@ -14,7 +14,7 @@
           <UModal v-model:open="adding" title="Add Collection">
             <UButton
               color="primary"
-              icon="solar:bookmark-plus-bold-duotone"
+              icon="solar:bookmark-plus-line-duotone"
               label="Add Collection"
             />
 
@@ -37,7 +37,9 @@
             :ui="detailSectionHeaderUi"
           />
 
-          <UPageGrid class="gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          <UPageGrid
+            class="gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
+          >
             <UPageCard
               v-for="collection in group.items"
               :key="collection.id"
@@ -68,7 +70,11 @@
                     loading="lazy"
                     decoding="async"
                     class="h-full w-full object-cover"
-                    :class="collection.images.length === 3 && index === 0 && 'row-span-2'"
+                    :class="
+                      collection.images.length === 3 &&
+                      index === 0 &&
+                      'row-span-2'
+                    "
                   />
                 </div>
                 <div
@@ -81,7 +87,6 @@
                   />
                   <span class="text-sm">Nothing here yet</span>
                 </div>
-
               </div>
 
               <!-- Who can see it, then a tag on wishlists and sale lists (a
@@ -90,13 +95,15 @@
                 <div class="flex items-center gap-2 text-sm font-medium">
                   <span
                     class="inline-flex items-center gap-1.5"
-                    :class="collection.published ? 'text-primary' : 'text-muted'"
+                    :class="
+                      collection.published ? 'text-primary' : 'text-muted'
+                    "
                   >
                     <UIcon
                       :name="
                         collection.published
-                          ? 'solar:global-bold-duotone'
-                          : 'solar:lock-bold-duotone'
+                          ? 'solar:global-line-duotone'
+                          : 'solar:lock-line-duotone'
                       "
                       class="size-4"
                     />
@@ -194,7 +201,11 @@ const INTENTS = {
 // One photo fills the cover, two sit side by side, three put the first
 // beside the other two, four make a 2x2 grid
 const mosaicClass = (count) =>
-  count === 1 ? 'grid-cols-1' : count === 2 ? 'grid-cols-2' : 'grid-cols-2 grid-rows-2'
+  count === 1
+    ? 'grid-cols-1'
+    : count === 2
+      ? 'grid-cols-2'
+      : 'grid-cols-2 grid-rows-2'
 
 const groupedCollections = computed(() =>
   modules

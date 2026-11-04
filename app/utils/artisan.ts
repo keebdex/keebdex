@@ -23,27 +23,27 @@ export const sculptSpecItems = (sculpt: Row) =>
     {
       term: 'Profile',
       description: optionLabel(artisanSculptProfiles, sculpt.profile),
-      icon: 'solar:keyboard-bold-duotone',
+      icon: 'solar:keyboard-line-duotone',
     },
     {
       term: 'Cast',
       description: optionLabel(artisanSculptCasts, sculpt.cast),
-      icon: 'solar:test-tube-bold-duotone',
+      icon: 'solar:test-tube-line-duotone',
     },
     {
       term: 'Design',
       description: optionLabel(artisanSculptDesigns, sculpt.design),
-      icon: 'solar:paint-brush-bold-duotone',
+      icon: 'solar:paint-brush-line-duotone',
     },
     {
       term: 'Release',
       description: sculpt.release,
-      icon: 'solar:calendar-bold-duotone',
+      icon: 'solar:calendar-line-duotone',
     },
     {
       term: 'Collection',
       description: sculpt.collection,
-      icon: 'solar:library-bold-duotone',
+      icon: 'solar:library-line-duotone',
     },
   ].filter((spec) => spec.description)
 
@@ -54,36 +54,36 @@ export const colorwaySpecItems = (colorway: Row, { credit = true } = {}) => [
   {
     term: 'Release',
     description: colorway.release,
-    icon: 'solar:calendar-bold-duotone',
+    icon: 'solar:calendar-line-duotone',
   },
   {
     term: 'Sale Type',
     description: colorway.sale_type,
-    icon: 'solar:tag-bold-duotone',
+    icon: 'solar:tag-line-duotone',
   },
   {
     term: 'Price',
     description: formatPrice(colorway.price, colorway.currency, {
       stripZeros: true,
     }),
-    icon: 'solar:banknote-bold-duotone',
+    icon: 'solar:banknote-line-duotone',
   },
   {
     term: 'Units',
     description: formatNumber(colorway.qty),
-    icon: 'solar:box-bold-duotone',
+    icon: 'solar:box-line-duotone',
   },
   {
     term: 'Stem',
     description: joinSpecList(colorway.stem),
-    icon: 'solar:keyboard-bold-duotone',
+    icon: 'solar:keyboard-line-duotone',
   },
   ...(credit
     ? [
         {
           term: 'Photo Credit',
           description: colorway.photo_credit,
-          icon: 'solar:camera-bold-duotone',
+          icon: 'solar:camera-line-duotone',
         },
       ]
     : []),

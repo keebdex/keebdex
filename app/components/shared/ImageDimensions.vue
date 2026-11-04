@@ -4,7 +4,10 @@
       v-if="info && lowResolution"
       class="mt-2 flex items-start gap-1 text-xs text-warning"
     >
-      <UIcon name="solar:danger-triangle-bold-duotone" class="size-4 shrink-0" />
+      <UIcon
+        name="solar:danger-triangle-line-duotone"
+        class="size-4 shrink-0"
+      />
       <span>
         This image is only {{ size }} px. Use one at least
         {{ LOW_RESOLUTION_IMAGE_SIZE }} px on its longer side so it stays sharp.
@@ -18,7 +21,7 @@
   <UTooltip v-else-if="info" :text="details">
     <UBadge
       :label="size"
-      :icon="lowResolution ? 'solar:danger-triangle-bold-duotone' : undefined"
+      :icon="lowResolution ? 'solar:danger-triangle-line-duotone' : undefined"
       :color="lowResolution ? 'warning' : 'neutral'"
       variant="subtle"
       size="sm"

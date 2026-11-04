@@ -86,14 +86,16 @@ export const groupBuyTabs = {
     label: 'Interest Check',
     description:
       'Sets currently in the interest check stage where designers gather community feedback.',
-    icon: 'solar:lightbulb-bold-duotone',
+    icon: 'solar:lightbulb-line-duotone',
+    emptyIcon: 'solar:lightbulb-bold-duotone',
   },
   live: {
     title: 'Group Buy Live',
     label: 'Live',
     description:
       'Sets whose group buy is running today, going by its start and end dates.',
-    icon: 'solar:play-stream-bold-duotone',
+    icon: 'solar:play-stream-line-duotone',
+    emptyIcon: 'solar:play-stream-bold-duotone',
   },
 }
 
@@ -136,31 +138,31 @@ export const roleMap: Record<
 > = {
   admin: {
     label: 'Administrator',
-    icon: 'solar:shield-user-bold-duotone',
+    icon: 'solar:shield-user-line-duotone',
     class: 'text-error',
     color: 'error',
   },
   editor: {
     label: 'Editor',
-    icon: 'solar:user-speak-bold-duotone',
+    icon: 'solar:user-speak-line-duotone',
     class: 'text-warning',
     color: 'warning',
   },
   maker: {
     label: 'Maker',
-    icon: 'solar:user-rounded-bold-duotone',
+    icon: 'solar:user-rounded-line-duotone',
     class: 'text-info',
     color: 'info',
   },
   designer: {
     label: 'Designer',
-    icon: 'solar:user-rounded-bold-duotone',
+    icon: 'solar:user-rounded-line-duotone',
     class: 'text-info',
     color: 'info',
   },
   donator: {
     label: 'Donator',
-    icon: 'solar:user-heart-bold-duotone',
+    icon: 'solar:user-heart-line-duotone',
     class: 'text-donator',
     color: 'success',
   },
@@ -210,11 +212,11 @@ export const splitPinned = <T>(items: T[], isPinned: (item: T) => boolean) => {
 
 // A maker's or brand's own links (website and socials), opened in a new tab
 const OWNER_LINKS = [
-  { key: 'website', label: 'Website', icon: 'solar:earth-bold-duotone' },
+  { key: 'website', label: 'Website', icon: 'solar:earth-line-duotone' },
   {
     key: 'instagram',
     label: 'Instagram',
-    icon: 'solar:camera-square-bold-duotone',
+    icon: 'solar:camera-square-line-duotone',
   },
   { key: 'discord', label: 'Discord', icon: 'simple-icons:discord' },
 ] as const

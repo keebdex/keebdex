@@ -5,7 +5,10 @@
       :key="suggestion.id"
       class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted"
     >
-      <UIcon name="solar:users-group-rounded-bold-duotone" class="size-4 shrink-0" />
+      <UIcon
+        name="solar:users-group-rounded-line-duotone"
+        class="size-4 shrink-0"
+      />
       <span>Also suggested by</span>
       <UUser
         :name="suggestion.submitter_name || 'Someone'"

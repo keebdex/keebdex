@@ -21,7 +21,7 @@
           ignore-filter
           label-key="label"
           value-key="code"
-          icon="solar:tag-bold-duotone"
+          icon="solar:tag-line-duotone"
           placeholder="Type a code to search existing colors..."
           class="w-full"
         >
@@ -39,7 +39,7 @@
 
         <UButton
           v-if="isSystemFetchSupported"
-          icon="solar:magnifer-zoom-in-bold-duotone"
+          icon="solar:magnifer-zoom-in-line-duotone"
           variant="outline"
           :loading="isFetchingFromSource"
           @click="fetchColorFromSystem"
@@ -63,7 +63,7 @@
     >
       <UInput
         v-model.trim="color.name"
-        icon="solar:text-square-bold-duotone"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -76,7 +76,7 @@
     >
       <UInput
         v-model.trim="color.hex"
-        icon="solar:palette-bold-duotone"
+        icon="solar:palette-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -304,7 +304,10 @@ const onSubmit = async () => {
   })
     .then(() => {
       toast.add(
-        successToast(isEdit ? 'update' : 'add', { entity: 'Color', name: color.value.name }),
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Color',
+          name: color.value.name,
+        }),
       )
 
       emit('onSuccess')

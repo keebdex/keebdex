@@ -19,7 +19,7 @@
     <template v-if="color && manage && editable" #actions>
       <UTooltip text="Edit">
         <UButton
-          icon="solar:pen-new-square-bold-duotone"
+          icon="solar:pen-new-square-line-duotone"
           variant="ghost"
           aria-label="Edit"
           @click="$emit('edit', color)"
@@ -31,7 +31,7 @@
         text="Delete"
       >
         <UButton
-          icon="solar:trash-bin-minimalistic-bold-duotone"
+          icon="solar:trash-bin-minimalistic-line-duotone"
           color="error"
           variant="ghost"
           aria-label="Delete"
@@ -54,7 +54,7 @@
           </span>
 
           <UButton
-            icon="solar:copy-bold-duotone"
+            icon="solar:copy-line-duotone"
             variant="ghost"
             aria-label="Copy hex"
             :class="contrastTextClass(color.hex)"
@@ -195,7 +195,6 @@ const specs = computed(() => {
   ]
 })
 
-
 const copyHex = async () => {
   try {
     await navigator.clipboard.writeText(color.value.hex)
@@ -204,5 +203,4 @@ const copyHex = async () => {
     toast.add(errorToast(error))
   }
 }
-
 </script>

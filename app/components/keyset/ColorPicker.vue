@@ -8,7 +8,7 @@
     :items="colorOptions"
     :loading="status === 'pending'"
     ignore-filter
-    icon="solar:palette-bold-duotone"
+    icon="solar:palette-line-duotone"
     placeholder="Which color are you looking for?"
     label-key="code"
     class="w-full"

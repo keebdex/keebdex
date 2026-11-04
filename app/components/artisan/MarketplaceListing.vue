@@ -84,7 +84,7 @@
                 <UBadge
                   v-if="priority"
                   label="Top Priority"
-                  icon="solar:star-bold-duotone"
+                  icon="solar:star-line-duotone"
                   color="primary"
                   size="sm"
                   class="absolute top-2 left-2"
@@ -109,7 +109,7 @@
           <div class="flex flex-col sm:flex-row gap-2 w-full">
             <UButton
               label="View Collection"
-              icon="solar:link-square-bold-duotone"
+              icon="solar:link-square-line-duotone"
               :to="`/collection/artisan/${trade.id}`"
               class="justify-center sm:flex-1"
               :ui="{ label: 'block' }"

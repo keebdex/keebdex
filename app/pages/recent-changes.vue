@@ -39,8 +39,8 @@
 
       <template #body>
         <p class="text-sm text-muted">
-          Every change to the pages you manage, newest first. Select an entry
-          to review what changed and revert it.
+          Every change to the pages you manage, newest first. Select an entry to
+          review what changed and revert it.
         </p>
 
         <div v-if="loading && !revisions.length" class="space-y-3">
@@ -120,17 +120,25 @@ const domainItems = [
 ]
 
 const sourceItems = [
-  { label: 'Everyone', value: 'all', icon: 'solar:users-group-rounded-bold-duotone' },
+  {
+    label: 'Everyone',
+    value: 'all',
+    icon: 'solar:users-group-rounded-line-duotone',
+  },
   {
     label: 'Without Syncs',
     value: 'no-syncs',
-    icon: 'solar:user-speak-bold-duotone',
+    icon: 'solar:user-speak-line-duotone',
   },
-  { label: 'Editors', value: 'editors', icon: 'solar:user-speak-bold-duotone' },
+  {
+    label: 'Editors',
+    value: 'editors',
+    icon: 'solar:user-speak-line-duotone',
+  },
   {
     label: 'Suggestions',
     value: 'suggestions',
-    icon: 'solar:pen-2-bold-duotone',
+    icon: 'solar:pen-2-line-duotone',
   },
   { label: 'Syncs', value: 'syncs', icon: 'simple-icons:googledocs' },
 ]

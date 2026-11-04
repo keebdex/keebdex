@@ -3,7 +3,7 @@ import { palette, type ThemePreset } from './types'
 export default {
   id: 'aurora',
   label: 'Aurora',
-  icon: 'solar:star-rainbow-bold-duotone',
+  icon: 'solar:star-rainbow-line-duotone',
   ui: {
     colors: {
       primary: 'teal',

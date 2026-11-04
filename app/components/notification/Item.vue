@@ -30,8 +30,8 @@
         <UButton
           :icon="
             notification.read_at
-              ? 'solar:letter-bold-duotone'
-              : 'solar:letter-opened-bold-duotone'
+              ? 'solar:letter-line-duotone'
+              : 'solar:letter-opened-line-duotone'
           "
           variant="ghost"
           size="xs"
@@ -42,7 +42,7 @@
 
       <UTooltip text="Delete">
         <UButton
-          icon="solar:trash-bin-minimalistic-bold-duotone"
+          icon="solar:trash-bin-minimalistic-line-duotone"
           variant="ghost"
           color="error"
           size="xs"

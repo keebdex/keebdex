@@ -12,7 +12,11 @@
       >
         <template #links>
           <UModal v-if="editable" title="Add Keyboard Brand">
-            <UButton color="primary" icon="solar:user-plus-bold-duotone" label="Add Brand" />
+            <UButton
+              color="primary"
+              icon="solar:user-plus-line-duotone"
+              label="Add Brand"
+            />
 
             <template #body="{ close }">
               <KeyboardModalBrandForm
@@ -32,7 +36,10 @@
             description="Pin brands to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="solar:pin-bold-duotone" aria-label="Customize Pins" />
+              <UButton
+                icon="solar:pin-line-duotone"
+                aria-label="Customize Pins"
+              />
             </UTooltip>
 
             <template #body="{ close }">
@@ -80,7 +87,7 @@
         :actions="[
           {
             label: 'Submit a Keyboard',
-            icon: 'solar:add-circle-bold-duotone',
+            icon: 'solar:add-circle-line-duotone',
             to: '/keyboard/submissions/submit',
             ui: { label: 'block' },
           },

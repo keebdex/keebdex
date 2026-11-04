@@ -27,7 +27,7 @@
             <UButton
               v-if="shareImageSupported"
               block
-              icon="solar:share-bold-duotone"
+              icon="solar:share-line-duotone"
               :disabled="!imageBlob"
               @click="shareImage"
             >
@@ -36,7 +36,7 @@
             <div class="grid grid-cols-2 gap-2">
               <UButton
                 block
-                icon="solar:album-bold-duotone"
+                icon="solar:album-line-duotone"
                 :disabled="!imageBlob"
                 @click="copyBlob(imageBlob, toast)"
               >
@@ -44,7 +44,7 @@
               </UButton>
               <UButton
                 block
-                icon="solar:gallery-download-bold-duotone"
+                icon="solar:gallery-download-line-duotone"
                 :disabled="!imageBlob"
                 @click="downloadBlob(imageBlob, filename)"
               >
@@ -78,13 +78,13 @@
               class="grid gap-2"
               :class="shareTextSupported ? 'grid-cols-2' : 'grid-cols-1'"
             >
-              <UButton block icon="solar:copy-bold-duotone" @click="copyText">
+              <UButton block icon="solar:copy-line-duotone" @click="copyText">
                 Copy Text
               </UButton>
               <UButton
                 v-if="shareTextSupported"
                 block
-                icon="solar:share-bold-duotone"
+                icon="solar:share-line-duotone"
                 @click="shareText"
               >
                 Share Text
@@ -121,8 +121,18 @@ const toast = useToast()
 const { isMobile } = useDevice()
 
 const tabs = [
-  { label: 'Image', icon: 'solar:gallery-bold-duotone', slot: 'image', value: 'image' },
-  { label: 'Text', icon: 'solar:text-bold-duotone', slot: 'text', value: 'text' },
+  {
+    label: 'Image',
+    icon: 'solar:gallery-line-duotone',
+    slot: 'image',
+    value: 'image',
+  },
+  {
+    label: 'Text',
+    icon: 'solar:text-line-duotone',
+    slot: 'text',
+    value: 'text',
+  },
 ]
 const tab = ref('image')
 

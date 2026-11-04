@@ -5,7 +5,7 @@
         <template #right>
           <UButton
             label="Submit a Keyboard"
-            icon="solar:add-bold-duotone"
+            icon="solar:add-line-duotone"
             to="/keyboard/submissions/submit"
           />
         </template>
@@ -139,7 +139,8 @@
               <template #dimensions-cell="{ row: variantRow }">
                 <SharedImageDimensions
                   :src="
-                    variantRow.original.img_front || variantRow.original.img_back
+                    variantRow.original.img_front ||
+                    variantRow.original.img_back
                   "
                 />
               </template>

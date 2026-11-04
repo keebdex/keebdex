@@ -59,7 +59,7 @@
         <UFormField label="Title" name="want_title">
           <UInput
             v-model.trim="tradingConfig.buying.title"
-            icon="solar:text-square-bold-duotone"
+            icon="solar:text-format-line-duotone"
             :placeholder="
               tradingConfig.type === 'selling'
                 ? tradingConfig.selling.placeholder
@@ -87,7 +87,7 @@
         <UFormField label="Title" name="have_title">
           <UInput
             v-model.trim="tradingConfig.selling.title"
-            icon="solar:text-square-bold-duotone"
+            icon="solar:text-format-line-duotone"
             :placeholder="tradingConfig.selling.placeholder"
             class="w-full"
           />

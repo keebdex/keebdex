@@ -21,7 +21,7 @@
             <UButton
               label="How to List Your Caps"
               aria-label="How to list your caps"
-              icon="solar:info-circle-bold-duotone"
+              icon="solar:info-circle-line-duotone"
               variant="ghost"
               size="sm"
             />
@@ -68,19 +68,19 @@ const router = useRouter()
 
 const steps = [
   {
-    icon: 'solar:add-folder-bold-duotone',
+    icon: 'solar:add-folder-line-duotone',
     title: 'Create a Collection',
     description:
       'In My Collection, start a Wishlist for caps you are hunting, or a For Sale or Trade collection for caps you are letting go.',
   },
   {
-    icon: 'solar:add-circle-bold-duotone',
+    icon: 'solar:add-circle-line-duotone',
     title: 'Add Your Caps',
     description:
       'Each cap is listed while Still Looking or Available is on. Add a price or mark Top Priority if you like.',
   },
   {
-    icon: 'solar:share-bold-duotone',
+    icon: 'solar:share-line-duotone',
     title: 'Make It Public',
     description:
       'Open Share on the collection and choose Create Public Link. Collectors reach you through its Discord username.',

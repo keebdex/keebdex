@@ -65,7 +65,7 @@ const actions = computed(() => {
 
   const edit = {
     tooltip: 'Edit',
-    icon: 'solar:pen-bold-duotone',
+    icon: 'solar:pen-line-duotone',
     variant,
     'aria-label': ariaLabel('Edit'),
     onClick: () => (editable ? emit('edit') : emit('suggest')),
@@ -79,7 +79,7 @@ const actions = computed(() => {
       ? [
           {
             tooltip: 'History',
-            icon: 'solar:clock-circle-bold-duotone',
+            icon: 'solar:clock-circle-line-duotone',
             variant,
             'aria-label': label ? `${label} History` : 'History',
             onClick: onHistory,
@@ -90,7 +90,7 @@ const actions = computed(() => {
       ? [
           {
             tooltip: 'Delete',
-            icon: 'solar:file-remove-bold-duotone',
+            icon: 'solar:file-remove-line-duotone',
             color: 'error' as const,
             variant,
             'aria-label': ariaLabel('Delete'),

@@ -6,7 +6,10 @@
         compact ? 'h-10' : 'h-20',
       ]"
     >
-      <UIcon name="solar:gallery-remove-bold-duotone" class="size-4 shrink-0" />
+      <UIcon
+        name="solar:gallery-remove-line-duotone"
+        class="size-4 shrink-0"
+      />
       Image Unavailable
     </div>
   </UTooltip>

@@ -40,7 +40,7 @@
 
       <UTooltip v-if="revisionPagePath(revision)" text="Open in History">
         <UButton
-          icon="solar:clock-circle-bold-duotone"
+          icon="solar:clock-circle-line-duotone"
           size="xs"
           variant="ghost"
           aria-label="Open in History"

@@ -8,25 +8,27 @@
     >
       <UIcon
         v-if="place.first"
-        name="solar:crown-bold-duotone"
+        name="solar:crown-line-duotone"
         class="size-7 sm:size-9 text-amber-500 mb-1"
       />
 
       <div class="relative">
         <UAvatar
           v-bind="userAvatar(place.entry.avatar, place.entry.name)"
-          icon="solar:user-circle-bold-duotone"
+          icon="solar:user-circle-line-duotone"
           :class="[
             'ring-4 ring-offset-2 ring-offset-(--ui-bg)',
             place.medal?.ring,
-            place.first ? 'size-20 sm:size-28 text-4xl' : 'size-14 sm:size-20 text-2xl',
+            place.first
+              ? 'size-20 sm:size-28 text-4xl'
+              : 'size-14 sm:size-20 text-2xl',
           ]"
         />
         <span
           class="absolute -bottom-2 -right-2 flex size-8 sm:size-9 items-center justify-center rounded-full bg-default ring ring-default"
         >
           <UIcon
-            name="solar:cup-star-bold-duotone"
+            name="solar:cup-star-line-duotone"
             :class="['size-5 sm:size-6', place.medal?.text]"
           />
         </span>

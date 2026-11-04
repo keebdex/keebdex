@@ -7,7 +7,7 @@
         <template #right>
           <UButton
             label="New Announcement"
-            icon="solar:add-circle-bold-duotone"
+            icon="solar:add-circle-line-duotone"
             color="primary"
             @click="openEditor(null)"
           />
@@ -96,7 +96,7 @@
                 text="Preview Toast"
               >
                 <UButton
-                  icon="solar:eye-bold-duotone"
+                  icon="solar:eye-line-duotone"
                   variant="ghost"
                   size="sm"
                   aria-label="Preview toast"
@@ -106,7 +106,7 @@
 
               <UTooltip text="Edit">
                 <UButton
-                  icon="solar:pen-2-bold-duotone"
+                  icon="solar:pen-2-line-duotone"
                   variant="ghost"
                   size="sm"
                   aria-label="Edit announcement"
@@ -119,7 +119,7 @@
                 text="Unpublish"
               >
                 <UButton
-                  icon="solar:stop-circle-bold-duotone"
+                  icon="solar:stop-circle-line-duotone"
                   variant="ghost"
                   color="warning"
                   size="sm"
@@ -135,7 +135,7 @@
 
               <UTooltip text="Delete">
                 <UButton
-                  icon="solar:trash-bin-minimalistic-bold-duotone"
+                  icon="solar:trash-bin-minimalistic-line-duotone"
                   variant="ghost"
                   color="error"
                   size="sm"

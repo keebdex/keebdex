@@ -17,7 +17,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="solar:widget-add-bold-duotone"
+            icon="solar:widget-add-line-duotone"
             label="Add Sculpt"
             v-bind="addSculptTarget"
           />
@@ -38,7 +38,7 @@
           >
             <UTooltip text="Customize Pins">
               <UButton
-                icon="solar:pin-bold-duotone"
+                icon="solar:pin-line-duotone"
                 aria-label="Customize Pins"
               />
             </UTooltip>
@@ -97,7 +97,7 @@
               : [
                   {
                     label: 'Add Sculpt',
-                    icon: 'solar:add-square-bold-duotone',
+                    icon: 'solar:add-square-line-duotone',
                     ui: { label: 'block' },
                     ...addSculptTarget,
                   },
@@ -219,7 +219,7 @@ const makerSpecs = computed(() =>
     ? [
         {
           term: 'Founded',
-          icon: 'solar:calendar-bold-duotone',
+          icon: 'solar:calendar-line-duotone',
           description: maker.value.founded,
         },
       ]
@@ -232,7 +232,7 @@ const makerLinks = computed(() => {
   if (maker.value?.artisancollector) {
     items.push({
       label: 'ArtisanCollector',
-      icon: 'solar:earth-bold-duotone',
+      icon: 'solar:earth-line-duotone',
       to: maker.value.artisancollector,
       target: '_blank',
     })
@@ -249,7 +249,7 @@ const makerLinks = computed(() => {
           maker.value.document_ids.length > 1
             ? `Catalogue ${idx + 1}`
             : 'Catalogue',
-        icon: 'solar:document-bold-duotone',
+        icon: 'solar:document-line-duotone',
         to: `https://docs.google.com/document/d/${docId}`,
         target: '_blank',
       })
@@ -263,7 +263,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
-      icon: 'solar:users-group-rounded-bold-duotone',
+      icon: 'solar:users-group-rounded-line-duotone',
       to: '/artisan/maker',
     },
   ]

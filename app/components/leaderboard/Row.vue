@@ -6,7 +6,7 @@
     <div class="w-8 shrink-0 flex justify-center">
       <UIcon
         v-if="medal"
-        name="solar:cup-star-bold-duotone"
+        name="solar:cup-star-line-duotone"
         :class="['size-6', medal.text]"
         :aria-label="`Rank ${entry.rank}`"
       />
@@ -20,7 +20,7 @@
       :description="compact ? undefined : summary"
       :avatar="{
         ...userAvatar(entry.avatar, entry.name),
-        icon: 'solar:user-circle-bold-duotone',
+        icon: 'solar:user-circle-line-duotone',
       }"
       class="flex-1 min-w-0"
       :ui="{ name: 'truncate', description: 'truncate md:hidden' }"
@@ -30,10 +30,10 @@
     <template v-if="!compact">
       <span
         v-for="column in LEADERBOARD_COLUMNS"
-      :key="column.key"
-      class="hidden md:block w-20 shrink-0 text-center text-sm tabular-nums"
-      :class="entry[column.key] ? 'text-default' : 'text-dimmed'"
-    >
+        :key="column.key"
+        class="hidden md:block w-20 shrink-0 text-center text-sm tabular-nums"
+        :class="entry[column.key] ? 'text-default' : 'text-dimmed'"
+      >
         {{ formatNumber(entry[column.key]) }}
       </span>
     </template>

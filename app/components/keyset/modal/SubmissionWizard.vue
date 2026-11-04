@@ -169,12 +169,12 @@ const items = computed(() => [
     slot: 'profile',
     title: 'Profile',
     description: profileLabel.value,
-    icon: 'solar:widget-bold-duotone',
+    icon: 'solar:widget-line-duotone',
   },
   {
     slot: 'keyset',
     title: 'Keyset',
-    icon: 'solar:keyboard-bold-duotone',
+    icon: 'solar:keyboard-line-duotone',
     description:
       props.mode === 'review' || keysetMode.value === 'new'
         ? keyset.value.name
@@ -183,7 +183,7 @@ const items = computed(() => [
   {
     slot: 'kit',
     title: 'Kit',
-    icon: 'solar:box-bold-duotone',
+    icon: 'solar:box-line-duotone',
   },
 ])
 </script>

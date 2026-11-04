@@ -89,7 +89,7 @@
                   label="Resolve"
                   size="xs"
                   color="primary"
-                  icon="solar:check-circle-bold-duotone"
+                  icon="solar:check-circle-line-duotone"
                   :disabled="resolvingId !== null"
                   @click="openResolve(row.original)"
                 />
@@ -99,7 +99,7 @@
                 v-if="!row.original.resolved"
                 label="To Shoutout"
                 size="xs"
-                icon="solar:quote-bold-duotone"
+                icon="solar:quote-line-duotone"
                 :loading="movingId === row.original.id"
                 @click="moveToTestimonial(row.original)"
               />

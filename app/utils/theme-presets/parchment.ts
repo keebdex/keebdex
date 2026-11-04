@@ -3,7 +3,7 @@ import { palette, type ThemePreset } from './types'
 export default {
   id: 'parchment',
   label: 'Parchment',
-  icon: 'solar:document-text-bold-duotone',
+  icon: 'solar:document-text-line-duotone',
   ui: {
     colors: {
       primary: 'clay',

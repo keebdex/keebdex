@@ -55,40 +55,72 @@ const counted = (...keys) =>
     .join(' · ')
 
 const modules = computed(() => [
-    {
-      key: 'artisan',
-      label: 'Artisans',
-      description:
-        'Sculpts and colorways from makers around the world, with sale details, stems, and photos.',
-      count: counted('makers', 'colorways'),
-      links: [
-        { label: 'Makers', to: '/artisan/maker', icon: 'solar:users-group-rounded-bold-duotone' },
-        { label: 'Search', to: '/artisan/search', icon: 'solar:magnifer-bold-duotone' },
-        { label: 'Trading Hub', to: '/artisan/marketplace', icon: 'solar:shop-bold-duotone' },
-      ],
-    },
-    {
-      key: 'keyboard',
-      label: 'Keyboards',
-      description:
-        'Brands, releases, and variants, with the specs and layouts each one shipped with.',
-      count: counted('keyboards'),
-      links: [
-        { label: 'Brands', to: '/keyboard/brand', icon: 'solar:users-group-rounded-bold-duotone' },
-        { label: 'Submit One', to: '/keyboard/submissions/submit', icon: 'solar:add-circle-bold-duotone' },
-      ],
-    },
-    {
-      key: 'keyset',
-      label: 'Keysets',
-      description:
-        'Profiles, group buys, kits, and colors, followed from interest check to delivery.',
-      count: counted('keysets'),
-      links: [
-        { label: 'Profiles', to: '/keyset', icon: 'solar:add-square-bold-duotone' },
-        { label: 'Group Buys', to: '/keyset/group-buy?status=live', icon: 'solar:play-stream-bold-duotone' },
-        { label: 'Colors', to: '/keyset/color', icon: 'solar:palette-round-bold-duotone' },
-      ],
-    },
+  {
+    key: 'artisan',
+    label: 'Artisans',
+    description:
+      'Sculpts and colorways from makers around the world, with sale details, stems, and photos.',
+    count: counted('makers', 'colorways'),
+    links: [
+      {
+        label: 'Makers',
+        to: '/artisan/maker',
+        icon: 'solar:users-group-rounded-line-duotone',
+      },
+      {
+        label: 'Search',
+        to: '/artisan/search',
+        icon: 'solar:magnifer-line-duotone',
+      },
+      {
+        label: 'Trading Hub',
+        to: '/artisan/marketplace',
+        icon: 'solar:shop-line-duotone',
+      },
+    ],
+  },
+  {
+    key: 'keyboard',
+    label: 'Keyboards',
+    description:
+      'Brands, releases, and variants, with the specs and layouts each one shipped with.',
+    count: counted('keyboards'),
+    links: [
+      {
+        label: 'Brands',
+        to: '/keyboard/brand',
+        icon: 'solar:users-group-rounded-line-duotone',
+      },
+      {
+        label: 'Submit One',
+        to: '/keyboard/submissions/submit',
+        icon: 'solar:add-circle-line-duotone',
+      },
+    ],
+  },
+  {
+    key: 'keyset',
+    label: 'Keysets',
+    description:
+      'Profiles, group buys, kits, and colors, followed from interest check to delivery.',
+    count: counted('keysets'),
+    links: [
+      {
+        label: 'Profiles',
+        to: '/keyset',
+        icon: 'solar:add-square-line-duotone',
+      },
+      {
+        label: 'Group Buys',
+        to: '/keyset/group-buy?status=live',
+        icon: 'solar:play-stream-line-duotone',
+      },
+      {
+        label: 'Colors',
+        to: '/keyset/color',
+        icon: 'solar:palette-round-line-duotone',
+      },
+    ],
+  },
 ])
 </script>

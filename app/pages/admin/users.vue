@@ -17,7 +17,7 @@
         >
           <UInput
             v-model="term"
-            icon="solar:magnifer-bold-duotone"
+            icon="solar:magnifer-line-duotone"
             placeholder="Search by email, name, or discord"
             class="min-w-0 w-full sm:flex-1"
           />
@@ -92,7 +92,7 @@
             <UButton
               label="Edit"
               size="sm"
-              icon="solar:pen-new-square-bold-duotone"
+              icon="solar:pen-new-square-line-duotone"
               @click="openEditor(row.original)"
             />
           </template>
@@ -211,7 +211,7 @@ const filterOptions = [
   {
     label: 'All Users',
     value: 'all',
-    icon: 'solar:users-group-two-rounded-bold-duotone',
+    icon: 'solar:users-group-two-rounded-line-duotone',
   },
   ...roleOptions,
 ]

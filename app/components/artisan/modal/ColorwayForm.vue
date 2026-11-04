@@ -3,7 +3,7 @@
     <UFormField label="Name" name="name">
       <UInput
         v-model.trim="colorway.name"
-        icon="solar:text-square-bold-duotone"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -11,7 +11,7 @@
     <UFormField label="Release" name="release">
       <UInput
         v-model.trim="colorway.release"
-        icon="solar:calendar-date-bold-duotone"
+        icon="solar:calendar-date-line-duotone"
         placeholder="DD MMM YYYY"
         class="w-full"
       />
@@ -21,7 +21,7 @@
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="colorway.qty"
-          icon="solar:hashtag-square-bold-duotone"
+          icon="solar:hashtag-square-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -29,7 +29,7 @@
       <UFormField v-if="showOrder" label="Order" name="order">
         <UInput
           v-model.number="colorway.order"
-          icon="solar:hashtag-square-bold-duotone"
+          icon="solar:hashtag-square-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -40,7 +40,7 @@
         <USelect
           v-model="colorway.sale_type"
           :items="saleFormats"
-          icon="solar:tag-price-bold-duotone"
+          icon="solar:tag-price-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -62,7 +62,7 @@
         v-model="stems"
         :items="stemItems"
         multiple
-        icon="solar:add-square-bold-duotone"
+        icon="solar:add-square-line-duotone"
         placeholder="Select stem types"
         class="w-full"
       />
@@ -89,7 +89,7 @@
     >
       <UInput
         v-model.trim="colorway.img"
-        icon="solar:gallery-bold-duotone"
+        icon="solar:gallery-line-duotone"
         class="w-full"
       />
 
@@ -110,7 +110,7 @@
     >
       <UInput
         v-model.trim="colorway.photo_credit"
-        icon="solar:camera-add-bold-duotone"
+        icon="solar:camera-add-line-duotone"
         placeholder="e.g. @username"
         class="w-full"
       />
@@ -236,7 +236,6 @@ const uploading = ref(false)
 const uploadingImage = ref(false)
 const imageUploadFailed = ref(false)
 const uploadedFile = ref(null)
-
 
 const originalColorway = ref({})
 

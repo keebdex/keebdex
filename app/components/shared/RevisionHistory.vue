@@ -30,7 +30,7 @@
     <template #actions>
       <UTooltip text="Recent Changes">
         <UButton
-          icon="solar:clock-circle-bold-duotone"
+          icon="solar:clock-circle-line-duotone"
           variant="ghost"
           aria-label="Recent Changes"
           to="/recent-changes"
@@ -54,7 +54,7 @@
         >
           <UBadge
             :label="record.label"
-            icon="solar:filter-bold-duotone"
+            icon="solar:filter-line-duotone"
             variant="subtle"
             class="max-w-full"
             :ui="{ label: 'truncate' }"
@@ -85,7 +85,10 @@
         />
 
         <template v-else>
-          <SharedRevisionList :revisions="revisions" @select="selectedId = $event.id" />
+          <SharedRevisionList
+            :revisions="revisions"
+            @select="selectedId = $event.id"
+          />
 
           <div v-if="hasMore" class="flex justify-center">
             <UButton
@@ -99,7 +102,6 @@
         </template>
       </div>
     </template>
-
   </USlideover>
 </template>
 
