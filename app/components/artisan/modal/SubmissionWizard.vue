@@ -150,19 +150,19 @@ const items = computed(() => [
     slot: 'maker',
     title: 'Maker',
     description: makerLabel.value,
-    icon: 'hugeicons:user-multiple',
+    icon: 'solar:users-group-rounded-bold-duotone',
   },
   {
     slot: 'sculpt',
     title: 'Sculpt',
-    icon: 'hugeicons:dashboard-square-02',
+    icon: 'solar:widget-bold-duotone',
     description:
       sculptMode.value === 'new' ? sculpt.value.name : selectedSculptLabel.value,
   },
   {
     slot: 'colorway',
     title: 'Colorway',
-    icon: 'hugeicons:paint-board',
+    icon: 'solar:palette-bold-duotone',
   },
 ])
 </script>

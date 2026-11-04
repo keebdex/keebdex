@@ -16,7 +16,7 @@
       <template #item="{ element: release, index }">
         <li class="flex items-center gap-3 px-3 py-2 bg-default">
           <UIcon
-            name="hugeicons:drag-drop-vertical"
+            name="solar:reorder-linear"
             class="release-sort-handle size-5 shrink-0 cursor-grab text-muted active:cursor-grabbing"
           />
           <span class="w-5 shrink-0 text-xs tabular-nums text-muted">
@@ -33,7 +33,7 @@
           <UBadge
             v-if="release.release_year"
             :label="String(release.release_year)"
-            icon="hugeicons:calendar-03"
+            icon="solar:calendar-bold-duotone"
             class="tabular-nums"
           />
           <span class="w-20 shrink-0 text-right text-xs text-muted">

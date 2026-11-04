@@ -7,7 +7,7 @@
         <template #right>
           <UButton
             label="New Announcement"
-            icon="hugeicons:add-01"
+            icon="solar:add-circle-bold-duotone"
             color="primary"
             @click="openEditor(null)"
           />
@@ -96,7 +96,7 @@
                 text="Preview Toast"
               >
                 <UButton
-                  icon="hugeicons:eye"
+                  icon="solar:eye-bold-duotone"
                   variant="ghost"
                   size="sm"
                   aria-label="Preview toast"
@@ -106,7 +106,7 @@
 
               <UTooltip text="Edit">
                 <UButton
-                  icon="hugeicons:pencil-edit-02"
+                  icon="solar:pen-2-bold-duotone"
                   variant="ghost"
                   size="sm"
                   aria-label="Edit announcement"
@@ -119,7 +119,7 @@
                 text="Unpublish"
               >
                 <UButton
-                  icon="hugeicons:stop-circle"
+                  icon="solar:stop-circle-bold-duotone"
                   variant="ghost"
                   color="warning"
                   size="sm"
@@ -135,7 +135,7 @@
 
               <UTooltip text="Delete">
                 <UButton
-                  icon="hugeicons:delete-02"
+                  icon="solar:trash-bin-minimalistic-bold-duotone"
                   variant="ghost"
                   color="error"
                   size="sm"
@@ -153,13 +153,13 @@
 
           <template #empty>
             <UEmpty
-              icon="hugeicons:megaphone-01"
+              icon="solar:bell-bing-bold-duotone"
               title="No Announcements Yet"
               description="Publish news for everyone, guests, signed-in users, or staff."
               :actions="[
                 {
                   label: 'New Announcement',
-                  icon: 'hugeicons:add-01',
+                  icon: 'solar:add-circle-bold-duotone',
                   ui: { label: 'block' },
                   onClick: () => openEditor(null),
                 },

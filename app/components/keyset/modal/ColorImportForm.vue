@@ -6,7 +6,7 @@
       body: 'space-y-4',
     }"
   >
-    <UButton icon="hugeicons:file-import" label="Import" />
+    <UButton icon="solar:import-bold-duotone" label="Import" />
 
     <template #body>
       <p class="text-sm text-muted">
@@ -18,7 +18,7 @@
       <UFileUpload
         v-model="importFile"
         accept=".csv,text/csv"
-        icon="hugeicons:file-attachment"
+        icon="solar:paperclip-bold-duotone"
         layout="list"
         label="Click to browse or drag & drop a CSV file"
       />
@@ -35,7 +35,7 @@
       <UButton label="Cancel" @click="close" />
       <UButton
         label="Import"
-        icon="hugeicons:file-import"
+        icon="solar:import-bold-duotone"
         :loading="isImporting"
         @click="importColors(close)"
       />

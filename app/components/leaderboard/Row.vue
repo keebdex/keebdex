@@ -6,7 +6,7 @@
     <div class="w-8 shrink-0 flex justify-center">
       <UIcon
         v-if="medal"
-        name="hugeicons:champion"
+        name="solar:cup-star-bold-duotone"
         :class="['size-6', medal.text]"
         :aria-label="`Rank ${entry.rank}`"
       />
@@ -20,7 +20,7 @@
       :description="compact ? undefined : summary"
       :avatar="{
         ...userAvatar(entry.avatar, entry.name),
-        icon: 'hugeicons:user-circle-02',
+        icon: 'solar:user-circle-bold-duotone',
       }"
       class="flex-1 min-w-0"
       :ui="{ name: 'truncate', description: 'truncate md:hidden' }"

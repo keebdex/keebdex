@@ -21,7 +21,7 @@
             <UButton
               label="How to List Your Caps"
               aria-label="How to list your caps"
-              icon="hugeicons:information-circle"
+              icon="solar:info-circle-bold-duotone"
               variant="ghost"
               size="sm"
             />
@@ -68,19 +68,19 @@ const router = useRouter()
 
 const steps = [
   {
-    icon: 'hugeicons:folder-add',
+    icon: 'solar:add-folder-bold-duotone',
     title: 'Create a Collection',
     description:
       'In My Collection, start a Wishlist for caps you are hunting, or a For Sale or Trade collection for caps you are letting go.',
   },
   {
-    icon: 'hugeicons:add-circle',
+    icon: 'solar:add-circle-bold-duotone',
     title: 'Add Your Caps',
     description:
       'Each cap is listed while Still Looking or Available is on. Add a price or mark Top Priority if you like.',
   },
   {
-    icon: 'hugeicons:share-08',
+    icon: 'solar:share-bold-duotone',
     title: 'Make It Public',
     description:
       'Open Share on the collection and choose Create Public Link. Collectors reach you through its Discord username.',

@@ -22,7 +22,7 @@
           <template v-for="(value, index) in changeOf(revision)" :key="index">
             <UIcon
               v-if="index"
-              name="hugeicons:arrow-right-02"
+              name="solar:arrow-right-linear"
               class="size-4 shrink-0 text-dimmed"
             />
             <SharedDiffImage
@@ -40,7 +40,7 @@
 
       <UTooltip v-if="revisionPagePath(revision)" text="Open in History">
         <UButton
-          icon="hugeicons:time-quarter-pass"
+          icon="solar:clock-circle-bold-duotone"
           size="xs"
           variant="ghost"
           aria-label="Open in History"

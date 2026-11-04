@@ -18,7 +18,7 @@
     >
       <UInput
         v-model.number="item.asking_price"
-        icon="hugeicons:dollar-01"
+        icon="solar:dollar-bold-duotone"
         :placeholder="buying ? 'What you would pay' : 'What you want for it'"
         class="w-full"
       />

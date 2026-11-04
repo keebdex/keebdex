@@ -14,7 +14,7 @@
           <UModal v-model:open="adding" title="Add Collection">
             <UButton
               color="primary"
-              icon="hugeicons:bookmark-add-02"
+              icon="solar:bookmark-plus-bold-duotone"
               label="Add Collection"
             />
 
@@ -95,8 +95,8 @@
                     <UIcon
                       :name="
                         collection.published
-                          ? 'hugeicons:global'
-                          : 'hugeicons:locked'
+                          ? 'solar:global-bold-duotone'
+                          : 'solar:lock-bold-duotone'
                       "
                       class="size-4"
                     />
@@ -121,13 +121,13 @@
 
       <UEmpty
         v-else
-        icon="hugeicons:collections-bookmark"
+        icon="solar:bookmark-square-bold-duotone"
         title="An Empty Shelf, Full of Potential"
         description="Create a collection to start showing off your keebs."
         :actions="[
           {
             label: 'Add Collection',
-            icon: 'hugeicons:bookmark-add-02',
+            icon: 'solar:bookmark-plus-bold-duotone',
             ui: { label: 'block' },
             onClick: () => (adding = true),
           },
@@ -137,7 +137,7 @@
   </UDashboardPanel>
   <SharedProtectedPage
     v-else
-    icon="hugeicons:archive-02"
+    icon="solar:archive-bold-duotone"
     title="Your Keeb Shelf Awaits"
     description="Artisans, keysets, and keyboards: track every piece you own, hunt, or want to let go, all in one shelf."
     :features="signedOutFeatures"
@@ -159,19 +159,19 @@ useSeoMeta(meta)
 
 const signedOutFeatures = [
   {
-    icon: 'hugeicons:folder-library',
+    icon: 'solar:library-bold-duotone',
     title: 'Shelves for Everything',
     description:
       'Sort your artisans, keysets, and keyboards into as many collections as you like.',
   },
   {
-    icon: 'hugeicons:target-02',
+    icon: 'solar:target-bold-duotone',
     title: 'Keep, Hunt, or Let Go',
     description:
       'Make each artisan collection a shelf of caps you own, a wishlist, or caps for sale or trade.',
   },
   {
-    icon: 'hugeicons:store-01',
+    icon: 'solar:shop-bold-duotone',
     title: 'Trade Without the Spreadsheet',
     description:
       'Publish your want and sell lists to the Trading Hub, or turn them into a wishlist image in a few clicks.',

@@ -13,7 +13,7 @@
 
       <UInput
         v-model.trim="sculpt.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -21,7 +21,7 @@
     <UFormField label="Release" name="release">
       <UInput
         v-model.trim="sculpt.release"
-        icon="hugeicons:calendar-02"
+        icon="solar:calendar-date-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -55,7 +55,7 @@
         value-key="maker_sculpt_id"
         label-key="name"
         clear
-        icon="hugeicons:hierarchy-square-10"
+        icon="solar:structure-bold-duotone"
         placeholder="Search sculpts..."
         class="w-full"
       />
@@ -67,7 +67,7 @@
         :items="collectionOptions"
         mode="autocomplete"
         clear
-        icon="hugeicons:dashboard-square-02"
+        icon="solar:widget-bold-duotone"
         placeholder="Collection name"
         class="w-full"
       />

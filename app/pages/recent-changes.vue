@@ -49,7 +49,7 @@
 
         <UEmpty
           v-else-if="!revisions.length"
-          icon="hugeicons:time-quarter-pass"
+          icon="solar:clock-circle-bold-duotone"
           title="No Changes Yet"
           description="Changes to the pages you manage will be listed here as they happen."
           :actions="filtered ? showAllActions : undefined"
@@ -86,7 +86,7 @@
 
     <div v-else class="hidden flex-1 items-center justify-center p-6 lg:flex">
       <UEmpty
-        icon="hugeicons:git-compare"
+        icon="solar:git-diff-bold-duotone"
         title="No Change Selected"
         description="Select an entry to see what changed, field by field, and undo or restore it."
       />
@@ -120,19 +120,19 @@ const domainItems = [
 ]
 
 const sourceItems = [
-  { label: 'Everyone', value: 'all', icon: 'hugeicons:user-multiple' },
+  { label: 'Everyone', value: 'all', icon: 'solar:users-group-rounded-bold-duotone' },
   {
     label: 'Without Syncs',
     value: 'no-syncs',
-    icon: 'hugeicons:user-edit-01',
+    icon: 'solar:user-speak-bold-duotone',
   },
-  { label: 'Editors', value: 'editors', icon: 'hugeicons:user-edit-01' },
+  { label: 'Editors', value: 'editors', icon: 'solar:user-speak-bold-duotone' },
   {
     label: 'Suggestions',
     value: 'suggestions',
-    icon: 'hugeicons:pencil-edit-02',
+    icon: 'solar:pen-2-bold-duotone',
   },
-  { label: 'Syncs', value: 'syncs', icon: 'hugeicons:google-doc' },
+  { label: 'Syncs', value: 'syncs', icon: 'simple-icons:googledocs' },
 ]
 
 const queryValue = (key: string, items: { value: string }[]) => {

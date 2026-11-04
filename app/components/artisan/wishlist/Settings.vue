@@ -59,7 +59,7 @@
         <UFormField label="Title" name="want_title">
           <UInput
             v-model.trim="tradingConfig.buying.title"
-            icon="hugeicons:text-font"
+            icon="solar:text-square-bold-duotone"
             :placeholder="
               tradingConfig.type === 'selling'
                 ? tradingConfig.selling.placeholder
@@ -87,7 +87,7 @@
         <UFormField label="Title" name="have_title">
           <UInput
             v-model.trim="tradingConfig.selling.title"
-            icon="hugeicons:text-font"
+            icon="solar:text-square-bold-duotone"
             :placeholder="tradingConfig.selling.placeholder"
             class="w-full"
           />
@@ -110,21 +110,21 @@
 
         <UInput
           v-model.trim="tradingConfig.social.discord"
-          icon="hugeicons:discord"
+          icon="simple-icons:discord"
           placeholder="Discord username"
           aria-label="Discord"
           class="w-full"
         />
         <UInput
           v-model.trim="tradingConfig.social.reddit"
-          icon="hugeicons:reddit"
+          icon="simple-icons:reddit"
           placeholder="u/username"
           aria-label="Reddit"
           class="w-full"
         />
         <UInput
           v-model.trim="tradingConfig.social.qq"
-          icon="hugeicons:bubble-chat"
+          icon="solar:chat-round-bold-duotone"
           placeholder="QQ number"
           aria-label="QQ"
           class="w-full"

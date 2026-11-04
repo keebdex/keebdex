@@ -15,10 +15,10 @@ type Specs = {
 /** The material specs a release sets for its variants, which may override
  * them, case first, then what sits inside it. */
 const KEYBOARD_MATERIAL_SPECS = [
-  { term: 'Case', field: 'case_materials', icon: 'hugeicons:package' },
-  { term: 'Plate', field: 'plate_materials', icon: 'hugeicons:layers-02' },
-  { term: 'PCB', field: 'pcb_types', icon: 'hugeicons:chip' },
-  { term: 'Weight', field: 'weight_materials', icon: 'hugeicons:weight-scale' },
+  { term: 'Case', field: 'case_materials', icon: 'solar:box-bold-duotone' },
+  { term: 'Plate', field: 'plate_materials', icon: 'solar:layers-minimalistic-bold-duotone' },
+  { term: 'PCB', field: 'pcb_types', icon: 'solar:cpu-bold-duotone' },
+  { term: 'Weight', field: 'weight_materials', icon: 'solar:weigher-bold-duotone' },
 ] as const
 
 type MaterialField = (typeof KEYBOARD_MATERIAL_SPECS)[number]['field']
@@ -108,7 +108,7 @@ export const releaseSpecItems = (release: Specs, keyboard: Specs) =>
       description: hasTopCaseStyles(keyboard)
         ? joinSpecList(releaseTopCaseStyles(release, keyboard))
         : null,
-      icon: 'hugeicons:layout-top',
+      icon: 'solar:panel-top-bold-duotone',
     },
     ...materialItems(release),
   ].filter((spec) => spec.description)
@@ -121,22 +121,22 @@ export const keyboardSpecItems = (keyboard: Specs) =>
     {
       term: 'Form Factor',
       description: keyboard.form_factor,
-      icon: 'hugeicons:keyboard',
+      icon: 'solar:keyboard-bold-duotone',
     },
     hasTopCaseStyles(keyboard) && {
       term: 'Top Case',
       description: joinSpecList(keyboard.top_case_styles),
-      icon: 'hugeicons:layout-top',
+      icon: 'solar:panel-top-bold-duotone',
     },
     {
       term: 'Mount',
       description: joinSpecList(keyboard.mount_styles),
-      icon: 'hugeicons:layers-01',
+      icon: 'solar:layers-bold-duotone',
     },
     {
       term: 'Typing Angle',
       description: keyboard.typing_angle ? `${keyboard.typing_angle}°` : null,
-      icon: 'hugeicons:angle-01',
+      icon: 'solar:ruler-angular-bold-duotone',
     },
   ].filter((spec) => !!spec) as {
     term: string
@@ -169,29 +169,29 @@ export const variantSpecItems = (
     {
       term: 'Finish',
       description: variant.finish_type as string | null,
-      icon: 'hugeicons:paint-brush-01',
+      icon: 'solar:paint-brush-bold-duotone',
     },
     ...insides,
     // Sale
     {
       term: 'Release Year',
       description: resolved.year,
-      icon: 'hugeicons:calendar-03',
+      icon: 'solar:calendar-bold-duotone',
     },
     {
       term: 'Sale Type',
       description: variant.sale_type as string | null,
-      icon: 'hugeicons:shopping-bag-01',
+      icon: 'solar:bag-bold-duotone',
     },
     {
       term: 'Pricing',
       description: resolved.price,
-      icon: 'hugeicons:sale-tag-02',
+      icon: 'solar:tag-price-bold-duotone',
     },
     {
       term: 'Units Produced',
       description: variant.units_produced as number | null,
-      icon: 'hugeicons:hashtag',
+      icon: 'solar:hashtag-bold-duotone',
     },
   ]
 }

@@ -8,8 +8,8 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="maker.name"
-        icon="hugeicons:text-font"
-        :trailing-icon="maker.verified && 'hugeicons:id-verified'"
+        icon="solar:text-square-bold-duotone"
+        :trailing-icon="maker.verified && 'solar:verified-check-bold-duotone'"
         class="w-full"
         :ui="{
           trailingIcon: 'text-primary',
@@ -26,7 +26,7 @@
     >
       <UInput
         v-model.trim="maker.maker_id"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
         placeholder="my-maker"
       />
@@ -55,7 +55,7 @@
         :items="country"
         label-key="name"
         value-key="code"
-        icon="hugeicons:global"
+        icon="solar:global-bold-duotone"
         class="w-full"
       >
         <template #item-leading="{ item }">
@@ -68,7 +68,7 @@
       <UInput
         v-model.number="maker.founded"
         placeholder="e.g., 2024, Feb 2024"
-        icon="hugeicons:calendar-03"
+        icon="solar:calendar-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -85,15 +85,15 @@
         v-for="(docId, idx) in maker.document_ids"
         :key="docId"
         v-model.trim="maker.document_ids[idx]"
-        icon="hugeicons:file-01"
-        :trailing-icon="maker.verified && 'hugeicons:id-verified'"
+        icon="solar:file-bold-duotone"
+        :trailing-icon="maker.verified && 'solar:verified-check-bold-duotone'"
         class="w-full"
       >
         <template #trailing>
           <UButton
             color="error"
             variant="link"
-            icon="hugeicons:file-remove"
+            icon="solar:file-remove-bold-duotone"
             @click="removeDocId(docId)"
           />
         </template>
@@ -101,7 +101,7 @@
 
       <UButton
         label="Add Document Id"
-        icon="hugeicons:file-add"
+        icon="solar:file-add-bold-duotone"
         variant="outline"
         class="w-full"
         @click="addDocId"
@@ -111,7 +111,7 @@
     <UFormField label="Website" name="website">
       <UInput
         v-model="maker.website"
-        icon="hugeicons:globe-02"
+        icon="solar:earth-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -119,7 +119,7 @@
     <UFormField label="Instagram" name="instagram">
       <UInput
         v-model.trim="maker.instagram"
-        icon="hugeicons:instagram"
+        icon="simple-icons:instagram"
         class="w-full"
       />
     </UFormField>
@@ -127,7 +127,7 @@
     <UFormField label="Discord" name="discord">
       <UInput
         v-model.trim="maker.discord"
-        icon="hugeicons:discord"
+        icon="simple-icons:discord"
         class="w-full"
       />
     </UFormField>
@@ -135,7 +135,7 @@
     <UFormField label="ArtisanCollector" name="artisancollector">
       <UInput
         v-model.trim="maker.artisancollector"
-        icon="hugeicons:globe-02"
+        icon="solar:earth-bold-duotone"
         class="w-full"
       />
     </UFormField>

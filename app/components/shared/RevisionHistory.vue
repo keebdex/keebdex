@@ -14,7 +14,7 @@
       <span class="flex items-center gap-1">
         <UTooltip v-if="selectedId" text="All Changes">
           <UButton
-            icon="hugeicons:arrow-left-02"
+            icon="solar:arrow-left-linear"
             variant="ghost"
             size="sm"
             aria-label="All Changes"
@@ -30,7 +30,7 @@
     <template #actions>
       <UTooltip text="Recent Changes">
         <UButton
-          icon="hugeicons:time-quarter-pass"
+          icon="solar:clock-circle-bold-duotone"
           variant="ghost"
           aria-label="Recent Changes"
           to="/recent-changes"
@@ -54,7 +54,7 @@
         >
           <UBadge
             :label="record.label"
-            icon="hugeicons:filter"
+            icon="solar:filter-bold-duotone"
             variant="subtle"
             class="max-w-full"
             :ui="{ label: 'truncate' }"
@@ -75,7 +75,7 @@
 
         <UEmpty
           v-else-if="!revisions.length"
-          icon="hugeicons:time-quarter-pass"
+          icon="solar:clock-circle-bold-duotone"
           title="No Changes Yet"
           :description="
             record

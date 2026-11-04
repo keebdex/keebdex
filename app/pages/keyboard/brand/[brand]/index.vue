@@ -16,7 +16,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="hugeicons:dashboard-square-add"
+            icon="solar:widget-add-bold-duotone"
             label="Add Keyboard"
             v-bind="addKeyboardTarget"
           />
@@ -36,7 +36,7 @@
             description="Pin keyboards to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+              <UButton icon="solar:pin-bold-duotone" aria-label="Customize Pins" />
             </UTooltip>
 
             <template #body="{ close }">
@@ -91,13 +91,13 @@
 
       <section v-if="!keyboards.all.length" class="pt-4">
         <UEmpty
-          icon="hugeicons:keyboard"
+          icon="solar:keyboard-bold-duotone"
           title="This Lineup Is Still Blank"
           description="Know one of their boards? Submit it and our staff will review it before it goes public."
           :actions="[
             {
               label: 'Add Keyboard',
-              icon: 'hugeicons:add-square',
+              icon: 'solar:add-square-bold-duotone',
               ui: { label: 'block' },
               ...addKeyboardTarget,
             },
@@ -196,7 +196,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Brands',
-      icon: 'hugeicons:user-multiple',
+      icon: 'solar:users-group-rounded-bold-duotone',
       to: '/keyboard/brand',
     },
   ]

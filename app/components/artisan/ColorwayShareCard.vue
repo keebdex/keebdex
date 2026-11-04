@@ -62,7 +62,7 @@
         :alt="colorway.name"
         class="w-full h-full object-cover"
       >
-      <UIcon v-else name="hugeicons:image-02" class="size-12 text-dimmed" />
+      <UIcon v-else name="solar:gallery-bold-duotone" class="size-12 text-dimmed" />
     </div>
 
     <template #footer>

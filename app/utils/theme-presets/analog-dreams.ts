@@ -3,7 +3,7 @@ import { palette, type ThemePreset } from './types'
 export default {
   id: 'analog-dreams',
   label: 'Analog Dreams',
-  icon: 'hugeicons:cassette-tape',
+  icon: 'solar:cassette-bold-duotone',
   ui: {
     colors: {
       primary: 'analog-orchid',

@@ -5,7 +5,7 @@
         <template #right>
           <UButton
             label="Submit an Artisan"
-            icon="hugeicons:plus-sign"
+            icon="solar:add-bold-duotone"
             to="/artisan/submissions/submit"
           />
         </template>

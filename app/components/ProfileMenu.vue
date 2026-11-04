@@ -16,8 +16,8 @@
     <UButton
       v-else
       :label="collapsed ? undefined : 'Sign In'"
-      icon="hugeicons:login-01"
-      :trailing-icon="collapsed ? undefined : 'hugeicons:unfold-more'"
+      icon="solar:login-2-bold-duotone"
+      :trailing-icon="collapsed ? undefined : 'solar:sort-vertical-bold-duotone'"
       variant="ghost"
       block
       :ui="{ label: 'block' }"
@@ -61,26 +61,26 @@ const items = computed(() => {
   const management = isAdmin.value
     ? {
         label: 'Management',
-        icon: 'hugeicons:dashboard-square-setting',
+        icon: 'solar:widget-5-bold-duotone',
         children: [
           {
             label: 'Users',
-            icon: 'hugeicons:user-group',
+            icon: 'solar:users-group-two-rounded-bold-duotone',
             to: '/admin/users',
           },
           {
             label: 'Announcements',
-            icon: 'hugeicons:megaphone-01',
+            icon: 'solar:bell-bing-bold-duotone',
             to: '/admin/announcements',
           },
           {
             label: 'Feedback',
-            icon: 'hugeicons:message-question',
+            icon: 'solar:chat-round-question-mark-bold-duotone',
             to: '/admin/feedbacks',
           },
           {
             label: 'Shoutouts',
-            icon: 'hugeicons:quote-up',
+            icon: 'solar:quote-bold-duotone',
             to: '/admin/shoutouts',
           },
         ],
@@ -91,7 +91,7 @@ const items = computed(() => {
   // named as on the Appearance settings page
   const appearance = {
     label: 'Appearance',
-    icon: 'hugeicons:paint-board',
+    icon: 'solar:palette-bold-duotone',
     children: [
       [{ type: 'label', label: 'Theme' }, ...keepOpen(colorModeItems.value)],
       [{ type: 'label', label: 'Palette' }, ...keepOpen(paletteItems.value)],
@@ -107,7 +107,7 @@ const items = computed(() => {
   // Rarely needed, so folded into one submenu (Feedback sits in the sidebar)
   const about = {
     label: 'About',
-    icon: 'hugeicons:badge-info',
+    icon: 'solar:info-square-bold-duotone',
     children: ABOUT_LINKS,
   }
 
@@ -125,7 +125,7 @@ const items = computed(() => {
         [
           {
             label: 'Settings',
-            icon: 'hugeicons:settings-02',
+            icon: 'solar:settings-bold-duotone',
             to: '/account/settings',
           },
           appearance,
@@ -135,7 +135,7 @@ const items = computed(() => {
         [
           {
             label: 'Sign Out',
-            icon: 'hugeicons:logout-01',
+            icon: 'solar:logout-2-bold-duotone',
             onSelect() {
               logout()
             },
@@ -146,7 +146,7 @@ const items = computed(() => {
         [
           {
             label: 'Sign In',
-            icon: 'hugeicons:login-01',
+            icon: 'solar:login-2-bold-duotone',
             onSelect() {
               toggleShowLogin()
             },

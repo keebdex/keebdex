@@ -4,7 +4,7 @@
       <UDashboardNavbar title="Notifications">
         <template #right>
           <UButton
-            icon="hugeicons:settings-02"
+            icon="solar:settings-bold-duotone"
             aria-label="Notification Settings"
             label="Settings"
             to="/account/settings/notifications"
@@ -49,8 +49,8 @@
           v-else-if="!visibleAnnouncements.length"
           :icon="
             unreadOnly
-              ? 'hugeicons:checkmark-circle-02'
-              : 'hugeicons:megaphone-01'
+              ? 'solar:check-circle-bold-duotone'
+              : 'solar:bell-bing-bold-duotone'
           "
           :title="unreadOnly ? 'All Caught Up' : 'No Announcements Right Now'"
           :description="
@@ -79,7 +79,7 @@
               <UButton
                 v-if="!index && currentUnread"
                 label="Mark all as read"
-                icon="hugeicons:check-check"
+                icon="solar:check-read-bold-duotone"
                 variant="link"
                 size="xs"
                 class="-my-1 px-0"
@@ -117,8 +117,8 @@
           v-else-if="!visible.length && !cursor.hasMore"
           :icon="
             unreadOnly
-              ? 'hugeicons:checkmark-circle-02'
-              : 'hugeicons:notification-01'
+              ? 'solar:check-circle-bold-duotone'
+              : 'solar:bell-bold-duotone'
           "
           :title="
             unreadOnly
@@ -151,7 +151,7 @@
               <UButton
                 v-if="!index && currentUnread"
                 label="Mark all as read"
-                icon="hugeicons:check-check"
+                icon="solar:check-read-bold-duotone"
                 variant="link"
                 size="xs"
                 class="-my-1 px-0"
@@ -272,7 +272,7 @@ onMounted(() => loadAnnouncements())
 const links = computed(() => [
   {
     label: 'Notifications',
-    icon: 'hugeicons:notification-01',
+    icon: 'solar:bell-bold-duotone',
     to: { path: '/notifications', query: tabQuery('notifications') },
     active: tab.value === 'notifications',
     badge: unread.value
@@ -285,7 +285,7 @@ const links = computed(() => [
   },
   {
     label: 'Announcements',
-    icon: 'hugeicons:megaphone-01',
+    icon: 'solar:bell-bing-bold-duotone',
     to: { path: '/notifications', query: tabQuery('announcements') },
     active: tab.value === 'announcements',
     badge: unreadAnnouncements.value

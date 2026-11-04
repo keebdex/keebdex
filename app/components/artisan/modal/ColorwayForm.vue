@@ -3,7 +3,7 @@
     <UFormField label="Name" name="name">
       <UInput
         v-model.trim="colorway.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -11,7 +11,7 @@
     <UFormField label="Release" name="release">
       <UInput
         v-model.trim="colorway.release"
-        icon="hugeicons:calendar-02"
+        icon="solar:calendar-date-bold-duotone"
         placeholder="DD MMM YYYY"
         class="w-full"
       />
@@ -21,7 +21,7 @@
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="colorway.qty"
-          icon="hugeicons:text-number-sign"
+          icon="solar:hashtag-square-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -29,7 +29,7 @@
       <UFormField v-if="showOrder" label="Order" name="order">
         <UInput
           v-model.number="colorway.order"
-          icon="hugeicons:text-number-sign"
+          icon="solar:hashtag-square-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -40,7 +40,7 @@
         <USelect
           v-model="colorway.sale_type"
           :items="saleFormats"
-          icon="hugeicons:sale-tag-02"
+          icon="solar:tag-price-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -62,7 +62,7 @@
         v-model="stems"
         :items="stemItems"
         multiple
-        icon="hugeicons:cross"
+        icon="solar:add-square-bold-duotone"
         placeholder="Select stem types"
         class="w-full"
       />
@@ -89,7 +89,7 @@
     >
       <UInput
         v-model.trim="colorway.img"
-        icon="hugeicons:image-02"
+        icon="solar:gallery-bold-duotone"
         class="w-full"
       />
 
@@ -110,7 +110,7 @@
     >
       <UInput
         v-model.trim="colorway.photo_credit"
-        icon="hugeicons:camera-add-02"
+        icon="solar:camera-add-bold-duotone"
         placeholder="e.g. @username"
         class="w-full"
       />

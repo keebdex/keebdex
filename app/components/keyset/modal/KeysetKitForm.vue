@@ -13,7 +13,7 @@
         :loading="status === 'pending'"
         label-key="name"
         value-key="slug"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -21,13 +21,13 @@
     <UFormField label="Name" name="name" help="Leave empty for standard kits">
       <UInput
         v-model.trim="kit.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
 
     <UFormField label="Image" name="img">
-      <UInput v-model.trim="kit.img" icon="hugeicons:image-02" class="w-full" />
+      <UInput v-model.trim="kit.img" icon="solar:gallery-bold-duotone" class="w-full" />
 
       <SharedImageUpload
         v-model="uploadedFile"
@@ -43,7 +43,7 @@
       <UFormField label="Price" name="price">
         <UInput
           v-model.number="kit.price"
-          icon="hugeicons:sale-tag-02"
+          icon="solar:tag-price-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -51,7 +51,7 @@
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="kit.qty"
-          icon="hugeicons:text-number-sign"
+          icon="solar:hashtag-square-bold-duotone"
           class="w-full"
         />
       </UFormField>

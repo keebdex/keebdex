@@ -17,7 +17,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="hugeicons:dashboard-square-add"
+            icon="solar:widget-add-bold-duotone"
             label="Add Sculpt"
             v-bind="addSculptTarget"
           />
@@ -37,7 +37,7 @@
             description="Pin sculpts to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+              <UButton icon="solar:pin-bold-duotone" aria-label="Customize Pins" />
             </UTooltip>
 
             <template #body="{ close }">
@@ -85,13 +85,13 @@
 
       <section v-if="!sculpts.length" class="pt-4">
         <UEmpty
-          icon="hugeicons:dashboard-square-add"
+          icon="solar:widget-add-bold-duotone"
           title="No Sculpts Yet"
           description="Know one of their sculpts? Submit it and our staff will review it before it goes public."
           :actions="[
             {
               label: 'Add Sculpt',
-              icon: 'hugeicons:add-square',
+              icon: 'solar:add-square-bold-duotone',
               ui: { label: 'block' },
               ...addSculptTarget,
             },
@@ -208,7 +208,7 @@ const makerSpecs = computed(() =>
     ? [
         {
           term: 'Founded',
-          icon: 'hugeicons:calendar-03',
+          icon: 'solar:calendar-bold-duotone',
           description: maker.value.founded,
         },
       ]
@@ -221,7 +221,7 @@ const makerLinks = computed(() => {
   if (maker.value?.artisancollector) {
     items.push({
       label: 'ArtisanCollector',
-      icon: 'hugeicons:globe-02',
+      icon: 'solar:earth-bold-duotone',
       to: maker.value.artisancollector,
       target: '_blank',
     })
@@ -238,7 +238,7 @@ const makerLinks = computed(() => {
           maker.value.document_ids.length > 1
             ? `Catalogue ${idx + 1}`
             : 'Catalogue',
-        icon: 'hugeicons:file-02',
+        icon: 'solar:document-bold-duotone',
         to: `https://docs.google.com/document/d/${docId}`,
         target: '_blank',
       })
@@ -252,7 +252,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
-      icon: 'hugeicons:user-multiple',
+      icon: 'solar:users-group-rounded-bold-duotone',
       to: '/artisan/maker',
     },
   ]

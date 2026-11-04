@@ -21,7 +21,7 @@
               :text="priorityLabel(item)"
             >
               <UButton
-                icon="hugeicons:star"
+                icon="solar:star-bold-duotone"
                 :color="item.priority ? 'primary' : 'neutral'"
                 variant="solid"
                 size="sm"
@@ -32,7 +32,7 @@
 
             <UTooltip text="Remove">
               <UButton
-                icon="hugeicons:delete-02"
+                icon="solar:trash-bin-minimalistic-bold-duotone"
                 color="error"
                 variant="solid"
                 size="sm"

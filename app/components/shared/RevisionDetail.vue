@@ -23,14 +23,14 @@
       <UButton
         v-if="detail.action === 'update'"
         label="Undo"
-        icon="hugeicons:undo-02"
+        icon="solar:undo-left-bold-duotone"
         :disabled="!undoFields.length || !!conflicts.length"
         :ui="{ label: 'block' }"
         @click="confirm('undo')"
       />
       <UButton
         label="Restore Revision"
-        icon="hugeicons:arrow-turn-backward"
+        icon="solar:undo-left-round-bold-duotone"
         color="primary"
         variant="solid"
         :disabled="!restoreFields.length"
@@ -71,7 +71,7 @@
   <div v-else-if="detail" class="space-y-4">
     <UAlert
       v-if="!detail.current"
-      icon="hugeicons:alert-02"
+      icon="solar:danger-triangle-bold-duotone"
       color="warning"
       variant="subtle"
       title="Record Deleted"
@@ -80,7 +80,7 @@
 
     <UAlert
       v-else-if="conflicts.length"
-      icon="hugeicons:alert-02"
+      icon="solar:danger-triangle-bold-duotone"
       color="warning"
       variant="subtle"
       title="Edited Again"
@@ -188,8 +188,8 @@ const layout = useState<'split' | 'unified'>(
 )
 
 const layoutItems = [
-  { label: 'Side by Side', value: 'split', icon: 'hugeicons:layout-2-column' },
-  { label: 'Unified', value: 'unified', icon: 'hugeicons:layout-2-row' },
+  { label: 'Side by Side', value: 'split', icon: 'solar:columns-2-bold-duotone' },
+  { label: 'Unified', value: 'unified', icon: 'solar:rows-2-bold-duotone' },
 ]
 
 // Undo / Restore -------------------------------------------------------------

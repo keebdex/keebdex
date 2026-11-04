@@ -114,12 +114,12 @@ const terms = computed(() =>
   [
     tradingCfg.value.shipping_included && {
       label: 'Shipping Included',
-      icon: 'hugeicons:package-moving',
+      icon: 'solar:delivery-bold-duotone',
       class: 'text-info',
     },
     tradingCfg.value.fnf_only && {
       label: 'PayPal F&F Only, No Buyer Protection',
-      icon: 'hugeicons:alert-02',
+      icon: 'solar:danger-triangle-bold-duotone',
       class: 'text-warning',
     },
   ].filter(Boolean),
@@ -130,16 +130,16 @@ const contacts = computed(() => {
 
   return [
     discord && {
-      icon: 'hugeicons:discord',
+      icon: 'simple-icons:discord',
       label: discord,
       class: 'text-(--color-discord)',
     },
     reddit && {
-      icon: 'hugeicons:reddit',
+      icon: 'simple-icons:reddit',
       label: reddit,
       class: 'text-(--color-reddit)',
     },
-    qq && { icon: 'basil:qq-outline', label: qq, class: 'text-(--color-qq)' },
+    qq && { icon: 'simple-icons:qq', label: qq, class: 'text-(--color-qq)' },
   ].filter(Boolean)
 })
 

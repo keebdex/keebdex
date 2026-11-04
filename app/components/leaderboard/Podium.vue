@@ -8,14 +8,14 @@
     >
       <UIcon
         v-if="place.first"
-        name="hugeicons:crown"
+        name="solar:crown-bold-duotone"
         class="size-7 sm:size-9 text-amber-500 mb-1"
       />
 
       <div class="relative">
         <UAvatar
           v-bind="userAvatar(place.entry.avatar, place.entry.name)"
-          icon="hugeicons:user-circle-02"
+          icon="solar:user-circle-bold-duotone"
           :class="[
             'ring-4 ring-offset-2 ring-offset-(--ui-bg)',
             place.medal?.ring,
@@ -26,7 +26,7 @@
           class="absolute -bottom-2 -right-2 flex size-8 sm:size-9 items-center justify-center rounded-full bg-default ring ring-default"
         >
           <UIcon
-            name="hugeicons:champion"
+            name="solar:cup-star-bold-duotone"
             :class="['size-5 sm:size-6', place.medal?.text]"
           />
         </span>

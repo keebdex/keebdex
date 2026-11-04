@@ -1,7 +1,7 @@
 <template>
   <UAuthForm
     title="Welcome back"
-    icon="hugeicons:user-id-verification"
+    icon="solar:user-id-bold-duotone"
     :providers="providers"
     :ui="{
       title:

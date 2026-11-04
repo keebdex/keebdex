@@ -52,7 +52,7 @@ const { item, category, move, itemName } = defineProps({
   move: Boolean,
   icon: {
     type: String,
-    default: 'hugeicons:bookmark-add-02',
+    default: 'solar:bookmark-plus-bold-duotone',
   },
   // Names the item in the button's accessible name ("Save Blue to a
   // collection").
@@ -93,7 +93,7 @@ const items = computed(() => {
     groups.push([
       {
         label: 'New Collection',
-        icon: 'hugeicons:add-01',
+        icon: 'solar:add-circle-bold-duotone',
         onSelect: () => {
           creating.value = true
         },

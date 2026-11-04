@@ -8,7 +8,7 @@
     <UFormField label="Variant Name" name="variant_name" required>
       <UInput
         v-model.trim="variant.variant_name"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -32,7 +32,7 @@
         <UInput
           v-model.number="variant.release_year"
           type="number"
-          icon="hugeicons:calendar-03"
+          icon="solar:calendar-bold-duotone"
           :placeholder="inherited.year ? String(inherited.year) : undefined"
           class="w-full"
         />
@@ -44,7 +44,7 @@
         <USelect
           v-model="variant.sale_type"
           :items="saleFormats"
-          icon="hugeicons:sale-tag-02"
+          icon="solar:tag-price-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -53,7 +53,7 @@
         <UInput
           v-model.number="variant.units_produced"
           type="number"
-          icon="hugeicons:package"
+          icon="solar:box-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -141,7 +141,7 @@
     <UFormField label="Front Image" name="img_front">
       <UInput
         v-model.trim="variant.img_front"
-        icon="hugeicons:image-02"
+        icon="solar:gallery-bold-duotone"
         class="w-full"
       />
 
@@ -158,7 +158,7 @@
     <UFormField label="Back Image" name="img_back">
       <UInput
         v-model.trim="variant.img_back"
-        icon="hugeicons:image-02"
+        icon="solar:gallery-bold-duotone"
         class="w-full"
       />
 
@@ -175,7 +175,7 @@
     <UFormField label="Photo Credit" name="photo_credit">
       <UInput
         v-model.trim="variant.photo_credit"
-        icon="hugeicons:camera-add-02"
+        icon="solar:camera-add-bold-duotone"
         class="w-full"
       />
     </UFormField>

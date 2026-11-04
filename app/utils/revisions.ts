@@ -121,20 +121,20 @@ const BOT_SOURCES: RevisionSource[] = [
 ]
 
 const SOURCE_ICONS: Partial<Record<RevisionSource, string>> = {
-  gdoc: 'hugeicons:google-doc',
-  scraper: 'hugeicons:globe-02',
-  vendor: 'hugeicons:store-01',
-  'image-sync': 'hugeicons:image-upload',
-  maintenance: 'hugeicons:wrench-01',
-  sql: 'hugeicons:database',
-  suggestion: 'hugeicons:pencil-edit-02',
-  revert: 'hugeicons:undo-02',
+  gdoc: 'simple-icons:googledocs',
+  scraper: 'solar:earth-bold-duotone',
+  vendor: 'solar:shop-bold-duotone',
+  'image-sync': 'solar:gallery-send-bold-duotone',
+  maintenance: 'solar:settings-minimalistic-bold-duotone',
+  sql: 'solar:database-bold-duotone',
+  suggestion: 'solar:pen-2-bold-duotone',
+  revert: 'solar:undo-left-bold-duotone',
 }
 
 const ACTION_ICONS: Record<RevisionAction, string> = {
-  insert: 'hugeicons:file-add',
-  update: 'hugeicons:file-edit',
-  delete: 'hugeicons:file-remove',
+  insert: 'solar:file-add-bold-duotone',
+  update: 'solar:file-pen-bold-duotone',
+  delete: 'solar:file-remove-bold-duotone',
 }
 
 export const REVISION_ACTION_LABELS: Record<RevisionAction, string> = {
@@ -161,7 +161,7 @@ const person = (
 ): RevisionAuthor => ({
   key: `user:${id}`,
   name: name || fallback,
-  avatar: avatar ? userAvatar(avatar, name) : { icon: 'hugeicons:user' },
+  avatar: avatar ? userAvatar(avatar, name) : { icon: 'solar:user-bold-duotone' },
   bot: false,
 })
 
@@ -255,20 +255,20 @@ export const revisionRecordName = (revision: Revision) => {
  * and Profiles), the rest picked to match.
  */
 const ENTITY_ICONS: Record<SuggestionEntityType, string> = {
-  artisan_maker: 'hugeicons:user-multiple',
+  artisan_maker: 'solar:users-group-rounded-bold-duotone',
   artisan_sculpt: KEEB_MODULE_ICONS.artisan,
-  artisan_colorway: 'hugeicons:paint-board',
-  keyset_profile: 'hugeicons:cross',
+  artisan_colorway: 'solar:palette-bold-duotone',
+  keyset_profile: 'solar:add-square-bold-duotone',
   keyset: KEEB_MODULE_ICONS.keyset,
-  keyset_kit: 'hugeicons:package',
-  keyboard_brand: 'hugeicons:user-multiple',
+  keyset_kit: 'solar:box-bold-duotone',
+  keyboard_brand: 'solar:users-group-rounded-bold-duotone',
   keyboard: KEEB_MODULE_ICONS.keyboard,
-  keyboard_release: 'hugeicons:rocket-01',
-  keyboard_variant: 'hugeicons:layers-01',
+  keyboard_release: 'solar:rocket-bold-duotone',
+  keyboard_variant: 'solar:layers-bold-duotone',
 }
 
 export const revisionEntityIcon = (revision: Pick<Revision, 'entity_type'>) =>
-  ENTITY_ICONS[revision.entity_type] || 'hugeicons:file-01'
+  ENTITY_ICONS[revision.entity_type] || 'solar:file-bold-duotone'
 
 /** `Colorway`, `Kit`, `Keyboard`. */
 export const revisionEntityLabel = (revision: Pick<Revision, 'entity_type'>) =>

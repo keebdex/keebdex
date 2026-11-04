@@ -8,7 +8,7 @@
         label-key="name"
         :value-key="valueKey"
         :items="items"
-        selected-icon="hugeicons:pin"
+        selected-icon="solar:pin-bold-duotone"
         :ui="{ item: 'items-center' }"
       >
         <template v-if="logos" #item-leading="{ item }">

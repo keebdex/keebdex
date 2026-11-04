@@ -30,8 +30,8 @@
         <UButton
           :icon="
             notification.read_at
-              ? 'hugeicons:mail-01'
-              : 'hugeicons:mail-open-01'
+              ? 'solar:letter-bold-duotone'
+              : 'solar:letter-opened-bold-duotone'
           "
           variant="ghost"
           size="xs"
@@ -42,7 +42,7 @@
 
       <UTooltip text="Delete">
         <UButton
-          icon="hugeicons:delete-02"
+          icon="solar:trash-bin-minimalistic-bold-duotone"
           variant="ghost"
           color="error"
           size="xs"

@@ -157,8 +157,8 @@ export default defineNuxtConfig({
 
   // On Cloudflare, @nuxt/icon would serve icons from the Worker
   // (/api/_nuxt_icon) by downloading and parsing whole collections from
-  // jsDelivr in every new isolate (solar 11.7 MB, simple-icons 4.8 MB,
-  // hugeicons 3.5 MB: about 3-15 ms of CPU and 4-12 MB of memory each). The
+  // jsDelivr in every new isolate (solar 11.7 MB, simple-icons 4.8 MB: about
+  // 3-15 ms of CPU and 4-12 MB of memory each). The
   // icons named in the code are bundled instead (SSR reads the same bundle),
   // and the rest, such as announcement icons from the database, load from the
   // Iconify API.

@@ -34,7 +34,7 @@
               category="keyset"
               :item="{ id, keyset }"
               :move="true"
-              icon="hugeicons:move-to"
+              icon="solar:move-to-folder-bold-duotone"
               @on-select="moveTo"
             />
           </template>
@@ -42,7 +42,7 @@
           <template v-if="isOwner" #footer-end>
             <UTooltip text="Remove">
               <UButton
-                icon="hugeicons:bookmark-minus-02"
+                icon="solar:bookmark-minus-bold-duotone"
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${keyset.name}`"
@@ -55,7 +55,7 @@
 
       <UEmpty
         v-else-if="status === 'success'"
-        icon="hugeicons:grid-view"
+        icon="solar:widget-bold-duotone"
         title="Not a Single Keycap Here"
         description="Save keysets from their pages to start building this collection."
       />
@@ -93,7 +93,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
-      icon: 'hugeicons:collections-bookmark',
+      icon: 'solar:bookmark-square-bold-duotone',
       to: '/collection',
     },
   ]

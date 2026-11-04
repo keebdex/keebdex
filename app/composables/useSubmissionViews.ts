@@ -19,14 +19,14 @@ export const useSubmissionViews = () => {
   const links = computed(() => [
     {
       label: 'New',
-      icon: 'hugeicons:file-add',
+      icon: 'solar:file-add-bold-duotone',
       to: { path: route.path },
       active: view.value === 'new',
       badge: pendingBadge(pending.value?.submissions || 0),
     },
     {
       label: 'Edits',
-      icon: 'hugeicons:pencil-edit-02',
+      icon: 'solar:pen-2-bold-duotone',
       to: { path: route.path, query: { view: 'edits' } },
       active: view.value === 'edits',
       badge: pendingBadge(pending.value?.edits || 0),

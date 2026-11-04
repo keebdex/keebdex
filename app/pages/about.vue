@@ -9,7 +9,7 @@
         <UButton
           :label="authenticated ? 'My Collection' : 'Start Collecting'"
           to="/collection"
-          icon="hugeicons:collections-bookmark"
+          icon="solar:bookmark-square-bold-duotone"
           color="primary"
           size="lg"
           :ui="{ label: 'block' }"
@@ -19,7 +19,7 @@
           to="/why-choose-keebdex"
           variant="link"
           size="lg"
-          trailing-icon="hugeicons:arrow-right-02"
+          trailing-icon="solar:arrow-right-linear"
           :ui="{ label: 'block' }"
         />
       </SharedInfoHero>
@@ -170,17 +170,17 @@ const wizardSteps = [
   {
     title: 'Maker',
     description: 'Pick the maker, or propose a new one.',
-    icon: 'hugeicons:user-multiple',
+    icon: 'solar:users-group-rounded-bold-duotone',
   },
   {
     title: 'Sculpt',
     description: 'Choose the sculpt, or add it with its photos.',
-    icon: 'hugeicons:dashboard-square-02',
+    icon: 'solar:widget-bold-duotone',
   },
   {
     title: 'Colorway',
     description: 'Add the colorways, then send them for review.',
-    icon: 'hugeicons:paint-board',
+    icon: 'solar:palette-bold-duotone',
   },
 ]
 

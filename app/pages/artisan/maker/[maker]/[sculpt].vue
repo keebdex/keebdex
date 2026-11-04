@@ -25,7 +25,7 @@
           <!-- The page's actions sit with the sculpt they act on -->
           <template v-if="authenticated" #links>
             <UButton
-              icon="hugeicons:dashboard-square-add"
+              icon="solar:widget-add-bold-duotone"
               color="primary"
               label="Add Colorway"
               v-bind="addColorwayTarget"
@@ -344,7 +344,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
-      icon: 'hugeicons:user-multiple',
+      icon: 'solar:users-group-rounded-bold-duotone',
       to: '/artisan/maker',
     },
     {

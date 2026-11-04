@@ -66,7 +66,7 @@
 
         <UEmpty
           v-else-if="!entries.length"
-          icon="hugeicons:champion"
+          icon="solar:cup-star-bold-duotone"
           title="No Contributions Yet"
           :description="
             period === 'month'
@@ -76,7 +76,7 @@
           :actions="[
             {
               label: 'Submit to Keebdex',
-              icon: 'hugeicons:arrow-right-02',
+              icon: 'solar:arrow-right-linear',
               to: `/${module === 'all' ? 'artisan' : module}/submissions/submit`,
               ui: { label: 'block' },
             },
@@ -99,7 +99,7 @@
                   class="flex justify-center py-1 text-muted"
                   aria-hidden="true"
                 >
-                  <UIcon name="hugeicons:more-horizontal" class="size-5" />
+                  <UIcon name="solar:menu-dots-bold-duotone" class="size-5" />
                 </div>
 
                 <div v-if="entry.user_id === me?.user_id">
@@ -146,7 +146,7 @@ const periodItems = [
 
 const moduleItems = [
   // Icons only on phones, so both tab groups fit the toolbar
-  { label: 'All', icon: 'hugeicons:infinity-01', value: 'all' },
+  { label: 'All', icon: 'solar:infinity-bold-duotone', value: 'all' },
   ...KEEB_MODULES.map((value) => ({
     label: KEEB_MODULE_LABELS[value],
     icon: KEEB_MODULE_ICONS[value],

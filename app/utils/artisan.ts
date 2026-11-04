@@ -23,27 +23,27 @@ export const sculptSpecItems = (sculpt: Row) =>
     {
       term: 'Profile',
       description: optionLabel(artisanSculptProfiles, sculpt.profile),
-      icon: 'hugeicons:keyboard',
+      icon: 'solar:keyboard-bold-duotone',
     },
     {
       term: 'Cast',
       description: optionLabel(artisanSculptCasts, sculpt.cast),
-      icon: 'hugeicons:test-tube-01',
+      icon: 'solar:test-tube-bold-duotone',
     },
     {
       term: 'Design',
       description: optionLabel(artisanSculptDesigns, sculpt.design),
-      icon: 'hugeicons:paint-brush-01',
+      icon: 'solar:paint-brush-bold-duotone',
     },
     {
       term: 'Release',
       description: sculpt.release,
-      icon: 'hugeicons:calendar-03',
+      icon: 'solar:calendar-bold-duotone',
     },
     {
       term: 'Collection',
       description: sculpt.collection,
-      icon: 'hugeicons:folder-library',
+      icon: 'solar:library-bold-duotone',
     },
   ].filter((spec) => spec.description)
 
@@ -54,36 +54,36 @@ export const colorwaySpecItems = (colorway: Row, { credit = true } = {}) => [
   {
     term: 'Release',
     description: colorway.release,
-    icon: 'hugeicons:calendar-03',
+    icon: 'solar:calendar-bold-duotone',
   },
   {
     term: 'Sale Type',
     description: colorway.sale_type,
-    icon: 'hugeicons:tag-01',
+    icon: 'solar:tag-bold-duotone',
   },
   {
     term: 'Price',
     description: formatPrice(colorway.price, colorway.currency, {
       stripZeros: true,
     }),
-    icon: 'hugeicons:money-03',
+    icon: 'solar:banknote-bold-duotone',
   },
   {
     term: 'Units',
     description: formatNumber(colorway.qty),
-    icon: 'hugeicons:package',
+    icon: 'solar:box-bold-duotone',
   },
   {
     term: 'Stem',
     description: joinSpecList(colorway.stem),
-    icon: 'hugeicons:keyboard',
+    icon: 'solar:keyboard-bold-duotone',
   },
   ...(credit
     ? [
         {
           term: 'Photo Credit',
           description: colorway.photo_credit,
-          icon: 'hugeicons:camera-01',
+          icon: 'solar:camera-bold-duotone',
         },
       ]
     : []),

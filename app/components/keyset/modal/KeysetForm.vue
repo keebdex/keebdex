@@ -3,7 +3,7 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="keyset.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -17,7 +17,7 @@
         :content="{ hideWhenEmpty: true }"
         mode="autocomplete"
         ignore-filter
-        icon="hugeicons:user-star-01"
+        icon="solar:user-rounded-bold-duotone"
         placeholder="Start typing to search designers..."
         class="w-full"
       />
@@ -45,7 +45,7 @@
         <UInputMenu
           v-model.trim="keyset.sculpt"
           :items="sculpts"
-          icon="hugeicons:dashboard-square-02"
+          icon="solar:widget-bold-duotone"
           class="w-full"
         />
       </UFormField>
@@ -65,7 +65,7 @@
     <UFormField label="URL" name="url">
       <UInput
         v-model.trim="keyset.url"
-        icon="hugeicons:globe-02"
+        icon="solar:earth-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -73,7 +73,7 @@
     <UFormField label="Image" name="img">
       <UInput
         v-model.trim="keyset.img"
-        icon="hugeicons:image-02"
+        icon="solar:gallery-bold-duotone"
         class="w-full"
       />
 
@@ -109,7 +109,7 @@
 
     <UFormField label="IC Date" name="ic_date">
       <UPopover>
-        <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
+        <UButton icon="solar:calendar-bold-duotone" variant="outline" class="w-full">
           {{ keyset.ic_date ? formatDate(keyset.ic_date) : 'Select a date' }}
         </UButton>
 
@@ -121,7 +121,7 @@
 
     <UFormField v-if="showGbDate" label="GB Time" name="gb_date">
       <UPopover>
-        <UButton icon="hugeicons:calendar-03" variant="outline" class="w-full">
+        <UButton icon="solar:calendar-bold-duotone" variant="outline" class="w-full">
           <template v-if="range.start">
             <template v-if="range.end">
               {{ formatDateRange(range.start, range.end) }}
@@ -143,7 +143,7 @@
     <UFormField label="Order Graph" name="order_graph">
       <UInput
         v-model.trim="keyset.order_graph"
-        icon="hugeicons:bar-chart-horizontal"
+        icon="solar:chart-2-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -151,7 +151,7 @@
     <UFormField label="Order History" name="order_history">
       <UInput
         v-model.trim="keyset.order_history"
-        icon="hugeicons:chart-line-data-02"
+        icon="solar:graph-up-bold-duotone"
         class="w-full"
       />
     </UFormField>

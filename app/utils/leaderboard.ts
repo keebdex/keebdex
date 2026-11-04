@@ -68,12 +68,12 @@ export const leaderboardMedal = (rank: number) =>
 
 // Count columns of the board on wide screens
 export const LEADERBOARD_COLUMNS = [
-  { key: 'pages', label: 'Pages', noun: 'page', icon: 'hugeicons:file-02' },
-  { key: 'items', label: 'Items', noun: 'item', icon: 'hugeicons:layers-01' },
+  { key: 'pages', label: 'Pages', noun: 'page', icon: 'solar:document-bold-duotone' },
+  { key: 'items', label: 'Items', noun: 'item', icon: 'solar:layers-bold-duotone' },
   {
     key: 'suggestions',
     label: 'Edits',
     noun: 'edit',
-    icon: 'hugeicons:edit-02',
+    icon: 'solar:pen-new-square-bold-duotone',
   },
 ] as const

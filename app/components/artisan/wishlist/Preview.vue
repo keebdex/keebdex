@@ -7,7 +7,7 @@
 
           <UButton
             v-if="totalItems"
-            icon="hugeicons:image-download-02"
+            icon="solar:gallery-download-bold-duotone"
             @click="shareOpen = true"
           >
             Save & Share
@@ -18,7 +18,7 @@
           holds the picker. -->
           <UButton
             v-if="hasCollection"
-            icon="hugeicons:settings-02"
+            icon="solar:settings-bold-duotone"
             aria-label="Wishlist Settings"
             class="lg:hidden"
             @click="sidebarOpen = true"
@@ -55,19 +55,19 @@
     <template v-else #body>
       <UEmpty
         v-if="hasCollection"
-        icon="hugeicons:package-open"
+        icon="solar:box-minimalistic-bold-duotone"
         title="Nothing on This List Yet"
         description="This collection has no artisans yet. Add a few caps, or pick another collection."
         :actions="[
           {
             label: 'Pick Another Collection',
-            icon: 'hugeicons:settings-02',
+            icon: 'solar:settings-bold-duotone',
             onClick: () => (sidebarOpen = true),
             ui: { label: 'block' },
           },
           {
             label: 'Browse Makers',
-            icon: 'hugeicons:search-01',
+            icon: 'solar:magnifer-bold-duotone',
             color: 'neutral',
             to: '/artisan/maker',
             ui: { label: 'block' },
@@ -80,7 +80,7 @@
   </UDashboardPanel>
   <SharedProtectedPage
     v-else
-    icon="hugeicons:magic-wand-01"
+    icon="solar:magic-stick-3-bold-duotone"
     title="Flex Your Wishlist"
     nav-title="Wishlist Image"
     description="Turn your artisan collections into a slick WTB, WTS, or trade image in seconds, ready to drop in Discord, Reddit, or the group chat."
@@ -98,19 +98,19 @@ const toast = useToast()
 
 const signedOutFeatures = [
   {
-    icon: 'hugeicons:drag-drop',
+    icon: 'solar:move-bold-duotone',
     title: 'Drag, Drop, Done',
     description:
       'Line up your caps, flag your grails, and mark the ones you already found.',
   },
   {
-    icon: 'hugeicons:image-composition',
+    icon: 'solar:gallery-wide-bold-duotone',
     title: 'Crisp on Every Screen',
     description:
       'The same sharp grid from your phone or desktop. Download it, copy it, or share it in a tap.',
   },
   {
-    icon: 'hugeicons:left-to-right-list-bullet',
+    icon: 'solar:list-bold-duotone',
     title: 'Text for the Threads',
     description:
       'Prefer words? Grab a ready-to-paste list for Discord and Reddit, or plain text for everywhere else.',

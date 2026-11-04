@@ -11,7 +11,7 @@
     <UBadge
       v-if="variant.photo_credit"
       :label="variant.photo_credit"
-      icon="hugeicons:camera-add-02"
+      icon="solar:camera-add-bold-duotone"
       color="info"
     />
   </div>
@@ -26,9 +26,9 @@ const { variant } = defineProps({
 })
 
 const SALE_BADGES = {
-  Auction: { icon: 'hugeicons:charity', color: 'warning' },
-  Giveaway: { icon: 'hugeicons:wellness', color: 'success' },
-  Commission: { icon: 'hugeicons:save-money-dollar', color: 'info' },
+  Auction: { icon: 'solar:hand-heart-bold-duotone', color: 'warning' },
+  Giveaway: { icon: 'solar:heart-pulse-bold-duotone', color: 'success' },
+  Commission: { icon: 'solar:wallet-money-bold-duotone', color: 'info' },
 }
 
 const saleBadge = computed(() => SALE_BADGES[variant.sale_type])

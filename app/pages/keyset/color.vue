@@ -18,7 +18,7 @@
         <template v-if="editable" #links>
           <UButton
             color="primary"
-            icon="hugeicons:color-picker"
+            icon="solar:pipette-bold-duotone"
             label="Add Color"
             @click="openForm()"
           />
@@ -29,7 +29,7 @@
       <section class="space-y-6 pt-4">
         <UInput
           v-model="term"
-          icon="hugeicons:search-01"
+          icon="solar:magnifer-bold-duotone"
           :placeholder="`Search ${systemLabel} by code or name`"
           aria-label="Search colors"
           :loading="pending"
@@ -61,7 +61,7 @@
 
         <UEmpty
           v-else
-          icon="hugeicons:paint-board"
+          icon="solar:palette-bold-duotone"
           title="No Matching Colors"
           :description="
             debouncedTerm
@@ -73,7 +73,7 @@
               ? [
                   {
                     label: 'Clear Search',
-                    icon: 'hugeicons:cancel-01',
+                    icon: 'solar:close-bold-duotone',
                     onClick: () => (term = ''),
                     ui: { label: 'block' },
                   },

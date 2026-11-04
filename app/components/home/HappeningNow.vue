@@ -31,7 +31,7 @@
             to="/artisan/maker"
             variant="link"
             size="sm"
-            trailing-icon="hugeicons:arrow-right-02"
+            trailing-icon="solar:arrow-right-linear"
             :ui="{ label: 'block' }"
           />
         </template>
@@ -78,7 +78,7 @@
             to="/keyset/group-buy?status=live"
             variant="link"
             size="sm"
-            trailing-icon="hugeicons:arrow-right-02"
+            trailing-icon="solar:arrow-right-linear"
             :ui="{ label: 'block' }"
           />
         </template>

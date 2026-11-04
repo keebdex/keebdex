@@ -28,7 +28,7 @@
           <template #title>
             {{ guide.title }}
             <UIcon
-              name="hugeicons:arrow-up-right-01"
+              name="solar:arrow-right-up-linear"
               class="size-4 shrink-0 text-dimmed group-hover:text-primary"
             />
           </template>

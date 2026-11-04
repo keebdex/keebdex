@@ -44,7 +44,7 @@
               category="keyboard"
               :item="{ id, keyboard }"
               :move="true"
-              icon="hugeicons:move-to"
+              icon="solar:move-to-folder-bold-duotone"
               @on-select="moveTo"
             />
           </template>
@@ -52,7 +52,7 @@
           <template v-if="isOwner" #footer-end>
             <UTooltip text="Remove">
               <UButton
-                icon="hugeicons:bookmark-minus-02"
+                icon="solar:bookmark-minus-bold-duotone"
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${keyboard.variant_name}`"
@@ -65,7 +65,7 @@
 
       <UEmpty
         v-else-if="status === 'success'"
-        icon="hugeicons:keyboard"
+        icon="solar:keyboard-bold-duotone"
         title="No Boards on the Bench"
         description="Save keyboard variants from their pages to fill this collection."
       />
@@ -99,7 +99,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
-      icon: 'hugeicons:collections-bookmark',
+      icon: 'solar:bookmark-square-bold-duotone',
       to: '/collection',
     },
   ]

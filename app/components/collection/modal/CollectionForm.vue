@@ -59,7 +59,7 @@
       >
         <UInput
           v-model.trim="collection.contact"
-          icon="hugeicons:discord"
+          icon="simple-icons:discord"
           placeholder="username"
           class="w-full"
         />

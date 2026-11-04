@@ -17,7 +17,7 @@
       >
         <template v-if="isAdmin" #links>
           <UModal title="Add Keyset">
-            <UButton color="primary" icon="hugeicons:keyboard" label="Add Keyset" />
+            <UButton color="primary" icon="solar:keyboard-bold-duotone" label="Add Keyset" />
 
             <template #body="{ close }">
               <KeysetModalKeysetForm

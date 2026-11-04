@@ -20,13 +20,13 @@
 
     <UEmpty
       v-else-if="!trades.length"
-      icon="hugeicons:store-01"
+      icon="solar:shop-bold-duotone"
       title="No Listings Yet"
       :description="emptyDescription"
       :actions="[
         {
           label: 'Go to My Collection',
-          icon: 'hugeicons:arrow-right-02',
+          icon: 'solar:arrow-right-linear',
           to: '/collection',
           ui: { label: 'block' },
         },
@@ -84,7 +84,7 @@
                 <UBadge
                   v-if="priority"
                   label="Top Priority"
-                  icon="hugeicons:star"
+                  icon="solar:star-bold-duotone"
                   color="primary"
                   size="sm"
                   class="absolute top-2 left-2"
@@ -109,7 +109,7 @@
           <div class="flex flex-col sm:flex-row gap-2 w-full">
             <UButton
               label="View Collection"
-              icon="hugeicons:link-square-02"
+              icon="solar:link-square-bold-duotone"
               :to="`/collection/artisan/${trade.id}`"
               class="justify-center sm:flex-1"
               :ui="{ label: 'block' }"
@@ -117,7 +117,7 @@
             <UButton
               v-if="trade.contact"
               :label="`Copy Discord: ${trade.contact}`"
-              icon="hugeicons:discord"
+              icon="simple-icons:discord"
               color="info"
               class="justify-center sm:flex-1"
               :ui="{ label: 'block truncate' }"

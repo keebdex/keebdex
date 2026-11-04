@@ -10,7 +10,7 @@
           label="All Shoutouts"
           to="/shoutouts"
           variant="ghost"
-          trailing-icon="hugeicons:arrow-right-02"
+          trailing-icon="solar:arrow-right-linear"
           :ui="{ label: 'block' }"
         />
       </template>

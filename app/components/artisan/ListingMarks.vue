@@ -23,7 +23,7 @@
     v-if="buying && item.priority"
     :label="compact ? undefined : 'Top Priority'"
     :aria-label="compact ? 'Top Priority' : undefined"
-    icon="hugeicons:star"
+    icon="solar:star-bold-duotone"
     color="primary"
     variant="solid"
     :size="compact ? 'sm' : 'md'"

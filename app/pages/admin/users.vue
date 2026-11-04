@@ -17,7 +17,7 @@
         >
           <UInput
             v-model="term"
-            icon="hugeicons:search-01"
+            icon="solar:magnifer-bold-duotone"
             placeholder="Search by email, name, or discord"
             class="min-w-0 w-full sm:flex-1"
           />
@@ -92,7 +92,7 @@
             <UButton
               label="Edit"
               size="sm"
-              icon="hugeicons:dashboard-circle-edit"
+              icon="solar:pen-new-square-bold-duotone"
               @click="openEditor(row.original)"
             />
           </template>
@@ -211,7 +211,7 @@ const filterOptions = [
   {
     label: 'All Users',
     value: 'all',
-    icon: 'hugeicons:user-group',
+    icon: 'solar:users-group-two-rounded-bold-duotone',
   },
   ...roleOptions,
 ]

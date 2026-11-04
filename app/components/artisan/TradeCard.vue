@@ -53,15 +53,15 @@
         class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted"
       >
         <span v-if="trade.contact" class="flex min-w-0 items-center gap-1">
-          <UIcon name="hugeicons:discord" class="size-4 shrink-0" />
+          <UIcon name="simple-icons:discord" class="size-4 shrink-0" />
           <span class="truncate">{{ trade.contact }}</span>
         </span>
         <span class="flex items-center gap-1">
-          <UIcon name="hugeicons:package" class="size-4" />
+          <UIcon name="solar:box-bold-duotone" class="size-4" />
           {{ countLabel(trade.items.length, 'cap') }}
         </span>
         <span class="flex items-center gap-1">
-          <UIcon name="hugeicons:calendar-03" class="size-4" />
+          <UIcon name="solar:calendar-bold-duotone" class="size-4" />
           {{ formatDate(trade.created_at) }}
         </span>
       </p>

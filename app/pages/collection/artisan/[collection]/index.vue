@@ -22,7 +22,7 @@
               description="Control the visibility of this collection and generate a shareable link if needed."
             >
               <UButton
-                icon="hugeicons:share-03"
+                icon="solar:share-circle-bold-duotone"
                 label="Share"
                 :ui="{ label: 'block' }"
               />
@@ -40,7 +40,7 @@
                 <UInput :model-value="shareUrl" readonly class="flex-1" />
                 <UButton
                   label="Copy Link"
-                  icon="hugeicons:copy-link"
+                  icon="solar:link-bold-duotone"
                   loading-auto
                   @click="copyShareUrl"
                 />
@@ -65,7 +65,7 @@
       <UAlert
         v-if="hasOutdated"
         description="Outdated items found during database sync. Please remove and re-add from the maker page if needed before deletion."
-        icon="hugeicons:user-warning-01"
+        icon="solar:user-block-bold-duotone"
         color="warning"
       />
 
@@ -94,7 +94,7 @@
           <template v-if="isOwner" #footer-start>
             <UButton
               v-if="artisan.deleted"
-              icon="hugeicons:clean"
+              icon="solar:broom-bold-duotone"
               color="warning"
               label="Clear Outdated"
               :ui="{ label: 'block' }"
@@ -104,7 +104,7 @@
               v-else
               :item="{ ...rest, artisan }"
               :move="true"
-              icon="hugeicons:move-to"
+              icon="solar:move-to-folder-bold-duotone"
               @on-select="moveTo"
             />
           </template>
@@ -112,7 +112,7 @@
           <template v-if="isOwner && !artisan.deleted" #footer-end>
             <UTooltip v-if="listing" text="Edit Listing">
               <UButton
-                icon="hugeicons:edit-01"
+                icon="solar:pen-bold-duotone"
                 variant="ghost"
                 :aria-label="`Edit ${colorwayTitle(artisan)} listing`"
                 @click="editListing({ ...rest, artisan })"
@@ -121,7 +121,7 @@
 
             <UTooltip text="Remove">
               <UButton
-                icon="hugeicons:bookmark-minus-02"
+                icon="solar:bookmark-minus-bold-duotone"
                 color="error"
                 variant="ghost"
                 :aria-label="`Remove ${colorwayTitle(artisan)}`"
@@ -134,7 +134,7 @@
 
       <UEmpty
         v-else-if="status === 'success'"
-        icon="hugeicons:alien-01"
+        icon="solar:ufo-bold-duotone"
         title="No Artisans Have Moved In Yet"
         description="Save artisans from their pages and they will settle in right here."
       />
@@ -196,7 +196,7 @@ const shareItems = computed(() => [
     label: 'Keep Private',
     description: 'Only you have access',
     value: 'private',
-    icon: 'hugeicons:locked',
+    icon: 'solar:lock-bold-duotone',
   },
   {
     label: 'Create Public Link',
@@ -204,7 +204,7 @@ const shareItems = computed(() => [
       ? 'Anyone with the link can view, and it is listed in the Trading Hub'
       : 'Anyone with the link can view',
     value: 'public',
-    icon: 'hugeicons:global',
+    icon: 'solar:global-bold-duotone',
   },
 ])
 
@@ -275,7 +275,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'My Collection',
-      icon: 'hugeicons:collections-bookmark',
+      icon: 'solar:bookmark-square-bold-duotone',
       to: '/collection',
     },
   ]

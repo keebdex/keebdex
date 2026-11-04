@@ -21,7 +21,7 @@
           ignore-filter
           label-key="label"
           value-key="code"
-          icon="hugeicons:tag-01"
+          icon="solar:tag-bold-duotone"
           placeholder="Type a code to search existing colors..."
           class="w-full"
         >
@@ -39,7 +39,7 @@
 
         <UButton
           v-if="isSystemFetchSupported"
-          icon="hugeicons:search-area"
+          icon="solar:magnifer-zoom-in-bold-duotone"
           variant="outline"
           :loading="isFetchingFromSource"
           @click="fetchColorFromSystem"
@@ -63,7 +63,7 @@
     >
       <UInput
         v-model.trim="color.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-square-bold-duotone"
         class="w-full"
       />
     </UFormField>
@@ -76,7 +76,7 @@
     >
       <UInput
         v-model.trim="color.hex"
-        icon="hugeicons:paint-board"
+        icon="solar:palette-bold-duotone"
         class="w-full"
       />
     </UFormField>

@@ -75,7 +75,7 @@
             size="xs"
             variant="soft"
             :icon="
-              canReview(row.original) ? 'hugeicons:file-edit' : 'hugeicons:view'
+              canReview(row.original) ? 'solar:file-pen-bold-duotone' : 'solar:eye-bold-duotone'
             "
             :disabled="busy"
             @click="selected = row.original"
@@ -86,7 +86,7 @@
             size="xs"
             color="error"
             variant="soft"
-            icon="hugeicons:delete-02"
+            icon="solar:trash-bin-minimalistic-bold-duotone"
             :disabled="busy"
             @click="deleteTarget = row.original"
           />
