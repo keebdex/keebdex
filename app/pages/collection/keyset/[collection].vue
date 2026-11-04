@@ -11,40 +11,11 @@
         :ui="detailPageHeaderUi(false)"
       >
         <template v-if="isOwner" #links>
-          <UModal
-            title="Edit Collection"
-          >
-            <UButton icon="hugeicons:bookmark-02" label="Edit" />
-
-            <template #body="{ close }">
-              <CollectionModalCollectionForm
-                :metadata="data"
-                :is-edit="true"
-                @on-success="
-                  () => {
-                    close()
-                    refresh()
-                  }
-                "
-              />
-            </template>
-          </UModal>
-
-          <UModal
-            title="Delete Collection"
-            :description="`Are you sure you want to delete ${data?.name}?`"
-          >
-            <UButton
-              label="Delete"
-              icon="hugeicons:bookmark-remove-02"
-              color="error"
-            />
-
-            <template #footer="{ close }">
-              <UButton label="Cancel" @click="close" />
-              <UButton label="Delete" color="error" @click="deleteCollection" />
-            </template>
-          </UModal>
+          <CollectionHeaderActions
+            :collection="data"
+            @updated="refresh"
+            @deleted="onDeleted"
+          />
         </template>
       </UPageHeader>
 
@@ -105,7 +76,7 @@ import { sortBy } from 'es-toolkit/compat'
 
 const route = useRoute()
 
-const { data, status, refresh, deleteCollection, isOwner } = useCollection(
+const { data, status, refresh, onDeleted, isOwner } = useCollection(
   () => route.params.collection,
   'keyset',
 )

@@ -10,6 +10,7 @@
     :delay="200"
     :delay-on-touch-only="true"
     :touch-start-threshold="5"
+    @end="onDragEnd"
   >
     <template #item="{ element: item }">
       <div class="cursor-move">
@@ -58,7 +59,7 @@
 <script setup>
 import draggable from 'vuedraggable'
 
-defineEmits(['onRemove', 'onHighlight'])
+const emit = defineEmits(['onRemove', 'onHighlight', 'onReorder'])
 
 const tradingCfg = useTradingConfig()
 
@@ -74,6 +75,11 @@ const { data, editable, compact } = defineProps({
   // Want items (priority flag, "found" mark); each section drags on its own.
   buying: Boolean,
 })
+
+// The list is already reordered in place; only a real move is worth saving
+const onDragEnd = ({ oldIndex, newIndex }) => {
+  if (oldIndex !== newIndex) emit('onReorder', data)
+}
 
 // The Top Priority button's tooltip and label: what a click does
 const priorityLabel = (item) =>

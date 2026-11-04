@@ -63,7 +63,6 @@ export default defineNuxtConfig({
     '/notifications': privatePage,
     '/recent-changes': privatePage,
     '/collection': privatePage,
-    '/collection/artisan/*/sort': privatePage,
     // Tools without content of their own stay out of the sitemap
     '/artisan/wishlist': { ssr: false, sitemap: false },
     // Long lists (up to 1000 trade items, 72 search results) take 50-150 ms

@@ -30,3 +30,25 @@ export const TRADE_INTENTS = {
   want: { label: 'Buying', icon: 'hugeicons:money-bag-02', color: 'info' },
   sell: { label: 'Selling', icon: 'hugeicons:sale-tag-02', color: 'warning' },
 } as const
+
+/** The orders an artisan collection offers, the first being the default. */
+export const artisanCollectionSortItems = [
+  {
+    label: 'Maker & Sculpt',
+    description: 'Grouped by maker, then sculpt, then colorway name.',
+    value: 'artisan.maker_sculpt_id|artisan.name',
+  },
+  {
+    label: 'Colorway Name',
+    description: 'Grouped by maker, then colorway name, then sculpt.',
+    value: 'artisan.name|artisan.maker_sculpt_id',
+  },
+]
+
+/**
+ * An artisan collection's `sort_by`, or the default when it holds one the
+ * collection no longer offers (`order|asc`, from the removed Manual Sort).
+ */
+export const artisanCollectionSort = (sortBy?: string | null) =>
+  artisanCollectionSortItems.find(({ value }) => value === sortBy)?.value ??
+  artisanCollectionSortItems[0]!.value

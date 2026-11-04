@@ -11,29 +11,37 @@
       <div class="w-80 max-w-[calc(100vw-2rem)] p-4">
         <p class="font-semibold">How Points Work</p>
         <p class="mt-1 text-sm text-muted">
-          Collectors earn points for what they add to Keebdex, once a
-          moderator approves it.
+          Collectors earn points for what they add to Keebdex, once a moderator
+          approves it.
         </p>
 
-        <ul class="mt-3 divide-y divide-default">
-          <li
+        <UPageList as="ul" divide class="mt-2">
+          <UPageFeature
             v-for="rule in rules"
             :key="rule.key"
-            class="flex items-start gap-3 py-2.5"
+            as="li"
+            :icon="rule.icon"
+            :description="rule.description"
+            :ui="{
+              root: 'py-2.5',
+              wrapper: 'flex-1 min-w-0',
+              title: 'text-sm',
+              description: 'text-sm',
+            }"
           >
-            <UIcon :name="rule.icon" class="size-5 shrink-0 text-muted" />
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium">{{ rule.label }}</p>
-              <p class="text-xs text-muted">{{ rule.description }}</p>
-            </div>
-            <UBadge
-              :label="`+${LEADERBOARD_POINTS[rule.key]}`"
-              color="primary"
-              variant="soft"
-              class="tabular-nums"
-            />
-          </li>
-        </ul>
+            <template #title>
+              <span class="flex items-start justify-between gap-3">
+                {{ rule.label }}
+                <UBadge
+                  :label="`+${LEADERBOARD_POINTS[rule.key]}`"
+                  color="primary"
+                  variant="soft"
+                  class="tabular-nums"
+                />
+              </span>
+            </template>
+          </UPageFeature>
+        </UPageList>
       </div>
     </template>
   </UPopover>

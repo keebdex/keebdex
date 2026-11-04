@@ -3,6 +3,8 @@
     <template #header>
       <UDashboardNavbar title="Wishlist Preview">
         <template #right>
+          <ArtisanWishlistTips v-if="hasCollection" :total-items="totalItems" />
+
           <UButton
             v-if="totalItems"
             icon="hugeicons:image-download-02"
@@ -26,22 +28,6 @@
     </template>
 
     <template v-if="totalItems" #body>
-      <UAlert
-        v-if="!dragHintSeen"
-        icon="hugeicons:drag-drop"
-        color="info"
-        variant="subtle"
-        title="Make It Yours"
-        :description="
-          isMobile
-            ? 'Press and hold a card, then drag it to reorder your list.'
-            : 'Drag cards to reorder your list.'
-        "
-        close
-        class="mx-auto max-w-3xl shrink-0"
-        @update:open="dragHintSeen = true"
-      />
-
       <ArtisanWishlistSheet
         :buying-items="buyingItems"
         :selling-items="sellingItems"
@@ -49,6 +35,7 @@
         :compact="isMobile"
         @remove="remove"
         @highlight="changePriority"
+        @reorder="saveOrder"
       />
 
       <SharedSnapshot ref="snapshot">
@@ -107,6 +94,7 @@ import { groupBy } from 'es-toolkit'
 import { sortBy } from 'es-toolkit/compat'
 
 const { isMobile } = useDevice()
+const toast = useToast()
 
 const signedOutFeatures = [
   {
@@ -153,23 +141,24 @@ const { data: collections, refresh } = await useAsyncData(
 const buyingItems = ref([])
 const sellingItems = ref([])
 
+// Copies: dragging reorders these in place, while `collections` keeps every
+// item of a collection, removed ones included, in its saved order
 watchEffect(() => {
-  buyingItems.value =
-    collections.value[tradingCfg.value.buying.collection] || []
-  sellingItems.value =
-    collections.value[tradingCfg.value.selling.collection] || []
-})
-
-// Shown once the wishlist has items, until dismissed.
-const dragHintSeen = useCookie('wishlist-drag-hint-seen', {
-  default: () => false,
-  maxAge: 60 * 60 * 24 * 365,
+  buyingItems.value = [
+    ...(collections.value[tradingCfg.value.buying.collection] || []),
+  ]
+  sellingItems.value = [
+    ...(collections.value[tradingCfg.value.selling.collection] || []),
+  ]
 })
 
 const hasCollection = computed(() => !!tradingCfg.value.buying.collection)
 
+// Caps on the sheet: Have only counts on a trading list
 const totalItems = computed(
-  () => buyingItems.value.length + sellingItems.value.length,
+  () =>
+    buyingItems.value.length +
+    (tradingCfg.value.type === 'trading' ? sellingItems.value.length : 0),
 )
 
 watch(authenticated, () => refresh())
@@ -190,6 +179,67 @@ const remove = (item) => {
     sellingItems.value = sellingItems.value.filter((i) => i.id !== item.id)
   }
 }
+
+// A drag saves the collection's order, so the image opens in it next time.
+// Removing stays temporary: a removed cap keeps following the cap that was
+// just before it, and comes back there when the list is opened again.
+const saveOrder = (visible) => {
+  const collectionId = visible[0]?.collection_id
+  const all = sortBy(collections.value[collectionId] || [], ['order', 'id'])
+  const shown = new Set(visible.map(({ id }) => id))
+
+  // Removed caps grouped by the shown cap before them (null: at the top)
+  const followers = new Map()
+  let anchor = null
+  for (const item of all) {
+    if (shown.has(item.id)) {
+      anchor = item.id
+    } else {
+      if (!followers.has(anchor)) followers.set(anchor, [])
+      followers.get(anchor).push(item)
+    }
+  }
+
+  const ordered = [
+    ...(followers.get(null) || []),
+    ...visible.flatMap((item) => [item, ...(followers.get(item.id) || [])]),
+  ]
+  const changed = ordered
+    .map((item, order) => ({ item, order }))
+    .filter(({ item, order }) => item.order !== order)
+
+  if (!changed.length) return
+
+  // Kept on the items so the next drag starts from the saved order
+  const pending = pendingOrders.get(collectionId) || new Map()
+  changed.forEach(({ item, order }) => {
+    item.order = order
+    pending.set(item.id, order)
+  })
+  pendingOrders.set(collectionId, pending)
+
+  clearTimeout(flushTimer)
+  flushTimer = setTimeout(flushOrders, 600)
+}
+
+// Drags in quick succession are saved together, one request per collection
+// (each moved cap is still its own update on the server)
+const pendingOrders = new Map()
+let flushTimer
+
+const flushOrders = () => {
+  clearTimeout(flushTimer)
+  pendingOrders.forEach((orders, collectionId) =>
+    $fetch(`/api/users/${user.value.uid}/collections/${collectionId}/sort`, {
+      method: 'post',
+      body: [...orders].map(([id, order]) => ({ id, order })),
+    }).catch((error) => toast.add(errorToast(error))),
+  )
+  pendingOrders.clear()
+}
+
+// Leaving the page right after a drag still saves it
+onBeforeUnmount(flushOrders)
 
 const snapshot = useTemplateRef('snapshot')
 const filename = computed(() => `wishlist-${tradingCfg.value.type}`)

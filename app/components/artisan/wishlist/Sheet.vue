@@ -26,14 +26,6 @@
       </div>
     </header>
 
-    <UAlert
-      v-if="editable && totalItems > 24"
-      icon="hugeicons:information-circle"
-      variant="subtle"
-      color="info"
-      description="The image reads best with 16 to 24 caps."
-    />
-
     <section
       v-for="section in sections"
       :key="section.key"
@@ -76,6 +68,7 @@
         :buying="section.buying"
         @on-remove="$emit('remove', $event)"
         @on-highlight="$emit('highlight', $event)"
+        @on-reorder="$emit('reorder', $event)"
       />
     </section>
 
@@ -89,7 +82,7 @@
 </template>
 
 <script setup>
-defineEmits(['remove', 'highlight'])
+defineEmits(['remove', 'highlight', 'reorder'])
 
 const { buyingItems, sellingItems, editable, compact } = defineProps({
   buyingItems: {
@@ -149,10 +142,6 @@ const contacts = computed(() => {
     qq && { icon: 'basil:qq-outline', label: qq, class: 'text-(--color-qq)' },
   ].filter(Boolean)
 })
-
-const totalItems = computed(
-  () => buyingItems.length + (trading.value ? sellingItems.length : 0),
-)
 
 // Widest section decides the sheet width (plus the p-6 padding).
 const sheetColumns = computed(() => {

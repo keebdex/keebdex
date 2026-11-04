@@ -6,11 +6,15 @@ export const useCollection = (
   const userStore = useUserStore()
   const { collections } = storeToRefs(userStore)
   const router = useRouter()
-  const toast = useToast()
+
+  // During SSR, `useRequestFetch` forwards the visitor's cookies, so the
+  // owner's private collection passes RLS on a direct load too ($fetch
+  // would call the API as a guest and get a 404).
+  const requestFetch = useRequestFetch()
 
   const { data, status, refresh } = useAsyncData(
     `collection-${toValue(collectionId)}`,
-    () => $fetch(`/api/collections/${toValue(collectionId)}`),
+    () => requestFetch(`/api/collections/${toValue(collectionId)}`),
   )
 
   watch(
@@ -18,22 +22,14 @@ export const useCollection = (
     () => refresh(),
   )
 
-  const deleteCollection = () => {
-    return $fetch(
-      `/api/users/${data.value?.uid}/collections/${data.value?.id}`,
-      { method: 'delete' },
+  // After `CollectionHeaderActions` deletes it: drop it from the user's
+  // collections and leave its page
+  const onDeleted = () => {
+    collections.value = collections.value.filter(
+      (c: any) => c.id !== data.value?.id,
     )
-      .then(() => {
-        collections.value = collections.value.filter(
-          (c: any) => c.id !== data.value?.id,
-        )
-        userStore.$patch({ collections: collections.value })
-        toast.add(successToast('delete', { entity: 'Collection', name: data.value?.name }))
-        router.go(-1)
-      })
-      .catch((error: any) => {
-        toast.add(errorToast(error))
-      })
+    userStore.$patch({ collections: collections.value })
+    router.go(-1)
   }
 
   // Shared collections are public: only the owner may edit or delete
@@ -68,7 +64,7 @@ export const useCollection = (
     data,
     status,
     refresh,
-    deleteCollection,
+    onDeleted,
     isOwner,
   }
 }

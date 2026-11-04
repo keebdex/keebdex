@@ -12,52 +12,7 @@
         :class="{ 'opacity-50 grayscale': !item.exchange }"
       />
 
-      <!-- Found or sold: stamped across the photo -->
-      <span
-        v-if="!item.exchange"
-        class="absolute inset-0 flex items-center justify-center"
-      >
-        <span
-          class="-rotate-12 rounded-md border-2 bg-default/80 font-mono font-bold uppercase tracking-widest"
-          :class="[
-            buying ? 'border-success text-success' : 'border-error text-error',
-            compact ? 'px-2 py-0.5 text-sm' : 'px-4 py-1 text-2xl',
-          ]"
-        >
-          {{ buying ? 'Found' : 'Sold' }}
-        </span>
-      </span>
-
-      <!-- Only the star on phones, beside the editor's actions -->
-      <UBadge
-        v-if="highlighted"
-        :label="compact ? undefined : 'Top Priority'"
-        :aria-label="compact ? 'Top Priority' : undefined"
-        icon="hugeicons:star"
-        color="primary"
-        variant="solid"
-        :size="compact ? 'sm' : 'md'"
-        class="absolute start-2 top-2"
-      />
-
-      <span
-        v-if="item.exchange && item.asking_price"
-        class="absolute bottom-2 end-2 flex items-baseline gap-1 rounded-md bg-default/90 font-mono ring ring-default"
-        :class="compact ? 'px-1 py-px' : 'px-2 py-0.5'"
-      >
-        <span
-          class="uppercase tracking-wider text-muted"
-          :class="compact ? 'text-[9px]' : 'text-[10px]'"
-        >
-          {{ buying ? 'Offer' : 'Ask' }}
-        </span>
-        <span
-          class="font-bold text-highlighted"
-          :class="compact ? 'text-xs' : 'text-base'"
-        >
-          {{ item.asking_price }}
-        </span>
-      </span>
+      <ArtisanListingMarks :item="item" :buying="buying" :compact="compact" />
 
       <!-- Editor actions, never in the exported image -->
       <div

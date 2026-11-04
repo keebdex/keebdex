@@ -37,6 +37,7 @@
                   orientation="vertical"
                   disabled
                   :ui="{
+                    trigger: 'size-8',
                     description: 'text-pretty',
                     separator: 'opacity-100',
                   }"

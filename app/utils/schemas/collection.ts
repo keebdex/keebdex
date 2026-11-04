@@ -4,7 +4,11 @@ import { Constants } from '~/types/database.types'
 /** `user_collections.intent`: what an artisan collection is for. */
 export const COLLECTION_INTENTS = ['keep', 'want', 'sell'] as const
 
-/** `user_collections.sort_by`: `<field>|<field>` or `order|asc` (manual). */
+/**
+ * `user_collections.sort_by`: `<field>|<field>` for artisan collections, or
+ * `order|asc` (the order items were added, or dragged to in the Wishlist
+ * Image) for keyset and keyboard collections.
+ */
 export const COLLECTION_SORTS = [
   'artisan.maker_sculpt_id|artisan.name',
   'artisan.name|artisan.maker_sculpt_id',
