@@ -92,7 +92,7 @@ Production runs on Cloudflare Workers, where CPU time per request is capped (`li
 
 ## Generated Data and Database Types
 
-`app/types/database.types.ts` is generated from the Supabase schema, and `server/utils/table-fields.generated.ts` is generated from those types via `bun run generate:table-fields`. Never hand-edit or regenerate either file yourself; they are refreshed outside of your changes once the user applies any related migration against their Supabase project. When a migration adds/changes columns, just describe the expected shape in the migration's comments and leave the generated files untouched.
+`app/types/database.types.ts` is generated from the Supabase schema, and `server/utils/table-fields.generated.ts` is generated from those types via `bun run generate:table-fields`. Never hand-edit either file or run that script directly; the `pre*` hooks of `dev`, `build`, and `generate` rerun it from the committed types, which leaves it unchanged. Both files are refreshed outside of your changes once the user applies any related migration against their Supabase project. When a migration adds/changes columns, just describe the expected shape in the migration's comments and leave the generated files untouched.
 
 Keep database relationships and table names aligned with the generated `Database` type. Do not silently invent columns, tables, or enum values.
 
