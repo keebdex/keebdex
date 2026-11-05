@@ -134,7 +134,7 @@
 
       <UEmpty
         v-else-if="status === 'success'"
-        icon="solar:ufo-bold-duotone"
+        icon="solar:ghost-smile-bold-duotone"
         title="No Artisans Have Moved In Yet"
         description="Save artisans from their pages and they will settle in right here."
       />

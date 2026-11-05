@@ -52,6 +52,13 @@ export const ABOUT_LINKS = INFO_PAGES.filter(({ to }) =>
 // The sidebar's catalog sections and its footer links (Leaderboard,
 // Notifications). The layout adds Feedback and Support, which open its own
 // modals; staff tools and the About links live in the profile menu.
+// Each section's icon while you are on one of its pages (bold-duotone)
+const SECTION_ACTIVE_ICONS: Record<KeebModule, string> = {
+  artisan: 'solar:ghost-smile-bold-duotone',
+  keyboard: 'solar:keyboard-bold-duotone',
+  keyset: 'solar:widget-bold-duotone',
+}
+
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const route = useRoute()
   const { authenticated } = storeToRefs(useUserStore())
@@ -78,6 +85,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       children.push({
         label: 'Submissions',
         icon: 'solar:file-check-line-duotone',
+        activeIcon: 'solar:file-check-bold-duotone',
         to: `/${domain}/submissions`,
         active: isUnder(`/${domain}/submissions`),
         badge: pendingBadge(pendingReviews(domain)),
@@ -90,6 +98,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label,
         icon: KEEB_MODULE_ICONS[domain],
+        activeIcon: SECTION_ACTIVE_ICONS[domain],
         type: 'trigger',
         defaultOpen: true,
         active: isUnder(`/${domain}`),
@@ -103,6 +112,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label: 'My Collection',
         icon: 'solar:bookmark-square-line-duotone',
+        activeIcon: 'solar:bookmark-square-bold-duotone',
         to: '/collection',
         active: isUnder('/collection'),
       },
@@ -111,18 +121,21 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label: 'Makers',
         icon: 'solar:users-group-rounded-line-duotone',
+        activeIcon: 'solar:users-group-rounded-bold-duotone',
         to: '/artisan/maker',
         active: isUnder('/artisan/maker'),
       },
       {
         label: 'Trading Hub',
         icon: 'solar:shop-line-duotone',
+        activeIcon: 'solar:shop-bold-duotone',
         to: '/artisan/marketplace',
         active: route.path === '/artisan/marketplace',
       },
       {
         label: 'Wishlist Image',
         icon: 'solar:magic-stick-3-line-duotone',
+        activeIcon: 'solar:magic-stick-3-bold-duotone',
         to: '/artisan/wishlist',
         active: route.path === '/artisan/wishlist',
       },
@@ -131,6 +144,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label: 'Brands',
         icon: 'solar:users-group-rounded-line-duotone',
+        activeIcon: 'solar:users-group-rounded-bold-duotone',
         to: '/keyboard/brand',
         active: route.path === '/keyboard' || isUnder('/keyboard/brand'),
         exact: false,
@@ -140,6 +154,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label: 'Profiles',
         icon: 'solar:add-square-line-duotone',
+        activeIcon: 'solar:add-square-bold-duotone',
         to: '/keyset',
         exact: true,
         // Every keyset page except the other entries of the section.
@@ -152,12 +167,14 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label: 'Group Buys',
         icon: 'solar:play-stream-line-duotone',
+        activeIcon: 'solar:play-stream-bold-duotone',
         to: '/keyset/group-buy',
         active: route.path === '/keyset/group-buy',
       },
       {
         label: 'Colors',
         icon: 'solar:palette-round-line-duotone',
+        activeIcon: 'solar:palette-round-bold-duotone',
         to: '/keyset/color',
         active: route.path === '/keyset/color',
       },
@@ -169,6 +186,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       {
         label: 'Leaderboard',
         icon: 'solar:cup-star-line-duotone',
+        activeIcon: 'solar:cup-star-bold-duotone',
         to: '/leaderboard',
         active: route.path === '/leaderboard',
       },
@@ -180,6 +198,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       items.push({
         label: 'Notifications',
         icon: 'solar:notification-unread-lines-line-duotone',
+        activeIcon: 'solar:notification-unread-lines-bold-duotone',
         // Straight to the Announcements tab when only announcements are new.
         to:
           !unreadNotifications.value && unreadAnnouncements.value

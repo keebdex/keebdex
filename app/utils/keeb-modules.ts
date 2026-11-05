@@ -24,7 +24,7 @@ export const KEEB_MODULE_LABELS: Record<KeebModule, Enums<'module'>> = {
 }
 
 export const KEEB_MODULE_ICONS: Record<KeebModule, string> = {
-  artisan: 'solar:ufo-line-duotone',
+  artisan: 'solar:ghost-smile-line-duotone',
   keyboard: 'solar:keyboard-line-duotone',
   keyset: 'solar:widget-line-duotone',
 }

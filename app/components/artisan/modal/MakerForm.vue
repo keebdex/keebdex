@@ -119,7 +119,7 @@
     <UFormField label="Instagram" name="instagram">
       <UInput
         v-model.trim="maker.instagram"
-        icon="solar:camera-square-line-duotone"
+        icon="simple-icons:instagram"
         class="w-full"
       />
     </UFormField>

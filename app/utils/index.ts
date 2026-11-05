@@ -216,7 +216,7 @@ const OWNER_LINKS = [
   {
     key: 'instagram',
     label: 'Instagram',
-    icon: 'solar:camera-square-line-duotone',
+    icon: 'simple-icons:instagram',
   },
   { key: 'discord', label: 'Discord', icon: 'simple-icons:discord' },
 ] as const

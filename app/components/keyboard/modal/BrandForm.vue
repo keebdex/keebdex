@@ -54,7 +54,7 @@
     <UFormField label="Instagram" name="instagram">
       <UInput
         v-model.trim="brand.instagram"
-        icon="solar:camera-square-line-duotone"
+        icon="simple-icons:instagram"
         class="w-full"
       />
     </UFormField>

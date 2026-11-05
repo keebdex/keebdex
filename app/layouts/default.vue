@@ -30,7 +30,7 @@
         <UNavigationMenu
           :key="`routes-${routesMenuKey}`"
           :collapsed="collapsed"
-          :items="routes"
+          :items="sidebarRoutes"
           orientation="vertical"
           tooltip
           popover
@@ -96,11 +96,21 @@ const collapsed = ref(false)
 const routesMenuKey = ref(0)
 const { paletteItems } = useThemeMenu()
 const { routes, personalLinks } = useSidebarNavigation(collapsed)
+
+// The page you are on shows its icon filled (bold-duotone), the rest outlined
+const withActiveIcon = (item) => ({
+  ...item,
+  icon: item.active && item.activeIcon ? item.activeIcon : item.icon,
+  children: item.children?.map(withActiveIcon),
+})
+const sidebarRoutes = computed(() =>
+  routes.value.map((group) => group.map(withActiveIcon)),
+)
 const { isModerator } = storeToRefs(useUserStore())
 
 const links = computed(() => [
   [
-    ...personalLinks.value,
+    ...personalLinks.value.map(withActiveIcon),
     // Kept in sight, so reporting a problem never takes a search
     {
       label: 'Feedback',
