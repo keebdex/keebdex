@@ -21,8 +21,8 @@ export const INFO_PAGES = [
   },
   {
     label: 'Why Choose Keebdex?',
-    legend: 'Compare',
-    icon: 'solar:scale-line-duotone',
+    legend: 'Why Us',
+    icon: 'solar:medal-ribbon-star-line-duotone',
     to: '/why-choose-keebdex',
   },
   {
