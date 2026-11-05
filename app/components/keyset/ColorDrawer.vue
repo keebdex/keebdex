@@ -19,7 +19,7 @@
     <template v-if="color && manage && editable" #actions>
       <UTooltip text="Edit">
         <UButton
-          icon="hugeicons:dashboard-circle-edit"
+          icon="solar:pen-new-square-line-duotone"
           variant="ghost"
           aria-label="Edit"
           @click="$emit('edit', color)"
@@ -31,7 +31,7 @@
         text="Delete"
       >
         <UButton
-          icon="hugeicons:delete-02"
+          icon="solar:trash-bin-minimalistic-line-duotone"
           color="error"
           variant="ghost"
           aria-label="Delete"
@@ -54,7 +54,7 @@
           </span>
 
           <UButton
-            icon="hugeicons:copy-01"
+            icon="solar:copy-line-duotone"
             variant="ghost"
             aria-label="Copy hex"
             :class="contrastTextClass(color.hex)"
@@ -125,7 +125,7 @@
 
       <UEmpty
         v-else-if="status === 'error'"
-        icon="hugeicons:paint-board"
+        icon="solar:palette-bold-duotone"
         title="Color Not Found"
         description="This color is not in the catalog. It may have been removed."
       />
@@ -195,7 +195,6 @@ const specs = computed(() => {
   ]
 })
 
-
 const copyHex = async () => {
   try {
     await navigator.clipboard.writeText(color.value.hex)
@@ -204,5 +203,4 @@ const copyHex = async () => {
     toast.add(errorToast(error))
   }
 }
-
 </script>

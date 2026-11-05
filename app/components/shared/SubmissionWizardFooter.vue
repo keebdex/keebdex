@@ -10,7 +10,7 @@
     <UButton
       v-if="wizard.stepper?.hasNext"
       label="Next"
-      trailing-icon="hugeicons:arrow-right-02"
+      trailing-icon="solar:arrow-right-linear"
       :disabled="!wizard.canAdvanceStep"
       @click="wizard.onNext"
     />
@@ -32,7 +32,7 @@
         v-if="userStore.isModerator"
         label="Save & Approve"
         color="success"
-        icon="hugeicons:checkmark-circle-02"
+        icon="solar:check-circle-line-duotone"
         :loading="wizard.savingAction === 'approve'"
         :disabled="wizard.reviewBusy"
         @click="wizard.onReviewAction('approve')"
@@ -43,7 +43,7 @@
         label="Delete"
         color="error"
         variant="soft"
-        icon="hugeicons:delete-02"
+        icon="solar:trash-bin-minimalistic-line-duotone"
         :disabled="wizard.reviewBusy"
         @click="deleteOpen = true"
       />

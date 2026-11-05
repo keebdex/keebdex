@@ -36,7 +36,7 @@
         v-if="to && toLabel"
         :label="toLabel"
         v-bind="announcementLink(to)"
-        trailing-icon="hugeicons:arrow-right-02"
+        trailing-icon="solar:arrow-right-linear"
         variant="link"
         color="primary"
         size="sm"

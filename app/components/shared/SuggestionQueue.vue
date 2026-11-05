@@ -75,18 +75,24 @@
             size="xs"
             variant="soft"
             :icon="
-              canReview(row.original) ? 'hugeicons:file-edit' : 'hugeicons:view'
+              canReview(row.original)
+                ? 'solar:file-pen-line-duotone'
+                : 'solar:eye-line-duotone'
             "
             :disabled="busy"
             @click="selected = row.original"
           />
           <UButton
             v-if="canDelete(row.original)"
-            :label="isOwn(row.original) && !canReview(row.original) ? 'Withdraw' : 'Delete'"
+            :label="
+              isOwn(row.original) && !canReview(row.original)
+                ? 'Withdraw'
+                : 'Delete'
+            "
             size="xs"
             color="error"
             variant="soft"
-            icon="hugeicons:delete-02"
+            icon="solar:trash-bin-minimalistic-line-duotone"
             :disabled="busy"
             @click="deleteTarget = row.original"
           />

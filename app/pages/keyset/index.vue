@@ -14,7 +14,7 @@
           <UModal v-if="editable" title="Add Keyset Profile">
             <UButton
               color="primary"
-              icon="hugeicons:add-square"
+              icon="solar:add-square-line-duotone"
               label="Add Profile"
             />
 
@@ -90,13 +90,13 @@
 
       <UEmpty
         v-else-if="status !== 'pending'"
-        icon="hugeicons:cross"
+        icon="solar:add-square-bold-duotone"
         title="No Profiles Yet"
         description="Submit a keyset to add the first profile to the dex."
         :actions="[
           {
             label: 'Submit a Keyset',
-            icon: 'hugeicons:add-circle',
+            icon: 'solar:add-circle-line-duotone',
             to: '/keyset/submissions/submit',
             ui: { label: 'block' },
           },

@@ -3,7 +3,7 @@
     <UFormField label="Name" name="name">
       <UInput
         v-model.trim="colorway.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -11,7 +11,7 @@
     <UFormField label="Release" name="release">
       <UInput
         v-model.trim="colorway.release"
-        icon="hugeicons:calendar-02"
+        icon="solar:calendar-date-line-duotone"
         placeholder="DD MMM YYYY"
         class="w-full"
       />
@@ -21,7 +21,7 @@
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="colorway.qty"
-          icon="hugeicons:text-number-sign"
+          icon="solar:hashtag-square-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -29,7 +29,7 @@
       <UFormField v-if="showOrder" label="Order" name="order">
         <UInput
           v-model.number="colorway.order"
-          icon="hugeicons:text-number-sign"
+          icon="solar:hashtag-square-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -40,7 +40,7 @@
         <USelect
           v-model="colorway.sale_type"
           :items="saleFormats"
-          icon="hugeicons:sale-tag-02"
+          icon="solar:tag-price-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -62,7 +62,7 @@
         v-model="stems"
         :items="stemItems"
         multiple
-        icon="hugeicons:cross"
+        icon="solar:add-square-line-duotone"
         placeholder="Select stem types"
         class="w-full"
       />
@@ -89,7 +89,7 @@
     >
       <UInput
         v-model.trim="colorway.img"
-        icon="hugeicons:image-02"
+        icon="solar:gallery-line-duotone"
         class="w-full"
       />
 
@@ -110,7 +110,7 @@
     >
       <UInput
         v-model.trim="colorway.photo_credit"
-        icon="hugeicons:camera-add-02"
+        icon="solar:camera-add-line-duotone"
         placeholder="e.g. @username"
         class="w-full"
       />
@@ -236,7 +236,6 @@ const uploading = ref(false)
 const uploadingImage = ref(false)
 const imageUploadFailed = ref(false)
 const uploadedFile = ref(null)
-
 
 const originalColorway = ref({})
 

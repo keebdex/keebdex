@@ -5,7 +5,10 @@
     :open-delay="100"
     :content="{ align: 'end' }"
   >
-    <UButton icon="hugeicons:help-circle" label="How Points Work" />
+    <UButton
+      icon="solar:question-circle-line-duotone"
+      label="How Points Work"
+    />
 
     <template #content>
       <div class="w-80 max-w-[calc(100vw-2rem)] p-4">

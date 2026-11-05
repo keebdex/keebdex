@@ -13,7 +13,7 @@
         :loading="status === 'pending'"
         label-key="name"
         value-key="slug"
-        icon="hugeicons:text-font"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -21,13 +21,17 @@
     <UFormField label="Name" name="name" help="Leave empty for standard kits">
       <UInput
         v-model.trim="kit.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
 
     <UFormField label="Image" name="img">
-      <UInput v-model.trim="kit.img" icon="hugeicons:image-02" class="w-full" />
+      <UInput
+        v-model.trim="kit.img"
+        icon="solar:gallery-line-duotone"
+        class="w-full"
+      />
 
       <SharedImageUpload
         v-model="uploadedFile"
@@ -43,7 +47,7 @@
       <UFormField label="Price" name="price">
         <UInput
           v-model.number="kit.price"
-          icon="hugeicons:sale-tag-02"
+          icon="solar:tag-price-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -51,7 +55,7 @@
       <UFormField label="Quantity" name="quantity">
         <UInput
           v-model.number="kit.qty"
-          icon="hugeicons:text-number-sign"
+          icon="solar:hashtag-square-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -85,11 +89,7 @@
 <script setup>
 import { keysetKitSchema } from '~/utils/schemas/keyset'
 
-const emit = defineEmits([
-  'onSuccess',
-  'update:modelValue',
-  'update:uploading',
-])
+const emit = defineEmits(['onSuccess', 'update:modelValue', 'update:uploading'])
 
 const { metadata, modelValue, isEdit, mode } = defineProps({
   metadata: {
@@ -189,7 +189,12 @@ const onSubmit = async () => {
     body: kit.value,
   })
     .then(() => {
-      toast.add(successToast(isEdit ? 'update' : 'add', { entity: 'Kit', name: kit.value.name }))
+      toast.add(
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Kit',
+          name: kit.value.name,
+        }),
+      )
 
       emit('onSuccess')
     })

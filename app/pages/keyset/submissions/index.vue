@@ -5,7 +5,7 @@
         <template #right>
           <UButton
             label="Submit a Keyset"
-            icon="hugeicons:plus-sign"
+            icon="solar:add-line-duotone"
             to="/keyset/submissions/submit"
           />
         </template>
@@ -53,8 +53,8 @@
               size="sm"
               :icon="
                 row.getIsExpanded()
-                  ? 'hugeicons:arrow-down-01'
-                  : 'hugeicons:arrow-right-01'
+                  ? 'solar:alt-arrow-down-linear'
+                  : 'solar:alt-arrow-right-linear'
               "
               :aria-label="row.getIsExpanded() ? 'Collapse' : 'Expand'"
               @click="row.toggleExpanded()"

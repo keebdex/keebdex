@@ -91,8 +91,9 @@ export interface RevisionColor {
 }
 
 /** A color as keysets list it (`GMK N9`), or its id until it is loaded. */
-export const keysetColorLabel = (color: Partial<RevisionColor> & { id: number }) =>
-  color.system ? `${color.system} ${color.code}` : `Color ${color.id}`
+export const keysetColorLabel = (
+  color: Partial<RevisionColor> & { id: number },
+) => (color.system ? `${color.system} ${color.code}` : `Color ${color.id}`)
 
 export interface RevisionDetail extends Revision {
   snapshot: Record<string, unknown>
@@ -121,20 +122,20 @@ const BOT_SOURCES: RevisionSource[] = [
 ]
 
 const SOURCE_ICONS: Partial<Record<RevisionSource, string>> = {
-  gdoc: 'hugeicons:google-doc',
-  scraper: 'hugeicons:globe-02',
-  vendor: 'hugeicons:store-01',
-  'image-sync': 'hugeicons:image-upload',
-  maintenance: 'hugeicons:wrench-01',
-  sql: 'hugeicons:database',
-  suggestion: 'hugeicons:pencil-edit-02',
-  revert: 'hugeicons:undo-02',
+  gdoc: 'simple-icons:googledocs',
+  scraper: 'solar:earth-line-duotone',
+  vendor: 'solar:shop-line-duotone',
+  'image-sync': 'solar:gallery-send-line-duotone',
+  maintenance: 'solar:settings-minimalistic-line-duotone',
+  sql: 'solar:database-line-duotone',
+  suggestion: 'solar:pen-2-line-duotone',
+  revert: 'solar:undo-left-line-duotone',
 }
 
 const ACTION_ICONS: Record<RevisionAction, string> = {
-  insert: 'hugeicons:file-add',
-  update: 'hugeicons:file-edit',
-  delete: 'hugeicons:file-remove',
+  insert: 'solar:file-add-line-duotone',
+  update: 'solar:file-pen-line-duotone',
+  delete: 'solar:file-remove-line-duotone',
 }
 
 export const REVISION_ACTION_LABELS: Record<RevisionAction, string> = {
@@ -161,7 +162,9 @@ const person = (
 ): RevisionAuthor => ({
   key: `user:${id}`,
   name: name || fallback,
-  avatar: avatar ? userAvatar(avatar, name) : { icon: 'hugeicons:user' },
+  avatar: avatar
+    ? userAvatar(avatar, name)
+    : { icon: 'solar:user-line-duotone' },
   bot: false,
 })
 
@@ -255,20 +258,20 @@ export const revisionRecordName = (revision: Revision) => {
  * and Profiles), the rest picked to match.
  */
 const ENTITY_ICONS: Record<SuggestionEntityType, string> = {
-  artisan_maker: 'hugeicons:user-multiple',
+  artisan_maker: 'solar:users-group-rounded-line-duotone',
   artisan_sculpt: KEEB_MODULE_ICONS.artisan,
-  artisan_colorway: 'hugeicons:paint-board',
-  keyset_profile: 'hugeicons:cross',
+  artisan_colorway: 'solar:palette-line-duotone',
+  keyset_profile: 'solar:add-square-line-duotone',
   keyset: KEEB_MODULE_ICONS.keyset,
-  keyset_kit: 'hugeicons:package',
-  keyboard_brand: 'hugeicons:user-multiple',
+  keyset_kit: 'solar:box-line-duotone',
+  keyboard_brand: 'solar:users-group-rounded-line-duotone',
   keyboard: KEEB_MODULE_ICONS.keyboard,
-  keyboard_release: 'hugeicons:rocket-01',
-  keyboard_variant: 'hugeicons:layers-01',
+  keyboard_release: 'solar:rocket-line-duotone',
+  keyboard_variant: 'solar:layers-line-duotone',
 }
 
 export const revisionEntityIcon = (revision: Pick<Revision, 'entity_type'>) =>
-  ENTITY_ICONS[revision.entity_type] || 'hugeicons:file-01'
+  ENTITY_ICONS[revision.entity_type] || 'solar:file-line-duotone'
 
 /** `Colorway`, `Kit`, `Keyboard`. */
 export const revisionEntityLabel = (revision: Pick<Revision, 'entity_type'>) =>

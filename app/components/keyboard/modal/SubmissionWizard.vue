@@ -198,12 +198,12 @@ const items = computed(() => [
     slot: 'brand',
     title: 'Brand',
     description: brandLabel.value,
-    icon: 'hugeicons:user-multiple',
+    icon: 'solar:users-group-rounded-line-duotone',
   },
   {
     slot: 'keyboard',
     title: 'Keyboard',
-    icon: 'hugeicons:keyboard',
+    icon: 'solar:keyboard-line-duotone',
     description:
       props.mode === 'review' || keyboardMode.value === 'new'
         ? keyboard.value.name
@@ -212,7 +212,7 @@ const items = computed(() => [
   {
     slot: 'release',
     title: 'Release',
-    icon: 'hugeicons:package',
+    icon: 'solar:box-line-duotone',
     description:
       props.mode === 'review' || releaseMode.value === 'new'
         ? release.value.name
@@ -221,7 +221,7 @@ const items = computed(() => [
   {
     slot: 'variant',
     title: 'Variant',
-    icon: 'hugeicons:layers-01',
+    icon: 'solar:layers-line-duotone',
   },
 ])
 </script>

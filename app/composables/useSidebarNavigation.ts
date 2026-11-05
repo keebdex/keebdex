@@ -6,7 +6,7 @@ import type { Ref } from 'vue'
 // this composable.
 export const RECENT_CHANGES_LINK = {
   label: 'Recent Changes',
-  icon: 'hugeicons:time-quarter-pass',
+  icon: 'solar:clock-circle-line-duotone',
   to: '/recent-changes',
 }
 
@@ -16,31 +16,31 @@ export const INFO_PAGES = [
   {
     label: 'About Keebdex',
     legend: 'About',
-    icon: 'hugeicons:badge-info',
+    icon: 'solar:info-square-line-duotone',
     to: '/about',
   },
   {
     label: 'Why Choose Keebdex?',
     legend: 'Compare',
-    icon: 'hugeicons:balance-scale',
+    icon: 'solar:scale-line-duotone',
     to: '/why-choose-keebdex',
   },
   {
     label: 'Changelog',
     legend: 'Changelog',
-    icon: 'hugeicons:scroll-text',
+    icon: 'solar:document-text-line-duotone',
     to: '/changelog',
   },
   {
     label: 'Shoutouts',
     legend: 'Shoutouts',
-    icon: 'hugeicons:bubble-chat-favourite',
+    icon: 'solar:chat-round-like-line-duotone',
     to: '/shoutouts',
   },
   {
     label: 'Privacy Policy',
     legend: 'Privacy',
-    icon: 'hugeicons:shield-user',
+    icon: 'solar:shield-user-line-duotone',
     to: '/privacy',
   },
 ]
@@ -50,7 +50,7 @@ export const ABOUT_LINKS = INFO_PAGES.filter(({ to }) =>
 )
 
 // The sidebar's catalog sections and its footer links (Leaderboard,
-// Notifications). The layout adds Feedback and Donate, which open its own
+// Notifications). The layout adds Feedback and Support, which open its own
 // modals; staff tools and the About links live in the profile menu.
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const route = useRoute()
@@ -77,7 +77,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     if (authenticated.value) {
       children.push({
         label: 'Submissions',
-        icon: 'hugeicons:file-verified',
+        icon: 'solar:file-check-line-duotone',
         to: `/${domain}/submissions`,
         active: isUnder(`/${domain}/submissions`),
         badge: pendingBadge(pendingReviews(domain)),
@@ -102,7 +102,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     [
       {
         label: 'My Collection',
-        icon: 'hugeicons:collections-bookmark',
+        icon: 'solar:bookmark-square-line-duotone',
         to: '/collection',
         active: isUnder('/collection'),
       },
@@ -110,19 +110,19 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     section('artisan', 'Artisans', [
       {
         label: 'Makers',
-        icon: 'hugeicons:user-multiple',
+        icon: 'solar:users-group-rounded-line-duotone',
         to: '/artisan/maker',
         active: isUnder('/artisan/maker'),
       },
       {
         label: 'Trading Hub',
-        icon: 'hugeicons:store-01',
+        icon: 'solar:shop-line-duotone',
         to: '/artisan/marketplace',
         active: route.path === '/artisan/marketplace',
       },
       {
         label: 'Wishlist Image',
-        icon: 'hugeicons:ai-image',
+        icon: 'solar:magic-stick-3-line-duotone',
         to: '/artisan/wishlist',
         active: route.path === '/artisan/wishlist',
       },
@@ -130,7 +130,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     section('keyboard', 'Keyboards', [
       {
         label: 'Brands',
-        icon: 'hugeicons:user-multiple',
+        icon: 'solar:users-group-rounded-line-duotone',
         to: '/keyboard/brand',
         active: route.path === '/keyboard' || isUnder('/keyboard/brand'),
         exact: false,
@@ -139,7 +139,7 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     section('keyset', 'Keysets', [
       {
         label: 'Profiles',
-        icon: 'hugeicons:cross',
+        icon: 'solar:add-square-line-duotone',
         to: '/keyset',
         exact: true,
         // Every keyset page except the other entries of the section.
@@ -151,13 +151,13 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
       },
       {
         label: 'Group Buys',
-        icon: 'hugeicons:live-streaming-02',
+        icon: 'solar:play-stream-line-duotone',
         to: '/keyset/group-buy',
         active: route.path === '/keyset/group-buy',
       },
       {
         label: 'Colors',
-        icon: 'hugeicons:colors',
+        icon: 'solar:palette-round-line-duotone',
         to: '/keyset/color',
         active: route.path === '/keyset/color',
       },
@@ -168,18 +168,18 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
     const items: NavigationMenuItem[] = [
       {
         label: 'Leaderboard',
-        icon: 'hugeicons:champion',
+        icon: 'solar:cup-star-line-duotone',
         to: '/leaderboard',
         active: route.path === '/leaderboard',
       },
     ]
 
-    // Signed-in users only; the dot icon and badge flag unread notifications
+    // Signed-in users only; the badge flags unread notifications
     // and announcements.
     if (authenticated.value) {
       items.push({
         label: 'Notifications',
-        icon: unread.value ? 'hugeicons:bell-dot' : 'hugeicons:notification-01',
+        icon: 'solar:notification-unread-lines-line-duotone',
         // Straight to the Announcements tab when only announcements are new.
         to:
           !unreadNotifications.value && unreadAnnouncements.value

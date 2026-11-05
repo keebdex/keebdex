@@ -47,7 +47,7 @@
             <!-- No cover to show: invite the community to add one -->
             <UTooltip v-if="canAddCover" text="Add Cover">
               <UButton
-                icon="hugeicons:image-add-02"
+                icon="solar:gallery-add-line-duotone"
                 aria-label="Add Cover"
                 @click="suggest('keyset', data)"
               />
@@ -80,7 +80,7 @@
           <template v-if="authenticated" #links>
             <UTooltip text="Add Kit">
               <UButton
-                icon="hugeicons:dashboard-square-add"
+                icon="solar:widget-add-line-duotone"
                 variant="ghost"
                 aria-label="Add Kit"
                 v-bind="addKitTarget"
@@ -128,7 +128,7 @@
 
             <template v-if="kit.qty" #footer-start>
               <div class="flex items-center gap-1.5 text-xs text-muted">
-                <UIcon name="hugeicons:package" class="size-4" />
+                <UIcon name="solar:box-line-duotone" class="size-4" />
                 <span class="tabular-nums">
                   {{ formatNumber(kit.qty) }} units
                 </span>
@@ -139,24 +139,12 @@
 
         <UEmpty
           v-else
-          icon="hugeicons:cells"
+          icon="solar:grid-3x3-bold-duotone"
           title="No Kits Yet"
           :description="
             authenticated
               ? 'Add the base kit first, then alphas, novelties, and spacebars.'
               : 'The kits of this keyset have not been added yet.'
-          "
-          :actions="
-            authenticated
-              ? [
-                  {
-                    label: 'Add Kit',
-                    icon: 'hugeicons:dashboard-square-add',
-                    ui: { label: 'block' },
-                    ...addKitTarget,
-                  },
-                ]
-              : []
           "
         />
       </section>
@@ -176,7 +164,7 @@
           <template v-if="editable" #links>
             <UTooltip text="Add Colors">
               <UButton
-                icon="hugeicons:dashboard-circle-add"
+                icon="solar:widget-add-line-duotone"
                 variant="ghost"
                 aria-label="Add Colors"
                 @click="colorFormOpen = true"
@@ -196,7 +184,7 @@
             <template v-if="editable" #action>
               <UTooltip text="Remove">
                 <UButton
-                  icon="hugeicons:dashboard-circle-remove"
+                  icon="solar:close-square-line-duotone"
                   size="xs"
                   color="error"
                   variant="ghost"
@@ -216,17 +204,9 @@
 
         <UEmpty
           v-else
-          icon="hugeicons:colors"
+          icon="solar:palette-round-bold-duotone"
           title="No Colors Yet"
           description="Add the alpha and modifier colors first, then the accents."
-          :actions="[
-            {
-              label: 'Add Colors',
-              icon: 'hugeicons:dashboard-circle-add',
-              ui: { label: 'block' },
-              onClick: () => (colorFormOpen = true),
-            },
-          ]"
         />
       </section>
 
@@ -391,7 +371,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Profiles',
-      icon: 'hugeicons:cross',
+      icon: 'solar:add-square-line-duotone',
       to: '/keyset',
     },
     {
@@ -409,7 +389,7 @@ const referenceLinks = computed(() => {
   if (data.value.url?.includes('geekhack')) {
     links.push({
       label: 'Geekhack',
-      icon: 'hugeicons:comment-01',
+      icon: 'solar:chat-square-line-duotone',
       to: data.value.url,
       target: '_blank',
       external: true,
@@ -419,7 +399,7 @@ const referenceLinks = computed(() => {
   if (data.value.order_graph) {
     links.push({
       label: 'Order Graph',
-      icon: 'hugeicons:chart-bar-big',
+      icon: 'solar:chart-line-duotone',
       onClick: () =>
         openPreview({
           title: 'Order Graph',
@@ -432,7 +412,7 @@ const referenceLinks = computed(() => {
   if (data.value.order_history) {
     links.push({
       label: 'Order History',
-      icon: 'hugeicons:chart-line-data-02',
+      icon: 'solar:graph-up-line-duotone',
       onClick: () =>
         openPreview({
           title: 'Order History',
@@ -480,22 +460,22 @@ const specs = computed(() => {
     {
       term: 'Designer',
       description: data.value.designer,
-      icon: 'hugeicons:user-edit-01',
+      icon: 'solar:user-speak-line-duotone',
     },
     {
       term: 'Row Sculpt',
       description: data.value.sculpt,
-      icon: 'hugeicons:align-vertical-center',
+      icon: 'solar:align-vertical-center-line-duotone',
     },
     {
       term: 'IC Date',
       description: formatDate(data.value.ic_date),
-      icon: 'hugeicons:bulb',
+      icon: 'solar:lightbulb-line-duotone',
     },
     {
       term: 'Timeline',
       description: formatDateRange(data.value.start_date, data.value.end_date),
-      icon: 'hugeicons:calendar-03',
+      icon: 'solar:calendar-line-duotone',
     },
   ].filter((item) => item.description)
 
@@ -504,7 +484,7 @@ const specs = computed(() => {
   if (phase) {
     items.push({
       term: 'Status',
-      icon: 'hugeicons:activity-01',
+      icon: 'solar:pulse-line-duotone',
       badge: { label: phase, color: keysetPhaseColors[phase] },
     })
   }

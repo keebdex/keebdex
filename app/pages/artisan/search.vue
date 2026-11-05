@@ -202,7 +202,7 @@ const total = computed(() => data.value?.total || 0)
 const emptyState = computed(() => {
   if (term.value.length < SEARCH_TERM_MIN_LENGTH) {
     return {
-      icon: 'hugeicons:search-01',
+      icon: 'solar:magnifer-bold-duotone',
       title: 'Hunt for a Colorway',
       description: `Type at least ${SEARCH_TERM_MIN_LENGTH} characters of a colorway name. Results update as you type.`,
     }
@@ -210,7 +210,7 @@ const emptyState = computed(() => {
 
   if (status.value === 'success' && !total.value) {
     return {
-      icon: 'hugeicons:search-remove',
+      icon: 'solar:magnifer-zoom-out-bold-duotone',
       title: 'This Colorway Is a Unicorn',
       description: `No colorway names match “${term.value}”. Try another spelling or fewer words.`,
     }

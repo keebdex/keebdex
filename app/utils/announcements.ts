@@ -51,7 +51,7 @@ export const ANNOUNCEMENT_STACK_CLASSES = [
   'data-[expanded=true]:translate-y-4',
 ]
 
-export const ANNOUNCEMENT_DEFAULT_ICON = 'hugeicons:megaphone-01'
+export const ANNOUNCEMENT_DEFAULT_ICON = 'solar:bell-bing-line-duotone'
 
 export const ANNOUNCEMENT_DISPLAY_OPTIONS: {
   value: AnnouncementDisplay
@@ -63,19 +63,19 @@ export const ANNOUNCEMENT_DISPLAY_OPTIONS: {
     value: 'toast',
     label: 'Toast',
     description: 'When the site opens; the top three by priority.',
-    icon: 'hugeicons:notification-square',
+    icon: 'solar:bell-bing-line-duotone',
   },
   {
     value: 'banner',
     label: 'Banner',
     description: 'Across the top of every page, one at a time.',
-    icon: 'hugeicons:layout-top',
+    icon: 'solar:panel-top-line-duotone',
   },
   {
     value: 'none',
     label: 'Tab Only',
     description: 'Only in the Announcements tab.',
-    icon: 'hugeicons:inbox',
+    icon: 'solar:inbox-line-duotone',
   },
 ]
 
@@ -149,7 +149,7 @@ export const announcementToast = (
           {
             label: announcement.cta_label,
             ...announcementLink(announcement.cta_url),
-            trailingIcon: 'hugeicons:arrow-right-02',
+            trailingIcon: 'solar:arrow-right-linear',
             onClick: onDismiss,
             ui: { label: 'block' },
           },
@@ -187,7 +187,7 @@ export const announcementBanner = (
           {
             label: announcement.cta_label,
             ...announcementLink(announcement.cta_url),
-            trailingIcon: 'hugeicons:arrow-right-02',
+            trailingIcon: 'solar:arrow-right-linear',
             color: 'neutral' as const,
             variant: 'outline' as const,
             onClick: onDismiss,
@@ -202,13 +202,13 @@ export const announcementSummaryToast = (count: number, to: string) => ({
   id: ANNOUNCEMENT_SUMMARY_TOAST_ID,
   title: `+${count} more ${count === 1 ? 'update' : 'updates'}`,
   description: 'See every announcement in one place.',
-  icon: 'hugeicons:megaphone-01',
+  icon: 'solar:bell-bing-line-duotone',
   color: 'neutral' as const,
   actions: [
     {
       label: 'View All',
       to,
-      trailingIcon: 'hugeicons:arrow-right-02',
+      trailingIcon: 'solar:arrow-right-linear',
       ui: { label: 'block' },
     },
   ],

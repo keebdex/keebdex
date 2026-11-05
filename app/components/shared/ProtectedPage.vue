@@ -13,7 +13,7 @@
         class="mx-auto"
       >
         <template #links>
-          <UButton icon="hugeicons:login-01" @click="visible = true">
+          <UButton icon="solar:login-2-line-duotone" @click="visible = true">
             {{ signInLabel }}
           </UButton>
         </template>

@@ -70,7 +70,7 @@
         <UButton
           label="Go to My Collection"
           to="/collection"
-          trailing-icon="hugeicons:arrow-right-02"
+          trailing-icon="solar:arrow-right-linear"
           size="sm"
           :ui="{ label: 'block' }"
         />

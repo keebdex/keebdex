@@ -4,7 +4,7 @@
       <UDashboardNavbar title="Notifications">
         <template #right>
           <UButton
-            icon="hugeicons:settings-02"
+            icon="solar:settings-line-duotone"
             aria-label="Notification Settings"
             label="Settings"
             to="/account/settings/notifications"
@@ -31,10 +31,7 @@
     </template>
 
     <template #body>
-      <div
-        v-if="tab === 'announcements'"
-        class="space-y-6"
-      >
+      <div v-if="tab === 'announcements'" class="space-y-6">
         <div
           v-if="!announcementsLoaded"
           class="flex justify-center py-16 text-dimmed"
@@ -49,8 +46,8 @@
           v-else-if="!visibleAnnouncements.length"
           :icon="
             unreadOnly
-              ? 'hugeicons:checkmark-circle-02'
-              : 'hugeicons:megaphone-01'
+              ? 'solar:check-circle-bold-duotone'
+              : 'solar:bell-bing-bold-duotone'
           "
           :title="unreadOnly ? 'All Caught Up' : 'No Announcements Right Now'"
           :description="
@@ -79,7 +76,7 @@
               <UButton
                 v-if="!index && currentUnread"
                 label="Mark all as read"
-                icon="hugeicons:check-check"
+                icon="solar:check-read-line-duotone"
                 variant="link"
                 size="xs"
                 class="-my-1 px-0"
@@ -88,7 +85,10 @@
               />
             </div>
 
-            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }">
+            <UPageCard
+              variant="subtle"
+              :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }"
+            >
               <NotificationAnnouncementItem
                 v-for="announcement in group.items"
                 :key="announcement.key"
@@ -117,8 +117,8 @@
           v-else-if="!visible.length && !cursor.hasMore"
           :icon="
             unreadOnly
-              ? 'hugeicons:checkmark-circle-02'
-              : 'hugeicons:notification-01'
+              ? 'solar:check-circle-bold-duotone'
+              : 'solar:notification-unread-lines-bold-duotone'
           "
           :title="
             unreadOnly
@@ -151,7 +151,7 @@
               <UButton
                 v-if="!index && currentUnread"
                 label="Mark all as read"
-                icon="hugeicons:check-check"
+                icon="solar:check-read-line-duotone"
                 variant="link"
                 size="xs"
                 class="-my-1 px-0"
@@ -160,7 +160,10 @@
               />
             </div>
 
-            <UPageCard variant="subtle" :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }">
+            <UPageCard
+              variant="subtle"
+              :ui="{ container: 'p-1 sm:p-1 divide-y divide-default' }"
+            >
               <NotificationItem
                 v-for="notification in group.items"
                 :key="notification.id"
@@ -227,8 +230,7 @@ const router = useRouter()
 // Unread is the default. `?filter=announcements` is the earlier link to the
 // Announcements tab.
 const tab = computed(() =>
-  route.query.tab === 'announcements' ||
-  route.query.filter === 'announcements'
+  route.query.tab === 'announcements' || route.query.filter === 'announcements'
     ? 'announcements'
     : 'notifications',
 )
@@ -272,7 +274,7 @@ onMounted(() => loadAnnouncements())
 const links = computed(() => [
   {
     label: 'Notifications',
-    icon: 'hugeicons:notification-01',
+    icon: 'solar:notification-unread-lines-line-duotone',
     to: { path: '/notifications', query: tabQuery('notifications') },
     active: tab.value === 'notifications',
     badge: unread.value
@@ -285,7 +287,7 @@ const links = computed(() => [
   },
   {
     label: 'Announcements',
-    icon: 'hugeicons:megaphone-01',
+    icon: 'solar:bell-bing-line-duotone',
     to: { path: '/notifications', query: tabQuery('announcements') },
     active: tab.value === 'announcements',
     badge: unreadAnnouncements.value
@@ -339,8 +341,7 @@ const GROUP_IDS: Record<NotificationDateGroup, string> = {
 // Splits newest-first items into date groups (each a consecutive run).
 const groupByDate = <T,>(items: T[], date: (item: T) => string) => {
   const now = new Date()
-  const result: { id: string; label: NotificationDateGroup; items: T[] }[] =
-    []
+  const result: { id: string; label: NotificationDateGroup; items: T[] }[] = []
 
   for (const item of items) {
     const label = notificationDateGroup(date(item), now)

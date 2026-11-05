@@ -17,7 +17,11 @@
       >
         <template v-if="isAdmin" #links>
           <UModal title="Add Keyset">
-            <UButton color="primary" icon="hugeicons:keyboard" label="Add Keyset" />
+            <UButton
+              color="primary"
+              icon="solar:keyboard-line-duotone"
+              label="Add Keyset"
+            />
 
             <template #body="{ close }">
               <KeysetModalKeysetForm
@@ -44,8 +48,12 @@
         >
           <template #empty>
             <UEmpty
-              :icon="tab.icon"
-              :title="status === 'live' ? 'Nothing Live Right Now' : 'No Interest Checks Open'"
+              :icon="tab.emptyIcon"
+              :title="
+                status === 'live'
+                  ? 'Nothing Live Right Now'
+                  : 'No Interest Checks Open'
+              "
               :description="
                 status === 'live'
                   ? 'No group buy is running today. Check the interest checks for what is coming next.'

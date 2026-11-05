@@ -7,7 +7,7 @@
         <template #right>
           <UButton
             label="Add Shoutout"
-            icon="hugeicons:add-01"
+            icon="solar:add-circle-line-duotone"
             @click="openCreateModal"
           />
         </template>
@@ -68,7 +68,7 @@
             <UButton
               label="Edit"
               size="xs"
-              icon="hugeicons:edit-01"
+              icon="solar:pen-line-duotone"
               @click="openEditModal(row.original)"
             />
           </template>

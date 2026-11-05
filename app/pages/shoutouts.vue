@@ -29,7 +29,7 @@
 
           <div v-if="loadingMore" class="flex justify-center pt-2">
             <UIcon
-              name="hugeicons:loading-03"
+              name="solar:refresh-line-duotone"
               class="size-5 animate-spin text-muted"
             />
           </div>

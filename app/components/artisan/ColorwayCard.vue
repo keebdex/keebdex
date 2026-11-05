@@ -30,9 +30,14 @@
           class="flex-1 w-0 min-w-0"
         />
 
-        <UButton icon="hugeicons:copy-02" @click="copyImage"> Copy </UButton>
+        <UButton icon="solar:copy-line-duotone" @click="copyImage">
+          Copy
+        </UButton>
 
-        <UButton icon="hugeicons:image-download-02" @click="downloadImage">
+        <UButton
+          icon="solar:gallery-download-line-duotone"
+          @click="downloadImage"
+        >
           Download
         </UButton>
       </div>
@@ -41,7 +46,6 @@
 </template>
 
 <script setup>
-
 const { colorway } = defineProps({
   colorway: {
     type: Object,

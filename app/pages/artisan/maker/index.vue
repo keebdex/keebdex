@@ -12,7 +12,11 @@
       >
         <template #links>
           <UModal v-if="isAdmin" title="Add Maker">
-            <UButton color="primary" icon="hugeicons:add-team" label="Add Maker" />
+            <UButton
+              color="primary"
+              icon="solar:user-plus-line-duotone"
+              label="Add Maker"
+            />
 
             <template #body="{ close }">
               <ArtisanModalMakerForm
@@ -32,7 +36,10 @@
             description="Pin makers to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+              <UButton
+                icon="solar:pin-line-duotone"
+                aria-label="Customize Pins"
+              />
             </UTooltip>
 
             <template #body="{ close }">

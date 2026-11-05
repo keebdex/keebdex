@@ -25,7 +25,7 @@
           <!-- The page's actions sit with the sculpt they act on -->
           <template v-if="authenticated" #links>
             <UButton
-              icon="hugeicons:dashboard-square-add"
+              icon="solar:widget-add-line-duotone"
               color="primary"
               label="Add Colorway"
               v-bind="addColorwayTarget"
@@ -290,7 +290,11 @@ watch(sortValue, (newValue) => {
   sortOrder.value = order
 })
 
-const { data: sculpt, refresh, error } = await useAsyncData(
+const {
+  data: sculpt,
+  refresh,
+  error,
+} = await useAsyncData(
   `maker:${route.params.maker}:${route.params.sculpt}`,
   () =>
     $fetch(`/api/makers/${route.params.maker}/sculpts/${route.params.sculpt}`, {
@@ -344,7 +348,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
-      icon: 'hugeicons:user-multiple',
+      icon: 'solar:users-group-rounded-line-duotone',
       to: '/artisan/maker',
     },
     {

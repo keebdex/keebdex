@@ -6,7 +6,7 @@
     <UButton
       v-if="expandable"
       :label="allExpanded ? 'Collapse All' : 'Expand All'"
-      :icon="allExpanded ? 'hugeicons:arrow-up-01' : 'hugeicons:arrow-down-01'"
+      :icon="allExpanded ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear'"
       variant="ghost"
       :disabled="disabled"
       @click="emit('toggleAll')"

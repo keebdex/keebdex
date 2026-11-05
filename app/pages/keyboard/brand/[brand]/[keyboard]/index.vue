@@ -144,7 +144,7 @@
           <template v-if="authenticated" #links>
             <UButton
               color="primary"
-              icon="hugeicons:delivery-view-01"
+              icon="solar:delivery-line-duotone"
               label="Add Release"
               v-bind="addReleaseTarget"
             />
@@ -198,7 +198,9 @@
             v-for="keyboard in data.derived_keyboards"
             :key="keyboard.brand_keyboard_slug"
             :to="`/keyboard/brand/${keyboard.brand_keyboard_slug}`"
-            :title="formatKeyboardDescription([keyboard.brand?.name, keyboard.name])"
+            :title="
+              formatKeyboardDescription([keyboard.brand?.name, keyboard.name])
+            "
             reverse
             spotlight
             :ui="{
@@ -254,7 +256,7 @@
                 <div class="flex shrink-0 items-center gap-1">
                   <UTooltip v-if="authenticated" text="Add Variant">
                     <UButton
-                      icon="hugeicons:add-square"
+                      icon="solar:add-square-line-duotone"
                       variant="ghost"
                       aria-label="Add Variant"
                       v-bind="addVariantTarget(release)"
@@ -326,7 +328,7 @@
                     <UBadge
                       v-if="variant.customSpecs"
                       label="Custom Specs"
-                      icon="hugeicons:settings-02"
+                      icon="solar:settings-line-duotone"
                       class="absolute top-2 left-2"
                     />
                   </template>
@@ -352,7 +354,7 @@
 
       <UEmpty
         v-else
-        icon="hugeicons:package"
+        icon="solar:box-bold-duotone"
         title="Nothing Has Shipped Yet"
         description="Know a release of this keyboard? Submit it and our staff will review it before it goes public."
         class="mt-4"
@@ -531,7 +533,7 @@ const releases = computed(() =>
 // The releases as timeline items, with the release itself for the slots
 const timelineItems = computed(() =>
   releases.value.map((release) => ({
-    icon: 'hugeicons:delivery-view-01',
+    icon: 'solar:delivery-line-duotone',
     release,
   })),
 )
@@ -597,7 +599,7 @@ const breadcrumbs = computed(() => {
     {
       label: 'Brands',
       to: '/keyboard/brand',
-      icon: 'hugeicons:user-multiple',
+      icon: 'solar:users-group-rounded-line-duotone',
     },
     {
       label: data.value?.brand?.name,

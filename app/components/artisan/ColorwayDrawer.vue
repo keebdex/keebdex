@@ -46,7 +46,7 @@
       />
 
       <UButton
-        icon="hugeicons:id"
+        icon="solar:user-id-line-duotone"
         label="Share Card"
         :ui="{ label: 'block' }"
         @click="emit('share')"

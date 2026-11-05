@@ -5,7 +5,10 @@
   <UPopover :content="{ align: 'end' }">
     <UTooltip text="Tips">
       <UChip :color="tooMany ? 'warning' : 'primary'" inset>
-        <UButton icon="hugeicons:idea-01" aria-label="Wishlist Tips" />
+        <UButton
+          icon="solar:lightbulb-line-duotone"
+          aria-label="Wishlist Tips"
+        />
       </UChip>
     </UTooltip>
 
@@ -46,7 +49,7 @@ const tooMany = computed(() => totalItems > 24)
 
 const tips = computed(() => [
   {
-    icon: 'hugeicons:drag-drop',
+    icon: 'solar:move-line-duotone',
     title: 'Drag to Reorder',
     description: `${
       isMobile
@@ -55,19 +58,19 @@ const tips = computed(() => [
     } The order is saved to the collection, so the image opens the same way next time.`,
   },
   {
-    icon: 'hugeicons:delete-02',
+    icon: 'solar:trash-bin-minimalistic-line-duotone',
     title: 'Remove Is Just for This Image',
     description:
       'A removed cap stays in your collection and comes back next time, beside the cap it followed.',
   },
   {
-    icon: 'hugeicons:star',
+    icon: 'solar:star-line-duotone',
     title: 'Top Priority Here, or for Good',
     description:
       'The star marks a cap on this image only. To keep it, turn on Priority with Edit Listing on the collection page.',
   },
   {
-    icon: 'hugeicons:grid-view',
+    icon: 'solar:widget-line-duotone',
     title: '16 to 24 Caps Preview Best',
     description: tooMany.value
       ? `This list has ${totalItems} caps, so the image gets tall and Discord or Reddit shows it as a small preview. Add columns in Layout to keep it closer to square, or remove a few caps for this image.`
@@ -75,7 +78,7 @@ const tips = computed(() => [
     warning: tooMany.value,
   },
   {
-    icon: 'hugeicons:left-to-right-list-bullet',
+    icon: 'solar:list-line-duotone',
     title: 'Text for the Threads',
     description:
       'Save & Share also has a Text tab with your list ready to paste in Discord or Reddit.',

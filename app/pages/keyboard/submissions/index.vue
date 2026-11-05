@@ -5,7 +5,7 @@
         <template #right>
           <UButton
             label="Submit a Keyboard"
-            icon="hugeicons:plus-sign"
+            icon="solar:add-line-duotone"
             to="/keyboard/submissions/submit"
           />
         </template>
@@ -53,8 +53,8 @@
               size="sm"
               :icon="
                 row.getIsExpanded()
-                  ? 'hugeicons:arrow-down-01'
-                  : 'hugeicons:arrow-right-01'
+                  ? 'solar:alt-arrow-down-linear'
+                  : 'solar:alt-arrow-right-linear'
               "
               :aria-label="row.getIsExpanded() ? 'Collapse' : 'Expand'"
               @click="row.toggleExpanded()"
@@ -139,7 +139,8 @@
               <template #dimensions-cell="{ row: variantRow }">
                 <SharedImageDimensions
                   :src="
-                    variantRow.original.img_front || variantRow.original.img_back
+                    variantRow.original.img_front ||
+                    variantRow.original.img_back
                   "
                 />
               </template>

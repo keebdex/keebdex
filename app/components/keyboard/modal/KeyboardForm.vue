@@ -3,7 +3,7 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="keyboard.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -27,7 +27,7 @@
     >
       <UInput
         v-model.trim="keyboard.slug"
-        icon="hugeicons:hashtag"
+        icon="solar:hashtag-line-duotone"
         placeholder="my-keyboard"
         class="w-full"
       />
@@ -70,7 +70,7 @@
           v-model.number="keyboard.typing_angle"
           type="number"
           step="0.1"
-          icon="hugeicons:angle-01"
+          icon="solar:ruler-angular-line-duotone"
           class="w-full"
         />
       </UFormField>
@@ -88,7 +88,7 @@
         label-key="label"
         :loading="status === 'pending'"
         ignore-filter
-        icon="hugeicons:keyboard"
+        icon="solar:keyboard-line-duotone"
         placeholder="Type at least 2 characters to search..."
         class="w-full"
       />
@@ -312,7 +312,10 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        successToast(isEdit.value ? 'update' : 'add', { entity: 'Keyboard', name: keyboard.value.name }),
+        successToast(isEdit.value ? 'update' : 'add', {
+          entity: 'Keyboard',
+          name: keyboard.value.name,
+        }),
       )
 
       if (isEdit.value && String(route.params.keyboard || '') !== slug) {

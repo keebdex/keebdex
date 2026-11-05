@@ -16,7 +16,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="hugeicons:keyboard"
+            icon="solar:keyboard-line-duotone"
             label="Add Keyset"
             v-bind="addKeysetTarget"
           />
@@ -42,17 +42,21 @@
         >
           <template #empty>
             <UEmpty
-              icon="hugeicons:keyboard"
+              icon="solar:keyboard-bold-duotone"
               title="No Keysets Yet"
               description="Know a set in this profile? Submit it and our staff will review it before it goes public."
-              :actions="[
-                {
-                  label: 'Add Keyset',
-                  icon: 'hugeicons:add-square',
-                  ui: { label: 'block' },
-                  ...addKeysetTarget,
-                },
-              ]"
+              :actions="
+                authenticated
+                  ? undefined
+                  : [
+                      {
+                        label: 'Add Keyset',
+                        icon: 'solar:add-square-line-duotone',
+                        ui: { label: 'block' },
+                        ...addKeysetTarget,
+                      },
+                    ]
+              "
             />
           </template>
         </KeysetGrid>
@@ -178,12 +182,12 @@ const profileSpecs = computed(() =>
   [
     {
       term: 'Profile',
-      icon: 'hugeicons:layers-01',
+      icon: 'solar:layers-line-duotone',
       description: data.value?.profile?.profile,
     },
     {
       term: 'Manufacturer',
-      icon: 'hugeicons:factory',
+      icon: 'solar:buildings-line-duotone',
       description: data.value?.profile?.manufacturer,
     },
   ].filter((spec) => spec.description),
@@ -192,7 +196,7 @@ const profileSpecs = computed(() =>
 const breadcrumbs = computed(() => [
   {
     label: 'Profiles',
-    icon: 'hugeicons:cross',
+    icon: 'solar:add-square-line-duotone',
     to: '/keyset',
   },
 ])

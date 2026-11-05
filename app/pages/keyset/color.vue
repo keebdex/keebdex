@@ -18,7 +18,7 @@
         <template v-if="editable" #links>
           <UButton
             color="primary"
-            icon="hugeicons:color-picker"
+            icon="solar:pipette-line-duotone"
             label="Add Color"
             @click="openForm()"
           />
@@ -29,17 +29,14 @@
       <section class="space-y-6 pt-4">
         <UInput
           v-model="term"
-          icon="hugeicons:search-01"
+          icon="solar:magnifer-line-duotone"
           :placeholder="`Search ${systemLabel} by code or name`"
           aria-label="Search colors"
           :loading="pending"
           class="w-full sm:max-w-sm"
         />
 
-        <div
-          v-if="colors.length"
-          :class="colorSwatchGridClass"
-        >
+        <div v-if="colors.length" :class="colorSwatchGridClass">
           <KeysetColorTile
             v-for="color in colors"
             :key="color.id"
@@ -49,10 +46,7 @@
         </div>
 
         <!-- A first load, before any swatch has come back -->
-        <div
-          v-else-if="pending"
-          :class="colorSwatchGridClass"
-        >
+        <div v-else-if="pending" :class="colorSwatchGridClass">
           <div v-for="cell in 12" :key="cell" class="space-y-2">
             <USkeleton class="aspect-4/3 w-full rounded-lg" />
             <USkeleton class="h-4 w-2/3" />
@@ -61,7 +55,7 @@
 
         <UEmpty
           v-else
-          icon="hugeicons:paint-board"
+          icon="solar:palette-bold-duotone"
           title="No Matching Colors"
           :description="
             debouncedTerm
@@ -73,7 +67,7 @@
               ? [
                   {
                     label: 'Clear Search',
-                    icon: 'hugeicons:cancel-01',
+                    icon: 'solar:close-line-duotone',
                     onClick: () => (term = ''),
                     ui: { label: 'block' },
                   },

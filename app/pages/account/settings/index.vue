@@ -9,7 +9,7 @@
       <UFormField label="Name" name="name">
         <UInput
           v-model="user.name"
-          icon="hugeicons:user-circle-02"
+          icon="solar:user-circle-line-duotone"
           disabled
           class="w-full"
         />
@@ -18,8 +18,10 @@
       <UFormField label="Email" name="email">
         <UInput
           v-model="user.email"
-          icon="hugeicons:mail-01"
-          :trailing-icon="user.email_verified && 'hugeicons:id-verified'"
+          icon="solar:letter-line-duotone"
+          :trailing-icon="
+            user.email_verified && 'solar:verified-check-line-duotone'
+          "
           disabled
           class="w-full"
           :ui="{
@@ -31,8 +33,10 @@
       <UFormField label="Discord" name="discord">
         <UInput
           v-model="social.discord"
-          icon="hugeicons:discord"
-          :trailing-icon="discordVerified && 'hugeicons:id-verified'"
+          icon="simple-icons:discord"
+          :trailing-icon="
+            discordVerified && 'solar:verified-check-line-duotone'
+          "
           class="w-full"
           :ui="{
             trailingIcon: 'text-primary',
@@ -43,17 +47,13 @@
       <UFormField label="Reddit" name="reddit">
         <UInput
           v-model="social.reddit"
-          icon="hugeicons:reddit"
+          icon="simple-icons:reddit"
           class="w-full"
         />
       </UFormField>
 
       <UFormField label="QQ" name="qq">
-        <UInput
-          v-model="social.qq"
-          icon="hugeicons:bubble-chat"
-          class="w-full"
-        />
+        <UInput v-model="social.qq" icon="simple-icons:qq" class="w-full" />
       </UFormField>
 
       <UButton block color="primary" type="submit" loading-auto> Save </UButton>

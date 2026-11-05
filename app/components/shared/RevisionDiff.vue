@@ -127,9 +127,9 @@ const KIND_LABELS: Record<DiffKind, string> = {
 }
 
 const KIND_ICONS: Record<DiffKind, string> = {
-  added: 'hugeicons:add-01',
-  modified: 'hugeicons:edit-02',
-  removed: 'hugeicons:remove-01',
+  added: 'solar:add-circle-line-duotone',
+  modified: 'solar:pen-new-square-line-duotone',
+  removed: 'solar:minus-circle-line-duotone',
 }
 
 const KIND_COLORS = {

@@ -17,7 +17,7 @@
         <template v-if="authenticated" #actions>
           <UButton
             color="primary"
-            icon="hugeicons:dashboard-square-add"
+            icon="solar:widget-add-line-duotone"
             label="Add Sculpt"
             v-bind="addSculptTarget"
           />
@@ -37,7 +37,10 @@
             description="Pin sculpts to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+              <UButton
+                icon="solar:pin-line-duotone"
+                aria-label="Customize Pins"
+              />
             </UTooltip>
 
             <template #body="{ close }">
@@ -85,17 +88,21 @@
 
       <section v-if="!sculpts.length" class="pt-4">
         <UEmpty
-          icon="hugeicons:dashboard-square-add"
+          icon="solar:widget-add-bold-duotone"
           title="No Sculpts Yet"
           description="Know one of their sculpts? Submit it and our staff will review it before it goes public."
-          :actions="[
-            {
-              label: 'Add Sculpt',
-              icon: 'hugeicons:add-square',
-              ui: { label: 'block' },
-              ...addSculptTarget,
-            },
-          ]"
+          :actions="
+            authenticated
+              ? undefined
+              : [
+                  {
+                    label: 'Add Sculpt',
+                    icon: 'solar:add-square-line-duotone',
+                    ui: { label: 'block' },
+                    ...addSculptTarget,
+                  },
+                ]
+          "
         />
       </section>
 
@@ -168,7 +175,11 @@ const editing = ref(false)
 const addingSculpt = ref(false)
 const history = useTemplateRef('history')
 
-const { data: maker, refresh, error } = await useAsyncData(
+const {
+  data: maker,
+  refresh,
+  error,
+} = await useAsyncData(
   `maker:${route.params.maker}`,
   () => $fetch(`/api/makers/${route.params.maker}`),
   {
@@ -208,7 +219,7 @@ const makerSpecs = computed(() =>
     ? [
         {
           term: 'Founded',
-          icon: 'hugeicons:calendar-03',
+          icon: 'solar:calendar-line-duotone',
           description: maker.value.founded,
         },
       ]
@@ -221,7 +232,7 @@ const makerLinks = computed(() => {
   if (maker.value?.artisancollector) {
     items.push({
       label: 'ArtisanCollector',
-      icon: 'hugeicons:globe-02',
+      icon: 'solar:earth-line-duotone',
       to: maker.value.artisancollector,
       target: '_blank',
     })
@@ -238,7 +249,7 @@ const makerLinks = computed(() => {
           maker.value.document_ids.length > 1
             ? `Catalogue ${idx + 1}`
             : 'Catalogue',
-        icon: 'hugeicons:file-02',
+        icon: 'solar:document-line-duotone',
         to: `https://docs.google.com/document/d/${docId}`,
         target: '_blank',
       })
@@ -252,7 +263,7 @@ const breadcrumbs = computed(() => {
   return [
     {
       label: 'Makers',
-      icon: 'hugeicons:user-multiple',
+      icon: 'solar:users-group-rounded-line-duotone',
       to: '/artisan/maker',
     },
   ]

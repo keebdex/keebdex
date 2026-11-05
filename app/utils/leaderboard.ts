@@ -10,7 +10,9 @@ export const LEADERBOARD_PERIODS = ['all', 'month'] as const
 
 export type LeaderboardPeriod = (typeof LEADERBOARD_PERIODS)[number]
 
-export const isLeaderboardPeriod = (value: unknown): value is LeaderboardPeriod =>
+export const isLeaderboardPeriod = (
+  value: unknown,
+): value is LeaderboardPeriod =>
   LEADERBOARD_PERIODS.includes(value as LeaderboardPeriod)
 
 export interface LeaderboardEntry {
@@ -41,8 +43,7 @@ export const toLeaderboardEntry = (row: {
 export const leaderboardOwnRow = (
   entries: LeaderboardEntry[],
   me: LeaderboardEntry | null | undefined,
-) =>
-  me && !entries.some((entry) => entry.user_id === me.user_id) ? me : null
+) => (me && !entries.some((entry) => entry.user_id === me.user_id) ? me : null)
 
 // Gold, silver, and bronze by rank, so tied collectors share a medal
 export const leaderboardMedal = (rank: number) =>
@@ -68,12 +69,22 @@ export const leaderboardMedal = (rank: number) =>
 
 // Count columns of the board on wide screens
 export const LEADERBOARD_COLUMNS = [
-  { key: 'pages', label: 'Pages', noun: 'page', icon: 'hugeicons:file-02' },
-  { key: 'items', label: 'Items', noun: 'item', icon: 'hugeicons:layers-01' },
+  {
+    key: 'pages',
+    label: 'Pages',
+    noun: 'page',
+    icon: 'solar:document-line-duotone',
+  },
+  {
+    key: 'items',
+    label: 'Items',
+    noun: 'item',
+    icon: 'solar:layers-line-duotone',
+  },
   {
     key: 'suggestions',
     label: 'Edits',
     noun: 'edit',
-    icon: 'hugeicons:edit-02',
+    icon: 'solar:pen-new-square-line-duotone',
   },
 ] as const

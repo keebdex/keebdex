@@ -3,7 +3,7 @@ import { palette, type ThemePreset } from './types'
 export default {
   id: 'taro',
   label: 'Taro',
-  icon: 'hugeicons:bubble-tea-01',
+  icon: 'solar:cup-hot-line-duotone',
   ui: {
     colors: {
       primary: 'taro',

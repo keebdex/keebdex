@@ -27,8 +27,16 @@ export const collectionIntentItems: {
 
 /** How a Trading Hub listing reads, by its collection's intent. */
 export const TRADE_INTENTS = {
-  want: { label: 'Buying', icon: 'hugeicons:money-bag-02', color: 'info' },
-  sell: { label: 'Selling', icon: 'hugeicons:sale-tag-02', color: 'warning' },
+  want: {
+    label: 'Buying',
+    icon: 'solar:money-bag-line-duotone',
+    color: 'info',
+  },
+  sell: {
+    label: 'Selling',
+    icon: 'solar:tag-price-line-duotone',
+    color: 'warning',
+  },
 } as const
 
 /** The orders an artisan collection offers, the first being the default. */

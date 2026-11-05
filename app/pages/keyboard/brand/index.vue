@@ -12,7 +12,11 @@
       >
         <template #links>
           <UModal v-if="editable" title="Add Keyboard Brand">
-            <UButton color="primary" icon="hugeicons:add-team" label="Add Brand" />
+            <UButton
+              color="primary"
+              icon="solar:user-plus-line-duotone"
+              label="Add Brand"
+            />
 
             <template #body="{ close }">
               <KeyboardModalBrandForm
@@ -32,7 +36,10 @@
             description="Pin brands to keep them at the top of the list."
           >
             <UTooltip text="Customize Pins">
-              <UButton icon="hugeicons:pin" aria-label="Customize Pins" />
+              <UButton
+                icon="solar:pin-line-duotone"
+                aria-label="Customize Pins"
+              />
             </UTooltip>
 
             <template #body="{ close }">
@@ -74,13 +81,13 @@
 
       <UEmpty
         v-if="!brands.all.length"
-        icon="hugeicons:keyboard"
+        icon="solar:keyboard-bold-duotone"
         title="No Brands Yet"
         description="Submit a keyboard to add the first brand to the dex."
         :actions="[
           {
             label: 'Submit a Keyboard',
-            icon: 'hugeicons:add-circle',
+            icon: 'solar:add-circle-line-duotone',
             to: '/keyboard/submissions/submit',
             ui: { label: 'block' },
           },

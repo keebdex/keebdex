@@ -2,7 +2,7 @@
   "name": "keebdex",
   "displayName": "Keebdex",
   "version": "4.4.0",
-  "description": "The ultimate platform for keyboard collectors to curate, sync, and showcase their collections. Organize your artisans intelligently, stay synced across devices, and share your passion with fellow enthusiasts.",
+  "description": "Keebdex is the collector's index of artisan keycaps, keysets, and keyboards, and the place to keep track of your own collection.",
   "private": true,
   "repository": {
     "type": "git",
@@ -58,7 +58,6 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "@iconify-json/hugeicons": "^1.2.35",
     "@iconify-json/simple-icons": "^1.2.101",
     "@iconify-json/solar": "^1.2.13",
     "@nuxt/content": "^3.16.1",

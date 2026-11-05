@@ -70,7 +70,7 @@
       />
 
       <UButton
-        icon="hugeicons:copy-02"
+        icon="solar:copy-line-duotone"
         label="Copy Image"
         :ui="{ label: 'block' }"
         @click="copyImage"

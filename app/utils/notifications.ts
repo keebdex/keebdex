@@ -73,7 +73,7 @@ const ROLE_LABELS: Record<string, string> = {
   editor: 'an Editor',
   maker: 'a Maker',
   designer: 'a Designer',
-  donator: 'a Donator',
+  donator: 'a Supporter',
 }
 
 const REGISTRY: Record<string, NotificationRenderer> = {
@@ -88,7 +88,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       return {
         title: 'Submission Approved',
         description: `Your ${subject} ${verb} been approved and ${isPlural(data) ? 'are' : 'is'} now public.`,
-        icon: 'hugeicons:checkmark-circle-02',
+        icon: 'solar:check-circle-line-duotone',
         color: 'success',
         to:
           paths && data.parent_key ? paths.detail(data.parent_key) : undefined,
@@ -99,7 +99,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       title: 'Submission Rejected',
       description: `Your ${subject} ${verb} been rejected. Edit to send ${isPlural(data) ? 'them' : 'it'} back for review.`,
       note: data.note,
-      icon: 'hugeicons:cancel-circle',
+      icon: 'solar:close-circle-line-duotone',
       color: 'error',
       to: paths?.queue,
     }
@@ -116,7 +116,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     return {
       title: 'Submission Resubmitted',
       description: `${lead} back for review.`,
-      icon: 'hugeicons:file-verified',
+      icon: 'solar:file-check-line-duotone',
       color: 'info',
       to: SUBMISSION_PATHS[data.domain]?.queue,
     }
@@ -127,7 +127,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     title: 'Submission Deleted',
     description: `Your ${submissionSubject(data)} ${isPlural(data) ? 'have' : 'has'} been deleted by a moderator.`,
     note: data.note,
-    icon: 'hugeicons:delete-02',
+    icon: 'solar:trash-bin-minimalistic-line-duotone',
     color: 'warning',
     to: SUBMISSION_PATHS[data.domain]?.queue,
   }),
@@ -148,7 +148,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       return {
         title: 'Edit Approved',
         description: `Your ${subject} ${verb} been approved and ${count > 1 ? 'are' : 'is'} now live. Thanks for helping keep Keebdex accurate!`,
-        icon: 'hugeicons:checkmark-circle-02',
+        icon: 'solar:check-circle-line-duotone',
         color: 'success',
         to:
           paths && data.parent_key ? paths.detail(data.parent_key) : undefined,
@@ -159,7 +159,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       title: 'Edit Rejected',
       description: `Your ${subject} ${verb} been rejected.`,
       note: data.note,
-      icon: 'hugeicons:cancel-circle',
+      icon: 'solar:close-circle-line-duotone',
       color: 'error',
       to: paths ? `${paths.queue}?view=edits` : undefined,
     }
@@ -187,7 +187,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     return {
       title: 'Account Access Updated',
       description,
-      icon: 'hugeicons:user-shield-01',
+      icon: 'solar:shield-user-line-duotone',
       color: 'info',
     }
   },
@@ -199,7 +199,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       : 'We resolved your feedback. Thanks for helping improve Keebdex!',
     quote: data.message,
     note: data.note,
-    icon: 'hugeicons:message-done-02',
+    icon: 'solar:chat-round-check-line-duotone',
     color: 'success',
   }),
 }
@@ -207,7 +207,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
 const fallback: NotificationRenderer = () => ({
   title: 'Notification',
   description: 'You have a new notification.',
-  icon: 'hugeicons:notification-01',
+  icon: 'solar:notification-unread-lines-line-duotone',
   color: 'info',
 })
 

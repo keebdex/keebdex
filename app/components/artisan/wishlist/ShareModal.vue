@@ -17,7 +17,7 @@
             </div>
             <UEmpty
               v-else-if="imageError"
-              icon="hugeicons:image-not-found-01"
+              icon="solar:gallery-remove-bold-duotone"
               title="Image Not Created"
               :description="imageError"
               :actions="[{ label: 'Try Again', onClick: renderImage }]"
@@ -27,7 +27,7 @@
             <UButton
               v-if="shareImageSupported"
               block
-              icon="hugeicons:share-08"
+              icon="solar:share-line-duotone"
               :disabled="!imageBlob"
               @click="shareImage"
             >
@@ -36,7 +36,7 @@
             <div class="grid grid-cols-2 gap-2">
               <UButton
                 block
-                icon="hugeicons:album-01"
+                icon="solar:album-line-duotone"
                 :disabled="!imageBlob"
                 @click="copyBlob(imageBlob, toast)"
               >
@@ -44,7 +44,7 @@
               </UButton>
               <UButton
                 block
-                icon="hugeicons:image-download-02"
+                icon="solar:gallery-download-line-duotone"
                 :disabled="!imageBlob"
                 @click="downloadBlob(imageBlob, filename)"
               >
@@ -78,13 +78,13 @@
               class="grid gap-2"
               :class="shareTextSupported ? 'grid-cols-2' : 'grid-cols-1'"
             >
-              <UButton block icon="hugeicons:copy-01" @click="copyText">
+              <UButton block icon="solar:copy-line-duotone" @click="copyText">
                 Copy Text
               </UButton>
               <UButton
                 v-if="shareTextSupported"
                 block
-                icon="hugeicons:share-08"
+                icon="solar:share-line-duotone"
                 @click="shareText"
               >
                 Share Text
@@ -121,8 +121,18 @@ const toast = useToast()
 const { isMobile } = useDevice()
 
 const tabs = [
-  { label: 'Image', icon: 'hugeicons:image-02', slot: 'image', value: 'image' },
-  { label: 'Text', icon: 'hugeicons:text', slot: 'text', value: 'text' },
+  {
+    label: 'Image',
+    icon: 'solar:gallery-line-duotone',
+    slot: 'image',
+    value: 'image',
+  },
+  {
+    label: 'Text',
+    icon: 'solar:text-line-duotone',
+    slot: 'text',
+    value: 'text',
+  },
 ]
 const tab = ref('image')
 

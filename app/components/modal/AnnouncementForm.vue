@@ -107,7 +107,7 @@
       >
         <UPopover>
           <UButton
-            icon="hugeicons:calendar-03"
+            icon="solar:calendar-line-duotone"
             variant="outline"
             class="w-full"
           >
@@ -128,7 +128,7 @@
         <UFieldGroup class="w-full">
           <UPopover>
             <UButton
-              icon="hugeicons:calendar-03"
+              icon="solar:calendar-line-duotone"
               variant="outline"
               class="flex-1"
             >
@@ -142,7 +142,7 @@
 
           <UButton
             v-if="endsOn"
-            icon="hugeicons:cancel-01"
+            icon="solar:close-line-duotone"
             variant="outline"
             aria-label="Clear end date"
             @click="endsOn = undefined"
@@ -174,7 +174,7 @@
         <UButton
           v-if="form.display === 'toast'"
           label="Preview Toast"
-          icon="hugeicons:eye"
+          icon="solar:eye-line-duotone"
           size="sm"
           :ui="{ label: 'block' }"
           :disabled="!form.title.trim()"

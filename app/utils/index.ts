@@ -86,14 +86,16 @@ export const groupBuyTabs = {
     label: 'Interest Check',
     description:
       'Sets currently in the interest check stage where designers gather community feedback.',
-    icon: 'hugeicons:idea-01',
+    icon: 'solar:lightbulb-line-duotone',
+    emptyIcon: 'solar:lightbulb-bold-duotone',
   },
   live: {
     title: 'Group Buy Live',
     label: 'Live',
     description:
       'Sets whose group buy is running today, going by its start and end dates.',
-    icon: 'hugeicons:live-streaming-02',
+    icon: 'solar:play-stream-line-duotone',
+    emptyIcon: 'solar:play-stream-bold-duotone',
   },
 }
 
@@ -136,31 +138,31 @@ export const roleMap: Record<
 > = {
   admin: {
     label: 'Administrator',
-    icon: 'hugeicons:user-shield-01',
+    icon: 'solar:shield-user-line-duotone',
     class: 'text-error',
     color: 'error',
   },
   editor: {
     label: 'Editor',
-    icon: 'hugeicons:user-edit-01',
+    icon: 'solar:user-speak-line-duotone',
     class: 'text-warning',
     color: 'warning',
   },
   maker: {
     label: 'Maker',
-    icon: 'hugeicons:user-star-01',
+    icon: 'solar:user-rounded-line-duotone',
     class: 'text-info',
     color: 'info',
   },
   designer: {
     label: 'Designer',
-    icon: 'hugeicons:user-star-01',
+    icon: 'solar:user-rounded-line-duotone',
     class: 'text-info',
     color: 'info',
   },
   donator: {
-    label: 'Donator',
-    icon: 'hugeicons:user-love-01',
+    label: 'Supporter',
+    icon: 'solar:user-heart-line-duotone',
     class: 'text-donator',
     color: 'success',
   },
@@ -210,9 +212,13 @@ export const splitPinned = <T>(items: T[], isPinned: (item: T) => boolean) => {
 
 // A maker's or brand's own links (website and socials), opened in a new tab
 const OWNER_LINKS = [
-  { key: 'website', label: 'Website', icon: 'hugeicons:globe-02' },
-  { key: 'instagram', label: 'Instagram', icon: 'hugeicons:instagram' },
-  { key: 'discord', label: 'Discord', icon: 'hugeicons:discord' },
+  { key: 'website', label: 'Website', icon: 'solar:earth-line-duotone' },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    icon: 'solar:camera-square-line-duotone',
+  },
+  { key: 'discord', label: 'Discord', icon: 'simple-icons:discord' },
 ] as const
 
 export const ownerLinks = (

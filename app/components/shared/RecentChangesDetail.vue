@@ -4,7 +4,7 @@
       <UDashboardNavbar :toggle="false">
         <template #leading>
           <UButton
-            icon="hugeicons:arrow-left-02"
+            icon="solar:arrow-left-linear"
             variant="ghost"
             aria-label="Back to Recent Changes"
             class="-ms-1.5 lg:hidden"
@@ -19,7 +19,7 @@
         <template #right>
           <UTooltip v-if="page?.path" text="Open History">
             <UButton
-              icon="hugeicons:time-quarter-pass"
+              icon="solar:clock-circle-line-duotone"
               aria-label="Open History"
               :to="`${page.path}?history=1&rev=${revisionId}`"
             />
@@ -43,7 +43,7 @@
           <UFieldGroup>
             <UTooltip text="Newer Change">
               <UButton
-                icon="hugeicons:arrow-left-01"
+                icon="solar:alt-arrow-left-linear"
                 variant="outline"
                 aria-label="Newer Change"
                 :disabled="position <= 0"
@@ -52,7 +52,7 @@
             </UTooltip>
             <UTooltip text="Older Change">
               <UButton
-                icon="hugeicons:arrow-right-01"
+                icon="solar:alt-arrow-right-linear"
                 variant="outline"
                 aria-label="Older Change"
                 :disabled="position >= revisions.length - 1"

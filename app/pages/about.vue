@@ -9,7 +9,7 @@
         <UButton
           :label="authenticated ? 'My Collection' : 'Start Collecting'"
           to="/collection"
-          icon="hugeicons:collections-bookmark"
+          icon="solar:bookmark-square-line-duotone"
           color="primary"
           size="lg"
           :ui="{ label: 'block' }"
@@ -19,7 +19,7 @@
           to="/why-choose-keebdex"
           variant="link"
           size="lg"
-          trailing-icon="hugeicons:arrow-right-02"
+          trailing-icon="solar:arrow-right-linear"
           :ui="{ label: 'block' }"
         />
       </SharedInfoHero>
@@ -140,8 +140,8 @@ import { resolvePresetToken } from '~/utils/theme-presets'
 
 const { authenticated } = storeToRefs(useUserStore())
 
-const description =
-  'Keebdex is a catalog of artisan keycaps, keysets, and keyboards, made for the collectors who hunt, keep, and trade them.'
+// The site description (package.json), which the home page also shows
+const { description } = useRuntimeConfig().public.site
 
 // The sections fill the panel, which sets the width and gutters, and the
 // titles step down from the hero's size
@@ -158,29 +158,27 @@ const showcase = computed(() => statistics.value.showcase)
 // get a resized copy instead of the original
 const img = useImage()
 const shareCards = computed(() =>
-  showcase.value
-    .slice(0, 2)
-    .map((colorway) => ({
-      ...colorway,
-      img: img(colorway.img, { width: 400 }),
-    })),
+  showcase.value.slice(0, 2).map((colorway) => ({
+    ...colorway,
+    img: img(colorway.img, { width: 400 }),
+  })),
 )
 
 const wizardSteps = [
   {
     title: 'Maker',
     description: 'Pick the maker, or propose a new one.',
-    icon: 'hugeicons:user-multiple',
+    icon: 'solar:users-group-rounded-line-duotone',
   },
   {
     title: 'Sculpt',
     description: 'Choose the sculpt, or add it with its photos.',
-    icon: 'hugeicons:dashboard-square-02',
+    icon: 'solar:widget-line-duotone',
   },
   {
     title: 'Colorway',
     description: 'Add the colorways, then send them for review.',
-    icon: 'hugeicons:paint-board',
+    icon: 'solar:palette-line-duotone',
   },
 ]
 
@@ -296,7 +294,7 @@ const groups = [
           'Spot a wrong date or a missing photo? Suggest a fix from the page itself, and a moderator reviews it before it changes.',
       },
       {
-        icon: 'solar:bell-bold-duotone',
+        icon: 'solar:notification-unread-lines-bold-duotone',
         title: 'Hear Back',
         description:
           "Get notified when a submission is approved or rejected, with the moderator's note, and choose what you hear about in your settings.",

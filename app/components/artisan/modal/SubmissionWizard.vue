@@ -17,11 +17,7 @@
           hint="Pick the maker this colorway belongs to, or propose one Keebdex doesn't list yet."
           :to="`/artisan/maker/${maker.id}`"
         >
-          <ArtisanModalMakerForm
-            v-model="makerDraft"
-            mode="embedded"
-            suggest
-          />
+          <ArtisanModalMakerForm v-model="makerDraft" mode="embedded" suggest />
         </SharedSubmissionEntityStep>
       </template>
 
@@ -150,19 +146,21 @@ const items = computed(() => [
     slot: 'maker',
     title: 'Maker',
     description: makerLabel.value,
-    icon: 'hugeicons:user-multiple',
+    icon: 'solar:users-group-rounded-line-duotone',
   },
   {
     slot: 'sculpt',
     title: 'Sculpt',
-    icon: 'hugeicons:dashboard-square-02',
+    icon: 'solar:widget-line-duotone',
     description:
-      sculptMode.value === 'new' ? sculpt.value.name : selectedSculptLabel.value,
+      sculptMode.value === 'new'
+        ? sculpt.value.name
+        : selectedSculptLabel.value,
   },
   {
     slot: 'colorway',
     title: 'Colorway',
-    icon: 'hugeicons:paint-board',
+    icon: 'solar:palette-line-duotone',
   },
 ])
 </script>

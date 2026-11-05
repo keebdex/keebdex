@@ -37,7 +37,7 @@
       </span>
 
       <UIcon
-        name="hugeicons:arrow-right-01"
+        name="solar:alt-arrow-right-linear"
         :class="['size-4 shrink-0', selected ? 'text-primary' : 'text-dimmed']"
       />
     </span>

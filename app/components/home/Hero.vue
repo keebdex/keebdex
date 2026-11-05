@@ -10,8 +10,7 @@
       // Each part rises in after the one above it (home-rise, main.css); the
       // title, the largest paint, goes first with the headline
       headline: ['mb-4 text-primary home-rise', eyebrowClass],
-      title:
-        'text-4xl sm:text-5xl xl:text-6xl text-balance home-rise',
+      title: 'text-4xl sm:text-5xl xl:text-6xl text-balance home-rise',
       description: 'mt-5 max-w-xl home-rise [--i:1]',
       body: 'mt-8 home-rise [--i:2]',
       footer: 'mt-10 home-rise [--i:3]',
@@ -36,7 +35,7 @@
         <UButton
           :label="authenticated ? 'My Collection' : 'Start Collecting'"
           to="/collection"
-          icon="hugeicons:collections-bookmark"
+          icon="solar:bookmark-square-line-duotone"
           color="primary"
           size="lg"
           :ui="{ label: 'block' }"
@@ -46,7 +45,7 @@
           to="/why-choose-keebdex"
           variant="link"
           size="lg"
-          trailing-icon="hugeicons:arrow-right-02"
+          trailing-icon="solar:arrow-right-linear"
           :ui="{ label: 'block' }"
         />
       </div>

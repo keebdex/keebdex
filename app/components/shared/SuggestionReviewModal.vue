@@ -4,7 +4,7 @@
       <div v-if="suggestion" class="space-y-4">
         <UAlert
           v-if="!suggestion.record"
-          icon="hugeicons:alert-02"
+          icon="solar:danger-triangle-line-duotone"
           color="warning"
           variant="subtle"
           title="Record Not Found"
@@ -12,8 +12,10 @@
         />
 
         <UAlert
-          v-if="suggestion.review_status === 'Rejected' && suggestion.review_note"
-          icon="hugeicons:cancel-circle"
+          v-if="
+            suggestion.review_status === 'Rejected' && suggestion.review_note
+          "
+          icon="solar:close-circle-line-duotone"
           color="error"
           variant="subtle"
           title="Rejected"
@@ -22,7 +24,7 @@
 
         <UAlert
           v-if="reviewing && colorRemovals"
-          icon="hugeicons:alert-02"
+          icon="solar:danger-triangle-line-duotone"
           color="warning"
           variant="subtle"
           title="Most Colors Removed"
@@ -76,11 +78,11 @@
               <UButton
                 v-if="row.stale && row.since.length"
                 :label="`Changed Since · ${row.since.length}`"
-                icon="hugeicons:alert-02"
+                icon="solar:danger-triangle-line-duotone"
                 :trailing-icon="
                   expanded[row.key]
-                    ? 'hugeicons:arrow-up-01'
-                    : 'hugeicons:arrow-down-01'
+                    ? 'solar:alt-arrow-up-linear'
+                    : 'solar:alt-arrow-down-linear'
                 "
                 color="warning"
                 variant="subtle"
@@ -92,7 +94,7 @@
               <UBadge
                 v-else-if="row.stale"
                 label="Changed Since"
-                icon="hugeicons:alert-02"
+                icon="solar:danger-triangle-line-duotone"
                 color="warning"
                 variant="subtle"
                 size="sm"
@@ -122,7 +124,11 @@
       <div class="flex w-full flex-wrap justify-between gap-2">
         <UButton
           :label="adjusting ? 'Back to Changes' : 'Adjust Values'"
-          :icon="adjusting ? 'hugeicons:arrow-left-01' : 'hugeicons:edit-01'"
+          :icon="
+            adjusting
+              ? 'solar:alt-arrow-left-linear'
+              : 'solar:pen-line-duotone'
+          "
           variant="ghost"
           :disabled="busy || !suggestion?.record"
           @click="adjusting = !adjusting"

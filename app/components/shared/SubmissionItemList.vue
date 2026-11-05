@@ -26,7 +26,7 @@
           size="xs"
           color="error"
           variant="ghost"
-          icon="hugeicons:delete-02"
+          icon="solar:trash-bin-minimalistic-line-duotone"
           :disabled="items.length === 1"
           @click="emit('remove', index)"
         />
@@ -40,7 +40,7 @@
       :label="`Add ${entity}`"
       size="xs"
       variant="soft"
-      icon="hugeicons:plus-sign"
+      icon="solar:add-line-duotone"
       block
       @click="emit('add')"
     />

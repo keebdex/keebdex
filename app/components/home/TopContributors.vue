@@ -9,7 +9,7 @@
         <UButton
           label="Full Leaderboard"
           to="/leaderboard?period=month"
-          trailing-icon="hugeicons:arrow-right-02"
+          trailing-icon="solar:arrow-right-linear"
           :ui="{ label: 'block' }"
         />
       </template>

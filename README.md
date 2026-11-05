@@ -1,6 +1,6 @@
 # Keebdex
 
-**Keebdex** is a purpose-built platform for keyboard collectors to organize, sync, and share the full keyboard trinity: keyboards, keysets, and artisans.
+**Keebdex** is the collector's index of artisan keycaps, keysets, and keyboards, and the place to keep track of your own collection.
 
 **Visit the live site: [keebdex.org](https://keebdex.org)**
 

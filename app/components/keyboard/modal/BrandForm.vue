@@ -8,7 +8,7 @@
     <UFormField label="Name" name="name" required>
       <UInput
         v-model.trim="brand.name"
-        icon="hugeicons:text-font"
+        icon="solar:text-format-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -22,7 +22,7 @@
     >
       <UInput
         v-model.trim="brand.slug"
-        icon="hugeicons:hashtag"
+        icon="solar:hashtag-line-duotone"
         placeholder="my-brand"
         class="w-full"
       />
@@ -34,7 +34,7 @@
         :items="country"
         label-key="name"
         value-key="code"
-        icon="hugeicons:global"
+        icon="solar:global-line-duotone"
         class="w-full"
       >
         <template #item-leading="{ item }">
@@ -46,7 +46,7 @@
     <UFormField label="Website" name="website">
       <UInput
         v-model.trim="brand.website"
-        icon="hugeicons:globe-02"
+        icon="solar:earth-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -54,7 +54,7 @@
     <UFormField label="Instagram" name="instagram">
       <UInput
         v-model.trim="brand.instagram"
-        icon="hugeicons:instagram"
+        icon="solar:camera-square-line-duotone"
         class="w-full"
       />
     </UFormField>
@@ -62,7 +62,7 @@
     <UFormField label="Discord" name="discord">
       <UInput
         v-model.trim="brand.discord"
-        icon="hugeicons:discord"
+        icon="simple-icons:discord"
         class="w-full"
       />
     </UFormField>
@@ -157,7 +157,10 @@ const onSubmit = async () => {
   })
     .then((data) => {
       toast.add(
-        successToast(isEdit ? 'update' : 'add', { entity: 'Brand', name: brand.value.name }),
+        successToast(isEdit ? 'update' : 'add', {
+          entity: 'Brand',
+          name: brand.value.name,
+        }),
       )
       emit('onSuccess', data)
     })

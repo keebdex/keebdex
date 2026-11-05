@@ -6,7 +6,7 @@
       body: 'space-y-4',
     }"
   >
-    <UButton icon="hugeicons:file-import" label="Import" />
+    <UButton icon="solar:import-line-duotone" label="Import" />
 
     <template #body>
       <p class="text-sm text-muted">
@@ -18,7 +18,7 @@
       <UFileUpload
         v-model="importFile"
         accept=".csv,text/csv"
-        icon="hugeicons:file-attachment"
+        icon="solar:paperclip-line-duotone"
         layout="list"
         label="Click to browse or drag & drop a CSV file"
       />
@@ -35,7 +35,7 @@
       <UButton label="Cancel" @click="close" />
       <UButton
         label="Import"
-        icon="hugeicons:file-import"
+        icon="solar:import-line-duotone"
         :loading="isImporting"
         @click="importColors(close)"
       />
@@ -147,7 +147,11 @@ const importColors = async (close) => {
     body: formData,
   })
     .then((result) => {
-      toast.add(successToast('add', { entity: countLabel(result?.inserted || 0, 'color') }))
+      toast.add(
+        successToast('add', {
+          entity: countLabel(result?.inserted || 0, 'color'),
+        }),
+      )
       importFile.value = null
       preview.value = { headers: [], columns: [], rows: [], total: 0 }
       close()

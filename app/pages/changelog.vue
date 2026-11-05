@@ -68,14 +68,14 @@
         <!-- On the dots' line, beside the release line -->
         <UFieldGroup class="-mt-2 hidden shrink-0 self-start sm:flex">
           <UButton
-            icon="hugeicons:arrow-left-01"
+            icon="solar:alt-arrow-left-linear"
             variant="outline"
             aria-label="Newer releases"
             :disabled="arrivedState.left"
             @click="scrollReleases(-1)"
           />
           <UButton
-            icon="hugeicons:arrow-right-01"
+            icon="solar:alt-arrow-right-linear"
             variant="outline"
             aria-label="Older releases"
             :disabled="arrivedState.right"
