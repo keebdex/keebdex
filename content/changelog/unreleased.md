@@ -8,7 +8,7 @@ authors:
     to: https://claude.com/claude-code
 ---
 
-**Catalog pages get the archive treatment** — a new home page shows what is happening across the dex, every keyboard reads like a catalog entry with its releases on one timeline, and sculpt pages show their full record and every colorway's details.
+Keebdex reads like a true **field guide** — a new home page shows what is happening across the dex, every keyboard reads like a catalog entry with its releases on one timeline, and sculpt pages show their full record and every colorway's details.
 
 ### ✨ What's New
 
