@@ -50,9 +50,10 @@ useHead({
   ],
 })
 
-// Pages rendered on the client only (`ssr: false` in routeRules) are never
-// seen by link preview crawlers, and nuxt-og-image throws in dev when an OG
-// image is defined while mounting a page the server did not render
+// Pages rendered on the client only (`ssr: false` in routeRules) get their
+// link preview tags from server/plugins/spa-social-preview.ts instead, and
+// nuxt-og-image throws in dev when an OG image is defined while mounting a
+// page the server did not render
 if (useNuxtApp().payload.serverRendered) {
   defineOgImage('Base', { description })
 }

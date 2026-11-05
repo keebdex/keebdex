@@ -66,7 +66,17 @@ const { title } = defineProps({
   title: { type: String, default: '' },
 })
 
-const titleClass = 'font-extrabold leading-tight text-[56px] lg:text-[88px]'
+// Long names (sculpts run past 70 characters) step the title down so it
+// stays within three lines instead of crowding the headline and footer
+const titleClass = computed(() => {
+  const size =
+    title.length > 48
+      ? 'text-[44px] lg:text-[60px]'
+      : title.length > 28
+        ? 'text-[52px] lg:text-[72px]'
+        : 'text-[56px] lg:text-[88px]'
+  return `font-extrabold leading-tight text-balance ${size}`
+})
 const headlineClass = 'font-extrabold leading-tight text-[24px] lg:text-[32px]'
 
 const themeColor = computed(() => '34, 197, 94')

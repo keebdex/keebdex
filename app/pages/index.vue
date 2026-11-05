@@ -33,11 +33,18 @@
 
 <script setup lang="ts">
 // The home page names what the site holds in its title, without the
-// " - Keebdex" suffix, and keeps the site-wide OG image from app.vue
+// " - Keebdex" suffix. Its OG image shows only the wordmark, without a
+// title
+const description =
+  "Keebdex is the collector's index of artisan keycaps, keysets, and keyboards, and the place to keep track of your own collection. Look up any maker, sculpt, colorway, keyset, or group buy from one search."
+
 useSeoMeta({
   titleTemplate: '%s',
   title: 'Keebdex: Artisan Keycaps, Keysets, and Keyboards',
-  description:
-    "Keebdex is the collector's index of artisan keycaps, keysets, and keyboards, and the place to keep track of your own collection. Look up any maker, sculpt, colorway, keyset, or group buy from one search.",
+  description,
+})
+
+defineOgImage('Base', {
+  title: '',
 })
 </script>
