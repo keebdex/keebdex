@@ -98,7 +98,6 @@
             orientation="vertical"
             :default-value="wizardSteps.length - 1"
             disabled
-            :ui="{ trigger: 'size-8' }"
           />
         </UPageCard>
 

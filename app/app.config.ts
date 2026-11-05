@@ -139,6 +139,13 @@ export default defineAppConfig({
       },
     },
     empty: {
+      variants: {
+        size: {
+          md: {
+            avatar: 'text-[28px]',
+          },
+        },
+      },
       defaultVariants: {
         variant: 'naked',
       },
