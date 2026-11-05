@@ -46,7 +46,7 @@
       />
 
       <UButton
-        icon="solar:user-id-line-duotone"
+        icon="solar:gallery-send-line-duotone"
         label="Share Card"
         :ui="{ label: 'block' }"
         @click="emit('share')"
