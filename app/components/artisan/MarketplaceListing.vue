@@ -38,11 +38,7 @@
         v-for="trade in trades"
         :key="trade.id"
         :title="trade.name"
-        :description="
-          isBuying(trade)
-            ? 'Caps this collector is looking for. Reach out on Discord if you have one to sell or trade.'
-            : 'Caps available for sale or trade. Reach out on Discord to make an offer.'
-        "
+        :description="slideoverDescription(trade)"
         :ui="{
           // Nuxt UI sets the width as sm:max-w-md, so override it at sm too
           content: 'sm:max-w-4xl',
@@ -114,8 +110,19 @@
               class="justify-center sm:flex-1"
               :ui="{ label: 'block' }"
             />
+            <!-- Contacts are for signed-in collectors only; the API leaves
+                 them out for everyone else -->
             <UButton
-              v-if="trade.contact"
+              v-if="!authenticated"
+              label="Sign In to Contact"
+              icon="solar:login-2-line-duotone"
+              color="primary"
+              class="justify-center sm:flex-1"
+              :ui="{ label: 'block' }"
+              @click="signInOpen = true"
+            />
+            <UButton
+              v-else-if="trade.contact"
               :label="`Copy Discord: ${trade.contact}`"
               icon="simple-icons:discord"
               color="info"
@@ -127,6 +134,14 @@
         </template>
       </USlideover>
     </UPageGrid>
+
+    <UModal v-model:open="signInOpen">
+      <template #content>
+        <UPageCard>
+          <ModalLogin />
+        </UPageCard>
+      </template>
+    </UModal>
 
     <UPagination
       v-if="total > size"
@@ -153,10 +168,17 @@ const { intent } = defineProps({
 
 const toast = useToast()
 
+const { authenticated } = storeToRefs(useUserStore())
+
+// The sign-in modal for signed-out visitors who want to reach a collector
+const signInOpen = ref(false)
+
 const { page, size, setPage } = usePagination(20)
 
 const { data, status } = await useAsyncData(
-  () => `marketplace-${intent}-${page.value}`,
+  // Signing in refetches, since contacts come only with a session
+  () =>
+    `marketplace-${intent}-${page.value}-${authenticated.value ? 'user' : 'guest'}`,
   () =>
     $fetch('/api/marketplace', {
       query: {
@@ -177,6 +199,16 @@ const emptyDescription = computed(() => {
 })
 
 const isBuying = (trade) => trade.intent === 'want'
+
+const slideoverDescription = (trade) => {
+  const reach = authenticated.value
+    ? 'Reach out on Discord'
+    : 'Sign in to see their Discord and reach out'
+
+  return isBuying(trade)
+    ? `Caps this collector is looking for. ${reach} if you have one to sell or trade.`
+    : `Caps available for sale or trade. ${reach} to make an offer.`
+}
 
 const copyToClipboard = (discord) => {
   navigator.clipboard.writeText(discord)

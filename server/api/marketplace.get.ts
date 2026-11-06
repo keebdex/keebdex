@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { groupBy } from 'es-toolkit'
 
 const MAX_PAGE_SIZE = 50
@@ -8,9 +8,11 @@ const INTENTS = ['want', 'sell']
  * Published Wishlist / For Sale or Trade artisan collections that list at
  * least one item, newest first, one page at a time, each with its listed
  * items. `intent=want|sell` keeps only Wishlist or For Sale or Trade
- * collections. Backs the Trading Hub.
+ * collections. Backs the Trading Hub. The Discord contact is left out for
+ * signed-out visitors, who are asked to sign in to reach the collector.
  */
 export default defineEventHandler(async (event) => {
+  const user = await serverSupabaseUser(event)
   const client = await serverSupabaseClient(event)
   const { page, size, intent } = getQuery(event)
   const intents = INTENTS.includes(String(intent)) ? [String(intent)] : INTENTS
@@ -84,8 +86,9 @@ export default defineEventHandler(async (event) => {
   const group = groupBy(items || [], (item) => item.collection_id)
 
   return {
-    data: collections.map(({ listed: _listed, ...collection }) => ({
+    data: collections.map(({ listed: _listed, contact, ...collection }) => ({
       ...collection,
+      contact: user ? contact : null,
       items: group[collection.id] || [],
     })),
     total: count ?? 0,
