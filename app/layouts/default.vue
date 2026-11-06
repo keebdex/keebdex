@@ -2,7 +2,7 @@
   <UDashboardGroup unit="rem">
     <UDashboardSidebar
       id="default"
-      v-model:visible="open"
+      v-model:open="open"
       v-model:collapsed="collapsed"
       collapsible
       resizable
@@ -163,6 +163,9 @@ const visible = ref({
 })
 
 const toggle = (key) => {
+  // On phones the sidebar is a slideover mounted after these modals, so a
+  // modal opened from it would sit hidden behind it: close it first
+  open.value = false
   visible.value[key] = !visible.value[key]
 }
 
