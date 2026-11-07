@@ -20,6 +20,12 @@ export const INFO_PAGES = [
     to: '/about',
   },
   {
+    label: 'Features',
+    legend: 'Features',
+    icon: 'solar:stars-line-duotone',
+    to: '/features',
+  },
+  {
     label: 'Why Choose Keebdex?',
     legend: 'Why Us',
     icon: 'solar:medal-ribbon-star-line-duotone',
@@ -46,7 +52,7 @@ export const INFO_PAGES = [
 ]
 
 export const ABOUT_LINKS = INFO_PAGES.filter(({ to }) =>
-  ['/about', '/changelog'].includes(to),
+  ['/about', '/features', '/changelog'].includes(to),
 )
 
 // The sidebar's catalog sections and its footer links (Leaderboard,
