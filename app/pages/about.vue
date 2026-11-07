@@ -24,8 +24,9 @@
         />
       </SharedInfoHero>
 
-      <!-- What collectors do here, one section per group, zigzagging: the
-      group's text on one side, a piece of the real app on the other -->
+      <!-- What collectors do here, one section per group, zigzagging from
+      lg: the group's text on one side, a piece of the real app on the other;
+      stacked text first on smaller screens -->
       <UPageSection
         v-for="(group, index) in groups"
         :key="group.id"
@@ -33,8 +34,12 @@
         :description="group.description"
         :features="group.features"
         orientation="horizontal"
-        :reverse="index % 2 === 1"
-        :ui="sectionUi"
+        :ui="{
+          ...sectionUi,
+          // Zigzag only side by side: `reverse` would also put the visual
+          // first on phones, where the sections stack
+          wrapper: index % 2 === 1 ? 'lg:order-last' : undefined,
+        }"
       >
         <!-- The newest colorways as a wall of keycaps, as on the home page,
         sized so each photo matches the binder page's below -->
