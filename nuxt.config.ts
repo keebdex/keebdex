@@ -55,6 +55,7 @@ export default defineNuxtConfig({
   routeRules: {
     '/about': { prerender: true },
     '/changelog': { prerender: true },
+    '/features': { prerender: true },
     '/privacy': { prerender: true },
     '/why-choose-keebdex': { prerender: true },
 

@@ -17,7 +17,7 @@
       <!-- The info pages as a row of keycaps, the current one held down. Each
       legend sits top-left like a real key's, its name below as a sublegend. -->
       <nav aria-label="About Keebdex">
-        <ul class="grid grid-cols-5 gap-1.5 sm:flex sm:gap-2">
+        <ul class="grid grid-cols-6 gap-1.5 sm:flex sm:gap-2">
           <li v-for="(page, index) in pages" :key="page.to">
             <NuxtLink
               :to="page.to"
@@ -64,10 +64,10 @@
 <script setup lang="ts">
 import { INFO_PAGES } from '~/composables/useSidebarNavigation'
 
-// The opening of every info page (/about, /why-choose-keebdex, /changelog,
-// /shoutouts, /privacy), a UPageHero: the keycap row that moves between them
-// as its headline, then the page's title and description, left aligned, and
-// its links (the default slot).
+// The opening of every info page (/about, /features, /why-choose-keebdex,
+// /changelog, /shoutouts, /privacy), a UPageHero: the keycap row that moves
+// between them as its headline, then the page's title and description, left
+// aligned, and its links (the default slot).
 defineProps<{
   title: string
   description?: string

@@ -533,7 +533,7 @@ const releases = computed(() =>
 // The releases as timeline items, with the release itself for the slots
 const timelineItems = computed(() =>
   releases.value.map((release) => ({
-    icon: 'solar:delivery-line-duotone',
+    icon: 'solar:delivery-bold-duotone',
     release,
   })),
 )

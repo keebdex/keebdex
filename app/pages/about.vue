@@ -1,330 +1,180 @@
 <template>
   <UDashboardPanel id="about">
     <template v-if="$device.isMobileOrTablet" #header>
-      <UDashboardNavbar title="About Keebdex" />
+      <UDashboardNavbar :title />
     </template>
 
     <template #body>
-      <SharedInfoHero title="Your Collection Belongs Here" :description>
+      <SharedInfoHero :title :description>
         <UButton
-          :label="authenticated ? 'My Collection' : 'Start Collecting'"
-          to="/collection"
-          icon="solar:bookmark-square-line-duotone"
+          label="Explore the Features"
+          to="/features"
+          icon="solar:stars-line-duotone"
           color="primary"
           size="lg"
           :ui="{ label: 'block' }"
         />
         <UButton
-          label="Compare With Other Sites"
-          to="/why-choose-keebdex"
+          label="View on GitHub"
+          :to="REPOSITORY_URL"
+          target="_blank"
           variant="link"
           size="lg"
-          trailing-icon="solar:arrow-right-linear"
+          trailing-icon="solar:arrow-right-up-linear"
           :ui="{ label: 'block' }"
         />
       </SharedInfoHero>
 
-      <!-- What collectors do here, one section per group, zigzagging: the
-      group's text on one side, a piece of the real app on the other -->
+      <!-- How Keebdex got here, release by release -->
       <UPageSection
-        v-for="(group, index) in groups"
-        :key="group.id"
-        :title="group.title"
-        :description="group.description"
-        :features="group.features"
+        title="Our Story"
+        :description="story"
         orientation="horizontal"
-        :reverse="index % 2 === 1"
         :ui="sectionUi"
       >
-        <!-- The newest colorways as a wall of keycaps, as on the home page,
-        sized so each photo matches the binder page's below -->
-        <HomeKeycapMosaic
-          v-if="group.id === 'find' && showcase.length >= 8"
-          :items="showcase"
-          class="mx-auto w-full max-w-[34.25rem]"
+        <UTimeline
+          :items="milestones"
+          :default-value="milestones.length - 1"
+          class="mx-auto w-full max-w-md"
         />
-
-        <!-- A binder page of caps, like a collection's -->
-        <UPageCard
-          v-else-if="group.id === 'collect' && showcase.length >= 9"
-          variant="subtle"
-          aria-hidden="true"
-          class="mx-auto w-full max-w-xs"
-        >
-          <div class="grid grid-cols-3 gap-2">
-            <div
-              v-for="colorway in showcase.slice(0, 9)"
-              :key="colorway.colorway_id"
-              class="aspect-square overflow-hidden rounded-md bg-elevated"
-            >
-              <NuxtImg
-                :src="colorway.img"
-                alt=""
-                sizes="96px sm:128px lg:144px"
-                loading="lazy"
-                decoding="async"
-                class="size-full object-cover"
-              />
-            </div>
-          </div>
-        </UPageCard>
-
-        <!-- Two share cards fanned out, as they are copied for Discord -->
-        <div
-          v-else-if="group.id === 'share' && showcase.length >= 2"
-          aria-hidden="true"
-          class="relative mx-auto grid w-full max-w-xs justify-items-center py-4 [--card-width:min(13rem,60vw)]"
-        >
-          <ArtisanColorwayShareCard
-            :colorway="shareCards[1]"
-            simple
-            class="col-start-1 row-start-1 -translate-x-8 -rotate-6 shadow-lg"
-          />
-          <ArtisanColorwayShareCard
-            :colorway="shareCards[0]"
-            simple
-            class="col-start-1 row-start-1 translate-x-8 rotate-3 shadow-lg"
-          />
-        </div>
-
-        <!-- The submission wizard's steps -->
-        <UPageCard
-          v-else-if="group.id === 'contribute'"
-          variant="subtle"
-          class="mx-auto w-full max-w-xs"
-        >
-          <UStepper
-            :items="wizardSteps"
-            orientation="vertical"
-            :default-value="wizardSteps.length - 1"
-            disabled
-          />
-        </UPageCard>
-
-        <!-- Every theme, as a swatch of its own colors -->
-        <ul
-          v-else-if="group.id === 'yours'"
-          class="mx-auto grid w-full max-w-sm grid-cols-2 gap-2"
-        >
-          <li
-            v-for="preset in swatches"
-            :key="preset.id"
-            :style="preset.style"
-            class="flex items-center gap-3 rounded-lg border border-default p-3"
-          >
-            <!-- The preset's background and primary color, in each mode
-            through classes, since SSR cannot know a system color mode -->
-            <span
-              class="grid size-8 shrink-0 grid-cols-2 overflow-hidden rounded-md ring ring-[var(--swatch-border-light)] dark:ring-[var(--swatch-border-dark)]"
-            >
-              <span
-                class="bg-[var(--swatch-bg-light)] dark:bg-[var(--swatch-bg-dark)]"
-              />
-              <span
-                class="bg-[var(--swatch-primary-light)] dark:bg-[var(--swatch-primary-dark)]"
-              />
-            </span>
-            <span class="min-w-0 truncate text-sm font-medium text-highlighted">
-              {{ preset.label }}
-            </span>
-          </li>
-        </ul>
       </UPageSection>
+
+      <UPageSection
+        title="How It Works"
+        description="A catalog kept by the people who use it, free for everyone."
+        :features="principles"
+        :ui="sectionUi"
+      />
+
+      <!-- shrink-0: the panel body is a flex column, and the CTA's
+      overflow-hidden would otherwise let it collapse to its ring -->
+      <UPageCTA
+        title="Made by Nya"
+        :description="maker"
+        :links="contactLinks"
+        variant="subtle"
+        class="mb-12 shrink-0"
+      />
+
+      <UModal v-model:open="donating">
+        <template #content>
+          <ModalDonate />
+        </template>
+      </UModal>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup>
-import { resolvePresetToken } from '~/utils/theme-presets'
+const CONTACT_EMAIL = 'contact@keebdex.org'
+const REPOSITORY_URL = 'https://github.com/keebdex/keebdex'
 
-const { authenticated } = storeToRefs(useUserStore())
-
-// The site description (package.json), which the home page also shows
-const { description } = useRuntimeConfig().public.site
+const title = 'About Keebdex'
+const description =
+  'How Keebdex began, how its catalog is kept, and who makes it.'
 
 // The sections fill the panel, which sets the width and gutters, and the
-// titles step down from the hero's size
+// titles step down from the hero's size, as on /features
 const sectionUi = {
   container: `${panelContainerClass} sm:py-10 lg:py-12 gap-8 sm:gap-10 lg:gap-12`,
   title: 'text-2xl sm:text-3xl lg:text-3xl',
 }
 
-// The live colorways the home page shows (GET /api/statistics, shared)
-const { data: statistics } = await useHomeStatistics()
-const showcase = computed(() => statistics.value.showcase)
+const story =
+  'Keebdex started in 2021 as Keebtalogue, a home for artisan keycaps while their catalog still lived in shared Google Docs. It has grown with its collectors since, one release at a time, into a catalog of the whole keyboard trinity.'
 
-// The share card shows its photo as stored, so the two decorative ones
-// get a resized copy instead of the original
-const img = useImage()
-const shareCards = computed(() =>
-  showcase.value.slice(0, 2).map((colorway) => ({
-    ...colorway,
-    img: img(colorway.img, { width: 400 }),
-  })),
-)
-
-const wizardSteps = [
+// The releases that changed what Keebdex is (content/changelog)
+const milestones = [
   {
-    title: 'Maker',
-    description: 'Pick the maker, or propose a new one.',
-    icon: 'solar:users-group-rounded-line-duotone',
+    date: '2021',
+    title: 'Keebtalogue Begins',
+    description:
+      'Collections and wishlists for artisan keycaps, built from makers, sculpts, and colorways.',
+    icon: 'solar:flag-bold-duotone',
   },
   {
-    title: 'Sculpt',
-    description: 'Choose the sculpt, or add it with its photos.',
-    icon: 'solar:widget-line-duotone',
+    date: 'December 2024',
+    title: 'A Second Wind',
+    description:
+      'A redesigned site with link previews for every page, pins, search, and themes.',
+    icon: 'solar:refresh-bold-duotone',
   },
   {
-    title: 'Colorway',
-    description: 'Add the colorways, then send them for review.',
-    icon: 'solar:palette-line-duotone',
+    date: 'September 2025',
+    title: 'Keebtalogue Becomes Keebdex',
+    description:
+      'A new name, every page made for phones, and keysets with their colors.',
+    icon: 'solar:tag-bold-duotone',
+  },
+  {
+    date: 'April 2026',
+    title: 'Keyboards Join',
+    description:
+      'Brands, keyboards, releases, and variants complete the trinity, in your collections too.',
+    icon: 'solar:keyboard-bold-duotone',
+  },
+  {
+    date: 'October 2026',
+    title: 'Open to Everyone',
+    description:
+      'Any signed-in collector can add to the catalog, with moderators reviewing every change.',
+    icon: 'solar:users-group-rounded-bold-duotone',
   },
 ]
 
-// Each preset's own background, primary, and border colors in both modes,
-// so the swatches look like the themes they apply (worked out once)
-const { presets } = useAppTheme()
-const swatches = presets.map((preset) => ({
-  id: preset.id,
-  label: preset.label,
-  style: Object.fromEntries(
-    ['light', 'dark'].flatMap((mode) =>
-      [
-        ['bg', '--ui-bg'],
-        ['primary', '--ui-primary'],
-        ['border', '--ui-border'],
-      ].map(([name, token]) => [
-        `--swatch-${name}-${mode}`,
-        resolvePresetToken(preset, mode, token),
-      ]),
-    ),
-  ),
-}))
+const principles = [
+  {
+    icon: 'solar:users-group-two-rounded-bold-duotone',
+    title: 'Built by Collectors',
+    description:
+      'New colorways, kits, keyboards, and fixes come from collectors through submissions and edit suggestions, and every approved one earns points on the leaderboard.',
+  },
+  {
+    icon: 'solar:shield-check-bold-duotone',
+    title: 'Reviewed Before It Goes Live',
+    description:
+      'Moderators, including makers and editors looking after their own pages, review each change, and every page keeps a history of what changed.',
+  },
+  {
+    icon: 'solar:hand-heart-bold-duotone',
+    title: 'Free, With No Ads',
+    description:
+      'Keebdex is free to use, with no ads and no third-party analytics. Its hosting is paid for by collectors who chip in.',
+  },
+  {
+    icon: 'solar:code-square-bold-duotone',
+    title: 'Open Source',
+    description:
+      'The code is on GitHub under the MIT license, so anyone can see how it works, report a problem, or send a fix.',
+  },
+]
 
-const groups = [
+const maker =
+  'Keebdex is designed, built, and run by a fellow enthusiast, with moderators who look after the catalog and collectors who keep adding to it. A question, an idea, or a cap we are missing? Get in touch.'
+
+const donating = ref(false)
+
+const contactLinks = [
   {
-    id: 'find',
-    title: 'Find Anything',
-    description:
-      'The whole keyboard trinity in one place, instead of a spreadsheet for each.',
-    features: [
-      {
-        icon: 'solar:database-bold-duotone',
-        title: 'One Catalog for the Trinity',
-        description:
-          'Keyboards, keysets, and artisans live together in one managed database, moving beyond the artisan-only Google Docs into detailed pages you can browse, search, and collect.',
-      },
-      {
-        icon: 'solar:magnifer-bold-duotone',
-        title: 'Search Everything',
-        description:
-          'Find any keyboard, keyset, maker, sculpt, or colorway from one search box that updates as you type, with results grouped by category so you can jump straight to its page.',
-      },
-      {
-        icon: 'solar:pallete-2-bold-duotone',
-        title: 'Every Keycap Color',
-        description:
-          "Browse every keycap color as a wall of swatches, filter it by matching system or search by code or name, and see each color's hex and RGB values and the keysets that use it.",
-      },
-      {
-        icon: 'solar:calendar-mark-bold-duotone',
-        title: 'Group Buys on Time',
-        description:
-          'Live group buys follow their own dates, so a set shows up when its sale opens and leaves when it closes, and the home page lists the ones closing soonest.',
-      },
-    ],
+    label: CONTACT_EMAIL,
+    to: `mailto:${CONTACT_EMAIL}`,
+    icon: 'solar:letter-bold-duotone',
+    color: 'primary',
+    ui: { label: 'block' },
   },
   {
-    id: 'collect',
-    title: 'Track What You Own',
-    description:
-      'Keep a record of every cap, set, and board, and of the ones you are still chasing.',
-    features: [
-      {
-        icon: 'solar:bookmark-square-bold-duotone',
-        title: 'Collections for Everything',
-        description:
-          'Create unlimited collections across keyboards, keysets, and artisans and save new finds from any page. Artisan collections can be a shelf of caps you own, a wishlist, or caps for sale or trade, and you can pin the makers, profiles, brands, and keyboards you visit most.',
-      },
-      {
-        icon: 'solar:refresh-circle-bold-duotone',
-        title: 'Synced Everywhere',
-        description:
-          'Sign in with your Google or Discord account. Your collections, theme, and color mode follow you, so everything looks the same on every device you use.',
-      },
-    ],
-  },
-  {
-    id: 'share',
-    title: 'Share and Trade',
-    description:
-      'Show your collection off, and find the people who have the cap you want.',
-    features: [
-      {
-        icon: 'solar:share-bold-duotone',
-        title: 'Made to Be Shared',
-        description:
-          'Share collections by link, and turn your wishlist into an image with prices, Top Priority, and Found or Sold on each cap, in the order you drag them. Any colorway becomes a card to copy or download, in your theme or as a trading card.',
-      },
-      {
-        icon: 'solar:shop-bold-duotone',
-        title: 'Trading Hub',
-        description:
-          'Make a wishlist or a for-sale collection public and it is listed in the Trading Hub, where buyers and sellers find each other and reach out on Discord.',
-      },
-    ],
-  },
-  {
-    id: 'contribute',
-    title: 'Build It Together',
-    description:
-      'The catalog grows with its collectors, and every approved contribution earns points on the leaderboard.',
-    features: [
-      {
-        icon: 'solar:add-circle-bold-duotone',
-        title: 'Community Submissions',
-        description:
-          'Propose colorways, kits, and keyboard variants, or a whole new sculpt, keyset, or keyboard, through a guided step-by-step wizard, reviewed by moderators before going live.',
-      },
-      {
-        icon: 'solar:pen-new-square-bold-duotone',
-        title: 'Suggest an Edit',
-        description:
-          'Spot a wrong date or a missing photo? Suggest a fix from the page itself, and a moderator reviews it before it changes.',
-      },
-      {
-        icon: 'solar:notification-unread-lines-bold-duotone',
-        title: 'Hear Back',
-        description:
-          "Get notified when a submission is approved or rejected, with the moderator's note, and choose what you hear about in your settings.",
-      },
-    ],
-  },
-  {
-    id: 'yours',
-    title: 'Make It Yours',
-    description: 'A catalog you will want to open every day, on any screen.',
-    features: [
-      {
-        icon: 'solar:palette-bold-duotone',
-        title: 'Themes Inspired by Keysets',
-        description:
-          'Pick from a growing set of theme presets, each with its own colors, fonts, and component style, in light, dark, or system mode. Your choice is saved to your account.',
-      },
-      {
-        icon: 'solar:smartphone-bold-duotone',
-        title: 'Fast on Every Screen',
-        description:
-          'Clear layouts that work from phones to wide monitors, with images sized for your device so every page stays fast, even on a phone.',
-      },
-    ],
+    label: 'Support Keebdex',
+    icon: 'solar:hand-heart-bold-duotone',
+    variant: 'outline',
+    ui: { label: 'block' },
+    onClick: () => (donating.value = true),
   },
 ]
 
 // Named like the menu link, so it skips the " - Keebdex" suffix
 useSeoMeta({
   titleTemplate: '%s',
-  title: 'About Keebdex',
+  title,
   description,
 })
 </script>

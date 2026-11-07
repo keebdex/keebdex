@@ -9,13 +9,14 @@
 </template>
 
 <script setup>
-// One link per submission wizard; guests sign in from there
+// One link per submission wizard; guests sign in from there. A call to
+// action, so its icons are the modules' bold-duotone ones
 const link = { size: 'lg', ui: { label: 'block' } }
 const links = [
   {
     ...link,
     label: 'Submit a Colorway',
-    icon: KEEB_MODULE_ICONS.artisan,
+    icon: 'solar:ghost-smile-bold-duotone',
     to: '/artisan/submissions/submit',
     color: 'primary',
     variant: 'solid',
@@ -23,14 +24,14 @@ const links = [
   {
     ...link,
     label: 'Submit a Keyboard',
-    icon: KEEB_MODULE_ICONS.keyboard,
+    icon: 'solar:keyboard-bold-duotone',
     to: '/keyboard/submissions/submit',
     variant: 'outline',
   },
   {
     ...link,
     label: 'Submit a Keyset',
-    icon: KEEB_MODULE_ICONS.keyset,
+    icon: 'solar:widget-bold-duotone',
     to: '/keyset/submissions/submit',
     variant: 'outline',
   },
