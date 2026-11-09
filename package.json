@@ -1,7 +1,7 @@
 {
   "name": "keebdex",
   "displayName": "Keebdex",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "Keebdex is the collector's index of artisan keycaps, keysets, and keyboards, and the place to keep track of your own collection.",
   "private": true,
   "repository": {
