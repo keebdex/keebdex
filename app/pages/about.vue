@@ -49,7 +49,7 @@
       <!-- shrink-0: the panel body is a flex column, and the CTA's
       overflow-hidden would otherwise let it collapse to its ring -->
       <UPageCTA
-        title="Made by Nya"
+        title="Say Hello"
         :description="maker"
         :links="contactLinks"
         variant="subtle"
@@ -150,7 +150,7 @@ const principles = [
 ]
 
 const maker =
-  'Keebdex is designed, built, and run by a fellow enthusiast, with moderators who look after the catalog and collectors who keep adding to it. A question, an idea, or a cap we are missing? Get in touch.'
+  'Keebdex is made by Nya, a fellow enthusiast, with moderators who look after the catalog and collectors who keep adding to it. A question, an idea, or a cap we are missing? Drop us a line.'
 
 const donating = ref(false)
 
