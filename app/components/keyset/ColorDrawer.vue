@@ -62,6 +62,13 @@
           />
         </div>
 
+        <!-- Pantone keeps its hex values behind a paid plan; ours come from
+             its swatch images, so they are close but not exact -->
+        <p v-if="color.system === 'Pantone'" class="-mt-4 text-sm text-muted">
+          Pantone does not publish hex values, so this one is approximate and
+          for reference only. Use a Pantone guide for exact matching.
+        </p>
+
         <SharedSpecList :items="specs" layout="rows" />
 
         <section class="space-y-3">

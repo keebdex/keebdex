@@ -32,3 +32,53 @@ export const isLightColor = (hex: string) => {
 /** Text that reads on a swatch of this color, a little see-through. */
 export const contrastTextClass = (hex: string) =>
   isLightColor(hex) ? 'text-black/70' : 'text-white/80'
+
+/** A RAL Design code as `000 00 00`, from any spacing or prefix, else `null`. */
+export const normalizeRalCode = (value: string) => {
+  const parts = value
+    .replace(/^ral\s*/i, '')
+    .replace(/[^0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (parts.length !== 3) return null
+
+  const [a, b, c] = parts
+  if (a?.length !== 3 || b?.length !== 2 || c?.length !== 2) return null
+
+  return `${a} ${b} ${c}`
+}
+
+/**
+ * A Pantone code (`19-4052 TCX`, `185C`, `Pantone Cool Gray 1 C`, `Process
+ * Blue C`) split into the code as written in Pantone's guides and the slug of
+ * its Color Finder page and swatch image (`19-4052-tcx`, `185-c`,
+ * `cool-gray-1-c`, `process-blue-c`), else `null`. The code ends in its
+ * library suffix (C, U, TCX, TPG, ...).
+ */
+export const parsePantoneCode = (value: string) => {
+  const match = value
+    .replace(/^(pantone|pms)\b\s*/i, '')
+    .replace(/®/g, '')
+    .trim()
+    .match(
+      /^([a-z][a-z -]*?)?[\s-]*(\d+(?:-\d+)?)?[\s-]+([a-z]{1,3})$|^(\d+(?:-\d+)?)([a-z]{1,3})$/i,
+    )
+
+  if (!match) return null
+
+  const words = match[1] || ''
+  const number = match[2] || match[4] || ''
+  const suffix = match[3] || match[5] || ''
+  const name = words
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+
+  if (!name.length && !number) return null
+
+  const parts = [...name, number, suffix.toUpperCase()].filter(Boolean)
+
+  return { code: parts.join(' '), slug: parts.join('-').toLowerCase() }
+}

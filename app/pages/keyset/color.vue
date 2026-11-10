@@ -187,7 +187,8 @@ const {
 const formOpen = ref(false)
 const editing = ref({})
 
-const openForm = (color = {}) => {
+// A new color starts in the system of the open tab, if any
+const openForm = (color = { system: system.value }) => {
   editing.value = { ...color }
   formOpen.value = true
 }

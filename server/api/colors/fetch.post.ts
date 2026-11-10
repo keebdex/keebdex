@@ -1,7 +1,30 @@
+import { canManageAssignment } from '~/utils/permissions'
+import { normalizeRalCode, parsePantoneCode } from '~/utils/color'
+
 type FetchColorBody = {
   system?: string
   code?: string
 }
+
+/**
+ * What a lookup fills in. RAL pages state the hex; Pantone keeps it behind
+ * its paid plan, so a Pantone lookup returns its flat swatch image instead
+ * (`swatch`, a data URL) and the form reads the hex from its pixels.
+ */
+type FetchedColor = {
+  system: string
+  code: string
+  name: string | null
+  hex?: string
+  swatch?: string
+  sourceUrl: string
+}
+
+const BROWSER_USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+
+const PANTONE_SWATCH_URL =
+  'https://pantone-web-assets-dev.s3.us-east-2.amazonaws.com/magento/media/color-finder/img/slabs/pantone-color-slab-'
 
 function toTitleCase(value: string) {
   return value
@@ -10,24 +33,6 @@ function toTitleCase(value: string) {
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
-}
-
-function normalizeRalCode(value: string) {
-  const parts = value
-    .replace(/^ral\s*/i, '')
-    .replace(/[^0-9]+/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-
-  if (parts.length !== 3) return null
-
-  const [a, b, c] = parts
-  if (!a || !b || !c) return null
-
-  if (a.length !== 3 || b.length !== 2 || c.length !== 2) return null
-
-  return `${a} ${b} ${c}`
 }
 
 function buildRalSlug(code: string) {
@@ -52,23 +57,7 @@ function extractPreviewButton(html: string) {
   }
 }
 
-export default defineEventHandler(async (event) => {
-  const { system, code } = (await readBody(event)) as FetchColorBody
-
-  if (!system || !code) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'System and code are required',
-    })
-  }
-
-  if (system.toUpperCase() !== 'RAL') {
-    throw createError({
-      statusCode: 400,
-      statusMessage: `System ${system} is not supported yet`,
-    })
-  }
-
+async function fetchRalColor(code: string): Promise<FetchedColor> {
   const normalizedCode = normalizeRalCode(code)
 
   if (!normalizedCode) {
@@ -80,10 +69,7 @@ export default defineEventHandler(async (event) => {
 
   const sourceUrl = `https://www.ralcolorchart.com/ral-design/ral-${buildRalSlug(normalizedCode)}`
   const html = await $fetch<string>(sourceUrl, {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    },
+    headers: { 'user-agent': BROWSER_USER_AGENT },
   }).catch(() => {
     throw createError({
       statusCode: 502,
@@ -104,15 +90,106 @@ export default defineEventHandler(async (event) => {
     /^(RAL)\s+(\d{3}\s\d{2}\s\d{2})\s+(.+)$/i,
   )
 
-  const derivedSystem = titleMatch?.[1]?.toUpperCase() || 'RAL'
-  const derivedCode = titleMatch?.[2] || normalizedCode
-  const derivedName = titleMatch?.[3] ? toTitleCase(titleMatch[3]) : null
-
   return {
-    system: derivedSystem,
-    code: derivedCode,
-    name: derivedName,
+    system: 'RAL',
+    code: titleMatch?.[2] || normalizedCode,
+    name: titleMatch?.[3] ? toTitleCase(titleMatch[3]) : null,
     hex: preview.hex,
     sourceUrl,
+  }
+}
+
+/**
+ * The color name from a Color Finder page title (`PANTONE® USA | Pantone
+ * 19-4052 TCX Classic Blue`): the words after the code. Codes without a
+ * name (`185 C`) give `null`.
+ */
+function extractPantoneName(html: string, slug: string) {
+  const title = html.match(/<title>[^<]*\|\s*Pantone\s+([^<]+)<\/title>/i)?.[1]
+  if (!title) return null
+
+  const words = title.trim().split(/\s+/)
+  let code = ''
+
+  for (let index = 0; index < words.length; index++) {
+    code = [code, words[index]].filter(Boolean).join('-').toLowerCase()
+    if (code === slug) {
+      const name = words.slice(index + 1).join(' ')
+      return name ? toTitleCase(name) : null
+    }
+  }
+
+  return null
+}
+
+async function fetchPantoneColor(code: string): Promise<FetchedColor> {
+  const parsed = parsePantoneCode(code)
+
+  if (!parsed) {
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        'Invalid Pantone code. Include the library suffix, e.g. 185 C or 19-4052 TCX.',
+    })
+  }
+
+  const sourceUrl = `https://www.pantone.com/connect/${parsed.slug}`
+
+  // The swatch decides whether the code exists; the page only adds the name.
+  const [swatch, html] = await Promise.all([
+    $fetch<ArrayBuffer>(`${PANTONE_SWATCH_URL}${parsed.slug}.webp`, {
+      responseType: 'arrayBuffer',
+    }).catch(() => null),
+    $fetch<string>(sourceUrl, {
+      headers: { 'user-agent': BROWSER_USER_AGENT },
+    }).catch(() => ''),
+  ])
+
+  if (!swatch?.byteLength) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `Pantone ${parsed.code} was not found`,
+    })
+  }
+
+  const bytes = new Uint8Array(swatch)
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+
+  return {
+    system: 'Pantone',
+    code: parsed.code,
+    name: extractPantoneName(html, parsed.slug),
+    swatch: `data:image/webp;base64,${btoa(binary)}`,
+    sourceUrl,
+  }
+}
+
+export default defineEventHandler(async (event) => {
+  const { profile } = await getActorProfile(event)
+
+  if (!canManageAssignment(profile, undefined)) {
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+  }
+
+  const { system, code } = (await readBody(event)) as FetchColorBody
+
+  if (!system || !code) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'System and code are required',
+    })
+  }
+
+  switch (system.toUpperCase()) {
+    case 'RAL':
+      return fetchRalColor(code)
+    case 'PANTONE':
+      return fetchPantoneColor(code)
+    default:
+      throw createError({
+        statusCode: 400,
+        statusMessage: `System ${system} is not supported yet`,
+      })
   }
 })

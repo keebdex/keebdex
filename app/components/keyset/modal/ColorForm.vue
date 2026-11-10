@@ -72,7 +72,11 @@
       label="Hex"
       name="hex"
       required
-      help="Enter a valid hex color starting with # — use 3 or 6 hex digits (0-9, A-F)"
+      :help="
+        isPantone
+          ? 'Pantone does not publish its hex values, so this one is read from its swatch image and is for reference only.'
+          : 'Enter a valid hex color starting with # — use 3 or 6 hex digits (0-9, A-F)'
+      "
     >
       <UInput
         v-model.trim="color.hex"
@@ -101,6 +105,7 @@
 
 <script setup>
 import { Constants } from '~/types/database.types'
+import { normalizeRalCode, parsePantoneCode } from '~/utils/color'
 import { keysetColorSchema } from '~/utils/schemas/keyset'
 
 const emit = defineEmits(['onSuccess', 'update:modelValue'])
@@ -129,7 +134,7 @@ const color = ref({
 })
 const isFetchingFromSource = ref(false)
 let autoFetchTimer = null
-const lastAutoFetchedRalCode = ref('')
+const lastAutoFetchedCode = ref('')
 
 const codeTerm = ref('')
 const term = computed(() => (isEdit ? '' : codeTerm.value))
@@ -172,29 +177,62 @@ watch(
 )
 
 const colorSystems = Constants.public.Enums.keyset_color_matching_system
-const isSystemFetchSupported = computed(
-  () => color.value.system?.toUpperCase() === 'RAL',
+// Systems whose codes can be looked up at the source, with how a code is
+// written and the hint shown when it is not.
+const LOOKUPS = {
+  RAL: {
+    normalize: normalizeRalCode,
+    invalid: 'Please enter a valid RAL code (000 00 00).',
+    title: 'Invalid RAL Code',
+  },
+  PANTONE: {
+    normalize: (value) => parsePantoneCode(value)?.code || null,
+    invalid:
+      'Please enter a Pantone code with its library suffix, e.g. 185 C or 19-4052 TCX.',
+    title: 'Invalid Pantone Code',
+  },
+}
+
+const lookup = computed(() => LOOKUPS[color.value.system?.toUpperCase()])
+const isSystemFetchSupported = computed(() => !!lookup.value)
+const isPantone = computed(
+  () => color.value.system?.toUpperCase() === 'PANTONE',
 )
 
-const normalizeRalCode = (value) => {
-  const parts = value
-    .replace(/^ral\s*/i, '')
-    .replace(/[^0-9]+/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
+/**
+ * The hex of a flat swatch image: its most common pixel, so a lossy edge or
+ * a stray block does not shift it.
+ */
+const readSwatchHex = (src) =>
+  new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth
+      canvas.height = image.naturalHeight
 
-  if (parts.length !== 3) return null
+      const context = canvas.getContext('2d', { willReadFrequently: true })
+      context.drawImage(image, 0, 0)
 
-  const a = parts[0]
-  const b = parts[1]
-  const c = parts[2]
+      const { data } = context.getImageData(0, 0, canvas.width, canvas.height)
+      const counts = new Map()
+      let best = null
 
-  if (!a || !b || !c) return null
-  if (a.length !== 3 || b.length !== 2 || c.length !== 2) return null
+      for (let index = 0; index < data.length; index += 4) {
+        const hex = `#${[data[index], data[index + 1], data[index + 2]]
+          .map((channel) => channel.toString(16).padStart(2, '0'))
+          .join('')}`
+        const count = (counts.get(hex) || 0) + 1
+        counts.set(hex, count)
+        if (!best || count > counts.get(best)) best = hex
+      }
 
-  return `${a} ${b} ${c}`
-}
+      if (best) resolve(best)
+      else reject(new Error('Empty swatch image'))
+    }
+    image.onerror = () => reject(new Error('Unable to read the swatch image'))
+    image.src = src
+  })
 
 const hasDuplicateInSystem = computed(() => {
   const code = color.value.code?.toString().trim().toLowerCase()
@@ -217,17 +255,13 @@ const fetchColorFromSystem = async ({ silent = false } = {}) => {
     return
   }
 
-  const normalizedRalCode = normalizeRalCode(color.value.code?.trim() || '')
+  const { normalize, invalid, title } = lookup.value
+  const normalizedCode = normalize(color.value.code?.trim() || '')
 
-  if (!color.value.system || !normalizedRalCode) {
+  if (!normalizedCode) {
     if (silent) return
 
-    toast.add(
-      validationToast(
-        'Please enter a valid RAL code (000 00 00).',
-        'Invalid RAL Code',
-      ),
-    )
+    toast.add(validationToast(invalid, title))
     return
   }
 
@@ -237,16 +271,18 @@ const fetchColorFromSystem = async ({ silent = false } = {}) => {
     method: 'post',
     body: {
       system: color.value.system,
-      code: normalizedRalCode,
+      code: normalizedCode,
     },
   })
-    .then((result) => {
+    .then(async (result) => {
+      const hex = result.hex || (await readSwatchHex(result.swatch))
+
       color.value.system = result.system
       color.value.code = result.code
-      color.value.hex = result.hex
+      color.value.hex = hex
       if (result.name) color.value.name = result.name
 
-      lastAutoFetchedRalCode.value = result.code
+      lastAutoFetchedCode.value = result.code
 
       if (!silent) {
         toast.add(
@@ -270,16 +306,15 @@ watch([() => color.value.system, () => color.value.code], ([system, code]) => {
     autoFetchTimer = null
   }
 
-  if (!system || system.toUpperCase() !== 'RAL' || !code || isEdit) {
+  const normalize = LOOKUPS[system?.toUpperCase()]?.normalize
+
+  if (!normalize || !code || isEdit) {
     return
   }
 
-  const normalizedRalCode = normalizeRalCode(code)
+  const normalizedCode = normalize(code)
 
-  if (
-    !normalizedRalCode ||
-    normalizedRalCode === lastAutoFetchedRalCode.value
-  ) {
+  if (!normalizedCode || normalizedCode === lastAutoFetchedCode.value) {
     return
   }
 
