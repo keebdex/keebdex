@@ -6,6 +6,9 @@
       container: simple
         ? imageCardContainerClass
         : 'h-full grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto]',
+      // The wrapper aligns its items to the start, so the body would take
+      // its content's width and a long title would overflow the card
+      body: 'w-full',
       title: 'text-lg',
     }"
   >
@@ -27,7 +30,7 @@
         />
 
         <div class="flex min-w-0 flex-1 flex-col gap-1.5">
-          <span :class="simple ? 'truncate' : 'line-clamp-2'">
+          <span class="line-clamp-2">
             {{ colorwayTitle(colorway) }}
           </span>
 
