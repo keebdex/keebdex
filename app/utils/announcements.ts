@@ -51,7 +51,7 @@ export const ANNOUNCEMENT_STACK_CLASSES = [
   'data-[expanded=true]:translate-y-4',
 ]
 
-export const ANNOUNCEMENT_DEFAULT_ICON = 'solar:bell-bing-line-duotone'
+export const ANNOUNCEMENT_DEFAULT_ICON = 'solar:bell-bing-bold-duotone'
 
 export const ANNOUNCEMENT_DISPLAY_OPTIONS: {
   value: AnnouncementDisplay
@@ -202,7 +202,7 @@ export const announcementSummaryToast = (count: number, to: string) => ({
   id: ANNOUNCEMENT_SUMMARY_TOAST_ID,
   title: `+${count} more ${count === 1 ? 'update' : 'updates'}`,
   description: 'See every announcement in one place.',
-  icon: 'solar:bell-bing-line-duotone',
+  icon: 'solar:bell-bing-bold-duotone',
   color: 'neutral' as const,
   actions: [
     {
