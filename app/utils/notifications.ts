@@ -212,34 +212,11 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     }
   },
   // data: { role, previous_role, assignments_added, assignments_removed }
-  // Rows sent on 2026-11-13 may also carry the Supporter badge as `supporter`
-  // and `previous_supporter`, and older ones as the `donator` role: a row that
-  // changed only the badge renders as account_supporter_changed
-  account_role_changed: (notification) => {
-    const { data } = notification
-    const legacy = (value: string | null) =>
-      value === 'donator' ? null : value
-    const role = legacy(data.role)
-    const previousRole = legacy(data.previous_role)
+  account_role_changed: ({ data }) => {
+    const role = data.role
+    const previousRole = data.previous_role
     const added = data.assignments_added?.length || 0
     const removed = data.assignments_removed?.length || 0
-    const supporter = data.supporter ?? data.role === 'donator'
-    const previousSupporter =
-      data.previous_supporter ?? data.previous_role === 'donator'
-
-    if (role === previousRole && !added && !removed) {
-      return supporter !== previousSupporter
-        ? supporterView(supporter)
-        : fallback(notification)
-    }
-
-    // A legacy row that changed the badge along with access says so too
-    const badge =
-      supporter === previousSupporter
-        ? ''
-        : supporter
-          ? ' Your profile now shows the Supporter badge.'
-          : ' Your profile no longer shows the Supporter badge.'
     const pages = (count: number) => countLabel(count, 'page')
     const changes = [
       added && `added ${pages(added)}`,
@@ -249,7 +226,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     if (role === previousRole) {
       return {
         title: 'Assignments Updated',
-        description: `Your assignments changed: ${changes.join(' and ')}.${badge}`,
+        description: `Your assignments changed: ${changes.join(' and ')}.`,
         icon: 'solar:clipboard-list-bold-duotone',
         color: 'info',
       }
@@ -258,7 +235,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     if (!role) {
       return {
         title: 'Staff Access Removed',
-        description: `You are no longer ${ROLE_NOTICES[previousRole!]?.article || 'staff'} on Keebdex.${badge}`,
+        description: `You are no longer ${ROLE_NOTICES[previousRole!]?.article || 'staff'} on Keebdex.`,
         icon: 'solar:shield-minus-bold-duotone',
         color: 'warning',
       }
@@ -272,8 +249,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
 
     return {
       title: `You Are Now ${notice?.article || role}`,
-      description:
-        [notice?.description, assignments].filter(Boolean).join(' ') + badge,
+      description: [notice?.description, assignments].filter(Boolean).join(' '),
       icon: notice?.icon || 'solar:shield-user-bold-duotone',
       color: previousRole ? 'info' : 'success',
     }
