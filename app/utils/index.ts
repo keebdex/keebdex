@@ -160,13 +160,27 @@ export const roleMap: Record<
     class: 'text-info',
     color: 'info',
   },
-  donator: {
-    label: 'Supporter',
-    icon: 'solar:user-heart-line-duotone',
-    class: 'text-donator',
-    color: 'success',
-  },
 }
+
+// The Supporter badge (users.supporter): users who donated, whatever their role
+export const SUPPORTER_BADGE = {
+  label: 'Supporter',
+  icon: 'solar:user-heart-line-duotone',
+  class: 'text-donator',
+  color: 'success',
+} as const
+
+// A user's role and Supporter badge as one line, e.g. "Editor · Supporter"
+export const userRoleLabel = (
+  role: string | null | undefined,
+  supporter?: boolean | null,
+) =>
+  [
+    role && roleMap[role as keyof typeof roleMap]?.label,
+    supporter && SUPPORTER_BADGE.label,
+  ]
+    .filter(Boolean)
+    .join(' · ') || undefined
 
 export const getRoleLabel = (
   role: Database['public']['Enums']['user_role'],

@@ -49,16 +49,22 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid role' })
   }
 
+  // The Supporter badge is independent of the role; left as is when omitted
+  if (body?.supporter !== undefined && typeof body.supporter !== 'boolean') {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid supporter' })
+  }
+
   const payload = {
     role,
     assignments,
+    ...(typeof body?.supporter === 'boolean' && { supporter: body.supporter }),
   }
 
   const { data, error } = await client
     .from('users')
     .update(payload)
     .eq('id', id)
-    .select('id, email, role, assignments')
+    .select('id, email, role, supporter, assignments')
     .single()
 
   if (error) {

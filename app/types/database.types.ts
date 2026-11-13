@@ -1613,6 +1613,7 @@ export type Database = {
           qq: string | null
           reddit: string | null
           role: string | null
+          supporter: boolean
         }
         Insert: {
           appearance?: Json
@@ -1626,6 +1627,7 @@ export type Database = {
           qq?: string | null
           reddit?: string | null
           role?: string | null
+          supporter?: boolean
         }
         Update: {
           appearance?: Json
@@ -1639,6 +1641,7 @@ export type Database = {
           qq?: string | null
           reddit?: string | null
           role?: string | null
+          supporter?: boolean
         }
         Relationships: []
       }
@@ -1883,7 +1886,7 @@ export type Database = {
         | "Commission"
         | "Auction"
         | "Friends & Family"
-      user_role: "admin" | "editor" | "maker" | "designer" | "donator"
+      user_role: "admin" | "editor" | "maker" | "designer"
     }
     CompositeTypes: {
       leaderboard_entry: {
@@ -2115,7 +2118,7 @@ export const Constants = {
         "Auction",
         "Friends & Family",
       ],
-      user_role: ["admin", "editor", "maker", "designer", "donator"],
+      user_role: ["admin", "editor", "maker", "designer"],
     },
   },
 } as const

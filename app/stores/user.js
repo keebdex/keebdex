@@ -6,6 +6,8 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: {},
     role: null,
+    // users.supporter: the Supporter badge, independent of the role
+    supporter: false,
     assignments: null,
     collections: [],
     // users.pins: per catalog (`artisan`, `keyboard`), each pinned maker or
@@ -67,6 +69,7 @@ export const useUserStore = defineStore('user', {
         if (!data) {
           this.pins = {}
           this.role = null
+          this.supporter = false
           this.assignments = []
           this.appearance = {}
           this.appearanceLoaded = true
@@ -83,6 +86,7 @@ export const useUserStore = defineStore('user', {
 
         this.leaderboardHidden = !!data.leaderboard_hidden
         this.role = data.role
+        this.supporter = !!data.supporter
         this.assignments = data.assignments
         this.appearance =
           data.appearance &&

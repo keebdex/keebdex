@@ -381,7 +381,8 @@ export const TABLE_FIELDS = {
     "pins",
     "qq",
     "reddit",
-    "role"
+    "role",
+    "supporter"
   ]
 } satisfies {
   [K in PublicTable]: readonly TableField<K>[]

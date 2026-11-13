@@ -12,10 +12,11 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   if (body && typeof body === 'object' && !Array.isArray(body)) {
-    if ('role' in body || 'assignments' in body) {
+    if ('role' in body || 'assignments' in body || 'supporter' in body) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Role and assignments can only be changed by admins',
+        statusMessage:
+          'Role, assignments, and the supporter badge can only be changed by admins',
       })
     }
     if ('appearance' in body) {

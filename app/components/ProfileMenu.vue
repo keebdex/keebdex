@@ -9,7 +9,7 @@
     <UUser
       v-if="authenticated"
       :name="collapsed ? undefined : user.name"
-      :description="collapsed ? undefined : roleMap[role]?.label"
+      :description="collapsed ? undefined : roleLabel"
       :avatar="userAvatar(user.picture, user.name)"
       class="cursor-pointer w-full"
     />
@@ -41,8 +41,10 @@ const { collapsed } = defineProps({
 })
 
 const userStore = useUserStore()
-const { authenticated, user, role, isAdmin, isModerator } =
+const { authenticated, user, role, supporter, isAdmin, isModerator } =
   storeToRefs(userStore)
+
+const roleLabel = computed(() => userRoleLabel(role.value, supporter.value))
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -120,9 +122,9 @@ const items = computed(() => {
           {
             type: 'label',
             label: user.value.name,
-            // The role, when the trigger shows only the avatar (phones and the
+            // The role and Supporter badge, when the trigger shows only the avatar (phones and the
             // collapsed sidebar); otherwise the trigger already shows it
-            description: collapsed ? roleMap[role.value]?.label : undefined,
+            description: collapsed ? roleLabel.value : undefined,
           },
         ],
         [

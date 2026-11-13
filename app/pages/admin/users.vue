@@ -30,7 +30,7 @@
         </div>
 
         <template #header>
-          Manage role and assignment access for platform users.
+          Manage roles, assignments, and Supporter badges for platform users.
         </template>
 
         <UTable
@@ -53,13 +53,22 @@
           </template>
 
           <template #role-cell="{ row }">
-            <UBadge
-              v-if="row.original.role"
-              :label="getRoleLabel(row.original.role)"
-              variant="subtle"
-              :color="roleMap[row.original.role]?.color"
-              :icon="roleMap[row.original.role]?.icon"
-            />
+            <div class="flex flex-wrap items-center gap-1">
+              <UBadge
+                v-if="row.original.role"
+                :label="getRoleLabel(row.original.role)"
+                variant="subtle"
+                :color="roleMap[row.original.role]?.color"
+                :icon="roleMap[row.original.role]?.icon"
+              />
+              <UBadge
+                v-if="row.original.supporter"
+                :label="SUPPORTER_BADGE.label"
+                variant="subtle"
+                :color="SUPPORTER_BADGE.color"
+                :icon="SUPPORTER_BADGE.icon"
+              />
+            </div>
           </template>
 
           <template #assignments-cell="{ row }">
@@ -156,6 +165,14 @@
               />
             </UFormField>
 
+            <UFormField name="supporter">
+              <USwitch
+                v-model="form.supporter"
+                label="Supporter"
+                description="Shows the Supporter badge for donating to Keebdex, alongside any role."
+              />
+            </UFormField>
+
             <UButton type="submit" block color="primary" :loading="saving">
               Save
             </UButton>
@@ -214,6 +231,11 @@ const filterOptions = [
     icon: 'solar:users-group-two-rounded-line-duotone',
   },
   ...roleOptions,
+  {
+    label: SUPPORTER_BADGE.label,
+    value: 'supporter',
+    icon: SUPPORTER_BADGE.icon,
+  },
 ]
 
 const { data, status, refresh } = useAdvancedSearch('/api/admin/users', {
@@ -288,11 +310,13 @@ const selectedUser = ref(null)
 const form = ref({
   role: null,
   assignments: [],
+  supporter: false,
 })
 
 const openEditor = (user) => {
   selectedUser.value = user
   form.value.role = user.role || null
+  form.value.supporter = !!user.supporter
   form.value.assignments = Array.isArray(user.assignments)
     ? [...user.assignments]
     : []
@@ -312,6 +336,7 @@ const onSubmit = async () => {
       body: {
         role: form.value.role || null,
         assignments: normalizeAssignments(form.value.assignments),
+        supporter: form.value.supporter,
       },
     })
 

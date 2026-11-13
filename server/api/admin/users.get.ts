@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   let request = client
     .from('users')
-    .select('id, full_name, email, role, assignments, discord, reddit, qq', {
+    .select('id, full_name, email, role, supporter, assignments, discord, reddit, qq', {
       count: 'exact',
     })
     .order('email')
@@ -27,7 +27,10 @@ export default defineEventHandler(async (event) => {
     )
   }
 
-  if (role !== 'all' && role) {
+  // `supporter` filters by the Supporter badge, any other value by role
+  if (role === 'supporter') {
+    request = request.eq('supporter', true)
+  } else if (role !== 'all' && role) {
     request = request.eq('role', role)
   }
 

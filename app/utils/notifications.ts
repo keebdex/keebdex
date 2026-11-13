@@ -73,7 +73,6 @@ const ROLE_LABELS: Record<string, string> = {
   editor: 'an Editor',
   maker: 'a Maker',
   designer: 'a Designer',
-  donator: 'a Supporter',
 }
 
 const REGISTRY: Record<string, NotificationRenderer> = {
@@ -164,7 +163,8 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       to: paths ? `${paths.queue}?view=edits` : undefined,
     }
   },
-  // data: { role, previous_role, assignments_added, assignments_removed }
+  // data: { role, previous_role, assignments_added, assignments_removed,
+  // supporter, previous_supporter }
   account_role_changed: ({ data }) => {
     const added = data.assignments_added?.length || 0
     const removed = data.assignments_removed?.length || 0
@@ -174,15 +174,37 @@ const REGISTRY: Record<string, NotificationRenderer> = {
       removed && `removed ${pages(removed)}`,
     ].filter(Boolean)
 
-    let description: string
+    // Notifications sent before the Supporter badge had its own column carry
+    // it as the `donator` role: read them as a supporter change
+    const legacy = (value: string | null) =>
+      value === 'donator' ? null : value
+    const role = legacy(data.role)
+    const previousRole = legacy(data.previous_role)
+    const supporter = data.supporter ?? data.role === 'donator'
+    const previousSupporter =
+      data.previous_supporter ?? data.previous_role === 'donator'
 
-    if (data.role !== data.previous_role) {
-      description = data.role
-        ? `You are now ${ROLE_LABELS[data.role] || data.role} on Keebdex.`
-        : 'Your staff access on Keebdex has been removed.'
-    } else {
-      description = `Your assignments changed: ${changes.join(' and ')}.`
+    const sentences: string[] = []
+
+    if (role !== previousRole) {
+      sentences.push(
+        role
+          ? `You are now ${ROLE_LABELS[role] || role} on Keebdex.`
+          : 'Your staff access on Keebdex has been removed.',
+      )
+    } else if (changes.length) {
+      sentences.push(`Your assignments changed: ${changes.join(' and ')}.`)
     }
+
+    if (supporter !== previousSupporter) {
+      sentences.push(
+        !supporter
+          ? 'Your Supporter badge has been removed.'
+          : 'You now have the Supporter badge. Thank you for supporting Keebdex!',
+      )
+    }
+
+    const description = sentences.join(' ')
 
     return {
       title: 'Account Access Updated',
