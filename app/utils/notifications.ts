@@ -7,7 +7,6 @@
  * database trigger calling `push_notification()`.
  */
 
-import { SUPPORTER_BADGE } from './index'
 import { countLabel } from './toast'
 
 export interface AppNotification {
@@ -21,7 +20,12 @@ export interface AppNotification {
   created_at: string
 }
 
-export type NotificationColor = 'success' | 'error' | 'warning' | 'info'
+export type NotificationColor =
+  | 'success'
+  | 'error'
+  | 'warning'
+  | 'info'
+  | 'supporter'
 
 export interface NotificationView {
   title: string
@@ -32,9 +36,6 @@ export interface NotificationView {
   note?: string | null
   icon: string
   color: NotificationColor
-  // A color for the icon other than `color`'s (a full Tailwind class), e.g.
-  // the Supporter color on the Supporter thank-you
-  iconClass?: string
   to?: string
 }
 
@@ -113,8 +114,7 @@ const supporterView = (supporter: boolean): NotificationView =>
         description:
           'Your donation helps keep Keebdex running. Your profile now shows the Supporter badge.',
         icon: 'solar:hearts-bold-duotone',
-        color: 'success',
-        iconClass: SUPPORTER_BADGE.class,
+        color: 'supporter',
       }
     : {
         title: 'Supporter Badge Removed',
@@ -233,6 +233,13 @@ const REGISTRY: Record<string, NotificationRenderer> = {
         : fallback(notification)
     }
 
+    // A legacy row that changed the badge along with access says so too
+    const badge =
+      supporter === previousSupporter
+        ? ''
+        : supporter
+          ? ' Your profile now shows the Supporter badge.'
+          : ' Your profile no longer shows the Supporter badge.'
     const pages = (count: number) => countLabel(count, 'page')
     const changes = [
       added && `added ${pages(added)}`,
@@ -242,7 +249,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     if (role === previousRole) {
       return {
         title: 'Assignments Updated',
-        description: `Your assignments changed: ${changes.join(' and ')}.`,
+        description: `Your assignments changed: ${changes.join(' and ')}.${badge}`,
         icon: 'solar:clipboard-list-bold-duotone',
         color: 'info',
       }
@@ -251,7 +258,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     if (!role) {
       return {
         title: 'Staff Access Removed',
-        description: `You are no longer ${ROLE_NOTICES[previousRole!]?.article || 'staff'} on Keebdex.`,
+        description: `You are no longer ${ROLE_NOTICES[previousRole!]?.article || 'staff'} on Keebdex.${badge}`,
         icon: 'solar:shield-minus-bold-duotone',
         color: 'warning',
       }
@@ -265,7 +272,8 @@ const REGISTRY: Record<string, NotificationRenderer> = {
 
     return {
       title: `You Are Now ${notice?.article || role}`,
-      description: [notice?.description, assignments].filter(Boolean).join(' '),
+      description:
+        [notice?.description, assignments].filter(Boolean).join(' ') + badge,
       icon: notice?.icon || 'solar:shield-user-bold-duotone',
       color: previousRole ? 'info' : 'success',
     }

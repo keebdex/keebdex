@@ -81,6 +81,22 @@ export default defineNuxtConfig({
 
   css: ['~/assets/main.css'],
 
+  ui: {
+    theme: {
+      // `supporter` is the Supporter color (--color-supporter in main.css), so
+      // Nuxt UI components take it like the other theme colors
+      colors: [
+        'primary',
+        'secondary',
+        'success',
+        'info',
+        'warning',
+        'error',
+        'supporter',
+      ],
+    },
+  },
+
   modules: [
     '@nuxt/ui',
     '@nuxt/image',

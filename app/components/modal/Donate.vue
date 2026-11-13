@@ -22,7 +22,7 @@
       },
     ]"
     :ui="{
-      leadingIcon: 'text-donator',
+      leadingIcon: 'text-supporter',
     }"
   />
 </template>

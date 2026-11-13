@@ -166,10 +166,10 @@ export const roleMap: Record<
 export const SUPPORTER_BADGE = {
   label: 'Supporter',
   icon: 'solar:user-heart-line-duotone',
-  // The heart on a supporter's avatar, too small for a duotone icon
-  filledIcon: 'solar:heart-bold',
-  class: 'text-donator',
-  color: 'success',
+  // The heart on a supporter's avatar, which stands out like the Support icon
+  filledIcon: 'solar:heart-bold-duotone',
+  class: 'text-supporter',
+  color: 'supporter',
 } as const
 
 // A user's role and Supporter badge as one line, e.g. "Editor · Supporter"

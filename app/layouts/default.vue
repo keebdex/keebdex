@@ -123,9 +123,9 @@ const links = computed(() => [
     {
       label: 'Support',
       icon: 'solar:hand-heart-bold-duotone',
-      class: 'cursor-pointer text-donator hover:text-donator',
+      class: 'cursor-pointer text-supporter hover:text-supporter',
       ui: {
-        linkLeadingIcon: 'text-donator group-hover:text-donator',
+        linkLeadingIcon: 'text-supporter group-hover:text-supporter',
       },
       onSelect() {
         toggle('donate')

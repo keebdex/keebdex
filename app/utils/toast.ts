@@ -10,7 +10,7 @@
  * - `errorToast`: a request or runtime error; logs it and maps it by status.
  */
 
-type ToastColor = 'success' | 'info' | 'warning' | 'error'
+type ToastColor = 'success' | 'info' | 'warning' | 'error' | 'supporter'
 
 export interface ToastMessage {
   title: string
@@ -201,7 +201,6 @@ export function notificationToast({
   description,
   icon,
   color,
-  iconClass,
   to,
   onView,
 }: {
@@ -209,7 +208,6 @@ export function notificationToast({
   description: string
   icon: string
   color: ToastColor
-  iconClass?: string
   to?: string
   onView?: () => void
 }) {
@@ -218,7 +216,6 @@ export function notificationToast({
     description,
     icon,
     color,
-    ui: iconClass ? { icon: iconClass } : undefined,
     actions: to
       ? [
           {

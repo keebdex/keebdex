@@ -23,7 +23,7 @@
             :class="ui.avatar({ class: 'supporter-ring' })"
           />
           <span
-            class="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-donator ring-2 ring-(--ui-bg)"
+            class="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-supporter ring-2 ring-(--ui-bg)"
           >
             <UIcon :name="SUPPORTER_BADGE.filledIcon" class="size-2.5 text-white" />
           </span>
@@ -212,7 +212,7 @@ const logout = async () => {
 /* A ring of the Supporter color around the avatar, with a soft glow that
    pulses: only the glow's opacity animates, so the browser never repaints */
 .supporter-ring {
-  box-shadow: 0 0 0 2px var(--color-donator);
+  box-shadow: 0 0 0 2px var(--color-supporter);
 }
 
 .supporter-glow {
@@ -220,7 +220,7 @@ const logout = async () => {
   inset: 0;
   border-radius: 9999px;
   box-shadow: 0 0 10px 4px
-    color-mix(in oklab, var(--color-donator) 55%, transparent);
+    color-mix(in oklab, var(--color-supporter) 55%, transparent);
   opacity: 0;
   animation: supporter-glow 2.4s ease-in-out infinite;
   pointer-events: none;
@@ -236,9 +236,9 @@ const logout = async () => {
 .supporter-label {
   background: linear-gradient(
       100deg,
-      var(--color-donator) 40%,
-      color-mix(in oklab, var(--color-donator) 35%, white) 50%,
-      var(--color-donator) 60%
+      var(--color-supporter) 40%,
+      color-mix(in oklab, var(--color-supporter) 35%, white) 50%,
+      var(--color-supporter) 60%
     )
     0 0 / 250% 100%;
   background-clip: text;

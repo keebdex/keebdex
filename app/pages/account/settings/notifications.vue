@@ -82,6 +82,7 @@ const ICON_CLASSES: Record<NotificationColor, string> = {
   error: 'text-error',
   warning: 'text-warning',
   info: 'text-info',
+  supporter: 'text-supporter',
 }
 const { isModerator } = storeToRefs(useUserStore())
 

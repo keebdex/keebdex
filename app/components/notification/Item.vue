@@ -1,7 +1,7 @@
 <template>
   <NotificationRow
     :icon="view.icon"
-    :icon-class="view.iconClass || ICON_CLASSES[view.color]"
+    :icon-class="ICON_CLASSES[view.color]"
     :title="view.title"
     :description="view.description"
     :time="notification.created_at"
@@ -75,6 +75,7 @@ const ICON_CLASSES: Record<NotificationColor, string> = {
   error: 'text-error',
   warning: 'text-warning',
   info: 'text-info',
+  supporter: 'text-supporter',
 }
 
 // Tailwind needs the full class names, so they can't be built from the color.
@@ -83,6 +84,7 @@ const NOTE_BORDER_CLASSES: Record<NotificationColor, string> = {
   error: 'border-error/50',
   warning: 'border-warning/50',
   info: 'border-info/50',
+  supporter: 'border-supporter/50',
 }
 
 const view = computed(() => renderNotification(props.notification))
