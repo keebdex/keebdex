@@ -12,7 +12,32 @@
       :description="collapsed ? undefined : roleLabel"
       :avatar="userAvatar(user.picture, user.name)"
       class="cursor-pointer w-full"
-    />
+    >
+      <!-- Supporters: a glowing ring and a heart on the avatar, and the badge
+        in its own color after the role -->
+      <template v-if="supporter" #avatar="{ ui }">
+        <span class="relative inline-flex shrink-0">
+          <UAvatar
+            v-bind="userAvatar(user.picture, user.name)"
+            :class="ui.avatar({ class: 'supporter-ring' })"
+          />
+          <span
+            class="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-donator ring-2 ring-(--ui-bg)"
+          >
+            <UIcon :name="SUPPORTER_BADGE.filledIcon" class="size-2.5 text-white" />
+          </span>
+        </span>
+      </template>
+
+      <template v-if="supporter" #description>
+        <span class="inline-flex items-center gap-1">
+          <template v-if="roleMap[role]">{{ roleMap[role].label }} ·</template>
+          <span class="supporter-label font-medium">
+            {{ SUPPORTER_BADGE.label }}
+          </span>
+        </span>
+      </template>
+    </UUser>
     <UButton
       v-else
       :label="collapsed ? undefined : 'Sign In'"
@@ -178,3 +203,50 @@ const logout = async () => {
   }
 }
 </script>
+
+<style scoped>
+/* A soft pulse of the Supporter color around the avatar */
+.supporter-ring {
+  box-shadow: 0 0 0 2px var(--color-donator);
+  animation: supporter-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes supporter-glow {
+  50% {
+    box-shadow:
+      0 0 0 2px var(--color-donator),
+      0 0 10px 2px color-mix(in oklab, var(--color-donator) 55%, transparent);
+  }
+}
+
+/* The Supporter label shimmers once in a while */
+.supporter-label {
+  background: linear-gradient(
+      100deg,
+      var(--color-donator) 40%,
+      color-mix(in oklab, var(--color-donator) 35%, white) 50%,
+      var(--color-donator) 60%
+    )
+    0 0 / 250% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: supporter-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes supporter-shimmer {
+  0%,
+  40% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supporter-ring,
+  .supporter-label {
+    animation: none;
+  }
+}
+</style>

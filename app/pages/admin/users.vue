@@ -330,17 +330,37 @@ const onSubmit = async () => {
 
   saving.value = true
 
+  const user = selectedUser.value
+  const role = form.value.role || null
+  const assignments = normalizeAssignments(form.value.assignments)
+  const supporter = form.value.supporter
+  // Access (role, assignments) and the Supporter badge each get their own toast
+  const accessChanged =
+    role !== (user.role || null) ||
+    JSON.stringify(assignments) !==
+      JSON.stringify(normalizeAssignments(user.assignments))
+  const supporterChanged = supporter !== !!user.supporter
+
   try {
-    await $fetch(`/api/admin/users/${selectedUser.value.id}`, {
+    await $fetch(`/api/admin/users/${user.id}`, {
       method: 'post',
-      body: {
-        role: form.value.role || null,
-        assignments: normalizeAssignments(form.value.assignments),
-        supporter: form.value.supporter,
-      },
+      body: { role, assignments, supporter },
     })
 
-    toast.add(successToast('update', { entity: 'User access' }))
+    const target = user.full_name || user.email
+
+    if (accessChanged) {
+      toast.add(successToast('update', { entity: 'User access' }))
+    }
+
+    if (supporterChanged) {
+      toast.add(
+        successToast(supporter ? 'add' : 'remove', {
+          entity: 'Supporter badge',
+          target,
+        }),
+      )
+    }
     editVisible.value = false
     await refresh()
   } catch (error) {

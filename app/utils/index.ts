@@ -166,6 +166,8 @@ export const roleMap: Record<
 export const SUPPORTER_BADGE = {
   label: 'Supporter',
   icon: 'solar:user-heart-line-duotone',
+  // The heart on a supporter's avatar, too small for a duotone icon
+  filledIcon: 'solar:heart-bold',
   class: 'text-donator',
   color: 'success',
 } as const
