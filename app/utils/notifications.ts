@@ -8,6 +8,7 @@
  */
 
 import { SUPPORTER_BADGE } from './index'
+import { countLabel } from './toast'
 
 export interface AppNotification {
   id: string
@@ -73,8 +74,6 @@ const submissionSubject = (data: Record<string, any>) => {
 }
 
 const isPlural = (data: Record<string, any>) => (Number(data.count) || 1) > 1
-
-const ACCOUNT_ICON = 'solar:shield-user-bold-duotone'
 
 // What each role lets its holder do, for the notification that grants it;
 // the icons are roleMap's in bold-duotone, named in full for the icon bundle
@@ -234,7 +233,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
         : fallback(notification)
     }
 
-    const pages = (count: number) => `${count} page${count === 1 ? '' : 's'}`
+    const pages = (count: number) => countLabel(count, 'page')
     const changes = [
       added && `added ${pages(added)}`,
       removed && `removed ${pages(removed)}`,
@@ -267,7 +266,7 @@ const REGISTRY: Record<string, NotificationRenderer> = {
     return {
       title: `You Are Now ${notice?.article || role}`,
       description: [notice?.description, assignments].filter(Boolean).join(' '),
-      icon: notice?.icon || ACCOUNT_ICON,
+      icon: notice?.icon || 'solar:shield-user-bold-duotone',
       color: previousRole ? 'info' : 'success',
     }
   },

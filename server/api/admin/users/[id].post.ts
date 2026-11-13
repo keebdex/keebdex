@@ -1,33 +1,11 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { createError, defineEventHandler, readBody } from 'h3'
 import { Constants } from '~/types/database.types'
+import { requireAdminClient } from '../../../utils/admin'
 
 const ALLOWED_ROLES = new Set(Constants.public.Enums.user_role)
 
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event)
-  if (!user) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
-
-  const client = await serverSupabaseClient(event)
-
-  const { data: actor, error: actorError } = await client
-    .from('users')
-    .select('role')
-    .eq('id', user.sub)
-    .single()
-
-  if (actorError) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: actorError.message,
-    })
-  }
-
-  if (!actor || actor.role !== 'admin') {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  const client = await requireAdminClient(event)
 
   const id = event.context.params?.id
   if (!id) {
@@ -50,14 +28,15 @@ export default defineEventHandler(async (event) => {
   }
 
   // The Supporter badge is independent of the role; left as is when omitted
-  if (body?.supporter !== undefined && typeof body.supporter !== 'boolean') {
+  const supporter = body?.supporter
+  if (supporter !== undefined && typeof supporter !== 'boolean') {
     throw createError({ statusCode: 400, statusMessage: 'Invalid supporter' })
   }
 
   const payload = {
     role,
     assignments,
-    ...(typeof body?.supporter === 'boolean' && { supporter: body.supporter }),
+    ...(supporter !== undefined && { supporter }),
   }
 
   const { data, error } = await client

@@ -10,15 +10,16 @@
       v-if="authenticated"
       :name="collapsed ? undefined : user.name"
       :description="collapsed ? undefined : roleLabel"
-      :avatar="userAvatar(user.picture, user.name)"
+      :avatar="avatar"
       class="cursor-pointer w-full"
     >
       <!-- Supporters: a glowing ring and a heart on the avatar, and the badge
         in its own color after the role -->
       <template v-if="supporter" #avatar="{ ui }">
         <span class="relative inline-flex shrink-0">
+          <span class="supporter-glow" />
           <UAvatar
-            v-bind="userAvatar(user.picture, user.name)"
+            v-bind="avatar"
             :class="ui.avatar({ class: 'supporter-ring' })"
           />
           <span
@@ -29,9 +30,9 @@
         </span>
       </template>
 
-      <template v-if="supporter" #description>
+      <template v-if="supporter && !collapsed" #description>
         <span class="inline-flex items-center gap-1">
-          <template v-if="roleMap[role]">{{ roleMap[role].label }} ·</template>
+          <template v-if="roleOnlyLabel">{{ roleOnlyLabel }} ·</template>
           <span class="supporter-label font-medium">
             {{ SUPPORTER_BADGE.label }}
           </span>
@@ -69,7 +70,10 @@ const userStore = useUserStore()
 const { authenticated, user, role, supporter, isAdmin, isModerator } =
   storeToRefs(userStore)
 
+const avatar = computed(() => userAvatar(user.value.picture, user.value.name))
 const roleLabel = computed(() => userRoleLabel(role.value, supporter.value))
+// Supporters' trigger draws the badge itself, after the role alone
+const roleOnlyLabel = computed(() => userRoleLabel(role.value))
 
 const client = useSupabaseClient()
 const toast = useToast()
@@ -205,17 +209,26 @@ const logout = async () => {
 </script>
 
 <style scoped>
-/* A soft pulse of the Supporter color around the avatar */
+/* A ring of the Supporter color around the avatar, with a soft glow that
+   pulses: only the glow's opacity animates, so the browser never repaints */
 .supporter-ring {
   box-shadow: 0 0 0 2px var(--color-donator);
+}
+
+.supporter-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  box-shadow: 0 0 10px 4px
+    color-mix(in oklab, var(--color-donator) 55%, transparent);
+  opacity: 0;
   animation: supporter-glow 2.4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes supporter-glow {
   50% {
-    box-shadow:
-      0 0 0 2px var(--color-donator),
-      0 0 10px 2px color-mix(in oklab, var(--color-donator) 55%, transparent);
+    opacity: 1;
   }
 }
 
@@ -244,7 +257,7 @@ const logout = async () => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .supporter-ring,
+  .supporter-glow,
   .supporter-label {
     animation: none;
   }

@@ -347,8 +347,6 @@ const onSubmit = async () => {
       body: { role, assignments, supporter },
     })
 
-    const target = user.full_name || user.email
-
     if (accessChanged) {
       toast.add(successToast('update', { entity: 'User access' }))
     }
@@ -357,7 +355,7 @@ const onSubmit = async () => {
       toast.add(
         successToast(supporter ? 'add' : 'remove', {
           entity: 'Supporter badge',
-          target,
+          target: user.full_name || user.email,
         }),
       )
     }
