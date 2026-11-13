@@ -1,7 +1,7 @@
 <template>
   <NotificationRow
     :icon="view.icon"
-    :icon-class="ICON_CLASSES[view.color]"
+    :icon-class="view.iconClass || ICON_CLASSES[view.color]"
     :title="view.title"
     :description="view.description"
     :time="notification.created_at"

@@ -201,6 +201,7 @@ export function notificationToast({
   description,
   icon,
   color,
+  iconClass,
   to,
   onView,
 }: {
@@ -208,6 +209,7 @@ export function notificationToast({
   description: string
   icon: string
   color: ToastColor
+  iconClass?: string
   to?: string
   onView?: () => void
 }) {
@@ -216,6 +218,7 @@ export function notificationToast({
     description,
     icon,
     color,
+    ui: iconClass ? { icon: iconClass } : undefined,
     actions: to
       ? [
           {

@@ -7,6 +7,8 @@
  * database trigger calling `push_notification()`.
  */
 
+import { SUPPORTER_BADGE } from './index'
+
 export interface AppNotification {
   id: string
   type: string
@@ -29,6 +31,9 @@ export interface NotificationView {
   note?: string | null
   icon: string
   color: NotificationColor
+  // A color for the icon other than `color`'s (a full Tailwind class), e.g.
+  // the Supporter color on the Supporter thank-you
+  iconClass?: string
   to?: string
 }
 
@@ -110,6 +115,7 @@ const supporterView = (supporter: boolean): NotificationView =>
           'Your donation helps keep Keebdex running. Your profile now shows the Supporter badge.',
         icon: 'solar:hearts-bold-duotone',
         color: 'success',
+        iconClass: SUPPORTER_BADGE.class,
       }
     : {
         title: 'Supporter Badge Removed',
