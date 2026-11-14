@@ -10,7 +10,12 @@
     </template>
 
     <template #body>
-      <UPageCard variant="subtle" class="space-y-4 min-w-0">
+      <!-- Settings are short forms and lists, so like the leaderboard they
+           keep their own width inside the panel -->
+      <UPageCard
+        variant="subtle"
+        class="space-y-4 min-w-0 w-full max-w-4xl mx-auto"
+      >
         <NuxtPage />
       </UPageCard>
     </template>
