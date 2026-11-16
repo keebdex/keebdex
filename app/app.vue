@@ -45,6 +45,10 @@ useHead({
   },
   link: [
     { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+    // From the brand kit's exports/web (github.com/keebdex/brand): the
+    // square mark, which iOS and Android round or mask themselves
+    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+    { rel: 'manifest', href: '/manifest.webmanifest' },
     // Made absolute by the seo plugin
     { rel: 'canonical', href: () => route.path },
   ],
