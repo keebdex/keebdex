@@ -14,11 +14,6 @@ const props = defineProps({
     default: 'auto',
     validator: (v) => ['auto', 'light', 'dark'].includes(v),
   },
-  // Adds "org" under "dex", beside the bar, for images shared off the site.
-  domain: {
-    type: Boolean,
-    default: false,
-  },
 })
 
 const sizeMap = {
@@ -93,36 +88,16 @@ onMounted(measureBar)
       <span ref="keebRef" :class="keebTextClass">keeb</span
       ><span :class="dexTextClass">dex</span>
     </span>
-    <!-- Sized like the wordmark, so "org" scales with it in em -->
     <div
       :class="[
+        sizeMap[props.size].bar,
         sizeMap[props.size].mt,
-        sizeMap[props.size].text,
-        'flex items-center self-stretch',
+        'rounded-full transition-[width]',
+        barClass,
       ]"
-    >
-      <div
-        :class="[
-          sizeMap[props.size].bar,
-          'rounded-full transition-[width]',
-          barClass,
-        ]"
-        :style="{
-          width:
-            barWidth > 0 ? `${barWidth}px` : sizeMap[props.size].barDefault,
-        }"
-      />
-      <!-- "org" spread from the bar's end to the end of "dex"; raised so the
-           letters' x-height, not the font's line box, centers on the bar -->
-      <span
-        v-if="props.domain"
-        :class="[
-          'ml-[0.4em] flex flex-1 justify-between -translate-y-[0.18em] font-dosis text-[0.6em] font-bold leading-none',
-          keebTextClass,
-        ]"
-      >
-        <span v-for="letter in 'org'" :key="letter">{{ letter }}</span>
-      </span>
-    </div>
+      :style="{
+        width: barWidth > 0 ? `${barWidth}px` : sizeMap[props.size].barDefault,
+      }"
+    />
   </div>
 </template>

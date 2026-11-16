@@ -76,7 +76,7 @@
       class="flex items-center justify-between gap-4 border-t border-default pt-4 text-muted"
     >
       <span class="font-mono text-sm">{{ formatDate(isoToday()) }}</span>
-      <AppWordmark size="sm" domain />
+      <AppWordmark size="sm" />
     </footer>
   </div>
 </template>

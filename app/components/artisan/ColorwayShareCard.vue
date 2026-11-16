@@ -73,7 +73,7 @@
     </div>
 
     <template #footer>
-      <AppWordmark size="sm" domain class="ml-auto" />
+      <AppWordmark size="sm" class="ml-auto" />
     </template>
   </UPageCard>
 </template>
