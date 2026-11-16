@@ -403,7 +403,7 @@
                 label: 'Download Press Kit',
                 color: 'primary',
                 icon: 'solar:download-minimalistic-bold-duotone',
-                to: 'https://github.com/keebdex/press-kit/archive/refs/heads/main.zip',
+                to: 'https://github.com/keebdex/brand/archive/refs/heads/main.zip',
                 external: true,
                 target: '_blank',
               },
