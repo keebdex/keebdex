@@ -1,4 +1,20 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { z } from 'zod'
+
+// The only columns a user changes on their own row: id, email, and full_name
+// come from the sign-in account, role, assignments, and supporter from the
+// admin endpoint, and appearance from its own (guard_user_role() enforces the
+// same in the database).
+const social = z.string().max(100).nullable().optional()
+const profileSchema = z
+  .object({
+    discord: social,
+    reddit: social,
+    qq: social,
+    leaderboard_hidden: z.boolean().optional(),
+    pins: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict()
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -10,26 +26,9 @@ export default defineEventHandler(async (event) => {
   if (user.sub !== id)
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
-  const body = await readBody(event)
-  if (body && typeof body === 'object' && !Array.isArray(body)) {
-    if ('role' in body || 'assignments' in body || 'supporter' in body) {
-      throw createError({
-        statusCode: 403,
-        statusMessage:
-          'Role, assignments, and the supporter badge can only be changed by admins',
-      })
-    }
-    if ('appearance' in body) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Use the appearance endpoint to update appearance',
-      })
-    }
-  }
+  const payload = await readValidatedBody(event, profileSchema.parse)
 
   const client = await serverSupabaseClient(event)
-  const payload = pickTableFields('users', body)
-
   const { data, error } = await client
     .from('users')
     .update(payload)

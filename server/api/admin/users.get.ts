@@ -22,8 +22,12 @@ export default defineEventHandler(async (event) => {
     .range(from, to)
 
   if (term) {
+    // Quoted, so commas and parentheses in the term cannot add filters to
+    // the `or`; `%`, `_` and `\` match literally instead of as wildcards.
+    const like = term.replace(/[\\%_]/g, '\\$&')
+    const pattern = `"%${like.replace(/["\\]/g, '\\$&')}%"`
     request = request.or(
-      `email.ilike.%${term}%,full_name.ilike.%${term}%,discord.ilike.%${term}%`,
+      `email.ilike.${pattern},full_name.ilike.${pattern},discord.ilike.${pattern}`,
     )
   }
 
