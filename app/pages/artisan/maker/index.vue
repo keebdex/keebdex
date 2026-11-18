@@ -11,7 +11,7 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UModal v-if="isAdmin" title="Add Maker">
+          <UModal v-if="canManageAll" title="Add Maker">
             <UButton
               color="primary"
               icon="solar:user-plus-line-duotone"
@@ -107,7 +107,7 @@ const { data, refresh } = await useAsyncData(
 )
 
 const userStore = useUserStore()
-const { authenticated, isAdmin, pinnedMakers } = storeToRefs(userStore)
+const { authenticated, canManageAll, pinnedMakers } = storeToRefs(userStore)
 
 const isPinned = (maker) =>
   authenticated.value && Object.hasOwn(pinnedMakers.value, maker.maker_id)

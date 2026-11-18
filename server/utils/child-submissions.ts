@@ -4,7 +4,7 @@ import { omit } from 'es-toolkit'
 import { getActorProfile } from './admin'
 import type { ModeratorProfile } from './admin'
 import {
-  canManageAnyAssignment,
+  canManageAll,
   canManageAssignment,
 } from '~/utils/permissions'
 import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
@@ -267,7 +267,6 @@ export const getChildSubmissionContext = async (
 
   const parent = data as Moderated
   const isStaff =
-    canManageAnyAssignment(profile) &&
     canManageAssignment(profile, data[config.scope])
   const isOfficial =
     !parent.review_status || parent.review_status === 'Approved'
@@ -625,8 +624,8 @@ const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
 
 /**
  * Creates or updates a maker, profile, or brand from its form, keyed by
- * `key` (`maker_id`, `profile_id`, `slug`), never by the body. Staff of the
- * new key (admins and editors without assignments) add published records
+ * `key` (`maker_id`, `profile_id`, `slug`), never by the body. Admins and
+ * editors without assignments (`canManageAll`) add published records
  * (no status), as the admin forms always have; everyone else proposes a
  * Pending one under their name (the submission wizards), so staff never
  * publish a page under an owner still under review.
@@ -648,16 +647,6 @@ export const saveOwnerSubmission = async (
   const { client, user, profile } = await getActorProfile(event)
   const config = OWNERS[domain]
   const match = { [config.key]: key }
-  const isStaff =
-    canManageAnyAssignment(profile) && canManageAssignment(profile, key)
-  // Staff-only columns (a maker's Google Doc settings and flags, logo
-  // inversion) are the ones edit suggestions protect; others never set them,
-  // or a proposal's document_ids would start syncing once it is approved.
-  const record = omit(omitModerationFields(body), [
-    'id',
-    config.key,
-    ...(isStaff ? [] : SUGGESTION_ENTITIES[config.entityType].protected),
-  ])
   const newKey =
     typeof body[config.key] === 'string' ? String(body[config.key]).trim() : key
   const taken = () =>
@@ -670,6 +659,21 @@ export const saveOwnerSubmission = async (
     from(client, config.table).select(`${config.key}, review_status`),
     match,
   ).maybeSingle()
+
+  // Staff of an existing record are those of its key; a new one is added
+  // published only by `canManageAll` staff (can_manage_all() in RLS), since
+  // assignment keys are shared by every module.
+  const isStaff = existing
+    ? canManageAssignment(profile, key)
+    : canManageAll(profile)
+  // Staff-only columns (a maker's Google Doc settings and flags, logo
+  // inversion) are the ones edit suggestions protect; others never set them,
+  // or a proposal's document_ids would start syncing once it is approved.
+  const record = omit(omitModerationFields(body), [
+    'id',
+    config.key,
+    ...(isStaff ? [] : SUGGESTION_ENTITIES[config.entityType].protected),
+  ])
 
   if (existing) {
     if (newKey !== key) {

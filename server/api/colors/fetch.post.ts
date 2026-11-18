@@ -1,4 +1,4 @@
-import { canManageAssignment } from '~/utils/permissions'
+import { canManageAll } from '~/utils/permissions'
 import { normalizeRalCode, parsePantoneCode } from '~/utils/color'
 
 type FetchColorBody = {
@@ -168,7 +168,7 @@ async function fetchPantoneColor(code: string): Promise<FetchedColor> {
 export default defineEventHandler(async (event) => {
   const { profile } = await getActorProfile(event)
 
-  if (!canManageAssignment(profile, undefined)) {
+  if (!canManageAll(profile)) {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 

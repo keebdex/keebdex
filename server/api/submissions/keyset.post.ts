@@ -3,7 +3,6 @@ import { getActorProfile } from '../../utils/admin'
 import { urlSlugify } from '~/utils/slug'
 import {
   canManageAssignment,
-  canManageAnyAssignment,
 } from '~/utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -26,7 +25,6 @@ export default defineEventHandler(async (event) => {
 
   // Staff submitting through the community form don't need to self-approve.
   const isModerator =
-    canManageAnyAssignment(profile) &&
     canManageAssignment(profile, `${keysetInput.profile_id}/${slug}`)
 
   const keysetPayload = {

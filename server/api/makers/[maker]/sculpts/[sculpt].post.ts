@@ -1,5 +1,4 @@
 import {
-  canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
 
@@ -19,7 +18,6 @@ export default defineEventHandler(async (event) => {
   )
 
   const isStaff =
-    canManageAnyAssignment(profile) &&
     canManageAssignment(profile, String(body.maker_id || makerId || ''))
 
   // Moderation fields are only ever set by the server, never trusted from

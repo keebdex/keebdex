@@ -11,7 +11,7 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UModal v-if="editable" title="Add Keyset Profile">
+          <UModal v-if="canManageAll" title="Add Keyset Profile">
             <UButton
               color="primary"
               icon="solar:add-square-line-duotone"
@@ -135,8 +135,7 @@ useSeoMeta({
 })
 
 const userStore = useUserStore()
-// Admins and editors without assignments (nobody is assigned a profile).
-const editable = computed(() => userStore.isEditable('keyset'))
+const { canManageAll } = storeToRefs(userStore)
 const { profiles, status, refresh } = useKeysetProfiles()
 
 // Profiles under their manufacturer (keyed like its logo, so a profile
