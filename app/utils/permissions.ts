@@ -56,3 +56,19 @@ export function canManageAnyAssignment(
       return false
   }
 }
+
+/**
+ * Whether a profile manages every page: admins, and editors without
+ * assignments. Only they add a maker, keyset profile, or keyboard brand
+ * published, since assignments are plain keys shared by every module (a
+ * maker assigned `foo` would otherwise publish keyboard brand `foo`).
+ * Mirrors can_manage_all() in the database.
+ */
+export function canManageAll(
+  profile: AssignableProfile | null | undefined,
+): boolean {
+  return (
+    profile?.role === 'admin' ||
+    (profile?.role === 'editor' && !profile.assignments)
+  )
+}

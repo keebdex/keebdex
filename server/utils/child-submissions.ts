@@ -4,6 +4,7 @@ import { omit } from 'es-toolkit'
 import { getActorProfile } from './admin'
 import type { ModeratorProfile } from './admin'
 import {
+  canManageAll,
   canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
@@ -625,8 +626,8 @@ const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
 
 /**
  * Creates or updates a maker, profile, or brand from its form, keyed by
- * `key` (`maker_id`, `profile_id`, `slug`), never by the body. Staff of the
- * new key (admins and editors without assignments) add published records
+ * `key` (`maker_id`, `profile_id`, `slug`), never by the body. Admins and
+ * editors without assignments (`canManageAll`) add published records
  * (no status), as the admin forms always have; everyone else proposes a
  * Pending one under their name (the submission wizards), so staff never
  * publish a page under an owner still under review.
@@ -717,8 +718,11 @@ export const saveOwnerSubmission = async (
     .insert({
       ...record,
       ...match,
-      // Staff add it published (submitted_by defaults to them)
-      ...(isStaff ? {} : getSubmissionAttribution(false, user.sub)),
+      // Admins and editors without assignments add it published
+      // (submitted_by defaults to them); assigned staff propose it like
+      // everyone else, since their keys are shared by every module
+      // (can_manage_all() in the database).
+      ...(canManageAll(profile) ? {} : getSubmissionAttribution(false, user.sub)),
     })
     .select()
     .single()

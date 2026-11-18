@@ -122,7 +122,8 @@ const { data, refresh } = await useAsyncData(
 
 const userStore = useUserStore()
 const { authenticated, pinnedBrands } = storeToRefs(userStore)
-const editable = computed(() => userStore.isEditable('keyboard'))
+// Admins and editors without assignments add brands published
+const editable = computed(() => userStore.canManageAll)
 
 const isPinned = (brand) =>
   authenticated.value && Object.hasOwn(pinnedBrands.value, brand.slug)
