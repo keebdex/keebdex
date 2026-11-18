@@ -5,7 +5,6 @@ import { getActorProfile } from './admin'
 import type { ModeratorProfile } from './admin'
 import {
   canManageAll,
-  canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
 import { deletionNoteSchema, reviewNoteSchema } from '~/utils/schemas/common'
@@ -268,7 +267,6 @@ export const getChildSubmissionContext = async (
 
   const parent = data as Moderated
   const isStaff =
-    canManageAnyAssignment(profile) &&
     canManageAssignment(profile, data[config.scope])
   const isOfficial =
     !parent.review_status || parent.review_status === 'Approved'

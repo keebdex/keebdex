@@ -1,5 +1,4 @@
 import {
-  canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
 
@@ -14,7 +13,6 @@ export default defineEventHandler(async (event) => {
   ])
 
   const isStaff =
-    canManageAnyAssignment(profile) &&
     canManageAssignment(profile, `${profileId}/${keysetSlug}`)
 
   // Staff set the Review Status from the form; the server writes the rest,

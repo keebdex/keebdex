@@ -4,7 +4,6 @@ import { urlSlugify } from '~/utils/slug'
 import { toNullableNumber } from '../../utils'
 import {
   canManageAssignment,
-  canManageAnyAssignment,
 } from '~/utils/permissions'
 
 export default defineEventHandler(async (event) => {
@@ -27,7 +26,6 @@ export default defineEventHandler(async (event) => {
 
   // Staff submitting through the community form don't need to self-approve.
   const isModerator =
-    canManageAnyAssignment(profile) &&
     canManageAssignment(profile, `${keyboardInput.brand_slug}`)
 
   const keyboardPayload = {

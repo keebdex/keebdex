@@ -1,6 +1,5 @@
 import { omitSensitive, toNullableNumber } from '../../../utils'
 import {
-  canManageAnyAssignment,
   canManageAssignment,
 } from '~/utils/permissions'
 
@@ -15,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const { brand } = getRouterParams(event)
 
   const isStaff =
-    canManageAnyAssignment(profile) && canManageAssignment(profile, brand)
+    canManageAssignment(profile, brand)
 
   // Approving keeps the keyboard's status-less releases and variants in
   // review.
