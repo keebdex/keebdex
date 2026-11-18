@@ -15,7 +15,7 @@
         description="Every color keycaps are matched to, from GMK and SP codes to Pantone and RAL. Open a swatch for its values and the keysets that use it."
         :ui="listingPageHeaderUi"
       >
-        <template v-if="editable" #links>
+        <template v-if="canManageAll" #links>
           <UButton
             color="primary"
             icon="solar:pipette-line-duotone"
@@ -99,7 +99,7 @@
       />
 
       <UModal
-        v-if="editable"
+        v-if="canManageAll"
         v-model:open="formOpen"
         :title="editing?.id ? 'Edit Color' : 'Add Color'"
       >
@@ -131,7 +131,7 @@ import { Constants } from '~/types/database.types'
 const route = useRoute()
 
 const userStore = useUserStore()
-const editable = computed(() => userStore.isEditable())
+const { canManageAll } = storeToRefs(userStore)
 
 const SYSTEMS = Constants.public.Enums.keyset_color_matching_system
 

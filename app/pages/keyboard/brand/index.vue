@@ -11,7 +11,7 @@
         :ui="listingPageHeaderUi"
       >
         <template #links>
-          <UModal v-if="editable" title="Add Keyboard Brand">
+          <UModal v-if="canManageAll" title="Add Keyboard Brand">
             <UButton
               color="primary"
               icon="solar:user-plus-line-duotone"
@@ -121,9 +121,7 @@ const { data, refresh } = await useAsyncData(
 )
 
 const userStore = useUserStore()
-const { authenticated, pinnedBrands } = storeToRefs(userStore)
-// Admins and editors without assignments add brands published
-const editable = computed(() => userStore.canManageAll)
+const { authenticated, canManageAll, pinnedBrands } = storeToRefs(userStore)
 
 const isPinned = (brand) =>
   authenticated.value && Object.hasOwn(pinnedBrands.value, brand.slug)

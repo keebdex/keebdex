@@ -649,16 +649,6 @@ export const saveOwnerSubmission = async (
   const { client, user, profile } = await getActorProfile(event)
   const config = OWNERS[domain]
   const match = { [config.key]: key }
-  const isStaff =
-    canManageAnyAssignment(profile) && canManageAssignment(profile, key)
-  // Staff-only columns (a maker's Google Doc settings and flags, logo
-  // inversion) are the ones edit suggestions protect; others never set them,
-  // or a proposal's document_ids would start syncing once it is approved.
-  const record = omit(omitModerationFields(body), [
-    'id',
-    config.key,
-    ...(isStaff ? [] : SUGGESTION_ENTITIES[config.entityType].protected),
-  ])
   const newKey =
     typeof body[config.key] === 'string' ? String(body[config.key]).trim() : key
   const taken = () =>
@@ -671,6 +661,21 @@ export const saveOwnerSubmission = async (
     from(client, config.table).select(`${config.key}, review_status`),
     match,
   ).maybeSingle()
+
+  // Staff of an existing record are those of its key; a new one is added
+  // published only by `canManageAll` staff (can_manage_all() in RLS), since
+  // assignment keys are shared by every module.
+  const isStaff = existing
+    ? canManageAssignment(profile, key)
+    : canManageAll(profile)
+  // Staff-only columns (a maker's Google Doc settings and flags, logo
+  // inversion) are the ones edit suggestions protect; others never set them,
+  // or a proposal's document_ids would start syncing once it is approved.
+  const record = omit(omitModerationFields(body), [
+    'id',
+    config.key,
+    ...(isStaff ? [] : SUGGESTION_ENTITIES[config.entityType].protected),
+  ])
 
   if (existing) {
     if (newKey !== key) {
@@ -718,11 +723,8 @@ export const saveOwnerSubmission = async (
     .insert({
       ...record,
       ...match,
-      // Admins and editors without assignments add it published
-      // (submitted_by defaults to them); assigned staff propose it like
-      // everyone else, since their keys are shared by every module
-      // (can_manage_all() in the database).
-      ...(canManageAll(profile) ? {} : getSubmissionAttribution(false, user.sub)),
+      // Staff add it published (submitted_by defaults to them)
+      ...(isStaff ? {} : getSubmissionAttribution(false, user.sub)),
     })
     .select()
     .single()

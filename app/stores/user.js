@@ -27,8 +27,6 @@ export const useUserStore = defineStore('user', {
     authenticated: (state) => state.user && state.user.email_verified,
     isAdmin: (state) => state.role === 'admin',
     isModerator: (state) => canManageAnyAssignment(state),
-    // Admins and editors without assignments: they add makers, profiles, and
-    // brands published (can_manage_all() in the database)
     canManageAll: (state) => canManageAll(state),
     pinnedMakers: (state) => state.pins.artisan || {},
     pinnedBrands: (state) => state.pins.keyboard || {},

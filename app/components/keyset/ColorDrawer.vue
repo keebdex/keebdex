@@ -16,7 +16,7 @@
     }"
   >
     <!-- Edit and Delete beside the close button (kept in the row) -->
-    <template v-if="color && manage && editable" #actions>
+    <template v-if="color && manage && canManageAll" #actions>
       <UTooltip text="Edit">
         <UButton
           icon="solar:pen-new-square-line-duotone"
@@ -166,8 +166,7 @@ defineEmits(['edit', 'delete'])
 const open = defineModel('open', { type: Boolean, default: false })
 
 const userStore = useUserStore()
-const { isAdmin } = storeToRefs(userStore)
-const editable = computed(() => userStore.isEditable())
+const { isAdmin, canManageAll } = storeToRefs(userStore)
 
 const toast = useToast()
 
