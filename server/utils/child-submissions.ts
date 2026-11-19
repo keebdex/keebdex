@@ -635,7 +635,7 @@ const ownerKeyOf = (pageKey: string) => pageKey.split('/')[0]!
  * cannot see, is a 409.
  * A body whose key differs from `key` renames the record, only while it is
  * under review (Pending or Rejected): once published, its address, logo,
- * assignments, pins, and catalog-sync all point at the key, so it stays. The
+ * assignments, pins, and the syncs all point at the key, so it stays. The
  * pages under it follow through the on update cascade of their keys.
  */
 export const saveOwnerSubmission = async (
