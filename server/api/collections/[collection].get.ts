@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 
 /**
  * A collection with its items. `uid`, `contact`, and each item's `uid` belong
@@ -6,7 +6,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
  * gets `is_owner` so the page knows whether to offer Edit and Delete.
  */
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event)
+  const user = await optionalUser(event)
   const client = await serverSupabaseClient(event)
 
   // Guests never ask for the owner-only columns; a signed-in caller might be

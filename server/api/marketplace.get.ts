@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 import { groupBy } from 'es-toolkit'
 
 const MAX_PAGE_SIZE = 50
@@ -12,7 +12,7 @@ const INTENTS = ['want', 'sell']
  * signed-out visitors, who are asked to sign in to reach the collector.
  */
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event)
+  const user = await optionalUser(event)
   const client = await serverSupabaseClient(event)
   const { page, size, intent } = getQuery(event)
   const intents = INTENTS.includes(String(intent)) ? [String(intent)] : INTENTS
