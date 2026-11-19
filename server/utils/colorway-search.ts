@@ -42,7 +42,7 @@ export const matchColorwaysByName = (
     )
   }
 
-  return words.reduce((q, word) => q.ilike('name', `%${word}%`), query)
+  return words.reduce((q, word) => q.ilike('name', ilikeContains(word)), query)
 }
 
 /**
@@ -89,7 +89,7 @@ export const searchPaletteColorways = async (
       .select(COLORWAY_SEARCH_SELECT)
       .not('deleted', 'is', true)
       .or(PUBLISHED_FILTER)
-      .ilike('name', `${term.trim()}%`)
+      .ilike('name', ilikeStartsWith(term))
       .order('name')
       .limit(limit),
     matchColorwaysByName(client, term, { count: 'exact' })
@@ -100,12 +100,7 @@ export const searchPaletteColorways = async (
   ])
 
   for (const result of [prefix, broad]) {
-    if (result.error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Artisan Colorways: ${result.error.message}`,
-      })
-    }
+    if (result.error) throw dbError(result.error, 'search Artisan Colorways')
   }
 
   const merged = new Map<number, any>()

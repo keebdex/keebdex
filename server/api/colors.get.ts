@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const page = Number(query.page) || 1
   const size = Number(query.size) || 20
   const system = query.system?.toString().trim()
-  const term = query.term?.toString().trim()
+  const term = cleanSearchTerm(query.term)
   // `ids=1,2,3`: the colors a keyset or a suggestion names
   const ids = String(query.ids || '')
     .split(',')
@@ -38,9 +38,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (term) {
-    const fts = term.split(/[\s,\t,\n]+/).join(' | ')
-
-    dbQuery = dbQuery.textSearch('fts', fts)
+    // A `websearch` query matching any word; never fails on odd input
+    dbQuery = dbQuery.textSearch('fts', websearchAny(term), {
+      type: 'websearch',
+    })
   }
 
   const { data, count, error } = await dbQuery
@@ -48,12 +49,7 @@ export default defineEventHandler(async (event) => {
     .order('system', { ascending: true })
     .order('code', { ascending: true })
 
-  if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
-  }
+  if (error) throw dbError(error, 'colors')
 
   return {
     data:

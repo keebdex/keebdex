@@ -25,12 +25,7 @@ export default defineEventHandler(async (event) => {
     })
     .single()
 
-  if (brandError) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: brandError.message,
-    })
-  }
+  if (brandError) throw dbError(brandError, 'keyboard brand')
 
   const { keyboards, ...brand } = brandData
 
