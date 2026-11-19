@@ -72,12 +72,7 @@ export default defineEventHandler(async (event) => {
     .limit(5, { referencedTable: 'sculpts.colorways' })
     .single()
 
-  if (profileError) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: profileError.message,
-    })
-  }
+  if (profileError) throw dbError(profileError, 'maker')
 
   if (!profile) return
 

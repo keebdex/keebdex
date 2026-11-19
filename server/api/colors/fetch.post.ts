@@ -74,6 +74,7 @@ async function fetchRalColor(code: string): Promise<FetchedColor> {
     throw createError({
       statusCode: 502,
       statusMessage: 'Unable to fetch color from source website',
+      data: { expose: true },
     })
   })
 

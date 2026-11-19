@@ -112,16 +112,25 @@ export const suggestionError = (error: { code?: string; message: string }) => {
       })
     case '23503':
     case 'P0002':
-      return createError({ statusCode: 404, statusMessage: error.message })
+      return createError({
+        statusCode: 404,
+        statusMessage: userFacingDbMessage(error, 'Not Found'),
+      })
     case '23514':
     case '22023':
     case '22P02':
     case '22007':
     case '22008':
     case '22003':
-      return createError({ statusCode: 400, statusMessage: error.message })
+      return createError({
+        statusCode: 400,
+        statusMessage: userFacingDbMessage(error, 'Bad Request'),
+      })
     case '42501':
-      return createError({ statusCode: 403, statusMessage: error.message })
+      return createError({
+        statusCode: 403,
+        statusMessage: userFacingDbMessage(error, 'Forbidden'),
+      })
     default:
       return createError({ statusCode: 500, statusMessage: error.message })
   }

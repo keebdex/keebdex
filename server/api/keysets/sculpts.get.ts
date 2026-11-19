@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { term } = getQuery(event)
 
-  const searchTerm = String(term || '').trim()
+  const searchTerm = cleanSearchTerm(term)
 
   if (searchTerm.length < 2) {
     return { sculpts: [] }
@@ -15,16 +15,11 @@ export default defineEventHandler(async (event) => {
     .select('sculpt')
     .not('sculpt', 'is', null)
     .neq('sculpt', '')
-    .ilike('sculpt', `%${searchTerm}%`)
+    .ilike('sculpt', ilikeContains(searchTerm))
     .order('sculpt')
     .limit(20)
 
-  if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
-  }
+  if (error) throw dbError(error, 'keyset sculpts')
 
   const seen = new Set<string>()
 

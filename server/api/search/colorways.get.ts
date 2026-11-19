@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { q, page, size, exact } = getQuery(event)
 
-  const term = String(q || '').trim()
+  const term = cleanSearchTerm(q)
 
   if (term.length < MIN_TERM_LENGTH) {
     throw createError({
@@ -49,12 +49,7 @@ export default defineEventHandler(async (event) => {
     return { data: [], total: total ?? 0 }
   }
 
-  if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    })
-  }
+  if (error) throw dbError(error, 'search colorways')
 
   return {
     data: (data || []).map(omitSensitive),

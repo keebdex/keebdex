@@ -48,7 +48,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const formData = await readFormData(event)
+  // A body that is not valid multipart form data is the caller's mistake
+  const formData = await readFormData(event).catch(() => {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid form data' })
+  })
 
   const file = formData.get('file')
   const assignment = String(
@@ -114,6 +117,15 @@ export default defineEventHandler(async (event) => {
   const body = new FormData()
   body.append('file', file, file.name)
 
+  // What Cloudflare says (account ids, API errors) stays in the log; the
+  // caller gets a fixed message that is safe to show (`expose`)
+  const uploadFailed = () =>
+    createError({
+      statusCode: 502,
+      statusMessage: 'Cloudflare image upload failed',
+      data: { expose: true },
+    })
+
   const response = await $fetch<CloudflareImageUploadResponse>(
     `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v1`,
     {
@@ -123,14 +135,18 @@ export default defineEventHandler(async (event) => {
       },
       body,
     },
-  )
+  ).catch((error) => {
+    console.error(
+      'Cloudflare Images request failed',
+      error?.message,
+      error?.data?.errors,
+    )
+    throw uploadFailed()
+  })
 
   if (!response.success || !response.result?.id) {
-    throw createError({
-      statusCode: 502,
-      statusMessage:
-        response.errors?.[0]?.message || 'Cloudflare image upload failed',
-    })
+    console.error('Cloudflare Images upload rejected', response.errors?.[0])
+    throw uploadFailed()
   }
 
   // Cloudflare lists the image's named variants with the account's own
@@ -140,10 +156,8 @@ export default defineEventHandler(async (event) => {
   )
 
   if (!imageUrl) {
-    throw createError({
-      statusCode: 502,
-      statusMessage: 'Cloudflare did not return a usable image URL',
-    })
+    console.error('Cloudflare Images returned no public variant')
+    throw uploadFailed()
   }
 
   return {
