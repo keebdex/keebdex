@@ -29,18 +29,9 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error) {
-    // No such row (or RLS hides it), or an id that is not a uuid
-    if (error.code === 'PGRST116' || error.code === '22P02') {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Collection not found',
-      })
-    }
-
-    console.error('collection read error', error.code, error.message)
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Could not load the collection',
+      statusCode: 404,
+      statusMessage: error.message,
     })
   }
 

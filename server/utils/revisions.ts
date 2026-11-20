@@ -78,24 +78,15 @@ export const revisionError = (error: {
         data: { fields: (error.details || '').split(',').filter(Boolean) },
       })
     case 'P0002':
-      return createError({
-        statusCode: 404,
-        statusMessage: userFacingDbMessage(error, 'Not Found'),
-      })
+      return createError({ statusCode: 404, statusMessage: error.message })
     case '23514':
     case '22023':
     case '22P02':
     case '23502':
     case '23503':
-      return createError({
-        statusCode: 400,
-        statusMessage: userFacingDbMessage(error, 'Bad Request'),
-      })
+      return createError({ statusCode: 400, statusMessage: error.message })
     case '42501':
-      return createError({
-        statusCode: 403,
-        statusMessage: userFacingDbMessage(error, 'Forbidden'),
-      })
+      return createError({ statusCode: 403, statusMessage: error.message })
     default:
       return createError({ statusCode: 500, statusMessage: error.message })
   }

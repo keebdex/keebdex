@@ -49,7 +49,12 @@ export default defineEventHandler(async (event) => {
     .order('system', { ascending: true })
     .order('code', { ascending: true })
 
-  if (error) throw dbError(error, 'colors')
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return {
     data:

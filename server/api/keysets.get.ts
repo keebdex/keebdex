@@ -63,7 +63,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (profileResult?.error) throw dbError(profileResult.error, 'keyset profile')
+  if (profileResult?.error) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: profileResult.error.message,
+    })
+  }
 
   return {
     keysets: data?.map(omitSensitive),

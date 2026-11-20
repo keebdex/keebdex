@@ -271,13 +271,7 @@ export function errorToast(
     console.error('[Internal Error]', { message: error?.message, status })
   }
 
-  // The server hides the details of a failure behind this text: the generic
-  // copy for the status below says more than repeating it
-  if (
-    options.showOriginalMessage &&
-    statusMessage &&
-    statusMessage !== 'Internal Server Error'
-  ) {
+  if (options.showOriginalMessage && statusMessage) {
     return {
       title: 'Request Failed',
       description: String(statusMessage),

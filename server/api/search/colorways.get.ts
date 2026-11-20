@@ -49,7 +49,12 @@ export default defineEventHandler(async (event) => {
     return { data: [], total: total ?? 0 }
   }
 
-  if (error) throw dbError(error, 'search colorways')
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return {
     data: (data || []).map(omitSensitive),

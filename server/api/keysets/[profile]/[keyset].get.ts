@@ -15,7 +15,12 @@ export default defineEventHandler(async (event) => {
     .eq('profile_keyset_id', `${params?.profile}/${params?.keyset}`)
     .single()
 
-  if (error) throw dbError(error, 'keyset')
+  if (error) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: error.message,
+    })
+  }
 
   // Submitters and staff can read kits still under review, but the keyset page
   // only lists official ones (null/Approved); the rest live in the review queue.

@@ -17,7 +17,12 @@ export default defineEventHandler(async (event) => {
     .or(PUBLISHED_FILTER, { referencedTable: 'sculpts.total_colorways' })
     .single()
 
-  if (profileError) throw dbError(profileError, 'sculpt')
+  if (profileError) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: profileError.message,
+    })
+  }
 
   let request = client
     .from('artisan_colorways')

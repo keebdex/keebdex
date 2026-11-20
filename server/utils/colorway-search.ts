@@ -100,7 +100,12 @@ export const searchPaletteColorways = async (
   ])
 
   for (const result of [prefix, broad]) {
-    if (result.error) throw dbError(result.error, 'search Artisan Colorways')
+    if (result.error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: `Artisan Colorways: ${result.error.message}`,
+      })
+    }
   }
 
   const merged = new Map<number, any>()
