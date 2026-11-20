@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
 // How many item photos a collection card shows on /collection
 const PREVIEW_SIZE = 4
@@ -10,7 +10,7 @@ const PREVIEW_SIZE = 4
  * people's published collections are read through `GET /api/collections/:id`.
  */
 export default defineEventHandler(async (event) => {
-  const user = await optionalUser(event)
+  const user = await serverSupabaseUser(event)
   if (!user)
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   if (user.sub !== event.context.params?.id)
