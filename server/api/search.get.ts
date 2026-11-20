@@ -75,9 +75,10 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
 
   const { term, query, module } = getQuery(event)
-  const searchTerm = term || query
+  // Trimmed and cut to the longest accepted term
+  const queryText = cleanSearchTerm(term || query)
 
-  if (!searchTerm) return []
+  if (!queryText) return []
 
   const modules = String(module || '')
     .split(',')
@@ -92,13 +93,12 @@ export default defineEventHandler(async (event) => {
     return true
   }
 
-  const fts = searchTerm
-    ?.toString()
-    .trim()
-    .split(/[\s,\t,\n]+/) // split and remove more than 1 space
-    .join(' | ')
+  // A `websearch` query matching any word; never fails on odd input
+  const fts = websearchAny(queryText)
 
-  const queryText = searchTerm.toString().trim()
+  // The term as a literal `ilike` pattern, for `.or()` and for `.ilike()`
+  const orPattern = ilikeOrValue(queryText)
+  const likePattern = ilikeContains(queryText)
 
   const searchTasks: Array<{ key: string; search: Promise<any[]> }> = []
   let colorwaySearch: ReturnType<typeof searchPaletteColorways> | undefined
@@ -112,14 +112,14 @@ export default defineEventHandler(async (event) => {
           .from('artisan_makers')
           .select(SELECT.makers)
           .or(PUBLISHED_FILTER)
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('maker_id')
           .limit(10),
         likeQuery: client
           .from('artisan_makers')
           .select(SELECT.makers)
           .or(PUBLISHED_FILTER)
-          .or(`name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%`)
+          .or(`name.ilike.${orPattern},maker_id.ilike.${orPattern}`)
           .order('maker_id')
           .limit(10),
       }),
@@ -132,14 +132,14 @@ export default defineEventHandler(async (event) => {
         ftsQuery: client
           .from('artisan_sculpts')
           .select(SELECT.sculpts)
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('maker_sculpt_id')
           .limit(20),
         likeQuery: client
           .from('artisan_sculpts')
           .select(SELECT.sculpts)
           .or(
-            `name.ilike.%${queryText}%,maker_id.ilike.%${queryText}%,sculpt_id.ilike.%${queryText}%`,
+            `name.ilike.${orPattern},maker_id.ilike.${orPattern},sculpt_id.ilike.${orPattern}`,
           )
           .order('maker_sculpt_id')
           .limit(20),
@@ -162,7 +162,7 @@ export default defineEventHandler(async (event) => {
           .from('keysets')
           .select(SELECT.keysets)
           .or(PUBLISHED_FILTER)
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('profile_keyset_id')
           .limit(10),
         likeQuery: client
@@ -170,7 +170,7 @@ export default defineEventHandler(async (event) => {
           .select(SELECT.keysets)
           .or(PUBLISHED_FILTER)
           .or(
-            `name.ilike.%${queryText}%,profile_keyset_id.ilike.%${queryText}%,designer.ilike.%${queryText}%`,
+            `name.ilike.${orPattern},profile_keyset_id.ilike.${orPattern},designer.ilike.${orPattern}`,
           )
           .order('profile_keyset_id')
           .limit(10),
@@ -187,14 +187,14 @@ export default defineEventHandler(async (event) => {
           .from('keyboard_brands')
           .select(SELECT.brands)
           .or(PUBLISHED_FILTER)
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('slug')
           .limit(10),
         likeQuery: client
           .from('keyboard_brands')
           .select(SELECT.brands)
           .or(PUBLISHED_FILTER)
-          .or(`name.ilike.%${queryText}%,slug.ilike.%${queryText}%`)
+          .or(`name.ilike.${orPattern},slug.ilike.${orPattern}`)
           .order('slug')
           .limit(10),
       }),
@@ -208,7 +208,7 @@ export default defineEventHandler(async (event) => {
           .from('keyboards')
           .select(SELECT.keyboards)
           .or(PUBLISHED_FILTER)
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
@@ -216,7 +216,7 @@ export default defineEventHandler(async (event) => {
           .select(SELECT.keyboards)
           .or(PUBLISHED_FILTER)
           .or(
-            `name.ilike.%${queryText}%,slug.ilike.%${queryText}%,brand_keyboard_slug.ilike.%${queryText}%`,
+            `name.ilike.${orPattern},slug.ilike.${orPattern},brand_keyboard_slug.ilike.${orPattern}`,
           )
           .order('brand_keyboard_slug')
           .limit(20),
@@ -232,7 +232,7 @@ export default defineEventHandler(async (event) => {
           .select(SELECT.releases)
           .or(PUBLISHED_FILTER)
           .or(PUBLISHED_FILTER, { referencedTable: 'keyboard' })
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('brand_keyboard_slug')
           .limit(20),
         likeQuery: client
@@ -240,7 +240,7 @@ export default defineEventHandler(async (event) => {
           .select(SELECT.releases)
           .or(PUBLISHED_FILTER)
           .or(PUBLISHED_FILTER, { referencedTable: 'keyboard' })
-          .or(`name.ilike.%${queryText}%,description.ilike.%${queryText}%`)
+          .or(`name.ilike.${orPattern},description.ilike.${orPattern}`)
           .order('brand_keyboard_slug')
           .limit(20),
       }),
@@ -254,14 +254,14 @@ export default defineEventHandler(async (event) => {
           .from('keyboard_variants')
           .select(SELECT.variants)
           .or(PUBLISHED_FILTER)
-          .textSearch('fts', `${fts}`)
+          .textSearch('fts', fts, { type: 'websearch' })
           .order('release_id')
           .limit(20),
         likeQuery: client
           .from('keyboard_variants')
           .select(SELECT.variants)
           .or(PUBLISHED_FILTER)
-          .ilike('variant_name', `%${queryText}%`)
+          .ilike('variant_name', likePattern)
           .order('release_id')
           .limit(20),
       }),

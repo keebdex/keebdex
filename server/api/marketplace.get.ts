@@ -12,7 +12,7 @@ const INTENTS = ['want', 'sell']
  * signed-out visitors, who are asked to sign in to reach the collector.
  */
 export default defineEventHandler(async (event) => {
-  const user = await serverSupabaseUser(event)
+  const user = await serverSupabaseUser(event).catch(() => null)
   const client = await serverSupabaseClient(event)
   const { page, size, intent } = getQuery(event)
   const intents = INTENTS.includes(String(intent)) ? [String(intent)] : INTENTS
@@ -23,10 +23,15 @@ export default defineEventHandler(async (event) => {
 
   // The inner join keeps only collections with a listed item, so pages and
   // the total count never include empty collections
+  // `uid` is never sent, and guests never ask for `contact`
+  const collectionColumns = user
+    ? `${COLLECTION_COLUMNS}, contact`
+    : COLLECTION_COLUMNS
+
   const listedCollections = (head = false) =>
     client
       .from('user_collections')
-      .select('*, listed:user_collection_items!inner(id)', {
+      .select(`${collectionColumns}, listed:user_collection_items!inner(id)`, {
         count: 'exact',
         head,
       })
@@ -58,7 +63,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (!collections?.length) {
+  // The select is built from a template string, so its columns are not typed
+  const rows = (collections ?? []) as any[]
+
+  if (!rows.length) {
     return { data: [], total: count ?? 0 }
   }
 
@@ -71,7 +79,7 @@ export default defineEventHandler(async (event) => {
     )
     .in(
       'collection_id',
-      collections.map((c) => c.id),
+      rows.map((c) => c.id),
     )
     .eq('exchange', true)
     .order('order', { ascending: true })
@@ -86,7 +94,7 @@ export default defineEventHandler(async (event) => {
   const group = groupBy(items || [], (item) => item.collection_id)
 
   return {
-    data: collections.map(({ listed: _listed, contact, ...collection }) => ({
+    data: rows.map(({ listed: _listed, contact, ...collection }) => ({
       ...collection,
       contact: user ? contact : null,
       items: group[collection.id] || [],

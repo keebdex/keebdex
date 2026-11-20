@@ -48,7 +48,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const formData = await readFormData(event)
+  // A body that is not valid multipart form data is the caller's mistake
+  const formData = await readFormData(event).catch(() => {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid form data' })
+  })
 
   const file = formData.get('file')
   const assignment = String(
