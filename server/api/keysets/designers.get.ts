@@ -19,7 +19,12 @@ export default defineEventHandler(async (event) => {
     .order('designer')
     .limit(20)
 
-  if (error) throw dbError(error, 'keyset designers')
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   const seen = new Set<string>()
 

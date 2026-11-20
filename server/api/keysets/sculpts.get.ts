@@ -19,7 +19,12 @@ export default defineEventHandler(async (event) => {
     .order('sculpt')
     .limit(20)
 
-  if (error) throw dbError(error, 'keyset sculpts')
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   const seen = new Set<string>()
 

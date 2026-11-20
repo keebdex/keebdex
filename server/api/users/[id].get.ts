@@ -8,7 +8,12 @@ export default defineEventHandler(async (event) => {
     .eq('id', event.context.params?.id)
     .maybeSingle()
 
-  if (error) throw dbError(error, 'user profile')
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: error.message,
+    })
+  }
 
   return { data }
 })

@@ -26,10 +26,9 @@ export default defineEventHandler(async (event) => {
     .limit(PREVIEW_SIZE, { referencedTable: 'preview' })
 
   if (error) {
-    console.error('collections read error', error.code, error.message)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Could not load the collections',
+      statusMessage: error.message,
     })
   }
 

@@ -18,7 +18,12 @@ export default defineEventHandler(async (event) => {
     .eq('brand_slug', brand_slug)
     .single()
 
-  if (error) throw dbError(error, 'keyboard')
+  if (error) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: error.message,
+    })
+  }
 
   const { brand, releases, ...keyboard } = data
 

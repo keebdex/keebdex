@@ -23,7 +23,12 @@ const mergeById = (primary: any[] = [], secondary: any[] = []) => {
 }
 
 const throwIfError = (result: any, label: string) => {
-  if (result.error) throw dbError(result.error, `search ${label}`)
+  if (result.error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `${label}: ${result.error.message}`,
+    })
+  }
 }
 
 const runCombinedSearch = async ({
