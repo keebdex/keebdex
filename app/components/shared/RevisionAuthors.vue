@@ -8,7 +8,9 @@
       />
     </UAvatarGroup>
     <template v-for="(author, index) in shown" :key="author.key">
-      <span class="font-medium text-toned">{{ author.name }}</span>
+      <UTooltip :text="author.title" :disabled="!author.title">
+        <span class="font-medium text-toned">{{ author.name }}</span>
+      </UTooltip>
       <UBadge
         v-if="author.bot"
         label="bot"
@@ -26,7 +28,8 @@ import type { Revision } from '~/utils/revisions'
 
 // The authors of one revision or a group of them, the way GitHub shows a
 // commit's authors: stacked avatars, then the names (`Someone and Bui Anh
-// Thang`, `A, B and 2 others`), with a `bot` badge after sync jobs.
+// Thang`, `A, B and 2 others`), with a `bot` badge after sync jobs and the
+// site it read and its source (`Google Docs (bowerbird.gdoc)`) in a tooltip.
 const props = defineProps<{ revisions: Revision[] }>()
 
 const authors = computed(() => revisionAuthorList(props.revisions))

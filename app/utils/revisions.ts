@@ -25,32 +25,41 @@ import type { KeebModule } from '~/utils/keeb-modules'
  * (`app/utils/suggestions.ts`).
  */
 
-export type RevisionSource =
-  | 'app'
-  | 'suggestion'
-  | 'revert'
-  | 'gdoc'
-  | 'scraper'
-  | 'vendor'
-  | 'image-sync'
-  | 'maintenance'
-  | 'sql'
+/** Changes made in Keebdex itself. */
+export type RevisionAppSource = 'app' | 'suggestion' | 'revert'
+
+/**
+ * A sync job, `<job>.<origin>` (`bowerbird.gdoc`, `bowerbird.keycat`,
+ * `pelican.cloudflare-images`, `magpie.geekhack`), sent by the job in the
+ * `x-keebdex-source` header; or the SQL editor (`sql`). The database accepts
+ * any value of that shape, so a new job or site needs no change here.
+ */
+export type RevisionSyncSource = 'sql' | `${string}.${string}`
+
+export type RevisionSource = RevisionAppSource | RevisionSyncSource
 
 export type RevisionAction = 'insert' | 'update' | 'delete'
 
 /** Filters of who made a change, for Recent Changes and its API. */
-export const REVISION_SOURCE_GROUPS = {
+export const REVISION_SOURCE_GROUPS = [
+  'editors',
+  'suggestions',
+  'syncs',
+] as const
+
+export type RevisionSourceGroup = (typeof REVISION_SOURCE_GROUPS)[number]
+
+/** The sources of the editors and suggestions groups; syncs are the rest. */
+export const APP_REVISION_SOURCES = {
   editors: ['app', 'revert'],
   suggestions: ['suggestion'],
-  syncs: ['gdoc', 'scraper', 'vendor', 'image-sync', 'maintenance', 'sql'],
-} satisfies Record<string, RevisionSource[]>
-
-export type RevisionSourceGroup = keyof typeof REVISION_SOURCE_GROUPS
+} satisfies Record<Exclude<RevisionSourceGroup, 'syncs'>, RevisionAppSource[]>
 
 export const isRevisionSourceGroup = (
   value: unknown,
 ): value is RevisionSourceGroup =>
-  typeof value === 'string' && value in REVISION_SOURCE_GROUPS
+  typeof value === 'string' &&
+  (REVISION_SOURCE_GROUPS as readonly string[]).includes(value)
 
 export interface Revision {
   id: number
@@ -101,35 +110,77 @@ export interface RevisionDetail extends Revision {
   current: Record<string, unknown> | null
 }
 
-// Jobs and tools that write without a signed-in user, named like bot
-// accounts (shown with a `bot` badge, as GitHub does); the SQL editor is
-// a person working in the database, so it gets no badge.
-const SOURCE_LABELS: Partial<Record<RevisionSource, string>> = {
-  gdoc: 'Google Docs',
-  scraper: 'Maker Sites',
-  vendor: 'Vendor Sites',
-  'image-sync': 'Image Sync',
-  maintenance: 'Maintenance',
-  sql: 'Database',
+// Sync jobs write without a signed-in user and are named like bot accounts
+// (shown with a `bot` badge, as GitHub does) after the job of their source,
+// `<job>.<origin>`, with the site or document they read on hover. Jobs and
+// origins without a label here are named from their slug (`alpha-keycaps` ->
+// `Alpha Keycaps`), and jobs without an icon fall back to the action's icon, so
+// a new job or site shows without a change here. The SQL editor is a person
+// working in the database, so it gets no badge.
+const SYNC_JOBS: Record<
+  string,
+  { label: string; icon: string; origin?: (name: string) => string }
+> = {
+  // Every origin but gdoc is a maker's website, named by its maker_id.
+  bowerbird: {
+    label: 'Bowerbird',
+    icon: 'solar:earth-line-duotone',
+    origin: (name) => `${name} Website`,
+  },
+  pelican: { label: 'Pelican', icon: 'solar:gallery-send-line-duotone' },
+  magpie: { label: 'Magpie', icon: 'solar:chat-round-line-duotone' },
 }
 
-const BOT_SOURCES: RevisionSource[] = [
-  'gdoc',
-  'scraper',
-  'vendor',
-  'image-sync',
-  'maintenance',
-]
+const SYNC_ORIGIN_LABELS: Record<string, string> = {
+  gdoc: 'Google Docs',
+  'cloudflare-images': 'Image Sync',
+  geekhack: 'Geekhack',
+  novelkeys: 'NovelKeys',
+  prototypist: 'ProtoTypist',
+}
+
+const SYNC_ORIGIN_ICONS: Record<string, string> = {
+  gdoc: 'simple-icons:googledocs',
+  novelkeys: 'solar:shop-line-duotone',
+  prototypist: 'solar:shop-line-duotone',
+}
 
 const SOURCE_ICONS: Partial<Record<RevisionSource, string>> = {
-  gdoc: 'simple-icons:googledocs',
-  scraper: 'solar:earth-line-duotone',
-  vendor: 'solar:shop-line-duotone',
-  'image-sync': 'solar:gallery-send-line-duotone',
-  maintenance: 'solar:settings-minimalistic-line-duotone',
   sql: 'solar:database-line-duotone',
   suggestion: 'solar:pen-2-line-duotone',
   revert: 'solar:undo-left-line-duotone',
+}
+
+/** A sync source's job and origin: `bowerbird.gdoc` -> bowerbird, gdoc. */
+const syncJobOf = (source: RevisionSource) => {
+  const [job, origin] = source.split('.')
+
+  return origin ? { job: job!, origin } : null
+}
+
+const titleCase = (slug: string) =>
+  slug.replace(
+    /(^|-)([a-z0-9])/g,
+    (_, dash, char) => `${dash ? ' ' : ''}${char.toUpperCase()}`,
+  )
+
+const sourceLabel = (source: RevisionSource) => {
+  const sync = syncJobOf(source)
+
+  if (!sync) return source === 'sql' ? 'Database' : source
+
+  return (
+    SYNC_ORIGIN_LABELS[sync.origin] ||
+    (SYNC_JOBS[sync.job]?.origin ?? String)(titleCase(sync.origin))
+  )
+}
+
+const sourceIcon = (source: RevisionSource) => {
+  const sync = syncJobOf(source)
+
+  return sync
+    ? SYNC_ORIGIN_ICONS[sync.origin] || SYNC_JOBS[sync.job]?.icon
+    : SOURCE_ICONS[source]
 }
 
 const ACTION_ICONS: Record<RevisionAction, string> = {
@@ -145,13 +196,15 @@ export const REVISION_ACTION_LABELS: Record<RevisionAction, string> = {
 }
 
 export const revisionIcon = (revision: Revision) =>
-  SOURCE_ICONS[revision.source] || ACTION_ICONS[revision.action]
+  sourceIcon(revision.source) || ACTION_ICONS[revision.action]
 
 export interface RevisionAuthor {
   key: string
   name: string
   avatar: { src?: string; alt?: string; icon?: string; referrerpolicy?: string }
   bot: boolean
+  // Sync jobs: the site read and the source sent (`Google Docs (bowerbird.gdoc)`).
+  title?: string
 }
 
 const person = (
@@ -194,12 +247,21 @@ export const revisionAuthorsOf = (revision: Revision): RevisionAuthor[] => {
     return [person(revision.actor, revision.actor_name, revision.actor_avatar)]
   }
 
+  const sync = syncJobOf(revision.source)
+
+  // A sync is named after its bot (`Bowerbird`), once however many sites it
+  // read; hovering it names the site (`Google Docs (bowerbird.gdoc)`).
   return [
     {
-      key: `source:${revision.source}`,
-      name: SOURCE_LABELS[revision.source] || revision.source,
+      key: sync ? `bot:${sync.job}` : `source:${revision.source}`,
+      name: sync
+        ? SYNC_JOBS[sync.job]?.label || titleCase(sync.job)
+        : sourceLabel(revision.source),
       avatar: { icon: revisionIcon(revision) },
-      bot: BOT_SOURCES.includes(revision.source),
+      bot: !!sync,
+      title: sync
+        ? `${sourceLabel(revision.source)} (${revision.source})`
+        : undefined,
     },
   ]
 }
@@ -215,7 +277,7 @@ export const revisionAuthorList = (revisions: Revision[]) => {
   return [...authors.values()]
 }
 
-/** Authors as plain text: `Someone and Bui Anh Thang`, `Google Docs`. */
+/** Authors as plain text: `Someone and Bui Anh Thang`, `Bowerbird`. */
 export const revisionAuthor = (revision: Revision) =>
   revisionAuthorsOf(revision)
     .map((author) => author.name)

@@ -7,7 +7,7 @@ import {
   withRevisionActors,
 } from '../../utils/revisions'
 import {
-  REVISION_SOURCE_GROUPS,
+  APP_REVISION_SOURCES,
   isRevisionSourceGroup,
   revisionGroupKey,
 } from '~/utils/revisions'
@@ -16,6 +16,7 @@ import { isSuggestionEntityType } from '~/utils/suggestions'
 import { isKeebModule } from '~/utils/keeb-modules'
 
 const MAX_GROUPS = 50
+const appSources = Object.values(APP_REVISION_SOURCES).flat()
 // Rows read per request to the database, and the most requests per page, so
 // a huge sync run cannot make one page read the whole table.
 const BATCH_SIZE = 200
@@ -110,14 +111,14 @@ export default defineEventHandler(async (event) => {
       query = query.eq('entity_type', entity_type).eq('entity_id', recordId)
     }
 
-    if (isRevisionSourceGroup(source)) {
-      query = query.in('source', REVISION_SOURCE_GROUPS[source])
+    // Syncs are every source but the app's, so a new sync job needs no
+    // change here.
+    if (source === 'syncs') {
+      query = query.not('source', 'in', `(${appSources.join(',')})`)
+    } else if (isRevisionSourceGroup(source)) {
+      query = query.in('source', APP_REVISION_SOURCES[source])
     } else if (hide_syncs === '1' || hide_syncs === 'true') {
-      query = query.not(
-        'source',
-        'in',
-        `(${REVISION_SOURCE_GROUPS.syncs.join(',')})`,
-      )
+      query = query.in('source', appSources)
     }
 
     if (below) query = query.lt('id', below)
