@@ -32,8 +32,7 @@
 // Older values can point at images that are gone: pruned from Cloudflare
 // after they were replaced, or an external URL that no longer works. Pruned
 // images come back from the R2 backup once a record uses them again
-// (the daily image restore: catalog-sync's restore-images, or pelican
-// restore in keebdex/aviary).
+// (the daily `pelican restore` in keebdex/aviary).
 const props = defineProps<{
   src: string
   alt?: string
