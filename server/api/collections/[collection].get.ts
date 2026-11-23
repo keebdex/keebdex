@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('user_collections')
     .select(
-      `${collectionColumns}, items:user_collection_items(${itemColumns}, artisan:artisan_colorways(*, sculpt:artisan_sculpts(name)), keyset:keysets(*, profile:keyset_profiles(name)), keyboard:keyboard_variants(*, release:keyboard_releases(id, name, brand_keyboard_slug, keyboard:keyboards(name, slug)), brand:keyboard_brands(name, slug)))`,
+      `${collectionColumns}, items:user_collection_items(${itemColumns}, ${COLLECTION_ITEM_EMBEDS})`,
     )
     .eq('id', event.context.params?.collection)
     .single()
