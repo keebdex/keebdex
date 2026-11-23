@@ -32,12 +32,9 @@ export const useCollection = (
     router.go(-1)
   }
 
-  // Shared collections are public: only the owner may edit or delete
-  const isOwner = computed(
-    () =>
-      !!data.value?.uid &&
-      data.value.uid === (userStore.user as { uid?: string }).uid,
-  )
+  // Shared collections are public: only the owner may edit or delete. The API
+  // decides from the session and sends `uid` and `contact` to the owner only.
+  const isOwner = computed(() => !!data.value?.is_owner)
 
   // Read through getters: the collection loads after setup, also on the server
   useSeoMeta({

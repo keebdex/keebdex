@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { q, page, size, exact } = getQuery(event)
 
-  const term = String(q || '').trim()
+  const term = cleanSearchTerm(q)
 
   if (term.length < MIN_TERM_LENGTH) {
     throw createError({
