@@ -67,7 +67,7 @@ const SECTION_ACTIVE_ICONS: Record<KeebModule, string> = {
 
 export function useSidebarNavigation(collapsed: Ref<boolean>) {
   const route = useRoute()
-  const { authenticated } = storeToRefs(useUserStore())
+  const { authenticated, isModerator } = storeToRefs(useUserStore())
   const { unread: unreadNotifications } = useNotifications()
   const { unread: unreadAnnouncements } = useAnnouncements()
   const { total: pendingReviews } = usePendingReviews()
@@ -168,7 +168,8 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
           route.path === '/keyset' ||
           (isUnder('/keyset/') &&
             !['/keyset/group-buy', '/keyset/color'].includes(route.path) &&
-            !isUnder('/keyset/submissions')),
+            !isUnder('/keyset/submissions') &&
+            !isUnder('/keyset/forum-review')),
       },
       {
         label: 'Group Buys',
@@ -184,6 +185,18 @@ export function useSidebarNavigation(collapsed: Ref<boolean>) {
         to: '/keyset/color',
         active: route.path === '/keyset/color',
       },
+      // Staff review what the crawler read from forum threads.
+      ...(isModerator.value
+        ? [
+            {
+              label: 'Forum Review',
+              icon: 'solar:global-line-duotone',
+              activeIcon: 'solar:global-bold-duotone',
+              to: '/keyset/forum-review',
+              active: route.path === '/keyset/forum-review',
+            },
+          ]
+        : []),
     ]),
   ])
 

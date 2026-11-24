@@ -70,22 +70,25 @@
       />
     </UFormField>
 
-    <UFormField label="Image" name="img">
-      <UInput
-        v-model.trim="keyset.img"
-        icon="solar:gallery-line-duotone"
-        class="w-full"
-      />
+    <!-- Forum review replaces it with a picker of the thread's images -->
+    <slot name="image" :model="keyset">
+      <UFormField label="Image" name="img">
+        <UInput
+          v-model.trim="keyset.img"
+          icon="solar:gallery-line-duotone"
+          class="w-full"
+        />
 
-      <SharedImageUpload
-        v-model="uploadedFile"
-        v-model:src="keyset.img"
-        :max-size-mb="maxUploadSizeMb"
-        :loading="uploadingImage"
-        class="mt-2"
-      />
-      <SharedImageDimensions :src="keyset.img" variant="help" />
-    </UFormField>
+        <SharedImageUpload
+          v-model="uploadedFile"
+          v-model:src="keyset.img"
+          :max-size-mb="maxUploadSizeMb"
+          :loading="uploadingImage"
+          class="mt-2"
+        />
+        <SharedImageDimensions :src="keyset.img" variant="help" />
+      </UFormField>
+    </slot>
 
     <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
       <UFormField label="Status" name="status">
