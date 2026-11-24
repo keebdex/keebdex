@@ -20,7 +20,7 @@
           <UFormField label="Profile" name="profile_id" required>
             <USelect
               v-model="wizard.profileId.value"
-              :items="groupedProfileItems(groupedProfiles)"
+              :items="profileItems"
               placeholder="Select a profile"
               class="w-full"
             />
@@ -214,6 +214,8 @@ const emit = defineEmits<{ approve: [payload: CandidatePayload]; cancel: [] }>()
 
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const { kits: kitCategories } = useKeysetKits()
+
+const profileItems = computed(() => groupedProfileItems(groupedProfiles.value))
 
 // The badge on a kit's picked image: its own name, else its category's.
 const kitLabel = (kit: Record<string, any>) =>

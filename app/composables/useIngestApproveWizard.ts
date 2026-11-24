@@ -22,6 +22,7 @@ export interface InsertPreviewSection {
 const toCalendarDate = (value?: string | null) =>
   value ? parseDate(value) : undefined
 
+// A CalendarDate from the form, or the ISO string it started from.
 const asISODate = (value: unknown) =>
   value ? toISODate(value as CalendarDate) : null
 
@@ -77,7 +78,8 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
     order_history: start('order_history') || '',
     status: start('status') || DEFAULT_KEYSET_STATUS,
     review_status: matched ? current!.keyset.review_status : 'Approved',
-    ic_date: toCalendarDate(start('ic_date')),
+    // An ISO string: KeysetForm parses it into a date when it mounts.
+    ic_date: start('ic_date') || undefined,
   })
 
   const dateRange = ref({
