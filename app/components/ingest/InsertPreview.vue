@@ -36,6 +36,16 @@
             {{ row.value ? 'Yes' : 'No' }}
           </span>
           <IngestFieldValue v-else :field="row.column" :value="row.value" />
+
+          <p v-if="'previous' in row" class="mt-1 text-xs text-muted">
+            Keebdex now:
+            <code v-if="row.previous === null">null</code>
+            <IngestFieldValue
+              v-else
+              :field="row.column"
+              :value="row.previous"
+            />
+          </p>
         </dd>
       </div>
 
@@ -50,6 +60,7 @@
 import type { InsertPreviewSection } from '~/composables/useIngestApproveWizard'
 
 // One row approving writes (a keyset, a kit, the candidate): each column with
-// its label and database name, so staff check exactly what goes in.
+// its label and database name, and for an update what Keebdex has now, so
+// staff check exactly what goes in.
 defineProps<{ section: InsertPreviewSection }>()
 </script>

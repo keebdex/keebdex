@@ -188,9 +188,7 @@
 
       <UModal
         v-model:open="approveOpen"
-        :title="
-          approveTarget?.match_key ? 'Fill Missing Fields' : 'Approve Keyset'
-        "
+        :title="approveTarget?.match_key ? 'Update Keyset' : 'Approve Keyset'"
         :description="approveTarget?.thread.title"
         :ui="{ content: 'sm:max-w-4xl' }"
       >

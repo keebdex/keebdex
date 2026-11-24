@@ -53,16 +53,6 @@
           :missing="row.original.missing"
         />
       </template>
-
-      <template #result-cell="{ row }">
-        <UBadge
-          v-if="row.original.field in fill.fields"
-          label="Fill"
-          variant="subtle"
-          color="success"
-        />
-        <UBadge v-else label="Keep" variant="subtle" />
-      </template>
     </UTable>
 
     <UTable
@@ -100,12 +90,11 @@
 
       <template #result-cell="{ row }">
         <UBadge
-          v-if="fill.kits.includes(row.original)"
-          label="Add"
+          v-if="listedKits.has(row.original.kit_id)"
+          label="Listed"
           variant="subtle"
-          color="success"
         />
-        <UBadge v-else label="Listed" variant="subtle" />
+        <UBadge v-else label="New" variant="subtle" color="success" />
       </template>
 
       <template #empty>
@@ -151,17 +140,14 @@ const props = defineProps<{ candidate: IngestCandidate }>()
 const { kits: kitCategories } = useKeysetKits()
 
 const matched = computed(() => !!props.candidate.current)
-const fill = computed(() => candidateFill(props.candidate))
+const listedKits = computed(
+  () => new Set(props.candidate.current?.kits.map((kit) => kit.kit_id)),
+)
 
 const fieldColumns = computed(() => [
   { id: 'field', header: 'Field' },
   { id: 'forum', header: 'Forum' },
-  ...(matched.value
-    ? [
-        { id: 'current', header: 'Keebdex' },
-        { id: 'result', header: 'On Approve' },
-      ]
-    : []),
+  ...(matched.value ? [{ id: 'current', header: 'Keebdex' }] : []),
   { id: 'confidence', header: 'Confidence' },
 ])
 
@@ -188,7 +174,7 @@ const kitColumns = computed(() => [
   { id: 'dimensions', header: 'Size' },
   { id: 'kit', header: 'Kit' },
   { id: 'confidence', header: 'Confidence' },
-  ...(matched.value ? [{ id: 'result', header: 'On Approve' }] : []),
+  ...(matched.value ? [{ id: 'result', header: 'Keebdex' }] : []),
 ])
 
 const kitRows = computed(() => props.candidate.payload.kits)

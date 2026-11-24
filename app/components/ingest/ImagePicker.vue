@@ -1,88 +1,56 @@
 <template>
   <div class="space-y-2">
-    <div v-if="collapsible && !expanded" class="flex items-center gap-3">
-      <NuxtImg
-        v-if="selected"
-        preset="thumb"
-        loading="lazy"
-        decoding="async"
-        :src="selected"
-        alt=""
-        class="size-16 rounded object-cover"
-      />
-      <p v-else class="text-sm text-muted">No image picked.</p>
+    <p v-if="!images.length" class="text-sm text-error">
+      No images to pick from.
+    </p>
 
-      <UButton
-        :label="selected ? 'Change Image' : 'Choose Image'"
-        size="xs"
-        icon="solar:gallery-line-duotone"
-        :ui="{ label: 'block' }"
-        :disabled="!images.length"
-        @click="expanded = true"
-      />
-    </div>
-
-    <template v-else>
-      <p v-if="!images.length" class="text-sm text-error">
-        The thread's first post has no images.
-      </p>
-
-      <div v-else class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-        <div
-          v-for="(image, index) in images"
-          :key="image"
-          class="group relative space-y-1"
+    <div v-else class="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+      <div
+        v-for="(image, index) in images"
+        :key="image"
+        class="group relative space-y-1"
+      >
+        <button
+          type="button"
+          class="block w-full overflow-hidden rounded-md ring-2 ring-offset-2 ring-offset-default"
+          :class="selected === image ? 'ring-primary' : 'ring-transparent'"
+          :aria-pressed="selected === image"
+          :aria-label="`Pick image ${index + 1}`"
+          @click="pick(image)"
         >
-          <button
-            type="button"
-            class="block w-full overflow-hidden rounded-md ring-2 ring-offset-2 ring-offset-default"
-            :class="selected === image ? 'ring-primary' : 'ring-transparent'"
-            :aria-pressed="selected === image"
-            :aria-label="`Pick image ${index + 1}`"
-            @click="pick(image)"
-          >
-            <NuxtImg
-              preset="thumb"
-              loading="lazy"
-              decoding="async"
-              :src="image"
-              alt=""
-              class="aspect-square w-full object-cover"
-            />
-          </button>
-
-          <UBadge
-            v-if="selected === image"
-            :label="selectedLabel"
-            color="primary"
-            variant="solid"
-            size="sm"
-            class="absolute left-1 top-1"
+          <NuxtImg
+            preset="thumb"
+            loading="lazy"
+            decoding="async"
+            :src="image"
+            alt=""
+            class="aspect-square w-full object-cover"
           />
+        </button>
 
-          <UTooltip text="Enlarge">
-            <UButton
-              icon="solar:magnifer-zoom-in-line-duotone"
-              size="xs"
-              variant="solid"
-              aria-label="Enlarge"
-              class="absolute right-1 top-1"
-              @click="preview = index"
-            />
-          </UTooltip>
+        <UBadge
+          v-if="selected === image"
+          :label="selectedLabel"
+          color="primary"
+          variant="solid"
+          size="sm"
+          class="absolute left-1 top-1"
+        />
 
-          <SharedImageDimensions :src="image" />
-        </div>
+        <UTooltip text="Enlarge">
+          <UButton
+            icon="solar:magnifer-zoom-in-line-duotone"
+            size="xs"
+            variant="solid"
+            aria-label="Enlarge"
+            class="absolute right-1 top-1"
+            @click="preview = index"
+          />
+        </UTooltip>
+
+        <SharedImageDimensions :src="image" />
       </div>
-
-      <UButton
-        v-if="collapsible"
-        label="Done"
-        size="xs"
-        variant="ghost"
-        @click="expanded = false"
-      />
-    </template>
+    </div>
 
     <UModal
       v-model:open="previewOpen"
@@ -134,21 +102,17 @@
 <script setup lang="ts">
 // Picks one of a forum thread's images (`ingest.threads.images`): a grid with
 // each image's size, and an enlarged view to compare them before picking.
-// `collapsible` shows only the picked image until staff choose another (the
-// kit cards).
 const props = withDefaults(
   defineProps<{
     images: string[]
     // Badge on the picked image, e.g. 'Cover'.
     selectedLabel?: string
-    collapsible?: boolean
   }>(),
-  { selectedLabel: 'Picked', collapsible: false },
+  { selectedLabel: 'Picked' },
 )
 
 const selected = defineModel<string | null | undefined>({ required: true })
 
-const expanded = ref(false)
 const preview = ref<number | null>(null)
 const previewOpen = computed({
   get: () => preview.value !== null,
@@ -159,7 +123,6 @@ const previewOpen = computed({
 
 const pick = (image: string) => {
   selected.value = image
-  expanded.value = false
 }
 
 const pickPreview = () => {

@@ -7,8 +7,7 @@ import { suggestionFieldLabel } from '~/utils/suggestions'
  * `/keyset/forum-review`. A candidate's `payload` is shaped like the keyset
  * submission body (`{ keyset, kits }`), with the extractor's confidence per
  * field. A candidate with a `match_key` describes a keyset Keebdex already
- * has: approving it only fills that keyset's empty fields and adds its
- * missing kits, never overwriting what is there.
+ * has: approving it updates that keyset and the kits read from the thread.
  */
 
 export type CandidateState = 'new' | 'promoted' | 'dismissed' | 'superseded'
@@ -124,25 +123,6 @@ export const candidateLabel = (
         .join(' ')
     : candidate.thread.title
 
-/**
- * What approving a matched candidate writes: the keyset fields Keebdex has
- * empty and the candidate has, and the kits Keebdex does not list yet.
- */
-export const candidateFill = ({ payload, current }: IngestCandidate) => {
-  if (!current) return { fields: {}, kits: [] }
-
-  const fields = Object.fromEntries(
-    CANDIDATE_KEYSET_FIELDS.filter(
-      (field) =>
-        isBlank(current.keyset[field]) && !isBlank(payload.keyset[field]),
-    ).map((field) => [field, payload.keyset[field]]),
-  )
-  const listed = new Set(current.kits.map((kit) => kit.kit_id))
-  const kits = payload.kits.filter((kit) => !listed.has(kit.kit_id))
-
-  return { fields, kits }
-}
-
 // Labels of the columns approving writes that no form shows; the rest come
 // from `suggestionFieldLabel`.
 const SYSTEM_COLUMN_LABELS: Record<string, string> = {
@@ -169,6 +149,8 @@ export const KEYSET_INSERT_COLUMNS = [
   'profile_id',
   'slug',
   ...CANDIDATE_KEYSET_FIELDS.filter((field) => field !== 'profile_id'),
+  'order_graph',
+  'order_history',
 ]
 
 // The keyset_kits columns of each kit, before the moderation columns.

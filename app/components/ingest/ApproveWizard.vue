@@ -47,24 +47,18 @@
               >
                 {{ candidate.match_key }}
               </ULink>
-              is already on Keebdex. Pick the empty fields to fill from the
-              thread; fields it has stay as they are.
+              is already on Keebdex. The form starts from what it has, with the
+              thread's values in its empty fields; any change you make
+              overwrites Keebdex.
             </p>
 
             <UTable
-              :data="wizard.fillRows.value"
-              :columns="fillColumns"
+              v-if="wizard.differences.value.length"
+              :data="wizard.differences.value"
+              :columns="differenceColumns"
               :ui="{ root: 'rounded-md border border-default', th: 'py-2' }"
               class="min-w-0 max-w-full"
             >
-              <template #pick-cell="{ row }">
-                <UCheckbox
-                  v-if="row.original.fillable"
-                  v-model="wizard.pickedFields.value[row.original.field]"
-                  :aria-label="`Fill ${suggestionFieldLabel(row.original.field)}`"
-                />
-              </template>
-
               <template #field-cell="{ row }">
                 <span class="font-medium">
                   {{ suggestionFieldLabel(row.original.field) }}
@@ -80,36 +74,14 @@
 
               <template #forum-cell="{ row }">
                 <IngestFieldValue
-                  v-if="row.original.fillable"
                   :field="row.original.field"
                   :value="row.original.forum"
                 />
-                <UBadge v-else label="Keep" variant="subtle" />
-              </template>
-
-              <template #empty>
-                <span class="text-muted">
-                  Keebdex has every field the thread adds.
-                </span>
               </template>
             </UTable>
-
-            <UFormField
-              v-if="wizard.needsCover"
-              label="Image"
-              help="Keebdex has no image for this keyset yet."
-              required
-            >
-              <IngestImagePicker
-                v-model="wizard.fillValues.value.img"
-                :images="candidate.thread.images"
-                selected-label="Cover"
-              />
-            </UFormField>
           </template>
 
           <KeysetModalKeysetForm
-            v-else
             v-model="wizard.keyset.value"
             v-model:date-range="wizard.dateRange.value"
             mode="embedded"
@@ -123,7 +95,7 @@
               >
                 <IngestImagePicker
                   v-model="model.img"
-                  :images="candidate.thread.images"
+                  :images="wizard.coverImages"
                   selected-label="Cover"
                 />
               </UFormField>
@@ -135,11 +107,12 @@
       <template #kits>
         <div class="space-y-4">
           <p class="text-sm text-muted">
-            {{
-              wizard.matched
-                ? 'Kits Keebdex does not list yet. Remove the ones the thread does not sell, or add any the extractor missed.'
-                : 'Kits read from the thread. Remove the ones it does not sell, or add any the extractor missed.'
-            }}
+            Kits read from the thread: edit them, pick each kit's image from the
+            thread's images, remove the ones it does not sell, or add any the
+            extractor missed.
+            <template v-if="wizard.matched">
+              Keebdex's other kits stay as they are.
+            </template>
           </p>
 
           <SharedSubmissionItemList
@@ -150,18 +123,30 @@
             @add="wizard.addKit"
             @remove="wizard.removeKit"
           >
-            <template #default="{ index }">
+            <template #default="{ item, index }">
+              <UAlert
+                v-if="wizard.isListed(item)"
+                color="info"
+                variant="subtle"
+                icon="solar:info-circle-line-duotone"
+                title="Already Listed"
+                description="Keebdex lists this kit: approving updates it with these values."
+              />
+
               <KeysetModalKeysetKitForm
                 v-model="wizard.kits.value[index]"
                 mode="embedded"
               >
                 <template #image="{ model }">
-                  <UFormField label="Image" name="img">
+                  <UFormField
+                    label="Image"
+                    name="img"
+                    help="This kit's image, from the images of the thread."
+                  >
                     <IngestImagePicker
                       v-model="model.img"
-                      :images="candidate.thread.images"
-                      selected-label="Kit"
-                      collapsible
+                      :images="wizard.kitImages(model)"
+                      :selected-label="kitLabel(model)"
                     />
                   </UFormField>
                 </template>
@@ -228,6 +213,13 @@ const props = defineProps<{ candidate: IngestCandidate }>()
 const emit = defineEmits<{ approve: [payload: CandidatePayload]; cancel: [] }>()
 
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
+const { kits: kitCategories } = useKeysetKits()
+
+// The badge on a kit's picked image: its own name, else its category's.
+const kitLabel = (kit: Record<string, any>) =>
+  kit.name ||
+  kitCategories.value.find((category) => category.slug === kit.kit_id)?.name ||
+  'Kit'
 
 const wizard = useIngestApproveWizard(props.candidate)
 
@@ -235,11 +227,11 @@ const lowConfidence = computed(() =>
   lowConfidenceFields(props.candidate).map(suggestionFieldLabel),
 )
 
-const fillColumns = [
-  { id: 'pick' },
+// The fields where the thread says something else than Keebdex.
+const differenceColumns = [
   { id: 'field', header: 'Field' },
   { id: 'current', header: 'Keebdex' },
-  { id: 'forum', header: 'Forum' },
+  { id: 'forum', header: 'Thread' },
 ]
 
 const STEP_ITEMS: Record<string, { title: string; icon: string }> = {

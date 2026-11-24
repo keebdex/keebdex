@@ -8,6 +8,8 @@ export interface InsertPreviewRow {
   value?: unknown
   // Shown instead of the value, e.g. who verified it.
   display?: string
+  // The value Keebdex has now, for updates.
+  previous?: unknown
 }
 
 export interface InsertPreviewSection {
@@ -30,9 +32,11 @@ const nullIfBlank = (value: unknown) => (isBlank(value) ? null : value)
  * (`IngestApproveWizard`). A new keyset goes Profile -> Keyset -> Kits ->
  * Review and is written approved with no submitter, like the keysets the
  * crawler adds itself. A keyset Keebdex already has (`match_key`) skips the
- * profile: Keyset picks which of its empty fields to fill and Kits which kits
- * to add. Every image comes from the thread (`thread.images`). Review lists
- * what approving writes, column by column.
+ * profile: its form starts from what Keebdex has, with the thread's values in
+ * the empty fields, and staff may change any of them. Kits are the ones read
+ * from the thread: a kit Keebdex already lists is updated, the others added;
+ * Keebdex's other kits are left alone. Every image comes from the thread
+ * (`thread.images`). Review lists what approving writes, column by column.
  */
 export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   const toast = useToast()
@@ -50,33 +54,42 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   const step = computed(() => steps[active.value])
   const isLast = computed(() => active.value === steps.length - 1)
 
-  // New keyset ------------------------------------------------------------
+  // Keyset ------------------------------------------------------------------
 
-  const profileId = ref<string>(extracted.profile_id || '')
+  // What Keebdex has, else what the thread says.
+  const start = (field: string) =>
+    current && !isBlank(current.keyset[field])
+      ? current.keyset[field]
+      : extracted[field]
+
+  const profileId = ref<string>(
+    (matched ? current!.keyset.profile_id : extracted.profile_id) || '',
+  )
 
   const keyset = ref<Record<string, any>>({
-    name: extracted.name || '',
-    designer: extracted.designer || '',
-    sculpt: extracted.sculpt || '',
-    url: extracted.url || '',
-    img: extracted.img || '',
-    description: extracted.description || '',
-    status: extracted.status || DEFAULT_KEYSET_STATUS,
-    review_status: 'Approved',
-    ic_date: toCalendarDate(extracted.ic_date),
+    name: start('name') || '',
+    designer: start('designer') || '',
+    sculpt: start('sculpt') || '',
+    url: start('url') || '',
+    img: start('img') || '',
+    description: start('description') || '',
+    order_graph: start('order_graph') || '',
+    order_history: start('order_history') || '',
+    status: start('status') || DEFAULT_KEYSET_STATUS,
+    review_status: matched ? current!.keyset.review_status : 'Approved',
+    ic_date: toCalendarDate(start('ic_date')),
   })
 
   const dateRange = ref({
-    start: toCalendarDate(extracted.start_date),
-    end: toCalendarDate(extracted.end_date),
+    start: toCalendarDate(start('start_date')),
+    end: toCalendarDate(start('end_date')),
   })
 
   const slug = computed(() => urlSlugify(String(keyset.value.name || '')))
-  const pageKey = computed(() =>
-    matched ? candidate.match_key! : `${profileId.value}/${slug.value}`,
-  )
+  const pageKey = computed(() => `${profileId.value}/${slug.value}`)
 
-  // The keysets row of a new keyset, as the form holds it.
+  // The keysets row as the form holds it (review status is not the form's
+  // to set here: a new keyset is approved, a matched one keeps its own).
   const keysetBody = () => {
     const { ic_date, review_status: _status, ...fields } = keyset.value
 
@@ -87,44 +100,57 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
       ic_date: asISODate(ic_date),
       start_date: asISODate(dateRange.value.start),
       end_date: asISODate(dateRange.value.end),
-    }
+    } as Record<string, any>
   }
 
-  // Matched keyset: the empty fields to fill ------------------------------
-
-  const fill = candidateFill(candidate)
-  const fillValues = ref<Record<string, any>>({ ...fill.fields })
-  const pickedFields = ref<Record<string, boolean>>(
-    Object.fromEntries(Object.keys(fill.fields).map((field) => [field, true])),
-  )
-  // Keebdex has no cover yet: staff pick it from the thread like a new one.
-  const needsCover = matched && isBlank(current!.keyset.img)
-  if (needsCover) fillValues.value.img ??= extracted.img || ''
-
-  const fillRows = computed(() =>
-    CANDIDATE_KEYSET_FIELDS.filter(
-      (field) =>
-        field !== 'img' &&
-        (field in fill.fields || !isBlank(current?.keyset[field])),
-    ).map((field) => ({
-      field,
-      current: current?.keyset[field],
-      forum: fill.fields[field],
-      fillable: field in fill.fields,
-    })),
+  // Matched keyset: the fields where the thread says something else, to
+  // check before changing them.
+  const differences = computed(() =>
+    current
+      ? CANDIDATE_KEYSET_FIELDS.filter(
+          (field) =>
+            !isBlank(extracted[field]) &&
+            String(extracted[field]) !== String(current.keyset[field] ?? ''),
+        ).map((field) => ({
+          field,
+          current: current.keyset[field],
+          forum: extracted[field],
+        }))
+      : [],
   )
 
-  const filledFields = () =>
-    Object.fromEntries(
-      Object.entries(fillValues.value).filter(
-        ([field, value]) =>
-          !isBlank(value) && (field === 'img' || pickedFields.value[field]),
-      ),
+  // The thread's images, plus the image Keebdex has now so it can be kept.
+  const imagesWith = (src?: string | null) =>
+    [...new Set([src, ...candidate.thread.images].filter(Boolean))] as string[]
+  const coverImages = imagesWith(current?.keyset.img)
+
+  // Columns a matched keyset's update changes.
+  const keysetChanges = () => {
+    const body = keysetBody()
+
+    return KEYSET_INSERT_COLUMNS.filter(
+      (column) => column !== 'profile_keyset_id',
     )
+      .filter(
+        (column) =>
+          String(nullIfBlank(body[column]) ?? '') !==
+          String(nullIfBlank(current!.keyset[column]) ?? ''),
+      )
+      .map((column) => ({
+        column,
+        value: nullIfBlank(body[column]),
+        previous: nullIfBlank(current!.keyset[column]),
+      }))
+  }
 
   // Kits ------------------------------------------------------------------
 
-  const listedKits = new Set(current?.kits.map((kit) => kit.kit_id) || [])
+  const listedKits = Object.fromEntries(
+    (current?.kits || []).map((kit) => [kit.kit_id, kit]),
+  ) as Record<string, Record<string, any>>
+  const isListed = (kit: Record<string, any>) => !!listedKits[kit.kit_id]
+  const kitImages = (kit: Record<string, any>) =>
+    imagesWith(listedKits[kit.kit_id]?.img)
 
   const {
     items: kits,
@@ -142,9 +168,23 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
     cancelled: false,
   }))
 
-  kits.value = (matched ? fill.kits : candidate.payload.kits).map((kit) =>
-    createKit({ ...kit, name: kit.name || '', img: kit.img || '' }),
-  )
+  // A kit Keebdex lists starts from its values, the thread's in the empty
+  // ones.
+  kits.value = candidate.payload.kits.map((kit) => {
+    const listed = listedKits[kit.kit_id] || {}
+
+    return createKit(
+      Object.fromEntries(
+        KIT_INSERT_COLUMNS.filter((column) => column !== 'profile_keyset_id')
+          .map((column) => [
+            column,
+            isBlank(listed[column]) ? kit[column] : listed[column],
+          ])
+          .filter(([, value]) => value !== undefined),
+      ),
+    )
+  })
+
   if (!matched && !kits.value.length) {
     kits.value = [createKit({ kit_id: 'base', img: extracted.img || '' })]
   }
@@ -162,19 +202,11 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
         ? true
         : fail('Select the profile of this keyset.'),
     keyset: () => {
-      if (matched) {
-        return !needsCover || fillValues.value.img
-          ? true
-          : fail('Pick a cover image from the thread.')
-      }
-
       const result = createKeysetSchema(manufacturers).safeParse(keysetBody())
 
       if (!result.success) return fail(result.error.issues[0]!.message)
 
-      return keyset.value.img
-        ? true
-        : fail('Pick a cover image from the thread.')
+      return keyset.value.img ? true : fail('Pick a cover image.')
     },
     kits: () => {
       if (!matched && !kits.value.length) return fail('Add at least one kit.')
@@ -191,11 +223,10 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
       if (new Set(ids).size !== ids.length) {
         return fail('Each kit can be added only once.')
       }
-      if (ids.some((id) => listedKits.has(id))) {
-        return fail('Keebdex already lists one of these kits.')
-      }
-      if (matched && !ids.length && !Object.keys(filledFields()).length) {
-        return fail('Nothing to fill: pick a field or add a kit, or dismiss.')
+      if (matched && !ids.length && !keysetChanges().length) {
+        return fail(
+          'Nothing changes: edit the keyset or add a kit, or dismiss.',
+        )
       }
 
       return true
@@ -223,34 +254,55 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   ]
 
   const kitSections = (): InsertPreviewSection[] =>
-    kits.value.map((kit) => ({
-      title: kit.name || kit.kit_id,
-      statement: 'insert into keyset_kits',
-      img: kit.img,
-      rows: [
-        ...KIT_INSERT_COLUMNS.map((column) => ({
-          column,
-          value:
-            column === 'profile_keyset_id'
-              ? pageKey.value
-              : column === 'cancelled'
-                ? !!kit.cancelled
-                : nullIfBlank(kit[column]),
-        })),
-        ...moderationRows(),
-      ],
-    }))
+    kits.value.map((kit) => {
+      const value = (column: string) =>
+        column === 'profile_keyset_id'
+          ? pageKey.value
+          : column === 'cancelled'
+            ? !!kit.cancelled
+            : nullIfBlank(kit[column])
+      const listed = listedKits[kit.kit_id]
+
+      return listed
+        ? {
+            title: kit.name || kit.kit_id,
+            statement: `update keyset_kits where kit_id = '${kit.kit_id}'`,
+            img: kit.img,
+            rows: KIT_INSERT_COLUMNS.filter(
+              (column) =>
+                column !== 'profile_keyset_id' &&
+                String(value(column) ?? '') !==
+                  String(
+                    nullIfBlank(listed[column]) ??
+                      (column === 'cancelled' ? false : ''),
+                  ),
+            ).map((column) => ({
+              column,
+              value: value(column),
+              previous: nullIfBlank(listed[column]),
+            })),
+          }
+        : {
+            title: kit.name || kit.kit_id,
+            statement: 'insert into keyset_kits',
+            img: kit.img,
+            rows: [
+              ...KIT_INSERT_COLUMNS.map((column) => ({
+                column,
+                value: value(column),
+              })),
+              ...moderationRows(),
+            ],
+          }
+    })
 
   const sections = computed<InsertPreviewSection[]>(() => {
     const keysetSection: InsertPreviewSection = matched
       ? {
           title: candidate.match_key!,
           statement: `update keysets where profile_keyset_id = '${candidate.match_key}'`,
-          img: fillValues.value.img || current!.keyset.img,
-          rows: Object.entries(filledFields()).map(([column, value]) => ({
-            column,
-            value,
-          })),
+          img: keyset.value.img,
+          rows: keysetChanges(),
         }
       : {
           title: [manufacturers.value[profileId.value], keyset.value.name]
@@ -264,7 +316,7 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
               value:
                 column === 'profile_keyset_id'
                   ? pageKey.value
-                  : nullIfBlank((keysetBody() as Record<string, any>)[column]),
+                  : nullIfBlank(keysetBody()[column]),
             })),
             ...moderationRows(),
           ],
@@ -293,7 +345,11 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   })
 
   const payload = (): CandidatePayload => ({
-    keyset: matched ? filledFields() : keysetBody(),
+    keyset: matched
+      ? Object.fromEntries(
+          keysetChanges().map(({ column, value }) => [column, value]),
+        )
+      : keysetBody(),
     // The kit form keeps a page key of its own route; the server sets it.
     kits: kits.value.map((kit) => {
       const { profile_keyset_id: _key, ...fields } = toPayload(kit)
@@ -314,11 +370,11 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
     keyset,
     dateRange,
     pageKey,
-    fillRows,
-    fillValues,
-    pickedFields,
-    needsCover,
+    differences,
+    coverImages,
     kits,
+    isListed,
+    kitImages,
     addKit,
     removeKit,
     sections,

@@ -28,6 +28,8 @@
     {{ value }}
   </ULink>
 
+  <span v-else-if="typeof value === 'boolean'">{{ value ? 'Yes' : 'No' }}</span>
+
   <span v-else-if="DATE_FIELDS.includes(field)">{{ formatDate(value) }}</span>
 
   <span v-else-if="field === 'profile_id'">
