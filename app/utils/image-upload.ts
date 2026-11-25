@@ -15,9 +15,23 @@ export function getMaxUploadSizeMb(category: KeebModule) {
   return Number(maxSizeMap[category]) || 10
 }
 
+// Early feedback only; the server checks the file's real bytes
+const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]
+const ALLOWED_IMAGE_EXTENSION = /\.(jpe?g|png|gif|webp|heic|heif)$/i
+
 function validateImageFile(file: File, category: KeebModule) {
-  if (!file.type?.startsWith('image/')) {
-    throw new Error('Only image files are allowed')
+  if (
+    !ALLOWED_IMAGE_TYPES.includes(file.type) &&
+    !ALLOWED_IMAGE_EXTENSION.test(file.name)
+  ) {
+    throw new Error('Only JPEG, PNG, GIF, WebP, or HEIC images are allowed')
   }
 
   const maxSizeMb = getMaxUploadSizeMb(category)
