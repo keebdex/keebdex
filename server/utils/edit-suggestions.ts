@@ -2,6 +2,7 @@ import { createError } from 'h3'
 import { groupBy, omit } from 'es-toolkit'
 import { z } from 'zod'
 import type { getActorProfile } from './admin'
+import { assertHttpUrlFields } from './database'
 import { omitSensitive } from './index'
 import { TABLE_FIELDS } from './table-fields.generated'
 import {
@@ -77,7 +78,7 @@ export const parseSuggestionChanges = (
     }
   }
 
-  return Object.fromEntries(
+  const normalized = Object.fromEntries(
     Object.entries(result.data).map(([key, value]) => {
       if (!isVirtualSuggestionField(type, key)) {
         return [key, normalizeSuggestionValue(value)]
@@ -95,6 +96,10 @@ export const parseSuggestionChanges = (
       return [key, colors.data]
     }),
   )
+
+  assertHttpUrlFields(table, normalized)
+
+  return normalized
 }
 
 /**

@@ -386,11 +386,11 @@ const breadcrumbs = computed(() => {
 const referenceLinks = computed(() => {
   const links = []
 
-  if (data.value.url?.includes('geekhack')) {
+  if (isHttpUrl(data.value.url) && data.value.url.includes('geekhack')) {
     links.push({
       label: 'Geekhack',
       icon: 'solar:chat-square-line-duotone',
-      to: data.value.url,
+      to: data.value.url.trim(),
       target: '_blank',
       external: true,
     })

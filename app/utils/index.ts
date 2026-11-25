@@ -1,5 +1,6 @@
 import type { Database } from '~/types/database.types'
 import type { KeebModule } from '~/utils/keeb-modules'
+import { isHttpUrl } from '~/utils/url'
 
 export const formatPrice = (
   amount: number | null | undefined,
@@ -128,9 +129,10 @@ export const getSortIconMap = (
   }, {})
 }
 
-export const discordInviteRegex = /discord\.gg\/[a-zA-Z0-9]+/
+export const discordInviteRegex =
+  /^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\/[a-zA-Z0-9-]+/
 export const instagramProfileRegex =
-  /^(https?:\/\/)?(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
+  /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._-]+/
 
 export const roleMap: Record<
   Database['public']['Enums']['user_role'],
@@ -240,12 +242,14 @@ const OWNER_LINKS = [
 export const ownerLinks = (
   owner?: Partial<Record<(typeof OWNER_LINKS)[number]['key'], string | null>>,
 ) =>
-  OWNER_LINKS.filter(({ key }) => owner?.[key]).map(({ key, label, icon }) => ({
-    label,
-    icon,
-    to: owner![key]!,
-    target: '_blank',
-  }))
+  OWNER_LINKS.filter(({ key }) => isHttpUrl(owner?.[key])).map(
+    ({ key, label, icon }) => ({
+      label,
+      icon,
+      to: owner![key]!.trim(),
+      target: '_blank',
+    }),
+  )
 
 // Drops UContainer's width and side gutters from a UPageHero or UPageSection
 // inside a dashboard panel, whose body already sets both; add the section's

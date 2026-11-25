@@ -1,8 +1,9 @@
 import { Constants } from '~/types/database.types'
+import { optionalHttpUrlSchema } from '~/utils/url'
 import { z } from 'zod'
 import { KEYSET_STATUSES } from '~/utils/keyset-status'
 
-const optionalUrlSchema = z.url().nullish().or(z.string().min(0).max(0))
+const optionalUrlSchema = optionalHttpUrlSchema
 const optionalTextSchema = z.string().nullish().or(z.string().min(0).max(0))
 
 export const createKeysetSchema = (manufacturers, options = {}) =>

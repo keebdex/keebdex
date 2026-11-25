@@ -1,9 +1,10 @@
 import { Constants } from '~/types/database.types'
 import { discordInviteRegex, instagramProfileRegex } from '~/utils'
+import { optionalHttpUrlSchema } from '~/utils/url'
 import { z } from 'zod'
 
 const optionalTextSchema = z.string().nullish().or(z.string().min(0).max(0))
-const optionalUrlSchema = z.url().nullish().or(z.string().min(0).max(0))
+const optionalUrlSchema = optionalHttpUrlSchema
 
 export const artisanSaleFormats = Constants.public.Enums.sale_format
 export const artisanSpecialSaleFormats = ['Giveaway', 'Commission', 'Auction']
@@ -61,12 +62,12 @@ export const makerSchema = z.object({
   document_ids: z.string().array(),
   website: optionalUrlSchema,
   instagram: z
-    .url()
+    .string()
     .regex(instagramProfileRegex, 'Invalid Instagram profile URL')
     .nullish()
     .or(z.string().min(0).max(0)),
   discord: z
-    .url()
+    .string()
     .regex(discordInviteRegex, 'Invalid Discord invite link')
     .nullish()
     .or(z.string().min(0).max(0)),

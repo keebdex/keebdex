@@ -5,6 +5,7 @@ import type {
   TablesUpdate,
 } from '~/types/database.types'
 import { TABLE_FIELDS } from './table-fields.generated'
+import { isHttpUrl } from '~/utils/url'
 
 export type PublicTable = keyof Database['public']['Tables']
 
@@ -24,6 +25,59 @@ function getAllowedTableFields<T extends PublicTable>(table: T) {
   }
 
   return tableFields
+}
+
+// Link and image columns users can write. They end up in `href` and `src`,
+// so they take http(s) URLs only (`javascript:` and `data:` URLs run script).
+// Keyed by table: `users.discord` is a handle, not a link.
+const URL_COLUMNS: Partial<Record<string, Record<string, string>>> = {
+  artisan_makers: {
+    website: 'Website',
+    instagram: 'Instagram',
+    discord: 'Discord',
+    artisancollector: 'ArtisanCollector',
+  },
+  keyboard_brands: {
+    website: 'Website',
+    instagram: 'Instagram',
+    discord: 'Discord',
+  },
+  artisan_colorways: { img: 'Image' },
+  keyboard_variants: { img_front: 'Front image', img_back: 'Back image' },
+  keyset_kits: { img: 'Image' },
+  keysets: {
+    url: 'URL',
+    img: 'Image',
+    order_graph: 'Order graph',
+    order_history: 'Order history',
+  },
+  testimonials: { avatar_url: 'Avatar' },
+}
+
+/**
+ * Rejects (400) a non-http(s) value in a link or image column of `table`.
+ * Empty values (null, blank) are allowed; they clear the column.
+ */
+export function assertHttpUrlFields(
+  table: string,
+  payload: Record<string, unknown>,
+) {
+  const columns = URL_COLUMNS[table]
+  if (!columns) return
+
+  for (const [column, label] of Object.entries(columns)) {
+    const value = payload[column]
+
+    if (value === undefined || value === null) continue
+    if (typeof value === 'string' && !value.trim()) continue
+
+    if (!isHttpUrl(value)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `${label} must be an http(s) URL`,
+      })
+    }
+  }
 }
 
 // Generated columns, never written by anyone.
@@ -54,7 +108,7 @@ export function pickTableFields<T extends PublicTable>(
 
   const payload = body as Record<string, unknown>
 
-  return Object.fromEntries(
+  const picked = Object.fromEntries(
     Object.entries(payload).filter(
       ([key, value]) =>
         value !== undefined &&
@@ -63,4 +117,8 @@ export function pickTableFields<T extends PublicTable>(
         !omit.includes(key),
     ),
   ) as Partial<Record<TableField<T>, unknown>>
+
+  assertHttpUrlFields(table, picked)
+
+  return picked
 }
