@@ -201,7 +201,9 @@
         />
       </UPageCard>
 
-      <SharedSuggestionQueue v-else domain="keyset" />
+      <SharedSuggestionQueue v-else-if="view === 'edits'" domain="keyset" />
+
+      <IngestDiscoveredQueue v-else />
 
       <UModal v-model:open="editorOpen" title="Edit Kit">
         <template #body="{ close }">

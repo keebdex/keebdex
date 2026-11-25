@@ -121,6 +121,7 @@ Read the matching file before working on one of these features; each holds its s
 
 - Community Submission Workflows, including the nested wizards and their direct links: `docs/agents/submissions.md`
 - Edit Suggestions: `docs/agents/edit-suggestions.md`
+- Discovered Keysets (crawled forum keysets, the Discovered tab, its approve wizard, and `/api/ingest`): `docs/agents/discovered-keysets.md`
 - Revision History: `docs/agents/revision-history.md`
 - Notifications: `docs/agents/notifications.md`
 - Announcements and the toaster: `docs/agents/announcements.md`

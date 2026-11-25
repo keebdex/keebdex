@@ -59,7 +59,7 @@ withDefaults(
     // Create mode: whether items can be added/removed.
     editable: boolean
     status?: string | null
-    // Items that cannot be removed (forum review may add no kit at all).
+    // Items that cannot be removed (a discovered keyset may add no kit at all).
     minItems?: number
   }>(),
   { status: undefined, minItems: 1 },

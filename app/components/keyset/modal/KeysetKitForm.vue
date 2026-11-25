@@ -26,7 +26,7 @@
       />
     </UFormField>
 
-    <!-- Forum review replaces it with a picker of the thread's images -->
+    <!-- Discovered keysets replace it with a picker of the thread's images -->
     <slot name="image" :model="kit">
       <UFormField label="Image" name="img">
         <UInput

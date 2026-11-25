@@ -70,7 +70,7 @@
       />
     </UFormField>
 
-    <!-- Forum review replaces it with a picker of the thread's images -->
+    <!-- Discovered keysets replace it with a picker of the thread's images -->
     <slot name="image" :model="keyset">
       <UFormField label="Image" name="img">
         <UInput
@@ -90,7 +90,10 @@
       </UFormField>
     </slot>
 
-    <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
+    <div
+      class="grid gap-2"
+      :class="suggest || hideReviewStatus ? 'grid-cols-1' : 'grid-cols-2'"
+    >
       <UFormField label="Status" name="status">
         <USelect
           v-model="keyset.status"
@@ -99,7 +102,11 @@
         />
       </UFormField>
 
-      <UFormField v-if="!suggest" label="Review Status" name="review_status">
+      <UFormField
+        v-if="!suggest && !hideReviewStatus"
+        label="Review Status"
+        name="review_status"
+      >
         <USelect
           v-model="keyset.review_status"
           default-value="Pending"
@@ -224,6 +231,8 @@ const props = defineProps({
   suggest: Boolean,
   // Shows the keyset's colors (a new keyset in the submission wizard).
   colors: Boolean,
+  // The discovered keyset approve wizard sets the review status itself.
+  hideReviewStatus: Boolean,
 })
 
 const route = useRoute()
@@ -281,7 +290,8 @@ onBeforeMount(() => {
   const { page, size, ...rest } = props.modelValue || props.metadata || {}
   Object.assign(keyset.value, defaultKeyset(), rest)
 
-  if (rest.ic_date) {
+  // A wizard that keeps the form's own CalendarDate passes it back on remount.
+  if (typeof rest.ic_date === 'string') {
     keyset.value.ic_date = parseDate(rest.ic_date)
   }
   range.value = props.dateRange || {

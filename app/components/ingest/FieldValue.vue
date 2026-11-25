@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-// One keyset field of a forum review candidate, as the review tables show it.
+// One keyset field of a discovered keyset, as the review tables show it.
 defineProps<{ field: string; value: any }>()
 
 const DATE_FIELDS = ['ic_date', 'start_date', 'end_date']

@@ -85,6 +85,7 @@
             v-model="wizard.keyset.value"
             v-model:date-range="wizard.dateRange.value"
             mode="embedded"
+            hide-review-status
           >
             <template #image="{ model }">
               <UFormField
@@ -124,6 +125,22 @@
             @remove="wizard.removeKit"
           >
             <template #default="{ item, index }">
+              <UFormField
+                v-if="wizard.listedKitItems.value.length > 1"
+                label="Keebdex Kit"
+                name="id"
+                help="The kit Keebdex lists that approving updates with these values, or add this one as a new kit."
+              >
+                <USelect
+                  :model-value="wizard.kitTarget(index)"
+                  :items="wizard.listedKitItems.value"
+                  class="w-full"
+                  @update:model-value="
+                    (id: number) => wizard.setKitTarget(index, id)
+                  "
+                />
+              </UFormField>
+
               <UAlert
                 v-if="wizard.isListed(item)"
                 color="info"
@@ -186,6 +203,7 @@
         label="Approve"
         color="success"
         icon="solar:check-circle-line-duotone"
+        :loading="loading"
         :ui="{ label: 'block' }"
         @click="emit('approve', wizard.payload())"
       />
@@ -205,10 +223,10 @@
 <script setup lang="ts">
 import type { CandidatePayload, IngestCandidate } from '~/utils/ingest'
 
-// Approve wizard of the Forum Review page: Profile (new keysets), Keyset,
+// Approve wizard of a discovered keyset (`IngestDiscoveredQueue`): Profile (new keysets), Keyset,
 // Kits, and Review, which lists what approving writes. Images are picked
 // from the thread's own (`thread.images`); see useIngestApproveWizard.
-const props = defineProps<{ candidate: IngestCandidate }>()
+const props = defineProps<{ candidate: IngestCandidate; loading?: boolean }>()
 
 const emit = defineEmits<{ approve: [payload: CandidatePayload]; cancel: [] }>()
 

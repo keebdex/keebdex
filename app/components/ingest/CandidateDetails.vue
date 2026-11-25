@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import type { IngestCandidate } from '~/utils/ingest'
 
-// The expanded row of a forum review candidate: every keyset field with the
+// The expanded row of a discovered keyset: every keyset field with the
 // extractor's confidence (and, for a keyset Keebdex has, its current value and
 // whether approving fills it), the kits, and the images of the first post.
 const props = defineProps<{ candidate: IngestCandidate }>()

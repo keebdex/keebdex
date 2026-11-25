@@ -4,7 +4,16 @@ import type { CandidatePayload, IngestCandidate } from '~/utils/ingest'
 const CANDIDATE_COLUMNS =
   'id, thread_id, module, extractor_version, payload, confidence, match_key, state, promoted_kind, promoted_id, review_note, reviewed_at, created_at, thread:threads(id, url, board, title, author, images, posted_at, changed_at, ignored_at)'
 
-// The matched keyset as Keebdex has it now, to compare with the thread.
+// The `ingest` schema of the signed-in client, which is not in the generated
+// Database type yet. Call it in setup: the client is read from the Nuxt app.
+const useIngest = () => {
+  const client = useSupabaseClient()
+
+  return () => (client as any).schema('ingest')
+}
+
+// The matched keyset as Keebdex has it now, to compare with the thread; null
+// when it cannot be read, which the approve modal shows as an error.
 const currentKeyset = async (
   matchKey: string,
 ): Promise<CandidatePayload | null> => {
@@ -14,29 +23,30 @@ const currentKeyset = async (
     )
 
     return { keyset, kits: kits || [] }
-  } catch {
+  } catch (error) {
+    console.error('fetch matched keyset error', matchKey, error)
     return null
   }
 }
 
 /**
- * State and actions of the Forum Review page (`/keyset/forum-review`): state
+ * State and actions of the Discovered tab of the keyset submissions page
+ * (`/keyset/submissions?view=discovered`, `IngestDiscoveredQueue`): state
  * filter, search, pagination, expandable rows, Approve (a new keyset, or the
  * missing fields and kits of a matched one), Dismiss with a note, and Restore.
  *
  * Reads the crawled keysets straight from `ingest.candidates` and their
  * threads (`ingest.threads`, images included) with the signed-in client, so
- * RLS limits them to the staff member's scope. Until the `/api/ingest`
- * endpoints exist, the actions change only the loaded rows in memory.
+ * RLS limits them to the staff member's scope. The actions go through
+ * `POST /api/ingest/candidates/:id` (dismiss, restore) and
+ * `POST /api/ingest/candidates/:id/approve`, then reload the rows and the
+ * pending badges.
  */
-export const useForumReviewQueue = () => {
+export const useDiscoveredQueue = () => {
   const toast = useToast()
-  const client = useSupabaseClient()
-  const { user } = storeToRefs(useUserStore())
+  const ingest = useIngest()
   const { manufacturers } = useKeysetProfiles()
-
-  // `ingest` is not in the generated Database type yet.
-  const ingest = () => (client as any).schema('ingest')
+  const { load: loadPending } = usePendingReviews()
 
   const stateFilter = ref('new')
   const search = ref('')
@@ -45,14 +55,24 @@ export const useForumReviewQueue = () => {
 
   watch([stateFilter, term], resetPage)
 
+  // Kit categories, to drop the kit names that only repeat them.
+  let kitCategories: Promise<{ slug: string; name: string }[]> | null = null
+  const loadKitCategories = () =>
+    (kitCategories ||= $fetch<{ slug: string; name: string }[]>(
+      '/api/keysets/kits',
+    ).catch((error) => {
+      kitCategories = null
+      throw error
+    }))
+
   const label = (candidate: IngestCandidate) =>
     candidateLabel(
       candidate,
       manufacturers.value[candidate.payload.keyset.profile_id],
     )
 
-  const { data, status, error } = useAsyncData(
-    'forum-review',
+  const { data, status, error, refresh } = useAsyncData(
+    'discovered-keysets',
     async () => {
       const from = (page.value - 1) * size
       let query = ingest()
@@ -69,13 +89,18 @@ export const useForumReviewQueue = () => {
       const text = term.value.trim().replace(/[\\%_]/g, (c) => `\\${c}`)
       if (text) query = query.ilike('payload->keyset->>name', `%${text}%`)
 
-      const { data: rows, count, error: queryError } = await query
+      const [{ data: rows, count, error: queryError }, categories] =
+        await Promise.all([query, loadKitCategories()])
 
       if (queryError) throw queryError
 
       const candidates: IngestCandidate[] = await Promise.all(
         (rows || []).map(async (row: any) => ({
           ...row,
+          payload: {
+            ...row.payload,
+            kits: withoutCategoryNames(row.payload.kits || [], categories),
+          },
           reviewer: null,
           current: row.match_key ? await currentKeyset(row.match_key) : null,
         })),
@@ -107,19 +132,6 @@ export const useForumReviewQueue = () => {
     return { total, from, to: from + rows.value.length - 1 }
   })
 
-  // Candidates waiting for review, for the navbar badge.
-  const waiting = ref(0)
-  const loadWaiting = async () => {
-    const { count } = await ingest()
-      .from('candidates')
-      .select('id', { count: 'exact', head: true })
-      .eq('module', 'Keyset')
-      .eq('state', 'new')
-
-    waiting.value = count || 0
-  }
-  onMounted(loadWaiting)
-
   const expanded = ref<Record<string, boolean>>({})
   const allExpanded = computed(
     () =>
@@ -132,57 +144,56 @@ export const useForumReviewQueue = () => {
       : Object.fromEntries(rows.value.map((candidate) => [candidate.id, true]))
   }
 
-  const review = (
-    candidate: IngestCandidate,
-    changes: Partial<IngestCandidate>,
-  ) => {
-    Object.assign(candidate, {
-      ...changes,
-      reviewed_at: new Date().toISOString(),
-      reviewer: { full_name: user.value?.name || null },
-    })
-  }
+  // Reloads what a review action changed: the rows and the tab badges.
+  const reviewed = () => Promise.all([refresh(), loadPending()])
 
   // The candidate being approved, in the approve modal.
   const approveTarget = ref<IngestCandidate | null>(null)
+  const approving = ref(false)
   const approveOpen = computed({
     get: () => !!approveTarget.value,
     set: (open) => {
-      if (!open) approveTarget.value = null
+      if (!open && !approving.value) approveTarget.value = null
     },
   })
 
   // `payload` is what approving writes: the corrected keyset and kits, or the
-  // fields and kits a matched keyset lacks. The preview only logs it and
-  // marks the candidate.
-  const approve = (candidate: IngestCandidate, payload: CandidatePayload) => {
-    console.info('forum review approve', candidate.id, payload)
+  // changed fields and the kits of a matched keyset.
+  const approve = async (
+    candidate: IngestCandidate,
+    payload: CandidatePayload,
+  ) => {
+    approving.value = true
 
-    const matched = !!candidate.match_key
+    try {
+      await $fetch(`/api/ingest/candidates/${candidate.id}/approve`, {
+        method: 'POST',
+        body: payload,
+      })
 
-    waiting.value -= 1
-    review(candidate, {
-      state: 'promoted',
-      promoted_kind: 'keyset',
-      // The id of the keyset the endpoint writes; none in the preview.
-      promoted_id: 0,
-    })
-    approveTarget.value = null
-    toast.add(
-      successToast(matched ? 'update' : 'approve', {
-        entity: 'Keyset',
-        name: label(candidate),
-      }),
-    )
+      approveTarget.value = null
+      toast.add(
+        successToast(candidate.match_key ? 'update' : 'approve', {
+          entity: 'Keyset',
+          name: label(candidate),
+        }),
+      )
+      await reviewed()
+    } catch (e) {
+      toast.add(errorToast(e, { showOriginalMessage: true }))
+    } finally {
+      approving.value = false
+    }
   }
 
   // Dismissing asks for an optional note first.
   const dismissTarget = ref<IngestCandidate | null>(null)
   const dismissNote = ref('')
+  const dismissing = ref(false)
   const dismissOpen = computed({
     get: () => !!dismissTarget.value,
     set: (open) => {
-      if (!open) dismissTarget.value = null
+      if (!open && !dismissing.value) dismissTarget.value = null
     },
   })
 
@@ -191,46 +202,53 @@ export const useForumReviewQueue = () => {
     dismissTarget.value = candidate
   }
 
-  const confirmDismiss = () => {
+  const confirmDismiss = async () => {
     const candidate = dismissTarget.value
 
     if (!candidate) return
 
-    waiting.value -= 1
-    review(candidate, {
-      state: 'dismissed',
-      review_note: dismissNote.value.trim() || null,
-    })
-    dismissTarget.value = null
-    toast.add(
-      successToast('dismiss', { entity: 'Keyset', name: label(candidate) }),
-    )
+    dismissing.value = true
+
+    try {
+      await $fetch(`/api/ingest/candidates/${candidate.id}`, {
+        method: 'POST',
+        body: { action: 'dismiss', note: dismissNote.value },
+      })
+
+      dismissTarget.value = null
+      toast.add(
+        successToast('dismiss', { entity: 'Keyset', name: label(candidate) }),
+      )
+      await reviewed()
+    } catch (e) {
+      toast.add(errorToast(e, { showOriginalMessage: true }))
+    } finally {
+      dismissing.value = false
+    }
   }
 
-  // Dismissed -> new; refused while a newer extraction of the thread waits.
-  const restore = (candidate: IngestCandidate) => {
-    const newer = rows.value.some(
-      (other) =>
-        other.thread_id === candidate.thread_id &&
-        other.module === candidate.module &&
-        other.state === 'new',
-    )
+  // Dismissed -> new; the endpoint refuses it while a newer reading of the
+  // thread waits.
+  const restoringId = ref<number | null>(null)
 
-    if (newer) {
+  const restore = async (candidate: IngestCandidate) => {
+    restoringId.value = candidate.id
+
+    try {
+      await $fetch(`/api/ingest/candidates/${candidate.id}`, {
+        method: 'POST',
+        body: { action: 'restore' },
+      })
+
       toast.add(
-        validationToast(
-          'A newer reading of this thread is waiting for review; review that one instead.',
-          'Already Waiting',
-        ),
+        successToast('restore', { entity: 'Keyset', name: label(candidate) }),
       )
-      return
+      await reviewed()
+    } catch (e) {
+      toast.add(errorToast(e, { showOriginalMessage: true }))
+    } finally {
+      restoringId.value = null
     }
-
-    waiting.value += 1
-    review(candidate, { state: 'new', review_note: null })
-    toast.add(
-      successToast('restore', { entity: 'Keyset', name: label(candidate) }),
-    )
   }
 
   return {
@@ -242,19 +260,21 @@ export const useForumReviewQueue = () => {
     setPage,
     rows,
     paginationMeta,
-    waiting,
     label,
     expanded,
     allExpanded,
     toggleAll,
     approveTarget,
     approveOpen,
+    approving,
     approve,
     dismissTarget,
     dismissNote,
     dismissOpen,
+    dismissing,
     dismiss,
     confirmDismiss,
+    restoringId,
     restore,
   }
 }

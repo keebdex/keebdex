@@ -73,7 +73,6 @@ export default defineNuxtConfig({
     '/artisan/submissions/**': privatePage,
     '/keyboard/submissions/**': privatePage,
     '/keyset/submissions/**': privatePage,
-    '/keyset/forum-review': privatePage,
 
     '/keyboard': { redirect: '/keyboard/brand' },
     // The sitemap's catalog pages, rebuilt at most hourly like the sitemap

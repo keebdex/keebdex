@@ -2,9 +2,9 @@ import { isBlank } from '~/utils'
 import { suggestionFieldLabel } from '~/utils/suggestions'
 
 /**
- * Forum review: what the crawler (`magpie` in keebdex/aviary) read from forum
- * threads waits in `ingest.candidates` until staff approve or dismiss it at
- * `/keyset/forum-review`. A candidate's `payload` is shaped like the keyset
+ * Discovered keysets: what the crawler (`magpie` in keebdex/aviary) read from
+ * forum threads waits in `ingest.candidates` until staff approve or dismiss it
+ * in the Discovered tab (`/keyset/submissions?view=discovered`). A candidate's `payload` is shaped like the keyset
  * submission body (`{ keyset, kits }`), with the extractor's confidence per
  * field. A candidate with a `match_key` describes a keyset Keebdex already
  * has: approving it updates that keyset and the kits read from the thread.
@@ -164,3 +164,21 @@ export const KIT_INSERT_COLUMNS = [
   'description',
   'cancelled',
 ]
+
+/**
+ * Kits as Keebdex names them: a kit keeps `name` null unless it has a name of
+ * its own ("TKL Base"), so a name that only repeats its category's ("Base")
+ * is dropped.
+ */
+export const withoutCategoryNames = (
+  kits: Record<string, any>[],
+  categories: { slug: string; name: string }[],
+) =>
+  kits.map((kit) => {
+    const category = categories.find(({ slug }) => slug === kit.kit_id)
+    const name = String(kit.name || '').trim()
+
+    return category && name.toLowerCase() === category.name.toLowerCase()
+      ? { ...kit, name: null }
+      : kit
+  })
