@@ -12,6 +12,231 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.18"
   }
+  ingest: {
+    Tables: {
+      candidates: {
+        Row: {
+          confidence: Json
+          content_hash: string
+          created_at: string
+          extractor_version: string
+          id: number
+          match_key: string | null
+          module: Database["public"]["Enums"]["module"]
+          payload: Json
+          promoted_id: number | null
+          promoted_kind: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string
+          thread_id: number
+          updated_at: string
+        }
+        Insert: {
+          confidence?: Json
+          content_hash: string
+          created_at?: string
+          extractor_version: string
+          id?: never
+          match_key?: string | null
+          module: Database["public"]["Enums"]["module"]
+          payload: Json
+          promoted_id?: number | null
+          promoted_kind?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          thread_id: number
+          updated_at?: string
+        }
+        Update: {
+          confidence?: Json
+          content_hash?: string
+          created_at?: string
+          extractor_version?: string
+          id?: never
+          match_key?: string | null
+          module?: Database["public"]["Enums"]["module"]
+          payload?: Json
+          promoted_id?: number | null
+          promoted_kind?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string
+          thread_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crawl_runs: {
+        Row: {
+          error: string | null
+          finished_at: string | null
+          id: number
+          incomplete_boards: string[]
+          max_pages: number
+          pages_listed: number
+          source: string
+          started_at: string
+          status: string
+          threads_changed: number
+          threads_failed: number
+          threads_fetched: number
+          threads_listed: number
+          threads_new: number
+          watermarks: Json
+        }
+        Insert: {
+          error?: string | null
+          finished_at?: string | null
+          id?: never
+          incomplete_boards?: string[]
+          max_pages: number
+          pages_listed?: number
+          source?: string
+          started_at?: string
+          status?: string
+          threads_changed?: number
+          threads_failed?: number
+          threads_fetched?: number
+          threads_listed?: number
+          threads_new?: number
+          watermarks?: Json
+        }
+        Update: {
+          error?: string | null
+          finished_at?: string | null
+          id?: never
+          incomplete_boards?: string[]
+          max_pages?: number
+          pages_listed?: number
+          source?: string
+          started_at?: string
+          status?: string
+          threads_changed?: number
+          threads_failed?: number
+          threads_fetched?: number
+          threads_listed?: number
+          threads_new?: number
+          watermarks?: Json
+        }
+        Relationships: []
+      }
+      threads: {
+        Row: {
+          author: string | null
+          board: string | null
+          changed_at: string | null
+          content_hash: string | null
+          external_id: string
+          fetch_attempts: number
+          fetch_error: string | null
+          fetched_at: string | null
+          first_seen_at: string
+          gone_at: string | null
+          id: number
+          ignored_at: string | null
+          ignored_by: string | null
+          images: string[]
+          last_post_at: string | null
+          listed_at: string | null
+          name: string | null
+          next_fetch_at: string | null
+          posted_at: string | null
+          profile_id: string | null
+          raw_body: string | null
+          reply_count: number | null
+          source: string
+          title: string
+          url: string
+        }
+        Insert: {
+          author?: string | null
+          board?: string | null
+          changed_at?: string | null
+          content_hash?: string | null
+          external_id: string
+          fetch_attempts?: number
+          fetch_error?: string | null
+          fetched_at?: string | null
+          first_seen_at?: string
+          gone_at?: string | null
+          id?: never
+          ignored_at?: string | null
+          ignored_by?: string | null
+          images?: string[]
+          last_post_at?: string | null
+          listed_at?: string | null
+          name?: string | null
+          next_fetch_at?: string | null
+          posted_at?: string | null
+          profile_id?: string | null
+          raw_body?: string | null
+          reply_count?: number | null
+          source?: string
+          title: string
+          url: string
+        }
+        Update: {
+          author?: string | null
+          board?: string | null
+          changed_at?: string | null
+          content_hash?: string | null
+          external_id?: string
+          fetch_attempts?: number
+          fetch_error?: string | null
+          fetched_at?: string | null
+          first_seen_at?: string
+          gone_at?: string | null
+          id?: never
+          ignored_at?: string | null
+          ignored_by?: string | null
+          images?: string[]
+          last_post_at?: string | null
+          listed_at?: string | null
+          name?: string | null
+          next_fetch_at?: string | null
+          posted_at?: string | null
+          profile_id?: string | null
+          raw_body?: string | null
+          reply_count?: number | null
+          source?: string
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      candidate_scope: {
+        Args: {
+          p_match_key: string
+          p_module: Database["public"]["Enums"]["module"]
+        }
+        Returns: string
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       announcement_dismissals: {
@@ -1655,6 +1880,7 @@ export type Database = {
         Returns: Json
       }
       can_manage: { Args: { scope: string }; Returns: boolean }
+      can_manage_all: { Args: never; Returns: boolean }
       can_manage_any: { Args: never; Returns: boolean }
       child_submission_can_modify: {
         Args: {
@@ -1718,6 +1944,7 @@ export type Database = {
         Args: { s: Database["public"]["Enums"]["review_status"] }
         Returns: boolean
       }
+      is_sync_revision_source: { Args: { p_source: string }; Returns: boolean }
       keyset_color_ids: {
         Args: { p_profile_keyset_id: string }
         Returns: number[]
@@ -2021,6 +2248,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  ingest: {
+    Enums: {},
+  },
   public: {
     Enums: {
       currency: [
