@@ -15,6 +15,70 @@ const privatePage = {
   sitemap: false as const,
 }
 
+// Security headers for every response. The Cloudflare preset writes these
+// route rule headers into .output/public/_headers, which is how prerendered
+// pages (served by Workers static assets, not the Worker) get them. Do not add
+// a public/_headers with the same headers: Workers would join the duplicates.
+//
+// The CSP is Report-Only for now: script-src needs 'unsafe-inline' (inline
+// theme script, Nuxt payload, importmap; no per-request nonce on prerendered
+// and ssr:false pages), so it mainly restricts where scripts load from and
+// where data is sent. Violations go to /api/csp-report. HSTS and nosniff on
+// production also come from the Cloudflare zone settings.
+const supabaseUrl = process.env.NUXT_PUBLIC_SUPABASE_URL
+const supabaseOrigins = (() => {
+  try {
+    const { protocol, host } = new URL(supabaseUrl || '')
+    return [
+      `${protocol}//${host}`,
+      `${protocol === 'https:' ? 'wss:' : 'ws:'}//${host}`,
+    ]
+  } catch {
+    return []
+  }
+})()
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  // Cloudflare Web Analytics beacon; 'wasm-unsafe-eval' for Nuxt Content's
+  // SQLite WASM
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com",
+  "style-src 'self' 'unsafe-inline'",
+  // Images come from many https hosts (Cloudflare Images, R2, avatars, vendors)
+  "img-src 'self' data: blob: https:",
+  // @nuxt/fonts self-hosts the Google Fonts under /_nuxt/fonts at build time
+  "font-src 'self' data:",
+  [
+    'connect-src',
+    "'self'",
+    'https://*.supabase.co',
+    'wss://*.supabase.co',
+    ...supabaseOrigins,
+    // Icons not bundled in the app (announcement icons from the database)
+    'https://api.iconify.design',
+    'https://api.simplesvg.com',
+    'https://api.unisvg.com',
+    'https://cloudflareinsights.com',
+  ].join(' '),
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "form-action 'self'",
+  'report-uri /api/csp-report',
+].join('; ')
+
+const securityHeaders = {
+  'x-frame-options': 'DENY',
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  // clipboard-write and web-share stay allowed (screenshot sharing)
+  'permissions-policy':
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'content-security-policy-report-only': contentSecurityPolicy,
+}
+
 // Cloudflare builds (an explicit preset, or Pages / Workers CI, which Nitro
 // detects the same way) store Nuxt Content collections in D1.
 const isCloudflare =
@@ -53,6 +117,8 @@ export default defineNuxtConfig({
   // previews. Rendered HTML is not cached: it depends on the theme and color
   // mode cookies and on the device.
   routeRules: {
+    '/**': { headers: securityHeaders },
+
     '/about': { prerender: true },
     '/changelog': { prerender: true },
     '/features': { prerender: true },
