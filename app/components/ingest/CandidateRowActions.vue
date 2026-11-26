@@ -2,19 +2,31 @@
   <div class="flex flex-wrap items-center gap-2">
     <template v-if="candidate.state === 'new'">
       <UButton
-        label="Approve"
+        label="Review"
         size="xs"
-        color="success"
-        icon="solar:check-circle-line-duotone"
-        @click="emit('approve')"
+        color="primary"
+        icon="solar:checklist-minimalistic-line-duotone"
+        :loading="reviewing"
+        @click="emit('review')"
       />
-      <UButton
-        label="Dismiss"
-        size="xs"
-        color="error"
-        icon="solar:close-circle-line-duotone"
-        @click="emit('dismiss')"
-      />
+      <UFieldGroup size="xs">
+        <UTooltip :text="defaultReason ? `Dismiss: ${defaultReason}` : 'Dismiss'">
+          <UButton
+            label="Dismiss"
+            color="error"
+            icon="solar:close-circle-line-duotone"
+            :loading="dismissing"
+            @click="emit('dismiss', defaultReason)"
+          />
+        </UTooltip>
+        <UDropdownMenu :items="dismissItems" :disabled="dismissing">
+          <UButton
+            color="error"
+            icon="solar:alt-arrow-down-linear"
+            aria-label="Dismiss with a reason"
+          />
+        </UDropdownMenu>
+      </UFieldGroup>
     </template>
 
     <UButton
@@ -41,12 +53,35 @@
 </template>
 
 <script setup lang="ts">
-import type { IngestCandidate } from '~/utils/ingest'
+import type { DismissReason, IngestCandidate } from '~/utils/ingest'
 
-// Row actions of the Discovered keysets table: Approve (the approve wizard) and
-// Dismiss while the candidate waits, Restore once dismissed, and a link to
-// the forum thread.
-defineProps<{ candidate: IngestCandidate; restoring?: boolean }>()
+// Row actions of the Discovered keysets table: Review (opens the approve wizard)
+// and Dismiss with fixed reasons while the candidate waits, Restore once
+// dismissed, and a link to the forum thread.
+const props = defineProps<{
+  candidate: IngestCandidate
+  reviewing?: boolean
+  dismissing?: boolean
+  restoring?: boolean
+}>()
 
-const emit = defineEmits<{ approve: []; dismiss: []; restore: [] }>()
+const emit = defineEmits<{
+  review: []
+  dismiss: [note: DismissReason | null]
+  restore: []
+}>()
+
+// A matched candidate is most often a keyset Keebdex already lists, so the
+// main button dismisses it with that reason; the menu offers the others.
+const defaultReason = computed<DismissReason | null>(() =>
+  props.candidate.match_key ? 'Already on Keebdex' : null,
+)
+
+const dismissItems = computed(() => [
+  ...DISMISS_REASONS.map((reason) => ({
+    label: reason,
+    onSelect: () => emit('dismiss', reason),
+  })),
+  { label: 'No reason', onSelect: () => emit('dismiss', null) },
+])
 </script>

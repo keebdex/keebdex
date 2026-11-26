@@ -5,6 +5,7 @@ import {
   candidatesTable,
   getCandidate,
 } from '../../../utils/ingest'
+import { DISMISS_REASONS, type DismissReason } from '~/utils/ingest'
 import { canManageAnyAssignment } from '~/utils/permissions'
 
 const NEWER_WAITING =
@@ -36,10 +37,10 @@ export default defineEventHandler(async (event) => {
       ? body.note.trim() || null
       : null
 
-  if (note && note.length > 280) {
+  if (note && !DISMISS_REASONS.includes(note as DismissReason)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Keep the reason under 280 characters.',
+      statusMessage: 'Invalid dismiss reason.',
     })
   }
 

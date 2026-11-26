@@ -7,7 +7,16 @@ import {
   getCandidate,
 } from '../../../../utils/ingest'
 import { urlSlugify } from '~/utils/slug'
-import { canManageAssignment } from '~/utils/permissions'
+import {
+  canManageAll,
+  canManageAnyAssignment,
+  canManageAssignment,
+} from '~/utils/permissions'
+import {
+  createKeysetSchema,
+  isoDateSchema,
+  keysetKitSchema,
+} from '~/utils/schemas/keyset'
 
 type KeysetRow = { id: number; profile_keyset_id: string }
 
@@ -31,6 +40,11 @@ const fail = (error: { message: string } | null) => {
 export default defineEventHandler(async (event) => {
   const id = candidateId(getRouterParam(event, 'id'))
   const { client, user, profile } = await getActorProfile(event)
+
+  if (!canManageAnyAssignment(profile)) {
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+  }
+
   const body = await readBody(event)
   const candidate = await getCandidate(client, id)
 
@@ -48,8 +62,44 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const fullKeysetSchema = createKeysetSchema().extend({
+    ic_date: isoDateSchema,
+    start_date: isoDateSchema,
+    end_date: isoDateSchema,
+  })
+  const keysetSchema = candidate.match_key
+    ? fullKeysetSchema.partial()
+    : fullKeysetSchema
+
+  const keysetValidation = keysetSchema.safeParse(body?.keyset || {})
+  if (!keysetValidation.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        keysetValidation.error.issues[0]?.message || 'Invalid keyset data',
+    })
+  }
+
   if (!Array.isArray(body?.kits) || body.kits.length > 50) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid kits' })
+  }
+
+  if (body.kits.some((kit: Record<string, unknown>) => !kit?.kit_id)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Pick the kit of every card.',
+    })
+  }
+
+  for (const kit of body.kits) {
+    const kitValidation = keysetKitSchema.safeParse(kit)
+    if (!kitValidation.success) {
+      throw createError({
+        statusCode: 400,
+        statusMessage:
+          kitValidation.error.issues[0]?.message || 'Invalid kit data',
+      })
+    }
   }
 
   const kits = body.kits.map((kit: unknown) =>
@@ -58,13 +108,6 @@ export default defineEventHandler(async (event) => {
       ...MODERATION_FIELDS,
     ]),
   )
-
-  if (kits.some((kit: Record<string, unknown>) => !kit.kit_id)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Pick the kit of every card.',
-    })
-  }
 
   const verified = {
     review_status: 'Approved' as const,
@@ -87,7 +130,15 @@ export default defineEventHandler(async (event) => {
     )
 
     // The slug is the page key: it follows a new name, never the old one.
-    if (changes.name) changes.slug = urlSlugify(String(changes.name))
+    if (changes.name) {
+      if (!canManageAll(profile)) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: 'Assigned staff cannot rename a matched keyset.',
+        })
+      }
+      changes.slug = urlSlugify(String(changes.name))
+    }
 
     const { data, error } = Object.keys(changes).length
       ? await client
@@ -101,6 +152,12 @@ export default defineEventHandler(async (event) => {
           .eq('profile_keyset_id', candidate.match_key)
 
     if (error) {
+      if (error.code === '42501') {
+        throw createError({
+          statusCode: 403,
+          statusMessage: 'Assigned staff cannot rename a matched keyset.',
+        })
+      }
       throw createError(
         error.code === '23505'
           ? {
@@ -195,16 +252,25 @@ export default defineEventHandler(async (event) => {
       fail(error)
     }
 
-    const { error: promoteError } = await candidatesTable(client)
-      .update({
-        state: 'promoted',
-        promoted_kind: 'keyset',
-        promoted_id: keyset.id,
-      })
-      .eq('id', id)
-      .eq('state', 'new')
+    const { data: promoted, error: promoteError } =
+      await candidatesTable(client)
+        .update({
+          state: 'promoted',
+          promoted_kind: 'keyset',
+          promoted_id: keyset.id,
+        })
+        .eq('id', id)
+        .eq('state', 'new')
+        .select('id')
 
     fail(promoteError)
+
+    if (!promoted?.length) {
+      throw createError({
+        statusCode: 409,
+        statusMessage: 'This keyset was already reviewed; reload to see it.',
+      })
+    }
   } catch (error) {
     // A new keyset goes with its kits or not at all, so approving again
     // starts clean; a matched keyset keeps what was already saved.

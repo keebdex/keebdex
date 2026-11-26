@@ -14,6 +14,7 @@
       decoding="async"
       :src="value"
       alt=""
+      referrerpolicy="no-referrer"
       class="size-12 rounded object-cover"
     />
   </ULink>

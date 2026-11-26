@@ -5,6 +5,7 @@ import { omitSensitive } from '../../../utils'
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
   const { params } = event.context
+  const query = getQuery(event)
 
   const { data, error } = await client
     .from('keysets')
@@ -25,10 +26,13 @@ export default defineEventHandler(async (event) => {
   // Submitters and staff can read kits still under review, but the keyset page
   // only lists official ones (null/Approved); the rest live in the review queue.
   if (data && Array.isArray(data.kits)) {
+    const keepAll = query.all_kits === '1'
     data.kits = sortBy(
-      data.kits.filter(
-        (kit: any) => !kit.review_status || kit.review_status === 'Approved',
-      ),
+      keepAll
+        ? data.kits
+        : data.kits.filter(
+            (kit: any) => !kit.review_status || kit.review_status === 'Approved',
+          ),
       'id',
     )
   }

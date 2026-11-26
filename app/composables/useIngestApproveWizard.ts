@@ -172,7 +172,14 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   const listedKitItems = computed(() => [
     { label: 'Add as a new kit', value: NEW_KIT },
     ...Object.values(listedKits).map((kit) => ({
-      label: kit.name || categoryName(kit.kit_id) || kit.kit_id || 'Kit',
+      label: [
+        kit.name || categoryName(kit.kit_id) || kit.kit_id || 'Kit',
+        kit.review_status && kit.review_status !== 'Approved'
+          ? `(${kit.review_status})`
+          : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
       value: kit.id as number,
     })),
   ])

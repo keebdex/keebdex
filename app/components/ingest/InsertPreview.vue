@@ -10,6 +10,7 @@
         decoding="async"
         :src="section.img"
         alt=""
+        referrerpolicy="no-referrer"
         class="size-10 rounded object-cover"
       />
       <div class="min-w-0">

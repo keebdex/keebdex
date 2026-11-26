@@ -24,6 +24,7 @@
             decoding="async"
             :src="image"
             alt=""
+            referrerpolicy="no-referrer"
             class="aspect-square w-full object-cover"
           />
         </button>
@@ -62,6 +63,7 @@
           <NuxtImg
             :src="images[preview]"
             alt=""
+            referrerpolicy="no-referrer"
             class="mx-auto max-h-[70vh] w-auto rounded-md object-contain"
           />
           <SharedImageDimensions :src="images[preview]" variant="help" />

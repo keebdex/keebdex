@@ -76,6 +76,14 @@ export const THREAD_BOARD_LABELS: Record<string, string> = {
   gb: 'GB',
 }
 
+export const DISMISS_REASONS = [
+  'Already on Keebdex',
+  'Not a keyset',
+  'Not enough information yet',
+] as const
+
+export type DismissReason = (typeof DISMISS_REASONS)[number]
+
 // Below this the extractor often reads a field wrong (a vendor as the
 // designer, a render of a board as the cover), so staff check it.
 export const LOW_CONFIDENCE = 0.7

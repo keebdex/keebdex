@@ -14,10 +14,6 @@
       <SharedSubmissionToolbar
         v-model:status="stateFilter"
         :options="CANDIDATE_STATE_OPTIONS"
-        expandable
-        :all-expanded="allExpanded"
-        :disabled="!rows.length"
-        @toggle-all="toggleAll"
       >
         <UInput
           v-model="search"
@@ -28,29 +24,13 @@
       </SharedSubmissionToolbar>
 
       <UTable
-        v-model:expanded="expanded"
         :get-row-id="(candidate) => String(candidate.id)"
         sticky
         :loading="status === 'pending'"
         :data="rows"
         :columns="columns"
-        :ui="{ tr: 'data-[expanded=true]:bg-elevated/50' }"
         class="min-w-0 max-w-full"
       >
-        <template #expand-cell="{ row }">
-          <UButton
-            variant="ghost"
-            size="sm"
-            :icon="
-              row.getIsExpanded()
-                ? 'solar:alt-arrow-down-linear'
-                : 'solar:alt-arrow-right-linear'
-            "
-            :aria-label="row.getIsExpanded() ? 'Collapse' : 'Expand'"
-            @click="row.toggleExpanded()"
-          />
-        </template>
-
         <template #img-cell="{ row }">
           <NuxtImg
             v-if="row.original.payload.keyset.img"
@@ -59,6 +39,7 @@
             decoding="async"
             :src="row.original.payload.keyset.img"
             :alt="label(row.original)"
+            referrerpolicy="no-referrer"
             class="size-12 rounded object-cover"
           />
         </template>
@@ -69,13 +50,9 @@
 
         <template #keyset-cell="{ row }">
           <div class="min-w-0">
-            <UButton
-              :label="label(row.original)"
-              variant="link"
-              class="p-0 font-medium text-highlighted"
-              :ui="{ label: 'truncate max-w-64' }"
-              @click="row.toggleExpanded()"
-            />
+            <p class="font-medium text-highlighted truncate max-w-64">
+              {{ label(row.original) }}
+            </p>
             <p class="truncate max-w-64 text-xs text-muted">
               {{ row.original.thread.title }}
             </p>
@@ -139,15 +116,13 @@
         <template #action-cell="{ row }">
           <IngestCandidateRowActions
             :candidate="row.original"
+            :reviewing="openingId === row.original.id"
+            :dismissing="dismissingId === row.original.id"
             :restoring="restoringId === row.original.id"
-            @approve="approveTarget = row.original"
-            @dismiss="dismiss(row.original)"
+            @review="openReview(row.original)"
+            @dismiss="(note) => dismiss(row.original, note)"
             @restore="restore(row.original)"
           />
-        </template>
-
-        <template #expanded="{ row }">
-          <IngestCandidateDetails :candidate="row.original" />
         </template>
 
         <template #empty>
@@ -170,7 +145,7 @@
 
     <UModal
       v-model:open="approveOpen"
-      :title="approveTarget?.match_key ? 'Update Keyset' : 'Approve Keyset'"
+      :title="approveTarget?.match_key ? 'Review Update' : 'Review Keyset'"
       :description="approveTarget?.thread.title"
       :ui="{ content: 'sm:max-w-4xl' }"
     >
@@ -199,21 +174,6 @@
         />
       </template>
     </UModal>
-
-    <SharedNoteModal
-      v-model:open="dismissOpen"
-      v-model:note="dismissNote"
-      title="Dismiss Keyset"
-      :description="`Dismiss ${dismissTarget ? label(dismissTarget) : ''}? It comes back only if the thread's first post changes.`"
-      confirm-label="Dismiss"
-      confirm-color="error"
-      label="Reason"
-      help="Optional. Staff see it on the dismissed keyset."
-      :presets="DISMISS_PRESETS"
-      optional
-      :loading="dismissing"
-      @confirm="confirmDismiss"
-    />
   </div>
 </template>
 
@@ -221,7 +181,6 @@
 // The Discovered tab of the keyset submissions page: keysets the crawler
 // read from forum threads, to approve into the catalog or dismiss.
 const columns = [
-  { id: 'expand' },
   { id: 'img', header: 'Image' },
   { id: 'dimensions', header: 'Size' },
   { id: 'keyset', header: 'Keyset' },
@@ -231,12 +190,6 @@ const columns = [
   { id: 'thread', header: 'Thread' },
   { id: 'state', header: 'State' },
   { id: 'action' },
-]
-
-const DISMISS_PRESETS = [
-  'Not a keyset.',
-  'Already on Keebdex under another name.',
-  'Not enough information in the thread yet.',
 ]
 
 const {
@@ -249,19 +202,14 @@ const {
   rows,
   paginationMeta,
   label,
-  expanded,
-  allExpanded,
-  toggleAll,
   approveTarget,
   approveOpen,
+  openingId,
+  openReview,
   approving,
   approve,
-  dismissTarget,
-  dismissNote,
-  dismissOpen,
-  dismissing,
+  dismissingId,
   dismiss,
-  confirmDismiss,
   restoringId,
   restore,
 } = useDiscoveredQueue()

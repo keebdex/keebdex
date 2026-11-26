@@ -20,6 +20,7 @@ const currentKeyset = async (
   try {
     const { kits, ...keyset }: Record<string, any> = await $fetch(
       `/api/keysets/${matchKey}`,
+      { query: { all_kits: '1' } },
     )
 
     return { keyset, kits: kits || [] }
@@ -94,17 +95,15 @@ export const useDiscoveredQueue = () => {
 
       if (queryError) throw queryError
 
-      const candidates: IngestCandidate[] = await Promise.all(
-        (rows || []).map(async (row: any) => ({
-          ...row,
-          payload: {
-            ...row.payload,
-            kits: withoutCategoryNames(row.payload.kits || [], categories),
-          },
-          reviewer: null,
-          current: row.match_key ? await currentKeyset(row.match_key) : null,
-        })),
-      )
+      const candidates: IngestCandidate[] = (rows || []).map((row: any) => ({
+        ...row,
+        payload: {
+          ...row.payload,
+          kits: withoutCategoryNames(row.payload.kits || [], categories),
+        },
+        reviewer: null,
+        current: null,
+      }))
 
       return { candidates, count: count || 0 }
     },
@@ -132,23 +131,12 @@ export const useDiscoveredQueue = () => {
     return { total, from, to: from + rows.value.length - 1 }
   })
 
-  const expanded = ref<Record<string, boolean>>({})
-  const allExpanded = computed(
-    () =>
-      rows.value.length > 0 &&
-      rows.value.every((candidate) => expanded.value[candidate.id]),
-  )
-  const toggleAll = () => {
-    expanded.value = allExpanded.value
-      ? {}
-      : Object.fromEntries(rows.value.map((candidate) => [candidate.id, true]))
-  }
-
   // Reloads what a review action changed: the rows and the tab badges.
   const reviewed = () => Promise.all([refresh(), loadPending()])
 
   // The candidate being approved, in the approve modal.
   const approveTarget = ref<IngestCandidate | null>(null)
+  const openingId = ref<number | null>(null)
   const approving = ref(false)
   const approveOpen = computed({
     get: () => !!approveTarget.value,
@@ -156,6 +144,19 @@ export const useDiscoveredQueue = () => {
       if (!open && !approving.value) approveTarget.value = null
     },
   })
+
+  // Opens the review wizard, loading the matched keyset for the modal first.
+  const openReview = async (candidate: IngestCandidate) => {
+    if (candidate.match_key && !candidate.current) {
+      openingId.value = candidate.id
+      try {
+        candidate.current = await currentKeyset(candidate.match_key)
+      } finally {
+        openingId.value = null
+      }
+    }
+    approveTarget.value = candidate
+  }
 
   // `payload` is what approving writes: the corrected keyset and kits, or the
   // changed fields and the kits of a matched keyset.
@@ -186,36 +187,18 @@ export const useDiscoveredQueue = () => {
     }
   }
 
-  // Dismissing asks for an optional note first.
-  const dismissTarget = ref<IngestCandidate | null>(null)
-  const dismissNote = ref('')
-  const dismissing = ref(false)
-  const dismissOpen = computed({
-    get: () => !!dismissTarget.value,
-    set: (open) => {
-      if (!open && !dismissing.value) dismissTarget.value = null
-    },
-  })
+  // Dismissing saves a fixed reason or null, with no modal.
+  const dismissingId = ref<number | null>(null)
 
-  const dismiss = (candidate: IngestCandidate) => {
-    dismissNote.value = ''
-    dismissTarget.value = candidate
-  }
-
-  const confirmDismiss = async () => {
-    const candidate = dismissTarget.value
-
-    if (!candidate) return
-
-    dismissing.value = true
+  const dismiss = async (candidate: IngestCandidate, note?: string | null) => {
+    dismissingId.value = candidate.id
 
     try {
       await $fetch(`/api/ingest/candidates/${candidate.id}`, {
         method: 'POST',
-        body: { action: 'dismiss', note: dismissNote.value },
+        body: { action: 'dismiss', note: note || null },
       })
 
-      dismissTarget.value = null
       toast.add(
         successToast('dismiss', { entity: 'Keyset', name: label(candidate) }),
       )
@@ -223,7 +206,7 @@ export const useDiscoveredQueue = () => {
     } catch (e) {
       toast.add(errorToast(e, { showOriginalMessage: true }))
     } finally {
-      dismissing.value = false
+      dismissingId.value = null
     }
   }
 
@@ -261,19 +244,14 @@ export const useDiscoveredQueue = () => {
     rows,
     paginationMeta,
     label,
-    expanded,
-    allExpanded,
-    toggleAll,
     approveTarget,
     approveOpen,
+    openingId,
+    openReview,
     approving,
     approve,
-    dismissTarget,
-    dismissNote,
-    dismissOpen,
-    dismissing,
+    dismissingId,
     dismiss,
-    confirmDismiss,
     restoringId,
     restore,
   }
