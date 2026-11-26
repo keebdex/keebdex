@@ -6,7 +6,16 @@ const outputPath = resolve(process.cwd(), 'server/utils/table-fields.generated.t
 
 function buildTableFieldMap(source) {
     const fieldsByTable = {}
-    const tablesBlockMatch = source.match(/Tables:\s*\{([\s\S]*?)\n\s*\}\n\s*Views:/)
+    // Only the public schema: other schemas (e.g. `ingest`) come earlier in the file.
+    const publicStart = source.search(/\n {2}public:\s*\{\n/)
+
+    if (publicStart === -1) {
+        throw new Error('Could not find the public schema in database types file')
+    }
+
+    const tablesBlockMatch = source
+        .slice(publicStart)
+        .match(/Tables:\s*\{([\s\S]*?)\n\s*\}\n\s*Views:/)
 
     if (!tablesBlockMatch) {
         throw new Error('Could not find Tables block in database types file')
