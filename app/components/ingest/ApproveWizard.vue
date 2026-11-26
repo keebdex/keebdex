@@ -86,6 +86,7 @@
             v-model:date-range="wizard.dateRange.value"
             mode="embedded"
             hide-review-status
+            :lock-name="wizard.matched && !userStore.canManageAll"
           >
             <template #image="{ model }">
               <UFormField
@@ -232,6 +233,7 @@ const emit = defineEmits<{ approve: [payload: CandidatePayload]; cancel: [] }>()
 
 const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const { kits: kitCategories } = useKeysetKits()
+const userStore = useUserStore()
 
 const profileItems = computed(() => groupedProfileItems(groupedProfiles.value))
 

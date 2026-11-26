@@ -1,9 +1,19 @@
 <template>
   <component :is="formWrapper" v-bind="formWrapperProps" @submit="onSubmit">
-    <UFormField label="Name" name="name" required>
+    <UFormField
+      label="Name"
+      name="name"
+      required
+      :help="
+        lockName
+          ? 'Renaming moves the keyset\'s page, which only admins and editors without assignments can do.'
+          : undefined
+      "
+    >
       <UInput
         v-model.trim="keyset.name"
         icon="solar:text-format-line-duotone"
+        :disabled="lockName"
         class="w-full"
       />
     </UFormField>
@@ -233,6 +243,9 @@ const props = defineProps({
   colors: Boolean,
   // The discovered keyset approve wizard sets the review status itself.
   hideReviewStatus: Boolean,
+  // Keeps the name (and so the page key) for staff whose assignment would
+  // not cover the renamed page.
+  lockName: Boolean,
 })
 
 const route = useRoute()
