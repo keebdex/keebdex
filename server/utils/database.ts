@@ -5,7 +5,7 @@ import type {
   TablesUpdate,
 } from '~/types/database.types'
 import { TABLE_FIELDS } from './table-fields.generated'
-import { isHttpUrl } from '~/utils/url'
+import { z } from 'zod'
 
 export type PublicTable = keyof Database['public']['Tables']
 
@@ -54,30 +54,65 @@ const URL_COLUMNS: Partial<Record<string, Record<string, string>>> = {
   testimonials: { avatar_url: 'Avatar' },
 }
 
+const httpUrl = z.httpUrl()
+
+/** The link and image columns of `table` whose value in `payload` is not an http(s) URL. */
+const invalidUrlColumns = (table: string, payload: Record<string, unknown>) =>
+  Object.keys(URL_COLUMNS[table] ?? {}).filter((column) => {
+    const value = payload[column]
+
+    // Empty values (null, blank) are allowed; they clear the column.
+    if (value === undefined || value === null) return false
+    if (typeof value === 'string' && !value.trim()) return false
+
+    return !httpUrl.safeParse(value).success
+  })
+
+const urlError = (table: string, column: string) =>
+  createError({
+    statusCode: 400,
+    statusMessage: `${URL_COLUMNS[table]![column]} must be an http(s) URL`,
+  })
+
 /**
  * Rejects (400) a non-http(s) value in a link or image column of `table`.
- * Empty values (null, blank) are allowed; they clear the column.
+ * For inserts and edit suggestions, which carry new values only.
  */
 export function assertHttpUrlFields(
   table: string,
   payload: Record<string, unknown>,
 ) {
-  const columns = URL_COLUMNS[table]
-  if (!columns) return
+  const [column] = invalidUrlColumns(table, payload)
 
-  for (const [column, label] of Object.entries(columns)) {
-    const value = payload[column]
+  if (column) throw urlError(table, column)
+}
 
-    if (value === undefined || value === null) continue
-    if (typeof value === 'string' && !value.trim()) continue
+/**
+ * The same check for an update of the row matching `match`. Forms send every
+ * field back, and older rows may hold values that are not http(s) URLs (e.g.
+ * `www.example.com`), so a value equal to the stored one is not re-checked:
+ * editing another field of such a record still saves. Reads the row only
+ * when the payload has an invalid value.
+ */
+export async function assertHttpUrlChanges(
+  client: { from: (table: any) => any },
+  table: string,
+  payload: Record<string, unknown>,
+  match: Record<string, unknown>,
+) {
+  const invalid = invalidUrlColumns(table, payload)
 
-    if (!isHttpUrl(value)) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: `${label} must be an http(s) URL`,
-      })
-    }
-  }
+  if (!invalid.length) return
+
+  const { data: stored } = await client
+    .from(table)
+    .select(invalid.join(', '))
+    .match(match)
+    .maybeSingle()
+
+  const column = invalid.find((name) => payload[name] !== stored?.[name])
+
+  if (column) throw urlError(table, column)
 }
 
 // Generated columns, never written by anyone.
@@ -108,7 +143,7 @@ export function pickTableFields<T extends PublicTable>(
 
   const payload = body as Record<string, unknown>
 
-  const picked = Object.fromEntries(
+  return Object.fromEntries(
     Object.entries(payload).filter(
       ([key, value]) =>
         value !== undefined &&
@@ -117,8 +152,4 @@ export function pickTableFields<T extends PublicTable>(
         !omit.includes(key),
     ),
   ) as Partial<Record<TableField<T>, unknown>>
-
-  assertHttpUrlFields(table, picked)
-
-  return picked
 }

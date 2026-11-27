@@ -6,6 +6,10 @@ export default defineEventHandler(async (event) => {
 
   const { id, ...body } = pickTableFields('testimonials', await readBody(event))
 
+  await assertHttpUrlChanges(client, 'testimonials', body, {
+    id: event.context.params?.id,
+  })
+
   const { data, error } = await client
     .from('testimonials')
     .update(body)

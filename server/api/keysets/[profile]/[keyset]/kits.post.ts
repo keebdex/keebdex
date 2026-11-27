@@ -41,6 +41,8 @@ export default defineEventHandler(async (event) => {
       await resubmitRejectedOwner(client, 'keyset', profile!)
     }
   } else {
+    assertHttpUrlFields('keyset_kits', kit)
+
     const { error } = await client.from('keyset_kits').insert({
       ...attribute({ ...kit, profile_keyset_id: profileKeysetId }),
       ...moderation,

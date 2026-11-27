@@ -26,9 +26,6 @@ export const ANNOUNCEMENT_COLORS = [
  */
 export const announcementUrlRegex = /^(https:\/\/[^/\s]\S*|\/([^/\\\s]\S*)?)$/
 
-/** An Iconify name (`prefix:name`), never a URL. */
-export const announcementIconRegex = /^[a-z0-9-]+:[a-z0-9-]+$/
-
 export const announcementKeyRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/
 
 // Empty strings from the form are stored as null.
@@ -63,18 +60,7 @@ export const announcementFieldsSchema = z.object({
     280,
     'The description can be at most 280 characters.',
   ),
-  icon: z.preprocess(
-    (value) => (typeof value === 'string' && !value.trim() ? null : value),
-    z
-      .string()
-      .trim()
-      .max(100)
-      .regex(
-        announcementIconRegex,
-        'Use an icon name such as solar:bell-bing-bold-duotone.',
-      )
-      .nullish(),
-  ),
+  icon: optionalText(100),
   color: z.enum(ANNOUNCEMENT_COLORS),
   cta_label: optionalText(30, 'The button label can be at most 30 characters.'),
   cta_url: z.preprocess(

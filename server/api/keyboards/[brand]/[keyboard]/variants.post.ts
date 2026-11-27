@@ -72,6 +72,8 @@ export default defineEventHandler(async (event) => {
 
     variant = updated.data
   } else {
+    assertHttpUrlFields('keyboard_variants', payload)
+
     const { data, error } = await client
       .from('keyboard_variants')
       .insert({ ...attribute(payload), ...moderation } as any)

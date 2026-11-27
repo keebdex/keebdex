@@ -229,11 +229,11 @@ const makerSpecs = computed(() =>
 const makerLinks = computed(() => {
   const items = ownerLinks(maker.value)
 
-  if (isHttpUrl(maker.value?.artisancollector)) {
+  if (maker.value?.artisancollector) {
     items.push({
       label: 'ArtisanCollector',
       icon: 'solar:earth-line-duotone',
-      to: maker.value.artisancollector.trim(),
+      to: maker.value.artisancollector,
       target: '_blank',
     })
   }

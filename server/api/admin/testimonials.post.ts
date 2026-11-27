@@ -6,6 +6,8 @@ export default defineEventHandler(async (event) => {
 
   const body = pickTableFields('testimonials', await readBody(event))
 
+  assertHttpUrlFields('testimonials', body)
+
   body.status = body.status || 'Pending'
   body.featured = !!body.featured
 

@@ -14,15 +14,7 @@
     </div>
   </UTooltip>
 
-  <component
-    :is="isHttpUrl(src) ? 'a' : 'span'"
-    v-else
-    v-bind="
-      isHttpUrl(src)
-        ? { href: src.trim(), target: '_blank', rel: 'noopener' }
-        : {}
-    "
-  >
+  <a v-else :href="src" target="_blank" rel="noopener">
     <NuxtImg
       :src="src"
       :alt="alt"
@@ -32,14 +24,11 @@
       ]"
       @error="broken = true"
     />
-  </component>
+  </a>
 </template>
 
 <script setup lang="ts">
-import { isHttpUrl } from '~/utils/url'
-
-// An image in a diff (suggestions, revision history), linking to the file
-// when it is an http(s) URL.
+// An image in a diff (suggestions, revision history), linking to the file.
 // Older values can point at images that are gone: pruned from Cloudflare
 // after they were replaced, or an external URL that no longer works. Pruned
 // images come back from the R2 backup once a record uses them again

@@ -33,6 +33,12 @@ export default defineEventHandler(async (event) => {
   })
   const payload = { ...body, ...moderation }
 
+  if (body.id) {
+    await assertHttpUrlChanges(client, 'keysets', body, { id: body.id })
+  } else {
+    assertHttpUrlFields('keysets', body)
+  }
+
   const { data, error } = body.id
     ? await client
         .from('keysets')

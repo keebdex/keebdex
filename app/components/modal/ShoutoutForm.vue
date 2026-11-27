@@ -34,7 +34,6 @@
 
 <script setup>
 import { z } from 'zod'
-import { optionalHttpUrlSchema } from '~/utils/url'
 import { Constants } from '~/types/database.types'
 
 const emit = defineEmits(['onSuccess'])
@@ -65,7 +64,7 @@ const saving = ref(false)
 const schema = z.object({
   name: z.string().min(1),
   role: z.string().nullish(),
-  avatar_url: optionalHttpUrlSchema,
+  avatar_url: z.httpUrl().nullish().or(z.string().min(0).max(0)),
   content: z.string().min(1),
   status: z.enum(statusOptions),
   featured: z.boolean(),

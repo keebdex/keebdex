@@ -2,6 +2,7 @@ import { createError, readBody } from 'h3'
 import type { H3Event } from 'h3'
 import { omit } from 'es-toolkit'
 import { getActorProfile } from './admin'
+import { assertHttpUrlChanges, assertHttpUrlFields } from './database'
 import type { ModeratorProfile } from './admin'
 import {
   canManageAll,
@@ -353,6 +354,8 @@ export const updateChildSubmission = async ({
   isStaff: boolean
   label: string
 }) => {
+  await assertHttpUrlChanges(client, table, payload, match)
+
   const resubmission = await getOwnResubmission(
     client,
     table,
@@ -716,6 +719,8 @@ export const saveOwnerSubmission = async (
       statusMessage: 'Use lowercase letters, numbers, and dashes for the slug.',
     })
   }
+
+  assertHttpUrlFields(config.table, record)
 
   const { data, error } = await from(client, config.table)
     .insert({
