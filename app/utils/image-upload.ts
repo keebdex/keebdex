@@ -15,23 +15,63 @@ export function getMaxUploadSizeMb(category: KeebModule) {
   return Number(maxSizeMap[category]) || 10
 }
 
+/**
+ * The image formats uploads accept: the one list behind the file picker, the
+ * client's early check, and the server's check of the file's real bytes
+ * (`server/utils/image-type.ts`). No AVIF (Cloudflare Images takes it as input
+ * on Enterprise only) and no SVG (it can carry scripts).
+ */
+export const IMAGE_UPLOAD_FORMATS = [
+  { label: 'JPEG', mimes: ['image/jpeg'], extensions: ['jpg', 'jpeg'] },
+  { label: 'PNG', mimes: ['image/png'], extensions: ['png'] },
+  { label: 'GIF', mimes: ['image/gif'], extensions: ['gif'] },
+  { label: 'WebP', mimes: ['image/webp'], extensions: ['webp'] },
+  {
+    label: 'HEIC',
+    mimes: ['image/heic', 'image/heif'],
+    extensions: ['heic', 'heif'],
+  },
+] as const
+
+export type ImageUploadFormat = (typeof IMAGE_UPLOAD_FORMATS)[number]
+
+const IMAGE_UPLOAD_MIMES: readonly string[] = IMAGE_UPLOAD_FORMATS.flatMap(
+  (format) => format.mimes,
+)
+
+const IMAGE_UPLOAD_EXTENSIONS: readonly string[] = IMAGE_UPLOAD_FORMATS.flatMap(
+  (format) => format.extensions,
+)
+
+/** The file picker's `accept`: every MIME type, then every extension. */
+export const IMAGE_UPLOAD_ACCEPT = [
+  ...IMAGE_UPLOAD_MIMES,
+  ...IMAGE_UPLOAD_EXTENSIONS.map((extension) => `.${extension}`),
+].join(',')
+
+/** "JPEG, PNG, GIF, WebP, or HEIC" */
+export const IMAGE_UPLOAD_FORMATS_LABEL = [
+  IMAGE_UPLOAD_FORMATS.slice(0, -1)
+    .map((format) => format.label)
+    .join(', '),
+  IMAGE_UPLOAD_FORMATS.at(-1)?.label,
+].join(', or ')
+
+export const IMAGE_UPLOAD_FORMATS_ERROR = `Only ${IMAGE_UPLOAD_FORMATS_LABEL} images are allowed`
+
 // Early feedback only; the server checks the file's real bytes
-const ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/heic',
-  'image/heif',
-]
-const ALLOWED_IMAGE_EXTENSION = /\.(jpe?g|png|gif|webp|heic|heif)$/i
+function isAllowedImageFile(file: File) {
+  const extension = file.name.split('.').pop()?.toLowerCase() || ''
+
+  return (
+    IMAGE_UPLOAD_MIMES.includes(file.type) ||
+    IMAGE_UPLOAD_EXTENSIONS.includes(extension)
+  )
+}
 
 function validateImageFile(file: File, category: KeebModule) {
-  if (
-    !ALLOWED_IMAGE_TYPES.includes(file.type) &&
-    !ALLOWED_IMAGE_EXTENSION.test(file.name)
-  ) {
-    throw new Error('Only JPEG, PNG, GIF, WebP, or HEIC images are allowed')
+  if (!isAllowedImageFile(file)) {
+    throw new Error(IMAGE_UPLOAD_FORMATS_ERROR)
   }
 
   const maxSizeMb = getMaxUploadSizeMb(category)

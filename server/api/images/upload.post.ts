@@ -1,5 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { detectImageType, IMAGE_SNIFF_BYTES } from '../../utils/image-type'
+import { detectImageType } from '../../utils/image-type'
+import { IMAGE_UPLOAD_FORMATS_ERROR } from '~/utils/image-upload'
 import { isKeebModule } from '~/utils/keeb-modules'
 import type { KeebModule } from '~/utils/keeb-modules'
 import { canManageAssignment } from '~/utils/permissions'
@@ -29,19 +30,6 @@ function resolveUploadLimit(
   return Number(maxSizeMap[category]) || 10
 }
 
-// Largest configured limit, used to refuse oversized bodies before parsing
-function resolveMaxUploadLimit(config: ReturnType<typeof useRuntimeConfig>) {
-  const maxSizeMap =
-    (config.public.upload?.max_image_size as Partial<
-      Record<KeebModule, number>
-    >) || {}
-
-  return Math.max(10, ...Object.values(maxSizeMap).map(Number).filter(Boolean))
-}
-
-// Allowance for multipart boundaries and the other form fields
-const MULTIPART_OVERHEAD = 1024 * 1024
-
 function isAuthorizedUploader(
   profile: { role?: string | null; assignments?: string[] | null } | null,
   assignment: string,
@@ -60,20 +48,6 @@ export default defineEventHandler(async (event) => {
 
   if (!user) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
-
-  // Refuse a body that declares itself too large before it is read into
-  // memory. Content-Length is optional (HTTP/2, HTTP/3, chunked), so when it is
-  // absent the file.size check below is the gate
-  const config = useRuntimeConfig(event)
-  const contentLength = Number(getRequestHeader(event, 'content-length'))
-
-  if (
-    Number.isFinite(contentLength) &&
-    contentLength >
-      resolveMaxUploadLimit(config) * 1024 * 1024 + MULTIPART_OVERHEAD
-  ) {
-    throw createError({ statusCode: 413, statusMessage: 'Upload is too large' })
   }
 
   // A body that is not valid multipart form data is the caller's mistake
@@ -101,17 +75,16 @@ export default defineEventHandler(async (event) => {
   }
 
   // Decide by the file's own bytes; the client's MIME type and name are ignored
-  const imageType = detectImageType(
-    new Uint8Array(await file.slice(0, IMAGE_SNIFF_BYTES).arrayBuffer()),
-  )
+  const imageType = await detectImageType(file)
 
   if (!imageType) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Only JPEG, PNG, GIF, WebP, or HEIC images are allowed',
+      statusMessage: IMAGE_UPLOAD_FORMATS_ERROR,
     })
   }
 
+  const config = useRuntimeConfig(event)
   const maxSizeMb = resolveUploadLimit(config, category)
   const maxSize = maxSizeMb * 1024 * 1024
 
