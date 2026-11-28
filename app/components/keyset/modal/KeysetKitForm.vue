@@ -26,22 +26,25 @@
       />
     </UFormField>
 
-    <UFormField label="Image" name="img">
-      <UInput
-        v-model.trim="kit.img"
-        icon="solar:gallery-line-duotone"
-        class="w-full"
-      />
+    <!-- Discovered keysets replace it with a picker of the thread's images -->
+    <slot name="image" :model="kit">
+      <UFormField label="Image" name="img">
+        <UInput
+          v-model.trim="kit.img"
+          icon="solar:gallery-line-duotone"
+          class="w-full"
+        />
 
-      <SharedImageUpload
-        v-model="uploadedFile"
-        v-model:src="kit.img"
-        :max-size-mb="maxUploadSizeMb"
-        :loading="uploadingImage"
-        class="mt-2"
-      />
-      <SharedImageDimensions :src="kit.img" variant="help" />
-    </UFormField>
+        <SharedImageUpload
+          v-model="uploadedFile"
+          v-model:src="kit.img"
+          :max-size-mb="maxUploadSizeMb"
+          :loading="uploadingImage"
+          class="mt-2"
+        />
+        <SharedImageDimensions :src="kit.img" variant="help" />
+      </UFormField>
+    </slot>
 
     <div class="grid grid-cols-2 gap-2">
       <UFormField label="Price" name="price">

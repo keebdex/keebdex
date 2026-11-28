@@ -2,6 +2,7 @@ import { createError, defineEventHandler } from 'h3'
 import { getActorProfile } from '../../utils/admin'
 import { getAssignmentScope } from '../../utils/child-submissions'
 import { suggestionsTable } from '../../utils/edit-suggestions'
+import { candidatesTable } from '../../utils/ingest'
 import {
   KEYBOARD_QUEUE,
   KEYSET_QUEUE,
@@ -14,7 +15,9 @@ import type { KeebModule } from '~/utils/keeb-modules'
 /**
  * What waits for the staff member's review, per module: Pending submissions
  * (colorways, kits, variants, counted like the New tab's Pending filter) and
- * Pending edit suggestions of their scope (the Edits tab, without their own).
+ * Pending edit suggestions of their scope (the Edits tab, without their own),
+ * and the discovered keysets waiting in `ingest.candidates` (the keyset
+ * Discovered tab; RLS limits them to the caller's scope).
  * Drives the badges of the sidebar's Submissions links; never a notification.
  */
 export default defineEventHandler(async (event) => {
@@ -59,10 +62,27 @@ export default defineEventHandler(async (event) => {
     return (count as number) || 0
   }
 
-  const [artisan, keyset, keyboard, ...edits] = await Promise.all([
+  // Zero, not a failed request, where the `ingest` schema is not exposed
+  // yet: the other badges still load.
+  const countDiscovered = async () => {
+    const { count, error } = await candidatesTable(client)
+      .select('id', { count: 'exact', head: true })
+      .eq('module', 'Keyset')
+      .eq('state', 'new')
+
+    if (error) {
+      console.error('count discovered keysets error', error)
+      return 0
+    }
+
+    return (count as number) || 0
+  }
+
+  const [artisan, keyset, keyboard, discovered, ...edits] = await Promise.all([
     countColorways(),
     countGroupedPending(client, KEYSET_QUEUE, { userId: user.sub, scope }),
     countGroupedPending(client, KEYBOARD_QUEUE, { userId: user.sub, scope }),
+    countDiscovered(),
     ...KEEB_MODULES.map(countEdits),
   ])
 
@@ -71,7 +91,14 @@ export default defineEventHandler(async (event) => {
   return Object.fromEntries(
     KEEB_MODULES.map((domain, i) => [
       domain,
-      { submissions: submissions[domain], edits: edits[i] || 0 },
+      {
+        submissions: submissions[domain],
+        edits: edits[i] || 0,
+        discovered: domain === 'keyset' ? discovered : 0,
+      },
     ]),
-  ) as Record<KeebModule, { submissions: number; edits: number }>
+  ) as Record<
+    KeebModule,
+    { submissions: number; edits: number; discovered: number }
+  >
 })

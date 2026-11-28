@@ -99,7 +99,7 @@ export const useSubmissionOwner = (
     () => !!reviewStatus.value && draftKey.value !== selected.value.id,
   )
 
-  const { data, status } = useAsyncData<any>(
+  const { data, status, refresh } = useAsyncData<any>(
     `submission-owners-${domain}`,
     () => $fetch(config.list, { query: { own: 1 } }),
     { default: () => null },
@@ -214,5 +214,6 @@ export const useSubmissionOwner = (
     load,
     save,
     rename,
+    refresh,
   }
 }

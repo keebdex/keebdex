@@ -44,20 +44,19 @@ export const useStepValidation = (steps: (() => StepResult)[]) => {
 
     if (!result || result.success) return true
 
-    toast.add(validationToast(
-        result.error?.issues[0]?.message,
-      ))
+    toast.add(validationToast(result.error?.issues[0]?.message))
     return false
   }
 }
 
 /**
  * Repeatable wizard items (colorways, kits, variants) keyed by a stable `_key`
- * for `v-for`. `factory` receives the index the new item will take; there is
- * always at least one item.
+ * for `v-for`. `factory` receives the index the new item will take; `remove`
+ * keeps at least `min` items (one by default).
  */
 export const useRepeatableItems = <T extends Record<string, any>>(
   factory: (index: number) => T,
+  { min = 1 }: { min?: number } = {},
 ) => {
   let keySeed = 0
 
@@ -74,7 +73,7 @@ export const useRepeatableItems = <T extends Record<string, any>>(
   }
 
   const remove = (index: number) => {
-    if (items.value.length > 1) items.value.splice(index, 1)
+    if (items.value.length > min) items.value.splice(index, 1)
   }
 
   // Strips the client-only `_key` before an item is sent to the API.

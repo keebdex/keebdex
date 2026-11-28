@@ -25,6 +25,7 @@ export interface ToastMessage {
  * - `remove`: take an item out of a collection (the record itself stays)
  * - `move`: move an item to `target`
  * - `approve` / `reject`: moderate a submission
+ * - `dismiss` / `restore`: set aside crawled data, or bring it back to review
  */
 export type SuccessAction =
   | 'add'
@@ -34,6 +35,8 @@ export type SuccessAction =
   | 'move'
   | 'approve'
   | 'reject'
+  | 'dismiss'
+  | 'restore'
 
 const PAST_TENSE: Record<SuccessAction, string> = {
   add: 'added',
@@ -43,6 +46,8 @@ const PAST_TENSE: Record<SuccessAction, string> = {
   move: 'moved',
   approve: 'approved',
   reject: 'rejected',
+  dismiss: 'dismissed',
+  restore: 'restored',
 }
 
 const TARGET_PREPOSITION: Partial<Record<SuccessAction, string>> = {

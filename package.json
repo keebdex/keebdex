@@ -29,6 +29,7 @@
   },
   "homepage": "https://keebdex.org",
   "scripts": {
+    "generate:types": "bunx supabase gen types typescript --remote=ygnmyukchaqjnwusxvpb --schema public,ingest > app/types/database.types.ts && npm run generate:table-fields",
     "generate:table-fields": "node scripts/generate-table-fields.mjs",
     "prebuild": "npm run generate:table-fields",
     "predev": "npm run generate:table-fields",

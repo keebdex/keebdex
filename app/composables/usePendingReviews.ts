@@ -1,11 +1,15 @@
-type PendingCounts = Record<KeebModule, { submissions: number; edits: number }>
+type PendingCounts = Record<
+  KeebModule,
+  { submissions: number; edits: number; discovered: number }
+>
 
 /**
  * What waits for the signed-in staff member's review, per module (Pending
- * submissions and edit suggestions of their scope), for the badges of the
- * sidebar's Submissions links and the New / Edits tabs. Staff are never
- * notified of new proposals; these counts are the only signal. Loaded by
- * `plugins/pending-reviews.client.ts` and refreshed after each review action.
+ * submissions, edit suggestions, and discovered keysets of their scope), for
+ * the badges of the sidebar's Submissions links and the New / Edits /
+ * Discovered tabs. Staff are never notified of new proposals; these counts
+ * are the only signal. Loaded by `plugins/pending-reviews.client.ts` and
+ * refreshed after each review action.
  */
 export const usePendingReviews = () => {
   const counts = useState<PendingCounts | null>('pending-reviews', () => null)
@@ -27,7 +31,8 @@ export const usePendingReviews = () => {
 
   const total = (domain: KeebModule) =>
     (counts.value?.[domain].submissions || 0) +
-    (counts.value?.[domain].edits || 0)
+    (counts.value?.[domain].edits || 0) +
+    (counts.value?.[domain].discovered || 0)
 
   return { counts, load, total }
 }

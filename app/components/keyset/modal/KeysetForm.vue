@@ -1,9 +1,19 @@
 <template>
   <component :is="formWrapper" v-bind="formWrapperProps" @submit="onSubmit">
-    <UFormField label="Name" name="name" required>
+    <UFormField
+      label="Name"
+      name="name"
+      required
+      :help="
+        lockName
+          ? 'Renaming moves the keyset\'s page, which only admins and editors without assignments can do.'
+          : undefined
+      "
+    >
       <UInput
         v-model.trim="keyset.name"
         icon="solar:text-format-line-duotone"
+        :disabled="lockName"
         class="w-full"
       />
     </UFormField>
@@ -70,24 +80,30 @@
       />
     </UFormField>
 
-    <UFormField label="Image" name="img">
-      <UInput
-        v-model.trim="keyset.img"
-        icon="solar:gallery-line-duotone"
-        class="w-full"
-      />
+    <!-- Discovered keysets replace it with a picker of the thread's images -->
+    <slot name="image" :model="keyset">
+      <UFormField label="Image" name="img">
+        <UInput
+          v-model.trim="keyset.img"
+          icon="solar:gallery-line-duotone"
+          class="w-full"
+        />
 
-      <SharedImageUpload
-        v-model="uploadedFile"
-        v-model:src="keyset.img"
-        :max-size-mb="maxUploadSizeMb"
-        :loading="uploadingImage"
-        class="mt-2"
-      />
-      <SharedImageDimensions :src="keyset.img" variant="help" />
-    </UFormField>
+        <SharedImageUpload
+          v-model="uploadedFile"
+          v-model:src="keyset.img"
+          :max-size-mb="maxUploadSizeMb"
+          :loading="uploadingImage"
+          class="mt-2"
+        />
+        <SharedImageDimensions :src="keyset.img" variant="help" />
+      </UFormField>
+    </slot>
 
-    <div class="grid gap-2" :class="suggest ? 'grid-cols-1' : 'grid-cols-2'">
+    <div
+      class="grid gap-2"
+      :class="suggest || hideReviewStatus ? 'grid-cols-1' : 'grid-cols-2'"
+    >
       <UFormField label="Status" name="status">
         <USelect
           v-model="keyset.status"
@@ -96,7 +112,11 @@
         />
       </UFormField>
 
-      <UFormField v-if="!suggest" label="Review Status" name="review_status">
+      <UFormField
+        v-if="!suggest && !hideReviewStatus"
+        label="Review Status"
+        name="review_status"
+      >
         <USelect
           v-model="keyset.review_status"
           default-value="Pending"
@@ -221,6 +241,11 @@ const props = defineProps({
   suggest: Boolean,
   // Shows the keyset's colors (a new keyset in the submission wizard).
   colors: Boolean,
+  // The discovered keyset approve wizard sets the review status itself.
+  hideReviewStatus: Boolean,
+  // Keeps the name (and so the page key) for staff whose assignment would
+  // not cover the renamed page.
+  lockName: Boolean,
 })
 
 const route = useRoute()
@@ -278,7 +303,8 @@ onBeforeMount(() => {
   const { page, size, ...rest } = props.modelValue || props.metadata || {}
   Object.assign(keyset.value, defaultKeyset(), rest)
 
-  if (rest.ic_date) {
+  // A wizard that keeps the form's own CalendarDate passes it back on remount.
+  if (typeof rest.ic_date === 'string') {
     keyset.value.ic_date = parseDate(rest.ic_date)
   }
   range.value = props.dateRange || {

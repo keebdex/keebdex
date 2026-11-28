@@ -1,0 +1,360 @@
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
+import { getActorProfile } from '../../../../utils/admin'
+import { MODERATION_FIELDS } from '../../../../utils/child-submissions'
+import {
+  candidateId,
+  candidatesTable,
+  getCandidate,
+} from '../../../../utils/ingest'
+import { urlSlugify } from '~/utils/slug'
+import {
+  canManageAll,
+  canManageAnyAssignment,
+  canManageAssignment,
+} from '~/utils/permissions'
+import {
+  createKeysetSchema,
+  isoDateSchema,
+  keysetKitSchema,
+} from '~/utils/schemas/keyset'
+
+type KeysetRow = { id: number; profile_keyset_id: string }
+
+const fail = (error: { message: string } | null) => {
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+}
+
+/**
+ * Approves a discovered keyset with what staff checked in the approve wizard
+ * (`{ keyset, kits }`, see `useIngestApproveWizard`):
+ *   - no `match_key`: inserts the keyset and its kits Approved, verified by
+ *     the caller, with no submitter (like the keysets the syncs add);
+ *   - `match_key`: updates that keyset with the changed columns only (never
+ *     its profile; its slug only with its name), updates each kit that names
+ *     a listed kit by `id` (approving it too when it was Pending or
+ *     Rejected), and inserts the others Approved.
+ * Then marks the candidate promoted. Thread images are stored as their URLs;
+ * the image sync copies them to Cloudflare Images.
+ */
+export default defineEventHandler(async (event) => {
+  const id = candidateId(getRouterParam(event, 'id'))
+  const { client, user, profile } = await getActorProfile(event)
+
+  if (!canManageAnyAssignment(profile)) {
+    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+  }
+
+  const body = await readBody(event)
+  const candidate = await getCandidate(client, id)
+
+  if (candidate.module !== 'Keyset') {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Only keysets can be approved here.',
+    })
+  }
+
+  if (candidate.state !== 'new') {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'This keyset was already reviewed; reload to see it.',
+    })
+  }
+
+  const fullKeysetSchema = createKeysetSchema().extend({
+    ic_date: isoDateSchema,
+    start_date: isoDateSchema,
+    end_date: isoDateSchema,
+  })
+  const keysetSchema = candidate.match_key
+    ? fullKeysetSchema.partial()
+    : fullKeysetSchema
+
+  const keysetValidation = keysetSchema.safeParse(body?.keyset || {})
+  if (!keysetValidation.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        keysetValidation.error.issues[0]?.message || 'Invalid keyset data',
+    })
+  }
+
+  if (!Array.isArray(body?.kits) || body.kits.length > 50) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid kits' })
+  }
+
+  if (body.kits.some((kit: Record<string, unknown>) => !kit?.kit_id)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Pick the kit of every card.',
+    })
+  }
+
+  for (const kit of body.kits) {
+    const kitValidation = keysetKitSchema.safeParse(kit)
+    if (!kitValidation.success) {
+      throw createError({
+        statusCode: 400,
+        statusMessage:
+          kitValidation.error.issues[0]?.message || 'Invalid kit data',
+      })
+    }
+  }
+
+  const kits = body.kits.map((kit: unknown) =>
+    pickTableFields('keyset_kits', kit, [
+      'profile_keyset_id',
+      ...MODERATION_FIELDS,
+    ]),
+  )
+
+  const verified = {
+    review_status: 'Approved' as const,
+    verified_by: user.sub,
+    verified_at: new Date().toISOString(),
+    submitted_by: null,
+  }
+
+  let keyset: KeysetRow
+
+  if (candidate.match_key) {
+    if (!canManageAssignment(profile, candidate.match_key)) {
+      throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+    }
+
+    const changes: Record<string, unknown> = pickTableFields(
+      'keysets',
+      body?.keyset || {},
+      ['id', 'profile_keyset_id', 'profile_id', 'slug', ...MODERATION_FIELDS],
+    )
+
+    // The slug is the page key: it follows a new name, never the old one.
+    if (changes.name) {
+      if (!canManageAll(profile)) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: 'Assigned staff cannot rename a matched keyset.',
+        })
+      }
+      changes.slug = urlSlugify(String(changes.name))
+    }
+
+    const { data, error } = Object.keys(changes).length
+      ? await client
+          .from('keysets')
+          .update(changes)
+          .eq('profile_keyset_id', candidate.match_key)
+          .select('id, profile_keyset_id')
+      : await client
+          .from('keysets')
+          .select('id, profile_keyset_id')
+          .eq('profile_keyset_id', candidate.match_key)
+
+    if (error) {
+      if (error.code === '42501') {
+        throw createError({
+          statusCode: 403,
+          statusMessage: "You can't change this keyset.",
+        })
+      }
+      throw createError(
+        error.code === '23505'
+          ? {
+              statusCode: 409,
+              statusMessage: 'Keebdex already has a keyset with this name.',
+            }
+          : { statusCode: 500, statusMessage: error.message },
+      )
+    }
+
+    if (!data?.length) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `Keebdex no longer has ${candidate.match_key}.`,
+      })
+    }
+
+    keyset = data[0] as KeysetRow
+  } else {
+    const fields = pickTableFields('keysets', body?.keyset || {}, [
+      'id',
+      'profile_keyset_id',
+      'slug',
+      ...MODERATION_FIELDS,
+    ])
+
+    if (!fields.name || !fields.profile_id) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Missing keyset name or profile',
+      })
+    }
+
+    const slug = urlSlugify(String(fields.name))
+
+    if (!canManageAssignment(profile, `${fields.profile_id}/${slug}`)) {
+      throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+    }
+
+    const { data, error } = await client
+      .from('keysets')
+      .insert({ ...fields, slug, ...verified } as any)
+      .select('id, profile_keyset_id')
+      .single()
+
+    if (error) {
+      throw createError(
+        error.code === '23505'
+          ? {
+              statusCode: 409,
+              statusMessage:
+                'Keebdex already has this keyset; dismiss this one or approve the matched page.',
+            }
+          : { statusCode: 500, statusMessage: error.message },
+      )
+    }
+
+    keyset = data as KeysetRow
+  }
+
+  const listed = kits.filter((kit: Record<string, unknown>) => kit.id)
+  const added = kits.filter((kit: Record<string, unknown>) => !kit.id)
+  // Kits this request inserted, removed again when a later step fails.
+  const inserted: number[] = []
+
+  try {
+    // A listed kit still under review (or rejected) that staff chose to
+    // update is approved with it, so the keyset page shows it; its submitter
+    // stays. Published kits keep who verified them.
+    const { data: statuses, error: statusError } = listed.length
+      ? await client
+          .from('keyset_kits')
+          .select('id, review_status')
+          .in(
+            'id',
+            listed.map((kit: Record<string, unknown>) => kit.id as number),
+          )
+          .eq('profile_keyset_id', keyset.profile_keyset_id)
+      : { data: [], error: null }
+
+    fail(statusError)
+
+    const unpublished = new Set(
+      (statuses || [])
+        .filter(
+          (kit) => kit.review_status && kit.review_status !== 'Approved',
+        )
+        .map((kit) => kit.id),
+    )
+
+    for (const { id: kitId, ...kit } of listed) {
+      const { submitted_by: _submitter, ...approval } = verified
+      const { data, error } = await client
+        .from('keyset_kits')
+        .update(unpublished.has(kitId as number) ? { ...kit, ...approval } : kit)
+        .eq('id', kitId as number)
+        .eq('profile_keyset_id', keyset.profile_keyset_id)
+        .select('id')
+
+      fail(error)
+
+      if (!data?.length) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: `${keyset.profile_keyset_id} no longer lists kit #${kitId}.`,
+        })
+      }
+    }
+
+    if (added.length) {
+      const { data, error } = await client
+        .from('keyset_kits')
+        .insert(
+          added.map((kit: Record<string, unknown>) => ({
+            ...kit,
+            profile_keyset_id: keyset.profile_keyset_id,
+            ...verified,
+          })) as any,
+        )
+        .select('id')
+
+      fail(error)
+      inserted.push(...(data || []).map((kit) => kit.id))
+    }
+
+    const { data: promoted, error: promoteError } =
+      await candidatesTable(client)
+        .update({
+          state: 'promoted',
+          promoted_kind: 'keyset',
+          promoted_id: keyset.id,
+        })
+        .eq('id', id)
+        .eq('state', 'new')
+        .select('id')
+
+    fail(promoteError)
+
+    if (!promoted?.length) {
+      throw createError({
+        statusCode: 409,
+        statusMessage: 'This keyset was already reviewed; reload to see it.',
+      })
+    }
+  } catch (error) {
+    // A new keyset goes with its kits or not at all, so approving again
+    // starts clean. A matched keyset keeps its updated fields and kits
+    // (approving again writes the same values) but loses the kits added
+    // here, which a retry would add twice. Kits do not cascade with their
+    // keyset.
+    //
+    // RLS filters deletes silently, so a row left behind shows only in the
+    // count.
+    let undone = true
+
+    if (candidate.match_key) {
+      if (inserted.length) {
+        const { data, error: undoError } = await client
+          .from('keyset_kits')
+          .delete()
+          .in('id', inserted)
+          .select('id')
+
+        undone = !undoError && data?.length === inserted.length
+      }
+    } else {
+      const { error: kitsError } = await client
+        .from('keyset_kits')
+        .delete()
+        .eq('profile_keyset_id', keyset.profile_keyset_id)
+      const { data, error: keysetError } = await client
+        .from('keysets')
+        .delete()
+        .eq('id', keyset.id)
+        .select('id')
+
+      undone = !kitsError && !keysetError && !!data?.length
+    }
+
+    if (!undone) {
+      console.error(
+        'undo discovered keyset approve error',
+        keyset.profile_keyset_id,
+        error,
+      )
+
+      throw createError({
+        statusCode: 500,
+        statusMessage: candidate.match_key
+          ? `Approving failed, and the kits it added to ${keyset.profile_keyset_id} could not be removed; check its kits before approving again.`
+          : `Approving failed, and ${keyset.profile_keyset_id} could not be removed again; delete it before approving this keyset again.`,
+      })
+    }
+
+    throw error
+  }
+
+  return keyset
+})

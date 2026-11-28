@@ -93,7 +93,7 @@ Production runs on Cloudflare Workers, where CPU time per request is capped (`li
 
 ## Generated Data and Database Types
 
-`app/types/database.types.ts` is generated from the Supabase schema, and `server/utils/table-fields.generated.ts` is generated from those types via `bun run generate:table-fields`. Never hand-edit either file or run that script directly; the `pre*` hooks of `dev`, `build`, and `generate` rerun it from the committed types, which leaves it unchanged. Both files are refreshed outside of your changes once the user applies any related migration against their Supabase project. When a migration adds/changes columns, just describe the expected shape in the migration's comments and leave the generated files untouched.
+`app/types/database.types.ts` is generated from the Supabase schemas `public` and `ingest` by `bun run generate:types` (the Supabase CLI against the production project, then `generate:table-fields`), and `server/utils/table-fields.generated.ts` is generated from those types via `bun run generate:table-fields`. It lists only the `public` tables, since `pickTableFields` writes only there; the `ingest` endpoints write fixed columns. Never hand-edit either file or run either script yourself; the `pre*` hooks of `dev`, `build`, and `generate` rerun `generate:table-fields` from the committed types, which leaves it unchanged. The user runs `generate:types` once they apply any related migration against their Supabase project; a schema the app reads besides these two is added to its `--schema` list. When a migration adds/changes columns, just describe the expected shape in the migration's comments and leave the generated files untouched.
 
 Keep database relationships and table names aligned with the generated `Database` type. Do not silently invent columns, tables, or enum values.
 
@@ -121,6 +121,7 @@ Read the matching file before working on one of these features; each holds its s
 
 - Community Submission Workflows, including the nested wizards and their direct links: `docs/agents/submissions.md`
 - Edit Suggestions: `docs/agents/edit-suggestions.md`
+- Discovered Keysets (crawled forum keysets, the Discovered tab, its approve wizard, and `/api/ingest`): `docs/agents/discovered-keysets.md`
 - Revision History: `docs/agents/revision-history.md`
 - Notifications: `docs/agents/notifications.md`
 - Announcements and the toaster: `docs/agents/announcements.md`
