@@ -63,8 +63,6 @@ export default defineEventHandler(async (event) => {
 
     result = [data]
   } else {
-    assertHttpUrlFields('artisan_colorways', colorway)
-
     const { data, error } = await client
       .from('artisan_colorways')
       .upsert({

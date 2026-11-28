@@ -21,8 +21,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  assertHttpUrlFields('keysets', keysetInput)
-
   const slug = urlSlugify(String(keysetInput.name))
 
   // Staff submitting through the community form don't need to self-approve.
