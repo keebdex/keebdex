@@ -33,6 +33,7 @@ function loadNaturalSize(src: string) {
   return new Promise<ImageInfo | null>((resolve) => {
     const img = new Image()
     img.decoding = 'async'
+    img.referrerPolicy = 'no-referrer'
     img.onload = () =>
       resolve(
         img.naturalWidth
