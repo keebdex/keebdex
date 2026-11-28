@@ -33,7 +33,8 @@ const fail = (error: { message: string } | null) => {
  *     the caller, with no submitter (like the keysets the syncs add);
  *   - `match_key`: updates that keyset with the changed columns only (never
  *     its profile; its slug only with its name), updates each kit that names
- *     a listed kit by `id`, and inserts the others Approved.
+ *     a listed kit by `id` (approving it too when it was Pending or
+ *     Rejected), and inserts the others Approved.
  * Then marks the candidate promoted. Thread images are stored as their URLs;
  * the image sync copies them to Cloudflare Images.
  */
@@ -220,12 +221,39 @@ export default defineEventHandler(async (event) => {
 
   const listed = kits.filter((kit: Record<string, unknown>) => kit.id)
   const added = kits.filter((kit: Record<string, unknown>) => !kit.id)
+  // Kits this request inserted, removed again when a later step fails.
+  const inserted: number[] = []
 
   try {
+    // A listed kit still under review (or rejected) that staff chose to
+    // update is approved with it, so the keyset page shows it; its submitter
+    // stays. Published kits keep who verified them.
+    const { data: statuses, error: statusError } = listed.length
+      ? await client
+          .from('keyset_kits')
+          .select('id, review_status')
+          .in(
+            'id',
+            listed.map((kit: Record<string, unknown>) => kit.id as number),
+          )
+          .eq('profile_keyset_id', keyset.profile_keyset_id)
+      : { data: [], error: null }
+
+    fail(statusError)
+
+    const unpublished = new Set(
+      (statuses || [])
+        .filter(
+          (kit) => kit.review_status && kit.review_status !== 'Approved',
+        )
+        .map((kit) => kit.id),
+    )
+
     for (const { id: kitId, ...kit } of listed) {
+      const { submitted_by: _submitter, ...approval } = verified
       const { data, error } = await client
         .from('keyset_kits')
-        .update(kit)
+        .update(unpublished.has(kitId as number) ? { ...kit, ...approval } : kit)
         .eq('id', kitId as number)
         .eq('profile_keyset_id', keyset.profile_keyset_id)
         .select('id')
@@ -241,15 +269,19 @@ export default defineEventHandler(async (event) => {
     }
 
     if (added.length) {
-      const { error } = await client.from('keyset_kits').insert(
-        added.map((kit: Record<string, unknown>) => ({
-          ...kit,
-          profile_keyset_id: keyset.profile_keyset_id,
-          ...verified,
-        })) as any,
-      )
+      const { data, error } = await client
+        .from('keyset_kits')
+        .insert(
+          added.map((kit: Record<string, unknown>) => ({
+            ...kit,
+            profile_keyset_id: keyset.profile_keyset_id,
+            ...verified,
+          })) as any,
+        )
+        .select('id')
 
       fail(error)
+      inserted.push(...(data || []).map((kit) => kit.id))
     }
 
     const { data: promoted, error: promoteError } =
@@ -273,14 +305,52 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     // A new keyset goes with its kits or not at all, so approving again
-    // starts clean; a matched keyset keeps what was already saved.
-    // Kits do not cascade with their keyset.
-    if (!candidate.match_key) {
-      await client
+    // starts clean. A matched keyset keeps its updated fields and kits
+    // (approving again writes the same values) but loses the kits added
+    // here, which a retry would add twice. Kits do not cascade with their
+    // keyset.
+    //
+    // RLS filters deletes silently, so a row left behind shows only in the
+    // count.
+    let undone = true
+
+    if (candidate.match_key) {
+      if (inserted.length) {
+        const { data, error: undoError } = await client
+          .from('keyset_kits')
+          .delete()
+          .in('id', inserted)
+          .select('id')
+
+        undone = !undoError && data?.length === inserted.length
+      }
+    } else {
+      const { error: kitsError } = await client
         .from('keyset_kits')
         .delete()
         .eq('profile_keyset_id', keyset.profile_keyset_id)
-      await client.from('keysets').delete().eq('id', keyset.id)
+      const { data, error: keysetError } = await client
+        .from('keysets')
+        .delete()
+        .eq('id', keyset.id)
+        .select('id')
+
+      undone = !kitsError && !keysetError && !!data?.length
+    }
+
+    if (!undone) {
+      console.error(
+        'undo discovered keyset approve error',
+        keyset.profile_keyset_id,
+        error,
+      )
+
+      throw createError({
+        statusCode: 500,
+        statusMessage: candidate.match_key
+          ? `Approving failed, and the kits it added to ${keyset.profile_keyset_id} could not be removed; check its kits before approving again.`
+          : `Approving failed, and ${keyset.profile_keyset_id} could not be removed again; delete it before approving this keyset again.`,
+      })
     }
 
     throw error

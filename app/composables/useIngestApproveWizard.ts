@@ -249,13 +249,21 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
         .filter(([, value]) => value !== undefined),
     )
 
-  // A thread kit updates the one listed kit of its category not yet taken;
-  // with several (or none) staff pick it, else it is added.
+  // Pending and Rejected kits are offered in the select, but approving one
+  // publishes it, so a thread kit never picks one on its own.
+  const isPublished = (kit: Record<string, any>) =>
+    !kit.review_status || kit.review_status === 'Approved'
+
+  // A thread kit updates the one published listed kit of its category not
+  // yet taken; with several (or none) staff pick it, else it is added.
   const taken = new Set<number>()
   const listedMatch = (kit: Record<string, any>) => {
     const options = Object.values(listedKits).filter(
       (listed) =>
-        listed.kit_id && listed.kit_id === kit.kit_id && !taken.has(listed.id),
+        isPublished(listed) &&
+        listed.kit_id &&
+        listed.kit_id === kit.kit_id &&
+        !taken.has(listed.id),
     )
 
     return options.length === 1 ? options[0] : undefined
@@ -418,19 +426,34 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
             title: kit.name || kit.kit_id,
             statement: `update keyset_kits where id = ${listed.id}`,
             img: kit.img,
-            rows: KIT_INSERT_COLUMNS.filter(
-              (column) =>
-                column !== 'profile_keyset_id' &&
-                String(value(column) ?? '') !==
-                  String(
-                    nullIfBlank(listed[column]) ??
-                      (column === 'cancelled' ? false : ''),
-                  ),
-            ).map((column) => ({
-              column,
-              value: value(column),
-              previous: nullIfBlank(listed[column]),
-            })),
+            rows: [
+              ...KIT_INSERT_COLUMNS.filter(
+                (column) =>
+                  column !== 'profile_keyset_id' &&
+                  String(value(column) ?? '') !==
+                    String(
+                      nullIfBlank(listed[column]) ??
+                        (column === 'cancelled' ? false : ''),
+                    ),
+              ).map((column) => ({
+                column,
+                value: value(column),
+                previous: nullIfBlank(listed[column]),
+              })),
+              // Approving publishes a kit still under review (or rejected);
+              // its submitter stays.
+              ...(isPublished(listed)
+                ? []
+                : [
+                    {
+                      column: 'review_status',
+                      value: 'Approved',
+                      previous: listed.review_status,
+                    },
+                    { column: 'verified_by', display: reviewer.value },
+                    { column: 'verified_at', display: 'When you approve' },
+                  ]),
+            ],
           }
         : {
             title: kit.name || kit.kit_id,
