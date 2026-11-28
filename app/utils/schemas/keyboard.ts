@@ -17,14 +17,14 @@ export const brandSchema = z.object({
   name: z.string().min(1),
   slug: optionalSlugSchema,
   country_origin: z.string().nullish().or(z.string().min(0).max(0)),
-  website: z.url().nullish().or(z.string().min(0).max(0)),
+  website: z.httpUrl().nullish().or(z.string().min(0).max(0)),
   instagram: z
-    .url()
+    .httpUrl()
     .regex(instagramProfileRegex, 'Invalid Instagram profile URL')
     .nullish()
     .or(z.string().min(0).max(0)),
   discord: z
-    .url()
+    .httpUrl()
     .regex(discordInviteRegex, 'Invalid Discord invite link')
     .nullish()
     .or(z.string().min(0).max(0)),
@@ -115,8 +115,8 @@ export const keyboardVariantSchema = z.object({
     .nullish()
     .or(z.string().min(0).max(0)),
   release_year: z.coerce.number().min(1900).max(2100).nullish(),
-  img_front: z.url().nullish().or(z.string().min(0).max(0)),
-  img_back: z.url().nullish().or(z.string().min(0).max(0)),
+  img_front: z.httpUrl().nullish().or(z.string().min(0).max(0)),
+  img_back: z.httpUrl().nullish().or(z.string().min(0).max(0)),
   photo_credit: z.string().max(255).nullish().or(z.string().min(0).max(0)),
   currency: z
     .enum(Constants.public.Enums.currency)

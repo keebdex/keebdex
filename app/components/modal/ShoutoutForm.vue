@@ -64,7 +64,7 @@ const saving = ref(false)
 const schema = z.object({
   name: z.string().min(1),
   role: z.string().nullish(),
-  avatar_url: z.url().nullish().or(z.string().min(0).max(0)),
+  avatar_url: z.httpUrl().nullish().or(z.string().min(0).max(0)),
   content: z.string().min(1),
   status: z.enum(statusOptions),
   featured: z.boolean(),

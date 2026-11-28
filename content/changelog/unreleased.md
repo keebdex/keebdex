@@ -9,6 +9,7 @@ title: Unreleased
 ### 🐛 Bug Fixes
 
 - **Search** finds names with symbols, such as _Jelly & Jam_, instead of failing or coming back empty.
+- **Link and image fields** now accept only http(s) URLs, so links on maker, brand, and keyset pages lead to a web page instead of something else.
 
 ### 🚀 Improvements
 
