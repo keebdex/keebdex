@@ -155,7 +155,7 @@ export default defineEventHandler(async (event) => {
       if (error.code === '42501') {
         throw createError({
           statusCode: 403,
-          statusMessage: 'Assigned staff cannot rename a matched keyset.',
+          statusMessage: "You can't change this keyset.",
         })
       }
       throw createError(

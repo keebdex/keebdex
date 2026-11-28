@@ -14,17 +14,21 @@
             variant="subtle"
             icon="solar:danger-triangle-line-duotone"
             title="Profile Not Matched"
-            description="The extractor could not match the thread title to a Keebdex profile. Pick it from the thread."
+            description="The extractor could not match the thread title to a Keebdex profile. Pick an existing one or add it from the thread."
           />
 
-          <UFormField label="Profile" name="profile_id" required>
-            <USelect
-              v-model="wizard.profileId.value"
-              :items="profileItems"
-              placeholder="Select a profile"
-              class="w-full"
+          <SharedSubmissionEntityStep
+            v-bind="wizard.owner.stepProps.value"
+            v-model:selected="wizard.profile.value.id"
+            v-model:entity-mode="wizard.owner.ownerMode.value"
+            reviewed="keyset"
+            hint="Pick the manufacturer profile this keyset belongs to, or propose one Keebdex doesn't list yet."
+          >
+            <KeysetModalProfileForm
+              v-model="wizard.owner.draft.value"
+              mode="embedded"
             />
-          </UFormField>
+          </SharedSubmissionEntityStep>
         </div>
       </template>
 
@@ -206,7 +210,7 @@
         icon="solar:check-circle-line-duotone"
         :loading="loading"
         :ui="{ label: 'block' }"
-        @click="emit('approve', wizard.payload())"
+        @click="emit('approve', wizard.payload(), wizard.ensureProfile)"
       />
       <UButton
         v-else
@@ -229,13 +233,16 @@ import type { CandidatePayload, IngestCandidate } from '~/utils/ingest'
 // from the thread's own (`thread.images`); see useIngestApproveWizard.
 const props = defineProps<{ candidate: IngestCandidate; loading?: boolean }>()
 
-const emit = defineEmits<{ approve: [payload: CandidatePayload]; cancel: [] }>()
+const emit = defineEmits<{
+  approve: [
+    payload: CandidatePayload,
+    ensureProfile: () => Promise<string | null>,
+  ]
+  cancel: []
+}>()
 
-const { groupedProfiles, manufacturers } = useKeysetProfiles()
 const { kits: kitCategories } = useKeysetKits()
 const userStore = useUserStore()
-
-const profileItems = computed(() => groupedProfileItems(groupedProfiles.value))
 
 // The badge on a kit's picked image: its own name, else its category's.
 const kitLabel = (kit: Record<string, any>) =>
@@ -272,7 +279,8 @@ const items = computed(() =>
     ...STEP_ITEMS[slot]!,
     description:
       slot === 'profile'
-        ? manufacturers.value[wizard.profileId.value]
+        ? wizard.owner.optionLabel.value ||
+          wizard.manufacturers.value[wizard.profileId.value]
         : slot === 'keyset'
           ? wizard.matched
             ? props.candidate.match_key!

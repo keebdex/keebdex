@@ -169,7 +169,10 @@
           :key="approveTarget.id"
           :candidate="approveTarget"
           :loading="approving"
-          @approve="(payload) => approve(approveTarget!, payload)"
+          @approve="
+            (payload, ensureProfile) =>
+              approve(approveTarget!, payload, ensureProfile)
+          "
           @cancel="approveOpen = false"
         />
       </template>

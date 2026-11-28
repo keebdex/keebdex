@@ -33,8 +33,8 @@ const currentKeyset = async (
 /**
  * State and actions of the Discovered tab of the keyset submissions page
  * (`/keyset/submissions?view=discovered`, `IngestDiscoveredQueue`): state
- * filter, search, pagination, expandable rows, Approve (a new keyset, or the
- * missing fields and kits of a matched one), Dismiss with a note, and Restore.
+ * filter, search, pagination, Review (the approve wizard for a new keyset or a
+ * matched one), Dismiss with a fixed reason, and Restore.
  *
  * Reads the crawled keysets straight from `ingest.candidates` and their
  * threads (`ingest.threads`, images included) with the signed-in client, so
@@ -159,14 +159,20 @@ export const useDiscoveredQueue = () => {
   }
 
   // `payload` is what approving writes: the corrected keyset and kits, or the
-  // changed fields and the kits of a matched keyset.
+  // changed fields and the kits of a matched keyset. `ensureProfile` creates a
+  // newly proposed profile first; if the approve request then fails, the error
+  // says the new profile stays and the next attempt picks it under Choose Existing.
   const approve = async (
     candidate: IngestCandidate,
     payload: CandidatePayload,
+    ensureProfile?: () => Promise<string | null>,
   ) => {
     approving.value = true
+    let createdProfile: string | null = null
 
     try {
+      createdProfile = (await ensureProfile?.()) ?? null
+
       await $fetch(`/api/ingest/candidates/${candidate.id}/approve`, {
         method: 'POST',
         body: payload,
@@ -181,7 +187,15 @@ export const useDiscoveredQueue = () => {
       )
       await reviewed()
     } catch (e) {
-      toast.add(errorToast(e, { showOriginalMessage: true }))
+      const error = errorToast(e, { showOriginalMessage: true })
+      toast.add(
+        createdProfile
+          ? {
+              ...error,
+              description: `${error.description} Profile "${createdProfile}" was added and stays; the next attempt picks it under Choose Existing.`,
+            }
+          : error,
+      )
     } finally {
       approving.value = false
     }

@@ -45,7 +45,8 @@ const NEW_KIT = 0
 export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   const toast = useToast()
   const { user } = storeToRefs(useUserStore())
-  const { manufacturers } = useKeysetProfiles()
+  const { manufacturers: profileNames, refresh: refreshProfiles } =
+    useKeysetProfiles()
 
   const { kits: kitCategories } = useKeysetKits()
 
@@ -70,9 +71,31 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
       ? current.keyset[field]
       : extracted[field]
 
-  const profileId = ref<string>(
-    (matched ? current!.keyset.profile_id : extracted.profile_id) || '',
-  )
+  const profile = ref({
+    id: (matched ? current!.keyset.profile_id : extracted.profile_id) || '',
+  })
+  const owner = useSubmissionOwner('keyset', profile)
+  // Unmatched candidates usually need a new profile; open on Propose New when
+  // the extractor found none.
+  if (!matched && !extracted.profile_id) {
+    owner.ownerMode.value = 'new'
+  }
+
+  const profileId = owner.key
+
+  // Profiles a keyset may name: the existing ones, the caller's own
+  // proposals, and the one being proposed.
+  const manufacturers = computed<Record<string, string>>(() => ({
+    ...profileNames.value,
+    ...Object.fromEntries(
+      owner.options.value
+        .filter((option) => option.value)
+        .map((option) => [option.value!, option.label!]),
+    ),
+    ...(owner.isNew.value && owner.key.value
+      ? { [owner.key.value]: owner.draft.value.name }
+      : {}),
+  }))
 
   const keyset = ref<Record<string, any>>({
     name: start('name') || '',
@@ -293,10 +316,30 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
   }
 
   const validators: Record<string, () => boolean> = {
-    profile: () =>
-      manufacturers.value[profileId.value]
-        ? true
-        : fail('Select the profile of this keyset.'),
+    profile: () => {
+      const result = owner.validate()
+      if (!result.success) {
+        return fail(
+          result.error.issues[0]?.message || 'Select the profile of this keyset.',
+        )
+      }
+
+      if (!owner.key.value) {
+        return fail('Enter a profile name or slug with letters or numbers.')
+      }
+
+      if (owner.isNew.value && profileNames.value[owner.key.value]) {
+        return fail(
+          'A profile with this slug already exists. Pick it under Choose Existing.',
+        )
+      }
+
+      if (!owner.isNew.value && !manufacturers.value[owner.key.value]) {
+        return fail('Select the profile of this keyset.')
+      }
+
+      return true
+    },
     keyset: () => {
       const result = createKeysetSchema(manufacturers).safeParse(keysetBody())
 
@@ -476,6 +519,21 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
     }),
   })
 
+  // Creates a proposed profile first so the keyset can be inserted under it,
+  // then switches to Choose Existing so a failed approve doesn't retry it.
+  const ensureProfile = async (): Promise<string | null> => {
+    if (!owner.isNew.value) return null
+
+    const name = String(owner.draft.value.name || '').trim()
+    const id = await owner.ensure()
+
+    profile.value = { id }
+    owner.ownerMode.value = 'existing'
+    await Promise.all([refreshProfiles(), owner.refresh()]).catch(() => {})
+
+    return name || id
+  }
+
   return {
     matched,
     current,
@@ -485,7 +543,11 @@ export const useIngestApproveWizard = (candidate: IngestCandidate) => {
     isLast,
     next,
     back,
+    profile,
+    owner,
     profileId,
+    manufacturers,
+    ensureProfile,
     keyset,
     dateRange,
     pageKey,
