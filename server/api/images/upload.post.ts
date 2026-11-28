@@ -1,6 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { detectImageType } from '../../utils/image-type'
-import { IMAGE_UPLOAD_FORMATS_ERROR } from '~/utils/image-upload'
+import { IMAGE_UPLOAD_FORMATS_ERROR } from '~/utils/image-formats'
 import { isKeebModule } from '~/utils/keeb-modules'
 import type { KeebModule } from '~/utils/keeb-modules'
 import { canManageAssignment } from '~/utils/permissions'
