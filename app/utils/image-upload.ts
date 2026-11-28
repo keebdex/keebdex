@@ -1,4 +1,8 @@
 import type { KeebModule } from '~/utils/keeb-modules'
+import {
+  IMAGE_UPLOAD_FORMATS_ERROR,
+  isAllowedImageFile,
+} from '~/utils/image-formats'
 
 type UploadableFile = File | File[] | null | undefined
 
@@ -16,8 +20,8 @@ export function getMaxUploadSizeMb(category: KeebModule) {
 }
 
 function validateImageFile(file: File, category: KeebModule) {
-  if (!file.type?.startsWith('image/')) {
-    throw new Error('Only image files are allowed')
+  if (!isAllowedImageFile(file)) {
+    throw new Error(IMAGE_UPLOAD_FORMATS_ERROR)
   }
 
   const maxSizeMb = getMaxUploadSizeMb(category)

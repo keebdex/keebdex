@@ -1,4 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { detectImageType } from '../../utils/image-type'
+import { IMAGE_UPLOAD_FORMATS_ERROR } from '~/utils/image-formats'
 import { isKeebModule } from '~/utils/keeb-modules'
 import type { KeebModule } from '~/utils/keeb-modules'
 import { canManageAssignment } from '~/utils/permissions'
@@ -72,10 +74,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (!file.type?.startsWith('image/')) {
+  // Decide by the file's own bytes; the client's MIME type and name are ignored
+  const imageType = await detectImageType(file)
+
+  if (!imageType) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Only image files are allowed',
+      statusMessage: IMAGE_UPLOAD_FORMATS_ERROR,
     })
   }
 
@@ -115,7 +120,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = new FormData()
-  body.append('file', file, file.name)
+  // Send the detected type and a server-chosen name, never the client's
+  body.append(
+    'file',
+    new Blob([file], { type: imageType.mime }),
+    `upload.${imageType.ext}`,
+  )
 
   const response = await $fetch<CloudflareImageUploadResponse>(
     `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v1`,

@@ -14,3 +14,4 @@ title: Unreleased
 
 - **Adding a Pantone color** fills in its hex value and name from Pantone's color finder as soon as you type the code, such as _185 C_ or _19-4052 TCX_, the same way RAL codes already do, so there is no need to pick the color from Pantone's site by hand. Since Pantone does not publish hex values, Pantone swatches note that theirs are approximate and for reference only.
 - **Change history names each sync after the bot that made it**, such as _Bowerbird_ for the artisan sync or _Pelican_ for images, and hovering the name shows where the data came from, such as _Google Docs_ or _Alpha Keycaps Website_, instead of a generic _Maker Sites_. New sync jobs and sources show up there on their own.
+- **Image uploads** now accept JPEG, PNG, GIF, WebP, or HEIC; other formats such as AVIF and SVG are refused with a clear message.

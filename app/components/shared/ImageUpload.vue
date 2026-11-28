@@ -1,12 +1,12 @@
 <template>
   <UFileUpload
     v-model="file"
-    accept="image/*"
+    :accept="IMAGE_UPLOAD_ACCEPT"
     icon="solar:gallery-send-line-duotone"
     layout="grid"
     reset
     label="Click to browse or drag & drop an image to upload"
-    :description="`Maximum file size: ${maxSizeMb}MB`"
+    :description="`${IMAGE_UPLOAD_FORMATS_LABEL}, up to ${maxSizeMb}MB`"
     :preview="false"
     :disabled="loading"
     :ui="{ base: 'aspect-video' }"
